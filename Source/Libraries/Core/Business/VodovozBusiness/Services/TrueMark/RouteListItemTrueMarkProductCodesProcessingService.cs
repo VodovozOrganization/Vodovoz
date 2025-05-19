@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -116,7 +117,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public void AddTrueMarkCodeToRouteListItem(
 			IUnitOfWork uow,
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
@@ -201,6 +202,76 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
+		/// <inheritdoc/>
+		public async Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListAddress,
+			int orderSaleItemId,
+			IEnumerable<string> scannedCodes,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
+		{
+			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(uow, scannedCodes);
+
+			if(scannedCodesDataResult.IsFailure)
+			{
+				return scannedCodesDataResult;
+			}
+
+			foreach(var code in scannedCodesDataResult.Value)
+			{
+				if(code.IsTrueMarkWaterIdentificationCode)
+				{
+					var isCodeAlreadyAddedToRouteListItem =
+						routeListAddress.TrueMarkCodes.Any(x =>
+						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
+						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+
+					if(!isCodeAlreadyAddedToRouteListItem)
+					{
+						AddTrueMarkCodeToRouteListItem(
+							uow,
+							routeListAddress,
+							orderSaleItemId,
+							code.TrueMarkWaterIdentificationCode,
+							status,
+							problem);
+					}
+				}
+
+				code.Match(
+					transportCode =>
+					{
+						if(transportCode.Id == 0)
+						{
+							uow.Save(transportCode);
+						}
+
+						return true;
+					},
+					groupCode =>
+					{
+						if(groupCode.Id == 0)
+						{
+							uow.Save(groupCode);
+						}
+
+						return true;
+					},
+					waterCode =>
+					{
+						if(waterCode.Id == 0)
+						{
+							uow.Save(waterCode);
+						}
+
+						return true;
+					});
+			}
+
+			return Result.Success();
+		}
+
 		private static Result IsTrueMarkWaterIdentificationCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
 		{
 			if(trueMarkWaterIdentificationCode.IsInvalid)
@@ -254,7 +325,7 @@ namespace VodovozBusiness.Services.TrueMark
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>

@@ -2,7 +2,6 @@
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
-using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
@@ -392,8 +391,14 @@ namespace DriverAPI.Library.V6.Services
 				.Take(1)
 				.SingleOrDefault();
 
+			var isAllOwnNeedsOrderDriversScannedCodesProcessed =
+				vodovozOrder.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+				&& await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(_uow, vodovozOrder.Id);
+
 			var edoRequestCreated = false;
-			if(!vodovozOrder.IsNeedIndividualSetOnLoad && edoRequest == null)
+			if(!vodovozOrder.IsNeedIndividualSetOnLoad
+				&& edoRequest == null
+				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || isAllOwnNeedsOrderDriversScannedCodesProcessed))
 			{
 				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
 				edoRequestCreated = true;
@@ -609,12 +614,12 @@ namespace DriverAPI.Library.V6.Services
 		{
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad)
 			{
-				return ProcessNetworkClientOrderScannedCodes(routeListAddress);
+				return CheckNetworkClientOrderScannedCodes(routeListAddress);
 			}
 
 			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 			{
-				return ProcessResaleOrderScannedCodes(routeListAddress);
+				return CheckResaleOrderScannedCodes(routeListAddress);
 			}
 
 			return await ProcessOwnUseOrderScannedCodesAsync(completeOrderInfo, routeListAddress);
@@ -626,103 +631,47 @@ namespace DriverAPI.Library.V6.Services
 		{
 			routeListAddress.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 
+			var driversScannedCodes = new List<DriversScannedTrueMarkCode>();
+
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
 			{
-				var uniqueBottleCodes = scannedItem.BottleCodes
+				var bottleCodes = scannedItem.BottleCodes
 					.Distinct()
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = scannedItem.OrderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = false,
+						IsProcessingCompleted = false
+					})
 					.ToArray();
 
-				var result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueBottleCodes, SourceProductCodeStatus.New, ProductCodeProblem.None);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				var uniqueDefectiveCodes = scannedItem.DefectiveBottleCodes
+				var defectiveCodes = scannedItem.DefectiveBottleCodes
 					.Distinct()
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = scannedItem.OrderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = true,
+						IsProcessingCompleted = false
+					})
 					.ToArray();
 
-				result = await AddProductCodesToRouteListItemAsync(routeListAddress, scannedItem.OrderSaleItemId, uniqueDefectiveCodes, SourceProductCodeStatus.Problem, ProductCodeProblem.Defect);
+				driversScannedCodes.AddRange(bottleCodes);
+				driversScannedCodes.AddRange(defectiveCodes);
+			}
 
-				if(result.IsFailure)
-				{
-					return result;
-				}
+			foreach(var scannedCode in driversScannedCodes)
+			{
+				await _uow.SaveAsync(scannedCode);
 			}
 
 			return Result.Success();
 		}
 
-		private async Task<Result> AddProductCodesToRouteListItemAsync(
-			RouteListItem routeListAddress,
-			int orderSaleItemId,
-			IEnumerable<string> scannedCodes,
-			SourceProductCodeStatus status,
-			ProductCodeProblem problem)
-		{
-			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(_uow, scannedCodes);
-
-			if(scannedCodesDataResult.IsFailure)
-			{
-				return scannedCodesDataResult;
-			}
-
-			foreach(var code in scannedCodesDataResult.Value)
-			{
-				if(code.IsTrueMarkWaterIdentificationCode)
-				{
-					var isCodeAlreadyAddedToRouteListItem =
-						routeListAddress.TrueMarkCodes.Any(x =>
-						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
-						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
-
-					if(!isCodeAlreadyAddedToRouteListItem)
-					{
-						_routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkCodeToRouteListItem(
-							_uow,
-							routeListAddress,
-							orderSaleItemId,
-							code.TrueMarkWaterIdentificationCode,
-							status,
-							problem);
-					}
-				}
-
-				code.Match(
-					transportCode =>
-					{
-						if(transportCode.Id == 0)
-						{
-							_uow.Save(transportCode);
-						}
-
-						return true;
-					},
-					groupCode =>
-					{
-						if(groupCode.Id == 0)
-						{
-							_uow.Save(groupCode);
-						}
-
-						return true;
-					},
-					waterCode =>
-					{
-						if(waterCode.Id == 0)
-						{
-							_uow.Save(waterCode);
-						}
-
-						return true;
-					});
-			}
-
-			return Result.Success();
-		}
-
-		private Result ProcessResaleOrderScannedCodes(RouteListItem routeListAddress)
+		private Result CheckResaleOrderScannedCodes(RouteListItem routeListAddress)
 		{
 			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
 		}
@@ -740,7 +689,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result ProcessNetworkClientOrderScannedCodes(RouteListItem routeListAddress)
+		private Result CheckNetworkClientOrderScannedCodes(RouteListItem routeListAddress)
 		{
 			return IsAllCarLoadDocumentItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
 		}
@@ -1791,16 +1740,22 @@ namespace DriverAPI.Library.V6.Services
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
 
-				var result = await AddProductCodesToRouteListItemAsync(
-					routeListAddress,
-					orderSaleItemId,
-					scannedBottle.BottleCodes,
-					SourceProductCodeStatus.New,
-					ProductCodeProblem.None);
 
-				if(result.IsFailure)
+				var bottleCodes = scannedBottle.BottleCodes
+					.Distinct()
+					.Select(x => new DriversScannedTrueMarkCode
+					{
+						RawCode = x,
+						OrderItemId = orderSaleItemId,
+						RouteListAddressId = routeListAddress.Id,
+						IsDefective = false,
+						IsProcessingCompleted = false
+					})
+					.ToArray();
+
+				foreach(var scannedCode in bottleCodes)
 				{
-					return result;
+					await _uow.SaveAsync(scannedCode, cancellationToken: cancellationToken);
 				}
 			}
 
