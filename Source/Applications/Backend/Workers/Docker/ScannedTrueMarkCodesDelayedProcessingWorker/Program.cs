@@ -38,7 +38,9 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 				{
 					services
 						.Configure<ScannedCodesDelayedProcessingOptions>(
-							hostContext.Configuration.GetSection(nameof(ScannedCodesDelayedProcessingOptions)))
+							hostContext.Configuration.GetSection(nameof(ScannedCodesDelayedProcessingOptions)));
+					
+					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(QS.Banks.Domain.Bank).Assembly,
