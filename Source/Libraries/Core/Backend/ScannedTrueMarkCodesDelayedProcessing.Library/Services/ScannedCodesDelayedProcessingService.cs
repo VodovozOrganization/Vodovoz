@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -55,16 +54,23 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var scannedCodesData = await _edoDocflowRepository
 					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
 
+				_logger.LogInformation("Обработка отсканированных кодов ЧЗ, количество: {Count}", scannedCodesData.Count());
+
 				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
 
 				var newEdoRequests = await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
 
-				await uow.CommitAsync(cancellationToken);
+				if(uow.HasChanges)
+				{
+					await uow.CommitAsync(cancellationToken);
+				}
 
 				foreach(var newEdoRequest in newEdoRequests)
 				{
 					await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
 				}
+
+				_logger.LogInformation("Обработка отсканированных кодов ЧЗ завершена");
 			}
 		}
 
@@ -206,6 +212,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				&& !isOrderEdoRequestExists
 				&& isOrderOnClosingStatus)
 			{
+				_logger.LogInformation(
+					"Создание заявки на ЭДО для заказа {OrderId}, адрес {RouteListAddressId}",
+					routeListAddress.Order.Id,
+					routeListAddress.Id);
+
 				var edoRequest = CreateEdoRequest(uow, routeListAddress);
 
 				newEdoRequests.Add(edoRequest);
