@@ -9,7 +9,6 @@ using OpenTelemetry.Trace;
 using QS.Project.Core;
 using ScannedTrueMarkCodesDelayedProcessing.Library;
 using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
-using ScannedTrueMarkCodesDelayedProcessing.Library.Services;
 using System;
 using System.Text;
 using Vodovoz.Application;
@@ -59,7 +58,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingService));
+						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingWorker));
 
 					services
 						.AddOpenTelemetry()
