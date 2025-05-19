@@ -1,4 +1,4 @@
-{
+﻿{
   "profiles": {
     "ScannedTrueMarkCodesDelayedProcessingWorker": {
       "commandName": "Project",
@@ -6,9 +6,6 @@
         "DOTNET_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": "true"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
     }
   }
 }
