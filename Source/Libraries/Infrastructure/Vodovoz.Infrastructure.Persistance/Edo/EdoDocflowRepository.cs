@@ -100,6 +100,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 			return data.ToList();
 		}
 
+		/// <inheritdoc/>
 		public async Task<IEnumerable<DriversScannedCodeDataNode>> GetAllNotProcessedDriversScannedCodesData(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			var query =
@@ -120,6 +121,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 			return await query.ToListAsync(cancellationToken);
 		}
 
+		/// <inheritdoc/>
 		public async Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
 			var orderEdoRequests = await uow.Session.Query<OrderEdoRequest>()

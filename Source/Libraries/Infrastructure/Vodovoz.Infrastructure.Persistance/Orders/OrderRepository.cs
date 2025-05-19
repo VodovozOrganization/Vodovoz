@@ -2120,6 +2120,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return carLoadDocumentLoadOperationState == CarLoadDocumentLoadOperationState.Done;
 		}
 
+		/// <inheritdoc/>
 		public async Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default)
 		{
 			var query =

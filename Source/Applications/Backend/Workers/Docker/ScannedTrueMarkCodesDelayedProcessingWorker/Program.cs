@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using QS.Project.Core;
 using ScannedTrueMarkCodesDelayedProcessing.Library;
 using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
@@ -39,7 +41,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 					services
 						.Configure<ScannedCodesDelayedProcessingOptions>(
 							hostContext.Configuration.GetSection(nameof(ScannedCodesDelayedProcessingOptions)));
-					
+
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -58,6 +60,17 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddScannedTrueMarkCodesDelayedProcessing()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingService));
+
+					services
+						.AddOpenTelemetry()
+						.ConfigureResource(resource => resource.AddService("scanned-true-mark-codes-delayed-processing.worker"))
+						.WithTracing(tracing =>
+						{
+							tracing
+								.AddHttpClientInstrumentation();
+
+							tracing.AddOtlpExporter();
+						});
 
 					services.AddHostedService<ScannedCodesDelayedProcessingWorker>();
 				});
