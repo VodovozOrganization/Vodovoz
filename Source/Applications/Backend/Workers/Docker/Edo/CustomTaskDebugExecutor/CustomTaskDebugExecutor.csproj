@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -40,6 +40,7 @@
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Scheduler\Edo.Scheduler.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Tender\Edo.Tender.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Routine\Edo.Transfer.Routine.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Sender\Edo.Transfer.Sender.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer\Edo.Transfer.csproj" />

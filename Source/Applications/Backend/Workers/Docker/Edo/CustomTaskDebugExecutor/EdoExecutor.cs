@@ -16,6 +16,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Tender;
 using Taxcom.Docflow.Utility;
 
 namespace CustomTaskDebugExecutor
@@ -96,6 +97,12 @@ namespace CustomTaskDebugExecutor
 
 			Console.WriteLine("16.Переобработка подписаний документов Taxcom");
 			Console.WriteLine();
+			
+			Console.WriteLine("17. TenderTaskCreatedEvent");
+			Console.WriteLine("Первичная подготовка данных в задаче на отправку документа по Тендеру");
+		
+			Console.WriteLine("18. TransferSendPreparer");
+			Console.WriteLine("TransferSendPreparer");
 
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
@@ -150,9 +157,51 @@ namespace CustomTaskDebugExecutor
 				case 16:
 					await RehandleTaxcomAcceptDocuments(cancellationToken);
 					break;
+				case 17:
+					await ReceiveTenderTaskCreatedEvent(cancellationToken);
+					break;
+				case 18:
+					await ReceiveTransferTaskPrepareToSendEvent(cancellationToken);
+					break;
 				default:
 					break;
 			}
+		}
+
+		private async Task ReceiveTransferTaskPrepareToSendEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Transfer");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			
+			var service = _serviceProvider.GetRequiredService<TransferSendPreparer>();
+			await service.PrepareSendAsync(id, cancellationToken);
+		}
+
+		private async Task ReceiveTenderTaskCreatedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Tender (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<TenderEdoTaskHandler>();
+			await service.HandleNew(id, cancellationToken);
 		}
 
 		private async Task ReceiveEdoRequestCreatedEvent(CancellationToken cancellationToken)
