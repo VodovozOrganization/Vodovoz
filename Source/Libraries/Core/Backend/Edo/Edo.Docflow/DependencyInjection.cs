@@ -1,5 +1,6 @@
 ﻿using Edo.Docflow;
 using Edo.Docflow.Factories;
+using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ namespace Edo.Documents
 			services.TryAddScoped<DocflowHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
 			services.TryAddScoped<TransferOrderUpdInfoFactory>();
+			services.AddEdoProblemRegistation();
 
 			return services;
 		}
