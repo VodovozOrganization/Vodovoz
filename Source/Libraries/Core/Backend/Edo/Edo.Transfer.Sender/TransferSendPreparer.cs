@@ -14,6 +14,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Transfer.Sender
@@ -116,11 +117,24 @@ namespace Edo.Transfer.Sender
 			var gtins = await _uow.Session.QueryOver<GtinEntity>()
 				.ListAsync(cancellationToken);
 
-			var transferOrder = new TransferOrder();
-			transferOrder.Date = transferEdoTask.StartTime.Value;
-			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
-			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
+			var transferOrderResult = TransferOrder.Create(
+				transferEdoTask.StartTime.Value,
+				new OrganizationEntity { Id = transferEdoTask.FromOrganizationId },
+				new OrganizationEntity { Id = transferEdoTask.ToOrganizationId });
 
+			var transferOrder = transferOrderResult.Match(
+				to => to,
+				async errors => await _edoProblemRegistrar
+					.RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
+						transferEdoTask,
+						cancellationToken,
+						string.Join(", ", errors.Select(e => e.Message))));
+
+			if(transferOrder == null)
+			{
+				return;
+			}
+		
 			var transferRequests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
