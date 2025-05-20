@@ -1302,6 +1302,11 @@ namespace Edo.Receipt.Dispatcher
 
 		private async Task<bool> HasReceiptOnSumToday(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			if(receiptEdoTask.OrderEdoRequest.Order.PaymentType != PaymentType.Cash)
+			{
+				return false;
+			}
+
 			var sum = receiptEdoTask.OrderEdoRequest.Order.OrderItems
 				.Where(x => x.Count > 0)
 				.Sum(x => x.Sum);
