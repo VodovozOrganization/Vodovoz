@@ -13,6 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using Edo.Common;
 
 namespace Edo.Docflow
 {
@@ -49,7 +50,7 @@ namespace Edo.Docflow
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoDocflow()
-
+						.AddEdo()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 

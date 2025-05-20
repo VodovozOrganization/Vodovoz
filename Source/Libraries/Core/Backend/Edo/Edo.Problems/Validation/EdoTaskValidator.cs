@@ -1,4 +1,6 @@
-﻿using Edo.Problems.Validation.Sources;
+﻿using Edo.Common;
+using Edo.Problems.Validation.Transfer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -65,6 +67,10 @@ namespace Edo.Problems.Validation
 				serviceProvider = validationContext;
 			}
 
+			var edoTaskItemTrueMarkStatusProviderFactory = validationContext.GetRequiredService<EdoTaskItemTrueMarkStatusProviderFactory>();
+
+			validationContext.AddService(edoTaskItemTrueMarkStatusProviderFactory.Create(edoTask));
+
 			var validators = _edoTaskValidatorsProvider.GetValidatorsFor(edoTask);
 			var results = new List<EdoValidationResult>();
 
@@ -100,16 +106,15 @@ namespace Edo.Problems.Validation
 			validationContext.AddServiceProvider(_serviceProvider);
 			var serviceProvider = validationContext;
 
+			var edoTaskItemTrueMarkStatusProviderFactory = validationContext.GetRequiredService<EdoTaskItemTrueMarkStatusProviderFactory>();
+
+			validationContext.AddService(edoTaskItemTrueMarkStatusProviderFactory.Create(transferEdoTask));
+
 			var validators = _edoTaskValidatorsProvider.GetValidatorsFor(transferEdoTask);
 			var results = new List<EdoValidationResult>();
 
 			foreach(var validator in validators)
 			{
-				if(validator is TransferOrderValidatorBase transferOrderValidator)
-				{
-					transferOrderValidator.SetTransferOrder(transferOrder);
-				}
-
 				try
 				{
 					var result = await validator.ValidateAsync(transferEdoTask, serviceProvider, cancellationToken);
