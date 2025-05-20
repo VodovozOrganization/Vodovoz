@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Edo.Problems.Validation.Sources;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,6 +67,7 @@ namespace Edo.Problems.Validation
 
 			var validators = _edoTaskValidatorsProvider.GetValidatorsFor(edoTask);
 			var results = new List<EdoValidationResult>();
+
 			foreach(var validator in validators)
 			{
 				try
@@ -75,12 +77,55 @@ namespace Edo.Problems.Validation
 				}
 				catch(EdoTaskValidationException ex)
 				{
-					_logger.LogWarning(ex, $"Ошибка валидации задачи {edoTask.GetType().Name} валидатором {validator.Name}. " +
-						$"Возможно в валидаторе не правильно реализован метод {nameof(validator.IsApplicable)}");
+					_logger.LogWarning(ex, "Ошибка валидации задачи {TransferEdoTaskType} валидатором {ValidatorName}. " +
+						"Возможно в валидаторе не правильно реализован метод {MethodName}",
+						edoTask.GetType().Name,
+						validator.Name,
+						nameof(validator.IsApplicable));
 				}
 			}
 
 			await _edoProblemRegistrar.UpdateValidationProblems(edoTask, results, cancellationToken);
+
+			return results.All(x => x.IsValid);
+		}
+
+		public async Task<bool> Validate(
+			TransferEdoTask transferEdoTask,
+			TransferOrder transferOrder,
+			CancellationToken cancellationToken
+			)
+		{
+			var validationContext = new EdoTaskValidationContext();
+			validationContext.AddServiceProvider(_serviceProvider);
+			var serviceProvider = validationContext;
+
+			var validators = _edoTaskValidatorsProvider.GetValidatorsFor(transferEdoTask);
+			var results = new List<EdoValidationResult>();
+
+			foreach(var validator in validators)
+			{
+				if(validator is TransferOrderValidatorBase transferOrderValidator)
+				{
+					transferOrderValidator.SetTransferOrder(transferOrder);
+				}
+
+				try
+				{
+					var result = await validator.ValidateAsync(transferEdoTask, serviceProvider, cancellationToken);
+					results.Add(result);
+				}
+				catch(EdoTaskValidationException ex)
+				{
+					_logger.LogWarning(ex, "Ошибка валидации задачи {TransferEdoTaskType} валидатором {ValidatorName}. " +
+						"Возможно в валидаторе не правильно реализован метод {MethodName}",
+						transferEdoTask.GetType().Name,
+						validator.Name,
+						nameof(validator.IsApplicable));
+				}
+			}
+
+			await _edoProblemRegistrar.UpdateValidationProblems(transferEdoTask, results, cancellationToken);
 
 			return results.All(x => x.IsValid);
 		}
