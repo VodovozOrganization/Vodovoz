@@ -113,6 +113,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
+					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,

@@ -85,10 +85,7 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					Count = onlineItem.Count,
 					NomenclatureId = onlineItem.NomenclatureId,
-					Discount = onlineItem.Discount,
-					DiscountReasonId = onlineItem.DiscountReasonId,
 					PromoSetId = onlineItem.PromoSetId,
-					IsDiscountInMoney = onlineItem.IsDiscountInMoney,
 					OldPrice = onlineItem.Price
 				};
 				
@@ -96,10 +93,14 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(!CanApplyFixedPrice(onlineItem, fixedPrice))
 					{
+						onlineOrderedProductWithFixedPrice.IsDiscountInMoney = onlineItem.IsDiscountInMoney;
+						onlineOrderedProductWithFixedPrice.Discount = onlineItem.Discount;
+						onlineOrderedProductWithFixedPrice.DiscountReasonId = onlineItem.DiscountReasonId;
 						continue;
 					}
 
 					onlineOrderedProductWithFixedPrice.NewPrice = fixedPrice.Price;
+					
 					break;
 				}
 				
@@ -126,6 +127,11 @@ namespace Vodovoz.Application.Orders.Services
 				return false;
 			}
 
+			if(fixedPrice.Price >= onlineItem.PriceWithDiscount)
+			{
+				return false;
+			}
+			
 			return true;
 		}
 	}

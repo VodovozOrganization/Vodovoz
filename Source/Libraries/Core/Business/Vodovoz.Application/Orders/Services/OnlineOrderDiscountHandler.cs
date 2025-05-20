@@ -108,7 +108,7 @@ namespace Vodovoz.Application.Orders.Services
 				return false;
 			}
 
-			ApplyPromoCode(discountPromoCode, product);
+			ApplyPromoCode(discountPromoCode, nomenclature, product);
 
 			return true;
 		}
@@ -138,6 +138,25 @@ namespace Vodovoz.Application.Orders.Services
 				return false;
 			}
 
+			if(product.IsFixedPrice)
+			{
+				var nomenclaturePrice = nomenclature.GetPrice(product.Count);
+
+				if(nomenclaturePrice == 0)
+				{
+					return false;
+				}
+				
+				var withDiscountPromoCode = discountPromoCode.ValueType == DiscountUnits.money
+					? Math.Round(nomenclaturePrice * product.Count - discountPromoCode.Value / product.Count, 2)
+					: Math.Round(nomenclaturePrice * (100 - discountPromoCode.Value) / 100, 2);
+
+				if(product.PriceWithDiscount < withDiscountPromoCode)
+				{
+					return false;
+				}
+			}
+
 			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
 			{
 				return false;
@@ -146,10 +165,16 @@ namespace Vodovoz.Application.Orders.Services
 			return product.Count * product.Price != 0;
 		}
 
-		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
+		private void ApplyPromoCode(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
 		{
 			product.DiscountReasonId = discountPromoCode.Id;
 			product.IsDiscountInMoney = discountPromoCode.ValueType == DiscountUnits.money;
+
+			if(product.IsFixedPrice)
+			{
+				product.Price = nomenclature.GetPrice(product.Count);
+				product.IsFixedPrice = false;
+			}
 
 			if(!product.IsDiscountInMoney)
 			{

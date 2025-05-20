@@ -27,8 +27,8 @@ namespace VodovozBusiness.Controllers
 			}
 
 			return ContainsNomenclature(nomenclature.Id, reason.Nomenclatures)
-			       || ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
-			       || ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
+				|| ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
+				|| ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
 		}
 
 		/// <summary>

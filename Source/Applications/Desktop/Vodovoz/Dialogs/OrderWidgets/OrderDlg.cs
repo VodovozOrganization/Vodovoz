@@ -3334,7 +3334,11 @@ namespace Vodovoz
 			TryAddNomenclature(e.Subject as Nomenclature);
 		}
 
-		private void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNomenclature(
+			Nomenclature nomenclature,
+			decimal count = 0,
+			decimal discount = 0,
+			DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -3360,7 +3364,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
+			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason: discountReason);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -3395,6 +3399,7 @@ namespace Vodovoz
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 						proSetItem.IsDiscountInMoney,
+						true,
 						null,
 						proSetItem.PromoSet
 					);

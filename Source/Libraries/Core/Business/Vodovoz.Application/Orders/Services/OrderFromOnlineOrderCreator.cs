@@ -168,6 +168,7 @@ namespace Vodovoz.Application.Orders.Services
 							proSetItem.Count,
 							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 							proSetItem.IsDiscountInMoney,
+							true,
 							null,
 							proSetItem.PromoSet);
 					}
@@ -207,7 +208,10 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(onlineOrderItem.DiscountReason is null)
 					{
-						order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+						order.AddNomenclature(
+							onlineOrderItem.Nomenclature,
+							onlineOrderItem.Count,
+							needGetFixedPrice: onlineOrderItem.IsFixedPrice);
 					}
 					else
 					{
@@ -216,6 +220,7 @@ namespace Vodovoz.Application.Orders.Services
 							onlineOrderItem.Count,
 							onlineOrderItem.GetDiscount,
 							onlineOrderItem.IsDiscountInMoney,
+							onlineOrderItem.IsFixedPrice,
 							onlineOrderItem.DiscountReason);
 					}
 				}
@@ -236,6 +241,7 @@ namespace Vodovoz.Application.Orders.Services
 					onlineOrderItem.Count,
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
+					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReason);
 			}
 		}

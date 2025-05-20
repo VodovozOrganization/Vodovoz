@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1653,12 +1653,16 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(true, true) : orderItem.Count;
+			var curCount = orderItem.Nomenclature.IsWater19L
+				? GetTotalWater19LCount(true, true)
+				: orderItem.Count;
+			
 			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
-			var canApplyAlternativePrice = isAlternativePriceCopiedFromUndelivery
-			                               || (HasPermissionsForAlternativePrice
-			                                   && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-			                                   && orderItem.GetWaterFixedPrice() == null);
+			var canApplyAlternativePrice =
+				isAlternativePriceCopiedFromUndelivery
+					|| (HasPermissionsForAlternativePrice
+						&& orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+						&& orderItem.GetWaterFixedPrice() == null);
 
 			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 
@@ -2047,7 +2051,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool isDiscountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void AddWaterForSale(
+			Nomenclature nomenclature,
+			decimal count,
+			decimal discount = 0,
+			bool isDiscountInMoney = false,
+			bool needGetFixedPrice = true,
+			DiscountReason reason = null,
+			PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2068,8 +2079,7 @@ namespace Vodovoz.Domain.Orders
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 			}
 
-			decimal price = GetWaterPrice(nomenclature, proSet, count);
-
+			var price = GetWaterPrice(nomenclature, proSet, count, needGetFixedPrice);
 			AddOrderItem(OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
 		}
 
@@ -2094,11 +2104,22 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
+		private decimal GetWaterPrice(
+			Nomenclature nomenclature,
+			PromotionalSet promoSet,
+			decimal bottlesCount,
+			bool needGetFixedPrice)
 		{
-			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount(doNotCountPresentsDiscount: true) + bottlesCount);
-			if (fixedPrice != null && promoSet == null) {
-				return fixedPrice.Price;
+			//Т.к. в онлайн заказах можно применять скидку(промокод), если скидка больше чем фикса, но на прайс
+			//то могут быть ситуации, когда у клиента есть фикса, но на позицию применена скидка,
+			//для этого передаем флаг нужно ли подбирать фиксу
+			if(needGetFixedPrice)
+			{
+				var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount(doNotCountPresentsDiscount: true) + bottlesCount);
+				if (fixedPrice != null && promoSet == null)
+				{
+					return fixedPrice.Price;
+				}
 			}
 
 			var count = promoSet == null ? GetTotalWater19LCount(true, true) : bottlesCount;
@@ -2227,12 +2248,13 @@ namespace Vodovoz.Domain.Orders
 			decimal count = 0,
 			decimal discount = 0,
 			bool discountInMoney = false,
+			bool needGetFixedPrice = true,
 			DiscountReason discountReason = null,
 			PromotionalSet proSet = null)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
-					AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet);
+					AddWaterForSale(nomenclature, count, discount, discountInMoney, needGetFixedPrice, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);

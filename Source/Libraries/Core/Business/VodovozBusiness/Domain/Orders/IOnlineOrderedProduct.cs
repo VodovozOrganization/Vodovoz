@@ -9,7 +9,7 @@
 		/// <summary>
 		/// Цена
 		/// </summary>
-		decimal Price { get; }
+		decimal Price { get; set; }
 		/// <summary>
 		/// Количество
 		/// </summary>
@@ -30,6 +30,14 @@
 		/// Id скидки/промокода
 		/// </summary>
 		int? DiscountReasonId { get; set; }
+		/// <summary>
+		/// Фикса
+		/// </summary>
+		bool IsFixedPrice { get; set; }
+		/// <summary>
+		/// Цена со скидкой
+		/// </summary>
+		decimal PriceWithDiscount { get; }
 		/// <summary>
 		/// Очистка данных по скидке
 		/// </summary>

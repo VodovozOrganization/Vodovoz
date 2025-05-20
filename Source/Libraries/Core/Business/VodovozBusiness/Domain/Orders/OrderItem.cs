@@ -356,7 +356,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
-		: Count;
+			: Count;
 
 		public virtual bool IsTrueMarkCodesMustBeAdded =>
 			Nomenclature?.IsAccountableInTrueMark == true
