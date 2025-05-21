@@ -35,6 +35,7 @@
     <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
   </ItemGroup>
