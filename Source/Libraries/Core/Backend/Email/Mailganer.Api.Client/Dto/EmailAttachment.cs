@@ -4,10 +4,10 @@ namespace Mailganer.Api.Client.Dto
 {
 	public class EmailAttachment
 	{
-		[JsonPropertyName("attach_files.name")]
+		[JsonPropertyName("name")]
 		public string Filename { get; set; }
 
-		[JsonPropertyName("attach_files.filebody")]
+		[JsonPropertyName("filebody")]
 		public string Base64Content { get; set; }
 	}
 }
