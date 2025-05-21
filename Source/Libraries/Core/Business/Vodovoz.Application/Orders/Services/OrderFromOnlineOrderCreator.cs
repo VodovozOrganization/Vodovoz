@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
@@ -18,24 +17,19 @@ namespace Vodovoz.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderCreator : IOrderFromOnlineOrderCreator
 	{
-		private readonly ILogger<OrderFromOnlineOrderCreator> _logger;
 		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
 		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly IPhoneRepository _phoneRepository;
 
 		public OrderFromOnlineOrderCreator(
-			ILogger<OrderFromOnlineOrderCreator> logger,
 			IOrderSettings orderSettings,
 			INomenclatureRepository nomenclatureRepository,
 			ICounterpartyContractRepository counterpartyContractRepository,
 			ICounterpartyContractFactory counterpartyContractFactory,
-			INomenclatureSettings nomenclatureSettings,
-			IPhoneRepository phoneRepository)
+			INomenclatureSettings nomenclatureSettings)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_counterpartyContractRepository =
@@ -43,7 +37,6 @@ namespace Vodovoz.Application.Orders.Services
 			_counterpartyContractFactory =
 				counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -91,8 +84,6 @@ namespace Vodovoz.Application.Orders.Services
 				order.HasCommentForDriver = true;
 			}
 			
-			FillContactPhone(order.UoW, order, onlineOrder.ContactPhone);
-			
 			if(!order.SelfDelivery)
 			{
 				order.CallBeforeArrivalMinutes = onlineOrder.CallBeforeArrivalMinutes;
@@ -117,38 +108,6 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			
 			return order;
-		}
-
-		private void FillContactPhone(IUnitOfWork uow, Order order, string onlineOrderContactPhone)
-		{
-			if(string.IsNullOrWhiteSpace(onlineOrderContactPhone))
-			{
-				return;
-			}
-
-			var digitsNumber = onlineOrderContactPhone.TrimStart('+', '7');
-
-			if(!digitsNumber.StartsWith("9"))
-			{
-				_logger.LogWarning(
-					"Контактный телефон неизвестного формата. Пришел {ContactPhone}, а должен был быть мобильный номер",
-					onlineOrderContactPhone);
-				return;
-			}
-
-			var phones = _phoneRepository.GetPhonesByNumber(uow, digitsNumber);
-			var clientPhone = phones.FirstOrDefault(
-				x => x.Counterparty.Id == order.Client?.Id
-				|| x.DeliveryPoint.Id == order.DeliveryPoint?.Id)
-				?? phones.FirstOrDefault();
-
-			if(clientPhone is null)
-			{
-				_logger.LogWarning("Не нашли в базе контактный номер {ContactPhone}, не записываем его в заказ", onlineOrderContactPhone);
-				return;
-			}
-
-			order.ContactPhone = clientPhone;
 		}
 
 		private void AddOrderItems(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
