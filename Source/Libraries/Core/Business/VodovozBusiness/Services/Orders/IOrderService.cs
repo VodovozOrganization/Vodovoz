@@ -46,5 +46,6 @@ namespace VodovozBusiness.Services.Orders
 		/// Возвращает данные по заказу
 		/// </summary>
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
+		void AddLogisticsRequirements(Order order);
 	}
 }
