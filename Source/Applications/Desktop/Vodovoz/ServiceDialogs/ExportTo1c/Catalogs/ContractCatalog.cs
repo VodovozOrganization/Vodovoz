@@ -44,7 +44,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 
 			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
 			{
-				referenceNode.Properties.Add(new PropertyNode("ТипДоговора", Common1cTypes.EnumContractType, "СПокупателем"));
+				referenceNode.Properties.Add(new PropertyNode("ТипДоговора", Common1cTypes.EnumContractType(exportData.ExportMode), "СПокупателем"));
 				
 				referenceNode.Properties.Add(
 					new PropertyNode(
@@ -56,7 +56,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			{
 				referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean));
 
-				referenceNode.Properties.Add(new PropertyNode("ВидДоговора", Common1cTypes.EnumContractType, "СПокупателем"));
+				referenceNode.Properties.Add(new PropertyNode("ВидДоговора", Common1cTypes.EnumContractType(exportData.ExportMode), "СПокупателем"));
 
 				referenceNode.Properties.Add(
 					new PropertyNode(

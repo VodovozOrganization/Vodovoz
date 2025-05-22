@@ -77,7 +77,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				);
 			}
 			properties.Add(
-				new PropertyNode("Комментарий",
+				new PropertyNode("Описание",
 					Common1cTypes.String
 				)
 			);
