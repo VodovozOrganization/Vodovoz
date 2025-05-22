@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -504,11 +504,11 @@ namespace Vodovoz.ExportTo1c
 					nomenclatureReference
 				)
 			);
-			if(isService)
+			if(isService && ExportMode != Export1cMode.ComplexAutomation)
 				record.Properties.Add(
 					new PropertyNode("Содержание",
 						Common1cTypes.String,
-									 orderItem.Nomenclature.OfficialName
+						orderItem.Nomenclature.OfficialName
 					)
 				);
 			record.Properties.Add(
