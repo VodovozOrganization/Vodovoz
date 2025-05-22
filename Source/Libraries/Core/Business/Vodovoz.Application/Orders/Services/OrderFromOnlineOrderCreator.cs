@@ -138,8 +138,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			var phones = _phoneRepository.GetPhonesByNumber(uow, digitsNumber);
 			var clientPhone = phones.FirstOrDefault(
-				x => x.Counterparty.Id == order.Client?.Id
-				|| x.DeliveryPoint.Id == order.DeliveryPoint?.Id)
+				x => x.Counterparty?.Id == order.Client?.Id
+				|| x.DeliveryPoint?.Id == order.DeliveryPoint?.Id)
 				?? phones.FirstOrDefault();
 
 			if(clientPhone is null)
