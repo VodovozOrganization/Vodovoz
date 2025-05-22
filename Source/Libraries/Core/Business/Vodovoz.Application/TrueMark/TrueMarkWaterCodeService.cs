@@ -326,24 +326,26 @@ namespace Vodovoz.Application.TrueMark
 		{
 			// Проверяем КИ
 			if(_trueMarkWaterIdentificationCodeRepository
-				.Get(
-					uow,
-					x => x.RawCode == parsedCode.SourceCode
-						&& !x.IsInvalid,
-					1)
-				.FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
+				   .Get(
+					   uow,
+					   x => x.GTIN == parsedCode.GTIN
+					        && x.SerialNumber == parsedCode.SerialNumber
+					        && !x.IsInvalid,
+					   1)
+				   .FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
 			{
 				return Result.Success<TrueMarkAnyCode>(loadedIdentificationCode);
 			}
 
 			// Проверяем КИГУ
 			if(_trueMarkWaterGroupCodeRepository
-				.Get(
-					uow,
-					x => x.RawCode == parsedCode.SourceCode
-						&& !x.IsInvalid,
-					1)
-				.FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
+				   .Get(
+					   uow,
+					   x => x.GTIN == parsedCode.GTIN
+					        && x.SerialNumber == parsedCode.SerialNumber
+					        && !x.IsInvalid,
+					   1)
+				   .FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
 			{
 				return Result.Success<TrueMarkAnyCode>(loadedGroupCode);
 			}
