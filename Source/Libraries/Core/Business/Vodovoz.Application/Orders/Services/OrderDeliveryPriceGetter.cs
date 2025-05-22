@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
@@ -47,7 +47,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			#endregion
 
-			var district = order.DeliveryPoint != null
+			var district = order.DeliveryPoint != null && order.DeliveryPoint.District != null
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
