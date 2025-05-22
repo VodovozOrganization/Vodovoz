@@ -20,7 +20,10 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 			: "ПеречислениеСсылка.СтавкиНДС";
 		
 		public static readonly string EnumVATTypes = "ПеречислениеСсылка.ВидыСтавокНДС";
-		public static readonly string EnumContractType = "ПеречислениеСсылка.ВидыДоговоровКонтрагентов";
+
+		public static string EnumContractType(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
+			? "ПеречислениеСсылка.ТипыДоговоров"
+			: "ПеречислениеСсылка.ВидыДоговоровКонтрагентов";
 		
 		public static string ReferenceAccount(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "СправочникСсылка.БанковскиеСчетаКонтрагентов"
