@@ -4,6 +4,7 @@ using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
+using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -116,6 +117,17 @@ namespace Edo.Transfer.Sender
 				.ListAsync(cancellationToken);
 			var gtins = await _uow.Session.QueryOver<GtinEntity>()
 				.ListAsync(cancellationToken);
+
+			if(!transferEdoTask.StartTime.HasValue)
+			{
+				await _edoProblemRegistrar
+				   .RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
+					   transferEdoTask,
+					   cancellationToken,
+					   Vodovoz.Core.Domain.Errors.Edo.TransferOrder.TransferOrderCreateDateMissing.Message);
+
+				return;
+			}
 
 			var transferOrderResult = TransferOrder.Create(
 				transferEdoTask.StartTime.Value,
