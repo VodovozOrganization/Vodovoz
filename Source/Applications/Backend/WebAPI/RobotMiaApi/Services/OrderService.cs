@@ -217,7 +217,7 @@ namespace RobotMiaApi.Services
 				return await Task.FromResult(Vodovoz.Application.Errors.ServiceEmployee.MissingServiceUser);
 			}
 
-			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest.MapToCreateOrderRequest());
+			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
 			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
 			return Result.Success();
 		}
@@ -241,7 +241,7 @@ namespace RobotMiaApi.Services
 				return orderData.OrderId;
 			}
 
-			return CreateAndAcceptOrder(orderArgs);
+			return CreateAndAcceptOrder(createOrderRequest);
 		}
 
 		/// <inheritdoc/>
@@ -286,7 +286,7 @@ namespace RobotMiaApi.Services
 			return result.Status == ResultStatus.Ok;
 		}
 
-		private int CreateAndAcceptOrder(VodovozCreateOrderRequest createOrderRequest)
+		private int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -305,49 +305,48 @@ namespace RobotMiaApi.Services
 			}
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, VodovozCreateOrderRequest createOrderRequest)
+		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
 		{
 			var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
-			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(createOrderRequest.DeliveryScheduleId);
+			var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(createOrderRequest.DeliveryIntervalId.Value);
 			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;
+			order.DriverMobileAppComment = createOrderRequest.DriverAppComment;
+			order.DriverMobileAppCommentTime = DateTime.Now;
+			order.CallBeforeArrivalMinutes = createOrderRequest.CallBeforeArrivalMinutes ?? 15;
 
-			order.PaymentType = createOrderRequest.PaymentType;
+			if(createOrderRequest.PaymentType == PaymentType.Cash)
+			{
+				order.Trifle = createOrderRequest.Trifle;
+			}
+			else
+			{
+				order.Trifle = 0;
+			}
 
 			switch(createOrderRequest.PaymentType)
 			{
-				case VodovozPaymentType.Cash:
-					order.Trifle = createOrderRequest.BanknoteForReturn;
+				case PaymentType.Cash:
+					order.Trifle = createOrderRequest.Trifle;
 					break;
-				case VodovozPaymentType.DriverApplicationQR:
-					order.Trifle = 0;
+				case PaymentType.TerminalQR:
+					order.PaymentType = VodovozPaymentType.Terminal;
+					order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
 					break;
-				case VodovozPaymentType.Terminal:
-					if(createOrderRequest.PaymentByTerminalSource is null)
-					{
-						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
-					}
-
-					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
-					{
-						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
-						break;
-					}
-
-					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
-					{
-						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
-						break;
-					}
-
-					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+				case PaymentType.TerminalCard:
+					order.PaymentType = VodovozPaymentType.Terminal;
+					order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+					break;
+				case PaymentType.SmsQR:
+					order.PaymentType = VodovozPaymentType.SmsQR;
+					break;
 			}
 
 			order.DeliverySchedule = deliverySchedule;
-			order.DeliveryDate = createOrderRequest.Date;
+			order.DeliveryDate = createOrderRequest.DeliveryDate;
 
 			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
 
@@ -358,7 +357,7 @@ namespace RobotMiaApi.Services
 
 				if(nomenclature.Id == _forfeitNomenclatureId)
 				{
-					order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+					order.AddNomenclature(nomenclature, saleItem.Count);
 					continue;
 				}
 
@@ -368,7 +367,7 @@ namespace RobotMiaApi.Services
 
 				if(nomenclature.Category == NomenclatureCategory.water)
 				{
-					order.AddWaterForSale(nomenclature, saleItem.BottlesCount);
+					order.AddWaterForSale(nomenclature, saleItem.Count);
 				}
 				else if(nomenclatureParameters is null
 					|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
@@ -378,7 +377,7 @@ namespace RobotMiaApi.Services
 				}
 				else
 				{
-					order.AddNomenclature(nomenclature, saleItem.BottlesCount);
+					order.AddNomenclature(nomenclature, saleItem.Count);
 				}
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
