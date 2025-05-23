@@ -2,8 +2,8 @@
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -20,6 +20,17 @@ namespace Vodovoz.Core.Domain.Edo
 		private OrganizationEntity _seller;
 		private OrganizationEntity _customer;
 		private IObservableList<TransferOrderTrueMarkCode> _items = new ObservableList<TransferOrderTrueMarkCode>();
+
+		protected TransferOrder()
+		{
+		}
+
+		protected TransferOrder(DateTime date, OrganizationEntity seller, OrganizationEntity customer)
+		{
+			Date = date;
+			Seller = seller;
+			Customer = customer;
+		}
 
 		/// <summary>
 		/// Код
@@ -66,6 +77,26 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _items;
 			set => SetField(ref _items, value);
+		}
+
+		public static Result<TransferOrder> Create(DateTime date, OrganizationEntity seller, OrganizationEntity customer)
+		{
+			if(date == default)
+			{
+				return Errors.Edo.TransferOrder.TransferOrderCreateDateMissing;
+			}
+
+			if(seller == null)
+			{
+				return Errors.Edo.TransferOrder.TransferOrderCreateSellerMissing;
+			}
+
+			if(customer == null)
+			{
+				return Errors.Edo.TransferOrder.TransferOrderCreateCustomerMissing;
+			}
+
+			return new TransferOrder(date, seller, customer);
 		}
 	}
 }

@@ -41,6 +41,31 @@ namespace Edo.Docflow.Factories
 			CancellationToken cancellationToken
 			)
 		{
+			if(transferOrder is null)
+			{
+				throw new ArgumentNullException(nameof(transferOrder));
+			}
+
+			if(transferOrder.Seller is null)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указан продавец");
+			}
+
+			if(transferOrder.Customer is null)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
+			}
+
+			if(transferOrder.Date == default)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указана дата");
+			}
+
+			if(transferOrder.Id == 0)
+			{
+				throw new InvalidOperationException("При заполнении данных в УПД необходимо, чтобы заказ перемещения товаров был предварительно сохранен");
+			}
+
 			var transferOrderCodes = await _uow.Session.QueryOver<TransferOrderTrueMarkCode>()
 				.Fetch(SelectMode.Fetch, x => x.Nomenclature)
 				.Fetch(SelectMode.Fetch, x => x.Nomenclature.Unit)
@@ -53,7 +78,6 @@ namespace Edo.Docflow.Factories
 			var preloadCodes = transferOrderCodes
 				.Where(x => x.IndividualCode != null)
 				.Select(x => x.IndividualCode);
-
 			await _trueMarkCodeRepository.PreloadCodes(preloadCodes, cancellationToken);
 
 			return await ConvertTransferOrderToUniversalTransferDocumentInfo(transferOrder, cancellationToken);
