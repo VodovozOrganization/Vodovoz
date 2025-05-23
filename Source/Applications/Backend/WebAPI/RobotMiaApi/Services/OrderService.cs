@@ -8,6 +8,7 @@ using Sms.Internal;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Application.Errors;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -24,6 +25,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Models;
+using Vodovoz.Results;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
@@ -201,11 +203,11 @@ namespace RobotMiaApi.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
+		public async Task<Result<Order, Exception>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(createOrderRequest));
+				return new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>();
@@ -214,38 +216,45 @@ namespace RobotMiaApi.Services
 
 			if(roboatsEmployee is null)
 			{
-				return await Task.FromResult(Vodovoz.Application.Errors.ServiceEmployee.MissingServiceUser);
+				return new ServiceUserMissingException();
 			}
 
-			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest.MapToCreateOrderRequest());
-			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return Result.Success();
+			return CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest.MapToCreateOrderRequest())
+				.Map(
+					order =>
+					{
+						order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+						return order;
+					});
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
+		public async Task<Result<int, Exception>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			var orderArgs = createOrderRequest.MapToCreateOrderRequest();
 
 			if(createOrderRequest.PaymentType == PaymentType.SmsQR)
 			{
-				var orderData = _vodovozOrderService.CreateIncompleteOrder(orderArgs);
+				var incompletedOrderDataResult = _vodovozOrderService
+					.CreateIncompleteOrder(orderArgs)
+					.MapAsync(async orderData =>
+					{
+						var paymentSent = await TryingSendPayment(createOrderRequest.ContactPhone, orderData.OrderId);
 
-				var paymentSent = await TryingSendPayment(createOrderRequest.ContactPhone, orderData.OrderId);
+						if(paymentSent)
+						{
+							orderData = _vodovozOrderService.AcceptOrder(orderData.OrderId, orderData.AuthorId);
+						}
 
-				if(paymentSent)
-				{
-					orderData = _vodovozOrderService.AcceptOrder(orderData.OrderId, orderData.AuthorId);
-				}
-
-				return orderData.OrderId;
+						return orderData.OrderId;
+					});
 			}
 
 			return CreateAndAcceptOrder(orderArgs);
 		}
 
 		/// <inheritdoc/>
-		public Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice)> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
+		public Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice), Exception> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest)
 		{
 			try
 			{
@@ -256,7 +265,7 @@ namespace RobotMiaApi.Services
 			// В текущем исполнении - может работать не стабильно
 			catch(InvalidOperationException invalidOperationException)
 			{
-				return OrderErrors.AddNomenclatureError(invalidOperationException.Message);
+				return invalidOperationException;
 			}
 		}
 
@@ -286,26 +295,33 @@ namespace RobotMiaApi.Services
 			return result.Status == ResultStatus.Ok;
 		}
 
-		private int CreateAndAcceptOrder(VodovozCreateOrderRequest createOrderRequest)
+		private Result<int, Exception> CreateAndAcceptOrder(VodovozCreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(createOrderRequest));
+				return new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
-					?? throw new InvalidOperationException("Требуется сотрудник. Еслм сообщение получено в сервисе - убедитесь, что настроили сервис корректно и в ДВ есть соответствующий сотрудник");
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
-				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
-				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-				return order.Id;
+				if(roboatsEmployee is null)
+				{
+					return new InvalidOperationException("Требуется сотрудник. Еслм сообщение получено в сервисе - убедитесь, что настроили сервис корректно и в ДВ есть соответствующий сотрудник");
+				}
+
+				return CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest)
+					.Map(order =>
+					{
+						order.AcceptOrder(roboatsEmployee, _callTaskWorker);
+						order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+						return order.Id;
+					});
 			}
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, VodovozCreateOrderRequest createOrderRequest)
+		private Result<Order, Exception> CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, VodovozCreateOrderRequest createOrderRequest)
 		{
 			var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
@@ -328,7 +344,7 @@ namespace RobotMiaApi.Services
 				case VodovozPaymentType.Terminal:
 					if(createOrderRequest.PaymentByTerminalSource is null)
 					{
-						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+						return new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
 					}
 
 					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
@@ -343,7 +359,7 @@ namespace RobotMiaApi.Services
 						break;
 					}
 
-					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+					return new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
@@ -353,8 +369,12 @@ namespace RobotMiaApi.Services
 
 			foreach(var saleItem in createOrderRequest.SaleItems)
 			{
-				var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
-					?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+				var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId);
+
+				if(nomenclature is null)
+				{
+					return new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+				}
 
 				if(nomenclature.Id == _forfeitNomenclatureId)
 				{
@@ -373,7 +393,7 @@ namespace RobotMiaApi.Services
 				else if(nomenclatureParameters is null
 					|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
 				{
-					throw new InvalidOperationException(
+					return new InvalidOperationException(
 						$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
 				}
 				else
@@ -383,7 +403,15 @@ namespace RobotMiaApi.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+
+			var upodateDeliveryCostResult = _vodovozOrderService
+				.UpdateDeliveryCost(unitOfWork, order);
+	
+			if(upodateDeliveryCostResult.IsFailure)
+			{
+				return upodateDeliveryCostResult.Error;
+			}
+
 			_vodovozOrderService.AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 

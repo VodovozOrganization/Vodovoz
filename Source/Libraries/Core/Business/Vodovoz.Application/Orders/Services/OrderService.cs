@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Application.Errors;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -24,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
+using Vodovoz.Results;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -34,6 +36,9 @@ using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters.Specifications;
 using VodovozBusiness.Domain.Goods.Specifications;
 using VodovozBusiness.Domain.Logistic.Specifications;
+using VodovozBusiness.Errors.Clients.Counterparties;
+using VodovozBusiness.Errors.Clients.DeliveryPoints;
+using VodovozBusiness.Errors.Logistics.DeliverySchedules;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -138,16 +143,17 @@ namespace Vodovoz.Application.Orders.Services
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
 
-		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		public Result<Order, Exception> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
-			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+			return _orderDeliveryPriceGetter
+				.GetDeliveryPrice(unitOfWork, order)
+				.Bind(deliveryPrice => order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice));
 		}
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		public decimal GetOrderPrice(CreateOrderRequest createOrderRequest)
+		public Result<decimal, Exception> GetOrderPrice(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -156,8 +162,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа"))
 			{
-				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
-					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
+
+				if(roboatsEmployee is null)
+				{
+					return new InvalidOperationException(_employeeRequiredForServiceError);
+				}
 
 				var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
@@ -175,15 +185,17 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
-				return order.OrderSum;
+
+				return
+					UpdateDeliveryCost(unitOfWork, order)
+					.Map(o => o.OrderSum);
 			}
 		}
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
-		public (decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
+		public Result<(decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice), Exception> GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -238,14 +250,13 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
-
-				return
-				(
-					order.OrderSum,
-					order.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
-					order.OrderItems.Where(oi => oi.Nomenclature.Id == ForfeitNomenclatureId).Sum(x => x.ActualSum)
-				);
+				return UpdateDeliveryCost(unitOfWork, order)
+					.Map(o =>
+					{
+						return (o.OrderSum,
+						o.OrderItems.Where(oi => oi.Nomenclature.Id == PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
+						o.OrderItems.Where(oi => oi.Nomenclature.Id == ForfeitNomenclatureId).Sum(x => x.ActualSum));
+					});
 			}
 		}
 
@@ -254,7 +265,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// Возвращает номер сохраненного заказа
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
-		public int CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
+		public Result<int, Exception> CreateAndAcceptOrder(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -266,15 +277,18 @@ namespace Vodovoz.Application.Orders.Services
 				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork)
 					?? throw new InvalidOperationException(_employeeRequiredForServiceError);
 
-				var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-				order.AcceptOrder(roboatsEmployee, _callTaskWorker);
-				order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-				return order.Id;
+				return CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest)
+					.Map(order =>
+					{
+						order.AcceptOrder(roboatsEmployee, _callTaskWorker);
+						order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+						return order.Id;
+					});
 			}
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
+		public async Task<Result<int, Exception>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -290,7 +304,7 @@ namespace Vodovoz.Application.Orders.Services
 
 				if(orderResult.IsFailure)
 				{
-					return Result.Failure<int>(orderResult.Errors);
+					return orderResult.Error;
 				}
 
 				var order = orderResult.Value;
@@ -305,11 +319,11 @@ namespace Vodovoz.Application.Orders.Services
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
 		/// Возвращает данные по заказу
 		/// </summary>
-		public (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(CreateOrderRequest createOrderRequest)
+		public Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception> CreateIncompleteOrder(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(createOrderRequest));
+				return new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
@@ -318,26 +332,29 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private (int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(
+		private Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception> CreateIncompleteOrder(
 			IUnitOfWorkGeneric<Order> unitOfWork, CreateOrderRequest createOrderRequest)
 		{
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 			if(roboatsEmployee == null)
 			{
-				throw new InvalidOperationException(_employeeRequiredForServiceError);
+				return new InvalidOperationException(_employeeRequiredForServiceError);
 			}
 
-			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return (order.Id, order.Author.Id, order.OrderStatus);
+			return CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest)
+				.Map(o =>
+				{
+					o.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+					return (o.Id, o.Author.Id, o.OrderStatus);
+				});
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
+		public async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
-				throw new ArgumentNullException(nameof(createOrderRequest));
+				return new ArgumentNullException(nameof(createOrderRequest));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>())
@@ -346,19 +363,22 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(
+		private async Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception>> CreateIncompleteOrderAsync(
 			IUnitOfWorkGeneric<Order> unitOfWork, CreateOrderRequest createOrderRequest)
 		{
 			var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
 			if(roboatsEmployee is null)
 			{
-				return await Task.FromResult(Errors.ServiceEmployee.MissingServiceUser);
+				return new ServiceUserMissingException();
 			}
 
-			var order = CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest);
-			order.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return await Task.FromResult((order.Id, order.Author.Id, order.OrderStatus));
+			return CreateOrder(unitOfWork, roboatsEmployee, createOrderRequest)
+				.Map(o =>
+				{
+					o.SaveEntity(unitOfWork, roboatsEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+					return (o.Id, o.Author.Id, o.OrderStatus);
+				});
 		}
 
 		/// <summary>
@@ -379,7 +399,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private Order CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
+		private Result<Order, Exception> CreateOrder(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
 		{
 			var counterparty = unitOfWork.GetById<Counterparty>(createOrderRequest.CounterpartyId);
 			var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(createOrderRequest.DeliveryPointId);
@@ -417,7 +437,7 @@ namespace Vodovoz.Application.Orders.Services
 						break;
 					}
 
-					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+					return new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
@@ -440,7 +460,11 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var updateDeliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			if(updateDeliveryCostResult.IsFailure)
+			{
+				return updateDeliveryCostResult.Error;
+			}
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -460,7 +484,7 @@ namespace Vodovoz.Application.Orders.Services
 			return order;
 		}
 
-		private async Task<Result<Order>> CreateOrderAsync(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
+		private async Task<Result<Order, Exception>> CreateOrderAsync(IUnitOfWorkGeneric<Order> unitOfWork, Employee author, CreateOrderRequest createOrderRequest)
 		{
 			var counterparty = _counterpartyRepository
 				.Get(
@@ -485,17 +509,17 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(counterparty is null)
 			{
-				return Vodovoz.Errors.Clients.Counterparty.NotFound;
+				return new CounterpartyNotFoundException(createOrderRequest.CounterpartyId);
 			}
 
 			if(deliveryPoint is null)
 			{
-				return Vodovoz.Errors.Clients.DeliveryPoint.NotFound;
+				return new DeliveryPointNotFoundException(createOrderRequest.DeliveryPointId, createOrderRequest.CounterpartyId);
 			}
 
 			if(deliverySchedule is null)
 			{
-				return Vodovoz.Errors.Logistics.DeliverySchedule.NotFound;
+				return new DeliveryScheduleNotFoundException(createOrderRequest.DeliveryScheduleId);
 			}
 
 			Order order = unitOfWork.Root;
@@ -516,7 +540,7 @@ namespace Vodovoz.Application.Orders.Services
 				case PaymentType.Terminal:
 					if(createOrderRequest.PaymentByTerminalSource is null)
 					{
-						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
+						return new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
 					}
 
 					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
@@ -531,7 +555,7 @@ namespace Vodovoz.Application.Orders.Services
 						break;
 					}
 
-					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+					return new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
 			}
 
 			order.DeliverySchedule = deliverySchedule;
@@ -577,7 +601,7 @@ namespace Vodovoz.Application.Orders.Services
 						&& (nomenclatureParameters is null
 							|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale))
 					{
-						throw new InvalidOperationException(
+						return new InvalidOperationException(
 							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
 					}
 					order.AddNomenclature(nomenclature, waterInfo.BottlesCount);
@@ -586,7 +610,11 @@ namespace Vodovoz.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var updateDeliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			if(updateDeliveryCostResult.IsFailure)
+			{
+				return updateDeliveryCostResult.Error;
+			}
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 

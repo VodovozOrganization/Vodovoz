@@ -64,6 +64,7 @@ using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Results;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1628,7 +1629,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region Добавление/удаление товаров
 		
-		public virtual void UpdateDeliveryItem(Nomenclature nomenclature, decimal price)
+		public virtual Result<Order, Exception> UpdateDeliveryItem(Nomenclature nomenclature, decimal price)
 		{
 			//Т.к. запускается пересчет различных параметров, который может привести к добавлению платной доставки
 			//создание строки с платной доставкой лучше запускать до ее поиска в коллекции
@@ -1638,13 +1639,15 @@ namespace Vodovoz.Domain.Orders
 			if(price > 0)
 			{
 				AddOrUpdateDeliveryItem(currentDeliveryItem, newDeliveryItem, price);
-				return;
+				return this;
 			}
 			
 			if(currentDeliveryItem != null)
 			{
 				RemoveOrderItem(currentDeliveryItem);
 			}
+
+			return this;
 		}
 
 		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)

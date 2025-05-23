@@ -1,8 +1,10 @@
 ﻿using QS.DomainModel.UoW;
+using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Results;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -11,14 +13,14 @@ namespace VodovozBusiness.Services.Orders
 		int PaidDeliveryNomenclatureId { get; }
 
 		void CheckAndAddBottlesToReferrerByReferFriendPromo(IUnitOfWork uow, Order order, bool canChangeDiscountValue);
-		int CreateAndAcceptOrder(CreateOrderRequest roboatsOrderArgs);
-		(int OrderId, int AuthorId, OrderStatus OrderStatus) CreateIncompleteOrder(CreateOrderRequest roboatsOrderArgs);
+		Result<int, Exception> CreateAndAcceptOrder(CreateOrderRequest roboatsOrderArgs);
+		Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception> CreateIncompleteOrder(CreateOrderRequest roboatsOrderArgs);
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		decimal GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
-		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
+		Result<decimal, Exception> GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
+		Result<Order, Exception> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
 		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);
 		bool NeedResendByEdo(IUnitOfWork unitOfWork, Order entity);
@@ -27,7 +29,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
-		(decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest);
+		Result<(decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice), Exception> GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest);
 		
 		/// <summary>
 		/// Получение логистических требований для заказа
@@ -39,13 +41,13 @@ namespace VodovozBusiness.Services.Orders
 		/// Возвращает результат с номером сохраненного заказа
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
-		Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest);
+		Task<Result<int, Exception>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
 		/// Возвращает данные по заказу
 		/// </summary>
-		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
+		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus), Exception>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
 	}
 }

@@ -140,6 +140,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Core.Domain.Documents.Type;
+using Vodovoz.Results;
 
 namespace Vodovoz
 {
@@ -2792,7 +2793,13 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			_orderService
+				.UpdateDeliveryCost(UoW, Entity)
+				.Match(order => order,
+					error => {
+						MessageDialogHelper.RunWarningDialog(error.Message);
+						return default;
+					});
 		}
 
 		/// <summary>

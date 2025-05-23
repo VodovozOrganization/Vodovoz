@@ -1,8 +1,11 @@
 ﻿using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
+using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Errors;
+using Vodovoz.Results;
 
 namespace RobotMiaApi.Services
 {
@@ -30,19 +33,19 @@ namespace RobotMiaApi.Services
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
 		/// <returns></returns>
-		Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest);
+		Task<Result<int, Exception>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Создание заказа без принятия
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
-		Task<Result> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
+		Task<Result<Order, Exception>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Получение цены заказа, доставки и неустойки
 		/// </summary>
 		/// <param name="calculatePriceRequest"></param>
 		/// <returns></returns>
-		Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice)> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
+		Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice), Exception> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
 	}
 }

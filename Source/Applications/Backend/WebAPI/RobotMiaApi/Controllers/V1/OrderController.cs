@@ -11,7 +11,9 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.Results;
 
 namespace RobotMiaApi.Controllers.V1
 {
@@ -83,8 +85,14 @@ namespace RobotMiaApi.Controllers.V1
 			{
 				try
 				{
-					await _orderService.CreateIncompleteOrderAsync(postOrderRequest);
-					return NoContent();
+					return await _orderService.CreateIncompleteOrderAsync(postOrderRequest)
+						.MatchAsync<Order, Exception, IActionResult>(
+							x => NoContent(),
+							error =>
+							{
+								_logger.LogError("Ошибка создания незавершенного заказа: {Error}", error);
+								return Problem(error.Message, statusCode: StatusCodes.Status400BadRequest);
+							});
 				}
 				catch(Exception ex)
 				{
@@ -99,8 +107,8 @@ namespace RobotMiaApi.Controllers.V1
 
 				if(createdOrderResult.IsFailure)
 				{
-					_logger.LogError("Ошибка создания заказа: {Errors}", string.Join(", ", createdOrderResult.Errors.Select(x => x.Message)));
-					return Problem(string.Join(", ", createdOrderResult.Errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest);
+					_logger.LogError("Ошибка создания заказа: {Error}", createdOrderResult.Error);
+					return Problem(createdOrderResult.Error.Message);
 				}
 
 				var createdOrderId = createdOrderResult.Value;
@@ -137,21 +145,16 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var result = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest);
-
-			if(result.IsFailure)
-			{
-				return Problem(string.Join(", ", result.Errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest);
-			}
-
-			(var orderPrice, var deliveryPrice, var forfeitPrice) = result.Value;
-
-			return Ok(new CalculatePriceResponse
-			{
-				OrderPrice = orderPrice,
-				DeliveryPrice = deliveryPrice,
-				ForfeitPrice = forfeitPrice
-			});
+			return _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest)
+				.Match(
+					calculationResult => Ok(new CalculatePriceResponse
+					{
+						OrderPrice = calculationResult.orderPrice,
+						DeliveryPrice = calculationResult.deliveryPrice,
+						ForfeitPrice = calculationResult.forfeitPrice
+					}),
+					error => Problem(error.Message)
+				);
 		}
 	}
 }

@@ -2,11 +2,11 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
+using Vodovoz.Results;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -25,7 +25,7 @@ namespace Vodovoz.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal, Exception> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
 		{
 			#region перенести всё это в OrderStateKey
 
@@ -47,7 +47,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			#endregion
 
-			var district = order.DeliveryPoint != null && order.DeliveryPoint.District != null
+			if(order.DeliveryPoint != null && order.DeliveryPoint.District == null)
+			{
+				return new InvalidOperationException($"В точке доставки {order.DeliveryPoint.Id} не указан район доставки, подсчет стоимости доставки не доступен");
+			}
+
+			var district = order.DeliveryPoint != null
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 

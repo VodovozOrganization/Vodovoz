@@ -18,6 +18,8 @@ using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Services.Orders;
 using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 using VodovozBusiness.Extensions.Mapping;
+using NHibernate.Linq;
+using Vodovoz.Results;
 
 namespace RoboatsService.Handlers
 {
@@ -249,15 +251,23 @@ namespace RoboatsService.Handlers
 			orderArgs.SaleItems = watersInfo;
 			orderArgs.BottlesReturn = bottlesReturn;
 
-			var price = _orderService.GetOrderPrice(orderArgs);
-			if(price <= 0)
+			var priceResult = _orderService.GetOrderPrice(orderArgs);
+
+			if(priceResult.IsFailure)
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
+					$"При расчете стоимости заказа произошла ошибка: {priceResult.Error.Message}. Вода: {RequestDto.WaterQuantity}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
+				return ErrorMessage;
+			}
+
+			if(priceResult.Value <= 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
 					$"При расчете стоимости заказа получена отрицательная сумма. Вода: {RequestDto.WaterQuantity}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
-			var result = (int)Math.Ceiling(price);
+			var result = (int)Math.Ceiling(priceResult.Value);
 
 			return $"{result}";
 		}
@@ -378,12 +388,22 @@ namespace RoboatsService.Handlers
 
 		private void CreateIncompleteOrder(CreateOrderRequest orderArgs)
 		{
-			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
-			_callRegistrator.RegisterAborted(
-				ClientPhone,
-				RequestDto.CallGuid,
-				RoboatsCallOperation.CreateOrder,
-				$"Звонок не был успешно завершен. Был создан черновой заказ {orderData.OrderId}");
+			_orderService.CreateIncompleteOrder(orderArgs)
+				.Match(incompleteOrderData =>
+				{
+					_callRegistrator.RegisterAborted(
+						ClientPhone,
+						RequestDto.CallGuid,
+						RoboatsCallOperation.CreateOrder,
+						$"Звонок не был успешно завершен. Был создан черновой заказ {incompleteOrderData.OrderId}");
+
+					return true;
+				},
+				error =>
+				{
+					_logger.LogError(error, "Ошибка при создании чернового заказа Roboats");
+					return false;
+				});
 		}
 
 		/// <summary>
@@ -394,38 +414,40 @@ namespace RoboatsService.Handlers
 		/// </summary>
 		private async Task CreateOrderWithPaymentByQrCode(CreateOrderRequest orderArgs, bool needAcceptOrder)
 		{
-			var orderData = _orderService.CreateIncompleteOrder(orderArgs);
-			
-			if(needAcceptOrder)
-			{
-				var paymentSent = await TryingSendPayment(ClientPhone, orderData.OrderId);
-				if(paymentSent)
+			_orderService.CreateIncompleteOrder(orderArgs)
+				.Map(async incompleteOrderData =>
 				{
-					orderData = _orderService.AcceptOrder(orderData.OrderId, orderData.AuthorId);
-				}
-			}
-			
-			if(orderData.OrderStatus == OrderStatus.NewOrder)
-			{
-				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder, 
-					$"Был создан черновой заказ {orderData.OrderId} с оплатой по QR коду." +
-					" Оплату не удалось сформировать и отправить автоматически." +
-					" Повторите оплату в ручном режиме или свяжитесь с клиентом для выбора другого способа оплаты.");
-			}
-			else if(orderData.OrderStatus == OrderStatus.Accepted)
-			{
-				_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid, 
-					$"Был подтвержден заказ {orderData.OrderId} с оплатой по QR коду." +
-					" Оплата сформирована и отправлена автоматически.");
-			}
-			else
-			{
-				_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder,
-					$"Был создан заказ в некорректном статусе {orderData.OrderStatus}." +
-					" Обратитесь в отдел разработки.");
-			}
+					if(needAcceptOrder)
+					{
+						var paymentSent = await TryingSendPayment(ClientPhone, incompleteOrderData.OrderId);
+						if(paymentSent)
+						{
+							incompleteOrderData = _orderService.AcceptOrder(incompleteOrderData.OrderId, incompleteOrderData.AuthorId);
+						}
+					}
+
+					if(incompleteOrderData.OrderStatus == OrderStatus.NewOrder)
+					{
+						_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder,
+							$"Был создан черновой заказ {incompleteOrderData.OrderId} с оплатой по QR коду." +
+							" Оплату не удалось сформировать и отправить автоматически." +
+							" Повторите оплату в ручном режиме или свяжитесь с клиентом для выбора другого способа оплаты.");
+					}
+					else if(incompleteOrderData.OrderStatus == OrderStatus.Accepted)
+					{
+						_callRegistrator.RegisterSuccess(ClientPhone, RequestDto.CallGuid,
+							$"Был подтвержден заказ {incompleteOrderData.OrderId} с оплатой по QR коду." +
+							" Оплата сформирована и отправлена автоматически.");
+					}
+					else
+					{
+						_callRegistrator.RegisterAborted(ClientPhone, RequestDto.CallGuid, RoboatsCallOperation.CreateOrder,
+							$"Был создан заказ в некорректном статусе {incompleteOrderData.OrderStatus}." +
+							" Обратитесь в отдел разработки.");
+					}
+				});
 		}
-		
+
 		private async Task<bool> TryingSendPayment(string phone, int orderId)
 		{
 			FastPaymentResult result;
