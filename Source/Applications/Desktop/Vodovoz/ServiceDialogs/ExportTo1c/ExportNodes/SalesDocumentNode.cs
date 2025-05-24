@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Xml.Linq;
 using Vodovoz.ExportTo1c;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c
 {
@@ -49,7 +50,12 @@ namespace Vodovoz.ExportTo1c
 			xml.Add(Comission.ToXml());
 			xml.Add(Tables[0].ToXml());
 			Properties.ForEach(prop => xml.Add(prop.ToXml()));
-			xml.Add(Tables[1].ToXml());
+			
+			if(Tables.Count > 1)
+			{
+				xml.Add(Tables[1].ToXml());
+			}
+
 			return xml;
 		}
 	}
