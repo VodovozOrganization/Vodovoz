@@ -17,6 +17,10 @@ namespace DriverApi.Contracts.V6
 		/// </summary>
 		ForResale,
 		/// <summary>
+		/// Для осзакупок
+		/// </summary>
+		ForTender,
+		/// <summary>
 		/// Сетевой клиент
 		/// </summary>
 		Distributing

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class DocumentEdoTask : OrderEdoTask
+	public class DocumentEdoTask : OrderEdoTask, IUpdEnventPositionsTask
 	{
 		private int _fromOrganization;
 		private int _toCustomer;
