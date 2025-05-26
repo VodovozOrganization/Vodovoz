@@ -2,9 +2,9 @@
 using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
-using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -23,7 +23,6 @@ namespace Edo.Docflow
 		private readonly TransferOrderUpdInfoFactory _transferOrderUpdInfoFactory;
 		private readonly OrderUpdInfoFactory _orderUpdInfoFactory;
 		private readonly IPaymentRepository _paymentRepository;
-		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 
@@ -33,7 +32,6 @@ namespace Edo.Docflow
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
-			EdoTaskValidator edoTaskValidator,
 			IBus messageBus
 			)
 		{
@@ -42,7 +40,6 @@ namespace Edo.Docflow
 			_transferOrderUpdInfoFactory = transferOrderUpdInfoFactory ?? throw new ArgumentNullException(nameof(transferOrderUpdInfoFactory));
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
-			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -75,13 +72,6 @@ namespace Edo.Docflow
 			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
 				.Where(x => x.Id == transferTask.TransferOrderId)
 				.SingleOrDefaultAsync(cancellationToken);
-
-			var isValid = await _edoTaskValidator.Validate(transferTask, transferOrder, cancellationToken);
-
-			if(!isValid)
-			{
-				return;
-			}
 
 			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
 
