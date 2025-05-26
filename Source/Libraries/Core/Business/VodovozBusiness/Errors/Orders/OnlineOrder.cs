@@ -1,4 +1,5 @@
-﻿using VodovozInfrastructure.Extensions;
+﻿using Vodovoz.Core.Domain.Results;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.Errors.Orders
 {

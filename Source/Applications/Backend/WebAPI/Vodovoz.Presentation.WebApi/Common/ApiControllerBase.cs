@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
 namespace Vodovoz.Presentation.WebApi.Common

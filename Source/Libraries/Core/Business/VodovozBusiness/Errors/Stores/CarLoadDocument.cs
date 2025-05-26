@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Stores

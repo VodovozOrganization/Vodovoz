@@ -225,7 +225,7 @@ public class TrueMarkApiController : ControllerBase
 
 			string responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 			var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
-			_logger.LogInformation($"responseBody: {responseBody}");
+			_logger.LogTrace("ResponseBody: {ResponseBody}", responseBody);
 
 			var productInstancesInfo = cisesInformation.Select(cisesInformation =>
 				new ProductInstanceStatus
@@ -241,6 +241,8 @@ public class TrueMarkApiController : ControllerBase
 					OwnerName = cisesInformation.CisInfo.OwnerName
 				}
 			);
+
+			_logger.LogInformation("Проверены статусы кодов в кол-ве: {CodesCount} шт.", productInstancesInfo.Count());
 
 			return new ProductInstancesInfoResponse
 			{

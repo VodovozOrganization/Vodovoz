@@ -780,7 +780,7 @@ namespace Vodovoz
 			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode
 				&& selectedItemNode.OrderItem != null)
 			{
-				_routeListItem.Order.RemoveAloneItem(UoW, _contractUpdater, selectedItemNode.OrderItem);
+				_routeListItem.Order.RemoveItemFromClosingOrder(UoW, _contractUpdater, selectedItemNode.OrderItem);
 				UpdateItemsList();
 			}
 		}

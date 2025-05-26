@@ -18,7 +18,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
-COPY ["packages", "Packages/"]
+COPY ["Packages", "Packages/"]
 COPY ["Applications/Backend/WebAPI/TrueMark.Api/TrueMark.Api.csproj", "Applications/Backend/WebAPI/TrueMark.Api/"]
 COPY ["Libraries/Core/Business/Vodovoz.Settings/Vodovoz.Settings.csproj", "Libraries/Core/Business/Vodovoz.Settings/"]
 

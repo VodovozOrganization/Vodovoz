@@ -2649,9 +2649,9 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void RemoveAloneItem(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderItem item)
+		public virtual void RemoveItemFromClosingOrder(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderItem item)
 		{
-			if(item.Count != 0 || OrderEquipments.Any(x => x.OrderItem == item))
+			if((item.Count != 0 && item.Price != 0) || OrderEquipments.Any(x => x.OrderItem == item))
 			{
 				return;
 			}
@@ -2989,7 +2989,9 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
+			if(OrderStatus == OrderStatus.Accepted
+				&& permissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
@@ -4036,7 +4038,12 @@ namespace Vodovoz.Domain.Orders
 
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
-			ParseTareReason();
+			
+			if(TareNonReturnReason is null)
+			{
+				ParseTareReason();
+			}
+			
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);

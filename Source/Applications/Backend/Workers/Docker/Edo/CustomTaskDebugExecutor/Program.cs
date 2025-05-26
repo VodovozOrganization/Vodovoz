@@ -27,6 +27,8 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using Taxcom.Docflow.Utility;
+using Vodovoz.Core.Domain.Documents;
 
 namespace CustomTaskDebugExecutor
 {
@@ -103,14 +105,15 @@ namespace CustomTaskDebugExecutor
 				.AddEdoTransferSenderServices()
 				;
 
-
 			services.AddScoped<EdoExecutor>();
+
+			services.AddTaxcomRehandleService();
 
 			// Коммит с подтверждением в консоли
 			services.AddScoped<TrackedUnitOfWorkFactory>();
 			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWorkFactory), typeof(ConsoleApprovedUnitOfWorkFactory)));
 			services.Replace(ServiceDescriptor.Scoped(typeof(IUnitOfWork), typeof(ConsoleApprovedUnitOfWork)));
-			
+
 			var autofacFactory = new AutofacServiceProviderFactory();
 			var autofacBuilder = autofacFactory.CreateBuilder(services);
 			var serviceProvider = autofacFactory.CreateServiceProvider(autofacBuilder);
@@ -119,7 +122,7 @@ namespace CustomTaskDebugExecutor
 			{
 				var sp = scope.ServiceProvider;
 				var timeout = TimeSpan.FromMinutes(30);
-				var cts = new CancellationTokenSource(timeout);
+				var cts = new CancellationTokenSource();
 
 				var exec = sp.GetRequiredService<EdoExecutor>();
 

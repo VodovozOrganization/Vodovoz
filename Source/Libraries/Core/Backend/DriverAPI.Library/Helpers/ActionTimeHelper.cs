@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.Helpers
 {

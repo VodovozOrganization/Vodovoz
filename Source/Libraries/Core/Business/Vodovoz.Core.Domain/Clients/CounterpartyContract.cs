@@ -7,6 +7,9 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Core.Domain.Clients
 {
+	/// <summary>
+	/// Договор контрагента
+	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
 		NominativePlural = "договоры контрагента",
@@ -29,7 +32,10 @@ namespace Vodovoz.Core.Domain.Clients
 		private byte[] _changedTemplateFile;
 		private string _number;
 
-
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -37,6 +43,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Максимальный срок отсрочки
+		/// </summary>
 		[Display(Name = "Максимальный срок отсрочки")]
 		public virtual int MaxDelay
 		{
@@ -44,6 +53,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _maxDelay, value);
 		}
 
+		/// <summary>
+		/// Архивный
+		/// </summary>
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
@@ -51,6 +63,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _isArchive, value);
 		}
 
+		/// <summary>
+		/// На расторжении
+		/// </summary>
 		[Display(Name = "На расторжении")]
 		public virtual bool OnCancellation
 		{
@@ -58,6 +73,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _onCancellation, value);
 		}
 
+		/// <summary>
+		/// Номер
+		/// </summary>
 		[Display(Name = "Номер")]
 		public virtual string Number
 		{
@@ -65,6 +83,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _number, value);
 		}
 
+		/// <summary>
+		/// Дата подписания
+		/// </summary>
 		[Display(Name = "Дата подписания")]
 		public virtual DateTime IssueDate
 		{
@@ -72,6 +93,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _issueDate, value);
 		}
 
+		/// <summary>
+		/// Организация
+		/// </summary>
 		[Display(Name = "Организация")]
 		public virtual OrganizationEntity Organization
 		{
@@ -79,6 +103,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _organization, value);
 		}
 
+		/// <summary>
+		/// Контрагент
+		/// </summary>
 		[Display(Name = "Контрагент")]
 		public virtual CounterpartyEntity Counterparty
 		{
@@ -86,6 +113,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _counterparty, value);
 		}
 
+		/// <summary>
+		/// Номер договора внутренний
+		/// </summary>
 		[Display(Name = "Номер договора внутренний")]
 		public virtual int ContractSubNumber
 		{
@@ -93,6 +123,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _contractSubNumber, value);
 		}
 
+		/// <summary>
+		/// Тип договора
+		/// </summary>
 		[Display(Name = "Тип договора")]
 		public virtual ContractType ContractType
 		{
@@ -100,6 +133,9 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _contractType, value);
 		}
 
+		/// <summary>
+		/// Измененный договор
+		/// </summary>
 		[Display(Name = "Измененный договор")]
 		public virtual byte[] ChangedTemplateFile
 		{
@@ -107,7 +143,14 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _changedTemplateFile, value);
 		}
 
+		/// <summary>
+		/// Заголовок
+		/// </summary>
 		public virtual string Title => $"Договор №{Number} от {IssueDate:d}";
+
+		/// <summary>
+		/// Заголовок в 1С
+		/// </summary>
 		public virtual string TitleIn1c => $"{Number} от {IssueDate:d}";
 		
 		public static ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)

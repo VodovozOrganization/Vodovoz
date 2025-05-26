@@ -20,12 +20,12 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Id
+		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
 
 		/// <summary>
-		/// Id документооборота Такском
+		/// Идентификатор документооборота Такском
 		/// </summary>
 		public virtual int? TaxcomDocflowId
 		{

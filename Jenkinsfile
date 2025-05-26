@@ -50,6 +50,7 @@ NODE_VOD5 = "Vod5"
 NODE_VOD6 = "Vod6"
 NODE_VOD7 = "Vod7"
 NODE_VOD13 = "Vod13"
+NODE_VOD14 = "Vod14"
 NODE_WIN_BUILD = "WIN_BUILD"
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
@@ -100,6 +101,7 @@ DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD14_DELIVERY_PATH = "\\\\${NODE_VOD14}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
@@ -131,6 +133,7 @@ stage('Log') {
 	echo "Node Vod6: ${NODE_VOD6}"
 	echo "Node Vod7: ${NODE_VOD7}"
 	echo "Node Vod13: ${NODE_VOD13}"
+	echo "Node Vod13: ${NODE_VOD14}"
 	echo "Node Win Build: ${NODE_WIN_BUILD}"
 	echo "Node Docker Build: ${NODE_DOCKER_BUILD}"
 
@@ -181,6 +184,7 @@ stage('Log') {
 	echo "Desktop Vod5 Delivery Path: ${DESKTOP_VOD5_DELIVERY_PATH}"
 	echo "Desktop Vod7 Delivery Path: ${DESKTOP_VOD7_DELIVERY_PATH}"
 	echo "Desktop Vod13 Delivery Path: ${DESKTOP_VOD13_DELIVERY_PATH}"
+	echo "Desktop Vod14 Delivery Path: ${DESKTOP_VOD14_DELIVERY_PATH}"
 	echo "Web Delivery Path: ${WEB_DELIVERY_PATH}"
 
 	echo "108	Настройки. Развертывание"
@@ -340,6 +344,7 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD14}" : { DeliveryDesktopArtifact(NODE_VOD14, DESKTOP_VOD14_DELIVERY_PATH) },
 
 		// IIS
 		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
@@ -368,6 +373,7 @@ stage('Publish'){
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
 		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
+		"Desktop ${NODE_VOD14}" : { PublishDesktop(NODE_VOD14) },
 
 		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
 		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
@@ -387,6 +393,7 @@ stage('CleanUp'){
 		"Desktop ${NODE_VOD5}" : { DeleteCompressedArtifactAtNode(NODE_VOD5, "VodovozDesktop") },
 		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7, "VodovozDesktop") },
 		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13, "VodovozDesktop") },
+		"Desktop ${NODE_VOD14}" : { DeleteCompressedArtifactAtNode(NODE_VOD14, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
 

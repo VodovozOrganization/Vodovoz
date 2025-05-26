@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Errors
+namespace Vodovoz.Core.Domain.Results
 {
 	/// <summary>
 	/// Класс ошибки
@@ -50,6 +50,6 @@ namespace Vodovoz.Errors
 
 		public static bool operator !=(Error a, Error b) => !(a == b);
 
-		protected internal static string GenerateCode(Type type, string errorField) => $"{type.Namespace}.{type.Name}.{errorField}";
+		public static string GenerateCode(Type type, string errorField) => $"{type.Namespace}.{type.Name}.{errorField}";
 	}
 }

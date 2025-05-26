@@ -1,3 +1,5 @@
+using Vodovoz.Core.Domain.Results;
+
 namespace Vodovoz.Errors.Orders
 {
 	public static partial class Order

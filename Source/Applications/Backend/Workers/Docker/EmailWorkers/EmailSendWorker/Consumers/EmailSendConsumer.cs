@@ -1,32 +1,27 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Mailjet.Api.Abstractions;
-using Mailjet.Api.Abstractions.Configs;
-using Mailjet.Api.Abstractions.Endpoints;
+﻿using Mailganer.Api.Client;
+using Mailganer.Api.Client.Dto;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace EmailSendWorker.Consumers
 {
 	public class EmailSendConsumer : IConsumer<SendEmailMessage>
 	{
 		private readonly ILogger<EmailSendConsumer> _logger;
-		private readonly SendEndpoint _sendEndpoint;
-		private readonly MailjetOptions _mailjetOptions;
+		private readonly MailganerClientV2 _mailganerClient;
 
 		public EmailSendConsumer(
 			ILogger<EmailSendConsumer> logger,
-			IOptions<MailjetOptions> mailjetOptions,
-			SendEndpoint sendEndpoint)
+			MailganerClientV2 mailganerClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_sendEndpoint = sendEndpoint ?? throw new ArgumentNullException(nameof(sendEndpoint));
-			_mailjetOptions = (mailjetOptions ?? throw new ArgumentNullException(nameof(mailjetOptions))).Value;
+			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
 		}
 		
 		public async Task Consume(ConsumeContext<SendEmailMessage> context)
@@ -50,23 +45,43 @@ namespace EmailSendWorker.Consumers
             	message.Payload = new EmailPayload();
             }
 
-            var payload = new SendPayload
-            {
-            	Messages = new[] { message },
-            	SandboxMode = _mailjetOptions.Sandbox
-            };
-            
+			var emails = CreateEmailMessages(message);
             _logger.LogInformation("Sending email {MessagePayloadId}", message.Payload.Id);
 
             try
             {
-            	await _sendEndpoint.Send(payload);
-            }
+				foreach(var email in emails)
+				{
+					await _mailganerClient.Send(email);
+				}
+			}
             catch(Exception e)
             {
             	_logger.LogError(e, e.Message);
 	            throw;
             }
+		}
+
+		private IEnumerable<EmailMessage> CreateEmailMessages(SendEmailMessage message)
+		{
+			var emailMessages = new List<EmailMessage>();
+			foreach(var to in message.To)
+			{
+				var email = new EmailMessage
+				{
+					From = $"{message.From.Name} <{message.From.Email}>",
+					To = to.Email,
+					Subject = message.Subject,
+					MessageText = message.HTMLPart,
+					Attachments = message.Attachments.Select(x => new EmailAttachment { 
+						Filename = x.Filename,
+						Base64Content = x.Base64Content,
+					}).ToList(),
+					TrackOpen = true
+				};
+				emailMessages.Add(email);
+			}
+			return emailMessages;
 		}
 	}
 }

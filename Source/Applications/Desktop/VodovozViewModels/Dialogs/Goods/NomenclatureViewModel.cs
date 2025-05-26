@@ -1085,7 +1085,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			DeleteAttachedFilesIfNeeded();
 			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 			RobotMiaParameters.NomenclatureId = Entity.Id;
-			UoW.Save(RobotMiaParameters);
+			UoW.Session.Save(RobotMiaParameters);
 
 			return base.Save(close);
 		}

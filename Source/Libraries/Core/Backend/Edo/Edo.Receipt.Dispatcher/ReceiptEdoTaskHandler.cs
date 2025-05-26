@@ -1,6 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Problems;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
@@ -43,6 +44,12 @@ namespace Edo.Receipt.Dispatcher
 		public async Task HandleNew(int receiptEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<ReceiptEdoTask>(receiptEdoTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning("Задача Id {ReceiptEdoTaskId} не найдена.", receiptEdoTaskId);
+				return;
+			}
+
 			try
 			{
 				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
@@ -60,6 +67,19 @@ namespace Edo.Receipt.Dispatcher
 				if(!registered)
 				{
 					throw;
+				}
+			}
+			catch(Exception ex) when(ex.InnerException is MySqlException)
+			{
+				var mysqlException = (MySqlException)ex.InnerException;
+				if(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+				{
+					var edoException = new CodeDuplicatedException(mysqlException.Message);
+					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, edoException, cancellationToken);
+					if(!registered)
+					{
+						throw;
+					}
 				}
 			}
 			catch(Exception ex)
@@ -96,21 +116,21 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
-			var receiptEdoTask = transferIteration.OrderEdoTask.As<ReceiptEdoTask>();
+			var edoTask = transferIteration.OrderEdoTask.As<ReceiptEdoTask>();
 
-			if(receiptEdoTask.Status == EdoTaskStatus.Completed)
+			if(edoTask.Status == EdoTaskStatus.Completed)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-					"так как задача Id {ReceiptEdoTaskId} уже завершена", receiptEdoTask.Id);
+					"так как задача Id {ReceiptEdoTaskId} уже завершена", edoTask.Id);
 				return;
 			}
 
-			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
+			if(edoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {ReceiptEdoTaskId} находится не на стадии трансфера, " +
 					"а на стадии {ReceiptEdoTaskReceiptStatus}",
-					receiptEdoTask.Id, receiptEdoTask.ReceiptStatus);
+					edoTask.Id, edoTask.ReceiptStatus);
 				return;
 			}
 
@@ -120,7 +140,7 @@ namespace Edo.Receipt.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
 				.ListAsync();
 
 			var sourceCodes = productCodes
@@ -136,26 +156,39 @@ namespace Edo.Receipt.Dispatcher
 
 			try
 			{
-				if(receiptEdoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 				{
-					await _resaleReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+					await _resaleReceiptEdoTaskHandler.HandleTransferComplete(edoTask, cancellationToken);
 				}
 				else
 				{
-					await _forOwnNeedsReceiptEdoTaskHandler.HandleTransferComplete(receiptEdoTask, cancellationToken);
+					await _forOwnNeedsReceiptEdoTaskHandler.HandleTransferComplete(edoTask, cancellationToken);
 				}
 			}
 			catch(EdoProblemException ex)
 			{
-				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(receiptEdoTask, ex, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
 				if(!registered)
 				{
 					throw;
 				}
 			}
+			catch(Exception ex) when(ex.InnerException is MySqlException)
+			{
+				var mysqlException = (MySqlException)ex.InnerException;
+				if(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+				{
+					var edoException = new CodeDuplicatedException(mysqlException.Message);
+					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, edoException, cancellationToken);
+					if(!registered)
+					{
+						throw;
+					}
+				}
+			}
 			catch(Exception ex)
 			{
-				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(receiptEdoTask, ex, cancellationToken);
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
 				if(!registered)
 				{
 					throw;

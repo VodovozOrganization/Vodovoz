@@ -1,3 +1,5 @@
+﻿using Vodovoz.Core.Domain.Results;
+
 namespace Vodovoz.Errors.Email
 {
 	public static partial class Email

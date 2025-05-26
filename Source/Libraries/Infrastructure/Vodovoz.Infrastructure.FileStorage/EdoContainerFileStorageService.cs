@@ -4,8 +4,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Errors;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {
