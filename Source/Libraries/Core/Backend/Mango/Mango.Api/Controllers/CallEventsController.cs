@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -15,26 +16,21 @@ namespace Mango.Api.Controllers
 	[Route("events")]
 	public class CallEventsController : ControllerBase
 	{
-		private readonly ILoggerFactory _loggerFactory;
+		private readonly ILogger<CallEventsController> _logger;
 		private readonly KeyValidator _keyValidator;
 		private readonly SignValidator _signValidator;
 		private readonly IBus _messageBus;
-		private readonly ILogger _eventsJsonLogger;
-		private readonly ILogger _deserializationErrorLogger;
 
 		public CallEventsController(
-			ILoggerFactory loggerFactory, 
+			ILogger<CallEventsController> logger,
 			KeyValidator keyValidator,
 			SignValidator signValidator,
 			IBus messageBus)
 		{
-			_loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_keyValidator = keyValidator ?? throw new ArgumentNullException(nameof(keyValidator));
 			_signValidator = signValidator ?? throw new ArgumentNullException(nameof(signValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-
-			_eventsJsonLogger = _loggerFactory.CreateLogger("Events.Json");
-			_deserializationErrorLogger = _loggerFactory.CreateLogger("Deserialization.Errors");
 		}
 
 		[HttpPost()]
@@ -44,8 +40,10 @@ namespace Mango.Api.Controllers
 			[FromForm(Name = "sign")] string sign,
 			[FromForm(Name = "json")] string json)
 		{
+			Activity.Current?.AddTag("vpbx_api_key", vpbxKey);
+			Activity.Current?.AddTag("sign", sign);
 			HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-			_eventsJsonLogger.LogTrace("Call event: {json}", json);
+			_logger.LogTrace("Call event: {JsonInputString}", json);
 
 			if(!_keyValidator.Validate(vpbxKey))
 			{
@@ -64,7 +62,7 @@ namespace Mango.Api.Controllers
 			}
 			catch(JsonException ex)
 			{
-				_deserializationErrorLogger.LogError(ex, "Ошибка десериализации события звонка. Json: {json}", json);
+				_logger.LogError(ex, "Ошибка десериализации события звонка. Json: {JsonInputString}", json);
 			}
 		}
 
@@ -75,8 +73,10 @@ namespace Mango.Api.Controllers
 			[FromForm(Name = "sign")] string sign,
 			[FromForm(Name = "json")] string json)
 		{
+			Activity.Current?.AddTag("vpbx_api_key", vpbxKey);
+			Activity.Current?.AddTag("sign", sign);
 			HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-			_eventsJsonLogger.LogTrace("Summary event: {json}", json);
+			_logger.LogTrace("Summary event: {JsonInputString}", json);
 
 			if(!_keyValidator.Validate(vpbxKey))
 			{
@@ -95,7 +95,7 @@ namespace Mango.Api.Controllers
 			}
 			catch(JsonException ex)
 			{
-				_deserializationErrorLogger.LogError(ex, "Ошибка десериализации события завершения звонка. Json: {json}", json);
+				_logger.LogError(ex, "Ошибка десериализации события завершения звонка. Json: {JsonInputString}", json);
 			}
 		}
 	}
