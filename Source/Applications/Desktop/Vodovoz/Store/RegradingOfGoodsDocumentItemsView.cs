@@ -3,6 +3,8 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using System.Globalization;
+using Gtk;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
@@ -52,11 +54,7 @@ namespace Vodovoz.Store
 					)
 				)
 				.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
-				.AddSetter(
-					(w, x) => x.Amount = x.Amount > (decimal)GetMaxValueForAdjustmentSetting(x)
-					? (decimal)GetMaxValueForAdjustmentSetting(x)
-					: x.Amount
-				)
+				.EditedEvent(ItemCountEditedHandler)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Тип брака")
@@ -110,6 +108,28 @@ namespace Vodovoz.Store
 			ytreeviewItems.Binding.AddBinding(ViewModel, vm => vm.SelectedItemObject, w => w.SelectedRow);
 
 			SubscribeOnUIEvents();
+		}
+
+		private void ItemCountEditedHandler(object o, EditedArgs args)
+		{
+			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is RegradingOfGoodsDocumentItem item))
+			{
+				return;
+			}
+
+			var maxValue = (decimal)GetMaxValueForAdjustmentSetting(item);
+
+			if(maxValue > 0)
+			{
+				if(item.Amount > maxValue)
+				{
+					item.Amount = maxValue;
+				}
+			}
+
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newAmount);
+			item.Amount = newAmount;
 		}
 
 		private void OnAddButtonClicked(object sender, EventArgs e)
