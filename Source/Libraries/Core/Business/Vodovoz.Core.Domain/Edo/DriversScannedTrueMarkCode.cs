@@ -26,6 +26,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _routeListAddressId;
 		private bool _isDefective;
 		private bool _isProcessingCompleted;
+		private bool _isProcessingError;
 
 		/// <summary>
 		/// Код
@@ -85,6 +86,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _isProcessingCompleted;
 			set => SetField(ref _isProcessingCompleted, value);
+		}
+
+		/// <summary>
+		/// Ошибка при обработке кода
+		/// </summary>
+		[Display(Name = "Ошибка при обработке кода")]
+		public virtual bool IsProcessingError
+		{
+			get => _isProcessingError;
+			set => SetField(ref _isProcessingError, value);
 		}
 	}
 }
