@@ -187,5 +187,40 @@ namespace TaxcomEdo.Client
 			
 			return client;
 		}
+
+		public async Task SendOfferCancellationRaw(string docFlowId, string comment, CancellationToken cancellationToken = default)
+		{
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docFlowId, nameof(docFlowId))
+				.AddParameter(comment, nameof(comment))
+				.ToString();
+
+			await CreateClient()
+				.GetAsync("/api/SendOfferCancellation" + query, cancellationToken);
+		}
+
+		public async Task AcceptOfferCancellation(string docFlowId, CancellationToken cancellationToken = default)
+		{
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docFlowId, nameof(docFlowId))
+				.ToString();
+
+			await CreateClient()
+				.GetAsync("/api/AcceptOfferCancellation" + query, cancellationToken);
+		}
+
+		public async Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default)
+		{
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docFlowId, nameof(docFlowId))
+				.AddParameter(comment, nameof(comment))
+				.ToString();
+
+			await CreateClient()
+				.GetAsync("/api/RejectOfferCancellation" + query, cancellationToken);
+		}
 	}
 }
