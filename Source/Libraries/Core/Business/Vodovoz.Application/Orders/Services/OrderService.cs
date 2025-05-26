@@ -606,7 +606,7 @@ namespace Vodovoz.Application.Orders.Services
 			return order;
 		}
 
-		private void AddLogisticsRequirements(Order order)
+		public void AddLogisticsRequirements(Order order)
 		{
 			order.LogisticsRequirements = GetLogisticsRequirements(order);
 		}

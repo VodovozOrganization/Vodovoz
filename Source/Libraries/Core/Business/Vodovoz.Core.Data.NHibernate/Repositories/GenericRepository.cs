@@ -1,16 +1,25 @@
-﻿using QS.DomainModel.Entity;
+﻿using NHibernate.Linq;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Specifications;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
+	/// <summary>
+	/// Реализация репозитория для работы с сущностями.
+	/// </summary>
+	/// <typeparam name="TEntity"></typeparam>
 	public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IDomainObject
 	{
+		/// <inheritdoc/>
 		public IEnumerable<TEntity> Get(
 			IUnitOfWork unitOfWork,
 			Expression<Func<TEntity, bool>> predicate = null,
@@ -24,6 +33,7 @@ namespace Vodovoz.Infrastructure.Persistance
 			return GetQueriable(unitOfWork, predicate).ToList();
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<TType> GetValue<TType>(
 			IUnitOfWork unitOfWork,
 			Expression<Func<TEntity, TType>> selector,
@@ -38,11 +48,13 @@ namespace Vodovoz.Infrastructure.Persistance
 			return GetQueriable(unitOfWork, predicate).Select(selector).ToList();
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<TEntity> Get(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification, int limit = 0)
 		{
 			return Get(unitOfWork, expressionSpecification.Expression).ToList();
 		}
 
+		/// <inheritdoc/>
 		private IQueryable<TEntity> GetQueriable(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate = null)
 		{
 			if(predicate is null)
@@ -53,6 +65,45 @@ namespace Vodovoz.Infrastructure.Persistance
 
 			return unitOfWork.Session.Query<TEntity>()
 				.Where(predicate);
+		}
+
+		/// <inheritdoc/>
+		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return GetQueriable(unitOfWork, predicate).FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return GetQueriable(unitOfWork, predicate).LastOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public async Task<Result<IEnumerable<TEntity>>> GetAsync(
+			IUnitOfWork unitOfWork,
+			Expression<Func<TEntity, bool>> predicate = null,
+			int limit = 0,
+			CancellationToken cancellationToken = default)
+		{
+			if(limit != 0)
+			{
+				return GetQueriable(unitOfWork, predicate).Take(limit).ToList();
+			}
+
+			return await GetQueriable(unitOfWork, predicate)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<Result<IEnumerable<TResult>>> GetAsync<TResult>(
+			IUnitOfWork unitOfWork,
+			Func<TEntity, TResult> map,
+			Expression<Func<TEntity, bool>> predicate = null,
+			int limit = 0)
+		{
+			return await GetAsync(unitOfWork, predicate, limit)
+				.MapAsync(entities => entities.Select(x => map(x)));
 		}
 	}
 }

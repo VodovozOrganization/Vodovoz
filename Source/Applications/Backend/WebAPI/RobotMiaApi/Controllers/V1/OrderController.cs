@@ -61,7 +61,7 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {postOrderRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			if(unitOfWork.GetById<DeliveryPoint>(postOrderRequest.CounterpartyId) == default)
+			if(unitOfWork.GetById<Counterparty>(postOrderRequest.CounterpartyId) is not Counterparty counterparty)
 			{
 				return Problem($"Должен быть указан идентификатор контрагента, указано значение: {postOrderRequest.CounterpartyId}", statusCode: StatusCodes.Status400BadRequest);
 			}
@@ -74,7 +74,7 @@ namespace RobotMiaApi.Controllers.V1
 
 			if(postOrderRequest.DeliveryDate is null
 				|| postOrderRequest.DeliveryIntervalId is null
-				|| postOrderRequest.SignatureType is null
+				|| (counterparty.PersonType == Vodovoz.Core.Domain.Clients.PersonType.legal && postOrderRequest.SignatureType is null)
 				|| postOrderRequest.ContactPhone is null
 				|| postOrderRequest.PaymentType is null
 				|| postOrderRequest.CallBeforeArrivalMinutes is null
