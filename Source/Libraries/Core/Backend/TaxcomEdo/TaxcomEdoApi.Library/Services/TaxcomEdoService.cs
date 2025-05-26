@@ -333,5 +333,70 @@ namespace TaxcomEdoApi.Library.Services
 			
 			return document;
 		}
+
+		public SendOfferCancellationEvent CreateOfferCancellation(string docflowId, string comment)
+		{
+			var document = new SendOfferCancellationEvent
+			{
+				InternalId = docflowId,
+				Signers = new[]
+				{
+					new TaxcomEdo.Contracts.Documents.Events.Signer
+					{
+						Item = new SignerCertificate
+						{
+							Thumbprint = _certificate.Thumbprint,
+							SerialNumber = _certificate.SerialNumber
+						}
+					}
+				},
+				Comment = comment
+			};
+
+			return document;
+		}
+
+		public SendAcceptCancellationOfferEvent AcceptOfferCancellation(string docflowId)
+		{
+			var document = new SendAcceptCancellationOfferEvent
+			{
+				InternalId = docflowId,
+				Signers = new[]
+				{
+					new TaxcomEdo.Contracts.Documents.Events.Signer
+					{
+						Item = new SignerCertificate
+						{
+							Thumbprint = _certificate.Thumbprint,
+							SerialNumber = _certificate.SerialNumber
+						}
+					}
+				}
+			};
+
+			return document;
+		}
+
+		public SendRejectCancellationOfferEvent RejectOfferCancellation(string docflowId, string comment)
+		{
+			var document = new SendRejectCancellationOfferEvent
+			{
+				InternalId = docflowId,
+				Signers = new[]
+				{
+					new TaxcomEdo.Contracts.Documents.Events.Signer
+					{
+						Item = new SignerCertificate
+						{
+							Thumbprint = _certificate.Thumbprint,
+							SerialNumber = _certificate.SerialNumber
+						}
+					}
+				},
+				Comment = comment
+			};
+
+			return document;
+		}
 	}
 }

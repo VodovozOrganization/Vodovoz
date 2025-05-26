@@ -97,7 +97,7 @@ namespace TaxcomEdo.Client
 		/// <returns></returns>
 		Task StartProcessAutoSendReceive(CancellationToken cancellationToken = default);
 		/// <summary>
-		/// Отправка запроса на аннулироване документооборота
+		/// Отправка запроса на аннулирование документооборота
 		/// </summary>
 		/// <param name="docFlowId">Идентификатор документооборота</param>
 		/// <param name="reason">Причина аннулирования</param>
@@ -111,5 +111,28 @@ namespace TaxcomEdo.Client
 		/// <param name="organization">Название организации, от которой подписывается входящий документ</param>
 		/// <returns></returns>
 		Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Отправка запроса на аннулирование документооборота
+		/// </summary>
+		/// <param name="docFlowId">Идентификатор документооборота</param>
+		/// <param name="reason">Причина аннулирования</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task SendOfferCancellationRaw(string docFlowId, string comment, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Принятие запроса на аннулирование документооборота
+		/// </summary>
+		/// <param name="docFlowId">Идентификатор документооборота</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task AcceptOfferCancellation(string docFlowId, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Отказ запроса на аннулирование документооборота
+		/// </summary>
+		/// <param name="docFlowId">Идентификатор документооборота</param>
+		/// <param name="reason">Причина аннулирования</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default);
 	}
 }
