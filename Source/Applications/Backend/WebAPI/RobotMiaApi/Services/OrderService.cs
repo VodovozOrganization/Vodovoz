@@ -369,8 +369,7 @@ namespace RobotMiaApi.Services
 			order.Author = author;
 			order.Client = counterparty;
 			order.DeliveryPoint = deliveryPoint;
-			order.DriverMobileAppComment = createOrderRequest.DriverAppComment;
-			order.DriverMobileAppCommentTime = DateTime.Now;
+			order.Comment = createOrderRequest.DriverAppComment;
 			order.CallBeforeArrivalMinutes = createOrderRequest.CallBeforeArrivalMinutes;
 
 			if(createOrderRequest.PaymentType == PaymentType.Cash)
