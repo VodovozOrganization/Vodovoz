@@ -43,6 +43,6 @@ namespace RobotMiaApi.Services
 		/// </summary>
 		/// <param name="calculatePriceRequest"></param>
 		/// <returns></returns>
-		Result<(decimal orderPrice, decimal deliveryPrice, decimal forfeitPrice)> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
+		Result<CalculatePriceResponse> GetOrderAndDeliveryPrices(CalculatePriceRequest calculatePriceRequest);
 	}
 }

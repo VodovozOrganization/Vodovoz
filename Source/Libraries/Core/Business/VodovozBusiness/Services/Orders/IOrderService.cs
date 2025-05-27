@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
@@ -27,6 +28,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа и цену доставки по имеющимся данным о заказе
 		/// </summary>
+		[Obsolete("Метод использовался в RobotMiaApi, должен быть удален")]
 		(decimal OrderPrice, decimal DeliveryPrice, decimal ForfeitPrice) GetOrderAndDeliveryPrices(CreateOrderRequest createOrderRequest);
 		
 		/// <summary>
@@ -39,12 +41,14 @@ namespace VodovozBusiness.Services.Orders
 		/// Возвращает результат с номером сохраненного заказа
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
+		[Obsolete("Метод использовался в RobotMiaApi, должен быть удален")]
 		Task<Result<int>> CreateAndAcceptOrderAsync(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Создает заказ с имеющимися данными в статусе Новый, для обработки его оператором вручную.
 		/// Возвращает данные по заказу
 		/// </summary>
+		[Obsolete("Метод использовался в RobotMiaApi, должен быть удален")]
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
 	}

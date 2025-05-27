@@ -44,7 +44,7 @@ namespace RobotMiaApi.Services
 				uow ??= _uowFactory.CreateWithoutRoot();
 
 				var call = _robotMiaCallRespository
-					.Get(uow, rac => rac.CallGuid == callId)
+					.Get(uow, rmc => rmc.CallGuid == callId)
 					.SingleOrDefault();
 
 				return await Task.FromResult(call);
@@ -84,7 +84,7 @@ namespace RobotMiaApi.Services
 				phoneNumber.NormalizePhone();
 
 				var call = _robotMiaCallRespository
-					.Get(uow, rac => rac.CallGuid == callId)
+					.Get(uow, rmc => rmc.CallGuid == callId)
 					.SingleOrDefault();
 
 				if(call is null)
