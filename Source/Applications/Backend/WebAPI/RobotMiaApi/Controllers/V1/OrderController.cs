@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Presentation.WebApi.Common;
 
@@ -137,21 +138,11 @@ namespace RobotMiaApi.Controllers.V1
 				return Problem($"Не найдена запись о звонке {calculatePriceRequest.CallId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var result = _orderService.GetOrderAndDeliveryPrices(calculatePriceRequest);
-
-			if(result.IsFailure)
-			{
-				return Problem(string.Join(", ", result.Errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest);
-			}
-
-			(var orderPrice, var deliveryPrice, var forfeitPrice) = result.Value;
-
-			return Ok(new CalculatePriceResponse
-			{
-				OrderPrice = orderPrice,
-				DeliveryPrice = deliveryPrice,
-				ForfeitPrice = forfeitPrice
-			});
+			return _orderService
+				.GetOrderAndDeliveryPrices(calculatePriceRequest)
+				.Match<CalculatePriceResponse, IActionResult>(
+					response => Ok(response),
+					errors => Problem(string.Join(", ", errors.Select(x => x.Message)), statusCode: StatusCodes.Status400BadRequest));
 		}
 	}
 }
