@@ -2089,6 +2089,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
+    <Compile Include="Views\Edo\TenderEdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2096,6 +2098,7 @@
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Cash\Payments\" />
     <Folder Include="Dialogs\Cash\Payments\" />
+    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
