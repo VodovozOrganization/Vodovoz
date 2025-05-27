@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +18,9 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Tender
 {
+	/// <summary>
+	/// Обработчик ЭДО задач по Тендеру
+	/// </summary>
 	public class TenderEdoTaskHandler : IDisposable
 	{
 		private readonly ILogger<TenderEdoTaskHandler> _logger;
@@ -54,9 +57,13 @@ namespace Edo.Tender
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
+		/// <summary>
+		/// Обработка задачи по Тендеру и создание заявки на трансфер кодов
+		/// </summary>
+		/// <param name="tenderEdoTaskId"></param>
+		/// <param name="cancellationToken"></param>
 		public async Task HandleNew(int tenderEdoTaskId, CancellationToken cancellationToken)
 		{
-			
 			var edoTask = await _uow.Session.GetAsync<TenderEdoTask>(tenderEdoTaskId, cancellationToken);
 
 			if(edoTask == null)

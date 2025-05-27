@@ -4,6 +4,9 @@ using RabbitMQ.Client;
 
 namespace Edo.Tender.Consumers.Definitions
 {
+	/// <summary>
+	/// Настройка MassTransit для события создания задачи по Тендеру
+	/// </summary>
 	public class TenderTaskCreatedConsumerDefinition : ConsumerDefinition<TenderTaskCreatedConsumer>
 	{
 		public TenderTaskCreatedConsumerDefinition()

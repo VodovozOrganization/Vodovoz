@@ -1,7 +1,13 @@
 ﻿namespace Edo.Contracts.Messages.Events
 {
+	/// <summary>
+	/// Событие создания задачи по Тендеру
+	/// </summary>
 	public class TenderTaskCreatedEvent
 	{
-		public int Id { get; set; }
+		/// <summary>
+		/// Id задачи по Тендеру
+		/// </summary>
+		public int TenderEdoTaskId { get; set; }
 	}
 }

@@ -97,6 +97,7 @@ namespace CustomTaskDebugExecutor
 				.AddCodesSaverServices()
 				.AddEdoDocflowServices()
 				.AddEdoDocumentsServices()
+				.AddTenderEdoServices()
 				.AddEdoReceiptDispatcherServices()
 				.AddEdoReceiptSenderServices()
 				.AddEdoSchedulerServices()

@@ -84,7 +84,7 @@ namespace Edo.Scheduler.Service
 					message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 					break;
 				case EdoTaskType.Tender:
-					message = new TenderTaskCreatedEvent { Id = edoTask.Id };
+					message = new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id };
 					break;
 				case EdoTaskType.Withdrawal:
 					// создать сообщение для сервиса вывода из оборота
