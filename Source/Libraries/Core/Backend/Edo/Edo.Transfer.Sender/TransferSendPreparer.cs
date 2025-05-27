@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using MassTransit;
@@ -154,7 +154,7 @@ namespace Edo.Transfer.Sender
 
 			var orderTaskIds = transferRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
-			await _uow.Session.QueryOver<DocumentEdoTask>()
+			await _uow.Session.QueryOver<IUpdEnventPositionsTask>()
 				.Fetch(SelectMode.Fetch, x => x.UpdInventPositions)
 				.WhereRestrictionOn(x => x.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
@@ -198,6 +198,16 @@ namespace Edo.Transfer.Sender
 								cancellationToken
 							);
 							break;
+						case EdoTaskType.Tender:
+							var tenderEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<TenderEdoTask>();
+							transferOrderTrueMarkCode = await CreateTransferCodeItem(
+								tenderEdoTask,
+								transferedItem,
+								groupGtins,
+								gtins,
+								cancellationToken
+							);
+							break;
 						case EdoTaskType.Receipt:
 							var receiptEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<ReceiptEdoTask>();
 							transferOrderTrueMarkCode = await CreateTransferCodeItem(
@@ -231,9 +241,10 @@ namespace Edo.Transfer.Sender
 
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 		}
+		
 
 		private async Task<TransferOrderTrueMarkCode> CreateTransferCodeItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			EdoTaskItem edoTaskItem,
 			IEnumerable<GroupGtinEntity> groupGtins,
 			IEnumerable<GtinEntity> gtins,
@@ -274,7 +285,7 @@ namespace Edo.Transfer.Sender
 		}
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			TrueMarkWaterGroupCode groupCode,
 			IEnumerable<GroupGtinEntity> groupGtins
 			)
@@ -295,7 +306,7 @@ namespace Edo.Transfer.Sender
 		}
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			TrueMarkWaterIdentificationCode individualCode,
 			IEnumerable<GtinEntity> gtins
 			)
