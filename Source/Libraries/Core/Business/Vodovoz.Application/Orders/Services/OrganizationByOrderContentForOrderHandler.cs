@@ -47,47 +47,48 @@ namespace Vodovoz.Application.Orders.Services
 			var organizationBasedOrderContentSettings = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
 			var goodsAndEquipmentsBySets =
 				new Dictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)>();
-
-			var i = 0;
 			
-			while(i < processingGoods.Count)
+			foreach(var setSettings in organizationBasedOrderContentSettings)
 			{
-				foreach(var setSettings in organizationBasedOrderContentSettings)
+				var i = 0;
+				
+				while(i < processingGoods.Count)
 				{
-					if(ProductBelongsSet(processingGoods[i], setSettings))
+					if(!ProductBelongsSet(processingGoods[i], setSettings))
 					{
-						if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
-						{
-							goodsAndEquipments =
-								new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
-							goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
-						}
-
-						goodsAndEquipments.Goods.Add(processingGoods[i]);
-
-						var dependentEquipments = processingEquipments.Where(
-								x =>
-									x.OrderItem.Id == processingGoods[i].Id
-									|| x.OrderRentDepositItem.Id == processingGoods[i].Id
-									|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
-							.ToList();
-
-						foreach(var dependentEquipment in dependentEquipments)
-						{
-							goodsAndEquipments.Equipments.Add(dependentEquipment);
-							processingEquipments.Remove(dependentEquipment);
-						}
-						
-						processingGoods.RemoveAt(i);
-						break;
+						i++;
+						continue;
 					}
+
+					if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+					{
+						goodsAndEquipments =
+							new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+						goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+					}
+
+					goodsAndEquipments.Goods.Add(processingGoods[i]);
+
+					var dependentEquipments = processingEquipments.Where(x =>
+							x.OrderItem.Id == processingGoods[i].Id
+							|| x.OrderRentDepositItem.Id == processingGoods[i].Id
+							|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
+						.ToList();
+
+					foreach(var dependentEquipment in dependentEquipments)
+					{
+						goodsAndEquipments.Equipments.Add(dependentEquipment);
+						processingEquipments.Remove(dependentEquipment);
+					}
+
+					processingGoods.Remove(processingGoods[i]);
 				}
-				i++;
 			}
 			
 			ProcessEquipments(processingEquipments, organizationBasedOrderContentSettings, goodsAndEquipmentsBySets);
 
-			if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1)/* && equipmentsBySets.Keys.All(x => x != 1)*/)
+			if(goodsAndEquipmentsBySets.Count == 0
+				|| goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
 			{
 				return new[]
 				{
