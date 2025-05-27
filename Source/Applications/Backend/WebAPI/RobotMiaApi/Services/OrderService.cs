@@ -250,11 +250,16 @@ namespace RobotMiaApi.Services
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(calculatePriceRequest.DeliveryPointId)
 					?? throw new InvalidOperationException($"Не найдена точка доставки #{calculatePriceRequest.DeliveryPointId}");
 
+				var deliverySchedule =  unitOfWork.GetById<DeliverySchedule>(calculatePriceRequest.DeliveryIntervalId);
+
 				Order order = unitOfWork.Root;
 				order.Author = _robotMiaEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = VodovozPaymentType.Cash;
+
+				order.DeliverySchedule = deliverySchedule;
+				order.DeliveryDate = calculatePriceRequest.DeliveryDate;
 
 				var nomenclaturesToAddIds = calculatePriceRequest.OrderSaleItems.Select(x => x.NomenclatureId).ToArray();
 
