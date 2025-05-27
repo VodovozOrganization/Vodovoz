@@ -42,19 +42,20 @@ namespace Vodovoz.Store
 				.AddColumn("Старая номенклатура").AddTextRenderer(x => x.NomenclatureOld.Name)
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.NomenclatureOld.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("Новая номенклатура").AddTextRenderer(x => x.NomenclatureNew.Name)
-				.AddColumn("Кол-во пересортицы").AddNumericRenderer(x => x.Amount).Editing()
-				.AddSetter(
-					(w, x) => w.Adjustment = new Gtk.Adjustment(
-						0,
-						0,
-						GetMaxValueForAdjustmentSetting(x),
-						1,
-						10,
-						10
+				.AddColumn("Кол-во пересортицы")
+					.AddNumericRenderer(x => x.Amount, ItemCountEditedHandler)
+					.Editing()
+					.AddSetter(
+						(w, x) => w.Adjustment = new Gtk.Adjustment(
+							0,
+							0,
+							GetMaxValueForAdjustmentSetting(x),
+							1,
+							10,
+							10
+						)
 					)
-				)
-				.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
-				.EditedEvent(ItemCountEditedHandler)
+					.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Тип брака")
@@ -128,8 +129,9 @@ namespace Vodovoz.Store
 				}
 			}
 
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newAmount);
-			item.Amount = newAmount;
+			var newValue = args.NewText.Replace(',', '.');
+			decimal.TryParse(newValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var newAmount);
+			item.Amount = Math.Round(newAmount, item.NomenclatureNew.Unit.Digits);
 		}
 
 		private void OnAddButtonClicked(object sender, EventArgs e)
