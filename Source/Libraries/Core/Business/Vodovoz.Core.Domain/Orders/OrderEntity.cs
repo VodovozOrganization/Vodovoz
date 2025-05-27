@@ -648,6 +648,12 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public virtual bool IsOrderForResale =>
 			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - госзакупки
+		/// </summary>
+		public virtual bool IsOrderForTender =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Tender;
 
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем

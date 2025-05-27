@@ -10,6 +10,11 @@ namespace Edo.Scheduler.Service
 	{
 		public EdoTask CreateTask(OrderEdoRequest edoRequest)
 		{
+			if(edoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
+			{
+				return CreateTenderEdoTask(edoRequest);
+			}
+			
 			switch(edoRequest.Order.PaymentType)
 			{
 				case PaymentType.Cashless:
@@ -153,6 +158,27 @@ namespace Edo.Scheduler.Service
 
 			task.Items = new ObservableList<EdoTaskItem>(
 				edoRequest.ProductCodes.Select(x =>
+					new EdoTaskItem
+					{
+						ProductCode = x,
+						CustomerEdoTask = task
+					})
+			);
+
+			edoRequest.Task = task;
+
+			return task;
+		}
+		
+		private EdoTask CreateTenderEdoTask(OrderEdoRequest edoRequest)
+		{
+			var task = new TenderEdoTask
+			{
+				Status = EdoTaskStatus.New
+			};
+
+			task.Items = new ObservableList<EdoTaskItem>(
+				edoRequest.ProductCodes.Select(x => 
 					new EdoTaskItem
 					{
 						ProductCode = x,

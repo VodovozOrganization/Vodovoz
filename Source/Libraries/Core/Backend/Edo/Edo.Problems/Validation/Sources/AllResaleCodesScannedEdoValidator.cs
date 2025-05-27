@@ -56,7 +56,8 @@ namespace Edo.Problems.Validation.Sources
 			
 			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
 
-			return orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad;
+			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad)
+				|| orderEdoRequest.Order.IsOrderForTender;
 		}
 
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider,

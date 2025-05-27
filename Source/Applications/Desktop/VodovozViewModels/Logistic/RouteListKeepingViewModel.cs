@@ -571,6 +571,16 @@ namespace Vodovoz
 
 					return false;
 				}
+				
+				if(order.IsOrderForTender
+				   && !order.IsNeedIndividualSetOnLoad
+				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				{
+					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					          "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
+
+					return false;
+				}
 			}
 
 			return true;
