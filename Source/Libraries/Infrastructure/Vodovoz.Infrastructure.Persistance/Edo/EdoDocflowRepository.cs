@@ -1,9 +1,14 @@
-﻿using QS.DomainModel.UoW;
+﻿using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -93,6 +98,38 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				};
 
 			return data.ToList();
+		}
+
+		/// <inheritdoc/>
+		public async Task<IEnumerable<DriversScannedCodeDataNode>> GetAllNotProcessedDriversScannedCodesData(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			var query =
+				from driversScannedCode in uow.Session.Query<DriversScannedTrueMarkCode>()
+				join routeListItem in uow.Session.Query<RouteListItemEntity>() on driversScannedCode.RouteListAddressId equals routeListItem.Id
+				join orderItem in uow.Session.Query<OrderItemEntity>() on driversScannedCode.OrderItemId equals orderItem.Id
+				join order in uow.Session.Query<OrderEntity>() on orderItem.Order.Id equals order.Id
+				where
+				!driversScannedCode.IsProcessingCompleted
+				&& !driversScannedCode.IsProcessingError
+				select new DriversScannedCodeDataNode
+				{
+					DriversScannedCode = driversScannedCode,
+					Order = order,
+					OrderItem = orderItem,
+					RouteListAddress = routeListItem
+				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		{
+			var orderEdoRequests = await uow.Session.Query<OrderEdoRequest>()
+				.Where(x => x.Order.Id == orderId)
+				.ToListAsync(cancellationToken);
+
+			return orderEdoRequests;
 		}
 	}
 }
