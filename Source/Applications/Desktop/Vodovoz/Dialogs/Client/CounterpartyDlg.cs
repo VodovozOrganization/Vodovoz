@@ -1238,6 +1238,7 @@ namespace Vodovoz
 			{
 				var isInnRequired = string.IsNullOrWhiteSpace(Entity.INN) &&
 									(Entity.ReasonForLeaving == ReasonForLeaving.Resale
+									 || Entity.ReasonForLeaving == ReasonForLeaving.Tender
 									 || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 										 && Entity.PersonType == PersonType.legal)
 									 );

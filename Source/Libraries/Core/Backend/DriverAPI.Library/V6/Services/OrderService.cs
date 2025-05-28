@@ -617,7 +617,7 @@ namespace DriverAPI.Library.V6.Services
 				return CheckNetworkClientOrderScannedCodes(routeListAddress);
 			}
 
-			if(routeListAddress.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+			if(routeListAddress.Order.IsOrderForResale || routeListAddress.Order.IsOrderForTender)
 			{
 				return CheckResaleOrderScannedCodes(routeListAddress);
 			}
