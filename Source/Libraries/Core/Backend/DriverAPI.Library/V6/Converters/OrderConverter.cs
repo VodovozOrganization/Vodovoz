@@ -141,7 +141,7 @@ namespace DriverAPI.Library.V6.Converters
 			
 			if(vodovozOrder.IsOrderForTender)
 			{
-				return OrderReasonForLeavingDtoType.ForTender;
+				return OrderReasonForLeavingDtoType.ForResale;
 			}
 
 			return OrderReasonForLeavingDtoType.ForPersonal;

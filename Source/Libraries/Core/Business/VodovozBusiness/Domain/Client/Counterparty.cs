@@ -892,7 +892,8 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult(phonesValidationMessage);
 				}
 
-				if(ReasonForLeaving == ReasonForLeaving.Resale && string.IsNullOrWhiteSpace(INN))
+				if((ReasonForLeaving == ReasonForLeaving.Resale || ReasonForLeaving == ReasonForLeaving.Tender)
+				   && string.IsNullOrWhiteSpace(INN))
 				{
 					yield return new ValidationResult("Для перепродажи должен быть заполнен ИНН");
 				}
