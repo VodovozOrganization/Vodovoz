@@ -10,8 +10,8 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Tools.Store;
@@ -28,6 +28,7 @@ namespace WarehouseApi.Controllers.V1
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
+		private readonly IWarehousePermissionService _warehousePermissionService;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 
 		/// <summary>
@@ -37,12 +38,14 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="userManager"></param>
 		/// <param name="externalApplicationUserRepository"></param>
 		/// <param name="userSettingsRepository"></param>
+		/// <param name="warehousePermissionService"></param>
 		/// <param name="storeDocumentHelper">Помощник для работы с документами склада</param>
 		public WarehouseController(
 			ILogger<ApiControllerBase> logger,
 			UserManager<IdentityUser> userManager,
 			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			IGenericRepository<UserSettings> userSettingsRepository,
+			IWarehousePermissionService warehousePermissionService,
 			IStoreDocumentHelper storeDocumentHelper)
 			: base(logger)
 		{
@@ -52,6 +55,8 @@ namespace WarehouseApi.Controllers.V1
 				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_userSettingsRepository = userSettingsRepository
 				?? throw new ArgumentNullException(nameof(userSettingsRepository));
+			_warehousePermissionService = warehousePermissionService
+				?? throw new ArgumentNullException(nameof(warehousePermissionService));
 			_storeDocumentHelper = storeDocumentHelper
 				?? throw new ArgumentNullException(nameof(storeDocumentHelper));
 		}
@@ -63,9 +68,32 @@ namespace WarehouseApi.Controllers.V1
 		/// <returns>Список складов, доступных для просмотра</returns>
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<WarehouseDto>), StatusCodes.Status200OK)]
-		public IActionResult Get([FromServices] IUnitOfWork unitOfWork)
+		public async Task<IActionResult> GetAsync([FromServices] IUnitOfWork unitOfWork)
 		{
-			var accessibleWarehouses = _storeDocumentHelper.GetRestrictedWarehousesList(unitOfWork, WarehousePermissionsType.WarehouseView);
+			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
+			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
+			var user = await _userManager.GetUserAsync(User);
+
+			var apiUser = _externalApplicationUserRepository.Get(
+				unitOfWork,
+				x => x.Login == user.UserName
+					&& x.ExternalApplicationType == Vodovoz.Core.Domain.Employees.ExternalApplicationType.WarehouseApp,
+				1)
+				.FirstOrDefault();
+
+			if(apiUser == null)
+			{
+				return Problem("Сотрудник не имеет доступа к этмоу Api", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var employee = apiUser.Employee;
+
+			if(employee == null)
+			{
+				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
+			}
+
+			var accessibleWarehouses = _warehousePermissionService.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id, WarehousePermissionsType.WarehouseView);
 
 			var result = accessibleWarehouses
 				.Select(warehouse => new WarehouseDto
@@ -113,16 +141,16 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
 			}
 
-			var warehouse = unitOfWork.GetById<Warehouse>(warehouseId);
-			
+			var warehouse = unitOfWork.GetById<WarehouseEntity>(warehouseId);
+
 			if(warehouse == null)
 			{
 				return BadRequest("Склад с указанным идентификатором не найден.");
 			}
 
-			var availableWarehouses = _storeDocumentHelper.GetRestrictedWarehousesIds(unitOfWork, WarehousePermissionsType.WarehouseView);
+			var accessibleWarehouses = _warehousePermissionService.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id, WarehousePermissionsType.WarehouseView);
 
-			if(!availableWarehouses.Contains(warehouseId))
+			if(!accessibleWarehouses.Any(x => x.Id == warehouseId))
 			{
 				return Problem("У вас нет прав на доступ к этому складу", statusCode: StatusCodes.Status403Forbidden);
 			}
@@ -136,7 +164,7 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Настройки пользователя не найдены", statusCode: StatusCodes.Status500InternalServerError);
 			}
 
-			userSettings.DefaultWarehouse = warehouse;
+			userSettings.DefaultWarehouse = new Warehouse { Id = warehouse.Id };
 
 			await unitOfWork.SaveAsync(userSettings);
 			await unitOfWork.CommitAsync();
