@@ -24,6 +24,8 @@ using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
 using VodovozBusiness.Employees;
 using Vodovoz.Application.Employees;
+using Vodovoz.Application.Warehouse;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Application
 {
@@ -33,6 +35,7 @@ namespace Vodovoz.Application
 			.AddScoped<IRouteOptimizer, RouteOptimizer>()
 			.AddApplicationServices()
 			.ConfigureFileOptions()
+			.AddApplicationWarehouseServices()
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
@@ -53,7 +56,10 @@ namespace Vodovoz.Application
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
-		
+
+		public static IServiceCollection AddApplicationWarehouseServices(this IServiceCollection services) => services
+			.AddScoped<IWarehousePermissionService, WarehousePermissionService>();
+
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
 			.AddOrderServicesDependencies()

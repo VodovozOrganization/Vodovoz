@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Security;
