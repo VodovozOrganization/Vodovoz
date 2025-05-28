@@ -1,7 +1,9 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -24,7 +26,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCode">Код Честного Знака</param>
 		/// <param name="status">Статус кода продукта</param>
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
-		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItem routeListAddress, int vodovozOrderItemId,
+		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItemEntity routeListAddress, int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
 
 		/// <summary>
@@ -41,5 +43,18 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result> AddTrueMarkCodeToRouteListItemWithCodeChecking(IUnitOfWork uow, RouteListItem routeListAddress, OrderItem vodovozOrderItem, string scannedCode, SourceProductCodeStatus status, CancellationToken cancellationToken, bool isCheckForCodeChange = false, bool skipCodeIntroducedAndHasCorrectInnCheck = false);
 		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, RouteListItem routeListAddress, OrderItem orderItem, CancellationToken cancellationToken, bool isCheckForCodeChange = false, bool skipCodeIntroducedAndHasCorrectInnCheck = false);
 		Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult);
+
+		/// <summary>
+		/// Добавить список кодов к строке маршрутного листа. Статусы кодов не проверяются
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="routeListAddress">Строка маршрутного листа</param>
+		/// <param name="orderSaleItemId">Строка заказа</param>
+		/// <param name="scannedCodes">Списко отсканированных кодов</param>
+		/// <param name="status">Статус кода продукта</param>
+		/// <param name="problem">Тип проблемы кода ЧЗ</param>
+		/// <returns>Результат операции</returns>
+		Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
+			IEnumerable<string> scannedCodes, SourceProductCodeStatus status, ProductCodeProblem problem);
 	}
 }
