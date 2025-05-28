@@ -13,6 +13,7 @@ namespace VodovozBusiness.Converters
 				case ReasonForLeaving.Unknown:
 					return ReasonForLeavingType.Unknown;
 				case ReasonForLeaving.ForOwnNeeds:
+				case ReasonForLeaving.Tender:
 					return ReasonForLeavingType.ForOwnNeeds;
 				case ReasonForLeaving.Resale:
 					return ReasonForLeavingType.Resale;
