@@ -1,8 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
