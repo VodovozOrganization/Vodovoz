@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Services;
