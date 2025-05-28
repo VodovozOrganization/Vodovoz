@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Warehouses.Documents
 {
 	/// <summary>
 	/// Тип документа

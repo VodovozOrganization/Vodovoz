@@ -6,6 +6,7 @@ using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.TempAdapters
 {
