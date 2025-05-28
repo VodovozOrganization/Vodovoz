@@ -3,15 +3,25 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Organizations;
 
-namespace Vodovoz.Domain.Store
+namespace Vodovoz.Core.Domain.Warehouses
 {
+	/// <summary>
+	/// Склад
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
+		Accusative = "склад",
+		AccusativePlural = "склады",
+		Genitive = "склада",
+		GenitivePlural = "складов",
+		Nominative = "склад",
 		NominativePlural = "склады",
-		Nominative = "склад")]
+		Prepositional = "складе",
+		PrepositionalPlural = "складах")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class WarehouseEntity : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private string _name;
 		private bool _canReceiveBottles;
@@ -19,8 +29,8 @@ namespace Vodovoz.Domain.Store
 		private bool _publishOnlineStore;
 		private WarehouseUsing _typeOfUse;
 		private bool _isArchive;
-		private Subdivision _owningSubdivision;
-		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
+		private SubdivisionEntity _owningSubdivision;
+		private SubdivisionEntity _movementDocumentsNotificationsSubdivisionRecipient;
 		private string _address;
 
 		#region Свойства
@@ -76,14 +86,14 @@ namespace Vodovoz.Domain.Store
 		}
 
 		[Display(Name = "Подразделение-владелец")]
-		public virtual Subdivision OwningSubdivision
+		public virtual SubdivisionEntity OwningSubdivision
 		{
 			get => _owningSubdivision;
 			set => SetField(ref _owningSubdivision, value);
 		}
 
 		[Display(Name = "Подразделение-получатель уведомлений о перемещениях на данный склад")]
-		public virtual Subdivision MovementDocumentsNotificationsSubdivisionRecipient
+		public virtual SubdivisionEntity MovementDocumentsNotificationsSubdivisionRecipient
 		{
 			get => _movementDocumentsNotificationsSubdivisionRecipient;
 			set => SetField(ref _movementDocumentsNotificationsSubdivisionRecipient, value);
@@ -91,10 +101,7 @@ namespace Vodovoz.Domain.Store
 
 		#endregion
 
-		public override string ToString()
-		{
-			return Name;
-		}
+		public override string ToString() => Name;
 
 		#region IValidatableObject implementation
 
@@ -104,8 +111,7 @@ namespace Vodovoz.Domain.Store
 			{
 				yield return new ValidationResult(
 					"К складу должно быть привязано \"Подразделение-владелец\"",
-					new[] { nameof(OwningSubdivision) }
-				);
+					new[] { nameof(OwningSubdivision) });
 			}
 		}
 
