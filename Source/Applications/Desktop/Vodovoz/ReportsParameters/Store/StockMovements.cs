@@ -26,6 +26,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Reports
 {
