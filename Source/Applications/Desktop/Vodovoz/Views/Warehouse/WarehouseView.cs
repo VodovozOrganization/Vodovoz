@@ -1,5 +1,5 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse

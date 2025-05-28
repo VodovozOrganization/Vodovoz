@@ -2,6 +2,7 @@
 using QS.Navigation;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
