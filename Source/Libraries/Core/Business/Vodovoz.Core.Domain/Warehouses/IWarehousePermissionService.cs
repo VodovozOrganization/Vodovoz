@@ -7,5 +7,6 @@ namespace Vodovoz.Core.Domain.Warehouses
 	{
 		IEnumerable<WarehouseEntity> GetAvailableWarehousesForUser(IUnitOfWork unitOfWork, int userId);
 		IEnumerable<WarehouseEntity> GetAvailableWarehousesForUser(IUnitOfWork unitOfWork, int userId, WarehousePermissionsType warehousePermissionsType);
+		WarehouseEntity GetDefaultWarehouseForUser(IUnitOfWork unitOfWork, int userId);
 	}
 }
