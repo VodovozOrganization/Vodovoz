@@ -18,7 +18,6 @@ using System.Text;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -32,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -274,7 +274,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 
-		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
+		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Core.Domain.Warehouses.Documents.DocumentType.MovementDocument);
 
 		public EntityEntryViewModel<Employee> DriverEntityEntryViewModel { get; private set; }
 

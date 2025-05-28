@@ -19,7 +19,7 @@ using QS.Project.Domain;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
