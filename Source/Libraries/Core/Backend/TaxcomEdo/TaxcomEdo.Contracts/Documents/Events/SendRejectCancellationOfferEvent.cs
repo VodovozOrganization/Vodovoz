@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace TaxcomEdo.Contracts.Documents.Events
 {
 	/// <summary>
-	/// Обертка для xml файла действия на принятие предложения об аннулировании
+	/// Обертка для xml файла действия на отказ от предложения об аннулировании
 	/// </summary>
 	[DesignerCategory("code")]
 	[XmlRoot("Document", Namespace = "", IsNullable = false)]
