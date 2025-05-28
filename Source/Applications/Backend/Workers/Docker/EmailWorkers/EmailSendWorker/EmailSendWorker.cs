@@ -147,15 +147,20 @@ namespace EmailSendWorker
 					To = to.Email,
 					Subject = message.Subject,
 					MessageText = message.HTMLPart,
-					Attachments = message.Attachments.Select(x => new EmailAttachment
-					{
-						Filename = x.Filename,
-						Base64Content = x.Base64Content,
-					}).ToList(),
 					TrackOpen = true,
 					TrackClick = true,
 					TrackId = $"{message.Payload.InstanceId}-{message.Payload.Id}",
 				};
+
+				if(message.Attachments != null && message.Attachments.Any())
+				{
+					email.Attachments = message.Attachments.Select(x => new EmailAttachment
+					{
+						Filename = x.Filename,
+						Base64Content = x.Base64Content,
+					}).ToList();
+				}
+
 				emailMessages.Add(email);
 			}
 			return emailMessages;
