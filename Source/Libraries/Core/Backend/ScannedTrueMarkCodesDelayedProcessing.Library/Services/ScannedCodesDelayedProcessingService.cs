@@ -185,7 +185,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 							SourceProductCodeStatus.Problem,
 							ProductCodeProblem.Defect);
 
-					if(addCodesResult.IsSuccess)
+					if(addCodesResult.IsSuccess && uow.HasChanges)
 					{
 						await uow.CommitAsync(cancellationToken);
 					}
@@ -240,7 +240,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var order = routeListAddress.Order;
 
 			var isAllDriversScannedCodesInOrderProcessed =
-					orderDriversScannedCodes.All(x => x.IsProcessingCompleted);
+					orderDriversScannedCodes.All(x => x.IsProcessingCompleted || x.IsProcessingError);
 
 			var existingEdoRequests = await _edoDocflowRepository
 				.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);
