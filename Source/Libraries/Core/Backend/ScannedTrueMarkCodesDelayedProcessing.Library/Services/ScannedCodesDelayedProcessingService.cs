@@ -1,4 +1,4 @@
-using Edo.Transport;
+﻿using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -185,7 +185,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 							SourceProductCodeStatus.Problem,
 							ProductCodeProblem.Defect);
 
-					if(addCodesResult.IsSuccess)
+					if(addCodesResult.IsSuccess && uow.HasChanges)
 					{
 						await uow.CommitAsync(cancellationToken);
 					}
