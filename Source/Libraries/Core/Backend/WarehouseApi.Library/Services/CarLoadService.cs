@@ -1054,19 +1054,22 @@ namespace WarehouseApi.Library.Services
 
 		private IEnumerable<OrderEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
 		{
-			var carLoadDocumentsItemsNeedsRequest =
-				carLoadDocument.Items.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
-				.ToList();
+			var ordersNeedsRequest =
+				carLoadDocument.Items
+				.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
+				.GroupBy(x => x.OrderId)
+				.ToDictionary(x => x.Key, x => x.SelectMany(c => c.TrueMarkCodes).ToList());
 
-			var orderIdsNeedsRequest = carLoadDocumentsItemsNeedsRequest.Select(item => item.OrderId);
-
-			var orders = _orderRepository.Get(_uow, x => orderIdsNeedsRequest.Contains(x.Id));
+			var orders = _orderRepository.Get(_uow, x => ordersNeedsRequest.Keys.Contains(x.Id));
 
 			var edoRequests = new List<OrderEdoRequest>();
 
-			foreach(var item in carLoadDocumentsItemsNeedsRequest)
+			foreach(var item in ordersNeedsRequest)
 			{
-				var order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault();
+				var orderId = item.Key;
+				var trueMarkCodes = item.Value;
+
+				var order = orders.Where(x => x.Id == orderId).FirstOrDefault();
 
 				if(order?.IsClientWorksWithNewEdoProcessing == false)
 				{
@@ -1078,10 +1081,10 @@ namespace WarehouseApi.Library.Services
 					Time = DateTime.Now,
 					Source = CustomerEdoRequestSource.Warehouse,
 					DocumentType = EdoDocumentType.UPD,
-					Order = orders.Where(x => x.Id == item.OrderId).FirstOrDefault(),
+					Order = orders.Where(x => x.Id == orderId).FirstOrDefault(),
 				};
 
-				var productCodes = item.TrueMarkCodes
+				var productCodes = trueMarkCodes
 					.Where(x => _trueMarkWaterCodeService.SuccessfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus));
 
 				foreach(var code in productCodes)
