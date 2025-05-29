@@ -4028,7 +4028,8 @@ namespace Vodovoz.Domain.Orders
 			IOrderContractUpdater contractUpdater,
 			Employee currentEmployee,
 			IOrderDailyNumberController orderDailyNumberController,
-			IPaymentFromBankClientController paymentFromBankClientController)
+			IPaymentFromBankClientController paymentFromBankClientController,
+			bool needUpdateContract = true)
 		{
 			SetFirstOrder();
 
@@ -4037,7 +4038,7 @@ namespace Vodovoz.Domain.Orders
 				FirstDeliveryDate = DeliveryDate;
 			}
 
-			if(!IsLoadedFrom1C)
+			if(!IsLoadedFrom1C && needUpdateContract)
 			{
 				contractUpdater.UpdateContract(uow, this);
 			}

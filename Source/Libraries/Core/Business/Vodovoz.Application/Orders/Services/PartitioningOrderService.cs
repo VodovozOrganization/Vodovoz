@@ -82,7 +82,7 @@ namespace Vodovoz.Application.Orders.Services
 
 					resultOrder.UpdateDocuments();
 					_orderContractUpdater.ForceUpdateContract(uow, resultOrder, partOrderWithGoods.Organization);
-					_orderConfirmationService.AcceptOrder(uow, employee, resultOrder);
+					_orderConfirmationService.AcceptOrder(uow, employee, resultOrder, false);
 
 					i++;
 				}

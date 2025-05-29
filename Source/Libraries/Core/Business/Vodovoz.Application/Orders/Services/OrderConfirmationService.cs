@@ -53,11 +53,11 @@ namespace Vodovoz.Application.Orders.Services
 			return Result.Success();
 		}
 
-		public void AcceptOrder(IUnitOfWork uow, Employee employee, Order order)
+		public void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true)
 		{
 			order.AcceptOrder(employee, _callTaskWorker);
 			order.SaveEntity(
-				uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController);
+				uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController, needUpdateContract);
 		}
 	}
 }

@@ -8,6 +8,6 @@ namespace VodovozBusiness.Services.Orders
 	public interface IOrderConfirmationService
 	{
 		Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order);
-		void AcceptOrder(IUnitOfWork uow, Employee employee, Order order);
+		void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true);
 	}
 }
