@@ -129,17 +129,12 @@ namespace DriverAPI.Library.V6.Converters
 		private OrderReasonForLeavingDtoType GetOrderType(
 			Order vodovozOrder)
 		{
-			if(vodovozOrder.IsNeedIndividualSetOnLoad)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad || vodovozOrder.IsNeedIndividualSetOnLoadForTender)
 			{
 				return OrderReasonForLeavingDtoType.Distributing;
 			}
 
-			if(vodovozOrder.IsOrderForResale)
-			{
-				return OrderReasonForLeavingDtoType.ForResale;
-			}
-			
-			if(vodovozOrder.IsOrderForTender)
+			if(vodovozOrder.IsOrderForResale || vodovozOrder.IsOrderForTender)
 			{
 				return OrderReasonForLeavingDtoType.ForResale;
 			}

@@ -1344,7 +1344,8 @@ namespace Vodovoz
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
 				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+					e => (e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+					     || e.ReasonForLeaving == ReasonForLeaving.Tender,
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
