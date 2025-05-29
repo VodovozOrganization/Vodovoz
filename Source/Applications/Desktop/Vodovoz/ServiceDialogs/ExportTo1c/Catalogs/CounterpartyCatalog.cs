@@ -97,13 +97,32 @@ namespace Vodovoz.ExportTo1c.Catalogs
 						counterparty.Comment));
 			}
 
-			var counterpartyType = counterparty.PersonType == PersonType.legal ? "ЮридическоеЛицо" : "ФизическоеЛицо";
-			properties.Add(
-				new PropertyNode("ЮридическоеФизическоеЛицо",
-					Common1cTypes.String,
-					counterpartyType
-				)
-			);
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				var counterpartyType = counterparty.PersonType == PersonType.legal && counterparty.TypeOfOwnership != "ИП" 
+					? "ЮридическоеЛицо"
+					: "ФизическоеЛицо";
+				
+				properties.Add(
+					new PropertyNode("ЮридическоеФизическоеЛицо",
+						Common1cTypes.EnumNaturalOrLegal,
+						counterpartyType
+					)
+				);
+			}
+			else
+			{
+				var counterpartyType = counterparty.PersonType == PersonType.legal 
+					? "ЮридическоеЛицо"
+					: "ФизическоеЛицо";
+				
+				properties.Add(
+					new PropertyNode("ЮридическоеФизическоеЛицо",
+						Common1cTypes.String,
+						counterpartyType
+					)
+				);
+			}
 			
 			properties.Add(
 				new PropertyNode("НаименованиеПолное",
