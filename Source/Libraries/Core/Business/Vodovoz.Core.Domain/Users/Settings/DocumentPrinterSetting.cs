@@ -1,27 +1,47 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Users.Settings;
-using Vodovoz.PrintableDocuments;
+using Vodovoz.Core.Domain.PrintableDocuments;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Users.Settings
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
+	/// <summary>
+	/// Настройки принтера документа
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Feminine,
+		Accusative = "настройку принтера документа",
+		AccusativePlural = "настройки принтеров документов",
+		Genitive = "настройки принтера документа",
+		GenitivePlural = "настроек принтеров документов",
+		Nominative = "настройка принтера документа",
 		NominativePlural = "настройки принтеров документов",
-		Nominative = "настройка принтера документа")]
+		Prepositional = "настройке принтера документа",
+		PrepositionalPlural = "настройках принтеров документов")]
 	public class DocumentPrinterSetting : PropertyChangedBase, IDomainObject
 	{
 		private UserSettings _userSettings;
 		private CustomPrintDocumentType _documentType;
 		private string _printerName;
 		private int _numberOfCopies;
+		private int _id;
 
 		public DocumentPrinterSetting()
 		{
 			NumberOfCopies = 1;
 		}
 
-		public virtual int Id { get; set; }
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
+		/// <summary>
+		/// Настройки пользователя
+		/// </summary>
 		[Display(Name = "Настройки пользователя")]
 		public virtual UserSettings UserSettings
 		{
@@ -29,6 +49,9 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _userSettings, value);
 		}
 
+		/// <summary>
+		/// Тип документа
+		/// </summary>
 		[Display(Name = "Тип документа")]
 		public virtual CustomPrintDocumentType DocumentType
 		{
@@ -36,6 +59,9 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _documentType, value);
 		}
 
+		/// <summary>
+		/// Название принтера
+		/// </summary>
 		[Display(Name = "Название принтера")]
 		public virtual string PrinterName
 		{
@@ -43,6 +69,9 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _printerName, value);
 		}
 
+		/// <summary>
+		/// Число копий для печати
+		/// </summary>
 		[Display(Name = "Число копий")]
 		public virtual int NumberOfCopies
 		{
