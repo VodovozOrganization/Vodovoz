@@ -40,6 +40,9 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark;
 using VodovozBusiness.Domain.Operations;
+using System.Threading.Tasks;
+using System.Threading;
+using NHibernate.Linq;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -2189,6 +2192,23 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.FirstOrDefault();
 
 			return carLoadDocumentLoadOperationState == CarLoadDocumentLoadOperationState.Done;
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default)
+		{
+			var query =
+				from order in uow.Session.Query<OrderEntity>()
+				join orderItem in uow.Session.Query<OrderItemEntity>() on order.Id equals orderItem.Order.Id
+				join driversScannedCode in uow.Session.Query<DriversScannedTrueMarkCode>() on orderItem.Id equals driversScannedCode.OrderItemId
+				where
+				order.Id == orderId
+				&& !driversScannedCode.IsProcessingCompleted
+				select driversScannedCode.Id;
+
+			var driversScannedCodes = await query.ToListAsync(cancellationToken);
+
+			return !driversScannedCodes.Any();
 		}
 	}
 }

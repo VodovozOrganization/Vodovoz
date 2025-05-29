@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -536,6 +536,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(!_orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, rli.RouteListItem.Order.Id).GetAwaiter().GetResult())
+			{
+				return;
+			}
+
 			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
@@ -568,6 +573,16 @@ namespace Vodovoz
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 					          "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
+
+					return false;
+				}
+				
+				if(order.IsOrderForTender
+				   && !order.IsNeedIndividualSetOnLoad
+				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				{
+					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					          "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
 
 					return false;
 				}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
@@ -86,7 +87,7 @@ namespace Vodovoz.Application.Orders.Services
 				order.HasCommentForDriver = true;
 			}
 			
-			FillContactPhone(order.UoW, order, onlineOrder.ContactPhone);
+			FillContactPhone(order.UoW, order, onlineOrder.Source, onlineOrder.ContactPhone);
 			
 			if(!order.SelfDelivery)
 			{
@@ -116,7 +117,7 @@ namespace Vodovoz.Application.Orders.Services
 			return order;
 		}
 
-		private void FillContactPhone(IUnitOfWork uow, Order order, string onlineOrderContactPhone)
+		private void FillContactPhone(IUnitOfWork uow, Order order, Source source, string onlineOrderContactPhone)
 		{
 			if(string.IsNullOrWhiteSpace(onlineOrderContactPhone))
 			{
@@ -140,6 +141,24 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(clientPhone is null)
 			{
+				//с сайта не пишется контактный номер в комменте,
+				//поэтому переносим его вручную, если такого нет в базе
+				if(source == Source.VodovozWebSite)
+				{
+					var sb = new StringBuilder();
+					const string contactPhoneMessage = "Номер телефона для связи: ";
+					
+					if(!string.IsNullOrWhiteSpace(order.Comment))
+					{
+						sb.AppendLine(order.Comment);
+					}
+
+					sb.Append(contactPhoneMessage);
+					sb.Append(onlineOrderContactPhone);
+					
+					order.Comment = sb.ToString();
+					return;
+				}
 				_logger.LogWarning("Не нашли в базе контактный номер {ContactPhone}, не записываем его в заказ", onlineOrderContactPhone);
 				return;
 			}

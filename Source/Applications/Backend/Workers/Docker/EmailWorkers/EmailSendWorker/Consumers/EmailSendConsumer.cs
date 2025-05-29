@@ -77,7 +77,9 @@ namespace EmailSendWorker.Consumers
 						Filename = x.Filename,
 						Base64Content = x.Base64Content,
 					}).ToList(),
-					TrackOpen = true
+					TrackOpen = true,
+					TrackClick = true,
+					TrackId = $"{message.Payload.InstanceId}-{message.Payload.Id}",
 				};
 				emailMessages.Add(email);
 			}

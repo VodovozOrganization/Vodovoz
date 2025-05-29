@@ -2678,8 +2678,9 @@ namespace Vodovoz
 			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 
 			if(isAccountableInChestniyZnak
-			   && DeliveryDate >= new DateTime(2022, 11, 01)
-			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Counterparty, edoLightsMatrixPaymentType))
+			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType)
+			   && Counterparty.ReasonForLeaving != ReasonForLeaving.Tender)
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))

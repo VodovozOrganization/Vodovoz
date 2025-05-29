@@ -88,6 +88,8 @@ namespace Edo.Common
 					return ((ReceiptEdoTask)_edoTask).Items;
 				case EdoTaskType.Document:
 					return ((DocumentEdoTask)_edoTask).Items;
+				case EdoTaskType.Tender:
+					return ((TenderEdoTask)_edoTask).Items;
 				default:
 					throw new NotSupportedException($"Проверка кодов для задачи {_edoTask.TaskType} не поддерживается.");
 			}
