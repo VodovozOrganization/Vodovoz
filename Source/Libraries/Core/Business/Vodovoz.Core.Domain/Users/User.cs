@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Core.Domain.Users
 {
@@ -22,7 +21,11 @@ namespace Vodovoz.Core.Domain.Users
 		/// <summary>
 		/// Права доступа к складам пользователя в виде JSON-строки.
 		/// </summary>
-		public virtual string WarehouseAccess { get => _warehouseAccess; set => _warehouseAccess = value; }
+		public virtual string WarehouseAccess
+		{
+			get => _warehouseAccess;
+			set => _warehouseAccess = value;
+		}
 
 		/// <summary>
 		/// Требуется ли смена пароля при следующем входе в систему
