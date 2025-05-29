@@ -663,6 +663,16 @@ namespace Vodovoz.Core.Domain.Orders
 			PaymentType == PaymentType.Cashless
 			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
+		
+		/// <summary>
+		/// Проверка на госзаказ
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// (сканировать марки на складе для отправки документов в статусе заказа "В Пути")
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoadForTender =>
+			IsOrderForTender
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+			&& PaymentType == PaymentType.Cashless;
 
 		/// <summary>
 		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме

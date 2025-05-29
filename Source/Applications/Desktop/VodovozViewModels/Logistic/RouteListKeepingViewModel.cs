@@ -24,6 +24,7 @@ using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -558,11 +559,11 @@ namespace Vodovoz
 			   && !_currentPermissionService.ValidatePresetPermission(
 				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				if(order.IsNeedIndividualSetOnLoad
+				if((order.IsNeedIndividualSetOnLoad || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-						"т.к. данный заказ является сетевым, но документ погрузки не находится в статусе \"Погрузка завершена\"";
+						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
 
 					return false;
 				}
@@ -578,6 +579,7 @@ namespace Vodovoz
 				}
 				
 				if(order.IsOrderForTender
+				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
 				   && !order.IsNeedIndividualSetOnLoad
 				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
 				{
