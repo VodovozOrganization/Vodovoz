@@ -3,12 +3,23 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Organizations;
 
-namespace Vodovoz.Domain.Store
+namespace Vodovoz.Core.Domain.Warehouses
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	/// <summary>
+	/// Склад
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Masculine,
+		Accusative = "склад",
+		AccusativePlural = "склады",
+		Genitive = "склада",
+		GenitivePlural = "складов",
+		Nominative = "склад",
 		NominativePlural = "склады",
-		Nominative = "склад")]
+		Prepositional = "складе",
+		PrepositionalPlural = "складах")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
@@ -19,14 +30,18 @@ namespace Vodovoz.Domain.Store
 		private bool _publishOnlineStore;
 		private WarehouseUsing _typeOfUse;
 		private bool _isArchive;
-		private Subdivision _owningSubdivision;
-		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
+		private int? _owningSubdivisionId;
+		private int? _movementDocumentsNotificationsSubdivisionRecipientId;
 		private string _address;
 
-		#region Свойства
-
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Required(ErrorMessage = "Название склада должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name
@@ -35,18 +50,27 @@ namespace Vodovoz.Domain.Store
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Может принимать бутылки
+		/// </summary>
 		public virtual bool CanReceiveBottles
 		{
 			get => _canReceiveBottles;
 			set => SetField(ref _canReceiveBottles, value);
 		}
 
+		/// <summary>
+		/// Может принимать оборудование
+		/// </summary>
 		public virtual bool CanReceiveEquipment
 		{
 			get => _canReceiveEquipment;
 			set => SetField(ref _canReceiveEquipment, value);
 		}
 
+		/// <summary>
+		/// Публиковать в интернет магазине
+		/// </summary>
 		[Display(Name = "Публиковать в интернет магазине")]
 		public virtual bool PublishOnlineStore
 		{
@@ -54,6 +78,9 @@ namespace Vodovoz.Domain.Store
 			set => SetField(ref _publishOnlineStore, value);
 		}
 
+		/// <summary>
+		/// Тип использования
+		/// </summary>
 		[Display(Name = "Тип использования")]
 		public virtual WarehouseUsing TypeOfUse
 		{
@@ -61,13 +88,19 @@ namespace Vodovoz.Domain.Store
 			set => SetField(ref _typeOfUse, value);
 		}
 
+		/// <summary>
+		/// Архивный склад
+		/// </summary>
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-		
+
+		/// <summary>
+		/// Адрес склада
+		/// </summary>
 		[Display(Name = "Адрес склада")]
 		public virtual string Address
 		{
@@ -75,40 +108,41 @@ namespace Vodovoz.Domain.Store
 			set => SetField(ref _address, value);
 		}
 
+		/// <summary>
+		/// Подразделение-владелец склада
+		/// </summary>
 		[Display(Name = "Подразделение-владелец")]
-		public virtual Subdivision OwningSubdivision
+		[HistoryIdentifier(TargetType = typeof(SubdivisionEntity))]
+		public virtual int? OwningSubdivisionId
 		{
-			get => _owningSubdivision;
-			set => SetField(ref _owningSubdivision, value);
+			get => _owningSubdivisionId;
+			set => SetField(ref _owningSubdivisionId, value);
 		}
 
+		/// <summary>
+		/// Подразделение-получатель уведомлений о перемещениях на данный склад
+		/// </summary>
 		[Display(Name = "Подразделение-получатель уведомлений о перемещениях на данный склад")]
-		public virtual Subdivision MovementDocumentsNotificationsSubdivisionRecipient
+		[HistoryIdentifier(TargetType = typeof(SubdivisionEntity))]
+		public virtual int? MovementDocumentsNotificationsSubdivisionRecipientId
 		{
-			get => _movementDocumentsNotificationsSubdivisionRecipient;
-			set => SetField(ref _movementDocumentsNotificationsSubdivisionRecipient, value);
+			get => _movementDocumentsNotificationsSubdivisionRecipientId;
+			set => SetField(ref _movementDocumentsNotificationsSubdivisionRecipientId, value);
 		}
-
-		#endregion
 
 		public override string ToString()
 		{
 			return Name;
 		}
 
-		#region IValidatableObject implementation
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(OwningSubdivision == null)
+			if(OwningSubdivisionId is null)
 			{
 				yield return new ValidationResult(
 					"К складу должно быть привязано \"Подразделение-владелец\"",
-					new[] { nameof(OwningSubdivision) }
-				);
+					new[] { nameof(OwningSubdivisionId) });
 			}
 		}
-
-		#endregion
 	}
 }
