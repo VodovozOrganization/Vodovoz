@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Xml.Linq;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.ServiceDialogs.ExportTo1c;
 
@@ -32,6 +33,7 @@ namespace Vodovoz.ExportTo1c
 		public List<PropertyNode> Properties { get; private set;}
 
 		public List<TableNode> Tables{ get; set; }
+		public Export1cMode ExportMode { get; set; }
 
 		public SalesDocumentNode()
 		{
@@ -47,7 +49,12 @@ namespace Vodovoz.ExportTo1c
 				new XAttribute("ИмяПравила", RuleName)
 			);
 			xml.Add(Reference.ToXml());
-			xml.Add(Comission.ToXml());
+			
+			if(ExportMode != Export1cMode.ComplexAutomation)
+			{
+				xml.Add(Comission.ToXml());
+			}
+
 			xml.Add(Tables[0].ToXml());
 			Properties.ForEach(prop => xml.Add(prop.ToXml()));
 			

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -223,8 +223,10 @@ namespace Vodovoz.ExportTo1c
 
 		public SalesDocumentNode CreateSalesDocument(Order order)
 		{
+			
 			var exportSaleDocument = new SalesDocumentNode {
-				Id = ++objectCounter
+				Id = ++objectCounter,
+				ExportMode = ExportMode
 			};
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
@@ -239,13 +241,18 @@ namespace Vodovoz.ExportTo1c
 				Name = "Услуги",
 			};
 
-			foreach(var orderItem in order.OrderItems) {
+			foreach(var orderItem in order.OrderItems) 
+			{
 				var record = CreateRecord(orderItem);
 				if(Nomenclature.GetCategoriesForGoods().Contains(orderItem.Nomenclature.Category)
 				   || ExportMode == Export1cMode.ComplexAutomation)
 				{
 					exportGoodsTable.Records.Add(record);
-					exportSaleDocument.Comission.Comissions.Add(0);
+
+					if(ExportMode != Export1cMode.ComplexAutomation)
+					{
+						exportSaleDocument.Comission.Comissions.Add(0);
+					}
 				}
 				else
 				{
@@ -504,13 +511,29 @@ namespace Vodovoz.ExportTo1c
 					nomenclatureReference
 				)
 			);
-			if(isService && ExportMode != Export1cMode.ComplexAutomation)
-				record.Properties.Add(
-					new PropertyNode("Содержание",
-						Common1cTypes.String,
-						orderItem.Nomenclature.OfficialName
-					)
-				);
+
+			if(ExportMode != Export1cMode.ComplexAutomation)
+			{
+				if(isService)
+				{
+					record.Properties.Add(
+						new PropertyNode("Содержание",
+							Common1cTypes.String,
+							orderItem.Nomenclature.OfficialName
+						)
+					);
+				}
+				else
+				{
+					record.Properties.Add(
+						new PropertyNode("Коэффициент",
+							Common1cTypes.Numeric,
+							1
+						)
+					);
+				}
+			}
+
 			record.Properties.Add(
 				new PropertyNode(
 					"Количество",
@@ -518,14 +541,6 @@ namespace Vodovoz.ExportTo1c
 					orderItem.CurrentCount
 				)
 			);
-			if(!isService) {
-				record.Properties.Add(
-					new PropertyNode("Коэффициент",
-						Common1cTypes.Numeric,
-									 1
-					)
-				);
-			}
 
 			record.Properties.Add(
 				new PropertyNode("Цена",
@@ -571,13 +586,10 @@ namespace Vodovoz.ExportTo1c
 				if(ExportMode != Export1cMode.ComplexAutomation)
 				{
 					record.Properties.Add(new PropertyNode("НомерГТД", "СправочникСсылка.НомераГТД"));
+					
+					record.Properties.Add(new PropertyNode("СтранаПроисхождения", Common1cTypes.ReferenceCountry)
+					);
 				}
-
-				record.Properties.Add(
-					new PropertyNode("СтранаПроисхождения",
-						Common1cTypes.ReferenceCountry
-					)
-				);
 			}
 			return record;
 		}
