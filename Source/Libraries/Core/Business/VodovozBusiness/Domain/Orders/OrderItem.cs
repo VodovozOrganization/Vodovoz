@@ -364,7 +364,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>
 			IsTrueMarkCodesMustBeAdded
-			&& Order.IsNeedIndividualSetOnLoad;
+			&& (Order.IsNeedIndividualSetOnLoad || Order.IsNeedIndividualSetOnLoadForTender);
 
 		#region IOrderItemWageCalculationSource implementation
 
