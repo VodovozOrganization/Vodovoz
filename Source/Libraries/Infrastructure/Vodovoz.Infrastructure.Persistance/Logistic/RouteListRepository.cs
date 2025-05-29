@@ -375,16 +375,27 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-
+			
 			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => orderAlias.Id == orderItemsAlias.Order.Id)
 				.Select(Projections.Conditional(
-					Restrictions.Conjunction()
-					.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
-					.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute)),
+					Restrictions.Disjunction()
+						.Add(
+							Restrictions.Conjunction()
+								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
+						)
+						.Add(
+							Restrictions.Conjunction()
+								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ReasonForLeaving), ReasonForLeaving.Tender))
+						),
 					Projections.Constant(true),
-					Projections.Constant(false)));
+					Projections.Constant(false)
+				));
 
 			var orderIdProjection = Projections.Conditional(
 				Restrictions.Eq(Projections.SubQuery(isNeedIndividualSetOnLoadSubquery), true),

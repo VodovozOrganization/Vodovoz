@@ -1538,6 +1538,16 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool IsOrderForTender =>
 			Client?.ReasonForLeaving == ReasonForLeaving.Tender;
+		
+		/// <summary>
+		/// Проверка на госзаказ
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// (сканировать марки на складе для отправки документов в статусе заказа "В Пути")
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoadForTender =>
+			IsOrderForTender
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+			&& PaymentType == PaymentType.Cashless;
 
 		#endregion
 
