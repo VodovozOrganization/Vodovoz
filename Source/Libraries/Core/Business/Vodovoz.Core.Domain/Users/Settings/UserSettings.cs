@@ -7,10 +7,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 using Vodovoz.PrintableDocuments;
 
 namespace Vodovoz.Domain.Employees
