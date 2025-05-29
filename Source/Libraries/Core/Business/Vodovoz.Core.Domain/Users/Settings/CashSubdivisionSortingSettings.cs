@@ -1,33 +1,50 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Users.Settings;
 
-namespace Vodovoz.Domain.Employees
+namespace Vodovoz.Core.Domain.Users.Settings
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	/// <summary>
+	/// Настройки сортировки касс для пользователя
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Feminine,
+		Accusative = "настройки пользователя: сортировка касс",
+		AccusativePlural = "настроек пользователя: сортировка касс",
+		Genitive = "настроек пользователя: сортировка касс",
+		GenitivePlural = "настроек пользователя: сортировка касс",
 		NominativePlural = "настройки пользователей: сортировка касс",
-		Nominative = "настройки пользователя: сортировка касс")]
+		Nominative = "настройки пользователя: сортировка касс",
+		Prepositional = "настройках пользователя: сортировка касс",
+		PrepositionalPlural = "настройках пользователя: сортировка касс")]
 	public class CashSubdivisionSortingSettings : PropertyChangedBase, IDomainObject
 	{
+		private int _id;
 		private int _sortingIndex;
-		private UserSettings _userSettings;
-		private Subdivision _cashSubdivision;
+		private int? _userSettingsId;
+		private int? _cashSubdivisionId;
 
-		public CashSubdivisionSortingSettings()
+		protected CashSubdivisionSortingSettings()
 		{
 		}
 
-		public CashSubdivisionSortingSettings(int sortingIndex, UserSettings userSettings, Subdivision cashSubdivision)
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="sortingIndex"></param>
+		/// <param name="userSettingsId"></param>
+		/// <param name="cashSubdivisionId"></param>
+		public CashSubdivisionSortingSettings(int sortingIndex, int userSettingsId, int cashSubdivisionId)
 		{
 			_sortingIndex = sortingIndex;
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-			_cashSubdivision = cashSubdivision ?? throw new ArgumentNullException(nameof(cashSubdivision));
+			_userSettingsId = userSettingsId;
+			_cashSubdivisionId = cashSubdivisionId;
 		}
 
-		#region Свойства
-
-		public virtual int Id { get; }
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
 		[Display(Name = "Порядок при сортировке")]
 		public virtual int SortingIndex
@@ -37,19 +54,17 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Настройки пользователя")]
-		public virtual UserSettings UserSettings
+		public virtual int? UserSettingsId
 		{
-			get => _userSettings;
-			set => SetField(ref _userSettings, value);
+			get => _userSettingsId;
+			set => SetField(ref _userSettingsId, value);
 		}
 
 		[Display(Name = "Подразделение кассы")]
-		public virtual Subdivision CashSubdivision
+		public virtual int? CashSubdivisionId
 		{
-			get => _cashSubdivision;
-			set => SetField(ref _cashSubdivision, value);
+			get => _cashSubdivisionId;
+			set => SetField(ref _cashSubdivisionId, value);
 		}
-
-		#endregion
 	}
 }
