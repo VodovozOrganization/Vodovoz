@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+
+namespace Vodovoz.Core.Domain.Edo
+{
+	/// <summary>
+	/// Тип ошибки, возникшей при обработке отсканированных водителем кодов ЧЗ
+	/// </summary>
+	public enum DriversScannedTrueMarkCodeError
+	{
+		/// <summary>
+		/// Нет ошибки
+		/// </summary>
+		[Display(Name = "Нет ошибки")]
+		None,
+		/// <summary>
+		/// Отсканированный код уже содержится в отсканированном коде верхнего уровня
+		/// </summary>
+		[Display(Name = "Нет ошибки")]
+		HighLowLevelCodesScanned,
+		/// <summary>
+		/// В ЧЗ нет информации о коде
+		/// </summary>
+		[Display(Name = "В ЧЗ нет информации о коде")]
+		NotTrueMarkCode,
+		/// <summary>
+		/// При обработке кода возникло исключение
+		/// </summary>
+		[Display(Name = "При обработке кода возникло исключение")]
+		Exception
+	}
+}

@@ -25,8 +25,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _orderItemId;
 		private int _routeListAddressId;
 		private bool _isDefective;
-		private bool _isProcessingCompleted;
-		private bool _isProcessingError;
+		private DriversScannedTrueMarkCodeStatus _driversScannedTrueMarkCodeStatus;
+		private DriversScannedTrueMarkCodeError _driversScannedTrueMarkCodeError;
 
 		/// <summary>
 		/// Код
@@ -79,23 +79,23 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Обработка кода завершена
+		/// Статус обработки отсканированного водителем кода ЧЗ
 		/// </summary>
-		[Display(Name = "Обработка кода завершена")]
-		public virtual bool IsProcessingCompleted
+		[Display(Name = "Статус обработки отсканированного водителем кода ЧЗ")]
+		public virtual DriversScannedTrueMarkCodeStatus DriversScannedTrueMarkCodeStatus
 		{
-			get => _isProcessingCompleted;
-			set => SetField(ref _isProcessingCompleted, value);
+			get => _driversScannedTrueMarkCodeStatus;
+			set => SetField(ref _driversScannedTrueMarkCodeStatus, value);
 		}
 
 		/// <summary>
-		/// Ошибка при обработке кода
+		/// Тип ошибки, возникшей при обработке отсканированных водителем кодов ЧЗ
 		/// </summary>
-		[Display(Name = "Ошибка при обработке кода")]
-		public virtual bool IsProcessingError
+		[Display(Name = "Тип ошибки, возникшей при обработке отсканированных водителем кодов ЧЗ")]
+		public virtual DriversScannedTrueMarkCodeError DriversScannedTrueMarkCodeError
 		{
-			get => _isProcessingError;
-			set => SetField(ref _isProcessingError, value);
+			get => _driversScannedTrueMarkCodeError;
+			set => SetField(ref _driversScannedTrueMarkCodeError, value);
 		}
 	}
 }

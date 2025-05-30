@@ -109,15 +109,15 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				foreach(var code in bottlesCodes)
 				{
-					code.IsProcessingCompleted = addBottlesCodesResult.IsSuccess;
-					code.IsProcessingError = addBottlesCodesResult.IsFailure;
+					code.DriversScannedTrueMarkCodeStatus = addBottlesCodesResult.IsSuccess ? DriversScannedTrueMarkCodeStatus.Succeed : DriversScannedTrueMarkCodeStatus.Error;
+					code.DriversScannedTrueMarkCodeError = addBottlesCodesResult.IsFailure ? DriversScannedTrueMarkCodeError.Exception : DriversScannedTrueMarkCodeError.None;
 					await uow.SaveAsync(code, cancellationToken: cancellationToken);
 				}
 
 				foreach(var code in defectiveCodes)
 				{
-					code.IsProcessingCompleted = addDefectiveCodesResult.IsSuccess;
-					code.IsProcessingError = addDefectiveCodesResult.IsFailure;
+					code.DriversScannedTrueMarkCodeStatus = addDefectiveCodesResult.IsSuccess ? DriversScannedTrueMarkCodeStatus.Succeed : DriversScannedTrueMarkCodeStatus.Error;
+					code.DriversScannedTrueMarkCodeError = addDefectiveCodesResult.IsFailure ? DriversScannedTrueMarkCodeError.Exception : DriversScannedTrueMarkCodeError.None;
 					await uow.SaveAsync(code, cancellationToken: cancellationToken);
 				}
 			}
@@ -240,7 +240,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var order = routeListAddress.Order;
 
 			var isAllDriversScannedCodesInOrderProcessed =
-					orderDriversScannedCodes.All(x => x.IsProcessingCompleted || x.IsProcessingError);
+					orderDriversScannedCodes.All(x => x.DriversScannedTrueMarkCodeStatus != DriversScannedTrueMarkCodeStatus.None);
 
 			var existingEdoRequests = await _edoDocflowRepository
 				.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);
