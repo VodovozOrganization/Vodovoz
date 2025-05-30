@@ -385,7 +385,7 @@ namespace RobotMiaApi.Services
 			switch(createOrderRequest.PaymentType)
 			{
 				case PaymentType.Cash:
-					order.Trifle = createOrderRequest.Trifle;
+					order.PaymentType = VodovozPaymentType.Cash;
 					break;
 				case PaymentType.TerminalQR:
 					order.PaymentType = VodovozPaymentType.Terminal;
