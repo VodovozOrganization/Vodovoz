@@ -474,7 +474,10 @@ namespace RobotMiaApi.Services
 			{
 				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
 				order.TareNonReturnReason = tareNonReturnReason;
-				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+				if(tareNonReturnReason != null)
+				{
+					order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+				}
 			}
 
 			return order;
