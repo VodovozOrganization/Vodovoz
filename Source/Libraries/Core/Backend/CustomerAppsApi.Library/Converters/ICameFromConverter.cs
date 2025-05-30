@@ -1,3 +1,4 @@
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Converters

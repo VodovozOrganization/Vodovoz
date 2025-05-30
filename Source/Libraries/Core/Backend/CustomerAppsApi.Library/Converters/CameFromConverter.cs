@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 

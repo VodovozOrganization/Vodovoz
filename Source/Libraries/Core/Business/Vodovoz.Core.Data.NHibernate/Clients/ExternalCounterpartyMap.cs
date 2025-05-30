@@ -1,13 +1,13 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
+namespace Vodovoz.Core.Data.NHibernate.Clients
 {
-	public class ExternalCounterpartyMap : ClassMap<ExternalCounterparty>
+	public class ExternalCounterpartyMap : ClassMap<ExternalCounterpartyEntity>
 	{
 		public ExternalCounterpartyMap()
 		{
-			Table(ExternalCounterparty.TableName);
+			Table(ExternalCounterpartyEntity.TableName);
 			DiscriminateSubClassesOnColumn("counterparty_from");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
