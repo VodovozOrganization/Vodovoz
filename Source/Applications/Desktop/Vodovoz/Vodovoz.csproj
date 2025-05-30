@@ -2091,6 +2091,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
     <Compile Include="Views\Edo\TenderEdoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
+    <Compile Include="Views\TrueMark\OrderCodesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
