@@ -8,8 +8,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {

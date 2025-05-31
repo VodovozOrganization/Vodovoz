@@ -28,7 +28,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Дата доставки").AddTextRenderer(node =>
 						node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Время доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
-				.AddColumn("Оформленный заказ").AddTextRenderer(node => node.OrderId.ToString())
+				.AddColumn("Оформленный заказ(ы)").AddTextRenderer(node => node.OrdersIds)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status)
 				.AddColumn("Клиент").AddTextRenderer(node => node.CounterpartyName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress)
