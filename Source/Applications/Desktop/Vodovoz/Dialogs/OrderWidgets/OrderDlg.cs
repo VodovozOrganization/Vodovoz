@@ -1615,7 +1615,7 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
-				if(Entity.IsNeedIndividualSetOnLoad)
+				if(Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender)
 				{
 					ResetFastDeliveryForNetworkClient();
 
@@ -1647,7 +1647,7 @@ namespace Vodovoz
 
 			ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Error,
-				"Нельзя выбрать доставку за час для сетевого клиента");
+				"Нельзя выбрать доставку за час для сетевого клиента и клиента с целью покупки - Тендер");
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
@@ -4091,7 +4091,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
 
-			if(ycheckFastDelivery.Active && Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}
@@ -4191,7 +4191,7 @@ namespace Vodovoz
 		{
 			UpdateOnlineOrderText();
 
-			if(Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}

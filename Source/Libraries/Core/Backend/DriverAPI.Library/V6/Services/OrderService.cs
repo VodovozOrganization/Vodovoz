@@ -396,7 +396,7 @@ namespace DriverAPI.Library.V6.Services
 				&& await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(_uow, vodovozOrder.Id);
 
 			var edoRequestCreated = false;
-			if(!vodovozOrder.IsNeedIndividualSetOnLoad
+			if((!vodovozOrder.IsNeedIndividualSetOnLoad && !vodovozOrder.IsNeedIndividualSetOnLoadForTender)
 				&& edoRequest == null
 				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || isAllOwnNeedsOrderDriversScannedCodesProcessed))
 			{
@@ -612,7 +612,7 @@ namespace DriverAPI.Library.V6.Services
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
-			if(routeListAddress.Order.IsNeedIndividualSetOnLoad)
+			if(routeListAddress.Order.IsNeedIndividualSetOnLoad || routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
 			{
 				return CheckNetworkClientOrderScannedCodes(routeListAddress);
 			}
@@ -829,7 +829,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse && hasCodesInCarLoadDocument)
 			{
-				_logger.LogWarning("Коды ЧЗ сетевого заказа {OrderId} должны добавляться на складе", orderId);
+				_logger.LogWarning("Коды ЧЗ сетевого, либо госзаказа {OrderId} должны добавляться на складе", orderId);
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе");
 			}
 
@@ -1689,7 +1689,8 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(OrderErrors.NotFound);
 			}
 
-			if(vodovozOrder.IsNeedIndividualSetOnLoad || vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad
+			   || vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 			{
 				_logger.LogWarning("Заказ {OrderId} не является заказом для собственных нужд", orderId);
 				return Result.Failure(OrderErrors.OrderIsNotForPersonalUseError);

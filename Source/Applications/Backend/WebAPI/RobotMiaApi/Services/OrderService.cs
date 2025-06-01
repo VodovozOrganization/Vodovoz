@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -384,7 +385,7 @@ namespace RobotMiaApi.Services
 			switch(createOrderRequest.PaymentType)
 			{
 				case PaymentType.Cash:
-					order.Trifle = createOrderRequest.Trifle;
+					order.PaymentType = VodovozPaymentType.Cash;
 					break;
 				case PaymentType.TerminalQR:
 					order.PaymentType = VodovozPaymentType.Terminal;
@@ -403,6 +404,26 @@ namespace RobotMiaApi.Services
 			order.DeliveryDate = createOrderRequest.DeliveryDate;
 
 			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
+
+			order.SignatureType = createOrderRequest.SignatureType.MapToVodovozSignatureType();
+
+			if(!string.IsNullOrWhiteSpace(createOrderRequest.ContactPhone))
+			{
+				var normalizedContactPhone = createOrderRequest.ContactPhone.NormalizePhone();
+
+				var contactPhone = counterparty.Phones.FirstOrDefault(p => p.DigitsNumber == normalizedContactPhone);
+
+				if(contactPhone == null)
+				{
+					_logger.LogWarning(
+						"Не найден телефон {ContactPhone} у контрагента {CounterpartyId}.",
+						normalizedContactPhone, createOrderRequest.CounterpartyId);
+				}
+				else
+				{
+					order.ContactPhone = contactPhone;
+				}
+			}
 
 			var nomenclaturesToAddIds = createOrderRequest.SaleItems.Select(x => x.NomenclatureId).ToArray();
 
@@ -453,7 +474,10 @@ namespace RobotMiaApi.Services
 			{
 				var tareNonReturnReason = unitOfWork.GetById<NonReturnReason>(createOrderRequest.TareNonReturnReasonId.Value);
 				order.TareNonReturnReason = tareNonReturnReason;
-				order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+				if(tareNonReturnReason != null)
+				{
+					order.OPComment = $"Робот Мия: {tareNonReturnReason.Name}.";
+				}
 			}
 
 			return order;
