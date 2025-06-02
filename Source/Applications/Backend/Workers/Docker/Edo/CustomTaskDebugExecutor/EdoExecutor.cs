@@ -103,6 +103,10 @@ namespace CustomTaskDebugExecutor
 		
 			Console.WriteLine("18. TransferSendPreparer");
 			Console.WriteLine("TransferSendPreparer");
+			
+			Console.WriteLine("19. TransferCompleteEvent (для Тендера) - [Edo.Tender]");
+			Console.WriteLine("   Продолжение обработки после трансфера задачи на отправку Тендера клиенту");
+			Console.WriteLine();
 
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
@@ -162,6 +166,9 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 18:
 					await ReceiveTransferTaskPrepareToSendEvent(cancellationToken);
+					break;
+				case 19:
+					await ReceiveTenderTransferCompleteEvent(cancellationToken);
 					break;
 				default:
 					break;
@@ -256,6 +263,25 @@ namespace CustomTaskDebugExecutor
 			}
 
 			var service = _serviceProvider.GetRequiredService<DocumentEdoTaskHandler>();
+			await service.HandleTransfered(id, cancellationToken);
+		}
+		
+		private async Task ReceiveTenderTransferCompleteEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Завершение трансфера для Тендера");
+			Console.WriteLine("Необходимо ввести Id итерации трансфера (edo_transfer_request_iterations)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<TenderEdoTaskHandler>();
 			await service.HandleTransfered(id, cancellationToken);
 		}
 

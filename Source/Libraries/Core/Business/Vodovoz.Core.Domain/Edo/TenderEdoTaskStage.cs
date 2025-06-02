@@ -13,10 +13,6 @@ namespace Vodovoz.Core.Domain.Edo
 		Transfering,
 		[Display(Name = "Отправка")]
 		Sending,
-		[Display(Name = "Отправлен")]
-		Sent,
-		[Display(Name = "Завершен")]
-		Completed,
 		[Display(Name = "Коды выгружены вручную")]
 		ManualUploaded
 	}
