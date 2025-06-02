@@ -3,7 +3,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Users;
-using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.Core.Domain.Warehouses
 {
