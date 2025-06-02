@@ -207,18 +207,11 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			RouteListItemEntity routeListAddress,
 			int orderSaleItemId,
-			IEnumerable<string> scannedCodes,
+			IEnumerable<TrueMarkAnyCode> trueMarkCodes,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
-			var scannedCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(uow, scannedCodes);
-
-			if(scannedCodesDataResult.IsFailure)
-			{
-				return scannedCodesDataResult;
-			}
-
-			foreach(var code in scannedCodesDataResult.Value)
+			foreach(var code in trueMarkCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{

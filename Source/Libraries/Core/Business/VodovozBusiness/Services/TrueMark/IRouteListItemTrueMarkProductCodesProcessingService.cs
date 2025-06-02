@@ -55,6 +55,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
 		/// <returns>Результат операции</returns>
 		Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
-			IEnumerable<string> scannedCodes, SourceProductCodeStatus status, ProductCodeProblem problem);
+			IEnumerable<TrueMarkAnyCode> trueMarkCodes, SourceProductCodeStatus status, ProductCodeProblem problem);
 	}
 }

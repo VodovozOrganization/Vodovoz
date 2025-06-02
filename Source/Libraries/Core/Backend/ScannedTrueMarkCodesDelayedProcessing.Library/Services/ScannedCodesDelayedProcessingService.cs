@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -23,6 +24,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly ILogger<ScannedCodesDelayedProcessingService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly MessageService _messageService;
@@ -31,6 +33,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			ILogger<ScannedCodesDelayedProcessingService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
 			MessageService messageService)
@@ -41,6 +44,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemTrueMarkProductCodesProcessingService =
 				routeListItemTrueMarkProductCodesProcessingService ?? throw new System.ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoDocflowRepository =
 				edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_orderRepository =
@@ -87,6 +91,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
 			{
+				await AddCodesToRouteListItem(routeListItemScannedCode.Value, cancellationToken);
+
 				var bottlesCodes = routeListItemScannedCode.Value
 				.Where(x => !x.IsDefective)
 				.ToList();
@@ -94,7 +100,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var addBottlesCodesResult = await AddBottlesCodesToRouteListItem(
 					routeListItemScannedCode.Key.RouteListAddress.Id,
 					routeListItemScannedCode.Key.OrderItem.Id,
-					bottlesCodes.Select(x => x.RawCode),
+					bottlesCodes.Select(x => x.RawCode).Distinct().ToArray(),
 					cancellationToken);
 				
 				var defectiveCodes = routeListItemScannedCode.Value
@@ -104,7 +110,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var addDefectiveCodesResult = await AddDefectiveCodesToRouteListItem(
 					routeListItemScannedCode.Key.RouteListAddress.Id,
 					routeListItemScannedCode.Key.OrderItem.Id,
-					defectiveCodes.Select(x => x.RawCode),
+					defectiveCodes.Select(x => x.RawCode).Distinct().ToArray(),
 					cancellationToken);
 
 				foreach(var code in bottlesCodes)
@@ -123,6 +129,44 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
+		private async Task AddCodesToRouteListItem(
+			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
+			CancellationToken cancellationToken)
+		{
+
+			var scannedCodesDataResult = await GetTrueMarkCodesByScannedCodes(
+				driversScannedCodes,
+				cancellationToken);
+
+			var scannedCodesTrueMarkCodesData = scannedCodesDataResult.Value;
+		}
+
+		private async Task<Result<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>>> GetTrueMarkCodesByScannedCodes(
+			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
+			CancellationToken cancellationToken)
+		{
+			var rawScannedCodes = driversScannedCodes.Select(x => x.RawCode).Distinct().ToList();
+			var trueMarkAnyCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(rawScannedCodes, cancellationToken);
+
+			if(trueMarkAnyCodesDataResult.IsFailure)
+			{
+				return Result.Failure<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>>(trueMarkAnyCodesDataResult.Errors);
+			}
+
+			var driversScannedCodesData = new Dictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>();
+			var trueMarkAnyCodesData = trueMarkAnyCodesDataResult.Value;
+
+			foreach(var driversScannedCode in driversScannedCodes)
+			{
+				if(trueMarkAnyCodesData.TryGetValue(driversScannedCode.RawCode, out var trueMarkAnyCode))
+				{
+					driversScannedCodesData.Add(driversScannedCode, trueMarkAnyCode);
+				}
+			}
+
+			return driversScannedCodesData;
+		}
+
 		private async Task<Result> AddBottlesCodesToRouteListItem(
 			int routeListAddressId,
 			int orderItemId,
@@ -135,21 +179,23 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				{
 					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
 
-					var addCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							scannedCodes,
-							SourceProductCodeStatus.New,
-							ProductCodeProblem.None);
+					//var addCodesResult =
+					//	await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
+					//		uow,
+					//		routeListAddress,
+					//		orderItemId,
+					//		scannedCodes,
+					//		SourceProductCodeStatus.New,
+					//		ProductCodeProblem.None);
 
-					if(addCodesResult.IsSuccess)
-					{
-						await uow.CommitAsync(cancellationToken);
-					}
+					//if(addCodesResult.IsSuccess)
+					//{
+					//	await uow.CommitAsync(cancellationToken);
+					//}
 
-					return addCodesResult;
+					//return addCodesResult;
+
+					return Result.Success();
 				}
 				catch(Exception ex)
 				{
@@ -176,21 +222,23 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				{
 					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
 
-					var addCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							scannedCodes,
-							SourceProductCodeStatus.Problem,
-							ProductCodeProblem.Defect);
+					//var addCodesResult =
+					//	await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
+					//		uow,
+					//		routeListAddress,
+					//		orderItemId,
+					//		scannedCodes,
+					//		SourceProductCodeStatus.Problem,
+					//		ProductCodeProblem.Defect);
 
-					if(addCodesResult.IsSuccess && uow.HasChanges)
-					{
-						await uow.CommitAsync(cancellationToken);
-					}
+					//if(addCodesResult.IsSuccess && uow.HasChanges)
+					//{
+					//	await uow.CommitAsync(cancellationToken);
+					//}
 
-					return addCodesResult;
+					//return addCodesResult;
+
+					return Result.Success();
 				}
 				catch(Exception ex)
 				{
