@@ -91,54 +91,95 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
 			{
-				await AddCodesToRouteListItem(routeListItemScannedCode.Value, cancellationToken);
+				var scannedTrueMarkAnyCodesDataResult = await GetTrueMarkCodesByScannedCodes(
+				routeListItemScannedCode.Value,
+				cancellationToken);
 
-				var bottlesCodes = routeListItemScannedCode.Value
-				.Where(x => !x.IsDefective)
-				.ToList();
-
-				var addBottlesCodesResult = await AddBottlesCodesToRouteListItem(
-					routeListItemScannedCode.Key.RouteListAddress.Id,
-					routeListItemScannedCode.Key.OrderItem.Id,
-					bottlesCodes.Select(x => x.RawCode).Distinct().ToArray(),
-					cancellationToken);
-				
-				var defectiveCodes = routeListItemScannedCode.Value
-					.Where(x => x.IsDefective)
-					.ToList();
-
-				var addDefectiveCodesResult = await AddDefectiveCodesToRouteListItem(
-					routeListItemScannedCode.Key.RouteListAddress.Id,
-					routeListItemScannedCode.Key.OrderItem.Id,
-					defectiveCodes.Select(x => x.RawCode).Distinct().ToArray(),
-					cancellationToken);
-
-				foreach(var code in bottlesCodes)
+				if(scannedTrueMarkAnyCodesDataResult.IsFailure)
 				{
-					code.DriversScannedTrueMarkCodeStatus = addBottlesCodesResult.IsSuccess ? DriversScannedTrueMarkCodeStatus.Succeed : DriversScannedTrueMarkCodeStatus.Error;
-					code.DriversScannedTrueMarkCodeError = addBottlesCodesResult.IsFailure ? DriversScannedTrueMarkCodeError.Exception : DriversScannedTrueMarkCodeError.None;
-					await uow.SaveAsync(code, cancellationToken: cancellationToken);
+					foreach(var driversScannedCode in routeListItemScannedCode.Value)
+					{
+						driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+						driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.TrueMarkApiRequestError;
+
+						await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+					}
+
+					continue;
 				}
 
-				foreach(var code in defectiveCodes)
-				{
-					code.DriversScannedTrueMarkCodeStatus = addDefectiveCodesResult.IsSuccess ? DriversScannedTrueMarkCodeStatus.Succeed : DriversScannedTrueMarkCodeStatus.Error;
-					code.DriversScannedTrueMarkCodeError = addDefectiveCodesResult.IsFailure ? DriversScannedTrueMarkCodeError.Exception : DriversScannedTrueMarkCodeError.None;
-					await uow.SaveAsync(code, cancellationToken: cancellationToken);
-				}
+				var scannedTrueMarkAnyCodesData = scannedTrueMarkAnyCodesDataResult.Value;
+
+				var noExistingTransportAndGroupCodesData = await RemoveExistingTransportAndGroupCodes(scannedTrueMarkAnyCodesData);
+				var noDuplicatesScannedTrueMarkAnyCodesData = await RemoveHighLowLevelCodesScannedDuplicates(noExistingTransportAndGroupCodesData);
+
+				await AddCodesToRouteListItem(
+					uow,
+					noDuplicatesScannedTrueMarkAnyCodesData,
+					routeListItemScannedCode.Key.RouteListAddress,
+					routeListItemScannedCode.Key.OrderItem.Id,
+					cancellationToken);
 			}
 		}
 
-		private async Task AddCodesToRouteListItem(
-			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
-			CancellationToken cancellationToken)
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveExistingTransportAndGroupCodes(
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData)
 		{
 
-			var scannedCodesDataResult = await GetTrueMarkCodesByScannedCodes(
-				driversScannedCodes,
-				cancellationToken);
 
-			var scannedCodesTrueMarkCodesData = scannedCodesDataResult.Value;
+			return codesData;
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveHighLowLevelCodesScannedDuplicates(
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData)
+		{
+
+
+			return codesData;
+		}
+
+		private async Task AddCodesToRouteListItem(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			RouteListItemEntity routeListAddress,
+			int orderItemId,
+			CancellationToken cancellationToken)
+		{
+			foreach(var codeData in codesData)
+			{
+				var driversScannedCode = codeData.Key;
+				var trueMarkAnyCode = codeData.Value;
+
+				try
+				{
+					await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+						uow,
+						routeListAddress,
+						orderItemId,
+						trueMarkAnyCode,
+						driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New,
+						driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None);
+
+					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Succeed;
+					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.None;
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(
+						ex,
+						"Ошибка при добавлении отсканированного водителем кода ЧЗ {ScannedCodeId} к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
+						driversScannedCode.Id,
+						routeListAddress.Id,
+						orderItemId);
+
+					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Exception;
+				}
+				finally
+				{
+					await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+				}
+			}
 		}
 
 		private async Task<Result<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>>> GetTrueMarkCodesByScannedCodes(
@@ -165,92 +206,6 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 
 			return driversScannedCodesData;
-		}
-
-		private async Task<Result> AddBottlesCodesToRouteListItem(
-			int routeListAddressId,
-			int orderItemId,
-			IEnumerable<string> scannedCodes,
-			CancellationToken cancellationToken)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(AddBottlesCodesToRouteListItem)))
-			{
-				try
-				{
-					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
-
-					//var addCodesResult =
-					//	await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-					//		uow,
-					//		routeListAddress,
-					//		orderItemId,
-					//		scannedCodes,
-					//		SourceProductCodeStatus.New,
-					//		ProductCodeProblem.None);
-
-					//if(addCodesResult.IsSuccess)
-					//{
-					//	await uow.CommitAsync(cancellationToken);
-					//}
-
-					//return addCodesResult;
-
-					return Result.Success();
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(
-						ex,
-						"Ошибка при добавлении кодов бутылей к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
-						routeListAddressId,
-						orderItemId);
-
-					return Result.Failure(DriversScannedCodes.AddingCodeToRouteListAddressError);
-				}
-			}
-		}
-
-		private async Task<Result> AddDefectiveCodesToRouteListItem(
-			int routeListAddressId,
-			int orderItemId,
-			IEnumerable<string> scannedCodes,
-			CancellationToken cancellationToken)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(AddBottlesCodesToRouteListItem)))
-			{
-				try
-				{
-					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
-
-					//var addCodesResult =
-					//	await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-					//		uow,
-					//		routeListAddress,
-					//		orderItemId,
-					//		scannedCodes,
-					//		SourceProductCodeStatus.Problem,
-					//		ProductCodeProblem.Defect);
-
-					//if(addCodesResult.IsSuccess && uow.HasChanges)
-					//{
-					//	await uow.CommitAsync(cancellationToken);
-					//}
-
-					//return addCodesResult;
-
-					return Result.Success();
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(
-						ex,
-						"Ошибка при добавлении кодов дефектных бутылей к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
-						routeListAddressId,
-						orderItemId);
-
-					return Result.Failure(DriversScannedCodes.AddingCodeToRouteListAddressError);
-				}
-			}
 		}
 
 		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow,

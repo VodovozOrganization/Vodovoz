@@ -50,11 +50,11 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="routeListAddress">Строка маршрутного листа</param>
 		/// <param name="orderSaleItemId">Строка заказа</param>
-		/// <param name="scannedCodes">Списко отсканированных кодов</param>
+		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
 		/// <param name="status">Статус кода продукта</param>
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
 		/// <returns>Результат операции</returns>
-		Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
-			IEnumerable<TrueMarkAnyCode> trueMarkCodes, SourceProductCodeStatus status, ProductCodeProblem problem);
+		Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
+			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
 	}
 }

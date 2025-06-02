@@ -26,6 +26,11 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "В ЧЗ нет информации о коде")]
 		NotTrueMarkCode,
 		/// <summary>
+		/// Ошибка запроса к API ЧЗ
+		/// </summary>
+		[Display(Name = "Ошибка запроса к API ЧЗ")]
+		TrueMarkApiRequestError,
+		/// <summary>
 		/// При обработке кода возникло исключение
 		/// </summary>
 		[Display(Name = "При обработке кода возникло исключение")]

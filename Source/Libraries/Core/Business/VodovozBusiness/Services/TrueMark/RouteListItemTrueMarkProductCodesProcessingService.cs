@@ -203,15 +203,21 @@ namespace VodovozBusiness.Services.TrueMark
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> AddProductCodesToRouteListItemNoCodeStatusCheck(
+		public async Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 			IUnitOfWork uow,
 			RouteListItemEntity routeListAddress,
 			int orderSaleItemId,
-			IEnumerable<TrueMarkAnyCode> trueMarkCodes,
+			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
-			ProductCodeProblem problem)
+			ProductCodeProblem problem,
+			CancellationToken cancellationToken = default)
 		{
-			foreach(var code in trueMarkCodes)
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
@@ -232,37 +238,35 @@ namespace VodovozBusiness.Services.TrueMark
 					}
 				}
 
-				code.Match(
-					transportCode =>
+				await code.Match(
+					async transportCode =>
 					{
 						if(transportCode.Id == 0)
 						{
-							uow.Save(transportCode);
+							await uow.SaveAsync(transportCode, cancellationToken: cancellationToken);
 						}
 
 						return true;
 					},
-					groupCode =>
+					async groupCode =>
 					{
 						if(groupCode.Id == 0)
 						{
-							uow.Save(groupCode);
+							await uow.SaveAsync(groupCode, cancellationToken: cancellationToken);
 						}
 
 						return true;
 					},
-					waterCode =>
+					async waterCode =>
 					{
 						if(waterCode.Id == 0)
 						{
-							uow.Save(waterCode);
+							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
 						}
 
 						return true;
 					});
 			}
-
-			return Result.Success();
 		}
 
 		private static Result IsTrueMarkWaterIdentificationCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
