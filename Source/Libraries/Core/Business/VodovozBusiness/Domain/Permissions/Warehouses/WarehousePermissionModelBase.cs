@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using Vodovoz.Domain.Store;
+﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
