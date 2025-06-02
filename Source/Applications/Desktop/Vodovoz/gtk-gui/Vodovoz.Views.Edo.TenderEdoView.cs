@@ -53,7 +53,7 @@ namespace Vodovoz.Views.Edo
 			this.ylabelGeneratedInfo = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelGeneratedInfo.Name = "ylabelGeneratedInfo";
 			this.ylabelGeneratedInfo.Xalign = 0F;
-			this.ylabelGeneratedInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ №");
+			this.ylabelGeneratedInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Информация по задаче:");
 			this.yhboxInfo.Add(this.ylabelGeneratedInfo);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxInfo[this.ylabelGeneratedInfo]));
 			w2.Position = 1;
