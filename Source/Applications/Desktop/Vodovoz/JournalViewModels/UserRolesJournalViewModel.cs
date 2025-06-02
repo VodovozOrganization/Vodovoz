@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Users;
 

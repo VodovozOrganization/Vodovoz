@@ -7,6 +7,7 @@ using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
 using System.Text;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;

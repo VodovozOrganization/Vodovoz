@@ -4,9 +4,9 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 
@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IEnumerable<SubdivisionPermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, IPermissionExtensionStore permissionExtensionStore);
 		IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId);
 		bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService);
-		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission);
+		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, User user, string permission);
 		IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, int userId);
 		IList<HierarchicalPresetPermissionBase> GetAllPresetUserPermissionBase(IUnitOfWork uow, int userId);
 		HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission);

@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -14,7 +15,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Order = Vodovoz.Domain.Orders.Order;
 

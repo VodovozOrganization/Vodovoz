@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Project.Filter;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods

@@ -8,12 +8,12 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods

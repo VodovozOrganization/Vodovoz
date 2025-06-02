@@ -27,7 +27,7 @@ namespace Vodovoz.Views.Reports
 			ybtnRunReport.Clicked += (sender, args) => RunReport();
 			btnHelp.Clicked += (sender, args) => ViewModel.HelpCommand.Execute();
 
-			cmbProducionWarehouse.SetRenderTextFunc<Domain.Store.Warehouse>(x => x.Name);
+			cmbProducionWarehouse.SetRenderTextFunc<Core.Domain.Warehouses.Warehouse>(x => x.Name);
 			cmbProducionWarehouse.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.WarehouseList, w => w.ItemsList)

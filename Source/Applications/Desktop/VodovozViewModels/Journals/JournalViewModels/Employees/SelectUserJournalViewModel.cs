@@ -4,7 +4,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;

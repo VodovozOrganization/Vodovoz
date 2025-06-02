@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -26,8 +26,6 @@ using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -52,6 +50,7 @@ using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using QS.Report;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {

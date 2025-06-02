@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {

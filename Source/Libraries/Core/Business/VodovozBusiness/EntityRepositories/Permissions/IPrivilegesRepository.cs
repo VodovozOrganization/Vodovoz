@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.EntityRepositories.Permissions

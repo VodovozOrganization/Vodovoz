@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Domain.Goods
 {

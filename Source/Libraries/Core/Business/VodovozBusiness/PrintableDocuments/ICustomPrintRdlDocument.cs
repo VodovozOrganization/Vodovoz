@@ -1,4 +1,5 @@
 ﻿using QS.Report;
+using Vodovoz.Core.Domain.PrintableDocuments;
 
 namespace Vodovoz.PrintableDocuments
 {
