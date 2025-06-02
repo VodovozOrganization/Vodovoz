@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {

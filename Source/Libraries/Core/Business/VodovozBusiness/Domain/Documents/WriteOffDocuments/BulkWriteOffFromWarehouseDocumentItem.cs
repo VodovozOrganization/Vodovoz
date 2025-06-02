@@ -1,8 +1,8 @@
 ﻿using System;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {

@@ -10,11 +10,11 @@ using Autofac;
 using NHibernate.Criterion;
 using QS.Navigation;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {

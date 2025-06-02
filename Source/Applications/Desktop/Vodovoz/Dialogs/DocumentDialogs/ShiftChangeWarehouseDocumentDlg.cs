@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -21,7 +21,6 @@ using QSProjectsLib;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Tools.Store;
 using Vodovoz.Infrastructure;
 using QS.Navigation;
@@ -32,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
 using QS.Report;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Dialogs.DocumentDialogs

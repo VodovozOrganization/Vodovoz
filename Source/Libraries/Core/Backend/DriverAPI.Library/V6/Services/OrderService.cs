@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;

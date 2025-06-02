@@ -1,5 +1,5 @@
-using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Permissions.Warehouses;
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Permissions
 {

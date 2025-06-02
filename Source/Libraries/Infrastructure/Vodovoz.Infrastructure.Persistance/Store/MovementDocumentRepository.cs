@@ -1,11 +1,11 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Store;
 using NHibernate;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using System.Linq;
 using System.Collections.Generic;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Infrastructure.Persistance.Store
 {
@@ -17,7 +17,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 
 			return uow.Session.QueryOver<MovementDocument>()
 				.JoinEntityAlias(() => warehouseAlias,
-					() => warehouseAlias.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
+					() => warehouseAlias.MovementDocumentsNotificationsSubdivisionRecipientId == subdivisionId)
 				.Where(md => md.Status == MovementDocumentStatus.Sended)
 				.And(md => md.ToWarehouse.Id == warehouseAlias.Id)
 				.Select(Projections.Count(Projections.Id()))
@@ -27,7 +27,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public int GetSendedMovementDocumentsToWarehouseByUserSelectedWarehouses(IUnitOfWork uow, IEnumerable<int> warehousesIds, int currentUserSubdivisionId)
 		{
 			var subdivisionWarehouses = uow.GetAll<Warehouse>()
-				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == currentUserSubdivisionId)
+				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipientId == currentUserSubdivisionId)
 				.Select(w => w.Id);
 
 			var docsCount = uow.GetAll<MovementDocument>()

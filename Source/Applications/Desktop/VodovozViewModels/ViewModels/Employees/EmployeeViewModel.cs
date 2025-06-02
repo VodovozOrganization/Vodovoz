@@ -25,6 +25,7 @@ using System.Threading;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;

@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Domain.Fuel
 {
