@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.PermissionNode
 {

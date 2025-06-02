@@ -6,11 +6,11 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -20,7 +20,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
-using DocumentTypeEnum = Vodovoz.Domain.Documents.DocumentType;
+using DocumentTypeEnum = Vodovoz.Core.Domain.Warehouses.Documents.DocumentType;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

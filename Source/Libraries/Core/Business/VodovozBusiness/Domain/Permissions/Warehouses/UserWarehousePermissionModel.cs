@@ -2,9 +2,9 @@
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {

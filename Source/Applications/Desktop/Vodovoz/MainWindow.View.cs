@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz;
-using Vodovoz.Domain.Employees;
-using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using Vodovoz.Core.Domain.Users.Settings;
+using ToolbarStyle = Vodovoz.Core.Domain.Users.Settings.ToolbarStyle;
 
 public partial class MainWindow
 {

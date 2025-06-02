@@ -7,11 +7,11 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using VodovozInfrastructure.Versions;
 
@@ -110,7 +110,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId)
 		{
 			return uow.Session.QueryOver<Warehouse>()
-				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipient.Id == subdivisionId)
+				.Where(w => w.MovementDocumentsNotificationsSubdivisionRecipientId == subdivisionId)
 				.List()
 				.Any();
 		}

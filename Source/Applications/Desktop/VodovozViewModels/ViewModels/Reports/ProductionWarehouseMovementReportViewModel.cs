@@ -8,7 +8,7 @@ using QS.Utilities.Debug;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.ViewModels.Reports

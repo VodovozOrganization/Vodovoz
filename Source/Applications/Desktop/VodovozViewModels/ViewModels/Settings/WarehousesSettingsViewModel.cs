@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate.Transform;
@@ -8,8 +8,8 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Store;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;

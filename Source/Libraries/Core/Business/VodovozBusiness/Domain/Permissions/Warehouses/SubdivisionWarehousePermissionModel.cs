@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {

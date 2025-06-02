@@ -51,6 +51,9 @@ using VodovozBusiness.Domain.Documents;
 using Vodovoz.Core.Domain.StoredResources;
 using VodovozBusiness.Domain.Contacts;
 using VodovozBusiness.Domain.Operations;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz
 {
@@ -409,7 +412,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
-						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
+						.AddClearDependence<Warehouse>(item => item.OwningSubdivisionId)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
 						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)

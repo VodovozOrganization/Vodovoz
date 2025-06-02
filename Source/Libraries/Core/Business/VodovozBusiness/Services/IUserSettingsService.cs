@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Employees;
+﻿using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz.Services
 {
