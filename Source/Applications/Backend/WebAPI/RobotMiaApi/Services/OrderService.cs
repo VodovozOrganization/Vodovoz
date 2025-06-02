@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
+using RobotMiaApi.Exceptions;
 using RobotMiaApi.Extensions.Mapping;
 using RobotMiaApi.Specifications;
 using Sms.Internal;
@@ -442,7 +443,7 @@ namespace RobotMiaApi.Services
 			foreach(var saleItem in createOrderRequest.SaleItems)
 			{
 				var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
-					?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+					?? throw new NomenclatureNotFoundException(saleItem.NomenclatureId);
 
 				if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 				{
@@ -450,15 +451,15 @@ namespace RobotMiaApi.Services
 					continue;
 				}
 
-				if(nomenclature.Category == NomenclatureCategory.water)
-				{
-					order.AddWaterForSale(nomenclature, saleItem.Count);
-				}
 				else if(!nomenclaturesParameters.ContainsKey(nomenclature.Id)
 					|| nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
 				{
-					throw new InvalidOperationException(
-						$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
+					throw new NomenclatureSaleUnavailableException(nomenclature.Id, nomenclature.Name);
+				}
+
+				if(nomenclature.Category == NomenclatureCategory.water)
+				{
+					order.AddWaterForSale(nomenclature, saleItem.Count);
 				}
 				else
 				{

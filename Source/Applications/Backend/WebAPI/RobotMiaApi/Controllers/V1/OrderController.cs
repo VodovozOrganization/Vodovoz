@@ -5,6 +5,7 @@ using NHibernate.Util;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
+using RobotMiaApi.Exceptions;
 using RobotMiaApi.Services;
 using System;
 using System.Linq;
@@ -110,9 +111,22 @@ namespace RobotMiaApi.Controllers.V1
 
 				return NoContent();
 			}
+			catch(NomenclatureNotFoundException nnfe)
+			{
+				_logger.LogError(nnfe, "Ошибка создания заказа: {Message}", nnfe.Message);
+
+				return Problem($"Не удалось создать заказ: {nnfe.Message}", statusCode: StatusCodes.Status400BadRequest);
+			}
+			catch(NomenclatureSaleUnavailableException nsue)
+			{
+				_logger.LogError(nsue, "Ошибка создания заказа: {Message}", nsue.Message);
+
+				return Problem($"Не удалось создать заказ: {nsue.Message}", statusCode: StatusCodes.Status400BadRequest);
+			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка создания заказа: {Message}", ex.Message);
+
 				return Problem("Не удалось создать заказ", statusCode: StatusCodes.Status400BadRequest);
 			}
 		}
