@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Extends(typeof(OrderEdoTask));
 
 			Map(x => x.Stage)
-				.Column("document_task_stage");
+				.Column("tender_task_stage");
 
 			HasMany(x => x.UpdInventPositions)
 				.KeyColumn("document_edo_task_id")

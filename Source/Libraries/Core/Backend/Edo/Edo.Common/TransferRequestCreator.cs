@@ -82,11 +82,13 @@ namespace Edo.Common
 			switch(edoTask.TaskType)
 			{
 				case EdoTaskType.Document:
-				case EdoTaskType.Tender:
 					initiator = TransferInitiator.Document;
 					break;
 				case EdoTaskType.Receipt:
 					initiator = TransferInitiator.Receipt;
+					break;
+				case EdoTaskType.Tender:
+					initiator = TransferInitiator.Tender;
 					break;
 				default:
 					throw new NotSupportedException($"Тип задачи {edoTask.TaskType} не поддерживается.");

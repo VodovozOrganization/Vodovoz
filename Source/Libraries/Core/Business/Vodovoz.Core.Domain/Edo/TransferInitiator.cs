@@ -3,6 +3,7 @@
 	public enum TransferInitiator
 	{
 		Receipt,
-		Document
+		Document,
+		Tender
 	}
 }
