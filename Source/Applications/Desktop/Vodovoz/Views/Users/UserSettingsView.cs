@@ -70,7 +70,7 @@ namespace Vodovoz.Views.Users
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
+			//entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			//entryCounterparty.Binding
 			//	.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject)
 			//	.InitializeFromSource();
