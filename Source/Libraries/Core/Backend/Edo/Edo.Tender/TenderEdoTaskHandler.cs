@@ -83,7 +83,7 @@ namespace Edo.Tender
 				_logger.LogInformation("Задача Id {TenderEdoTaskId} не имеет связи с ЭДО заявкой", tenderEdoTaskId);
 				return;
 			}
-			
+
 			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
 
 			if(reasonForLeaving != ReasonForLeaving.Tender)
@@ -133,7 +133,7 @@ namespace Edo.Tender
 				{
 					return;
 				}
-				
+
 				await HandleNewTenderDocument(edoTask, trueMarkCodesChecker, cancellationToken);
 			}
 			catch(EdoProblemException ex)
@@ -166,7 +166,7 @@ namespace Edo.Tender
 				}
 			}
 		}
-		
+
 		private async Task HandleNewTenderDocument(
 			TenderEdoTask tenderEdoTask,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
@@ -215,6 +215,79 @@ namespace Edo.Tender
 			await _uow.CommitAsync(cancellationToken);
 
 			await _messageBus.Publish(message, cancellationToken);
+		}
+
+		// handle transfered
+		// Entry stage: Transfering
+		// Validated stage: Transfering
+		// Changed to: Sending
+		// [событие от transfer]
+		// (проверяет выполнены ли переносы и переводит в Sending)
+		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
+		{
+			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
+			if(transferIteration == null)
+			{
+				_logger.LogInformation("Итерация трансфера Id {TransferIterationId} не найдена", transferIterationId);
+				return;
+			}
+
+			var edoTask = transferIteration.OrderEdoTask.As<TenderEdoTask>();
+			if(edoTask == null)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+				                       "так как задача Id {TenderEdoTaskId} не найдена", transferIteration.OrderEdoTask.Id);
+				return;
+			}
+
+			if(edoTask.OrderEdoRequest == null)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+				                       "так как задача Id {TenderEdoTaskId} не связана ни с одной клиенсткой заявкой",
+					transferIteration.OrderEdoTask.Id);
+				return;
+			}
+
+			if(edoTask.Status == EdoTaskStatus.Completed)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+				                       "так как задача Id {TenderEdoTaskId} уже завершена", edoTask.Id);
+				return;
+			}
+
+			if(edoTask.Stage != TenderEdoTaskStage.Transfering)
+			{
+				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
+				                       "так как задача Id {TenderEdoTaskId} находится не на стадии трансфера, " +
+				                       "а на стадии {DocumentEdoTaskStage}",
+					edoTask.Id, edoTask.Stage);
+				return;
+			}
+
+			try
+			{
+				edoTask.Status = EdoTaskStatus.InProgress;
+				edoTask.Stage = TenderEdoTaskStage.Sending;
+
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+			}
+			catch(EdoProblemException ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
 		}
 
 		public void Dispose()
