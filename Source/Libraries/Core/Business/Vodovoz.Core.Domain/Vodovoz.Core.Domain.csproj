@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Logistics\Cars\" />
+    <Folder Include="Warehouses\" />
   </ItemGroup>
 
 </Project>
