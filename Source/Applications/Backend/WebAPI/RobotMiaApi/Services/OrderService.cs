@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentNHibernate.Data;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RobotMiaApi.Contracts.Requests.V1;
 using RobotMiaApi.Contracts.Responses.V1;
@@ -413,11 +414,18 @@ namespace RobotMiaApi.Services
 
 				var contactPhone = counterparty.Phones.FirstOrDefault(p => p.DigitsNumber == normalizedContactPhone);
 
+				if(contactPhone == null && deliveryPoint != null)
+				{
+					contactPhone = deliveryPoint.Phones.FirstOrDefault(p => p.DigitsNumber == normalizedContactPhone);
+				}
+
 				if(contactPhone == null)
 				{
 					_logger.LogWarning(
-						"Не найден телефон {ContactPhone} у контрагента {CounterpartyId}.",
-						normalizedContactPhone, createOrderRequest.CounterpartyId);
+						"Не найден телефон {ContactPhone} у контрагента {CounterpartyId} и в указанной точке доставки {DeliveryPointId}.",
+						normalizedContactPhone,
+						createOrderRequest.CounterpartyId,
+						createOrderRequest.DeliveryPointId);
 				}
 				else
 				{
