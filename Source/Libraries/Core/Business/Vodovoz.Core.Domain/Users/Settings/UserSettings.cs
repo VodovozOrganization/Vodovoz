@@ -1,32 +1,68 @@
-﻿using MoreLinq;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.PrintableDocuments;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Documents;
-using Vodovoz.PrintableDocuments;
 
-namespace Vodovoz.Domain.Employees
+namespace Vodovoz.Core.Domain.Users.Settings
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	/// <summary>
+	/// Настройки пользователя
+	/// </summary>
+	[Appellative(
+		Gender = GrammaticalGender.Feminine,
+		Accusative = "настройки пользователя",
+		AccusativePlural = "настройки пользователей",
+		Genitive = "настроек пользователя",
+		GenitivePlural = "настроек пользователей",
+		Nominative = "настройки пользователя",
 		NominativePlural = "настройки пользователей",
-		Nominative = "настройки пользователя")]
+		Prepositional = "настройках пользователя",
+		PrepositionalPlural = "настройках пользователей")]
 	[EntityPermission]
 	public class UserSettings : PropertyChangedBase, IDomainObject
 	{
-		private IList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings;
-		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
+		private int _id;
+		private User _user;
+		private ToolbarStyle _toolbarStyle = ToolbarStyle.Both;
+		private IconsSize _toolBarIconsSize = IconsSize.Large;
+		private bool _reorderTabs;
+		private bool _highlightTabsWithColor;
+		private bool _keepTabColor;
+		private bool _hideComplaintNotification;
+		private Warehouse _defaultWarehouse;
+		private NomenclatureCategory? _defaultSaleCategory;
+		private bool _logisticDeliveryOrders;
+		private bool _logisticServiceOrders;
+		private bool _logisticChainStoreOrders;
+		private bool _useEmployeeSubdivision;
+		private int? _defaultSubdivisionId;
+		private int? _defaultCounterpartyId;
+		private string _fuelControlApiLogin;
+		private string _fuelControlApiPassword;
+		private string _fuelControlApiKey;
+		private string _fuelControlApiSessionId;
+		private DateTime? _fuelControlApiSessionExpirationDate;
+
+		private ComplaintStatuses? _defaultComplaintStatus;
+		private string _salesBySubdivisionsAnalitycsReportWarehousesString;
+		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
+		private string _carIsNotAtLineReportIncludedEventTypeIdsString;
+		private string _carIsNotAtLineReportExcludedEventTypeIdsString;
+
+		private IObservableList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings = new ObservableList<CashSubdivisionSortingSettings>();
+		private IObservableList<DocumentPrinterSetting> _documentPrinterSettings = new ObservableList<DocumentPrinterSetting>();
+
 		private string _movementDocumentsNotificationUserSelectedWarehousesString;
-		private IList<DocumentPrinterSetting> _documentPrinterSettings;
-		private GenericObservableList<DocumentPrinterSetting> _observableDocumentPrinterSettings;
 
 		public UserSettings()
 		{
@@ -39,12 +75,18 @@ namespace Vodovoz.Domain.Employees
 			CarIsNotAtLineReportExcludedEventTypeIdsString = string.Empty;
 		}
 
-		#region Свойства
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
-		public virtual int Id { get; set; }
-
-		private User _user;
-
+		/// <summary>
+		/// Пользователь
+		/// </summary>
 		[Display(Name = "Пользователь")]
 		public virtual User User
 		{
@@ -52,8 +94,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _user, value);
 		}
 
-		private ToolbarStyle _toolbarStyle = ToolbarStyle.Both;
-
+		/// <summary>
+		/// Стиль панели
+		/// </summary>
 		[Display(Name = "Стиль панели")]
 		public virtual ToolbarStyle ToolbarStyle
 		{
@@ -61,8 +104,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _toolbarStyle, value);
 		}
 
-		private IconsSize _toolBarIconsSize = IconsSize.Large;
-
+		/// <summary>
+		/// Размер иконок панели
+		/// </summary>
 		[Display(Name = "Размер иконок панели")]
 		public virtual IconsSize ToolBarIconsSize
 		{
@@ -70,8 +114,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _toolBarIconsSize, value);
 		}
 
-		private bool _reorderTabs;
-
+		/// <summary>
+		/// Перемещение вкладок
+		/// </summary>
 		[Display(Name = "Перемещение вкладок")]
 		public virtual bool ReorderTabs
 		{
@@ -79,8 +124,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _reorderTabs, value);
 		}
 
-		private bool _highlightTabsWithColor;
-
+		/// <summary>
+		/// Выделение вкладок цветом
+		/// </summary>
 		[Display(Name = "Выделение вкладок цветом")]
 		public virtual bool HighlightTabsWithColor
 		{
@@ -88,8 +134,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _highlightTabsWithColor, value);
 		}
 
-		private bool _keepTabColor;
-
+		/// <summary>
+		/// Сохранять цвет вкладки
+		/// </summary>
 		[Display(Name = "Сохранять цвет вкладки")]
 		public virtual bool KeepTabColor
 		{
@@ -97,8 +144,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _keepTabColor, value);
 		}
 
-		private bool _hideComplaintNotification;
-
+		/// <summary>
+		/// Скрывать уведомления об открытых рекламациях
+		/// </summary>
 		[Display(Name = "Скрыть уведомления об открытых рекламациях")]
 		public virtual bool HideComplaintNotification
 		{
@@ -106,8 +154,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _hideComplaintNotification, value);
 		}
 
-		private Warehouse _defaultWarehouse;
-
+		/// <summary>
+		/// Склад по умолчанию
+		/// </summary>
 		[Display(Name = "Склад")]
 		public virtual Warehouse DefaultWarehouse
 		{
@@ -115,16 +164,15 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _defaultWarehouse, value);
 		}
 
-		private NomenclatureCategory? _defaultSaleCategory;
-
+		/// <summary>
+		/// Тип номенклатуры на продажу по умолчанию
+		/// </summary>
 		[Display(Name = "Номенклатура на продажу")]
 		public virtual NomenclatureCategory? DefaultSaleCategory
 		{
 			get => _defaultSaleCategory;
 			set => SetField(ref _defaultSaleCategory, value);
 		}
-
-		private bool _logisticDeliveryOrders;
 
 		/// <summary>
 		/// Для установки фильра заказов для обычной доставки
@@ -136,8 +184,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _logisticDeliveryOrders, value);
 		}
 
-		private bool _logisticServiceOrders;
-
 		/// <summary>
 		/// Для установки фильтра заказов с сервисным обслуживанием (выезд мастеров)
 		/// </summary>
@@ -147,8 +193,6 @@ namespace Vodovoz.Domain.Employees
 			get => _logisticServiceOrders;
 			set => SetField(ref _logisticServiceOrders, value);
 		}
-
-		private bool _logisticChainStoreOrders;
 
 		/// <summary>
 		/// Для установки фильтра заказов для сетевых магазинов
@@ -163,7 +207,6 @@ namespace Vodovoz.Domain.Employees
 		/// <summary>
 		/// Использовать отдел сотрудника
 		/// </summary>
-		private bool _useEmployeeSubdivision;
 		[Display(Name = "Использовать отдел сотрудника")]
 		public virtual bool UseEmployeeSubdivision
 		{
@@ -174,30 +217,28 @@ namespace Vodovoz.Domain.Employees
 		/// <summary>
 		/// Для установки фильтра подразделений
 		/// </summary>
-		private Subdivision _defaultSubdivision;
-
 		[Display(Name = "Подразделение")]
-		public virtual Subdivision DefaultSubdivision
+		[HistoryIdentifier(TargetType = typeof(SubdivisionEntity))]
+		public virtual int? DefaultSubdivisionId
 		{
-			get => _defaultSubdivision;
-			set => SetField(ref _defaultSubdivision, value);
+			get => _defaultSubdivisionId;
+			set => SetField(ref _defaultSubdivisionId, value);
 		}
 
 		/// <summary>
 		/// Для установки дефолтного контрагента в отчете по оплатам
 		/// </summary>
-		private Counterparty _defaultCounterparty;
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty DefaultCounterparty
+		[HistoryIdentifier(TargetType = typeof(CounterpartyEntity))]
+		public virtual int? DefaultCounterpartyId
 		{
-			get => _defaultCounterparty;
-			set => SetField(ref _defaultCounterparty, value);
+			get => _defaultCounterpartyId;
+			set => SetField(ref _defaultCounterpartyId, value);
 		}
 
-		#region FuelControl
-
-		private string _fuelControlApiLogin;
-
+		/// <summary>
+		/// Логин API управления топливом
+		/// </summary>
 		[Display(Name = "Логин API управления топливом")]
 		public virtual string FuelControlApiLogin
 		{
@@ -211,8 +252,9 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		private string _fuelControlApiPassword;
-
+		/// <summary>
+		/// Пароль API управления топливом
+		/// </summary>
 		[Display(Name = "Пароль API управления топливом")]
 		public virtual string FuelControlApiPassword
 		{
@@ -226,8 +268,9 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		private string _fuelControlApiKey;
-
+		/// <summary>
+		/// Ключ API управления топливом
+		/// </summary>
 		[Display(Name = "Ключ API управления топливом")]
 		public virtual string FuelControlApiKey
 		{
@@ -241,8 +284,9 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		private string _fuelControlApiSessionId;
-
+		/// <summary>
+		/// Идентификатор сессии API управления топливом
+		/// </summary>
 		[Display(Name = "Id сессии API управления топливом")]
 		public virtual string FuelControlApiSessionId
 		{
@@ -250,8 +294,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _fuelControlApiSessionId, value);
 		}
 
-		private DateTime? _fuelControlApiSessionExpirationDate;
-
+		/// <summary>
+		/// Дата истечения сессии работы с API управления топливом
+		/// </summary>
 		[Display(Name = "Дата истечения сессии работы с API управления топливом")]
 		public virtual DateTime? FuelControlApiSessionExpirationDate
 		{
@@ -259,16 +304,25 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _fuelControlApiSessionExpirationDate, value);
 		}
 
+		/// <summary>
+		/// Есть ли у пользователя данные для авторизации в API управления топливом
+		/// </summary>
 		public virtual bool IsUserHasAuthDataForFuelControlApi =>
 			!string.IsNullOrWhiteSpace(FuelControlApiLogin)
 			&& !string.IsNullOrWhiteSpace(FuelControlApiPassword)
 			&& !string.IsNullOrWhiteSpace(FuelControlApiKey);
 
+		/// <summary>
+		/// Требуется ли авторизация в API управления топливом
+		/// </summary>
 		public virtual bool IsNeedToLoginFuelControlApi =>
 			string.IsNullOrWhiteSpace(FuelControlApiSessionId)
 			|| !FuelControlApiSessionExpirationDate.HasValue
 			|| FuelControlApiSessionExpirationDate <= DateTime.Today;
 
+		/// <summary>
+		/// Сброс данных сессии API управления топливом
+		/// </summary>
 		private void ResetFuelControlAPiSessionData()
 		{
 			FuelControlApiSessionId = string.Empty;
@@ -277,18 +331,9 @@ namespace Vodovoz.Domain.Employees
 			OnPropertyChanged(nameof(IsUserHasAuthDataForFuelControlApi));
 		}
 
-		#endregion
-
 		/// <summary>
 		/// Статус рекламации
 		/// </summary>
-		private ComplaintStatuses? _defaultComplaintStatus;
-		private string _salesBySubdivisionsAnalitycsReportWarehousesString;
-		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
-		private string _themeName;
-		private string _carIsNotAtLineReportIncludedEventTypeIdsString;
-		private string _carIsNotAtLineReportExcludedEventTypeIdsString;
-
 		[Display(Name = "Статус рекламации")]
 		public virtual ComplaintStatuses? DefaultComplaintStatus
 		{
@@ -296,30 +341,37 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _defaultComplaintStatus, value);
 		}
 
+		/// <summary>
+		/// Настройки сортировки касс
+		/// </summary>
 		[Display(Name = "Настройки сортировки касс")]
-		public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
+		public virtual IObservableList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
 		{
 			get => _cashSubdivisionSortingSettings;
 			set => SetField(ref _cashSubdivisionSortingSettings, value);
 		}
 
-		public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
-			_observableCashSubdivisionSortingSettings
-			?? (_observableCashSubdivisionSortingSettings =
-				new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
-
+		/// <summary>
+		/// Склады для отчета по продажам по подразделениям
+		/// </summary>
 		public virtual string SalesBySubdivisionsAnalitycsReportWarehousesString
 		{
 			get => _salesBySubdivisionsAnalitycsReportWarehousesString;
 			set => SetField(ref _salesBySubdivisionsAnalitycsReportWarehousesString, value);
 		}
 
+		/// <summary>
+		/// Подразделения для отчета по продажам по подразделениям
+		/// </summary>
 		public virtual string SalesBySubdivisionsAnalitycsReportSubdivisionsString
 		{
 			get => _salesBySubdivisionsAnalitycsReportSubdivisionsString;
 			set => SetField(ref _salesBySubdivisionsAnalitycsReportSubdivisionsString, value);
 		}
 
+		/// <summary>
+		/// Выбранные пользователем склады для отчета по продажам по подразделениям
+		/// </summary>
 		[Display(Name = "Выбранные пользователем склады для отслеживания наличия перемещений ожидающих приемки")]
 		public virtual string MovementDocumentsNotificationUserSelectedWarehousesString
 		{
@@ -327,6 +379,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _movementDocumentsNotificationUserSelectedWarehousesString, value);
 		}
 
+		/// <summary>
+		/// Склады для отчета по продажам по подразделениям
+		/// </summary>
 		[PropertyChangedAlso(nameof(SalesBySubdivisionsAnalitycsReportWarehousesString))]
 		public virtual IEnumerable<int> SalesBySubdivisionsAnalitycsReportWarehouses
 		{
@@ -336,6 +391,9 @@ namespace Vodovoz.Domain.Employees
 			set => SalesBySubdivisionsAnalitycsReportWarehousesString = string.Join(", ", value);
 		}
 
+		/// <summary>
+		/// Подразделения для отчета по продажам по подразделениям
+		/// </summary>
 		[PropertyChangedAlso(nameof(SalesBySubdivisionsAnalitycsReportSubdivisionsString))]
 		public virtual IEnumerable<int> SalesBySubdivisionsAnalitycsReportSubdivisions
 		{
@@ -345,6 +403,9 @@ namespace Vodovoz.Domain.Employees
 			set => SalesBySubdivisionsAnalitycsReportSubdivisionsString = string.Join(", ", value);
 		}
 
+		/// <summary>
+		/// Склады для отслеживания наличия документов перемещений
+		/// </summary>
 		[PropertyChangedAlso(nameof(MovementDocumentsNotificationUserSelectedWarehousesString))]
 		public virtual IEnumerable<int> MovementDocumentsNotificationUserSelectedWarehouses
 		{
@@ -354,6 +415,9 @@ namespace Vodovoz.Domain.Employees
 			set => MovementDocumentsNotificationUserSelectedWarehousesString = string.Join(", ", value);
 		}
 
+		/// <summary>
+		/// Выбранные пользователем типы событий отчета по простоям на включение в отчет
+		/// </summary>
 		[Display(Name = "Выбранные пользователем типы событий отчета по простоям на включение в отчет")]
 		public virtual string CarIsNotAtLineReportIncludedEventTypeIdsString
 		{
@@ -361,22 +425,31 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _carIsNotAtLineReportIncludedEventTypeIdsString, value);
 		}
 
-		[Display(Name = "Выбранные пользователем типы событий отчета по простоям на исключение из отчета в отчет")]
+		/// <summary>
+		/// Выбранные пользователем типы событий отчета по простоям на исключение из отчета
+		/// </summary>
+		[Display(Name = "Выбранные пользователем типы событий отчета по простоям на исключение из отчета")]
 		public virtual string CarIsNotAtLineReportExcludedEventTypeIdsString
 		{
 			get => _carIsNotAtLineReportExcludedEventTypeIdsString;
 			set => SetField(ref _carIsNotAtLineReportExcludedEventTypeIdsString, value);
 		}
 
+		/// <summary>
+		/// Типы включаемых в отчет по простоям событий, которые выбраны пользователем
+		/// </summary>
 		[PropertyChangedAlso(nameof(CarIsNotAtLineReportIncludedEventTypeIdsString))]
 		public virtual IEnumerable<int> CarIsNotAtLineReportIncludedEventTypeIds
 		{
 			get => string.IsNullOrWhiteSpace(CarIsNotAtLineReportIncludedEventTypeIdsString) ? Enumerable.Empty<int>() : CarIsNotAtLineReportIncludedEventTypeIdsString
-				.Split (new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(x => int.Parse(x));
 			set => CarIsNotAtLineReportIncludedEventTypeIdsString = string.Join(", ", value);
 		}
 
+		/// <summary>
+		/// Тип исключаемых из отчета по простоям событий, которые выбраны пользователем
+		/// </summary>
 		[PropertyChangedAlso(nameof(CarIsNotAtLineReportExcludedEventTypeIdsString))]
 		public virtual IEnumerable<int> CarIsNotAtLineReportExcludedEventTypeIds
 		{
@@ -386,29 +459,35 @@ namespace Vodovoz.Domain.Employees
 			set => CarIsNotAtLineReportExcludedEventTypeIdsString = string.Join(", ", value);
 		}
 
+		/// <summary>
+		/// Настройки принтеров для документов
+		/// </summary>
 		[Display(Name = "Настройки принтеров для документов")]
-		public virtual IList<DocumentPrinterSetting> DocumentPrinterSettings
+		public virtual IObservableList<DocumentPrinterSetting> DocumentPrinterSettings
 		{
 			get => _documentPrinterSettings;
 			set => SetField(ref _documentPrinterSettings, value);
 		}
 
-		public virtual GenericObservableList<DocumentPrinterSetting> ObservableDocumentPrinterSettings =>
-			_observableDocumentPrinterSettings
-			?? (_observableDocumentPrinterSettings =
-				new GenericObservableList<DocumentPrinterSetting>(DocumentPrinterSettings));
-
-		#endregion
-
+		/// <summary>
+		/// Получение настройки принтера документа по типу документа
+		/// </summary>
+		/// <param name="documentType"></param>
+		/// <returns></returns>
 		public virtual DocumentPrinterSetting GetPrinterSettingByDocumentType(CustomPrintDocumentType documentType) =>
 			DocumentPrinterSettings
-			.Where(s => s.DocumentType == documentType)
-			.FirstOrDefault();
+				.Where(s => s.DocumentType == documentType)
+				.FirstOrDefault();
 
+		/// <summary>
+		/// Обновление индексов сортировки касс
+		/// </summary>
 		public virtual void UpdateCashSortingIndices()
 		{
-			var index = 1;
-			CashSubdivisionSortingSettings.ForEach(x => x.SortingIndex = index++);
+			for(int i = 1; i <= CashSubdivisionSortingSettings.Count; i++)
+			{
+				CashSubdivisionSortingSettings[i].SortingIndex = i;
+			}
 		}
 
 		/// <summary>
@@ -416,22 +495,28 @@ namespace Vodovoz.Domain.Employees
 		/// </summary>
 		/// <param name="availableSubdivisions"></param>
 		/// <returns></returns>
-		public virtual bool UpdateCashSortingSettings(IList<Subdivision> availableSubdivisions)
+		public virtual bool UpdateCashSortingSettings(IEnumerable<int> availableSubdivisionsIds)
 		{
+			var availableSubdvisionsIdsArray = availableSubdivisionsIds.ToArray();
+
 			if(!CashSubdivisionSortingSettings.Any())
 			{
-				var index = 1;
-				availableSubdivisions.ForEach(subdivision =>
-					CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(index++, this, subdivision)));
-				return availableSubdivisions.Any();
+				for(int i = 0; i < availableSubdivisionsIds.Count(); i++)
+				{
+					CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(i + 1, Id, availableSubdvisionsIdsArray[i]));
+				}
+
+				return availableSubdvisionsIdsArray.Any();
 			}
 
-			var availableSubdivisionsIds = availableSubdivisions.Select(y => y.Id).ToList();
 			var notAvailableAnymore = CashSubdivisionSortingSettings
-				.Where(x => availableSubdivisionsIds.IndexOf(x.CashSubdivision.Id) == -1).ToList();
+				.Where(x => x.CashSubdivisionId != null
+					&& availableSubdvisionsIdsArray.Contains(x.CashSubdivisionId.Value))
+				.ToList();
 
+			// убираем кассы, к которым больше нет доступа
 			foreach(var item in notAvailableAnymore)
-			{//убираем кассы, к которым больше нет доступа
+			{
 				CashSubdivisionSortingSettings.Remove(item);
 			}
 
@@ -440,8 +525,8 @@ namespace Vodovoz.Domain.Employees
 				UpdateCashSortingIndices();
 			}
 
-			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivision.Id).ToList();
-			var notListedAsAvailable = availableSubdivisions.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
+			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivisionId).ToList();
+			var notListedAsAvailable = availableSubdvisionsIdsArray.Where(x => listedIds.IndexOf(x) == -1).ToList();
 			int lastIndex = -1;
 
 			if(CashSubdivisionSortingSettings.Any())
@@ -449,9 +534,10 @@ namespace Vodovoz.Domain.Employees
 				lastIndex = CashSubdivisionSortingSettings.Max(x => x.SortingIndex);
 			}
 
+			// добавляем кассы, к которым появился доступ
 			foreach(var item in notListedAsAvailable)
-			{//добавляем кассы, к которым появился доступ
-				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this, item));
+			{
+				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, Id, item));
 			}
 
 			return notListedAsAvailable.Any() || notAvailableAnymore.Any();
