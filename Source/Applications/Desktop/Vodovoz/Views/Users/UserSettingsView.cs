@@ -70,12 +70,7 @@ namespace Vodovoz.Views.Users
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
 
-			//entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
-			//entryCounterparty.Binding
-			//	.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject)
-			//	.InitializeFromSource();
-
-			throw new NotImplementedException("Не реализовано в UserSettingsViewModel");
+			entryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
 
 			ycheckbuttonUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active)
