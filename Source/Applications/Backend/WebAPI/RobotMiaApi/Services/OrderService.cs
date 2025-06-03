@@ -199,7 +199,7 @@ namespace RobotMiaApi.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
+		public async Task<Result<int>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -210,7 +210,7 @@ namespace RobotMiaApi.Services
 
 			var order = CreateOrder(unitOfWork, _robotMiaEmployee, createOrderRequest);
 			order.SaveEntity(unitOfWork, _robotMiaEmployee, _orderDailyNumberController, _paymentFromBankClientController);
-			return Result.Success();
+			return order.Id;
 		}
 
 		/// <inheritdoc/>

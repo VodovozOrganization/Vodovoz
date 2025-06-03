@@ -85,8 +85,21 @@ namespace RobotMiaApi.Controllers.V1
 			{
 				try
 				{
-					await _orderService.CreateIncompleteOrderAsync(postOrderRequest);
-					return NoContent();
+					var incompleteOrderResult = await _orderService.CreateIncompleteOrderAsync(postOrderRequest);
+
+					if(incompleteOrderResult.IsSuccess)
+					{
+						call.CreatedOrderId = incompleteOrderResult.Value;
+
+						unitOfWork.Save(call);
+						unitOfWork.Commit();
+						return NoContent();
+					}
+
+					var errorsCombined = string.Join(", ", incompleteOrderResult.Errors.Select(x => x.Message));
+
+					_logger.LogError("Ошибка создания незавершенного заказа: {Errors}", errorsCombined);
+					return Problem("Не удалось создать незавершенный заказ", statusCode: StatusCodes.Status400BadRequest);
 				}
 				catch(Exception ex)
 				{
@@ -109,6 +122,10 @@ namespace RobotMiaApi.Controllers.V1
 
 				_logger.LogInformation("Создан заказ #{OrderId}", createdOrderId);
 
+				call.CreatedOrderId = createdOrderId;
+
+				unitOfWork.Save(call);
+				unitOfWork.Commit();
 				return NoContent();
 			}
 			catch(NomenclatureNotFoundException nnfe)

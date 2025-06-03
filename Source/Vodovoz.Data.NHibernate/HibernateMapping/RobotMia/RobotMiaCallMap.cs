@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.RobotMia
 			Map(x => x.RegisteredAt).Column("registered_at");
 			Map(x => x.NormalizedPhoneNumber).Column("normalized_phone_number");
 			Map(x => x.CounterpartyId).Column("counterparty_id");
+			Map(x => x.CreatedOrderId).Column("created_order_id");
 		}
 	}
 }
