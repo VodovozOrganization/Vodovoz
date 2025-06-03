@@ -1,8 +1,8 @@
 ﻿using System;
-using Vodovoz.Core.Domain.Clients;
-using PersonTypeV1 = RobotMiaApi.Contracts.Responses.V1.PersonType;
+using PersonType = Vodovoz.Core.Domain.Clients.PersonType;
+using PersonTypeV1 = Vodovoz.RobotMia.Contracts.Responses.V1.PersonType;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="PersonType"/>

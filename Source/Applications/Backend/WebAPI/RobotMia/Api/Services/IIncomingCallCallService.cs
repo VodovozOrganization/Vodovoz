@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.RobotMia;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <summary>
 	/// Сервис входящих звонков Api робота Мия

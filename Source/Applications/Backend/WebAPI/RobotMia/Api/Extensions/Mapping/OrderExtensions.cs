@@ -1,8 +1,8 @@
-﻿using RobotMiaApi.Contracts.Responses.V1;
-using System;
+﻿using System;
 using Vodovoz.Domain.Orders;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="Order"/>

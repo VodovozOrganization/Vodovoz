@@ -8,7 +8,7 @@ using QS.Services;
 using System;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
-namespace RobotMiaApi
+namespace Vodovoz.RobotMia.Api
 {
 	/// <summary>
 	/// Настройка Api

@@ -1,8 +1,8 @@
 ﻿using System;
-using Vodovoz.Domain.Client;
-using PaymentTypeV1 = RobotMiaApi.Contracts.Requests.V1.PaymentType;
+using PaymentType = Vodovoz.Domain.Client.PaymentType;
+using PaymentTypeV1 = Vodovoz.RobotMia.Contracts.Requests.V1.PaymentType;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="PaymentTypeV1"/>

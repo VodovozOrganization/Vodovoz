@@ -1,7 +1,7 @@
-﻿using RobotMiaApi.Contracts.Requests.V1;
-using Vodovoz.Domain.Orders;
+﻿using Vodovoz.Domain.Orders;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Методы расширения для маппинга типов подписи

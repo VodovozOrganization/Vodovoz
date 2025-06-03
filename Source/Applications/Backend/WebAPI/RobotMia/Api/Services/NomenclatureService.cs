@@ -1,15 +1,15 @@
 ﻿using QS.DomainModel.UoW;
-using RobotMiaApi.Contracts.Responses.V1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <inheritdoc cref="INomenclatureService"/>
 	public class NomenclatureService : INomenclatureService
@@ -69,7 +69,7 @@ namespace RobotMiaApi.Services
 						Id = nomenclature.Id,
 						ShortName = nomenclature.ShortName,
 						Price = nomenclature.GetPrice(1),
-						CanSale = parameters.First(x => x.NomenclatureId == nomenclature.Id).GoodsOnlineAvailability == Vodovoz.Domain.Goods.NomenclaturesOnlineParameters.GoodsOnlineAvailability.ShowAndSale,
+						CanSale = parameters.First(x => x.NomenclatureId == nomenclature.Id).GoodsOnlineAvailability == Domain.Goods.NomenclaturesOnlineParameters.GoodsOnlineAvailability.ShowAndSale,
 						SlangWords = parameters.First(x => x.NomenclatureId == nomenclature.Id).SlangWords.Select(s => s.Word)
 					});
 				}

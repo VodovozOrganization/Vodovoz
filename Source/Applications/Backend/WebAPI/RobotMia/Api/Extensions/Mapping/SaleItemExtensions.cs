@@ -1,9 +1,9 @@
-﻿using RobotMiaApi.Contracts.Requests.V1;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
 using CreateOrderRequest = VodovozBusiness.Services.Orders.CreateOrderRequest;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="SaleItem"/>

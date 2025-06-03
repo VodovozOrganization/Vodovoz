@@ -3,10 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
-using RobotMiaApi.Contracts.Requests.V1;
-using RobotMiaApi.Contracts.Responses.V1;
-using RobotMiaApi.Exceptions;
-using RobotMiaApi.Services;
 using System;
 using System.Linq;
 using System.Net.Mime;
@@ -14,8 +10,12 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.RobotMia.Api.Exceptions;
+using Vodovoz.RobotMia.Api.Services;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Controllers.V1
+namespace Vodovoz.RobotMia.Api.Controllers.V1
 {
 	/// <summary>
 	/// Контроллер заказов
@@ -76,7 +76,7 @@ namespace RobotMiaApi.Controllers.V1
 
 			if(postOrderRequest.DeliveryDate is null
 				|| postOrderRequest.DeliveryIntervalId is null
-				|| (counterparty.PersonType == Vodovoz.Core.Domain.Clients.PersonType.legal && postOrderRequest.SignatureType is null)
+				|| counterparty.PersonType == Core.Domain.Clients.PersonType.legal && postOrderRequest.SignatureType is null
 				|| postOrderRequest.ContactPhone is null
 				|| postOrderRequest.PaymentType is null
 				|| postOrderRequest.CallBeforeArrivalMinutes is null

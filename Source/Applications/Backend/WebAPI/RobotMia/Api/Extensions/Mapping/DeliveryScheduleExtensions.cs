@@ -1,10 +1,10 @@
-﻿using RobotMiaApi.Contracts.Responses.V1;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="DeliverySchedule"/>

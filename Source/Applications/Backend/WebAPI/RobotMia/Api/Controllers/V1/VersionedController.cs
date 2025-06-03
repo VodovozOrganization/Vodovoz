@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Presentation.WebApi.Common;
 
-namespace RobotMiaApi.Controllers.V1
+namespace Vodovoz.RobotMia.Api.Controllers.V1
 {
 	/// <summary>
 	/// Базовый контроллер с версией

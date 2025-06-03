@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Specifications;
 using Vodovoz.Domain.Orders;
 
-namespace RobotMiaApi.Specifications
+namespace Vodovoz.RobotMia.Api.Specifications
 {
 	/// <summary>
 	/// Спецификации робота Мия для последнего заказа

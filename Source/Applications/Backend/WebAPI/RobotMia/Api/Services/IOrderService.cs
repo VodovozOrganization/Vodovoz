@@ -1,10 +1,10 @@
-﻿using RobotMiaApi.Contracts.Requests.V1;
-using RobotMiaApi.Contracts.Responses.V1;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <summary>
 	/// Сервис заказов Api робота Мия

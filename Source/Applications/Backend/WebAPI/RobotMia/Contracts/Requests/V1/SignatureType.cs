@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RobotMiaApi.Contracts.Requests.V1
+namespace Vodovoz.RobotMia.Contracts.Requests.V1
 {
 	/// <summary>
 	/// Подписание документов (для юр. лиц)

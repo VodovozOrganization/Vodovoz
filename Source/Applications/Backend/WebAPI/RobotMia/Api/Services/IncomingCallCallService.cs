@@ -7,7 +7,7 @@ using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.RobotMia;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <inheritdoc cref="IIncomingCallCallService"/>
 	public class IncomingCallCallService : IIncomingCallCallService

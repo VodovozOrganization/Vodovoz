@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RobotMiaApi.Contracts.Responses.V1
+namespace Vodovoz.RobotMia.Contracts.Responses.V1
 {
 	/// <summary>
 	/// Номенклатура

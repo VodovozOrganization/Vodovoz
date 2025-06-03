@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
-using ApiCreateOrderRequest = RobotMiaApi.Contracts.Requests.V1.CreateOrderRequest;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
+using ApiCreateOrderRequest = Vodovoz.RobotMia.Contracts.Requests.V1.CreateOrderRequest;
 using CreateOrderRequest = VodovozBusiness.Services.Orders.CreateOrderRequest;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="ApiCreateOrderRequest"/>
@@ -21,11 +22,11 @@ namespace RobotMiaApi.Extensions.Mapping
 			DeliveryPointId = postOrderRequest.DeliveryPointId, //Обязательное поле
 			Date = postOrderRequest.DeliveryDate ?? DateTime.Today,
 			DeliveryScheduleId = postOrderRequest.DeliveryIntervalId ?? default,
-			PaymentType = postOrderRequest.PaymentType?.MapToPaymentType() ?? Vodovoz.Domain.Client.PaymentType.Cash,
+			PaymentType = postOrderRequest.PaymentType?.MapToPaymentType() ?? Domain.Client.PaymentType.Cash,
 			PaymentByTerminalSource =
-				postOrderRequest.PaymentType == Contracts.Requests.V1.PaymentType.TerminalQR
+				postOrderRequest.PaymentType == PaymentType.TerminalQR
 				? Vodovoz.Domain.Client.PaymentByTerminalSource.ByQR
-				: postOrderRequest.PaymentType == Contracts.Requests.V1.PaymentType.TerminalCard
+				: postOrderRequest.PaymentType == Vodovoz.RobotMia.Contracts.Requests.V1.PaymentType.TerminalCard
 					? Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard
 					: null,
 			BanknoteForReturn = postOrderRequest.Trifle,

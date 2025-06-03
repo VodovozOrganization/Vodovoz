@@ -8,7 +8,7 @@ using NLog;
 using NLog.Web;
 using Vodovoz.Presentation.WebApi;
 
-namespace RobotMiaApi
+namespace Vodovoz.RobotMia.Api
 {
 	/// <summary>
 	/// Api интеграции с роботом Мия

@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using RobotMiaApi.Contracts.Responses.V1;
-using RobotMiaApi.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,8 +9,10 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.RobotMia.Api.Services;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Controllers.V1
+namespace Vodovoz.RobotMia.Api.Controllers.V1
 {
 	/// <summary>
 	/// Контроллер рекомендованных товаров

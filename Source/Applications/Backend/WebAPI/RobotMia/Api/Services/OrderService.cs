@@ -1,11 +1,5 @@
-﻿using FluentNHibernate.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using RobotMiaApi.Contracts.Requests.V1;
-using RobotMiaApi.Contracts.Responses.V1;
-using RobotMiaApi.Exceptions;
-using RobotMiaApi.Extensions.Mapping;
-using RobotMiaApi.Specifications;
 using Sms.Internal;
 using System;
 using System.Linq;
@@ -27,6 +21,11 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Models;
+using Vodovoz.RobotMia.Api.Exceptions;
+using Vodovoz.RobotMia.Api.Extensions.Mapping;
+using Vodovoz.RobotMia.Api.Specifications;
+using Vodovoz.RobotMia.Contracts.Requests.V1;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
@@ -34,10 +33,10 @@ using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Specifications.Orders;
 using static RobotMiaApi.Errors.RobotMiaErrors;
 using IVodovozOrderService = VodovozBusiness.Services.Orders.IOrderService;
-using PaymentType = RobotMiaApi.Contracts.Requests.V1.PaymentType;
+using PaymentType = Vodovoz.RobotMia.Contracts.Requests.V1.PaymentType;
 using VodovozPaymentType = Vodovoz.Domain.Client.PaymentType;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <inheritdoc cref="IOrderService"/>
 	public class OrderService : IOrderService

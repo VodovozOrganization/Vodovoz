@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RobotMiaApi.Contracts.Responses.V1
+namespace Vodovoz.RobotMia.Contracts.Responses.V1
 {
 	/// <summary>
 	/// Товар на продажу

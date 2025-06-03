@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using RobotMiaApi.Services;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -12,8 +11,9 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Settings.Database;
 using Vodovoz;
+using Vodovoz.RobotMia.Api.Services;
 
-namespace RobotMiaApi
+namespace Vodovoz.RobotMia.Api
 {
 	internal static class DependencyInjection
 	{
@@ -22,9 +22,9 @@ namespace RobotMiaApi
 			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(Data.NHibernate.AssemblyFinder).Assembly,
 					typeof(QS.Banks.Domain.Bank).Assembly,
-					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
 					typeof(EmployeeWithLoginMap).Assembly
@@ -36,13 +36,13 @@ namespace RobotMiaApi
 				.AddApplication()
 				.AddTrackedUoW()
 				.AddDatabaseSettings()
-				.AddScoped<IUnitOfWork>((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
+				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddScoped<INomenclatureService, NomenclatureService>()
 				.AddScoped<IIncomingCallCallService, IncomingCallCallService>()
 				.AddScoped<IOrderService, OrderService>()
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 
 			services

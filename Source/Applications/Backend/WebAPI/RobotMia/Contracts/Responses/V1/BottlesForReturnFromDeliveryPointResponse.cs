@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RobotMiaApi.Contracts.Responses.V1
+namespace Vodovoz.RobotMia.Contracts.Responses.V1
 {
 	/// <summary>
 	/// Ответ на зпрос количества бутылей, ожидаемых к возврату с адреса

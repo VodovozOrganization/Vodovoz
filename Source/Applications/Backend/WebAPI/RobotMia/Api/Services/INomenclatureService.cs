@@ -1,8 +1,8 @@
-﻿using RobotMiaApi.Contracts.Responses.V1;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Services
+namespace Vodovoz.RobotMia.Api.Services
 {
 	/// <summary>
 	/// Сервис для работы с номенклатурами

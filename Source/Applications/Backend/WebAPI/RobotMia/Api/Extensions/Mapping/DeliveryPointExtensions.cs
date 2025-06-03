@@ -1,10 +1,10 @@
-﻿using RobotMiaApi.Contracts.Responses.V1;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 using VodovozBusiness.Extensions;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="DeliveryPoint"/>

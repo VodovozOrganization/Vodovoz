@@ -1,8 +1,8 @@
-﻿using RobotMiaApi.Contracts.Requests.V1;
+﻿using Vodovoz.RobotMia.Contracts.Requests.V1;
 using CreateOrderRequest = VodovozBusiness.Services.Orders.CreateOrderRequest;
 using PaymentType = Vodovoz.Domain.Client.PaymentType;
 
-namespace RobotMiaApi.Extensions.Mapping
+namespace Vodovoz.RobotMia.Api.Extensions.Mapping
 {
 	/// <summary>
 	/// Расширение функционала <see cref="CalculatePriceRequest"/>

@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using RobotMiaApi.Contracts.Responses.V1;
-using RobotMiaApi.Extensions.Mapping;
-using RobotMiaApi.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,8 +13,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.RobotMia.Api.Extensions.Mapping;
+using Vodovoz.RobotMia.Api.Services;
+using Vodovoz.RobotMia.Contracts.Responses.V1;
 
-namespace RobotMiaApi.Controllers.V1
+namespace Vodovoz.RobotMia.Api.Controllers.V1
 {
 	/// <summary>
 	/// Контроллер интервалов доставки

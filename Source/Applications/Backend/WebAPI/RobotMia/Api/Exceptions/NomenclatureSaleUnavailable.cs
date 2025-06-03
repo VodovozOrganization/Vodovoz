@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RobotMiaApi.Exceptions
+namespace Vodovoz.RobotMia.Api.Exceptions
 {
 	/// <summary>
 	/// Номенклатура не может быть добавлена в заказ
