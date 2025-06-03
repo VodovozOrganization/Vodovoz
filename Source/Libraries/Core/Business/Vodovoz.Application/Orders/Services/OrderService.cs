@@ -400,11 +400,6 @@ namespace Vodovoz.Application.Orders.Services
 					order.Trifle = 0;
 					break;
 				case PaymentType.Terminal:
-					if(createOrderRequest.PaymentByTerminalSource is null)
-					{
-						throw new InvalidOperationException("Должен быть указан источник оплаты для типа оплаты терминал");
-					}
-
 					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByCard)
 					{
 						order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
@@ -414,10 +409,8 @@ namespace Vodovoz.Application.Orders.Services
 					if(createOrderRequest.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
 					{
 						order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
-						break;
 					}
-
-					throw new InvalidOperationException("Обработчик не смог обработать источник оплаты, не было предусмотрено");
+					break;
 			}
 
 			order.DeliverySchedule = deliverySchedule;
