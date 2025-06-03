@@ -1,4 +1,4 @@
-﻿using DriverApi.Notifications.Client;
+using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
@@ -24,6 +24,8 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
+using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 
 namespace Vodovoz.Application
 {
@@ -53,6 +55,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IRecomendationService, RecomendationService>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;

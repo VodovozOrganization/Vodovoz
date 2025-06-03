@@ -111,6 +111,10 @@
       <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
       <Name>QS.Project.Gtk</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj">
+      <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
+      <Name>QS.Project</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
       <Name>Vodovoz.Presentation.ViewModels</Name>
