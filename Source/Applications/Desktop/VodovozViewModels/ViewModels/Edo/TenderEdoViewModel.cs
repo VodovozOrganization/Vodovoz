@@ -66,8 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 			var result = string.Join(",\r\n", Codes);
 			File.WriteAllText(dialogResult.Path, result);
 
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				$"Выгрузка завершена.");
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Выгрузка завершена.");
 
 			if(!_commonServices.InteractiveService.Question("Вы успешно вручную загрузили коды в ЕИС и хотите закрыть задачу?"))
 			{
