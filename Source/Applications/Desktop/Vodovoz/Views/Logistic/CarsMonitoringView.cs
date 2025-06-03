@@ -6,6 +6,7 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
@@ -25,7 +26,6 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class CarsMonitoringView : TabViewBase<CarsMonitoringViewModel>
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private Window _mapSeparateWindow;
 
@@ -48,8 +48,9 @@ namespace Vodovoz.Views.Logistic
 		private readonly Gdk.Color _successBaseColor = GdkColors.SuccessBase;
 		private readonly Gdk.Color _insensitiveBaseColor = GdkColors.InsensitiveBase;
 		private readonly Gdk.Color _primaryBaseColor = GdkColors.PrimaryBase;
+		private readonly ILogger<CarsMonitoringView> _logger;
 
-		public CarsMonitoringView(CarsMonitoringViewModel viewModel) : base(viewModel)
+		public CarsMonitoringView(ILogger<CarsMonitoringView> logger, CarsMonitoringViewModel viewModel) : base(viewModel)
 		{
 			_carsOverlay = new GMapOverlay(ViewModel.CarsOverlayId);
 			_tracksOverlay = new GMapOverlay(ViewModel.TracksOverlayId);
@@ -142,6 +143,7 @@ namespace Vodovoz.Views.Logistic
 
 			UpdateCarPosition();
 			StartTimer(_timeoutTimerHandler);
+			_logger = logger;
 		}
 
 		private void StartTimer(TimeoutHandler timeoutHandler)
@@ -373,9 +375,9 @@ namespace Vodovoz.Views.Logistic
 
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
-			_logger.Info("Обновляем данные диалога...");
+			_logger.LogInformation("Обновляем данные диалога...");
 			ViewModel.RefreshAllCommand.Execute();
-			_logger.Info("Ок");
+			_logger.LogInformation("Ок");
 			UpdateCarPosition();
 		}
 
@@ -511,7 +513,7 @@ namespace Vodovoz.Views.Logistic
 			}
 			catch(Exception e)
 			{
-				_logger.Error("Ошибка при автообновлении: {AutoRefreshError}", e);
+				_logger.LogError(e, "Ошибка при автообновлении: {AutoRefreshError}", e);
 
 				return false;
 			}
@@ -541,7 +543,7 @@ namespace Vodovoz.Views.Logistic
 
 				ere20Minuts = ViewModel.GetLastRouteListTrackPoints(movedDriversRouteListsIds, disconnectedDateTime);
 					
-				_logger.Debug("Время запроса точек: {0}", DateTime.Now - startRequest);
+				_logger.LogDebug("Время запроса точек: {RequestTime}", DateTime.Now - startRequest);
 
 				var driversWithAdditionalLoading = ViewModel.GetDriversWithAdditionalLoadingFrom(routesIds);
 
@@ -583,7 +585,7 @@ namespace Vodovoz.Views.Logistic
 			}
 			catch(Exception ex)
 			{
-				_logger.Error("Ошибка при обновлении позиции автомобиля", ex);
+				_logger.LogError(ex, "Ошибка при обновлении позиции автомобиля", ex);
 				return false;
 			}
 			return true;
@@ -679,7 +681,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				if(point.DeliveryPoint is null)
 				{
-					_logger.Warn("Добавление маркера для заказа №{OrderId} пропущено, отсутствует точка доставки.", point.Order.Id);
+					_logger.LogWarning("Добавление маркера для заказа №{OrderId} пропущено, отсутствует точка доставки.", point.Order.Id);
 					continue;
 				}
 				if(point.DeliveryPoint.Latitude.HasValue && point.DeliveryPoint.Longitude.HasValue)
