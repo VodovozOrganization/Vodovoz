@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 			string.Concat("\"01", x.ProductCode.ResultCode.GTIN, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
 
 		public DelegateCommand ExportCodesCommand { get; }
-		
+
 		public bool CanCloseTenderEdoTask =>
 			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Edo.CanCloseTenderEdoTask, CurrentUser.Id);
 	}
