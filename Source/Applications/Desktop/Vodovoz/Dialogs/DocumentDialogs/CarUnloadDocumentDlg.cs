@@ -1,4 +1,5 @@
-using Autofac;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -40,7 +41,7 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		private static NLog.Logger _logger;
+		private static ILogger<CarUnloadDocumentDlg> _logger;
 
 		private INomenclatureSettings _nomenclatureSettings;
 
@@ -105,8 +106,8 @@ namespace Vodovoz
 
 		private void ResolveDependencies()
 		{
-			_logger = NLog.LogManager.GetCurrentClassLogger();
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_logger = _lifetimeScope.Resolve<ILogger<CarUnloadDocumentDlg>>();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
@@ -300,9 +301,9 @@ namespace Vodovoz
 				Entity.RouteList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 			}
 
-			_logger.Info("Сохраняем разгрузочный талон...");
+			_logger.LogInformation("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
-			_logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 
@@ -428,7 +429,7 @@ namespace Vodovoz
 						continue;
 				}
 
-				_logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
+				_logger.LogWarning("Номенклатура {@Nomenclature} не найдена в заказах мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
 				var newItem = new ReceptionItemNode(item);
 				returnsreceptionview.AddItem(newItem);
 			}
