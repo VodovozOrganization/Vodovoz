@@ -36,7 +36,7 @@ namespace RobotMiaApi.Services
 		/// Создание заказа без принятия
 		/// </summary>
 		/// <param name="createOrderRequest"></param>
-		Task<Result> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
+		Task<Result<int>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 
 		/// <summary>
 		/// Получение цены заказа, доставки и неустойки
