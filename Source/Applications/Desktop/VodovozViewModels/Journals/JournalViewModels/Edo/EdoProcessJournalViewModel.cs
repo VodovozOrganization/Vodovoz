@@ -1,24 +1,26 @@
-﻿using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Core.Infrastructure;
+using Edo.Transport;
+using NHibernate;
 using NHibernate.Type;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Edo.Transport;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
-using Core.Infrastructure;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -88,7 +90,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			CreateCopyOrderIdToClipboardAction();
 			CreateOpenOrderAction();
 			CreateCopyTaskIdToClipboardAction();
+			CreateOpenTenderPopupAction();
 		}
+
+		private void CreateOpenTenderPopupAction()
+		{
+			var action = new JournalAction(
+				"Открыть задачу по госзаказу",
+				selectedItems => true,
+				selectedItems => selectedItems.FirstOrDefault() is EdoProcessJournalNode selectedNode && selectedNode.OrderTaskType == EdoTaskType.Tender,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is EdoProcessJournalNode selectedNode
+					   && selectedNode.OrderTaskId != null)
+					{
+						NavigationManager.OpenViewModel<TenderEdoViewModel, IEntityUoWBuilder>(this,
+							EntityUoWBuilder.ForOpen(selectedNode.OrderTaskId.Value));
+					}
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
 
 		private void CreateResendReceiptFromSaveCodesTaskAction()
 		{
