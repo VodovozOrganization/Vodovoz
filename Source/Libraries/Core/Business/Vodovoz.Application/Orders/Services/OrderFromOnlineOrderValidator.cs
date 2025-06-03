@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Contacts;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
-using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
@@ -95,6 +96,12 @@ namespace Vodovoz.Application.Orders.Services
 			if(_onlineOrder.DeliveryDate < DateTime.Today && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
+			}
+
+			var phone = new PhoneEntity { Number = onlineOrder.ContactPhone };
+			if(!phone.IsValidPhoneNumber)
+			{
+				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.InvalidPhone(onlineOrder.ContactPhone));
 			}
 
 			ValidateOnlineOrderItems(uow, validationResults);

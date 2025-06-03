@@ -11,6 +11,7 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
         <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+        <PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>

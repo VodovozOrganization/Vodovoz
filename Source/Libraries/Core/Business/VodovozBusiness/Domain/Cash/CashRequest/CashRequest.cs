@@ -100,9 +100,21 @@ namespace Vodovoz.Domain.Cash
 					}
 
 					break;
+				//Согласована ЦФО
+				case PayoutRequestState.AgreedByFinancialResponsibilityCenter:
+					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief)
+					{
+						PayoutRequestState = newState;
+					}
+					else
+					{
+						throw new InvalidOperationException(exceptionMessage);
+					}
+					break;
 				//Согласована исполнительным директором
 				case PayoutRequestState.Agreed:
-					if(PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief
+					if(PayoutRequestState == PayoutRequestState.AgreedByFinancialResponsibilityCenter
+						|| PayoutRequestState == PayoutRequestState.AgreedBySubdivisionChief /// Убрать по заполнению ЦФО
 						|| PayoutRequestState == PayoutRequestState.Submited)
 					{
 						PayoutRequestState = newState;
@@ -205,6 +217,10 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		protected override void UpdateFileInformations()
+		{
+		}
+
+		protected override void UpdateComments()
 		{
 		}
 

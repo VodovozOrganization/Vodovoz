@@ -20,7 +20,7 @@ namespace TaxcomEdo.Contracts.Orders
 		/// <summary>
 		/// 
 		/// </summary>
-		public int? CounterpartyExternalOrderId { get; set; }
+		public string CounterpartyExternalOrderId { get; set; }
 		/// <summary>
 		/// Дата доставки
 		/// </summary>

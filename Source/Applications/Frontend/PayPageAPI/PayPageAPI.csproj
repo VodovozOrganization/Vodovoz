@@ -37,6 +37,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCoreRateLimit" Version="4.0.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+    <PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
   </ItemGroup>
 

@@ -3,7 +3,11 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -176,5 +180,62 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow);
+
+		/// <summary>
+		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список кодов TrueMark</returns>
+		IList<RouteListItemTrueMarkProductCode> GetAddedRouteListItemTrueMarkProductCodesByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, все ли коды ЧЗ добавлены к указанному заказу с доставкой
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>True, если все коды ЧЗ добавлены, иначе False</returns>
+		bool IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить все добавленные водителем коды ЧЗ для указанной строки заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderItemId">Номер строки заказа</param>
+		/// <returns>Список с данными номера кода и номера строки заказа</returns>
+		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(IUnitOfWork uow, int orderItemId);
+
+		/// <summary>
+		/// Получить все добавленные водителем коды ЧЗ для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список с данными номера кода и номера строки заказа</returns>
+		IList<TrueMarkProductCodeOrderItem> GetTrueMarkCodesAddedByDriverToOrderByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить все коды ЧЗ добавленные к заказу на складе
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список кодов</returns>
+		IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, находится ли документ погрузки для указанного заказа в статусе Погрузка завершена
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>True, если погрузка завершена, иначе False</returns>
+		bool IsOrderCarLoadDocumentLoadOperationStateDone(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, что все коды, отсканированные водителем для указанного заказа были обработаны
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>True, если все коды были обработаны, иначе False</returns>
+		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }

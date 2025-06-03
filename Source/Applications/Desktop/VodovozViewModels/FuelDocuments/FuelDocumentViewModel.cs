@@ -61,6 +61,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private FuelDocument _fuelDocument;
 		private Employee _cashier;
+		private RouteList _routeList;
 		private bool _autoCommit;
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
@@ -355,7 +356,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _fuelDocument, value);
 		}
 
-		public RouteList RouteList { get; set; }
+		[PropertyChangedAlso(nameof(IsFuelLimitsCanBeEdited))]
+		public RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
+		}
 
 		[PropertyChangedAlso(nameof(IsDocumentCanBeEdited))]
 		public virtual Employee Cashier
@@ -424,7 +430,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && !IsDocumentSavingInProcess;
 
 		public virtual bool IsFuelLimitsCanBeEdited =>
-			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits && _autoCommit;
+			IsNewEditable
+			&& !IsGiveFuelInMoneySelected
+			&& IsUserCanGiveFuelLimits
+			&& _autoCommit
+			&& RouteList?.Date >= DateTime.Today;
 
 		public virtual bool IsFuelInMoneyCanBeEdited =>
 			IsNewEditable && IsUserCanGiveFuelInMoney;
@@ -892,7 +902,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				CardId = fuelCardId,
 				ContractId = _fuelControlSettings.OrganizationContractId,
-				ProductGroup = FuelDocument.Fuel.ProductGroupId,
 				ProductType = _fuelControlSettings.FuelProductTypeId,
 				TermType = FuelLimitTermType.AllDays,
 				Period = 1,

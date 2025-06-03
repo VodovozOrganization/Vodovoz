@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -25,8 +25,11 @@
 		<ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
 		<ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\DriverApi.Contracts\DriverApi.Contracts.csproj" />
+		<ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
+		<ProjectReference Include="..\Edo\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\EventsApi.Library\EventsApi.Library.csproj" />
 		<ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
+		<ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />
 		<ProjectReference Include="..\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
 	</ItemGroup>
 

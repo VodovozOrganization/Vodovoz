@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -19,7 +19,6 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -38,7 +37,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using EdoDocumentType = Vodovoz.Domain.Orders.Documents.Type;
+using EdoDocumentType = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -163,6 +162,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						f.SelectCategory = defaultCategory;
 						f.SelectSaleCategory = SaleCategory.forSale;
 						f.RestrictArchive = false;
+						f.CanChangeOnlyOnlineNomenclatures = false;
 					};
 					
 					var journalViewModel = _lifetimeScope.Resolve<NomenclaturesJournalViewModel>(

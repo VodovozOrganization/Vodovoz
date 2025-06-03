@@ -2,7 +2,6 @@
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
@@ -18,8 +17,6 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
@@ -33,7 +30,6 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -161,6 +157,12 @@ public partial class MainWindow : Window
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionAnalyseCounterpartyDiscrepancies;
 
+	//Честный знак
+	Action ActionCodesPool;
+	Action ActionEdoProcessJournal;
+	Action ActionEdoProblemJournal;
+	
+
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
@@ -259,6 +261,11 @@ public partial class MainWindow : Window
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
+
+		//Честный знак
+		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
+		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
+		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -363,6 +370,11 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
+		//Честный знак
+		w1.Add(ActionCodesPool, null);
+		w1.Add(ActionEdoProcessJournal, null);
+		w1.Add(ActionEdoProblemJournal, null);
+
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -456,6 +468,11 @@ public partial class MainWindow : Window
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
 
+		//Честный знак
+		ActionCodesPool.Activated += OnActionCodesPoolActivated;
+		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
+		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
+		
 		#endregion
 	}
 

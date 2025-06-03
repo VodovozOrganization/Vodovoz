@@ -5,9 +5,10 @@ using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using System;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.Errors;
 using CashReceiptErrors = Vodovoz.Errors.CashReceipts.CashReceipt;
+using RequestProcessingResult = CashReceiptApi.RequestProcessingResult;
 
 namespace Vodovoz.Models.TrueMark
 {

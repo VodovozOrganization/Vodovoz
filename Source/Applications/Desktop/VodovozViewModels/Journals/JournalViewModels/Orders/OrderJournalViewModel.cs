@@ -40,13 +40,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -404,6 +404,10 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
+			OrderEdoRequest orderEdoRequestAlias = null;
+			OrderEdoRequest orderEdoRequestAlias2 = null;
+			OrderEdoDocument orderEdoDocumentAlias = null;
+			OrderEdoDocument orderEdoDocumentAlias2 = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -645,15 +649,40 @@ namespace Vodovoz.JournalViewModels
 					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 
+			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)
+				.JoinEntityAlias(
+					() => orderEdoRequestAlias2,
+					() => orderEdoRequestAlias2.Order.Id == orderEdoRequestAlias.Order.Id
+						&& orderEdoRequestAlias2.Time > orderEdoRequestAlias.Time,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => orderEdoDocumentAlias, () => orderEdoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
+				.JoinEntityAlias(
+					() => orderEdoDocumentAlias2,
+					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
+						&& orderEdoDocumentAlias2.CreationTime > orderEdoDocumentAlias.CreationTime,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => orderEdoRequestAlias.Order.Id == orderAlias.Id)
+				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.And(() => orderEdoRequestAlias2.Id == null)
+				.And(() => orderEdoDocumentAlias2.Id == null)
+				.Select(Projections.Property(() => orderEdoDocumentAlias.Status));
+
 			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
 			{
-				edoUpdLastStatusSubquery.Where(ec => ec.EdoDocFlowStatus == edoDocFlowStatus);
-				query.WithSubquery.WhereExists(edoUpdLastStatusSubquery);
+				var edoFlowStateRestriction = Restrictions.Disjunction()
+					.Add(Restrictions.Eq(Projections.SubQuery(edoUpdLastStatusSubquery), edoDocFlowStatus.ToString()))
+					.Add(Restrictions.Eq(Projections.SubQuery(edoUpdLastStatusNewDocflowSubquery), edoDocFlowStatus.ToString()));
+
+				query.Where(edoFlowStateRestriction);
 			}
 
 			if(FilterViewModel.EdoDocFlowStatus is SpecialComboState specialComboState && specialComboState == SpecialComboState.Not)
 			{
-				query.WithSubquery.WhereNotExists(edoUpdLastStatusSubquery);
+				var edoFlowStateRestriction = Restrictions.Conjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusSubquery)))
+					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusNewDocflowSubquery)));
+
+				query.Where(edoFlowStateRestriction);
 			}
 
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
@@ -661,7 +690,7 @@ namespace Vodovoz.JournalViewModels
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
 					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 					.Left.JoinAlias(o => o.Contract, () => contractAlias);
-			
+
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
@@ -715,6 +744,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 					.SelectSubQuery(edoUpdLastStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
+					.SelectSubQuery(edoUpdLastStatusNewDocflowSubquery).WithAlias(() => resultAlias.NewEdoDocFlowStatus)
 				)
 				.OrderBy(x => x.CreateDate).Desc;
 
@@ -1345,8 +1375,9 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(
 								string.Format(CultureInfo.InvariantCulture,
-									"https://maps.yandex.ru/?text={0} {1} {2}",
+									"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 									order.DeliveryPoint.City,
+									order.DeliveryPoint.StreetType,
 									order.DeliveryPoint.Street,
 									order.DeliveryPoint.Building
 								)

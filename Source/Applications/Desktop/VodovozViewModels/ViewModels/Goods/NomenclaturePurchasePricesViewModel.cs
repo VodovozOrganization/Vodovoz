@@ -1,14 +1,17 @@
 ﻿using QS.Commands;
 using QS.ViewModels;
 using System;
+using System.Collections.Specialized;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase
+	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase, IDisposable
 	{
 		private readonly Nomenclature _entity;
 		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
@@ -24,11 +27,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 
-			entity.ObservablePurchasePrices.ElementAdded += OnObservablePurchasePricesElementAdded;
+			entity.PurchasePrices.CollectionChanged += OnObservablePurchasePricesElementAdded;
 
-			if(entity.ObservablePurchasePrices.Any())
+			if(entity.PurchasePrices.Any())
 			{
-				var sortedList = entity.ObservablePurchasePrices.OrderByDescending(x => x.StartDate);
+				var sortedList = entity.PurchasePrices.OrderByDescending(x => x.StartDate);
 				foreach(var item in sortedList)
 				{
 					PriceViewModels.Add(CreatePriceViewModel(item));
@@ -36,9 +39,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			}
 		}
 
-		private void OnObservablePurchasePricesElementAdded(object aList, int[] aIdx)
+		private void OnObservablePurchasePricesElementAdded(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			PriceViewModels.Insert(0, CreatePriceViewModel(_entity.ObservablePurchasePrices.Last()));
+			if(e.Action == NotifyCollectionChangedAction.Add)
+			{
+				PriceViewModels.Insert(0, CreatePriceViewModel(_entity.PurchasePrices.Last()));
+			}
 		}
 
 		private NomenclaturePurchasePriceViewModel CreatePriceViewModel(NomenclaturePurchasePrice price)
@@ -121,5 +127,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		}
 
 		#endregion Change date
+
+		public void Dispose()
+		{
+			_entity.PurchasePrices.CollectionChanged -= OnObservablePurchasePricesElementAdded;
+		}
 	}
 }

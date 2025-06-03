@@ -1,20 +1,19 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Email = Vodovoz.Domain.Contacts.Email;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace Vodovoz.Services
 {

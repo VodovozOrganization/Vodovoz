@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Extensions;
 

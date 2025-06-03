@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
@@ -6,15 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Type = Vodovoz.Core.Domain.Documents.Type;
 
 namespace EdoService.Library
 {
@@ -51,6 +52,17 @@ namespace EdoService.Library
 					{
 						edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
 					}
+
+					var edoTask =
+						uow
+							.GetAll<BulkAccountingEdoTask>()
+							.FirstOrDefault(x => x.OrderEdoRequest.Order.Id == entity.Id);
+					
+					if(edoTask != null)
+					{
+						edoTask.Status = EdoTaskStatus.New;
+						uow.Save(edoTask);
+					}
 				}
 
 				uow.Save(edoDocumentsActions);
@@ -81,6 +93,8 @@ namespace EdoService.Library
 			{
 				edoDocumentsAction.IsNeedToResendEdoBill = true;
 			}
+
+			edoDocumentsAction.Created = DateTime.Now;
 
 			return edoDocumentsAction;
 		}
@@ -145,7 +159,7 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateOrderForDocument(Order order, Type type)
+		public Result ValidateOrderForDocument(OrderEntity order, Type type)
 		{
 			var errors = new List<Error>();
 

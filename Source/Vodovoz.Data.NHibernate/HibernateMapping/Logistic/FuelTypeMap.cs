@@ -12,7 +12,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
-			Map(x => x.ProductGroupId).Column("product_group_id");
 
 			HasMany(x => x.FuelPriceVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("fuel_type_id")
 				.OrderBy("start_date DESC");

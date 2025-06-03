@@ -1,18 +1,17 @@
 ﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using VodovozBusiness.Domain.Documents;
 
 namespace VodovozBusiness.Domain.Documents
 {
@@ -28,8 +27,7 @@ namespace VodovozBusiness.Domain.Documents
 	{
 		private string _comment;
 		private Warehouse _warehouse;
-		private IList<RegradingOfGoodsDocumentItem> _items = new List<RegradingOfGoodsDocumentItem>();
-		private GenericObservableList<RegradingOfGoodsDocumentItem> _observableItems;
+		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
 
 		/// <summary>
 		/// Дата пересортицы
@@ -96,31 +94,10 @@ namespace VodovozBusiness.Domain.Documents
 		/// Строки
 		/// </summary>
 		[Display(Name = "Строки")]
-		public virtual IList<RegradingOfGoodsDocumentItem> Items
+		public virtual IObservableList<RegradingOfGoodsDocumentItem> Items
 		{
 			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
-
-		/// <summary>
-		/// Строки
-		/// </summary>
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<RegradingOfGoodsDocumentItem> ObservableItems
-		{
-			get
-			{
-				if(_observableItems == null)
-				{
-					_observableItems = new GenericObservableList<RegradingOfGoodsDocumentItem>(Items);
-				}
-
-				return _observableItems;
-			}
+			set => SetField(ref _items, value);
 		}
 
 		/// <summary>
@@ -140,7 +117,7 @@ namespace VodovozBusiness.Domain.Documents
 			item.WarehouseIncomeOperation.Warehouse = Warehouse;
 			item.WarehouseWriteOffOperation.Warehouse = Warehouse;
 
-			ObservableItems.Add(item);
+			Items.Add(item);
 		}
 
 		/// <summary>
@@ -178,18 +155,18 @@ namespace VodovozBusiness.Domain.Documents
 				}
 			}
 
-			if(ObservableItems.Any(x => x.IsDefective && x.TypeOfDefect == null))
+			if(Items.Any(x => x.IsDefective && x.TypeOfDefect == null))
 			{
 				yield return new ValidationResult(
 					"Необходимо указать вид брака.",
-					new[] { this.GetPropertyName(o => o.ObservableItems) });
+					new[] { this.GetPropertyName(o => o.Items) });
 			}
 
-			if(ObservableItems.Any(x => x.IsDefective && x.Source == DefectSource.None))
+			if(Items.Any(x => x.IsDefective && x.Source == DefectSource.None))
 			{
 				yield return new ValidationResult(
 					"Необходимо указать источник брака.",
-					 new[] { this.GetPropertyName(o => o.ObservableItems) });
+					 new[] { this.GetPropertyName(o => o.Items) });
 			}
 
 			var needWeightOrVolume = Items

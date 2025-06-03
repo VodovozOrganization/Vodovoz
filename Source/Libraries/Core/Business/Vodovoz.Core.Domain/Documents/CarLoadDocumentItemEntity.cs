@@ -8,6 +8,9 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
 {
+	/// <summary>
+	/// Строка талона погрузки автомобиля
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки талона погрузки",
 		Nominative = "строка талона погрузки")]
@@ -23,6 +26,10 @@ namespace Vodovoz.Core.Domain.Documents
 		private NomenclatureEntity _nomenclature;
 		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
+		/// <summary>
+		/// Идентификатор<br/>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -30,6 +37,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Талон погрузки, к которому относится строка
+		/// </summary>
 		[Display(Name = "Талон погрузки")]
 		public virtual CarLoadDocumentEntity Document
 		{
@@ -37,6 +47,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _document, value);
 		}
 
+		/// <summary>
+		/// Количество номенклатуры в строке талона погрузки
+		/// </summary>
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
 		{
@@ -44,6 +57,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _amount, value);
 		}
 
+		/// <summary>
+		/// Процент срока годности
+		/// </summary>
 		[Display(Name = "Процент срока годности")]
 		public virtual decimal? ExpireDatePercent
 		{
@@ -54,6 +70,9 @@ namespace Vodovoz.Core.Domain.Documents
 			}
 		}
 
+		/// <summary>
+		/// Номер заказа, к которому относится строка талона погрузки
+		/// </summary>
 		[Display(Name = "Номер заказа")]
 		public virtual int? OrderId
 		{
@@ -61,6 +80,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _orderId, value);
 		}
 
+		/// <summary>
+		/// Отделить номенклатуры заказа при погрузке
+		/// </summary>
 		[Display(Name = "Отделить номенклатуры заказа при погрузке")]
 		public virtual bool IsIndividualSetForOrder
 		{
@@ -68,6 +90,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _isIndividualSetForOrder, value);
 		}
 
+		/// <summary>
+		/// Номенклатура, к которой относится строка талона погрузки
+		/// </summary>
 		[Display(Name = "Номенклатура")]
 		public virtual NomenclatureEntity Nomenclature
 		{
@@ -76,6 +101,9 @@ namespace Vodovoz.Core.Domain.Documents
 			protected set => SetField(ref _nomenclature, value);
 		}
 
+		/// <summary>
+		/// Коды ЧЗ товаров, которые относятся к строке талона погрузки
+		/// </summary>
 		[Display(Name = "Коды ЧЗ товаров")]
 		public virtual IObservableList<CarLoadDocumentItemTrueMarkProductCode> TrueMarkCodes
 		{
@@ -83,6 +111,11 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _trueMarkCodes, value);
 		}
 
+		/// <summary>
+		/// Получение статуса погрузки строки документа погрузки
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
 		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState()
 		{
 			if(OrderId is null)

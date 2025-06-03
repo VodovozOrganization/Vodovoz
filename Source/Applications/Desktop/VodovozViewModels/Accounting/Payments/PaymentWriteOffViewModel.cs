@@ -15,8 +15,10 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Common;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Organizations;
 using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ViewModels.Accounting.Payments
@@ -40,12 +42,18 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			IGeneralSettings generalSettings,
 			IPaymentsRepository paymentsRepository,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<FinancialExpenseCategory> financialExpenseCategoryViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(entityExtendedPermissionValidator is null)
 			{
 				throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
+			}
+
+			if(organizationViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(organizationViewModelEEVMBuilder));
 			}
 
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -69,6 +77,18 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			}
 
 			CanEditDate = entityExtendedPermissionValidator.Validate(typeof(PaymentWriteOff), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+
+			var organizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationViewModel.CanViewEntity = false;
+			OrganizationViewModel = organizationViewModel;
+			OrganizationViewModel.IsEditable = IsNew;
 
 			FinancialExpenseCategoryViewModel = financialExpenseCategoryViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
@@ -128,7 +148,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			get => this.GetIdRefField(ref _counterparty, Entity.CounterpartyId);
 			set
 			{
-				if(this.SetIdRefField(SetField, ref _counterparty, () => Entity.CounterpartyId, value))
+				if(this.SetIdRefField(ref _counterparty, () => Entity.CounterpartyId, value))
 				{
 					UpdateSum();
 				}
@@ -140,7 +160,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 			get => this.GetIdRefField(ref _organization, Entity.OrganizationId);
 			set
 			{
-				if(this.SetIdRefField(SetField, ref _organization, () => Entity.OrganizationId, value))
+				if(this.SetIdRefField(ref _organization, () => Entity.OrganizationId, value))
 				{
 					UpdateSum();
 				}
@@ -178,7 +198,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 		}
 
 		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
-		public IEntityEntryViewModel OrganizationViewModel { get; set; }
+		public IEntityEntryViewModel OrganizationViewModel { get; }
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 		public ICommand SaveCommand { get; }
 		public ICommand CancelCommand { get; }

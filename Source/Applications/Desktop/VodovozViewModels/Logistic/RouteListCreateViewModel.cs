@@ -32,7 +32,6 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Services.Logistics;
@@ -44,6 +43,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Logistic
 			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
 			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
-			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
 			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanReadRouteListProfitability);
 			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
 

@@ -11,13 +11,13 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using WarehouseApi.Contracts.Dto;
 using WarehouseApi.Contracts.Requests;
 using WarehouseApi.Contracts.Responses;
 using WarehouseApi.Filters;
-using WarehouseApi.Library.Common;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -78,7 +78,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -101,13 +101,25 @@ namespace WarehouseApi.Controllers
 			{
 				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					foreach(var item in requestProcessingResult.Result.Value.Order.Items)
+					{
+						var maxIndex = item.Codes.Count;
+						for(int i = 0; i < maxIndex; i++)
+						{
+							item.Codes[i].SequenceNumber = i;
+						}
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -135,13 +147,22 @@ namespace WarehouseApi.Controllers
 				var requestProcessingResult =
 					await _carLoadService.AddOrderCode(requestData.OrderId, requestData.NomenclatureId, requestData.Code, user.UserName, cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -176,13 +197,22 @@ namespace WarehouseApi.Controllers
 						user.UserName,
 						cancellationToken);
 
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -214,7 +244,7 @@ namespace WarehouseApi.Controllers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex.Message, ex);
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
 				return GetProblemResult();
 			}
 		}
@@ -229,11 +259,18 @@ namespace WarehouseApi.Controllers
 				return new ObjectResult(processingResult.Result.Value);
 			}
 
+			if(processingResult.FailureData == null)
+			{
+				var errorResult = GetProblemResult(string.Join(", ", processingResult.Result.Errors.Select(x => x.Message)));
+				HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
+				return new ObjectResult(errorResult);
+			}
+
 			HttpContext.Response.StatusCode = statusCodeSelectorFunc(processingResult.Result) ?? StatusCodes.Status400BadRequest;
 			return new ObjectResult(processingResult.FailureData);
 		}
 
-		private IActionResult GetProblemResult(string exceptionMessage = null)
+		private static IActionResult GetProblemResult(string exceptionMessage = null)
 		{
 			var response = new WarehouseApiResponseBase
 			{
@@ -247,7 +284,7 @@ namespace WarehouseApi.Controllers
 			};
 		}
 
-		private int GetStatusCode(Result result)
+		private static int GetStatusCode(Result result)
 		{
 			if(result.IsSuccess)
 			{

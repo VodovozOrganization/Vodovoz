@@ -7,13 +7,13 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using TrueMarkApi.Client;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
@@ -34,27 +34,25 @@ namespace WarehouseApi.Library
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("API приложения склада"))
 				.AddCore()
 				.AddInfrastructure()
+				.AddApplication()
 				.AddRepositories()
 				.AddTrackedUoW()
 				.AddFirebaseCloudMessaging(configuration)
 				.ConfigureBusinessOptions(configuration)
 				.AddScoped<ICarLoadService, CarLoadService>()
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
-				.AddScoped<TrueMarkApiClientFactory>()
-				.AddScoped(sp => sp.GetRequiredService<TrueMarkApiClientFactory>().GetClient())
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoRequestMassTransit((context, cfg) =>
+				.AddEdoMassTransit((context, cfg) =>
 				{
-					cfg.AddEdoRequestBaseTopology(context);
+					cfg.AddEdoTopology(context);
 				});
 
 			services.AddStaticHistoryTracker();

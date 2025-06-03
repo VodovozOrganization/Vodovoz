@@ -11,11 +11,6 @@
 		<Content Remove="appsettings.Development.json" />
 		<Content Remove="appsettings.Production.json" />
 	</ItemGroup>
-	
-	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\DockerRegistry_dev.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\DockerRegistry_prod.pubxml" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="appsettings.Development.json">
@@ -38,12 +33,14 @@
 	<PackageReference Include="Grpc.AspNetCore.Web" Version="2.53.0" />
 	<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
+	<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
 	<PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
   </ItemGroup>
 
 </Project>

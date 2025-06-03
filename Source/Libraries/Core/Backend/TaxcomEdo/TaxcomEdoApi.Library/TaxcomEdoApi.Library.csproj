@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -31,6 +31,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Edo\Edo.Contracts.Xml\Edo.Contracts.Xml\Edo.Contracts.Xml.csproj" />
+	  <ProjectReference Include="..\..\Edo\Edo.Contracts\Edo.Contracts.csproj" />
 	  <ProjectReference Include="..\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
 	</ItemGroup>
 

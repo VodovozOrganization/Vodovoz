@@ -12,6 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Orders;
 using Vodovoz.Domain.Employees;
@@ -31,6 +32,7 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
+		private readonly ILogger<UndeliveryViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -56,7 +58,7 @@ namespace Vodovoz.ViewModels.Orders
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public UndeliveryViewModel(
-
+			ILogger<UndeliveryViewModel> logger,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IEmployeeRepository employeeRepository,
@@ -74,6 +76,7 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -306,12 +309,17 @@ namespace Vodovoz.ViewModels.Orders
 
 			do
 			{
-				foreach(var complaintDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
+				foreach(var undeliveryDiscussionViewModel in UndeliveryDiscussionsViewModel.ObservableUndeliveryDiscussionViewModels)
 				{
-					foreach(var keyValuePair in complaintDiscussionViewModel.FilesToUploadOnSave)
+					foreach(var keyValuePair in undeliveryDiscussionViewModel.FilesToUploadOnSave)
 					{
 						var commentId = keyValuePair.Key.Invoke();
 
+						_logger.LogInformation(
+							"Попытка сохранения файлов по комментарию {CommentId} из обсуждения {DiscussionId}",
+							commentId,
+							undeliveryDiscussionViewModel.Entity.Id);
+						
 						var comment = Entity
 							.ObservableUndeliveryDiscussions
 							.FirstOrDefault(cd => cd.Comments.Any(c => c.Id == commentId))
@@ -320,6 +328,10 @@ namespace Vodovoz.ViewModels.Orders
 
 						foreach(var fileToUploadPair in keyValuePair.Value)
 						{
+							_logger.LogInformation("Сохранение файла {FileName} размером {Size}",
+								fileToUploadPair.Key,
+								fileToUploadPair.Value.Length);
+							
 							using(var ms = new MemoryStream(fileToUploadPair.Value))
 							{
 								var result = _undeliveryDiscussionCommentFileStorageService.CreateFileAsync(
@@ -332,6 +344,9 @@ namespace Vodovoz.ViewModels.Orders
 
 								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 								{
+									_logger.LogWarning("Не удалось сохранить файл {FileName} размером {Size}",
+										fileToUploadPair.Key,
+										fileToUploadPair.Value.Length);
 									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
 								}
 							}

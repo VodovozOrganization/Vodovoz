@@ -11,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Dialogs;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;

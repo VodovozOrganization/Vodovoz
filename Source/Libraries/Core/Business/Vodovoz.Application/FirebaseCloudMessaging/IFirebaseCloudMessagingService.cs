@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Application.FirebaseCloudMessaging
 {

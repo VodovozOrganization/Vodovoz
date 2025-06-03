@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Errors;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {

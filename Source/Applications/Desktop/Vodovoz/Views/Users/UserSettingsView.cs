@@ -27,10 +27,7 @@ namespace Vodovoz.Views.Users
 
 		private void ConfigureDlg()
 		{
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
-			yentryrefWarehouse.Binding
-				.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject)
-				.InitializeFromSource();
+			entityentryWarehouse.ViewModel = ViewModel.WarehouseViewModel;
 
 			yenumcomboDefaultCategory.ItemsEnum = typeof(NomenclatureCategory);
 			var itemsToHide = Nomenclature.GetAllCategories().Except(Nomenclature.GetCategoriesForSaleToOrder()).Cast<object>().ToArray();

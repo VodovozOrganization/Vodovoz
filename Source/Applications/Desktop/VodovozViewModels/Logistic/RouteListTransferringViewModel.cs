@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Requests;
 using FluentNHibernate.Conventions;
@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Goods;
@@ -27,9 +28,8 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Errors;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.NotificationRecievers;
+using Vodovoz.NotificationSenders;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IRouteListTransferReciever _routeListTransferReciever;
+		private readonly IRouteListTransferHandByHandNotificationSender _routeListTransferHandByHandNotificationSender;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -116,7 +116,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListTransferReciever routeListTransferReciever)
+			IRouteListTransferHandByHandNotificationSender routeListTransferHandByHandNotificationSender)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -149,8 +149,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
 			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
-			_routeListTransferReciever = routeListTransferReciever
-				?? throw new ArgumentNullException(nameof(routeListTransferReciever));
+			_routeListTransferHandByHandNotificationSender = routeListTransferHandByHandNotificationSender
+				?? throw new ArgumentNullException(nameof(routeListTransferHandByHandNotificationSender));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -838,10 +838,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
-					if(node.RouteListItem?.Order?.OrderStatus == OrderStatus.Accepted)
-					{
-						continue;
-					}
+					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
 
 					var isTransfer = node.RouteListItem != null;
 

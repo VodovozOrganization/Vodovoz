@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Stores
@@ -48,11 +49,29 @@ namespace Vodovoz.Errors.Stores
 				nameof(OrderNoNeedIndividualSetOnLoad),
 				"Заказ не является сетевым");
 
-		public static Error CreateOrderNoNeedIndividualSetOnLoad(int? id) =>
+		public static Error CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless(int? id) =>
 			id is null ? DocumentNotFound : new Error(
 				typeof(CarLoadDocument),
-				nameof(OrderNoNeedIndividualSetOnLoad),
-				$"Заказ #{id} не является сетевым");
+				nameof(CreateOrderNoNeedIndividualSetOnLoadPaymentIsNotCashless),
+				$"В заказе #{id} тип оплаты не безналичный, сканирование не требуется");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet),
+				$"В заказе #{id} не указан контрагент");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree),
+				$"В заказе #{id} у клиента нет согласия на отрпавки документов по ЭДО, сканирование не требуется");
+
+		public static Error CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute(int? id) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocument),
+				nameof(CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute),
+				$"Заказ #{id} не в статусе в пути для ЭДО");
 
 		public static Error LoadingProcessStateMustBeNotStarted =>
 			new Error(

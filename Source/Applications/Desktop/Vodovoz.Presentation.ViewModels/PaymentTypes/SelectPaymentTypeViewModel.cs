@@ -21,12 +21,7 @@ namespace Vodovoz.Presentation.ViewModels.PaymentTypes
 			SelectPaymentTypeCommand = new DelegateCommand<ClientPaymentType>(SelectPaymentType);
 		}
 
-		public GenericObservableList<ClientPaymentType> ExcludedPaymentTypes { get; } = new GenericObservableList<ClientPaymentType>()
-		{ 
-			ClientPaymentType.DriverApplicationQR,
-			ClientPaymentType.SmsQR,
-			ClientPaymentType.PaidOnline
-		};
+		public GenericObservableList<ClientPaymentType> ExcludedPaymentTypes { get; } = new GenericObservableList<ClientPaymentType>();
 
 		public void AddExcludedPaymentTypes(params ClientPaymentType[] paymentTypes)
 		{

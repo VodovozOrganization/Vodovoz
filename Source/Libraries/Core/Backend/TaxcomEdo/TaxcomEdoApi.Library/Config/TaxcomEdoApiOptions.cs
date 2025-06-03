@@ -27,5 +27,13 @@
 		/// Настройки действия ключа(по подразделению, по сотруднику)
 		/// </summary>
 		public string CryptographicMode { get; set; }
+		/// <summary>
+		/// Отправлять доверенность со счетами
+		/// </summary>
+		public bool SendWarrantWithBills { get; set; } = true;
+		/// <summary>
+		/// Отправлять доверенность со счетами без отгрузки
+		/// </summary>
+		public bool SendWarrantWithBillsWithoutShipment { get; set; } = true;
 	}
 }

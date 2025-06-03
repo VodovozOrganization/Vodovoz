@@ -1,7 +1,9 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -27,5 +29,38 @@ namespace Vodovoz.EntityRepositories.Fuel
 		string GetFuelCardIdByNumber(IUnitOfWork unitOfWork, string cardNumber);
 		FuelDocument GetFuelDocumentByFuelLimitId(IUnitOfWork unitOfWork, string fuelLimitId);
 		decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date);
+
+		/// <summary>
+		/// Средние цены на топливо по данным транзакций за предыдущую неделю
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Средняя стоимость топлива сгруппировання по Id типа топлива</returns>
+		Task<IDictionary<int, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Типы топлива, имеющие указанные Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeIds">Коллекция Id</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		Task<IEnumerable<FuelType>> GetFuelTypesByIds(IUnitOfWork uow, IEnumerable<int> fuelTypeIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Продукты (топливо), относящихся к указанному типу
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeId">Id типа топлива в ДВ</param>
+		/// <returns>Продукты (топливо)</returns>
+		IEnumerable<GazpromFuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
+
+		/// <summary>
+		/// Группы продуктов (топлива) Газпромнефти, относящихся к указанному типу топлива в ДВ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fuelTypeId">Id типа топлива в ДВ</param>
+		/// <returns></returns>
+		IEnumerable<GazpromFuelProductsGroup> GetGazpromFuelProductsGroupsByFuelTypeId(IUnitOfWork uow, int fuelTypeId);
 	}
 }

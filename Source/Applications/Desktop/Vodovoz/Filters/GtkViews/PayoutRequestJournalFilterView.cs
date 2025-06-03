@@ -44,6 +44,17 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylabelBillDatePlanned.Binding
+				.AddBinding(ViewModel, vm => vm.ShowPaymentDatePlannedRangePicker, w => w.Visible)
+				.InitializeFromSource();
+
+			daterangepickerBillDatePlanned.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartPaymentDatePlanned, w => w.StartDateOrNull)
+				.AddBinding(ViewModel, vm => vm.EndPaymentDatePlanned, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.ShowPaymentDatePlannedRangePicker, w => w.Visible)
+				.InitializeFromSource();
+
 			yenumcomboboxSortBy.ItemsEnum = typeof(PayoutDocumentsSortOrder);
 			yenumcomboboxSortBy.Binding.AddBinding(ViewModel, vm => vm.DocumentsSortOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 

@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Common
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Common
 {
 	public static class DriverApiClient
 	{

@@ -34,11 +34,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="appsettings.Development.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -66,10 +61,10 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
   </ItemGroup>
 
@@ -84,6 +79,7 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\WebApi\Telemetry\Telemetry.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
   </ItemGroup>

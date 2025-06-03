@@ -4,6 +4,7 @@ using Vodovoz.Application.BankStatements;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Options;
+using Vodovoz.Presentation.ViewModels;
 
 namespace Vodovoz.ViewModels
 {
@@ -14,6 +15,7 @@ namespace Vodovoz.ViewModels
 				.AddScoped<BankStatementHandler>()
 				.AddScoped<BankStatementParser>()
 				.AddGeoCoderClient()
+				.AddPresentationViewModels()
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>();
 	}
 }

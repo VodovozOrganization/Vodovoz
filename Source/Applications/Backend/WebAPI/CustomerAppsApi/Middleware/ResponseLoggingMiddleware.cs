@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CustomerAppsApi.Middleware
 {

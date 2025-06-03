@@ -33,44 +33,44 @@ namespace Vodovoz.DocTemplates
 
 			// Driver
 
-			if(RootObject.DriverBirthDate != null)
+			if(RootObject?.DriverBirthDate != null)
 			{
 				AddField(x => x.DriverBirthDate, nameof(CarRentalContract.DriverBirthDate), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverFio != null)
+			if(RootObject?.DriverFio != null)
 			{
 				AddField(x => x.DriverFio, nameof(CarRentalContract.DriverFio), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverFioShort != null)
+			if(RootObject?.DriverFioShort != null)
 			{
 				AddField(x => x.DriverFioShort, nameof(CarRentalContract.DriverFioShort), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverFioGenitive != null)
+			if(RootObject?.DriverFioGenitive != null)
 			{
 				AddField(x => x.DriverFioGenitive, nameof(CarRentalContract.DriverFioGenitive), PatternFieldType.FString);
 			}
 
 			// Driver passport
 
-			if(RootObject.DriverPassportSerie != null)
+			if(RootObject?.DriverPassportSerie != null)
 			{
 				AddField(x => x.DriverPassportSerie, nameof(CarRentalContract.DriverPassportSerie), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverPassportNumber != null)
+			if(RootObject?.DriverPassportNumber != null)
 			{
 				AddField(x => x.DriverPassportNumber, nameof(CarRentalContract.DriverPassportNumber), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverRegistrationAddress != null)
+			if(RootObject?.DriverRegistrationAddress != null)
 			{
 				AddField(x => x.DriverRegistrationAddress, nameof(CarRentalContract.DriverRegistrationAddress), PatternFieldType.FString);
 			}
 
-			if(RootObject.DriverResidentialAddress != null)
+			if(RootObject?.DriverResidentialAddress != null)
 			{
 				AddField(x => x.DriverResidentialAddress, nameof(CarRentalContract.DriverResidentialAddress), PatternFieldType.FString);
 			}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Contracts.Messages.Dto;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
@@ -17,6 +18,13 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Передача данных по УПД в TaxcomApi для его формирования и отправки по ЭДО в Такском
+		/// </summary>
+		/// <param name="data">Данные для формирования УПД по ЭДО</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Передача данных по Счету в TaxcomApi для его формирования и отправки по ЭДО в Такском
 		/// </summary>
@@ -96,5 +104,12 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task SendOfferCancellation(string docFlowId, string reason, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Отправка запроса на подписание документооборота
+		/// </summary>
+		/// <param name="docflowId">Id документооборота</param>
+		/// <param name="organization">Название организации, от которой подписывается входящий документ</param>
+		/// <returns></returns>
+		Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default);
 	}
 }

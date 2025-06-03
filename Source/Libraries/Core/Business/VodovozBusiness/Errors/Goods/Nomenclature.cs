@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Goods
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Goods
 {
 	public static class Nomenclature
 	{

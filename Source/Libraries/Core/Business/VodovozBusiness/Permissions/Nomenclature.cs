@@ -32,11 +32,12 @@ namespace Vodovoz.Permissions
 		public static string CanCreateNomenclaturesWithInventoryAccounting => "can_create_nomenclatures_with_inventory_accounting";
 
 		/// <summary>
-		/// Доступ к вкладке Сайты и приложения и изменению параметров в ней
+		/// Доступ к вкладке Сайты и приложения и изменению параметров в ней,
+		/// а также изменение списка складов в общих настройках для расчета остатков для ИПЗ
 		/// </summary>
 		[Display(
 			Name = "Номенклатура. Доступ к вкладке Сайты и приложения",
-			Description = "Позволяет менять онлайн параметры номенклатуры")]
+			Description = "Позволяет менять онлайн параметры номенклатуры и в общих настройках устанавливать склады для расчета остатков")]
 		public static string HasAccessToSitesAndAppsTab => "Nomenclature.HasAccessToSitesAndAppsTab";
 	}
 }

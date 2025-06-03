@@ -27,6 +27,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using DriverApi.Notifications.Client;
 
 namespace RoboatsService
 {
@@ -67,7 +68,8 @@ namespace RoboatsService
 				typeof(QS.HistoryLog.HistoryMain).Assembly,
 				typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 				typeof(QS.Attachments.Domain.Attachment).Assembly,
-				typeof(EmployeeWithLoginMap).Assembly
+				typeof(EmployeeWithLoginMap).Assembly,
+				typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 			);
 			services.AddDatabaseConnection();
 			services.AddCore();
@@ -78,6 +80,7 @@ namespace RoboatsService
 
 			services.AddApplication();
 			services.AddBusiness(Configuration)
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
 		}

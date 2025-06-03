@@ -1,8 +1,13 @@
-﻿using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Tools;
+using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 
 namespace Vodovoz.Filters.Views
@@ -46,6 +51,26 @@ namespace Vodovoz.Filters.Views
 				.AddBinding(ViewModel, vm => vm.SortType, w => w.SelectedItem)
 				.InitializeFromSource();
 			yenumcmbSortType.ItemsEnum = typeof(PaymentJournalSortType);
+
+			slcbDocumentType.ItemsList = new List<Type>
+			{
+				null,
+				typeof(Payment),
+				typeof(PaymentWriteOff),
+				typeof(OutgoingPayment)
+			};
+
+			slcbDocumentType.ShowSpecialStateAll = true;
+
+			slcbDocumentType.SetRenderTextFunc<Type>(x => x != null
+				? x.GetClassUserFriendlyName()
+					.Nominative.CapitalizeSentence()
+				: "Все");
+
+			slcbDocumentType.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentType, w=>w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.DocumentTypeObject, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ConfigureEntry();
 		}

@@ -5,8 +5,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.EntityRepositories.Complaints;
-using Vodovoz.Errors;
 
 namespace DriverAPI.Library.V5.Services
 {

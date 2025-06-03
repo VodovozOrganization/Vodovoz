@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {

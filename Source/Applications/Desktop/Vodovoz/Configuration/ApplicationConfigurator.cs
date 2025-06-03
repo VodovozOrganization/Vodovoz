@@ -38,10 +38,12 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.Store;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -90,7 +92,7 @@ namespace Vodovoz.Configuration
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name)
 					.SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Order>.Create().Dialog<OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationViewModel>().DefaultTableView().Column("Код", x => x.Id.ToString())
 					.SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
 					.SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
@@ -146,7 +148,7 @@ namespace Vodovoz.Configuration
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
 					.Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
-				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
+				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateView>().DefaultTableView()
 					.Column("Название", w => w.Name).End(),
 				OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
 			};
@@ -157,7 +159,7 @@ namespace Vodovoz.Configuration
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentViewModel>();
 			OrmMain.AddObjectDescription<WriteOffDocument>().Dialog<WriteoffDocumentView>();
 			OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
-			OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
+			OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentView>();
 			OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();
 			OrmMain.AddObjectDescription<CarLoadDocument>().Dialog<CarLoadDocumentDlg>();
 			OrmMain.AddObjectDescription<CarUnloadDocument>().Dialog<CarUnloadDocumentDlg>();
