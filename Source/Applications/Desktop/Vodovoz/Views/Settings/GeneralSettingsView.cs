@@ -141,6 +141,8 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureEmployeesFixedPrices();
 
+			recomendationsettingsview1.ViewModel = ViewModel.RecomendationSettingsViewModel;
+
 			#endregion Вкладка Заказы
 
 			#region Вкладка Склад

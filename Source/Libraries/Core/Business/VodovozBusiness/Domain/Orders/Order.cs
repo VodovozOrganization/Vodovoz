@@ -22,9 +22,11 @@ using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -63,7 +65,6 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
-using Vodovoz.Core.Domain.Contacts;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -2063,7 +2064,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool isDiscountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void AddWaterForSale(
+			Nomenclature nomenclature,
+			decimal count,
+			decimal discount = 0,
+			bool isDiscountInMoney = false,
+			DiscountReason reason = null,
+			PromotionalSet proSet = null,
+			int? recomendationId = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2086,7 +2094,7 @@ namespace Vodovoz.Domain.Orders
 
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 
-			AddOrderItem(OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
+			AddOrderItem(OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, recomendationId));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2244,11 +2252,12 @@ namespace Vodovoz.Domain.Orders
 			decimal discount = 0,
 			bool discountInMoney = false,
 			DiscountReason discountReason = null,
-			PromotionalSet proSet = null)
+			PromotionalSet proSet = null,
+			int? recomendationId = null)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
-					AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet);
+					AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet, recomendationId);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
@@ -2256,7 +2265,7 @@ namespace Vodovoz.Domain.Orders
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet, recomendationId);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
