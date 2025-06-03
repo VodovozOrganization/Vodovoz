@@ -3,6 +3,7 @@
   <PropertyGroup>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	<RootNamespace>Vodovoz.RobotMia.Contracts</RootNamespace>
   </PropertyGroup>
 	
   <PropertyGroup>

@@ -11,6 +11,7 @@
 	<AssemblyVersion>1.0.*</AssemblyVersion>
 	<Deterministic>false</Deterministic>
 	<UserSecretsId>41e0a7a7-eea9-4d7f-85cd-224c0e054fbb</UserSecretsId>
+	<RootNamespace>Vodovoz.RobotMia.Api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
