@@ -33,7 +33,8 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 
 			TabName = $"Задача по госзаказу {Entity.OrderEdoRequest.Order.Id}";
 
-			ExportCodesCommand = new DelegateCommand(ExportCodes);
+			ExportCodesCommand = new DelegateCommand(ExportCodes, () => CanCloseTenderEdoTask);
+			ExportCodesCommand.CanExecuteChangedWith(this, vm => vm.CanCloseTenderEdoTask);
 		}
 
 		private void ExportCodes()
@@ -91,5 +92,8 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 			string.Concat("\"01", x.ProductCode.ResultCode.GTIN, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
 
 		public DelegateCommand ExportCodesCommand { get; }
+		
+		public bool CanCloseTenderEdoTask =>
+			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Edo.CanCloseTenderEdoTask, CurrentUser.Id);
 	}
 }
