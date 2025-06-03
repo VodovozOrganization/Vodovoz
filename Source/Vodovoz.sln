@@ -450,9 +450,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoDocumentFlowUpdater", "A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EdoContactsUpdater", "Applications\Backend\Workers\Docker\EdoServices\EdoContactsUpdater\EdoContactsUpdater.csproj", "{1611145E-34D7-4024-B737-C8C7A540ECDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RobotMiaApi", "Applications\Backend\WebAPI\RobotMia\Api\RobotMiaApi.csproj", "{588FB614-532E-461A-B607-BAE7CF96AA91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Applications\Backend\WebAPI\RobotMia\Api\Api.csproj", "{588FB614-532E-461A-B607-BAE7CF96AA91}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RobotMiaApi.Contracts", "Applications\Backend\WebAPI\RobotMia\Contracts\RobotMiaApi.Contracts.csproj", "{48F08F5B-C2D0-479D-9758-EC75F96687C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Applications\Backend\WebAPI\RobotMia\Contracts\Contracts.csproj", "{48F08F5B-C2D0-479D-9758-EC75F96687C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi", "Applications\Backend\WebAPI\WarehouseApi\WarehouseApi.csproj", "{31B44F4C-25F8-4D13-B3A8-4288892A89F7}"
 EndProject
