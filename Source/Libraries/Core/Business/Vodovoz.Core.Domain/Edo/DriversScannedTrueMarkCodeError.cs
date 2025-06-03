@@ -18,8 +18,13 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Отсканированный код уже содержится в отсканированном коде верхнего уровня
 		/// </summary>
-		[Display(Name = "Нет ошибки")]
+		[Display(Name = "Отсканированный код уже содержится в отсканированном коде верхнего уровня")]
 		HighLevelCodesScanned,
+		/// <summary>
+		/// Код уже содержится в базе
+		/// </summary>
+		[Display(Name = "Код уже содержится в базе")]
+		Duplicate,
 		/// <summary>
 		/// В ЧЗ нет информации о коде
 		/// </summary>

@@ -2,6 +2,7 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using ScannedTrueMarkCodesDelayedProcessing.Library.Errors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,6 +160,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
 			CancellationToken cancellationToken)
 		{
+			var codesToRemove = new List<DriversScannedTrueMarkCode>();
+
 			foreach(var codeData in codesData)
 			{
 				var driversScannedCode = codeData.Key;
@@ -171,9 +174,21 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					continue;
 				}
 
+				codesToRemove.Add(driversScannedCode);
+			}
+
+			foreach(var codeToRemove in codesToRemove)
+			{
 				_logger.LogInformation(
 					"Выбрасываем отсканированный водителем кода ЧЗ {ScannedCodeId} из-за наличия кода в базе",
-					driversScannedCode.Id);
+					codeToRemove.Id);
+
+				codeToRemove.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				codeToRemove.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Duplicate;
+
+				await uow.SaveAsync(codeToRemove, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeToRemove);
 			}
 
 			return codesData;
