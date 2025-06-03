@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Отсканированный код уже содержится в отсканированном коде верхнего уровня
 		/// </summary>
 		[Display(Name = "Нет ошибки")]
-		HighLowLevelCodesScanned,
+		HighLevelCodesScanned,
 		/// <summary>
 		/// В ЧЗ нет информации о коде
 		/// </summary>
