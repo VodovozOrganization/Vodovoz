@@ -642,8 +642,7 @@ namespace DriverAPI.Library.V6.Services
 						RawCode = x,
 						OrderItemId = scannedItem.OrderSaleItemId,
 						RouteListAddressId = routeListAddress.Id,
-						IsDefective = false,
-						IsProcessingCompleted = false
+						IsDefective = false
 					})
 					.ToArray();
 
@@ -654,8 +653,7 @@ namespace DriverAPI.Library.V6.Services
 						RawCode = x,
 						OrderItemId = scannedItem.OrderSaleItemId,
 						RouteListAddressId = routeListAddress.Id,
-						IsDefective = true,
-						IsProcessingCompleted = false
+						IsDefective = true
 					})
 					.ToArray();
 
@@ -1740,8 +1738,7 @@ namespace DriverAPI.Library.V6.Services
 					_logger.LogWarning("У заказа {OrderId} заказа не найдена: {OrderItemId}", orderSaleItemId);
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
-
-
+				
 				var bottleCodes = scannedBottle.BottleCodes
 					.Distinct()
 					.Select(x => new DriversScannedTrueMarkCode
@@ -1749,8 +1746,7 @@ namespace DriverAPI.Library.V6.Services
 						RawCode = x,
 						OrderItemId = orderSaleItemId,
 						RouteListAddressId = routeListAddress.Id,
-						IsDefective = false,
-						IsProcessingCompleted = false
+						IsDefective = false
 					})
 					.ToArray();
 
