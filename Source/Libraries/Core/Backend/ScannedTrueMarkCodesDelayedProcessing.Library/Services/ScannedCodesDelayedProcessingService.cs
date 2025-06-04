@@ -65,6 +65,12 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var scannedCodesData = await _edoDocflowRepository
 					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
 
+				if(!scannedCodesData.Any())
+				{
+					_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки");
+					return;
+				}
+
 				_logger.LogInformation("Обработка отсканированных кодов ЧЗ, количество: {Count}", scannedCodesData.Count());
 
 				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
