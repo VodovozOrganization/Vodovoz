@@ -2463,11 +2463,11 @@ ___________(                   )
         <Sizing>FitProportional</Sizing>
       </Image>
     </ReportItems>
-    <Height>452.0pt</Height>
+    <Height>432.0pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>14pt</Height>
+    <Height>18.8pt</Height>
     <ReportItems>
       <Textbox Name="Textbox21">
         <Top>1pt</Top>
