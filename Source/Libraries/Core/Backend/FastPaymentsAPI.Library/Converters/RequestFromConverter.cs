@@ -2,6 +2,7 @@
 using System.Linq;
 using FastPaymentsApi.Contracts;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
 
@@ -16,25 +17,25 @@ namespace FastPaymentsAPI.Library.Converters
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
-		public PaymentFrom ConvertRequestFromTypeToPaymentFrom(IUnitOfWork uow, RequestFromType requestFromType)
+		public PaymentFrom ConvertRequestFromTypeToPaymentFrom(IUnitOfWork uow, FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
-			switch(requestFromType)
+			switch(fastPaymentRequestFromType)
 			{
-				case RequestFromType.FromDesktopByQr:
-				case RequestFromType.FromDriverAppByQr:
+				case FastPaymentRequestFromType.FromDesktopByQr:
+				case FastPaymentRequestFromType.FromDriverAppByQr:
 					return uow.GetAll<PaymentFrom>()
 						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromFastPaymentServiceId);
-				case RequestFromType.FromSiteByQr:
+				case FastPaymentRequestFromType.FromSiteByQr:
 					return uow.GetAll<PaymentFrom>()
 						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId);
-				case RequestFromType.FromDesktopByCard:
+				case FastPaymentRequestFromType.FromDesktopByCard:
 					return uow.GetAll<PaymentFrom>()
 						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromAvangardId);
-				case RequestFromType.FromMobileAppByQr:
+				case FastPaymentRequestFromType.FromMobileAppByQr:
 					return uow.GetAll<PaymentFrom>()
 						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
 				default:
-					throw new ArgumentOutOfRangeException(nameof(requestFromType), requestFromType, null);
+					throw new ArgumentOutOfRangeException(nameof(fastPaymentRequestFromType), fastPaymentRequestFromType, null);
 			}
 		}
 	}

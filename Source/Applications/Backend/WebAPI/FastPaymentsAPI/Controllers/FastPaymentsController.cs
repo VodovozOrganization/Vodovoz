@@ -12,6 +12,7 @@ using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
@@ -105,7 +106,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = RequestFromType.FromDriverAppByQr;
+				var requestType = FastPaymentRequestFromType.FromDriverAppByQr;
 				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
@@ -199,7 +200,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = isQr ? RequestFromType.FromDesktopByQr : RequestFromType.FromDesktopByCard;
+				var requestType = isQr ? FastPaymentRequestFromType.FromDesktopByQr : FastPaymentRequestFromType.FromDesktopByCard;
 				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
@@ -258,7 +259,7 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<ResponseRegisterOnlineOrder> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromSiteByQr);
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromSiteByQr);
 		}
 		
 		/// <summary>
@@ -270,11 +271,11 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<ResponseRegisterOnlineOrder> RegisterOnlineOrderFromMobileApp(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromMobileAppByQr);
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromMobileAppByQr);
 		}
 		
 		private async Task<ResponseRegisterOnlineOrder> RegisterNewOnlineOrder(
-			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, RequestFromType requestType)
+			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, FastPaymentRequestFromType fastPaymentRequestType)
 		{
 			var onlineOrderId = requestRegisterOnlineOrderDto.OrderId;
 			var onlineOrderSum = requestRegisterOnlineOrderDto.OrderSum;
@@ -283,7 +284,7 @@ namespace FastPaymentsAPI.Controllers
 
 			var response = new ResponseRegisterOnlineOrder();
 			var paramsValidationResult =
-				_fastPaymentOrderService.ValidateParameters(requestRegisterOnlineOrderDto, requestType);
+				_fastPaymentOrderService.ValidateParameters(requestRegisterOnlineOrderDto, fastPaymentRequestType);
 
 			if(!string.IsNullOrWhiteSpace(paramsValidationResult))
 			{
@@ -325,7 +326,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
+				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, fastPaymentRequestType);
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				var callBackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
 
@@ -333,7 +334,7 @@ namespace FastPaymentsAPI.Controllers
 				{
 					_logger.LogInformation("Регистрируем онлайн-заказ {OnlineOrderId} в системе эквайринга", onlineOrderId);
 					orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOnlineOrder(
-						requestRegisterOnlineOrderDto, organization, requestType);
+						requestRegisterOnlineOrderDto, organization, fastPaymentRequestType);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -354,7 +355,7 @@ namespace FastPaymentsAPI.Controllers
 				{
 					_fastPaymentService.SaveNewTicketForOnlineOrder(
 						orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
-						organization, requestType, callBackUrl);
+						organization, fastPaymentRequestType, callBackUrl);
 				}
 				catch(Exception e)
 				{
@@ -364,7 +365,7 @@ namespace FastPaymentsAPI.Controllers
 					return response;
 				}
 
-				FillOnlineResponseData(response, requestType, orderRegistrationResponseDto.QRPngBase64, fastPaymentGuid);
+				FillOnlineResponseData(response, fastPaymentRequestType, orderRegistrationResponseDto.QRPngBase64, fastPaymentGuid);
 				return response;
 			}
 			catch(Exception e)
@@ -560,11 +561,11 @@ namespace FastPaymentsAPI.Controllers
 		
 		private void FillOnlineResponseData(
 			ResponseRegisterOnlineOrder response,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			string qrPngBase64,
 			Guid fastPaymentGuid)
 		{
-			if(requestFromType == RequestFromType.FromMobileAppByQr)
+			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
 			{
 				response.QrCode = qrPngBase64;
 			}

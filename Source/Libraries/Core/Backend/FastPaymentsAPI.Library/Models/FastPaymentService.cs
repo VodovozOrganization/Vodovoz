@@ -9,6 +9,7 @@ using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
@@ -71,9 +72,9 @@ namespace FastPaymentsAPI.Library.Models
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
-		public Organization GetOrganization(TimeSpan requestTime, RequestFromType requestFromType)
+		public Organization GetOrganization(TimeSpan requestTime, FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
-			var organizationsSettings = GetOrganizationsSettings(requestFromType);
+			var organizationsSettings = GetOrganizationsSettings(fastPaymentRequestFromType);
 			var organization = _organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, organizationsSettings);
 			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationSettings.VodovozSouthOrganizationId);
 		}
@@ -99,13 +100,13 @@ namespace FastPaymentsAPI.Library.Models
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			PaymentType paymentType,
 			string phoneNumber = null)
 		{
 			Order order;
 			var creationDate = DateTime.Now;
-			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, fastPaymentRequestFromType);
 
 			try
 			{
@@ -152,11 +153,11 @@ namespace FastPaymentsAPI.Library.Models
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			string callbackUrl)
 		{
 			var creationDate = DateTime.Now;
-			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, fastPaymentRequestFromType);
 			
 			var fastPayment = _fastPaymentApiFactory.GetFastPayment(
 				orderRegistrationResponseDto,
@@ -238,25 +239,25 @@ namespace FastPaymentsAPI.Library.Models
 			_uow.Commit();
 		}
 		
-		private IOrganizations GetOrganizationsSettings(RequestFromType requestFromType)
+		private IOrganizations GetOrganizationsSettings(FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
-			switch(requestFromType)
+			switch(fastPaymentRequestFromType)
 			{
-				case RequestFromType.FromDesktopByQr:
+				case FastPaymentRequestFromType.FromDesktopByQr:
 					return _uow.GetAll<SmsQrPaymentTypeOrganizationSettings>().SingleOrDefault();
-				case RequestFromType.FromDriverAppByQr:
+				case FastPaymentRequestFromType.FromDriverAppByQr:
 					return _uow.GetAll<DriverAppQrPaymentTypeOrganizationSettings>().SingleOrDefault();
-				case RequestFromType.FromSiteByQr:
+				case FastPaymentRequestFromType.FromSiteByQr:
 					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
 						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId);
-				case RequestFromType.FromDesktopByCard:
+				case FastPaymentRequestFromType.FromDesktopByCard:
 					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
 						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromAvangardId);
-				case RequestFromType.FromMobileAppByQr:
+				case FastPaymentRequestFromType.FromMobileAppByQr:
 					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
 						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
 				default:
-					throw new ArgumentOutOfRangeException(nameof(requestFromType), requestFromType, null);
+					throw new ArgumentOutOfRangeException(nameof(fastPaymentRequestFromType), fastPaymentRequestFromType, null);
 			}
 		}
 	}

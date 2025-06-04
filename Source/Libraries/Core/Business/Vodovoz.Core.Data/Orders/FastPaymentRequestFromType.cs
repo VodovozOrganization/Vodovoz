@@ -1,9 +1,9 @@
-﻿namespace FastPaymentsApi.Contracts
+﻿namespace Vodovoz.Core.Data.Orders
 {
 	/// <summary>
-	/// Типы источников запроса
+	/// Тип источника запроса быстрого платежа или по карте
 	/// </summary>
-	public enum RequestFromType
+	public enum FastPaymentRequestFromType
 	{
 		/// <summary>
 		/// ДВ по Qr
