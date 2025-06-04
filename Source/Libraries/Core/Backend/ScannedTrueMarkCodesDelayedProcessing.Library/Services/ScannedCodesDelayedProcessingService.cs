@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -28,7 +29,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly MessageService _messageService;
 
 		public ScannedCodesDelayedProcessingService(
@@ -38,7 +39,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
-			ITrueMarkRepository trueMarkRepository,
+			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			MessageService messageService)
 		{
 			_logger =
@@ -47,12 +48,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemTrueMarkProductCodesProcessingService =
 				routeListItemTrueMarkProductCodesProcessingService ?? throw new System.ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkWaterCodeService =
+				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoDocflowRepository =
 				edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_orderRepository =
 				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_productCodeRepository =
+				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_messageService =
 				messageService ?? throw new ArgumentNullException(nameof(messageService));
 		}
@@ -116,7 +119,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				var notTrueMarkCodesRemoved = await RemoveNotTrueMarkCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 				var duplicatesRemoved = await RemoveLowLevelCodesScannedDuplicates(uow, notTrueMarkCodesRemoved, cancellationToken);
-				var existingTransportAndGroupCodesRemoved = await RemoveExistingTransportAndGroupCodes(uow, duplicatesRemoved, cancellationToken);
+				var existingTransportAndGroupCodesRemoved = await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, duplicatesRemoved, cancellationToken);
 
 				await AddCodesToRouteListItem(
 					uow,
@@ -155,7 +158,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			return codesData;
 		}
 
-		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveExistingTransportAndGroupCodes(
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(
 			IUnitOfWork uow,
 			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
 			CancellationToken cancellationToken)
@@ -167,14 +170,20 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var driversScannedCode = codeData.Key;
 				var trueMarkAnyCode = codeData.Value;
 				
-				var isCodeAlreadyExists = _trueMarkRepository.IsTrueMarkAnyCodeAlreadySaved(uow, trueMarkAnyCode);
+				var getSavedTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, driversScannedCode.RawCode);
 
-				if(!isCodeAlreadyExists || trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
+				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
 					continue;
 				}
 
-				codesToRemove.Add(driversScannedCode);
+				if(trueMarkAnyCode.IsTrueMarkTransportCode || trueMarkAnyCode.IsTrueMarkWaterGroupCode)
+				{
+					codesToRemove.Add(driversScannedCode);
+					continue;
+				}
+
+				codesData[driversScannedCode] = getSavedTrueMarkCodeResult.Value;
 			}
 
 			foreach(var codeToRemove in codesToRemove)
@@ -251,15 +260,41 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var driversScannedCode = codeData.Key;
 				var trueMarkAnyCode = codeData.Value;
 
+				var isCodeAlreadyExists = false;
+				var isCodeHasDuplicate = false;
+				int codeDuplicatesCount = 0;
+
+				var newCodeStatus = driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New;
+				var newCodeProblem = driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+
 				try
 				{
+					if(trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
+					{
+						var identificationCode = trueMarkAnyCode.TrueMarkWaterIdentificationCode;
+						isCodeAlreadyExists = identificationCode.Id > 0;
+
+						if(isCodeAlreadyExists)
+						{
+							var codeDuplicates = GetProductCodesHavingRequiredResultCodeIds(uow, identificationCode.Id);
+							isCodeHasDuplicate = codeDuplicates.Any();
+							codeDuplicatesCount = codeDuplicates.Count();
+						}
+
+						if(isCodeHasDuplicate)
+						{
+							newCodeStatus = SourceProductCodeStatus.Problem;
+							newCodeProblem = ProductCodeProblem.Defect;
+						}
+					}
+
 					await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 						uow,
 						routeListAddress,
 						orderItemId,
 						trueMarkAnyCode,
-						driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New,
-						driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None);
+						newCodeStatus,
+						newCodeProblem);
 
 					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Succeed;
 					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.None;
@@ -308,6 +343,12 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			return driversScannedCodesData;
 		}
+
+		private IEnumerable<TrueMarkProductCode> GetProductCodesHavingRequiredResultCodeIds(IUnitOfWork uow, int resultCodeId) =>
+			_productCodeRepository
+			.Get(uow, x => resultCodeId == x.ResultCode.Id)
+			.Distinct()
+			.ToList();
 
 		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
