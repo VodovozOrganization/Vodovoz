@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.RobotMia
 		private DateTime _registeredAt;
 		private string _normalizedPhoneNumber;
 		private int? _сounterpartyid;
+		private int? _createdOrderId;
 
 		/// <summary>
 		/// Код
@@ -73,6 +74,16 @@ namespace Vodovoz.Core.Domain.RobotMia
 		{
 			get => _сounterpartyid;
 			set => SetField(ref _сounterpartyid, value);
+		}
+
+		/// <summary>
+		/// Код заказа, созданного по звонку
+		/// </summary>
+		[Display(Name = "Код заказа, созданного по звонку")]
+		public virtual int? CreatedOrderId
+		{
+			get => _createdOrderId;
+			set => SetField(ref _createdOrderId, value);
 		}
 
 		public static RobotMiaCall Create(Guid callId, string phoneNumber, DateTime? dateTime = default)
