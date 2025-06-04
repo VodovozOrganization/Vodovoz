@@ -234,9 +234,9 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscountReason = DiscountReason;
 				OriginalDiscount = Discount;
 			}
-			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;
+			DiscountReason = null;
 
 			RecalculateVAT();
 		}
