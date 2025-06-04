@@ -697,7 +697,8 @@ namespace Vodovoz.Application.TrueMark
 			IEnumerable<string> scannedCodes,
 			CancellationToken cancellationToken)
 		{
-			var codes = new Dictionary<string, TrueMarkAnyCode>();
+			var scannedCodesData = new Dictionary<string, TrueMarkAnyCode>();
+			var codes = new List<TrueMarkAnyCode>();
 
 			var requestCodesData = CreateRequestCodesDataByScannedCodes(scannedCodes);
 			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
@@ -712,7 +713,6 @@ namespace Vodovoz.Application.TrueMark
 			foreach(var codeInstanseStatusData in requestCodesInstanseStatusesDataResult.Value)
 			{
 				var requestCode = codeInstanseStatusData.Key;
-				var scannedCode = requestCodesData[requestCode].ScannedCode;
 				var instanceStatus = codeInstanseStatusData.Value;
 
 				TrueMarkAnyCode trueMarkAnyCode = null;
@@ -739,27 +739,37 @@ namespace Vodovoz.Application.TrueMark
 						break;
 				}
 
-				if(codes.ContainsKey(scannedCode))
+				if(trueMarkAnyCode != null)
+				{
+					codes.Add(trueMarkAnyCode);
+				}
+				
+				if(!requestCodesData.TryGetValue(requestCode, out var scannedCodeData))
 				{
 					continue;
 				}
 
-				codes.Add(scannedCode, trueMarkAnyCode);
+				if(scannedCodesData.ContainsKey(scannedCodeData.ScannedCode))
+				{
+					continue;
+				}
+
+				scannedCodesData.Add(scannedCodeData.ScannedCode, trueMarkAnyCode);
 			}
 
 			var newTransportCodes = codes
-				.Where(x => x.Value.IsTrueMarkTransportCode)
-				.Select(x => x.Value.TrueMarkTransportCode)
+				.Where(x => x.IsTrueMarkTransportCode)
+				.Select(x => x.TrueMarkTransportCode)
 				.ToArray();
 
 			var newGroupCodes = codes
-				.Where(x => x.Value.IsTrueMarkWaterGroupCode)
-				.Select(x => x.Value.TrueMarkWaterGroupCode)
+				.Where(x => x.IsTrueMarkWaterGroupCode)
+				.Select(x => x.TrueMarkWaterGroupCode)
 				.ToArray();
 
 			foreach(var code in codes)
 			{
-				code.Value.Match(
+				code.Match(
 					transportCode =>
 					{
 						newTransportCodes
@@ -804,7 +814,7 @@ namespace Vodovoz.Application.TrueMark
 					});
 			}
 
-			return codes;
+			return scannedCodesData;
 		}
 
 		private IDictionary<string, (string ScannedCode, TrueMarkWaterCode ParsedCode)> CreateRequestCodesDataByScannedCodes(IEnumerable<string> scannedCodes)

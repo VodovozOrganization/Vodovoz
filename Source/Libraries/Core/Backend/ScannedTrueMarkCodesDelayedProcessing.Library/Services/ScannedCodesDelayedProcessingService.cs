@@ -1,4 +1,5 @@
 ﻿using Edo.Transport;
+using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -231,9 +232,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			foreach(var driverScannedCodeTrueMarkCodesToCheck in driverScannedCodesTrueMarkCodes)
 			{
+				var containsCodeFunc = TrueMarkAnyCodeListContainsCodeFunc(driverScannedCodeTrueMarkCodesToCheck.Value);
+
 				var isCodeHasScannedHighLevelCode = driverScannedCodesTrueMarkCodes
-					.Any(x => x.Key.Id != driverScannedCodeTrueMarkCodesToCheck.Key.Id &&
-						x.Value.Any(y => driverScannedCodeTrueMarkCodesToCheck.Value.Contains(y)));
+					.Where(x => x.Key.Id != driverScannedCodeTrueMarkCodesToCheck.Key.Id)
+					.Any(x => x.Value.Any(containsCodeFunc));
 
 				if(!isCodeHasScannedHighLevelCode)
 				{
@@ -256,6 +259,20 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			return codesData;
 		}
+
+		private Func<TrueMarkAnyCode, bool> TrueMarkAnyCodeListContainsCodeFunc(IEnumerable<TrueMarkAnyCode> codesList)
+		{
+			return c => codesList.Any(code => code.Match(
+				transportCode => c.IsTrueMarkTransportCode
+					&& c.TrueMarkTransportCode.RawCode == transportCode.RawCode,
+				groupCode => c.IsTrueMarkWaterGroupCode
+					&& c.TrueMarkWaterGroupCode.GTIN == groupCode.GTIN
+					&& c.TrueMarkWaterGroupCode.SerialNumber == groupCode.SerialNumber,
+				waterCode => c.IsTrueMarkWaterIdentificationCode
+					&& c.TrueMarkWaterIdentificationCode.GTIN == waterCode.GTIN
+					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber));
+		}
+
 
 		private async Task AddCodesToRouteListItem(
 			IUnitOfWork uow,
