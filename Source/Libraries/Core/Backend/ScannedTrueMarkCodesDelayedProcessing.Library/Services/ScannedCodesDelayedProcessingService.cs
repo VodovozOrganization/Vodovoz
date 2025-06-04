@@ -73,7 +73,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				_logger.LogInformation("Обработка отсканированных кодов ЧЗ, количество: {Count}", scannedCodesData.Count());
 
-				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
+				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, cancellationToken);
 
 				var newEdoRequests = await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
 
@@ -91,7 +91,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
-		private async Task AddScannedCodesToRouteListItems(
+		private async Task CheckScannedCodesAndAddToRouteListItems(
 			IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
 			CancellationToken cancellationToken)
@@ -121,9 +121,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				var scannedTrueMarkAnyCodesData = scannedTrueMarkAnyCodesDataResult.Value;
 
-				var notTrueMarkCodesRemoved = await RemoveNotTrueMarkCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
-				var duplicatesRemoved = await RemoveLowLevelCodesScannedDuplicates(uow, notTrueMarkCodesRemoved, cancellationToken);
-				var existingTransportAndGroupCodesRemoved = await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, duplicatesRemoved, cancellationToken);
+				var notTrueMarkCodesRemoved =
+					await RemoveNotTrueMarkCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				var duplicatesRemoved =
+					await RemoveLowLevelCodesScannedDuplicates(uow, notTrueMarkCodesRemoved, cancellationToken);
+
+				var existingTransportAndGroupCodesRemoved =
+					await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, duplicatesRemoved, cancellationToken);
 
 				await AddCodesToRouteListItem(
 					uow,
