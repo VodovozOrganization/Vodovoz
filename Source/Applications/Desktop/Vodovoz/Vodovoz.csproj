@@ -428,6 +428,7 @@
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
@@ -2096,6 +2097,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Cash\Payments\" />

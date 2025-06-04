@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -14,12 +15,25 @@ namespace Vodovoz.Core.Domain.Documents
 	[HistoryTrace]
 	public class SelfDeliveryDocumentEntity : PropertyChangedBase, IDomainObject
 	{
+		private int _id;
 		private OrderEntity _order;
+		EmployeeEntity _author;
 
 		/// <summary>
 		/// Идентификатор
 		/// </summary>
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		[Display(Name = "Автор")]
+		public virtual EmployeeEntity Author
+		{
+			get => _author;
+			set => SetField(ref _author, value);
+		}
 
 		/// <summary>
 		/// Заказ, к которому относится документ самовывоза

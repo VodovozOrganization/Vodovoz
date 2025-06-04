@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.EntityRepositories.TrueMark
 {
@@ -48,5 +49,35 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
 		/// <returns>Результат проверки</returns>
 		bool IsTrueMarkAnyCodeAlreadySaved(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены складом в документе погрузки автомобиля.
+		/// </summary>
+		IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из маршрутного листа водителем.
+		/// </summary>
+		IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из самовывоза.
+		/// </summary>
+		IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа, 
+		/// которые были добавлены из пула в виду отсутствия 
+		/// кодов из других источников (склад, водитель, самовывоз).
+		/// </summary>
+		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает кол-во кодов маркировки требуемое в заказе
+		/// </summary>
+		int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId);
 	}
 }
