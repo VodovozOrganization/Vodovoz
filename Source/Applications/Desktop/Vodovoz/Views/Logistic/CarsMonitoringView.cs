@@ -52,6 +52,8 @@ namespace Vodovoz.Views.Logistic
 
 		public CarsMonitoringView(ILogger<CarsMonitoringView> logger, CarsMonitoringViewModel viewModel) : base(viewModel)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
 			_carsOverlay = new GMapOverlay(ViewModel.CarsOverlayId);
 			_tracksOverlay = new GMapOverlay(ViewModel.TracksOverlayId);
 			_fastDeliveryCarCirclesOverlay = new GMapOverlay(ViewModel.FastDeliveryOverlayId);
@@ -143,7 +145,6 @@ namespace Vodovoz.Views.Logistic
 
 			UpdateCarPosition();
 			StartTimer(_timeoutTimerHandler);
-			_logger = logger;
 		}
 
 		private void StartTimer(TimeoutHandler timeoutHandler)
