@@ -2,7 +2,6 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using ScannedTrueMarkCodesDelayedProcessing.Library.Errors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,6 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Services.TrueMark;
 
@@ -169,7 +167,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			{
 				var driversScannedCode = codeData.Key;
 				var trueMarkAnyCode = codeData.Value;
-				
+
 				var getSavedTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, driversScannedCode.RawCode);
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
