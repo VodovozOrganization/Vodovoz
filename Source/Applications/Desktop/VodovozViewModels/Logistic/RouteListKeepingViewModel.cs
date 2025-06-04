@@ -1,6 +1,3 @@
-using Autofac;
-using DriverApi.Contracts.V5.Requests;
-using DriverApi.Contracts.V5;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -22,6 +19,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using QS.Extensions.Observable.Collections.List;

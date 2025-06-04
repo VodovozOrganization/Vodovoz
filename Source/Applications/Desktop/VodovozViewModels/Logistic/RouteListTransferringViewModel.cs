@@ -1,7 +1,10 @@
-using Autofac;
-using DriverApi.Contracts.V5;
-using DriverApi.Contracts.V5.Requests;
-using FluentNHibernate.Conventions;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -13,12 +16,6 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -28,6 +25,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Errors.Common;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Services;
@@ -700,7 +698,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.ToList();
 
 			var driverApiClientRequestIsNotSuccess = errors
-				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Where(x => x.Code == DriverApiClient.RequestIsNotSuccess(x.Message))
 				.Select(x => x.Message)
 				.ToList();
 
@@ -832,14 +830,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var notifyingErrors = new List<Error>();
 
-			var notifyingWarnings = new List<Error>();
-
 			foreach(var node in selectedHandToHandNodes)
 			{
 				try
 				{
-					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
-
 					var isTransfer = node.RouteListItem != null;
 
 					var notificationRequest = new NotificationRouteListChangesRequest
@@ -848,7 +842,7 @@ namespace Vodovoz.ViewModels.Logistic
 						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TransferAddress : PushNotificationDataEventType.RouteListContentChanged
 					};
 
-					var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{
@@ -856,12 +850,15 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
+						                                                  $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
+						                                                  $".{typeof(Errors.Common.DriverApiClient).Name}" +
+						                                                  $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
 				{
-					notifyingErrors.Add(Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
+					notifyingErrors.Add(DriverApiClient.RequestIsNotSuccess(ex.Message));
 				}
 			}
 

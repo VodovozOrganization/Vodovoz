@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
-namespace DriverApi.Contracts.V5.Requests
+namespace DriverApi.Contracts.V6.Requests
 {
 	/// <summary>
 	/// Запрос на уведомление водителя об изменения в МЛ

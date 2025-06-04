@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Logistics;
@@ -94,9 +95,9 @@ namespace DriverApi.Notifications.Client.Clients
 			}
 		}
 
-		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(NotificationRouteListChangesRequest changesRequest)
 		{
-			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri, changesRequest))
 			{
 				var responseBody = await response.Content.ReadAsStringAsync();
 

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V6;
 using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
@@ -321,18 +322,25 @@ namespace DriverAPI.Controllers.V6
 		/// </summary>
 		/// <param name="unitOfWork"></param>
 		/// <param name="orderId">Номер заказа</param>
+		/// <param name="notificationRouteListChangesRequest">Уведомление</param>
 		/// <returns></returns>
 		[HttpPost]
 		[AllowAnonymous]
 		[ApiExplorerSettings(IgnoreApi = true)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered([FromServices] IUnitOfWork unitOfWork, [FromBody]int orderId)
+		public async Task<IActionResult> NotifyOfOrderWithGoodsTransferingIsTransfered(
+			[FromServices] IUnitOfWork unitOfWork,
+			[FromBody] NotificationRouteListChangesRequest notificationRouteListChangesRequest)
 		{
+			var orderId = notificationRouteListChangesRequest.OrderId;
+			
+			var pushNotificationDataEventType = notificationRouteListChangesRequest.PushNotificationDataEventType;
+			var isTransfer = pushNotificationDataEventType == PushNotificationDataEventType.TransferAddress;
+			
 			var targetAddress = _routeListItemRepository
 				.Get(
 					unitOfWork,
 					rli => rli.Status == RouteListItemStatus.EnRoute
-						&& rli.AddressTransferType == AddressTransferType.FromHandToHand
 						&& rli.Order.Id == orderId)
 				.FirstOrDefault();
 
@@ -343,7 +351,8 @@ namespace DriverAPI.Controllers.V6
 				return Problem($"Не найдена цель переноса заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			if(targetAddress.RouteList.Driver is null)
+			if(isTransfer
+			   && targetAddress.RouteList.Driver is null)
 			{
 				_logger.LogError("Не найден водитель цели переноса заказа {OrderId}", orderId);
 
@@ -352,7 +361,7 @@ namespace DriverAPI.Controllers.V6
 
 			var targetDriverFirebaseToken = _employeeService.GetDriverPushTokenById(targetAddress.RouteList.Driver.Id);
 
-			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
+			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress, false);
 
 			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
 
@@ -363,14 +372,16 @@ namespace DriverAPI.Controllers.V6
 				return Problem($"Не найден предыдущий адрес МЛ заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var previousItemDriverFirebaseToken = _employeeService.GetDriverPushTokenById(previousItemResult.Value.RouteList.Driver.Id);
+			var previousItemDriverFirebaseToken = isTransfer
+				? _employeeService.GetDriverPushTokenById(previousItemResult.Value.RouteList.Driver.Id)
+				: null;
 
 			var message = string.Empty;
 
 			var previousItemDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(previousItemDriverFirebaseToken);
 			var targetDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(targetDriverFirebaseToken);
 
-			if(!previousItemDriverFirebaseTokenFound)
+			if(isTransfer && !previousItemDriverFirebaseTokenFound)
 			{
 				message += $"Водитель из МЛ которого переносится заказ не будет оповещен.\n";
 			}
@@ -402,7 +413,8 @@ namespace DriverAPI.Controllers.V6
 				}
 			}
 
-			if(previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
+			if(isTransfer
+			   && previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
 			{
 				if(previousItemDriverFirebaseTokenFound)
 				{
@@ -410,22 +422,57 @@ namespace DriverAPI.Controllers.V6
 				}
 			}
 
-			var sourceDriverFirebaseToken = _employeeService.GetDriverPushTokenById(source.Value.RouteList.Driver.Id);
+			var sourceDriverFirebaseToken = isTransfer
+				? _employeeService.GetDriverPushTokenById(source.Value.RouteList.Driver.Id)
+				: null;
+			
+			var data = new Dictionary<string, string>
+			{
+				{ "EvetType", pushNotificationDataEventType.ToString() },
+				{ "RouteListId ", targetAddress.RouteList.Id.ToString()  }
+			};
+
+			var notificationMessageFrom = string.Empty;
+
+			switch(pushNotificationDataEventType)
+			{
+				case PushNotificationDataEventType.TransferAddress:
+					notificationMessageFrom =
+						targetAddress.AddressTransferType == AddressTransferType.FromHandToHand
+							? $"Заказ №{orderId} необходимо передать другому водителю"
+							: $"Состав вашего маршрутного листа был изменен";
+					break;
+				case PushNotificationDataEventType.RouteListContentChanged:
+					notificationMessageFrom = $"Состав вашего маршрутного листа был изменен";
+					break;
+			}
 
 			var sourceDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(sourceDriverFirebaseToken);
 
 			if(sourceDriverFirebaseTokenFound)
 			{
-				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", $"Заказ №{orderId} необходимо передать другому водителю");
+				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", notificationMessageFrom);
 			}
-			else
+			else if(isTransfer)
 			{
 				message += $"Водитель источника переноса заказа не будет оповещен.\n";
 			}
 
+			var notificationMessageTo = string.Empty;
+
+			switch(pushNotificationDataEventType)
+			{
+				case PushNotificationDataEventType.TransferAddress:
+					notificationMessageTo = $"Вам передан заказ №{orderId}";
+					break;
+				case PushNotificationDataEventType.RouteListContentChanged:
+					notificationMessageTo = $"Состав вашего маршрутного листа был изменен";
+					break;
+			}
+
 			if(targetDriverFirebaseTokenFound)
 			{
-				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", $"Вам передан заказ №{orderId}");
+				await _firebaseCloudMessagingService.SendMessage(targetDriverFirebaseToken, "Веселый водовоз", notificationMessageTo, data);
 			}
 
 			if(message == string.Empty)

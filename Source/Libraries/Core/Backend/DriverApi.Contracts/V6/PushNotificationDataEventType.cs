@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace DriverApi.Contracts.V5
+namespace DriverApi.Contracts.V6
 {
 	/// <summary>
 	/// Тип события для уведомлений
