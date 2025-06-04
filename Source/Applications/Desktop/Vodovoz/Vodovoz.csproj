@@ -2092,6 +2092,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
     <Compile Include="Views\Edo\TenderEdoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
+    <Compile Include="Goods\Recomendations\RecomendationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Goods.Recomendations.RecomendationView.cs" />
+    <Compile Include="Goods\Recomendations\RecomendationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Goods.Recomendations.RecomendationFilterView.cs" />
     <Compile Include="Views\TrueMark\OrderCodesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
   </ItemGroup>
@@ -2103,6 +2107,8 @@
     <Folder Include="Cash\Payments\" />
     <Folder Include="Dialogs\Cash\Payments\" />
     <Folder Include="Views\Edo\" />
+    <Folder Include="Goods\" />
+    <Folder Include="Goods\Recomendations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
