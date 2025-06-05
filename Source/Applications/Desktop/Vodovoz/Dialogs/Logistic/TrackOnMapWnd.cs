@@ -3,6 +3,7 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
+using Microsoft.Extensions.Logging;
 using Polylines;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -25,7 +26,7 @@ namespace Dialogs.Logistic
 {
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<TrackOnMapWnd> _logger = ScopeProvider.Scope.Resolve<ILogger<TrackOnMapWnd>>();
 		private readonly ITrackRepository _trackRepository = ScopeProvider.Scope.Resolve<ITrackRepository>();
 		private readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
 
@@ -340,7 +341,7 @@ namespace Dialogs.Logistic
 				
 				if(distance > 0.5)
 				{
-					_logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					_logger.LogInformation("Найден разрыв в треке расстоянием в {Distance}", distance);
 					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
@@ -365,7 +366,7 @@ namespace Dialogs.Logistic
 					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
-						_logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
+						_logger.LogInformation("В разрыве найдены выполенные адреса порядковый(е) номер(а) {IndexesInRoute}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));

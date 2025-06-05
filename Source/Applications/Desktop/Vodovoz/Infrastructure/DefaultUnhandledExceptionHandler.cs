@@ -8,6 +8,7 @@ using QS.Project.Versioning;
 using Vodovoz.Views;
 using Vodovoz.Tools;
 using QS.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Infrastructure
 {
@@ -30,13 +31,15 @@ namespace Vodovoz.Infrastructure
 	/// </summary>
 	public class DefaultUnhandledExceptionHandler
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<DefaultUnhandledExceptionHandler> _logger;
 
 		public DefaultUnhandledExceptionHandler(
+			ILogger<DefaultUnhandledExceptionHandler> logger,
 			IErrorMessageModelFactory errorMessageModelFactory,
 			IApplicationInfo applicationInfo, 
 			IInteractiveService interactiveService = null
 		){
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ErrorMessageModelFactory = errorMessageModelFactory ?? throw new ArgumentNullException(nameof(errorMessageModelFactory));
 			ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 			InteractiveService = interactiveService;
@@ -71,7 +74,7 @@ namespace Vodovoz.Infrastructure
 			if(GuiThread == Thread.CurrentThread) {
 				RealErrorMessage(ex);
 			} else {
-				logger.Debug("From Another Thread");
+				_logger.LogDebug("From Another Thread");
 				Gtk.Application.Invoke(delegate {
 					RealErrorMessage(ex);
 				});
@@ -89,15 +92,15 @@ namespace Vodovoz.Infrastructure
 						}
 					}
 					catch(Exception ex) {
-						logger.Error(ex, "Ошибка в CustomErrorHandler");
+						_logger.LogError(ex, "Ошибка в CustomErrorHandler");
 					}
 				}
 			}
 			if(errorMessageViewModel != null) {
-				logger.Debug("Добавляем исключение в уже созданное окно.");
+				_logger.LogDebug("Добавляем исключение в уже созданное окно.");
 				errorMessageViewModel.AddException(exception);
 			} else {
-				logger.Debug("Создание окна отправки отчета о падении.");
+				_logger.LogDebug("Создание окна отправки отчета о падении.");
 				errorMessageViewModel = new ErrorMessageViewModel(ErrorMessageModelFactory.GetModel(), InteractiveService);
 				errorMessageViewModel.AddException(exception);
 
@@ -106,18 +109,18 @@ namespace Vodovoz.Infrastructure
 				errView.Run();
 				errView.Destroy();
 				errorMessageViewModel = null;
-				logger.Debug("Окно отправки отчета, уничтожено.");
+				_logger.LogDebug("Окно отправки отчета, уничтожено.");
 			}
 		}
 
 		private void OnApplcationException(object sender, UnhandledExceptionEventArgs e)
 		{
-			logger.Fatal((Exception)e.ExceptionObject, "Поймано необработаное исключение в Application Domain.");
+			_logger.LogCritical((Exception)e.ExceptionObject, "Поймано необработаное исключение в Application Domain.");
 			ErrorMessage((Exception)e.ExceptionObject);
 		}
 		private void OnGtkException(GLib.UnhandledExceptionArgs a)
 		{
-			logger.Fatal((Exception)a.ExceptionObject, "Поймано необработаное исключение в GTK.");
+			_logger.LogCritical((Exception)a.ExceptionObject, "Поймано необработаное исключение в GTK.");
 			ErrorMessage((Exception)a.ExceptionObject);
 		}
 	}
