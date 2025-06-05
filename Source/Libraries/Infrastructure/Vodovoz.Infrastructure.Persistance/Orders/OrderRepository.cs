@@ -2129,7 +2129,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				join driversScannedCode in uow.Session.Query<DriversScannedTrueMarkCode>() on orderItem.Id equals driversScannedCode.OrderItemId
 				where
 				order.Id == orderId
-				&& !driversScannedCode.IsProcessingCompleted
+				&& driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.None
 				select driversScannedCode.Id;
 
 			var driversScannedCodes = await query.ToListAsync(cancellationToken);
