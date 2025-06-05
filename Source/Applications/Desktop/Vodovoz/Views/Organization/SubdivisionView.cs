@@ -144,6 +144,7 @@ namespace Vodovoz.Views.Organization
 
 			ycheckArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanArchive, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonAddSubdiviionPermissions.BindCommand(ViewModel.AddSubdivisionPermissionsCommand);

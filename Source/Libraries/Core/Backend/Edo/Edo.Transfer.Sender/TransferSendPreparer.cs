@@ -1,9 +1,10 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
+using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Transfer.Sender
@@ -116,11 +118,35 @@ namespace Edo.Transfer.Sender
 			var gtins = await _uow.Session.QueryOver<GtinEntity>()
 				.ListAsync(cancellationToken);
 
-			var transferOrder = new TransferOrder();
-			transferOrder.Date = transferEdoTask.StartTime.Value;
-			transferOrder.Seller = new OrganizationEntity { Id = transferEdoTask.FromOrganizationId };
-			transferOrder.Customer = new OrganizationEntity { Id = transferEdoTask.ToOrganizationId };
+			if(!transferEdoTask.StartTime.HasValue)
+			{
+				await _edoProblemRegistrar
+				   .RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
+					   transferEdoTask,
+					   cancellationToken,
+					   Vodovoz.Core.Domain.Errors.Edo.TransferOrder.TransferOrderCreateDateMissing.Message);
 
+				return;
+			}
+
+			var transferOrderResult = TransferOrder.Create(
+				transferEdoTask.StartTime.Value,
+				new OrganizationEntity { Id = transferEdoTask.FromOrganizationId },
+				new OrganizationEntity { Id = transferEdoTask.ToOrganizationId });
+
+			var transferOrder = transferOrderResult.Match(
+				to => to,
+				async errors => await _edoProblemRegistrar
+					.RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
+						transferEdoTask,
+						cancellationToken,
+						string.Join(", ", errors.Select(e => e.Message))));
+
+			if(transferOrder == null)
+			{
+				return;
+			}
+		
 			var transferRequests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
@@ -128,7 +154,7 @@ namespace Edo.Transfer.Sender
 
 			var orderTaskIds = transferRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
-			await _uow.Session.QueryOver<DocumentEdoTask>()
+			await _uow.Session.QueryOver<IUpdEnventPositionsTask>()
 				.Fetch(SelectMode.Fetch, x => x.UpdInventPositions)
 				.WhereRestrictionOn(x => x.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
@@ -172,6 +198,16 @@ namespace Edo.Transfer.Sender
 								cancellationToken
 							);
 							break;
+						case EdoTaskType.Tender:
+							var tenderEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<TenderEdoTask>();
+							transferOrderTrueMarkCode = await CreateTransferCodeItem(
+								tenderEdoTask,
+								transferedItem,
+								groupGtins,
+								gtins,
+								cancellationToken
+							);
+							break;
 						case EdoTaskType.Receipt:
 							var receiptEdoTask = transferEdoRequest.Iteration.OrderEdoTask.As<ReceiptEdoTask>();
 							transferOrderTrueMarkCode = await CreateTransferCodeItem(
@@ -205,9 +241,10 @@ namespace Edo.Transfer.Sender
 
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 		}
+		
 
 		private async Task<TransferOrderTrueMarkCode> CreateTransferCodeItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			EdoTaskItem edoTaskItem,
 			IEnumerable<GroupGtinEntity> groupGtins,
 			IEnumerable<GtinEntity> gtins,
@@ -248,7 +285,7 @@ namespace Edo.Transfer.Sender
 		}
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			TrueMarkWaterGroupCode groupCode,
 			IEnumerable<GroupGtinEntity> groupGtins
 			)
@@ -269,7 +306,7 @@ namespace Edo.Transfer.Sender
 		}
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
-			DocumentEdoTask edoTask,
+			IUpdEnventPositionsTask edoTask,
 			TrueMarkWaterIdentificationCode individualCode,
 			IEnumerable<GtinEntity> gtins
 			)

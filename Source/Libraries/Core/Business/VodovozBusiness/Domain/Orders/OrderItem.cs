@@ -234,9 +234,9 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscountReason = DiscountReason;
 				OriginalDiscount = Discount;
 			}
-			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;
+			DiscountReason = null;
 
 			RecalculateVAT();
 		}
@@ -364,7 +364,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>
 			IsTrueMarkCodesMustBeAdded
-			&& Order.IsNeedIndividualSetOnLoad;
+			&& (Order.IsNeedIndividualSetOnLoad || Order.IsNeedIndividualSetOnLoadForTender);
 
 		#region IOrderItemWageCalculationSource implementation
 

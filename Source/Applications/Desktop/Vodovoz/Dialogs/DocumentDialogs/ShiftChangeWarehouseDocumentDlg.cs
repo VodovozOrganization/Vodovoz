@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -32,13 +32,14 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Autofac;
 using QS.Report;
 using Vodovoz.Core.Domain.Goods;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<ShiftChangeWarehouseDocumentDlg> _logger;
 
 		private IEmployeeRepository _employeeRepository;
 		private IStockRepository _stockRepository;
@@ -261,9 +262,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return false;
 			}
 
-			logger.Info("Сохраняем акт списания...");
+			_logger.LogInformation("Сохраняем акт списания...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 

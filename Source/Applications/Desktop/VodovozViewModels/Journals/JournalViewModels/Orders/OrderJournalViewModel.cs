@@ -638,15 +638,15 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			var edoUpdLastRecordDateByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
+			var edoUpdLastRecordIdByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
 				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
 				.And(() => innerEdoContainerAlias.Type == Type.Upd)
-				.Select(Projections.Max(()=> innerEdoContainerAlias.Created));
+				.Select(Projections.Max(()=> innerEdoContainerAlias.Id));
 
 			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
 					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
 					.And(() => edoContainerAlias.Type == Type.Upd)
-					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
+					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 
 			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)

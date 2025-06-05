@@ -83,6 +83,9 @@ namespace Edo.Scheduler.Service
 				case EdoTaskType.Document:
 					message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 					break;
+				case EdoTaskType.Tender:
+					message = new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id };
+					break;
 				case EdoTaskType.Withdrawal:
 					message = new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = edoTask.Id };
 					break;
@@ -105,7 +108,6 @@ namespace Edo.Scheduler.Service
 			{
 				await _messageBus.Publish(message, cancellationToken);
 			}
-			
 		}
 
 		public void Dispose()

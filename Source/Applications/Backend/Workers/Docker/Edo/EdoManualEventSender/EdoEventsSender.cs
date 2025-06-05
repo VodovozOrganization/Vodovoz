@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MassTransit;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
@@ -34,6 +34,7 @@ namespace EdoManualEventSender
 			Console.WriteLine("12. SaveCodesTaskCreatedEvent:");
 			Console.WriteLine("13. ReceiptTaskCreatedEvent:");
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
+			Console.WriteLine("15. TransferCompleteEvent (Tender):");
 			Console.WriteLine("15. WithdrawalTaskCreatedEvent:");
 			Console.WriteLine();
 
@@ -83,6 +84,9 @@ namespace EdoManualEventSender
 					break;
 				case 14:
 					SendReceiptReadyToSendEvent();
+					break;
+				case 15:
+					SendTransferCompleteTenderEvent();
 					break;
 				case 15:
 					SendWithdrawalTaskCreatedEvent();
@@ -215,6 +219,25 @@ namespace EdoManualEventSender
 			{
 				TransferIterationId = id,
 				TransferInitiator = TransferInitiator.Document
+			}).Wait();
+		}
+		
+		private void SendTransferCompleteTenderEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Завершение трансфера для Тендера");
+			Console.WriteLine("Необходимо ввести Id итерации трансфера (edo_transfer_request_iterations)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new TransferCompleteEvent
+			{
+				TransferIterationId = id,
+				TransferInitiator = TransferInitiator.Tender
 			}).Wait();
 		}
 

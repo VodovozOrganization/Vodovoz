@@ -21,6 +21,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Mango;
@@ -46,6 +47,14 @@ namespace Mango.Service
 				.ConfigureServices((hostContext, services) =>
 				{
 					var configuration = hostContext.Configuration;
+					services.AddMappingAssemblies(
+						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+						typeof(QS.Banks.Domain.Bank).Assembly,
+						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+						typeof(QS.HistoryLog.HistoryMain).Assembly,
+						typeof(EmployeeWithLoginMap).Assembly,
+						typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly);
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddNotTrackedUoW();
@@ -92,15 +101,19 @@ namespace Mango.Service
 								{
 									rabbitHostCfg.Username(messageSettings.Username);
 									rabbitHostCfg.Password(messageSettings.Password);
-									rabbitHostCfg.UseSsl(ssl =>
-									{
-										if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
-										{
-											ssl.AllowPolicyErrors(allowedPolicyErrors);
-										}
 
-										ssl.Protocol = SslProtocols.Tls12;
-									});
+									if(messageSettings.UseSSL)
+									{
+										rabbitHostCfg.UseSsl(ssl =>
+										{
+											if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+											{
+												ssl.AllowPolicyErrors(allowedPolicyErrors);
+											}
+
+											ssl.Protocol = SslProtocols.Tls12;
+										});
+									}
 								}
 							);
 

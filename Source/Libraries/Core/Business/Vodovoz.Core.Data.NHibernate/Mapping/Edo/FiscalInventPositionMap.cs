@@ -36,6 +36,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.RegulatoryDocument)
 				.Column("regulatory_document_id");
 
+			References(x => x.GroupCode)
+				.Column("group_code_id");
+
 			Map(x => x.IndustryRequisiteData)
 				.Column("industry_requisite_data");
 

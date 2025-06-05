@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1531,6 +1531,22 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool IsOrderForResale =>
 			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - госзакупки
+		/// </summary>
+		public virtual bool IsOrderForTender =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Tender;
+		
+		/// <summary>
+		/// Проверка на госзаказ
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// (сканировать марки на складе для отправки документов в статусе заказа "В Пути")
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoadForTender =>
+			IsOrderForTender
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+			&& PaymentType == PaymentType.Cashless;
 
 		#endregion
 
@@ -2980,7 +2996,9 @@ namespace Vodovoz.Domain.Orders
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
+			if(OrderStatus == OrderStatus.Accepted
+				&& permissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
+			{
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
 			}
@@ -4026,7 +4044,12 @@ namespace Vodovoz.Domain.Orders
 
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
-			ParseTareReason();
+			
+			if(TareNonReturnReason is null)
+			{
+				ParseTareReason();
+			}
+			
 			ClearPromotionSets();
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);

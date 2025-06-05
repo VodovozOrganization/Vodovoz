@@ -87,11 +87,12 @@ namespace Edo.Common
 				case EdoTaskType.Receipt:
 					initiator = TransferInitiator.Receipt;
 					break;
+				case EdoTaskType.Tender:
+					initiator = TransferInitiator.Tender;
+					break;
 				default:
 					throw new NotSupportedException($"Тип задачи {edoTask.TaskType} не поддерживается.");
 			}
-
-			var documentTask = edoTask as DocumentEdoTask;
 
 			var transferIteration = new TransferEdoRequestIteration
 			{
