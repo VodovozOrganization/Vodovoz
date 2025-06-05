@@ -38,13 +38,7 @@ namespace CustomerOrdersApi.Controllers
 			
 			try
 			{
-				Logger.LogInformation(
-					"Поступил запрос от {Source} на применение фиксы для заказа {ExternalOrderId}" +
-					" пользователя {ExternalClientId} c подписью {Signature}, проверяем...",
-					sourceName,
-					applyFixedPriceDto.ExternalOrderId,
-					applyFixedPriceDto.ExternalCounterpartyId,
-					applyFixedPriceDto.Signature);
+				Logger.LogInformation("Поступил запрос на применение фиксы {@FixedPriceRequest}, проверяем...", applyFixedPriceDto);
 				
 				if(!_fixedPriceService.ValidateApplyingFixedPriceSignature(applyFixedPriceDto, out var generatedSignature))
 				{
@@ -56,6 +50,7 @@ namespace CustomerOrdersApi.Controllers
 
 				if(result.IsSuccess)
 				{
+					Logger.LogInformation("Отправляем ответ по фиксе: {@FixedPriceResponse}", result.Value);
 					return Ok(
 						new AppliedFixedPriceDto
 						{

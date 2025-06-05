@@ -27,15 +27,8 @@ namespace CustomerOrdersApi.Controllers
 			
 			try
 			{
-				Logger.LogInformation(
-					"Поступил запрос от {Source} на применение промокода {PromoCode} для заказа {ExternalOrderId}" +
-					" пользователя {ExternalClientId} c подписью {Signature}, проверяем...",
-					sourceName,
-					applyPromoCodeDto.PromoCode,
-					applyPromoCodeDto.ExternalOrderId,
-					applyPromoCodeDto.ExternalCounterpartyId,
-					applyPromoCodeDto.Signature);
-				
+				Logger.LogInformation("Поступил запрос на применение промокода {@PromoCodeRequest}, проверяем...", applyPromoCodeDto);
+
 				if(!_discountService.ValidateApplyingPromoCodeSignature(applyPromoCodeDto, out var generatedSignature))
 				{
 					return InvalidSignature(applyPromoCodeDto.Signature, generatedSignature);
@@ -46,10 +39,13 @@ namespace CustomerOrdersApi.Controllers
 
 				if(result.IsSuccess)
 				{
+					Logger.LogInformation("Отправляем ответ по промокоду: {@PromoCodeResponse}", result.Value);
 					return Ok(result.Value);
 				}
 
-				return NotFound(result.Errors.First().Message);
+				var notFoundResult = result.Errors.First().Message;
+				Logger.LogWarning("Промокод {PromoCode}: {@PromoCodeNotFound}", applyPromoCodeDto.PromoCode, notFoundResult);
+				return NotFound(notFoundResult);
 			}
 			catch(Exception e)
 			{
