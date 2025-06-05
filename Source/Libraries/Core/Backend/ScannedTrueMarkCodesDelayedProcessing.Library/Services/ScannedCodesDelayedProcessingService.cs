@@ -328,8 +328,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var isCodeHasDuplicate = false;
 				int codeDuplicatesCount = 0;
 
-				var newCodeStatus = driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New;
-				var newCodeProblem = driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+				var productCodeStatus = driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New;
+				var productCodeProblem = driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+
+				var driversScannedCodeStatus = DriversScannedTrueMarkCodeStatus.Succeed;
+				var driversScannedCodeError = DriversScannedTrueMarkCodeError.None;
 
 				try
 				{
@@ -347,8 +350,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 						if(isCodeHasDuplicate)
 						{
-							newCodeStatus = SourceProductCodeStatus.Problem;
-							newCodeProblem = ProductCodeProblem.Defect;
+							productCodeStatus = SourceProductCodeStatus.Problem;
+							productCodeProblem = ProductCodeProblem.Duplicate;
+
+							driversScannedCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+							driversScannedCodeError = DriversScannedTrueMarkCodeError.Duplicate;
 						}
 					}
 
@@ -357,11 +363,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						routeListAddress,
 						orderItemId,
 						trueMarkAnyCode,
-						newCodeStatus,
-						newCodeProblem);
+						productCodeStatus,
+						productCodeProblem);
 
-					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Succeed;
-					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.None;
+					driversScannedCode.DriversScannedTrueMarkCodeStatus = driversScannedCodeStatus;
+					driversScannedCode.DriversScannedTrueMarkCodeError = driversScannedCodeError;
 				}
 				catch(Exception ex)
 				{
