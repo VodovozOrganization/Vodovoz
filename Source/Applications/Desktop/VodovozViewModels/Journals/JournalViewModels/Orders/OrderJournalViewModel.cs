@@ -638,28 +638,28 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			var edoUpdLastRecordDateByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
+			var edoUpdLastRecordIdByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
 				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
 				.And(() => innerEdoContainerAlias.Type == Type.Upd)
-				.Select(Projections.Max(()=> innerEdoContainerAlias.Created));
+				.Select(Projections.Max(()=> innerEdoContainerAlias.Id));
 
 			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
 					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
 					.And(() => edoContainerAlias.Type == Type.Upd)
-					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
+					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 
 			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)
 				.JoinEntityAlias(
 					() => orderEdoRequestAlias2,
 					() => orderEdoRequestAlias2.Order.Id == orderEdoRequestAlias.Order.Id
-						&& orderEdoRequestAlias2.Time > orderEdoRequestAlias.Time,
+						&& orderEdoRequestAlias2.Id > orderEdoRequestAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoDocumentAlias, () => orderEdoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
 				.JoinEntityAlias(
 					() => orderEdoDocumentAlias2,
 					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
-						&& orderEdoDocumentAlias2.CreationTime > orderEdoDocumentAlias.CreationTime,
+						&& orderEdoDocumentAlias2.Id > orderEdoDocumentAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => orderEdoRequestAlias.Order.Id == orderAlias.Id)
 				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
