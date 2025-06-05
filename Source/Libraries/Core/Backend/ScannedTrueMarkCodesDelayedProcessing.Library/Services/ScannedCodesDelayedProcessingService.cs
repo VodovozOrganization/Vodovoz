@@ -122,22 +122,55 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				var scannedTrueMarkAnyCodesData = scannedTrueMarkAnyCodesDataResult.Value;
 
-				var notTrueMarkCodesRemoved =
+				scannedTrueMarkAnyCodesData =
+					await RemoveScannedCodesDuplicates(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				scannedTrueMarkAnyCodesData =
 					await RemoveNotTrueMarkCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 
-				var duplicatesRemoved =
-					await RemoveLowLevelCodesScannedDuplicates(uow, notTrueMarkCodesRemoved, cancellationToken);
+				scannedTrueMarkAnyCodesData =
+					await RemoveLowLevelCodesScannedDuplicates(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 
-				var existingTransportAndGroupCodesRemoved =
-					await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, duplicatesRemoved, cancellationToken);
+				scannedTrueMarkAnyCodesData =
+					await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 
 				await AddCodesToRouteListItem(
 					uow,
-					existingTransportAndGroupCodesRemoved,
+					scannedTrueMarkAnyCodesData,
 					routeListItemScannedCode.Key.RouteListAddress,
 					routeListItemScannedCode.Key.OrderItem.Id,
 					cancellationToken);
 			}
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveScannedCodesDuplicates(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var codesToRemove = codesData
+				.GroupBy(x => x.Key.RawCode)
+				.Where(g => g.Count() > 1)
+				.Select(g => g.Last())
+				.ToList();
+
+			foreach(var codeData in codesToRemove)
+			{
+				var driversScannedCode = codeData.Key;
+
+				_logger.LogInformation(
+					"Выбрасываем отсканированный водителем кода ЧЗ {ScannedCodeId} т.к. один и тот же код был отсканирован несколько раз",
+					driversScannedCode.Id);
+
+				driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Duplicate;
+
+				await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeData.Key);
+			}
+
+			return codesData;
 		}
 
 		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveNotTrueMarkCodes(
@@ -154,7 +187,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var driversScannedCode = codeData.Key;
 
 				_logger.LogInformation(
-					"Выбрасываем отсканированный водителем кода ЧЗ {ScannedCodeId} из-за отсутствия сведений о коде в ЧЗ",
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за отсутствия сведений о коде в ЧЗ",
 					driversScannedCode.Id);
 
 				driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
@@ -180,7 +213,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var driversScannedCode = codeData.Key;
 				var trueMarkAnyCode = codeData.Value;
 
-				var getSavedTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, driversScannedCode.RawCode);
+				var getSavedTrueMarkCodeResult =
+					_trueMarkWaterCodeService.GetSavedTrueMarkAnyCodesByScannedCodes(uow, driversScannedCode.RawCode);
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
@@ -199,7 +233,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			foreach(var codeToRemove in codesToRemove)
 			{
 				_logger.LogInformation(
-					"Выбрасываем отсканированный водителем кода ЧЗ {ScannedCodeId} из-за наличия кода в базе",
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за наличия кода в базе",
 					codeToRemove.Id);
 
 				codeToRemove.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
@@ -223,30 +257,34 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			foreach(var codeDataToCheck in codesData)
 			{
 				var allTrueMarkCodes = codeDataToCheck.Value.Match(
-					transportCode => transportCode.GetAllCodes(),
-					groupCode => groupCode.GetAllCodes(),
+					transportCode => transportCode.GetAllCodes().ToArray(),
+					groupCode => groupCode.GetAllCodes().ToArray(),
 					waterCode => new TrueMarkAnyCode[] { waterCode });
 
 				driverScannedCodesTrueMarkCodes.Add(codeDataToCheck.Key, allTrueMarkCodes);
 			}
 
-			foreach(var driverScannedCodeTrueMarkCodesToCheck in driverScannedCodesTrueMarkCodes)
+			foreach(var codeData in codesData)
 			{
-				var containsCodeFunc = TrueMarkAnyCodeListContainsCodeFunc(driverScannedCodeTrueMarkCodesToCheck.Value);
+				var containsCodeFunc = TrueMarkAnyCodeListContainsCodeFunc(codeData.Value);
 
-				var isCodeHasScannedHighLevelCode = driverScannedCodesTrueMarkCodes
-					.Where(x => x.Key.Id != driverScannedCodeTrueMarkCodesToCheck.Key.Id)
-					.Any(x => x.Value.Any(containsCodeFunc));
+				var otherTrueMarkAnyCodes = driverScannedCodesTrueMarkCodes
+					.Where(x => x.Key.Id != codeData.Key.Id)
+					.SelectMany(x => x.Value)
+					.ToList();
+
+				var isCodeHasScannedHighLevelCode = otherTrueMarkAnyCodes
+					.Any(containsCodeFunc);
 
 				if(!isCodeHasScannedHighLevelCode)
 				{
 					continue;
 				}
 
-				var driversScannedCodeToRemove = driverScannedCodeTrueMarkCodesToCheck.Key;
+				var driversScannedCodeToRemove = codeData.Key;
 
 				_logger.LogInformation(
-					"Удаление отсканированного водителем кода ЧЗ {ScannedCodeId} из-за наличия отсканированного кода более высокого уровня кода",
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за наличия отсканированного кода более высокого уровня кода",
 					driversScannedCodeToRemove.Id);
 
 				driversScannedCodeToRemove.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
@@ -254,15 +292,15 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				await uow.SaveAsync(driversScannedCodeToRemove, cancellationToken: cancellationToken);
 
-				codesData.Remove(driverScannedCodeTrueMarkCodesToCheck.Key);
+				codesData.Remove(codeData.Key);
 			}
 
 			return codesData;
 		}
 
-		private Func<TrueMarkAnyCode, bool> TrueMarkAnyCodeListContainsCodeFunc(IEnumerable<TrueMarkAnyCode> codesList)
+		private Func<TrueMarkAnyCode, bool> TrueMarkAnyCodeListContainsCodeFunc(TrueMarkAnyCode code)
 		{
-			return c => codesList.Any(code => code.Match(
+			return c => code.Match(
 				transportCode => c.IsTrueMarkTransportCode
 					&& c.TrueMarkTransportCode.RawCode == transportCode.RawCode,
 				groupCode => c.IsTrueMarkWaterGroupCode
@@ -270,7 +308,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					&& c.TrueMarkWaterGroupCode.SerialNumber == groupCode.SerialNumber,
 				waterCode => c.IsTrueMarkWaterIdentificationCode
 					&& c.TrueMarkWaterIdentificationCode.GTIN == waterCode.GTIN
-					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber));
+					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber);
 		}
 
 

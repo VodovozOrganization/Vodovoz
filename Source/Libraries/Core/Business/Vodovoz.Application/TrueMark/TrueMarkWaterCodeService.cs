@@ -830,36 +830,12 @@ namespace Vodovoz.Application.TrueMark
 			return requestCodes;
 		}
 
-		private IDictionary<string, List<TrueMarkAnyCode>> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes)
+		public Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode)
 		{
-			var uniqueScannedCodes = scannedCodes.Distinct().ToList();
-			var savedCodesData = new Dictionary<string, List<TrueMarkAnyCode>>();
-
-			foreach(var scannedCode in uniqueScannedCodes)
-			{
-				var savedCodes = new List<TrueMarkAnyCode>();
-
-				var result =
-					_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode)
-					? TryGetSavedTrueMarkCodeByScannedCode(uow, parsedCode)
-					: TryGetSavedTrueMarkCodeByScannedCode(uow, scannedCode);
-
-				if(result.IsFailure)
-				{
-					continue;
-				}
-
-				IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = result.Value.Match(
-					transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
-					groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-					waterCode => new TrueMarkAnyCode[] { waterCode });
-
-				savedCodes.AddRange(trueMarkAnyCodes);
-
-				savedCodesData.Add(scannedCode, savedCodes);
-			}
-
-			return savedCodesData;
+			return
+				_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode)
+				? TryGetSavedTrueMarkCodeByScannedCode(uow, parsedCode)
+				: TryGetSavedTrueMarkCodeByScannedCode(uow, scannedCode);
 		}
 
 		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
