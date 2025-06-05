@@ -44,7 +44,7 @@ namespace CustomerOrdersApi.Controllers
 				}
 
 				var notFoundResult = result.Errors.First().Message;
-				Logger.LogWarning("Промокод {PromoCode}: {@PromoCodeNotFound}", applyPromoCodeDto.PromoCode, notFoundResult);
+				Logger.LogWarning("Промокод {PromoCode}: {PromoCodeNotFound}", applyPromoCodeDto.PromoCode, notFoundResult);
 				return NotFound(notFoundResult);
 			}
 			catch(Exception e)
