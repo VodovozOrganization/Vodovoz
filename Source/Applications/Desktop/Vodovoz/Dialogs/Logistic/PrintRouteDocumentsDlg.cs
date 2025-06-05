@@ -30,8 +30,6 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		private Gdk.Pixbuf _vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
