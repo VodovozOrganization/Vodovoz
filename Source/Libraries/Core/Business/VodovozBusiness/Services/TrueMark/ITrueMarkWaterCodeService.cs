@@ -62,6 +62,14 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="scannedCodes">Строки отсканированных кодов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат со списком кодов ЧЗ</returns>
-		Task<Result<IList<TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
+		Task<Result<IDictionary<string, TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получает сохраненные коды ЧЗ по отсканированным кодам
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <returns>Результат</returns>
+		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
 	}
 }
