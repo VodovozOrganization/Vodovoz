@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -41,6 +41,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
 using VodovozBusiness.Services.TrueMark;
 
@@ -266,6 +267,25 @@ namespace Vodovoz
 			ybuttonScanCodes.Clicked +=	OnYbuttonScanCodesOnClicked;
 
 			ConfigureValidationContext(_validationContextFactory);
+
+			var buttonOpenOrderCodes = new Gamma.GtkWidgets.yButton();
+			buttonOpenOrderCodes.CanFocus = true;
+			buttonOpenOrderCodes.Name = "ybuttonOpenOrderCodes";
+			buttonOpenOrderCodes.UseUnderline = true;
+			buttonOpenOrderCodes.Label = Mono.Unix.Catalog.GetString("Просмотреть коды заказа");
+			hbox5.Add(buttonOpenOrderCodes);
+			var w8 = ((Box.BoxChild)(hbox5[buttonOpenOrderCodes]));
+			w8.PackType = PackType.End;
+			w8.Position = 4;
+			w8.Expand = false;
+			w8.Fill = false;
+			buttonOpenOrderCodes.Show();
+			buttonOpenOrderCodes.Clicked += OpenOrderCodesDialog;
+		}
+
+		private void OpenOrderCodesDialog(object sender, EventArgs e)
+		{
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, Entity.Id);
 		}
 
 		private void OnYbuttonScanCodesOnClicked(object sender, EventArgs e)

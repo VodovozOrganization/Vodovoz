@@ -11,6 +11,10 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Gtk;
+using QS.Journal.GtkUI;
+using QS.Navigation;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
 {
@@ -20,7 +24,11 @@ namespace Vodovoz
 		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+		private readonly INavigationManager _navigator = ScopeProvider.Scope.Resolve<INavigationManager>();
 		private bool _isCanEditDocument;
+
+		private Menu _itemsPopup = new Menu();
+		private MenuItem _itemsOpenOrderCodes = new MenuItem("Просмотр кодов по заказу");
 
 		public CarLoadDocumentView()
 		{
@@ -47,7 +55,42 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
+			ytreeviewItems.Add(_itemsPopup);
+			_itemsPopup.Add(_itemsOpenOrderCodes);
+			_itemsOpenOrderCodes.Show();
+			_itemsPopup.Show();
+			_itemsOpenOrderCodes.Activated += OpenOrderCodesDialog;
+			ytreeviewItems.ButtonReleaseEvent += OnAddressRightClick;
+
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		private void OnAddressRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+			var onlyOneSelected = ytreeviewItems.Selection.CountSelectedRows() == 1;
+			var selectedItem = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
+			var canOpen = selectedItem != null && selectedItem.OrderId.HasValue && onlyOneSelected;
+			_itemsOpenOrderCodes.Sensitive = canOpen;
+			_itemsPopup.Popup();
+		}
+
+		private void OpenOrderCodesDialog(object sender, EventArgs e)
+		{
+			var onlyOneSelected = ytreeviewItems.Selection.CountSelectedRows() == 1;
+			if(!onlyOneSelected)
+			{
+				return;
+			}
+			var selectedItem = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
+			if(selectedItem == null)
+			{
+				return;
+			}
+			_navigator.OpenViewModel<OrderCodesViewModel, int>(null, selectedItem.OrderId.Value);
 		}
 
 		public void FillItemsByWarehouse()

@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using QS.Commands;
+using QS.Journal.GtkUI;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using System;
@@ -32,6 +33,9 @@ namespace Vodovoz.Logistic
 		private RouteListKeepingItemNode _selectedItem;
 
 		public event RowActivatedHandler OnClosingItemActivated;
+
+		private Menu _addressesPopup = new Menu();
+		private MenuItem _addressesOpenOrderCodes = new MenuItem("Просмотр кодов по заказу");
 
 		public RouteListKeepingView(RouteListKeepingViewModel viewModel)
 			: base(viewModel)
@@ -324,6 +328,23 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.Items, w => w.ItemsDataSource)
 				.InitializeFromSource();
+			ytreeviewAddresses.Add(_addressesPopup);
+			_addressesPopup.Add(_addressesOpenOrderCodes);
+			_addressesOpenOrderCodes.Show();
+			_addressesPopup.Show();
+			_addressesOpenOrderCodes.Activated += (sender, e) => ViewModel.OpenOrderCodesCommand.Execute(null);
+			ytreeviewAddresses.ButtonReleaseEvent += OnAddressRightClick;
+		}
+
+		private void OnAddressRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_addressesOpenOrderCodes.Sensitive = ViewModel.OpenOrderCodesCommand.CanExecute(null);
+			_addressesPopup.Popup();
 		}
 
 		/// <summary>

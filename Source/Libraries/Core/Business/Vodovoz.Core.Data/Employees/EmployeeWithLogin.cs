@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Data.Employees
 		public virtual string Patronymic { get; }
 		public virtual IList<ExternalApplicationUserForApi> ExternalApplicationUsers { get; } = new List<ExternalApplicationUserForApi>();
 		public virtual string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+		public virtual string FullName => PersonHelper.PersonFullName(LastName, Name, Patronymic);
 
 		public static EmployeeWithLogin Create(int id, string name, string lastName, string patronymic)
 		{
