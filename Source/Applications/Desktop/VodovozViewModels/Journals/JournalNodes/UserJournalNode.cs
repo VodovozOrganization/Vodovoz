@@ -1,5 +1,5 @@
 ﻿using QS.Project.Journal;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.JournalNodes
 {

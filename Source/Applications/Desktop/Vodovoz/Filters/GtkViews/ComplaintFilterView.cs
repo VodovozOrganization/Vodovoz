@@ -1,5 +1,6 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalViewModels;

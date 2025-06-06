@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 using VodovozBusiness.Domain.Complaints;
 

@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz.ViewModels.Widgets.Users

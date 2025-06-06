@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Services;

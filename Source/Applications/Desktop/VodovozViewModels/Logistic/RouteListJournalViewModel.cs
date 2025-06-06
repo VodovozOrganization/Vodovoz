@@ -30,7 +30,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -51,6 +50,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Print.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -409,7 +409,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			var cashSubdivisionIds = _subdivisionRepository.GetCashSubdivisions(UoW).Select(x => x.Id);
 			var cashWarehouseIds = UoW.Session.QueryOver<Warehouse>()
-				.WhereRestrictionOn(x => x.OwningSubdivision.Id).IsInG(cashSubdivisionIds)
+				.WhereRestrictionOn(x => x.OwningSubdivisionId).IsInG(cashSubdivisionIds)
 				.Select(x => x.Id)
 				.List<int>();
 

@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 using VodovozInfrastructure.Configuration;
 using Vodovoz.Settings.Common;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Infrastructure.Services
 {

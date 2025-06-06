@@ -11,7 +11,7 @@ using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
 using System;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;

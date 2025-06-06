@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 {
@@ -21,6 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 	{
 		private readonly INavigationManager _navigationManager;
 		private readonly IUserRoleRepository _userRoleRepository;
+		private readonly IUserRoleService _userRoleService;
 		private readonly ILifetimeScope _scope;
 
 		public UsersJournalViewModel(
@@ -29,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IUserRoleRepository userRoleRepository,
+			IUserRoleService userRoleService,
 			ILifetimeScope scope,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false) 
@@ -37,6 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			TabName = "Журнал пользователей";
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
+			_userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 		}
 
@@ -99,6 +103,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			commonServices,
 			_navigationManager,
 			_userRoleRepository,
+			_userRoleService,
 			_scope.BeginLifetimeScope());
 
 		protected override Func<UserJournalNode, UserViewModel> OpenDialogFunction => (node) => new UserViewModel(
@@ -107,6 +112,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Users
 			commonServices,
 			_navigationManager,
 			_userRoleRepository,
+			_userRoleService,
 			_scope.BeginLifetimeScope());
 	}
 }

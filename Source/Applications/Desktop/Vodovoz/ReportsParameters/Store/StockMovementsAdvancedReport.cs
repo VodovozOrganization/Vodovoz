@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NHibernate.Transform;
@@ -12,12 +12,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ReportsParameters.Store
 {

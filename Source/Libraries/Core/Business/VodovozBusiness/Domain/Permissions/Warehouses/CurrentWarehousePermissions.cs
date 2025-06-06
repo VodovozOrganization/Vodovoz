@@ -5,7 +5,8 @@ using MoreLinq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Permissions.Warehouses

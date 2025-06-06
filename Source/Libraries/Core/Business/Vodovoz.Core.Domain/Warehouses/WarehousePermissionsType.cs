@@ -1,127 +1,107 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
+﻿using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
-namespace Vodovoz.Domain.Permissions.Warehouses
+namespace Vodovoz.Core.Domain.Warehouses
 {
-	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "Права на склад",
-		Nominative = "Право на склад")]
-	[EntityPermission]
-	public abstract class WarehousePermissionBase : PropertyChangedBase, IDomainObject
-	{
-		public virtual int Id { get; set; }
-
-		private PermissionType _permissionType;
-
-		[Display(Name = "Чьи права")]
-		public virtual PermissionType PermissionType
-		{
-			get => _permissionType;
-			set => SetField(ref _permissionType, value);
-		}
-
-		private WarehousePermissionsType _warehousePermissionType;
-
-		[Display(Name = "Права склада")]
-		public virtual WarehousePermissionsType WarehousePermissionType
-		{
-			get => _warehousePermissionType;
-			set => SetField(ref _warehousePermissionType, value);
-		}
-
-		private Warehouse _warehouse;
-
-		[Display(Name = "Склад")]
-		public virtual Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => SetField(ref _warehouse, value);
-		}
-
-		private bool? _permissionValue;
-
-		[Display(Name = "Значение")]
-		public virtual bool? PermissionValue
-		{
-			get => _permissionValue;
-			set => SetField(ref _permissionValue, value);
-		}
-	}
-
-	public enum PermissionType
-	{
-		User,
-		Subdivision
-	}
-
+	/// <summary>
+	/// Типы прав на склад.
+	/// </summary>
 	public enum WarehousePermissionsType
 	{
+		/// <summary>
+		/// Просмотр склада
+		/// </summary>
 		[Display(Name = "Просмотр склада")]
 		WarehouseView,
 
+		/// <summary>
+		/// Архивирование склада
+		/// </summary>
 		[Display(Name = "Архивирование склада")]
 		Archive,
 
+		/// <summary>
+		/// Изменение талона погрузки
+		/// </summary>
 		[Display(Name = "Изменение талона погрузки")]
 		[DocumentType(DocumentType.CarLoadDocument)]
 		CarLoadEdit,
 
+		/// <summary>
+		/// Изменение талона разгрузки
+		/// </summary>
 		[Display(Name = "Изменение талона разгрузки")]
 		[DocumentType(DocumentType.CarUnloadDocument)]
 		CarUnloadEdit,
 
+		/// <summary>
+		/// Создание входящей накладной
+		/// </summary>
 		[Display(Name = "Создание входящей накладной")]
 		[DocumentType(DocumentType.IncomingInvoice)]
 		IncomingInvoiceCreate,
 
+		/// <summary>
+		/// Изменение входящей накладной
+		/// </summary>
 		[Display(Name = "Изменение входящей накладной")]
 		[DocumentType(DocumentType.IncomingInvoice)]
 		IncomingInvoiceEdit,
 
+		/// <summary>
+		/// Изменение документа производства
+		/// </summary>
 		[Display(Name = "Изменение документа производства")]
 		[DocumentType(DocumentType.IncomingWater)]
 		IncomingWaterEdit,
 
+		/// <summary>
+		/// Изменение инвентаризации
+		/// </summary>
 		[Display(Name = "Изменение инвентаризации")]
 		[DocumentType(DocumentType.InventoryDocument)]
 		InventoryEdit,
 
+		/// <summary>
+		/// Создание акта передачи склада
+		/// </summary>
 		[Display(Name = "Создание акта передачи склада")]
 		[DocumentType(DocumentType.ShiftChangeDocument)]
 		ShiftChangeCreate,
 
+		/// <summary>
+		/// Изменение акта передачи склада
+		/// </summary>
 		[Display(Name = "Изменение акта передачи склада")]
 		[DocumentType(DocumentType.ShiftChangeDocument)]
 		ShiftChangeEdit,
 
+		/// <summary>
+		/// Изменение перемещения
+		/// </summary>
 		[Display(Name = "Изменение перемещения")]
 		[DocumentType(DocumentType.MovementDocument)]
 		MovementEdit,
 
+		/// <summary>
+		/// Изменение пересортицы
+		/// </summary>
 		[Display(Name = "Изменение пересортицы")]
 		[DocumentType(DocumentType.RegradingOfGoodsDocument)]
 		RegradingOfGoodsEdit,
 
+		/// <summary>
+		/// Изменение отпуск самовывоза
+		/// </summary>
 		[Display(Name = "Изменение отпуск самовывоза")]
 		[DocumentType(DocumentType.SelfDeliveryDocument)]
 		SelfDeliveryEdit,
 
+		/// <summary>
+		/// Изменение акта списания
+		/// </summary>
 		[Display(Name = "Изменение акта списания")]
 		[DocumentType(DocumentType.WriteoffDocument)]
 		WriteoffEdit
-	}
-
-	public class DocumentTypeAttribute : Attribute
-	{
-		public DocumentType Type { get; set; }
-
-		public DocumentTypeAttribute(DocumentType type)
-		{
-			Type = type;
-		}
 	}
 }

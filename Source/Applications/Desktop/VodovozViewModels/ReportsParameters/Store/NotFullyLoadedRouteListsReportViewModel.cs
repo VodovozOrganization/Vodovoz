@@ -9,7 +9,7 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Warehouses;
