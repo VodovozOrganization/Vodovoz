@@ -254,7 +254,7 @@ namespace DriverAPI.Library.V5.Services
 					address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
-			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address, true);
 
 			if(sourceResult.IsFailure)
 			{
@@ -400,7 +400,7 @@ namespace DriverAPI.Library.V5.Services
 
 			foreach(var address in incomingAddresses)
 			{
-				var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+				var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address, true);
 
 				if(sourceResult.IsSuccess)
 				{

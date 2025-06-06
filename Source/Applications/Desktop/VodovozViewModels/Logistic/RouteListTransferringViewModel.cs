@@ -1,7 +1,12 @@
-﻿using Autofac;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using NPOI.HSSF.Record;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -11,12 +16,6 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -26,6 +25,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Errors.Common;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Services;
@@ -570,9 +570,11 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					#region Добавляемые принятые заказы (не переносимые из какого-либо МЛ)
 
-					var ordersIdsWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
+					var ordersWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
 						.Cast<RouteListItemNode>()
-						.Where(x => x.Order != null)
+						.Where(x => x.Order != null);
+
+					var ordersIdsWithTransferTypesWithoutRouteList = ordersWithTransferTypesWithoutRouteList
 						.ToDictionary(
 							x => x.OrderId,
 							x => x.AddressTransferType);
@@ -638,10 +640,11 @@ namespace Vodovoz.ViewModels.Logistic
 							ShowTransferInformation(addressesTransferResult.Value);
 						}
 
-						var selectedHandToHandNodes = selectedToTransferNodesWithRouteListAddresses
-							.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
+						var selectedToTransferNodes =
+							ordersWithTransferTypesWithoutRouteList
+							.Concat(selectedToTransferNodesWithRouteListAddresses);
 
-						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
+						NotifyOfTransferTransfered(selectedToTransferNodes);
 
 						return;
 					}
@@ -695,7 +698,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.ToList();
 
 			var driverApiClientRequestIsNotSuccess = errors
-				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Where(x => x.Code == DriverApiClient.RequestIsNotSuccess(x.Message))
 				.Select(x => x.Message)
 				.ToList();
 
@@ -756,9 +759,9 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.OrderId)
 				.ToList();
 
-			var selectedHandToHandNodes = SelectedTargetRouteListAddresses
-				.Cast<RouteListItemNode>()
-				.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
+			var selectedTargetAddresses = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>();
+
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " > возврат переноса адресов"))
 			{
@@ -795,7 +798,7 @@ namespace Vodovoz.ViewModels.Logistic
 							}
 						}
 
-						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
+						NotifyOfTransferTransfered(selectedTargetAddresses);
 					}
 
 					result.Match(
@@ -818,7 +821,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private void NotifyOfHandToHandTransferTransfered(IEnumerable<RouteListItemNode> selectedHandToHandNodes)
+		private void NotifyOfTransferTransfered(IEnumerable<RouteListItemNode> selectedHandToHandNodes)
 		{
 			if(!selectedHandToHandNodes.Any())
 			{
@@ -827,13 +830,19 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var notifyingErrors = new List<Error>();
 
-			var notifyingWarnings = new List<Error>();
-
-			foreach(var orderId in selectedHandToHandNodes.Select(x => x.OrderId))
+			foreach(var node in selectedHandToHandNodes)
 			{
 				try
 				{
-					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+					var isTransfer = node.RouteListItem != null;
+
+					var notificationRequest = new NotificationRouteListChangesRequest
+					{
+						OrderId = node.OrderId,
+						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TransferAddress : PushNotificationDataEventType.RouteListContentChanged
+					};
+
+					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{
@@ -841,12 +850,15 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
+						                                                  $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
+						                                                  $".{typeof(Errors.Common.DriverApiClient).Name}" +
+						                                                  $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
 				{
-					notifyingErrors.Add(Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
+					notifyingErrors.Add(DriverApiClient.RequestIsNotSuccess(ex.Message));
 				}
 			}
 
