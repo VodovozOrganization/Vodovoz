@@ -334,5 +334,28 @@ namespace Vodovoz.Views.TrueMark
 			_poolCopyCodes.Sensitive = ViewModel.CopyPoolCodesCommand.CanExecute(null);
 			_poolPopup.Popup();
 		}
+
+		protected override void OnDestroyed()
+		{
+			_driverPopup.Destroy();
+			_driverCopySourceCodes.Destroy();
+			_driverCopyResultCodes.Destroy();
+			_driverOpenDocument.Destroy();
+			_driverOpenAuthor.Destroy();
+			_warehousePopup.Destroy();
+			_warehouseCopySourceCodes.Destroy();
+			_warehouseCopyResultCodes.Destroy();
+			_warehouseOpenDocument.Destroy();
+			_warehouseOpenAuthor.Destroy();
+			_selfdeliveryPopup.Destroy();
+			_selfdeliveryCopySourceCodes.Destroy();
+			_selfdeliveryCopyResultCodes.Destroy();
+			_selfdeliveryOpenDocument.Destroy();
+			_selfdeliveryOpenAuthor.Destroy();
+			_poolPopup.Destroy();
+			_poolCopyCodes.Destroy();
+
+			base.OnDestroyed();
+		}
 	}
 }
