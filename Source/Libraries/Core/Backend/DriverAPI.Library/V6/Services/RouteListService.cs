@@ -269,7 +269,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlinePaymentNumber) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressIncomingTransferDto
 			{
@@ -313,7 +313,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlinePaymentNumber) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressOutgoingTransferDto
 			{

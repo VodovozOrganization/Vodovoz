@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -15,7 +15,8 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Models
 {
-	public class Stage2OrganizationProvider : IOrganizationProvider
+	//TODO: просмотреть класс на изменения и снести
+	public class Stage2OrganizationProvider// : IOrganizationProvider
 	{
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IOrderSettings _orderSettings;
@@ -96,7 +97,7 @@ namespace Vodovoz.Models
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;
 
 			return GetOrganizationForOrderParameters(uow, paymentType ?? order.PaymentType, isSelfDelivery, order.CreateDate,
-				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlineOrder);
+				order.OrderItems, paymentFrom ?? order.PaymentByCardFrom, order.DeliveryPoint?.District?.GeographicGroup, order.OnlinePaymentNumber);
 		}
 
 		private Organization GetOrganizationForOrderParameters(IUnitOfWork uow, PaymentType paymentType, bool isSelfDelivery,
@@ -238,6 +239,6 @@ namespace Vodovoz.Models
 		}
 
 		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
+			8; //paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationSettings.VodovozNorthOrganizationId;
 	}
 }

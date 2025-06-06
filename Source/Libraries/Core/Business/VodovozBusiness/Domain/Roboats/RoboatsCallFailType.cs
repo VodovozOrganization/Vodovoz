@@ -65,8 +65,12 @@ namespace Vodovoz.Domain.Roboats
 		IncorrectOrderInterval,
 		[Display (Name = "Неизвестное значение оплаты по терминалу")]
 		UnknownIsTerminalValue,
+		[Display (Name = "Неверное значение сдачи для заказа по наличке")]
+		IncorrectTrifleForCashOrder,
 		[Display (Name = "Таймаут открытого звонка")]
-		TimeOut
+		TimeOut,
+		[Display (Name = "Заказ содержит позиции, которые продаются от разных организаций")]
+		OrderHasGoodsSoldFromSeveralOrganizations
 	}
 
 	public class RoboatsCallFailTypeStringType : EnumStringType<RoboatsCallFailType> { }

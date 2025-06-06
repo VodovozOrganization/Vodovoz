@@ -6,7 +6,7 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display(Name = "Новый")]
 		New,
-		[Display(Name = "Заказ оформлен")]
+		[Display(Name = "Заказ(ы) оформлен(ы)")]
 		OrderPerformed,
 		[Display(Name = "Отменен")]
 		Canceled

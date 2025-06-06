@@ -35,11 +35,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			PaymentFromJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<PaymentFrom>()
-				.Left.JoinAlias(pf => pf.OrganizationForOnlinePayments, () => organizationAlias)
 				.SelectList(list =>
 					list.Select(pf => pf.Id).WithAlias(() => resultAlias.Id)
 						.Select(pf => pf.Name).WithAlias(() => resultAlias.Name)
-						.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 						.Select(pf => pf.IsArchive).WithAlias(() => resultAlias.IsArchive))
 				.TransformUsing(Transformers.AliasToBean<PaymentFromJournalNode>());
 

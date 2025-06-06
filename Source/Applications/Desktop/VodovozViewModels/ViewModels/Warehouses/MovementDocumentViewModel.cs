@@ -350,7 +350,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				e => e.CanDeleteItems,
 				() => CanDeleteItems);
 
-			//TODO неиспользуемое свойство CanSelectWarehouseTo
+			//TODO: неиспользуемое свойство CanSelectWarehouseTo
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
 			
 			SetPropertyChangeRelation(
