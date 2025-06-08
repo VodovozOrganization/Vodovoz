@@ -1,6 +1,7 @@
 ﻿using Polly;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -57,8 +58,14 @@ namespace TrueMarkApi.Client
 
 		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken)
 		{
-			(string Document, string Inn) documentData = (document, inn);
-			string content = JsonSerializer.Serialize(documentData);
+			var sendDocumentRequest = new SendDocumentDataRequest
+			{
+				Document = document,
+				Inn = inn
+			};
+
+			//(string Document, string Inn) documentData = (document, inn);
+			string content = JsonSerializer.Serialize(sendDocumentRequest);
 
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -79,7 +86,7 @@ namespace TrueMarkApi.Client
 			return documentId;
 		}
 
-		public async Task<CreatedDocumentInfoDto> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
+		public async Task<CreatedDocumentInfoDto> ReceiveDocument(string documentId, string inn, CancellationToken cancellationToken)
 		{
 			var endPoint = $"api/RecieveDocument?documentId={documentId}&&inn={inn}";
 
@@ -101,5 +108,17 @@ namespace TrueMarkApi.Client
 
 			return createdDocumentInfo;
 		}
+	}
+
+	public class SendDocumentDataRequest
+	{
+		/// <summary>
+		/// Документ
+		/// </summary>
+		public string Document { get; set; }
+		/// <summary>
+		/// Инн организации
+		/// </summary>
+		public string Inn { get; set; }
 	}
 }

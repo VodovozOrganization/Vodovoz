@@ -47,9 +47,9 @@ namespace TrueMark.Contracts.Documents
 
 		/// <summary>
 		/// Массив, содержащий список КИ / КиЗ
-		/// /// </summary>
-		/// [JsonPropertyName("products")]
-		public IEnumerable<string> Products { get; set; }
+		/// </summary>
+		[JsonPropertyName("products")]
+		public IEnumerable<ProductIndividualAccountingDto> Products { get; set; }
 
 		/// <summary>
 		/// Дата вывода из оборота

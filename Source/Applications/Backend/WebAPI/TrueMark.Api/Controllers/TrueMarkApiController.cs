@@ -23,6 +23,7 @@ using TrueMark.Api.Extensions;
 using TrueMark.Api.Contracts.Responses;
 using TrueMark.Api.Contracts.Requests;
 using TrueMark.Api.Contracts.Dto;
+using TrueMark.Contracts.Documents;
 
 namespace TrueMark.Api.Controllers;
 
@@ -306,7 +307,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<HttpResponseMessage> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"v3/true-api/lk/documents/create?pg=water";
+		var uri = $"lk/documents/create?pg=water";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
@@ -333,7 +334,10 @@ public class TrueMarkApiController : ControllerBase
 			var token = await _authorizationService.Login(certificateThumbPrint, inn);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-			return await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+			var responseMessage = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+			var documentId = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
+
+			return responseMessage;
 		}
 		catch(Exception e)
 		{

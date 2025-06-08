@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using MassTransit;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
@@ -88,7 +88,7 @@ namespace EdoManualEventSender
 				case 15:
 					SendTransferCompleteTenderEvent();
 					break;
-				case 15:
+				case 16:
 					SendWithdrawalTaskCreatedEvent();
 					break;
 				default:

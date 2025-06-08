@@ -58,7 +58,10 @@ namespace Edo.Withdrawal
 
 				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
 				{
-					throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена");
+					_logger.LogInformation(
+						$"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
+
+					return;
 				}
 
 				var order = withdrawalEdoTask.OrderEdoRequest?.Order;
@@ -74,12 +77,13 @@ namespace Edo.Withdrawal
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
-					.Get(uow, x => x.Order.Id == order.Id && x.IsSuccess)
+					.Get(uow, x => x.Order.Id == order.Id && (x.IsSuccess || (!x.IsSuccess && string.IsNullOrWhiteSpace(x.ErrorMessage))))
 					.Any();
 
 				if(isTrueMarkDocumentExists)
 				{
-					throw new InvalidOperationException($"Заказ {order.Id} уже имеет документ Честного знака, вывод из оборота невозможен");
+					throw new InvalidOperationException(
+						$"Заказ {order.Id} уже имеет успешный или необработанный документ Честного знака, вывод из оборота невозможен");
 				}
 				
 				var lastEdoDocflowStatus = _edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, order.Id)
@@ -89,7 +93,7 @@ namespace Edo.Withdrawal
 
 				if(lastEdoDocflowStatus is null || lastEdoDocflowStatus != EdoDocFlowStatus.Succeed)
 				{
-					throw new InvalidOperationException($"Заказ {order.Id} не имеет успешного документооборота, вывод из оборота невозможен");
+					//throw new InvalidOperationException($"Заказ {order.Id} не имеет успешного документооборота, вывод из оборота невозможен");
 				}
 				
 				var client = order.Client;
@@ -120,19 +124,18 @@ namespace Edo.Withdrawal
 						throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о кодах в ЧЗ");
 					}
 
-					var codesForDocument = productInstancesInfo.InstanceStatuses
+					var productInstansesForDocument = productInstancesInfo.InstanceStatuses
 						.Where(x => x.Status == ProductInstanceStatusEnum.Introduced)
-						.Select(x => x.IdentificationCode)
 						.ToList();
 
-					if(codesForDocument.Count == 0)
+					if(productInstansesForDocument.Count == 0)
 					{
 						throw new InvalidOperationException(
 							$"После проверки кодов в ЧЗ не найдено кодов со статусом \"В обороте\". " +
 							$"Тип задачи: {nameof(WithdrawalEdoTask)}. Id задачи: {withdrawalEdoTaskId}");
 					}
 
-					var document = CreateIndividualAccountingWithdrawalDocument(order, codesInOrder);
+					var document = CreateIndividualAccountingWithdrawalDocument(order, productInstansesForDocument);
 
 					var documentSendResponse =
 						_trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, order.Contract.Organization.INN, cancellationToken);
@@ -167,8 +170,15 @@ namespace Edo.Withdrawal
 			}
 		}
 
-		private string CreateIndividualAccountingWithdrawalDocument(OrderEntity order, IEnumerable<string> identificationCodes)
+		private string CreateIndividualAccountingWithdrawalDocument(OrderEntity order, IEnumerable<ProductInstanceStatus> codes)
 		{
+			var products = CreateProductIndividualAccountingDtos(order, codes).ToList();
+
+			if(!products.Any())
+			{
+				throw new InvalidOperationException($"Не удалось сформировать товары для вывода из оборота для заказа {order.Id}");
+			}
+
 			var productDocument = new ProductDocumentIndividualAccountingDto
 			{
 				Inn = order.Contract.Organization.INN,
@@ -179,12 +189,83 @@ namespace Edo.Withdrawal
 				DocumentNumber = order.Id.ToString(),
 				DocumentDate = order.DeliveryDate.Value,
 				PrimaryDocumentCustomName = "UTD",
-				Products = identificationCodes
+				Products = CreateProductIndividualAccountingDtos(order, codes).ToList()
 			};
 
 			var serializedProductDocument = JsonSerializer.Serialize(productDocument);
 
 			return serializedProductDocument;
+		}
+
+		private IEnumerable<ProductIndividualAccountingDto> CreateProductIndividualAccountingDtos(OrderEntity order, IEnumerable<ProductInstanceStatus> codes)
+		{
+			var products = new List<ProductIndividualAccountingDto>();
+
+			var gtinsCodes = codes
+				.GroupBy(c => c.Gtin)
+				.ToDictionary(x => x.Key, x => x.ToArray());
+
+			var nomenclaturesOrderItems = order.OrderItems
+				.GroupBy(x => x.Nomenclature)
+				.ToDictionary(x => x.Key, x => x.ToArray());
+
+			foreach(var nomenclatureOrderItems in nomenclaturesOrderItems)
+			{
+				var nomenclature = nomenclatureOrderItems.Key;
+				var orderItems = nomenclatureOrderItems.Value;
+
+				if(!nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
+				var nomenclatureGtins = nomenclature.Gtins.Select(x => x.GtinNumber).ToArray();
+
+				var nomenclatureCodes = gtinsCodes
+					.Where(x => nomenclatureGtins.Contains(x.Key))
+					.SelectMany(x => x.Value)
+					.ToList();
+
+				if(!nomenclatureCodes.Any())
+				{
+					continue;
+				}
+
+				var productsCount = orderItems.Sum(oi => oi.ActualCount ?? oi.Count);
+
+				var productsTotalCost = nomenclatureOrderItems.Value
+					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+
+				var productsCostPerItem = productsTotalCost / productsCount;
+
+				decimal addedCodesTotalCostSum = 0;
+
+				foreach(var code in nomenclatureCodes)
+				{
+					var productCost = productsCostPerItem;
+
+					if(addedCodesTotalCostSum + productCost > productsTotalCost)
+					{
+						productCost = productsTotalCost - addedCodesTotalCostSum;
+					}
+
+					if(productCost <= 0)
+					{
+						throw new InvalidOperationException(
+							$"Стоимость товара {nomenclature.Name} с кодом {code.IdentificationCode} не может быть меньше или равна нулю.");
+					}
+
+					addedCodesTotalCostSum += productCost;
+
+					products.Add(new ProductIndividualAccountingDto
+					{
+						TrueMarkCode = code.IdentificationCode,
+						ProductCost = productCost
+					});
+				}
+			}
+
+			return products;
 		}
 	}
 }
