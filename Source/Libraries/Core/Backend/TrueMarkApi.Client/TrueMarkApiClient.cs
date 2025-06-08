@@ -71,17 +71,16 @@ namespace TrueMarkApi.Client
 
 			var response = await _httpClient.PostAsync("api/SendIndividualAccountingWithdrawalDocument", httpContent, cancellationToken);
 
-			var documentId = await response.Content.ReadAsStringAsync();
-
 			if(!response.IsSuccessStatusCode)
 			{
 				throw new Exception(
 					$"Ошибка при отправке документа вывода из оборота в Честный Знак. " +
 					$"Документ: {document}. " +
 					$"ИНН: {inn}. " +
-					$"Код ошибки: {response.StatusCode}. " +
-					$"Ответ: {documentId}");
+					$"Код ошибки: {response.StatusCode}");
 			}
+
+			var documentId = await response.Content.ReadAsStringAsync();
 
 			return documentId;
 		}

@@ -53,27 +53,31 @@ namespace Edo.Withdrawal
 
 				if(withdrawalEdoTask is null)
 				{
-					throw new InvalidOperationException($"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} не найдена");
-				}
-
-				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
-				{
-					_logger.LogInformation(
-						$"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
-
-					return;
+					throw new InvalidOperationException(
+						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} не найдена. Вывод из оборота невозможен");
 				}
 
 				var order = withdrawalEdoTask.OrderEdoRequest?.Order;
 
 				if(order == null)
 				{
-					throw new InvalidOperationException($"Для задачи вывода из оборота с Id {withdrawalEdoTaskId} не найден заказ");
+					throw new InvalidOperationException(
+						$"Для задачи вывода из оборота с Id {withdrawalEdoTaskId} не найден заказ. Вывод из оборота невозможен");
 				}
 
 				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
 				{
-					throw new InvalidOperationException($"Заказ {order.Id} не по безналу, вывод из оборота невозможен");
+					throw new InvalidOperationException(
+						$"Заказ {order.Id} не по безналу. Вывод из оборота невозможен");
+				}
+
+				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
+				{
+					_logger.LogInformation(
+						"Задача вывода из оборота с Id {WithdrawalEdoTaskId} уже завершена, повторная обработка не требуется",
+						withdrawalEdoTaskId);
+
+					return;
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
@@ -82,25 +86,11 @@ namespace Edo.Withdrawal
 
 				if(isTrueMarkDocumentExists)
 				{
-					throw new InvalidOperationException(
-						$"Заказ {order.Id} уже имеет успешный или необработанный документ Честного знака, вывод из оборота невозможен");
-				}
-				
-				var lastEdoDocflowStatus = _edoDocflowRepository.GetEdoDocflowDataByOrderId(uow, order.Id)
-					.OrderByDescending(x => x.EdoRequestCreationTime)
-					.Select(x => x.EdoDocFlowStatus)
-					.FirstOrDefault();
+					_logger.LogInformation(
+						"Заказ {OrderId} уже имеет успешный или необработанный документ Честного знака для вывода из оборота, повторная обработка не требуется",
+						order.Id);
 
-				if(lastEdoDocflowStatus is null || lastEdoDocflowStatus != EdoDocFlowStatus.Succeed)
-				{
-					//throw new InvalidOperationException($"Заказ {order.Id} не имеет успешного документооборота, вывод из оборота невозможен");
-				}
-				
-				var client = order.Client;
-
-				if(order.Client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-				{
-					throw new InvalidOperationException($"Клиент {client.Name} зарегистрирован в Честном Знаке, вывод из оборота невозможен");
+					return;
 				}
 
 				var codesInOrder = withdrawalEdoTask.Items
@@ -111,8 +101,11 @@ namespace Edo.Withdrawal
 
 				if(codesInOrder.Count == 0)
 				{
-					throw new InvalidOperationException(
-						$"Задача {nameof(WithdrawalEdoTask)} с Id {withdrawalEdoTaskId} не содержит кодов для вывода из оборота");
+					_logger.LogInformation(
+						"Задача вывода из оборота с Id {WithdrawalEdoTaskId} не содержит кодов для вывода из оборота",
+						withdrawalEdoTaskId);
+
+					return;
 				}
 
 				try
@@ -147,12 +140,13 @@ namespace Edo.Withdrawal
 					_logger.LogError(ex, ex.Message);
 
 					withdrawalEdoTask.Status = EdoTaskStatus.Problem;
-					withdrawalEdoTask.Problems.Add(new EdoTaskProblem
+					withdrawalEdoTask.Problems.Add(new ExceptionEdoTaskProblem
 					{
 						Type = EdoTaskProblemType.Exception,
 						SourceName = "Вывод из оборота",
 						CreationTime = DateTime.Now,
-						State = TaskProblemState.Active
+						State = TaskProblemState.Active,
+						ExceptionMessage = ex.Message.Substring(0, 1000)
 					});
 				}
 
