@@ -1,8 +1,8 @@
 ﻿using Edo.Transport;
+using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using ScannedTrueMarkCodesDelayedProcessing.Library.Errors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -23,16 +25,20 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly ILogger<ScannedCodesDelayedProcessingService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly MessageService _messageService;
 
 		public ScannedCodesDelayedProcessingService(
 			ILogger<ScannedCodesDelayedProcessingService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
+			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			MessageService messageService)
 		{
 			_logger =
@@ -41,10 +47,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemTrueMarkProductCodesProcessingService =
 				routeListItemTrueMarkProductCodesProcessingService ?? throw new System.ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
+			_trueMarkWaterCodeService =
+				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoDocflowRepository =
 				edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_orderRepository =
 				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_productCodeRepository =
+				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_messageService =
 				messageService ?? throw new ArgumentNullException(nameof(messageService));
 		}
@@ -56,9 +66,15 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var scannedCodesData = await _edoDocflowRepository
 					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
 
+				if(!scannedCodesData.Any())
+				{
+					_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки");
+					return;
+				}
+
 				_logger.LogInformation("Обработка отсканированных кодов ЧЗ, количество: {Count}", scannedCodesData.Count());
 
-				await AddScannedCodesToRouteListItems(uow, scannedCodesData, cancellationToken);
+				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, cancellationToken);
 
 				var newEdoRequests = await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
 
@@ -76,7 +92,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
-		private async Task AddScannedCodesToRouteListItems(
+		private async Task CheckScannedCodesAndAddToRouteListItems(
 			IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
 			CancellationToken cancellationToken)
@@ -87,123 +103,322 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
 			{
-				var bottlesCodes = routeListItemScannedCode.Value
-				.Where(x => !x.IsDefective)
+				var scannedTrueMarkAnyCodesDataResult = await GetTrueMarkCodesByScannedCodes(
+				routeListItemScannedCode.Value,
+				cancellationToken);
+
+				if(scannedTrueMarkAnyCodesDataResult.IsFailure)
+				{
+					foreach(var driversScannedCode in routeListItemScannedCode.Value)
+					{
+						driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+						driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.TrueMarkApiRequestError;
+
+						await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+					}
+
+					continue;
+				}
+
+				var scannedTrueMarkAnyCodesData = scannedTrueMarkAnyCodesDataResult.Value;
+
+				scannedTrueMarkAnyCodesData =
+					await RemoveScannedCodesDuplicates(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				scannedTrueMarkAnyCodesData =
+					await RemoveNotTrueMarkCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				scannedTrueMarkAnyCodesData =
+					await RemoveLowLevelCodesScannedDuplicates(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				scannedTrueMarkAnyCodesData =
+					await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
+				await AddCodesToRouteListItem(
+					uow,
+					scannedTrueMarkAnyCodesData,
+					routeListItemScannedCode.Key.RouteListAddress,
+					routeListItemScannedCode.Key.OrderItem.Id,
+					cancellationToken);
+			}
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveScannedCodesDuplicates(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var codesToRemove = codesData
+				.GroupBy(x => x.Key.RawCode)
+				.Where(g => g.Count() > 1)
+				.Select(g => g.Last())
 				.ToList();
 
-				var addBottlesCodesResult = await AddBottlesCodesToRouteListItem(
-					routeListItemScannedCode.Key.RouteListAddress.Id,
-					routeListItemScannedCode.Key.OrderItem.Id,
-					bottlesCodes.Select(x => x.RawCode),
-					cancellationToken);
-				
-				var defectiveCodes = routeListItemScannedCode.Value
-					.Where(x => x.IsDefective)
+			foreach(var codeData in codesToRemove)
+			{
+				var driversScannedCode = codeData.Key;
+
+				_logger.LogInformation(
+					"Выбрасываем отсканированный водителем кода ЧЗ {ScannedCodeId} т.к. один и тот же код был отсканирован несколько раз",
+					driversScannedCode.Id);
+
+				driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Duplicate;
+
+				await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeData.Key);
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveNotTrueMarkCodes(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var codesToRemove = codesData
+				.Where(c => c.Value is null)
+				.ToList();
+
+			foreach(var codeData in codesToRemove)
+			{
+				var driversScannedCode = codeData.Key;
+
+				_logger.LogInformation(
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за отсутствия сведений о коде в ЧЗ",
+					driversScannedCode.Id);
+
+				driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.NotTrueMarkCode;
+
+				await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeData.Key);
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var codesToRemove = new List<DriversScannedTrueMarkCode>();
+
+			foreach(var codeData in codesData)
+			{
+				var driversScannedCode = codeData.Key;
+				var trueMarkAnyCode = codeData.Value;
+
+				var getSavedTrueMarkCodeResult =
+					_trueMarkWaterCodeService.GetSavedTrueMarkAnyCodesByScannedCodes(uow, driversScannedCode.RawCode);
+
+				if(getSavedTrueMarkCodeResult.IsFailure)
+				{
+					continue;
+				}
+
+				if(trueMarkAnyCode.IsTrueMarkTransportCode || trueMarkAnyCode.IsTrueMarkWaterGroupCode)
+				{
+					codesToRemove.Add(driversScannedCode);
+					continue;
+				}
+
+				codesData[driversScannedCode] = getSavedTrueMarkCodeResult.Value;
+			}
+
+			foreach(var codeToRemove in codesToRemove)
+			{
+				_logger.LogInformation(
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за наличия кода в базе",
+					codeToRemove.Id);
+
+				codeToRemove.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				codeToRemove.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Duplicate;
+
+				await uow.SaveAsync(codeToRemove, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeToRemove);
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveLowLevelCodesScannedDuplicates(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var driverScannedCodesTrueMarkCodes = new Dictionary<DriversScannedTrueMarkCode, IEnumerable<TrueMarkAnyCode>>();
+
+			foreach(var codeDataToCheck in codesData)
+			{
+				var allTrueMarkCodes = codeDataToCheck.Value.Match(
+					transportCode => transportCode.GetAllCodes().ToArray(),
+					groupCode => groupCode.GetAllCodes().ToArray(),
+					waterCode => new TrueMarkAnyCode[] { waterCode });
+
+				driverScannedCodesTrueMarkCodes.Add(codeDataToCheck.Key, allTrueMarkCodes);
+			}
+
+			foreach(var codeData in codesData)
+			{
+				var containsCodeFunc = TrueMarkAnyCodeListContainsCodeFunc(codeData.Value);
+
+				var otherTrueMarkAnyCodes = driverScannedCodesTrueMarkCodes
+					.Where(x => x.Key.Id != codeData.Key.Id)
+					.SelectMany(x => x.Value)
 					.ToList();
 
-				var addDefectiveCodesResult = await AddDefectiveCodesToRouteListItem(
-					routeListItemScannedCode.Key.RouteListAddress.Id,
-					routeListItemScannedCode.Key.OrderItem.Id,
-					defectiveCodes.Select(x => x.RawCode),
-					cancellationToken);
+				var isCodeHasScannedHighLevelCode = otherTrueMarkAnyCodes
+					.Any(containsCodeFunc);
 
-				foreach(var code in bottlesCodes)
+				if(!isCodeHasScannedHighLevelCode)
 				{
-					code.IsProcessingCompleted = addBottlesCodesResult.IsSuccess;
-					code.IsProcessingError = addBottlesCodesResult.IsFailure;
-					await uow.SaveAsync(code, cancellationToken: cancellationToken);
+					continue;
 				}
 
-				foreach(var code in defectiveCodes)
-				{
-					code.IsProcessingCompleted = addDefectiveCodesResult.IsSuccess;
-					code.IsProcessingError = addDefectiveCodesResult.IsFailure;
-					await uow.SaveAsync(code, cancellationToken: cancellationToken);
-				}
+				var driversScannedCodeToRemove = codeData.Key;
+
+				_logger.LogInformation(
+					"Выбрасываем отсканированный водителем код ЧЗ {ScannedCodeId} из-за наличия отсканированного кода более высокого уровня кода",
+					driversScannedCodeToRemove.Id);
+
+				driversScannedCodeToRemove.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+				driversScannedCodeToRemove.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.HighLevelCodesScanned;
+
+				await uow.SaveAsync(driversScannedCodeToRemove, cancellationToken: cancellationToken);
+
+				codesData.Remove(codeData.Key);
 			}
+
+			return codesData;
 		}
 
-		private async Task<Result> AddBottlesCodesToRouteListItem(
-			int routeListAddressId,
+		private Func<TrueMarkAnyCode, bool> TrueMarkAnyCodeListContainsCodeFunc(TrueMarkAnyCode code)
+		{
+			return c => code.Match(
+				transportCode => c.IsTrueMarkTransportCode
+					&& c.TrueMarkTransportCode.RawCode == transportCode.RawCode,
+				groupCode => c.IsTrueMarkWaterGroupCode
+					&& c.TrueMarkWaterGroupCode.GTIN == groupCode.GTIN
+					&& c.TrueMarkWaterGroupCode.SerialNumber == groupCode.SerialNumber,
+				waterCode => c.IsTrueMarkWaterIdentificationCode
+					&& c.TrueMarkWaterIdentificationCode.GTIN == waterCode.GTIN
+					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber);
+		}
+
+
+		private async Task AddCodesToRouteListItem(
+			IUnitOfWork uow,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			RouteListItemEntity routeListAddress,
 			int orderItemId,
-			IEnumerable<string> scannedCodes,
 			CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(AddBottlesCodesToRouteListItem)))
+			foreach(var codeData in codesData)
 			{
+				var driversScannedCode = codeData.Key;
+				var trueMarkAnyCode = codeData.Value;
+
+				var isCodeAlreadyExists = false;
+				var isCodeHasDuplicate = false;
+				int codeDuplicatesCount = 0;
+
+				var productCodeStatus = driversScannedCode.IsDefective ? SourceProductCodeStatus.Problem : SourceProductCodeStatus.New;
+				var productCodeProblem = driversScannedCode.IsDefective ? ProductCodeProblem.Defect : ProductCodeProblem.None;
+
+				var driversScannedCodeStatus = DriversScannedTrueMarkCodeStatus.Succeed;
+				var driversScannedCodeError = DriversScannedTrueMarkCodeError.None;
+
 				try
 				{
-					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
-
-					var addCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							scannedCodes,
-							SourceProductCodeStatus.New,
-							ProductCodeProblem.None);
-
-					if(addCodesResult.IsSuccess)
+					if(trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
 					{
-						await uow.CommitAsync(cancellationToken);
+						var identificationCode = trueMarkAnyCode.TrueMarkWaterIdentificationCode;
+						isCodeAlreadyExists = identificationCode.Id > 0;
+
+						if(isCodeAlreadyExists)
+						{
+							var codeDuplicates = GetProductCodesHavingRequiredResultCodeIds(uow, identificationCode.Id);
+							isCodeHasDuplicate = codeDuplicates.Any();
+							codeDuplicatesCount = codeDuplicates.Count();
+						}
+
+						if(isCodeHasDuplicate)
+						{
+							productCodeStatus = SourceProductCodeStatus.Problem;
+							productCodeProblem = ProductCodeProblem.Duplicate;
+
+							driversScannedCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+							driversScannedCodeError = DriversScannedTrueMarkCodeError.Duplicate;
+						}
 					}
 
-					return addCodesResult;
+					await _routeListItemTrueMarkProductCodesProcessingService.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+						uow,
+						routeListAddress,
+						orderItemId,
+						trueMarkAnyCode,
+						productCodeStatus,
+						productCodeProblem);
+
+					driversScannedCode.DriversScannedTrueMarkCodeStatus = driversScannedCodeStatus;
+					driversScannedCode.DriversScannedTrueMarkCodeError = driversScannedCodeError;
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(
 						ex,
-						"Ошибка при добавлении кодов бутылей к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
-						routeListAddressId,
+						"Ошибка при добавлении отсканированного водителем кода ЧЗ {ScannedCodeId} к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
+						driversScannedCode.Id,
+						routeListAddress.Id,
 						orderItemId);
 
-					return Result.Failure(DriversScannedCodes.AddingCodeToRouteListAddressError);
+					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
+					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Exception;
+				}
+				finally
+				{
+					await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
 				}
 			}
 		}
 
-		private async Task<Result> AddDefectiveCodesToRouteListItem(
-			int routeListAddressId,
-			int orderItemId,
-			IEnumerable<string> scannedCodes,
+		private async Task<Result<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>>> GetTrueMarkCodesByScannedCodes(
+			IEnumerable<DriversScannedTrueMarkCode> driversScannedCodes,
 			CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(AddBottlesCodesToRouteListItem)))
+			var rawScannedCodes = driversScannedCodes.Select(x => x.RawCode).Distinct().ToList();
+			var trueMarkAnyCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(rawScannedCodes, cancellationToken);
+
+			if(trueMarkAnyCodesDataResult.IsFailure)
 			{
-				try
+				return Result.Failure<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>>(trueMarkAnyCodesDataResult.Errors);
+			}
+
+			var driversScannedCodesData = new Dictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>();
+			var trueMarkAnyCodesData = trueMarkAnyCodesDataResult.Value;
+
+			foreach(var driversScannedCode in driversScannedCodes)
+			{
+				if(trueMarkAnyCodesData.TryGetValue(driversScannedCode.RawCode, out var trueMarkAnyCode))
 				{
-					var routeListAddress = uow.GetById<RouteListItemEntity>(routeListAddressId);
-
-					var addCodesResult =
-						await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemNoCodeStatusCheck(
-							uow,
-							routeListAddress,
-							orderItemId,
-							scannedCodes,
-							SourceProductCodeStatus.Problem,
-							ProductCodeProblem.Defect);
-
-					if(addCodesResult.IsSuccess && uow.HasChanges)
-					{
-						await uow.CommitAsync(cancellationToken);
-					}
-
-					return addCodesResult;
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(
-						ex,
-						"Ошибка при добавлении кодов дефектных бутылей к адресу маршрутного листа {RouteListAddressId}, строка закза {OrderItemId}",
-						routeListAddressId,
-						orderItemId);
-
-					return Result.Failure(DriversScannedCodes.AddingCodeToRouteListAddressError);
+					driversScannedCodesData.Add(driversScannedCode, trueMarkAnyCode);
 				}
 			}
+
+			return driversScannedCodesData;
 		}
+
+		private IEnumerable<TrueMarkProductCode> GetProductCodesHavingRequiredResultCodeIds(IUnitOfWork uow, int resultCodeId) =>
+			_productCodeRepository
+			.Get(uow, x => resultCodeId == x.ResultCode.Id)
+			.Distinct()
+			.ToList();
 
 		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
@@ -240,7 +455,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var order = routeListAddress.Order;
 
 			var isAllDriversScannedCodesInOrderProcessed =
-					orderDriversScannedCodes.All(x => x.IsProcessingCompleted || x.IsProcessingError);
+					orderDriversScannedCodes.All(x => x.DriversScannedTrueMarkCodeStatus != DriversScannedTrueMarkCodeStatus.None);
 
 			var existingEdoRequests = await _edoDocflowRepository
 				.GetOrderEdoRequestsByOrderId(uow, order.Id, cancellationToken);

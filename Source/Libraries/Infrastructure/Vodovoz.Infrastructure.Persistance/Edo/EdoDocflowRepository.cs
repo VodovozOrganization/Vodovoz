@@ -109,8 +109,9 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				join orderItem in uow.Session.Query<OrderItemEntity>() on driversScannedCode.OrderItemId equals orderItem.Id
 				join order in uow.Session.Query<OrderEntity>() on orderItem.Order.Id equals order.Id
 				where
-				!driversScannedCode.IsProcessingCompleted
-				&& !driversScannedCode.IsProcessingError
+					driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.None
+					|| (driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.Error
+						&& driversScannedCode.DriversScannedTrueMarkCodeError == DriversScannedTrueMarkCodeError.TrueMarkApiRequestError)
 				select new DriversScannedCodeDataNode
 				{
 					DriversScannedCode = driversScannedCode,

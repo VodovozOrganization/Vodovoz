@@ -338,11 +338,15 @@ namespace DriverAPI.Controllers.V6
 			{
 				return Problem("В запросе отсутствует номер заказа", statusCode: StatusCodes.Status202Accepted);
 			}
+			if(notificationRouteListChangesRequest?.PushNotificationDataEventType is null)
+			{
+				return Problem("В запросе отсутствует тип уведомления!", statusCode: StatusCodes.Status202Accepted);
+			}
 
 			switch(notificationRouteListChangesRequest.PushNotificationDataEventType)
 			{
-				case PushNotificationDataEventType.TransferAddress:
-					return await NotifyOfOrderTransfer(unitOfWork, orderId.Value);
+				case PushNotificationDataEventType.TransferAddressFromHandToHand:
+					return await NotifyOfOrderTransferFromHandToHand(unitOfWork, orderId.Value);
 				case PushNotificationDataEventType.RouteListContentChanged:
 					return await NotifyOfRouteListContentChangedAsync(unitOfWork, orderId.Value);
 			}
@@ -351,7 +355,7 @@ namespace DriverAPI.Controllers.V6
 				statusCode: StatusCodes.Status202Accepted);
 		}
 		
-		private async Task<IActionResult> NotifyOfOrderTransfer(
+		private async Task<IActionResult> NotifyOfOrderTransferFromHandToHand(
 			IUnitOfWork unitOfWork,
 			int orderId)
 		{
@@ -376,10 +380,8 @@ namespace DriverAPI.Controllers.V6
 				return Problem($"Не найден водитель цели переноса заказа {orderId}", statusCode: StatusCodes.Status400BadRequest);
 			}
 
-			var isFromHandToNandTransfer = targetAddress.AddressTransferType == AddressTransferType.FromHandToHand;
-
 			var targetDriverFirebaseToken = _employeeService.GetDriverPushTokenById(targetAddress.RouteList.Driver.Id);
-
+			
 			// Для промежуточных водителей
 			var sourceFromHandToHandWithTime =  _routeListService.FindTransferSource(unitOfWork, targetAddress);
 
@@ -409,7 +411,7 @@ namespace DriverAPI.Controllers.V6
 				message += $"Водитель которому переносится заказ не будет оповещен.\n";
 			}
 
-			if(isFromHandToNandTransfer && sourceFromHandToHandWithTime.IsFailure)
+			if(sourceFromHandToHandWithTime.IsFailure)
 			{
 				if(previousItemDriverFirebaseTokenFound)
 				{
@@ -432,7 +434,7 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			// Если предыдущий адрес не промежуточный
-			if(isFromHandToNandTransfer && previousItemResult.Value.RouteList.Id != sourceFromHandToHandWithTime.Value.RouteList.Id)
+			if(previousItemResult.Value.RouteList.Id != sourceFromHandToHandWithTime.Value.RouteList.Id)
 			{
 				if(previousItemDriverFirebaseTokenFound)
 				{
@@ -445,15 +447,19 @@ namespace DriverAPI.Controllers.V6
 				? $"Заказ №{orderId} необходимо передать другому водителю"
 				: $"Состав вашего маршрутного листа был изменен";
 			
-			var sourceDriverFirebaseToken = _employeeService.GetDriverPushTokenById(sourceFromHandToHandWithTime.Value.RouteList.Driver.Id);
-
-			var sourceDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(sourceDriverFirebaseToken);
-			
-			var resultSourceToken = isFromHandToNandTransfer ? sourceDriverFirebaseToken :previousItemDriverFirebaseToken;
-				
-			if(!string.IsNullOrEmpty(resultSourceToken))
+			var data = new Dictionary<string, string>
 			{
-				await _firebaseCloudMessagingService.SendMessage(resultSourceToken, "Веселый водовоз", notificationMessageFrom);
+				{ _eventTypeName, PushNotificationDataEventType.TransferAddressFromHandToHand.ToString() },
+				{ _routeListIdName, targetAddress.RouteList.Id.ToString() }
+			};
+			
+			var sourceDriverFirebaseToken = _employeeService.GetDriverPushTokenById(sourceFromHandToHandWithTime.Value.RouteList.Driver.Id);
+			
+			var sourceDriverFirebaseTokenFound = !string.IsNullOrWhiteSpace(sourceDriverFirebaseToken);
+				
+			if(sourceDriverFirebaseTokenFound)
+			{
+				await _firebaseCloudMessagingService.SendMessage(sourceDriverFirebaseToken, "Веселый водовоз", notificationMessageFrom, data);
 			}
 			else
 			{
@@ -461,12 +467,6 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			var notificationMessageTo = $"Вам передан заказ №{orderId}";
-
-			var data = new Dictionary<string, string>
-			{
-				{ _eventTypeName, PushNotificationDataEventType.TransferAddress.ToString() },
-				{ _routeListIdName, targetAddress.RouteList.Id.ToString() }
-			};
 
 			if(targetDriverFirebaseTokenFound)
 			{
@@ -484,6 +484,7 @@ namespace DriverAPI.Controllers.V6
 		private async Task<IActionResult> NotifyOfRouteListContentChangedAsync(IUnitOfWork unitOfWork, int orderId)
 		{
 			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
+
 
 			if(string.IsNullOrWhiteSpace(token))
 			{

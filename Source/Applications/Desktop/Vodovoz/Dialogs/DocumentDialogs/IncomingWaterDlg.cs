@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -25,7 +26,7 @@ namespace Vodovoz
 	public partial class IncomingWaterDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingWater>
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		static ILogger<IncomingWaterDlg> _logger;
 		private IEmployeeRepository _employeeRepository;
 		private IUserRepository _userRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
@@ -68,6 +69,7 @@ namespace Vodovoz
 
 		private void ResolveDependencies()
 		{
+			_logger = _lifetimeScope.Resolve<ILogger<IncomingWaterDlg>>();
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
@@ -189,9 +191,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			logger.Info("Сохраняем документ производства...");
+			_logger.LogInformation("Сохраняем документ производства...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 

@@ -178,7 +178,8 @@ namespace Vodovoz.ViewModels.Employees
 
 			SetPropertyChangeRelation(e => e.RouteList,
 				() => CanShowRequestRouteListMessage,
-				() => DateEditable);
+				() => DateEditable,
+				() => IsStandartFine);
 
 			OnEntityPropertyChanged(SetDefaultReason,
 				x => x.FineType);
