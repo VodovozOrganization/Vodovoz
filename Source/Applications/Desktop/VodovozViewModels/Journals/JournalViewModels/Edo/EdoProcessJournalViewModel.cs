@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly bool _userCanSentReceiptWasSaveCodes;
 
 		public EdoProcessJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -43,9 +44,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			MessageService messageService,
 			IUserService userService,
 			IClipboard clipboard,
-			IGtkTabsOpener gtkTabsOpener, INavigationManager navigation = null
+			IGtkTabsOpener gtkTabsOpener,
+			ICurrentPermissionService currentPermissionService,
+			INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+			
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
@@ -67,6 +75,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			CreateNodeActions();
 			CreatePopupActions();
+			
+			_userCanSentReceiptWasSaveCodes =
+				_userService.GetCurrentUser().IsAdmin
+				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CashReceipt.CanResendDuplicateReceipts);
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
@@ -94,8 +106,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var action = new JournalAction(
 				"Отправить чек, ушедший в сохранение кодов",
-				sensitive => sensitive.Any(),
-				visible => _userService.GetCurrentUser().IsAdmin,
+				sensitive => sensitive.Any() && sensitive.All(x =>
+					x is EdoProcessJournalNode edoTask
+					&& edoTask.OrderTaskType == EdoTaskType.Receipt
+					&& edoTask.OrderTaskReceiptStage == EdoReceiptStatus.SavedToPool
+					&& edoTask.OrderTaskStatus == EdoTaskStatus.Completed),
+				visible => _userCanSentReceiptWasSaveCodes,
 				async selected =>
 				{
 					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
