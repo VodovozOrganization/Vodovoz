@@ -63,7 +63,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<TrueMarkRegistrationResultDto> ParticipantRegistrationForWaterAsync(string inn)
 	{
-		var uri = $"participants?inns={inn}";
+		var uri = $"v3/true-api/participants?inns={inn}";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить статус регистрации учатниска.");
@@ -125,7 +125,7 @@ public class TrueMarkApiController : ControllerBase
 
 		var innString = string.Join("&inns=", inns);
 
-		var uri = $"participants?inns={innString}";
+		var uri = $"v3/true-api/participants?inns={innString}";
 
 		var response = await _httpClient.GetAsync(uri);
 
@@ -200,7 +200,7 @@ public class TrueMarkApiController : ControllerBase
 		CancellationToken cancellationToken
 		)
 	{
-		var uri = $"cises/info";
+		var uri = $"v3/true-api/cises/info";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
@@ -307,7 +307,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<HttpResponseMessage> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"lk/documents/create?pg=water";
+		var uri = $"v3/true-api/lk/documents/create?pg=water";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
