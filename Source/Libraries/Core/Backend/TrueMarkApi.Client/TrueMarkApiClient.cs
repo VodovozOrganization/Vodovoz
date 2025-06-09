@@ -58,27 +58,17 @@ namespace TrueMarkApi.Client
 
 		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken)
 		{
-			var sendDocumentRequest = new SendDocumentDataRequest
+			var sendDocumentRequest = new
 			{
 				Document = document,
 				Inn = inn
 			};
 
-			//(string Document, string Inn) documentData = (document, inn);
 			string content = JsonSerializer.Serialize(sendDocumentRequest);
-
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
 			var response = await _httpClient.PostAsync("api/SendIndividualAccountingWithdrawalDocument", httpContent, cancellationToken);
-
-			if(!response.IsSuccessStatusCode)
-			{
-				throw new Exception(
-					$"Ошибка при отправке документа вывода из оборота в Честный Знак. " +
-					$"Документ: {document}. " +
-					$"ИНН: {inn}. " +
-					$"Код ошибки: {response.StatusCode}");
-			}
+			response.EnsureSuccessStatusCode();
 
 			var documentId = await response.Content.ReadAsStringAsync();
 
@@ -90,16 +80,7 @@ namespace TrueMarkApi.Client
 			var endPoint = $"api/RecieveDocument?documentId={documentId}&&inn={inn}";
 
 			var response = await _httpClient.GetAsync(endPoint, cancellationToken);
-
-			if(!response.IsSuccessStatusCode)
-			{
-				throw new Exception(
-					$"Ошибка при получении статуса документа из Честного Знака. " +
-					$"Документ: {documentId}. " +
-					$"ИНН: {inn}. " +
-					$"Код ошибки: {response.StatusCode}. " +
-					$"Ошибка: {response.ReasonPhrase}");
-			}
+			response.EnsureSuccessStatusCode();
 
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var createdDocumentInfo = (await JsonSerializer.DeserializeAsync<IEnumerable<CreatedDocumentInfoDto>>(responseBody))
@@ -107,17 +88,5 @@ namespace TrueMarkApi.Client
 
 			return createdDocumentInfo;
 		}
-	}
-
-	public class SendDocumentDataRequest
-	{
-		/// <summary>
-		/// Документ
-		/// </summary>
-		public string Document { get; set; }
-		/// <summary>
-		/// Инн организации
-		/// </summary>
-		public string Inn { get; set; }
 	}
 }

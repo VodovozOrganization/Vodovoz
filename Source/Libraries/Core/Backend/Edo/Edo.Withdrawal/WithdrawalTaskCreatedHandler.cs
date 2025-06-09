@@ -57,6 +57,12 @@ namespace Edo.Withdrawal
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} не найдена. Вывод из оборота невозможен");
 				}
 
+				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
+				{
+					throw new InvalidOperationException(
+						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
+				}
+
 				var order = withdrawalEdoTask.OrderEdoRequest?.Order;
 
 				if(order == null)
@@ -65,23 +71,37 @@ namespace Edo.Withdrawal
 						$"Для задачи вывода из оборота с Id {withdrawalEdoTaskId} не найден заказ. Вывод из оборота невозможен");
 				}
 
+				var client = order.Client;
+
+				if(client.PersonType != PersonType.legal)
+				{
+					throw new InvalidOperationException(
+						$"Контрагент {client.Id} не является юридическим лицов. Вывод из оборота невозможен");
+				}
+
 				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
 				{
 					throw new InvalidOperationException(
 						$"Заказ {order.Id} не по безналу. Вывод из оборота невозможен");
 				}
 
-				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
+				if(client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 				{
-					_logger.LogInformation(
-						"Задача вывода из оборота с Id {WithdrawalEdoTaskId} уже завершена, повторная обработка не требуется",
-						withdrawalEdoTaskId);
+					throw new InvalidOperationException(
+						$"В карточке контрагента {client.Id} указана причина выбытия отличная от {ReasonForLeaving.ForOwnNeeds}. " +
+						$"Вывод из оборота невозможен");
+				}
 
-					return;
+				if(client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				{
+					throw new InvalidOperationException(
+						$"От клиента {client.Id} получено согласие на ЭДО и клиента зарегистрирован в ЧЗ. " +
+						$"Вывод из оборота невозможен");
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
-					.Get(uow, x => x.Order.Id == order.Id && (x.IsSuccess || (!x.IsSuccess && string.IsNullOrWhiteSpace(x.ErrorMessage))))
+					.Get(uow, x => x.Order.Id == order.Id && (x.IsSuccess || (!x.IsSuccess && x.ErrorMessage != null)))
 					.Any();
 
 				if(isTrueMarkDocumentExists)
@@ -107,6 +127,8 @@ namespace Edo.Withdrawal
 
 					return;
 				}
+
+				var errorMessage = string.Empty;
 
 				try
 				{
@@ -139,6 +161,8 @@ namespace Edo.Withdrawal
 				{
 					_logger.LogError(ex, ex.Message);
 
+					errorMessage = ex.Message.Substring(0, 1000);
+
 					withdrawalEdoTask.Status = EdoTaskStatus.Problem;
 					withdrawalEdoTask.Problems.Add(new ExceptionEdoTaskProblem
 					{
@@ -146,7 +170,7 @@ namespace Edo.Withdrawal
 						SourceName = "Вывод из оборота",
 						CreationTime = DateTime.Now,
 						State = TaskProblemState.Active,
-						ExceptionMessage = ex.Message.Substring(0, 1000)
+						ExceptionMessage = errorMessage
 					});
 				}
 
@@ -154,8 +178,9 @@ namespace Edo.Withdrawal
 				{
 					Order = order,
 					Guid = Guid.NewGuid(),
-					IsSuccess = false,
-					Organization = order.Contract.Organization
+					IsSuccess = string.IsNullOrEmpty(errorMessage),
+					Organization = order.Contract.Organization,
+					ErrorMessage = errorMessage
 				};
 
 				await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
@@ -213,24 +238,25 @@ namespace Edo.Withdrawal
 					continue;
 				}
 
-				var nomenclatureGtins = nomenclature.Gtins.Select(x => x.GtinNumber).ToArray();
-
-				var nomenclatureCodes = gtinsCodes
-					.Where(x => nomenclatureGtins.Contains(x.Key))
-					.SelectMany(x => x.Value)
-					.ToList();
-
-				if(!nomenclatureCodes.Any())
-				{
-					continue;
-				}
-
 				var productsCount = orderItems.Sum(oi => oi.ActualCount ?? oi.Count);
 
 				var productsTotalCost = nomenclatureOrderItems.Value
 					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
 
 				var productsCostPerItem = productsTotalCost / productsCount;
+				
+				var nomenclatureGtins = nomenclature.Gtins.Select(x => x.GtinNumber).ToArray();
+
+				var nomenclatureCodes = gtinsCodes
+					.Where(x => nomenclatureGtins.Contains(x.Key))
+					.SelectMany(x => x.Value)
+					.Take(products.Count)
+					.ToList();
+
+				if(!nomenclatureCodes.Any())
+				{
+					continue;
+				}
 
 				decimal addedCodesTotalCostSum = 0;
 
