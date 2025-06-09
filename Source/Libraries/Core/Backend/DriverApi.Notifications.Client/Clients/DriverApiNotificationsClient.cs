@@ -9,6 +9,7 @@ using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Logistics;
+using VodovozBusiness.NotificationSenders;
 using CommonErrors = Vodovoz.Errors.Common;
 
 namespace DriverApi.Notifications.Client.Clients
@@ -18,7 +19,7 @@ namespace DriverApi.Notifications.Client.Clients
 		IFastDeliveryOrderAddedNotificationSender,
 		IWaitingTimeChangedNotificationSender,
 		ICashRequestForDriverIsGivenForTakeNotificationSender,
-		IRouteListTransferHandByHandNotificationSender
+		IRouteListChangesNotificationSender
 	{
 		private readonly ILogger<DriverApiNotificationsClient> _logger;
 		private readonly IDriverApiSettings _driverApiSettings;
@@ -95,9 +96,9 @@ namespace DriverApi.Notifications.Client.Clients
 			}
 		}
 
-		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(NotificationRouteListChangesRequest changesRequest)
+		public async Task<Result> NotifyOfRouteListChanged(NotificationRouteListChangesRequest changesRequest)
 		{
-			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri, changesRequest))
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfRouteListChangedUri, changesRequest))
 			{
 				var responseBody = await response.Content.ReadAsStringAsync();
 

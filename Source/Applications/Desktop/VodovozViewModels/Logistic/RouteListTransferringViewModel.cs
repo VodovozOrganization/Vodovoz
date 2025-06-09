@@ -34,6 +34,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -56,7 +57,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IRouteListTransferHandByHandNotificationSender _routeListTransferHandByHandNotificationSender;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -114,7 +115,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListTransferHandByHandNotificationSender routeListTransferHandByHandNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -147,8 +148,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
 			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
-			_routeListTransferHandByHandNotificationSender = routeListTransferHandByHandNotificationSender
-				?? throw new ArgumentNullException(nameof(routeListTransferHandByHandNotificationSender));
+			_routeListChangesNotificationSender = routeListChangesNotificationSender
+				?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -842,7 +843,7 @@ namespace Vodovoz.ViewModels.Logistic
 						PushNotificationDataEventType = isTransfer ? PushNotificationDataEventType.TransferAddress : PushNotificationDataEventType.RouteListContentChanged
 					};
 
-					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+					var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{
@@ -851,9 +852,9 @@ namespace Vodovoz.ViewModels.Logistic
 					else
 					{
 						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
-						                                                  $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
-						                                                  $".{typeof(Errors.Common.DriverApiClient).Name}" +
-						                                                  $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+                          $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
+                          $".{typeof(Errors.Common.DriverApiClient).Name}" +
+                          $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)

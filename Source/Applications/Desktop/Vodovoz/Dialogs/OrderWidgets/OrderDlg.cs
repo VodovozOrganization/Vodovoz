@@ -1,6 +1,4 @@
 using Autofac;
-using DriverApi.Contracts.V5;
-using DriverApi.Contracts.V5.Requests;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -44,6 +42,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -99,7 +99,6 @@ using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
-using Vodovoz.NotificationRecievers;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
@@ -143,6 +142,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Core.Domain.Documents.Type;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz
 {
@@ -222,6 +222,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -4070,7 +4071,7 @@ namespace Vodovoz
 					PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
 				};
 
-				var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+				var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
 
 				if(!result.IsSuccess)
 				{

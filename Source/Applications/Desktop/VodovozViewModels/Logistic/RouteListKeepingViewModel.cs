@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
@@ -78,6 +79,7 @@ namespace Vodovoz
 			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -105,7 +107,8 @@ namespace Vodovoz
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
 			IEdoSettings edoSettings,
-			MessageService messageService)
+			MessageService messageService,
+			IRouteListChangesNotificationSender routeListChangesNotificationSender)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -127,7 +130,8 @@ namespace Vodovoz
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-			
+			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -610,7 +614,7 @@ namespace Vodovoz
 				PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
 			};
 
-			var result = _routeListTransferReciever.NotifyOfOrderWithGoodsTransferingIsTransfered(notificationRequest).GetAwaiter().GetResult();
+			var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
 
 			if(!result.IsSuccess)
 			{

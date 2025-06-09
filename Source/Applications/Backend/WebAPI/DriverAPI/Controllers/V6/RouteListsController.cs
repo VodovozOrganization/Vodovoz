@@ -268,6 +268,9 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverTransfersInfoResponse))]
+		
+		// Видимо для отображения только переносов из рук в руки (для фиксации времени передачи,
+		// нажатие в приложении кнопок "Заказ передан" / "Заказ получен")
 		public async Task<IActionResult> GetTransfersAsync()
 		{
 			_logger.LogInformation(
@@ -292,6 +295,8 @@ namespace DriverAPI.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListAddressIncomingTransferDto))]
+		// Видимо для отображения только переносов из рук в руки (для фиксации времени передачи,
+		// нажатие в приложении кнопок "Заказ передан" / "Заказ получен")
 		public IActionResult GetIncomingTransferInfo(int routeListAddressId)
 		{
 			_logger.LogInformation(

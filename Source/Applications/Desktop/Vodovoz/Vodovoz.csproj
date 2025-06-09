@@ -2398,6 +2398,10 @@
       <Project>{D3B6592D-6DCF-40F7-8627-3B4A6CBB040C}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj">
+      <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
+      <Name>DriverApi.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj">
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
