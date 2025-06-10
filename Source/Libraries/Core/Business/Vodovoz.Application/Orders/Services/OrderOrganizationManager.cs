@@ -104,17 +104,11 @@ namespace Vodovoz.Application.Orders.Services
 			return _orderOurOrganization.SplitOrderByOrganizations(uow, requestTime, organizationChoice);
 		}
 
-		public bool OrderHasGoodsFromSeveralOrganizations(
-			TimeSpan requestTime,
-			IList<int> nomenclatureIds,
-			bool isSelfDelivery,
-			PaymentType paymentType,
-			PaymentFrom paymentFrom)
+		public bool OrderHasGoodsFromSeveralOrganizations(IList<int> nomenclatureIds)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				return _organizationByOrderContentForOrderHandler.OrderHasGoodsFromSeveralOrganizations(
-					uow, requestTime, nomenclatureIds, isSelfDelivery, paymentType, paymentFrom);
+				return _organizationByOrderContentForOrderHandler.OrderHasGoodsFromSeveralOrganizations(uow, nomenclatureIds);
 			}
 		}
 	}

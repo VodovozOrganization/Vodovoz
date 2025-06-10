@@ -71,6 +71,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
 			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
+			.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
 			.AddTransient<OrderOurOrganizationForOrderHandler>()
 			.AddTransient<ContractOrganizationForOrderHandler>()
 			.AddTransient<OrganizationByOrderAuthorHandler>()

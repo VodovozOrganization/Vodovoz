@@ -17,6 +17,7 @@ namespace VodovozBusiness.Models.Orders
 		public DeliveryPoint DeliveryPoint { get; private set; }
 		public Organization OurOrganization { get; private set; }
 		public Organization ClientWorksThroughOrganization { get; private set; }
+		public Organization CurrentOrderOrganization { get; private set; }
 		public IEnumerable<IProduct> Goods { get; private set; }
 		public IEnumerable<OrderEquipment> OrderEquipments { get; private set; }
 		public IEnumerable<OrderDepositItem> OrderDepositItems { get; private set; }
@@ -24,6 +25,7 @@ namespace VodovozBusiness.Models.Orders
 		public PaymentType PaymentType { get; private set; }
 		public PaymentFrom PaymentFrom { get; private set; }
 		public int? OnlinePaymentNumber { get; private set; }
+		public bool IsSplitedOrder { get; private set; }
 
 		public static OrderOrganizationChoice Create(IUnitOfWork uow, IOrderSettings orderSettings, OnlineOrder onlineOrder)
 		{
@@ -40,13 +42,15 @@ namespace VodovozBusiness.Models.Orders
 				DeliveryPoint = onlineOrder.DeliveryPoint,
 				OurOrganization = null,
 				ClientWorksThroughOrganization = onlineOrder.Counterparty?.WorksThroughOrganization,
+				CurrentOrderOrganization = null,
 				Goods = onlineOrder.OnlineOrderItems,
 				OrderEquipments = new List<OrderEquipment>(),
 				OrderDepositItems = new List<OrderDepositItem>(),
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,
 				PaymentType = onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(),
 				PaymentFrom = paymentFrom,
-				OnlinePaymentNumber = onlineOrder.OnlinePayment
+				OnlinePaymentNumber = onlineOrder.OnlinePayment,
+				IsSplitedOrder = false
 			};
 		}
 
@@ -60,13 +64,15 @@ namespace VodovozBusiness.Models.Orders
 				DeliveryPoint = order.DeliveryPoint,
 				OurOrganization = order.OurOrganization,
 				ClientWorksThroughOrganization = order.Client?.WorksThroughOrganization,
+				CurrentOrderOrganization = order.Contract?.Organization,
 				Goods = order.OrderItems,
 				OrderEquipments = order.OrderEquipments,
 				OrderDepositItems = order.OrderDepositItems,
 				IsSelfDelivery = order.SelfDelivery,
 				PaymentType = order.PaymentType,
 				PaymentFrom = order.PaymentByCardFrom,
-				OnlinePaymentNumber = order.OnlinePaymentNumber
+				OnlinePaymentNumber = order.OnlinePaymentNumber,
+				IsSplitedOrder = !string.IsNullOrWhiteSpace(order.OrderPartsIds)
 			};
 		}
 	}

@@ -12,7 +12,6 @@ namespace VodovozBusiness.Domain.Orders
 	{
 		PartitionedOrderByOrganizations GetOrderPartsByOrganizations(
 			IUnitOfWork uow, TimeSpan requestTime, OrderOrganizationChoice organizationChoice);
-		bool OrderHasGoodsFromSeveralOrganizations(
-			TimeSpan requestTime, IList<int> nomenclatureIds, bool isSelfDelivery, PaymentType paymentType, PaymentFrom paymentFrom);
+		bool OrderHasGoodsFromSeveralOrganizations(IList<int> nomenclatureIds);
 	}
 }

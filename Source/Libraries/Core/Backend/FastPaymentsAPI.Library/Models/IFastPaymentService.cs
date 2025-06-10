@@ -3,8 +3,10 @@ using FastPaymentsApi.Contracts.Responses;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Models
@@ -35,6 +37,7 @@ namespace FastPaymentsAPI.Library.Models
 		bool UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto, FastPayment fastPayment);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto, out string paymentSignature);
-		Organization GetOrganization(TimeSpan requestTime, FastPaymentRequestFromType fastPaymentRequestFromType);
+		Result<Organization> GetOrganization(
+			TimeSpan requestTime, FastPaymentRequestFromType fastPaymentRequestFromType, Order order = null);
 	}
 }

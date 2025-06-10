@@ -40,6 +40,14 @@ namespace Vodovoz.Application.Orders.Services
 			TimeSpan requestTime,
 			OrderOrganizationChoice organizationChoice)
 		{
+			if(organizationChoice.IsSplitedOrder && organizationChoice.CurrentOrderOrganization != null)
+			{
+				return new[]
+				{
+					new PartOrderWithGoods(organizationChoice.CurrentOrderOrganization)
+				};
+			}
+			
 			var setsOrganizations = new Dictionary<short, PartOrderWithGoods>();
 			var processingGoods = organizationChoice.Goods.ToList();
 			var processingEquipments = organizationChoice.OrderEquipments.ToList();
@@ -156,67 +164,40 @@ namespace Vodovoz.Application.Orders.Services
 
 		public bool OrderHasGoodsFromSeveralOrganizations(
 			IUnitOfWork uow,
-			TimeSpan requestTime,
-			IList<int> nomenclatureIds,
-			bool isSelfDelivery,
-			PaymentType paymentType,
-			PaymentFrom paymentFrom)
+			IList<int> nomenclatureIds)
 		{
-			var setsOrganizations = new Dictionary<short, Organization>();
-			
-			var organizationsBasedOrderContent = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
+			var kulerServiceSet =
+				uow.GetAll<OrganizationBasedOrderContentSettings>()
+					.FirstOrDefault(x => x.OrderContentSet == 1);
 
-			if(!organizationsBasedOrderContent.Any())
+			if(kulerServiceSet is null)
 			{
 				return false;
 			}
 			
-			foreach(var set in organizationsBasedOrderContent)
+			if(!kulerServiceSet.Nomenclatures.Any() && !kulerServiceSet.ProductGroups.Any())
 			{
-				if(!set.Nomenclatures.Any() && !set.ProductGroups.Any())
-				{
-					continue;
-				}
-				
-				var i = 0;
-				var nomenclatureIdsForOrganization = new List<int>();
-
-				while(i < nomenclatureIds.Count)
-				{
-					var nomenclature = uow.GetAll<Nomenclature>().FirstOrDefault(x => x.Id == nomenclatureIds[i]);
-					
-					if(NomenclatureBelongsSet(nomenclature, set))
-					{
-						nomenclatureIdsForOrganization.Add(nomenclatureIds[i]);
-						nomenclatureIds.RemoveAt(i);
-						continue;
-					}
-
-					i++;
-				}
-
-				if(!nomenclatureIdsForOrganization.Any())
-				{
-					continue;
-				}
-
-				var org =
-					_organizationForOrderFromSet.GetOrganizationForOrderFromSet(DateTime.Now.TimeOfDay, set, true)
-					?? _organizationByPaymentTypeForOrderHandler.GetOrganization(
-						uow, requestTime, isSelfDelivery, paymentType, paymentFrom, null);
-				
-				setsOrganizations.Add(set.OrderContentSet, org);
+				return false;
 			}
 			
-			if(!nomenclatureIds.Any())
-			{
-				if(!setsOrganizations.Any())
-				{
-					return false;
-				}
-			}
+			var i = 0;
+			var kulerServiceProductIds = new List<int>();
 
-			return setsOrganizations.Count > 1;
+			while(i < nomenclatureIds.Count)
+			{
+				var nomenclature = uow.GetAll<Nomenclature>().FirstOrDefault(x => x.Id == nomenclatureIds[i]);
+				
+				if(NomenclatureBelongsSet(nomenclature, kulerServiceSet))
+				{
+					kulerServiceProductIds.Add(nomenclatureIds[i]);
+					nomenclatureIds.RemoveAt(i);
+					continue;
+				}
+
+				i++;
+			}
+			
+			return nomenclatureIds.Any() && kulerServiceProductIds.Any();
 		}
 		
 		private bool ProductBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)

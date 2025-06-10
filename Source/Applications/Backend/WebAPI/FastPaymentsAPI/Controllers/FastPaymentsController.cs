@@ -107,7 +107,19 @@ namespace FastPaymentsAPI.Controllers
 
 				var fastPaymentGuid = Guid.NewGuid();
 				var requestType = FastPaymentRequestFromType.FromDriverAppByQr;
-				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType, order);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа по заказу {OrderId}: {ErrorMessage}",
+						orderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -201,7 +213,19 @@ namespace FastPaymentsAPI.Controllers
 
 				var fastPaymentGuid = Guid.NewGuid();
 				var requestType = isQr ? FastPaymentRequestFromType.FromDesktopByQr : FastPaymentRequestFromType.FromDesktopByCard;
-				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType);
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType, order);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа по заказу {OrderId}: {ErrorMessage}",
+						orderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
@@ -326,7 +350,19 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var organization = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, fastPaymentRequestType);
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, fastPaymentRequestType);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа онлайн-заказа {OnlineOrderId}: {ErrorMessage}",
+						onlineOrderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				var callBackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
 
