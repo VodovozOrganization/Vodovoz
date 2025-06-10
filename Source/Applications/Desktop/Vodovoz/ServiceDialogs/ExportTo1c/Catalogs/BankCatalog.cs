@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using QSBanks;
 using System.Collections.Generic;
 using QS.Banks.Domain;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -11,22 +13,17 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			:base(exportData)
 		{			
 		}
-		protected override string Name
-		{
-			get{return "Банки";}
-		}
+		protected override string Name => exportData.ExportMode == Export1cMode.ComplexAutomation ? "КлассификаторБанков" : "Банки";
+		
 		public override ReferenceNode CreateReferenceTo(Bank bank)
 		{
 			int id = GetReferenceId(bank);
-			return new ReferenceNode(id,
-				new PropertyNode("Код",
-					Common1cTypes.String,
-					bank.Bik
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.ReferenceCounterparty
-				)
-			);
+			
+			var referenceNode = new ReferenceNode(id, new PropertyNode("Код", Common1cTypes.String, bank.Bik));
+			
+			referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.ReferenceCounterparty));
+
+			return referenceNode;
 		}
 		protected override PropertyNode[] GetProperties(Bank bank)
 		{
@@ -44,7 +41,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			);
 			properties.Add(
 				new PropertyNode("Родитель",
-					Common1cTypes.ReferenceBank
+					Common1cTypes.ReferenceBank(exportData.ExportMode)
 				)
 			);
 			properties.Add(

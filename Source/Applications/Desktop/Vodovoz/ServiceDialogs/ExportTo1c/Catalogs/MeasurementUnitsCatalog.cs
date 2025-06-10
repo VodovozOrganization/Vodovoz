@@ -1,6 +1,8 @@
 ﻿using System;
 using QS.BusinessCommon.Domain;
 using System.Collections.Generic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -8,13 +10,13 @@ namespace Vodovoz.ExportTo1c.Catalogs
 	{
 		public MeasurementUnitsCatalog(ExportData exportData)
 			:base(exportData)
-		{			
+		{
 		}
 
-		protected override string Name
-		{
-			get{return "КлассификаторЕдиницИзмерения";}
-		}
+		protected override string Name => exportData.ExportMode == Export1cMode.ComplexAutomation
+			? "УпаковкиЕдиницыИзмерения"
+			: "КлассификаторЕдиницИзмерения";
+		
 		public override ReferenceNode CreateReferenceTo(MeasurementUnits unit)
 		{			
 			int id = GetReferenceId(unit);
