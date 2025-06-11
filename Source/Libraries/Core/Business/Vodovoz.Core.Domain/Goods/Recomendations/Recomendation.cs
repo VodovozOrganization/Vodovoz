@@ -4,6 +4,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Specialized;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
@@ -36,6 +37,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Идентификатор
 		/// </summary>
+		[Display(Name = "Идентификатор")]
 		public virtual int Id
 		{
 			get => _id;
@@ -51,6 +53,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Название
 		/// </summary>
+		[Display(Name = "Название")]
 		public virtual string Name
 		{
 			get => _name;
@@ -60,6 +63,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Архив
 		/// </summary>
+		[Display(Name = "Архив")]
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
@@ -69,6 +73,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Тип контрагента
 		/// </summary>
+		[Display(Name = "Тип контрагента")]
 		public virtual PersonType? PersonType
 		{
 			get => _personType;
@@ -78,6 +83,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Тип помещения
 		/// </summary>
+		[Display(Name = "Тип объекта")]
 		public virtual RoomType? RoomType
 		{
 			get => _roomType;
@@ -87,6 +93,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Строки рекомендации
 		/// </summary>
+		[Display(Name = "Строки рекомендации")]
 		public virtual IObservableList<RecomendationItem> Items
 		{
 			get => _items;
@@ -113,6 +120,11 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 			return true;
 		}
 
+		/// <summary>
+		/// Убирает строку рекомендации с указанным идентификатором номенклатуры
+		/// </summary>
+		/// <param name="nomenclatureId">Идентификатор номенклатуры</param>
+		/// <returns></returns>
 		public virtual bool TryRemoveItem(int nomenclatureId)
 		{
 			if(!Items.Any(x => x.NomenclatureId == nomenclatureId))
@@ -132,6 +144,9 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 			return true;
 		}
 
+		/// <summary>
+		/// Обновление приоритетов, согласно порядку в списке
+		/// </summary>
 		public virtual void UpdatePriority()
 		{
 			foreach(var item in Items)

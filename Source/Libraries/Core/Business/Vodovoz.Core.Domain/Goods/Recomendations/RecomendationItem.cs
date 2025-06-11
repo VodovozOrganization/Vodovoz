@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Goods.Recomendations
 {
@@ -46,30 +47,43 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <summary>
 		/// Идентификатор
 		/// </summary>
+		[Display(Name = "Идентификатор")]
 		public virtual int Id
 		{
 			get => _id;
 			protected set => SetField(ref _id, value);
 		}
 
+		[Display(Name = "Идентификатор рекомендации")]
+		[HistoryIdentifier(TargetType = typeof(Recomendation))]
 		public virtual int RecomendationId
 		{
 			get => _recomendationId;
-			set => SetField(ref _recomendationId, value);
+			internal set => SetField(ref _recomendationId, value);
 		}
 
+		[Display(Name = "Идентификатор номенклатуры")]
+		[HistoryIdentifier(TargetType = typeof(NomenclatureEntity))]
 		public virtual int NomenclatureId
 		{
 			get => _nomenclatureId;
 			protected set => SetField(ref _nomenclatureId, value);
 		}
 
+		[Display(Name = "Идентификатор приоритет")]
 		public virtual int Priority
 		{
 			get => _priority;
-			set => SetField(ref _priority, value);
+			internal set => SetField(ref _priority, value);
 		}
 
+		/// <summary>
+		/// Создание строки рекомендации
+		/// </summary>
+		/// <param name="recomendationId"></param>
+		/// <param name="nomenclatureId"></param>
+		/// <param name="priority"></param>
+		/// <returns></returns>
 		public static RecomendationItem Create(int recomendationId, int nomenclatureId, int priority)
 		{
 			return new RecomendationItem(recomendationId, nomenclatureId, priority);
