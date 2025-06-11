@@ -353,18 +353,27 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				{
 					Expression<Func<Employee, bool>> specificationExpression = null;
 
-					Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
-						string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
-						|| employee.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
-						|| employee.LastName.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
-						|| employee.Patronymic.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%");
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
 
-					specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					}
 
 					var elementsToAdd = _employeeRepository.Get(
 							unitOfWork,
 							specificationExpression,
-							limit: 500)
+							limit: IncludeExludeFiltersViewModel.DefaultLimit)
 						.Select(x => new IncludeExcludeElement<int, Employee>
 						{
 							Id = x.Id,
