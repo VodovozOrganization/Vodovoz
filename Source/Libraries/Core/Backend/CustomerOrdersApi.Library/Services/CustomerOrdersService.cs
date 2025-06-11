@@ -2,16 +2,19 @@
 using CustomerOrdersApi.Library.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySqlX.XDevAPI.Common;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Results;
 using Vodovoz.Settings.Orders;
 using VodovozInfrastructure.Cryptography;
 
@@ -27,7 +30,9 @@ namespace CustomerOrdersApi.Library.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
+		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IConfigurationSection _signaturesSection;
+		private readonly IRecomendationService _recomendationService;
 
 		public CustomerOrdersService(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -38,6 +43,8 @@ namespace CustomerOrdersApi.Library.Services
 			IOrderRepository orderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
+			IGenericRepository<Counterparty> counterpartyRepository,
+			IRecomendationService recomendationService,
 			IConfiguration configuration)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -48,6 +55,10 @@ namespace CustomerOrdersApi.Library.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
+			_counterpartyRepository = counterpartyRepository
+				?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_recomendationService = recomendationService
+				?? throw new ArgumentNullException(nameof(recomendationService));
 
 			_signaturesSection = configuration.GetSection("Signatures");
 		}
@@ -57,7 +68,7 @@ namespace CustomerOrdersApi.Library.Services
 		public bool ValidateOrderSignature(OnlineOrderInfoDto onlineOrderInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(onlineOrderInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				onlineOrderInfoDto.Signature,
 				new OrderSignatureParams
@@ -69,11 +80,11 @@ namespace CustomerOrdersApi.Library.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderRatingSignature(OrderRatingInfoForCreateDto orderRatingInfo, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(orderRatingInfo.Source);
-			
+
 			return _signatureManager.Validate(
 				orderRatingInfo.Signature,
 				new OrderRatingSignatureParams
@@ -87,11 +98,11 @@ namespace CustomerOrdersApi.Library.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderInfoSignature(GetDetailedOrderInfoDto getDetailedOrderInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getDetailedOrderInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				getDetailedOrderInfoDto.Signature,
 				new OrderInfoSignatureParams
@@ -104,11 +115,11 @@ namespace CustomerOrdersApi.Library.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getOrdersDto.Source);
-			
+
 			return _signatureManager.Validate(
 				getOrdersDto.Signature,
 				new CounterpartyOrdersSignatureParams
@@ -120,12 +131,12 @@ namespace CustomerOrdersApi.Library.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOnlineOrderPaymentStatusUpdatedSignature(
 			OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(paymentStatusUpdatedDto.Source);
-			
+
 			return _signatureManager.Validate(
 				paymentStatusUpdatedDto.Signature,
 				new OnlineOrderPaymentStatusUpdatedSignatureParams
@@ -141,7 +152,7 @@ namespace CustomerOrdersApi.Library.Services
 		public bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(creatingInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				creatingInfoDto.Signature,
 				new RequestForCallSignatureParams
@@ -158,7 +169,7 @@ namespace CustomerOrdersApi.Library.Services
 		public DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			
+
 			var ratingAvailableFrom = _orderSettings.GetDateAvailabilityRatingOrder;
 			OrderRating orderRating = null;
 
@@ -169,17 +180,17 @@ namespace CustomerOrdersApi.Library.Services
 						uow,
 						x => x.OnlineOrder.Order.Id == order.Id)
 					.FirstOrDefault();
-			
+
 				return _customerOrderFactory.CreateDetailedOrderInfo(
 					order, orderRating, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom);
 			}
-			
+
 			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
 			orderRating = _genericRatingRepository.Get(
 					uow,
 					x => x.OnlineOrder.Id == onlineOrder.Id)
 				.FirstOrDefault();
-			
+
 			return _customerOrderFactory.CreateDetailedOrderInfo(
 				onlineOrder, orderRating, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
 		}
@@ -188,7 +199,7 @@ namespace CustomerOrdersApi.Library.Services
 		{
 			var skipElements = (getOrdersDto.Page - 1) * getOrdersDto.OrdersCountOnPage;
 			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
-			
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			var orders = _orderRepository.GetCounterpartyOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 			var onlineOrders =
@@ -201,7 +212,7 @@ namespace CustomerOrdersApi.Library.Services
 					.Skip(skipElements)
 					.Take(getOrdersDto.OrdersCountOnPage)
 					.ToArray();
-			
+
 			return new OrdersDto
 			{
 				Orders = res,
@@ -216,7 +227,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			return _customerOrderFactory.GetOrderRatingReasonDtos(reasons);
 		}
-		
+
 		public void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
@@ -228,12 +239,12 @@ namespace CustomerOrdersApi.Library.Services
 				orderRatingInfo.OrderId,
 				orderRatingInfo.OrderRatingReasonsIds,
 				negativeRating);
-			
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			uow.Save(orderRating);
 			uow.Commit();
 		}
-		
+
 		public bool TryUpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
@@ -263,7 +274,7 @@ namespace CustomerOrdersApi.Library.Services
 			{
 				nomenclature = uow.GetById<Nomenclature>(creatingInfoDto.NomenclatureErpId.Value);
 			}
-			
+
 			if(creatingInfoDto.CounterpartyErpId.HasValue)
 			{
 				counterparty = uow.GetById<Counterparty>(creatingInfoDto.CounterpartyErpId.Value);
@@ -276,7 +287,7 @@ namespace CustomerOrdersApi.Library.Services
 				nomenclature,
 				counterparty
 				);
-			
+
 			uow.Save(requestForCall);
 			uow.Commit();
 		}
@@ -284,6 +295,64 @@ namespace CustomerOrdersApi.Library.Services
 		private string GetSourceSign(Source source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
+		}
+
+		public bool ValidateRequestRecomendationsSignature(GetRecomendationsDto getRecomendationsDto, out string generatedSignature)
+		{
+			var sourceSign = GetSourceSign(getRecomendationsDto.Source);
+
+			return _signatureManager.Validate(
+				getRecomendationsDto.Signature,
+				new RecomendationsSignatureParams
+				{
+					OrderId = getRecomendationsDto.Source == Source.MobileApp
+						? getRecomendationsDto.ExternalCounterpartyId.ToString()
+						: getRecomendationsDto.ExternalOrderId.ToString(),
+					ShopId = (int)getRecomendationsDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
+		public Result<IEnumerable<RecomendationItemDto>, Exception> GetRecomendations(GetRecomendationsDto getRecomendationsDto)
+		{
+			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение рекомендаций");
+
+			var counterparty = _counterpartyRepository
+				.GetFirstOrDefault(
+					unitOfWork,
+					x => x.Id == getRecomendationsDto.ErpCounterpartyId);
+
+			if(counterparty is null)
+			{
+				return new InvalidOperationException("Не найден переданный контрагент");
+			}
+
+			var deliveryPoint = counterparty.DeliveryPoints
+				.FirstOrDefault(x => x.Id == getRecomendationsDto.ErpDeliveryPointId);
+
+			if(deliveryPoint is null)
+			{
+				return new InvalidOperationException("Не найдена переданная точка доставки");
+			}
+
+			var addedNomenclatures = getRecomendationsDto.AddedNomenclatureIds
+				?? Enumerable.Empty<int>();
+
+			var recomendationItems = _recomendationService.GetRecomendationItemsForIpz(
+				unitOfWork,
+				counterparty.PersonType,
+				deliveryPoint.RoomType,
+				addedNomenclatures);
+
+			return Result<IEnumerable<RecomendationItemDto>, Exception>
+				.Success(recomendationItems
+					.Select(x => new RecomendationItemDto
+					{
+						Id = x.Id,
+						RecomendationId = x.RecomendationId,
+						NomenclatureId = x.NomenclatureId,
+					}));
 		}
 	}
 }
