@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz.EntityRepositories
 {

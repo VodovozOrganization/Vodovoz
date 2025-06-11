@@ -18,10 +18,10 @@ using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -415,7 +415,13 @@ namespace Vodovoz
 				return;
 			}
 
-			var parentSubdivision = Entity.Warehouse?.OwningSubdivision;
+			Subdivision parentSubdivision = null;
+
+			if(Entity.Warehouse?.OwningSubdivisionId != null)
+			{
+				parentSubdivision = UoW.GetById<Subdivision>(Entity.Warehouse.OwningSubdivisionId.Value);
+			}
+
 			var geoGroup = parentSubdivision?.GeographicGroup;
 
 			while(geoGroup == null && parentSubdivision != null )

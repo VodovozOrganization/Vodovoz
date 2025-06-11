@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Domain.Operations
 {

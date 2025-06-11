@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
@@ -51,7 +52,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			var currentUserSettings = userRepository.GetUserSettings(_unitOfWork, commonServices.UserService.CurrentUserId);
-			Counterparty = currentUserSettings.DefaultCounterparty;
+			if(currentUserSettings.DefaultCounterpartyId != null)
+			{
+				Counterparty = _unitOfWork.GetById<Counterparty>(currentUserSettings.DefaultCounterpartyId.Value);
+			}
 			SubdivisionViewModel = CreateSubdivisionViewModel();
 		}
 

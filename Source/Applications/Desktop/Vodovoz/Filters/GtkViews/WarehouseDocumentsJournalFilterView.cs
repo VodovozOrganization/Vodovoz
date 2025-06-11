@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using System.ComponentModel;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 

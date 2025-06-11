@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Domain.Permissions
 {

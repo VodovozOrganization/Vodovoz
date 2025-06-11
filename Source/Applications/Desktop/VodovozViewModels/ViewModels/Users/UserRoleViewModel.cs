@@ -8,6 +8,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 
@@ -17,6 +18,7 @@ namespace Vodovoz.ViewModels.Users
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUserRoleRepository _userRoleRepository;
+		private readonly IUserRoleService _userRoleService;
 		private AvailableDatabase _selectedAvailableDatabase;
 		private AvailableDatabase _selectedEntityAvailableDatabase;
 		private object[] _selectedPrivileges = Array.Empty<object>();
@@ -33,6 +35,7 @@ namespace Vodovoz.ViewModels.Users
 			ICommonServices commonServices,
 			IPrivilegesRepository privilegesRepository,
 			IUserRoleRepository userRoleRepository,
+			IUserRoleService userRoleService,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(privilegesRepository is null)
@@ -41,6 +44,7 @@ namespace Vodovoz.ViewModels.Users
 			}
 			
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
+			_userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
 			PrivilegesNames = privilegesRepository.GetAllPrivilegesNames(UoW);
 			AllAvailableDatabases = new GenericObservableList<AvailableDatabase>(GetAllAvailableDatabases());
 		}
@@ -102,7 +106,7 @@ namespace Vodovoz.ViewModels.Users
 				() =>
 				{
 					AllAvailableDatabases.Add(SelectedEntityAvailableDatabase);
-					Entity.ObservableAvailableDatabases.Remove(SelectedEntityAvailableDatabase);
+					Entity.AvailableDatabases.Remove(SelectedEntityAvailableDatabase);
 					OnPropertyChanged(nameof(CanRemoveAvailableDatabase));
 				}));
 		
@@ -111,7 +115,7 @@ namespace Vodovoz.ViewModels.Users
 				type =>
 				{
 					var privilege = CreatePrivilegeByType(type);
-					Entity.ObservablePrivileges.Add(privilege);
+					Entity.Privileges.Add(privilege);
 				}));
 
 		public DelegateCommand RemovePrivilegeCommand =>
@@ -120,7 +124,7 @@ namespace Vodovoz.ViewModels.Users
 				{
 					foreach(var privilege in SelectedPrivileges)
 					{
-						Entity.ObservablePrivileges.Remove((PrivilegeBase)privilege);
+						Entity.Privileges.Remove((PrivilegeBase)privilege);
 					}
 				}));
 		
@@ -133,7 +137,7 @@ namespace Vodovoz.ViewModels.Users
 						var copiedPrivilege = (PrivilegeBase)privilege;
 						var newPrivilege = CreatePrivilegeByType(copiedPrivilege.PrivilegeType);
 						newPrivilege.PrivilegeName = copiedPrivilege.PrivilegeName;
-						Entity.ObservablePrivileges.Add(newPrivilege);
+						Entity.Privileges.Add(newPrivilege);
 					}
 				}));
 
@@ -166,7 +170,7 @@ namespace Vodovoz.ViewModels.Users
 				try
 				{
 					_logger.Debug($"Накидываем на нее права");
-					Entity.GrantPrivileges(uow, _userRoleRepository);
+					_userRoleService.GrantDatabasePrivileges(uow, Entity);
 				}
 				catch(Exception e)
 				{

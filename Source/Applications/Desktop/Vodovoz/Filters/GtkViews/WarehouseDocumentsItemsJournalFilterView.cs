@@ -2,7 +2,7 @@
 using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ReportsParameters;
