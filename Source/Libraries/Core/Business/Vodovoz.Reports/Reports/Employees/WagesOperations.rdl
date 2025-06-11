@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -102,16 +104,16 @@
         </ReportItems>
         <DataSetName>Employee_info</DataSetName>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
-            <PaddingBottom>6pt</PaddingBottom>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <PaddingBottom>6pt</PaddingBottom>
         </Style>
       </List>
       <Table Name="Table1">
@@ -354,18 +356,21 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Employee_info">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    SUM(wages_movement_operations.money) AS balance,
-    CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as employee_name,
-    employees.comment as comment
+	IFNULL((
+		select SUM(wmo.money)
+		from wages_movement_operations wmo
+		where wmo.employee_id = e.id
+		and wmo.operation_time &lt; @start_date
+	), 0) AS balance,
+    CONCAT_WS(" ", e.last_name, e.name, e.patronymic) as employee_name,
+    e.comment as comment
 FROM
-    wages_movement_operations
-        RIGHT JOIN employees ON employees.id = @employee_id
+	employees e
 WHERE
-        employee_id = @employee_id
-  AND wages_movement_operations.operation_time &lt; @start_date;</CommandText>
+	e.id = @employee_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -375,7 +380,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
