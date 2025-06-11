@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
 {
@@ -167,6 +168,8 @@ namespace Vodovoz
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
+			OpenOrderCodesCommand = new DelegateCommand(() => OpenOrderCodesDialog(),() => CanOpenOrderCodes());
+			OpenOrderCodesCommand.CanExecuteChangedWith(this, x => x.SelectedRouteListAddressesObjects);
 		}
 
 		private void CreateInitialRouteListItemStatuses()
@@ -272,6 +275,7 @@ namespace Vodovoz
 		public DelegateCommand ChangeDeliveryTimeCommand { get; }
 		public DelegateCommand SetStatusCompleteCommand { get; }
 		public DelegateCommand ReDeliverCommand { get; }
+		public DelegateCommand OpenOrderCodesCommand { get; }
 
 		#endregion Commands
 
@@ -852,6 +856,31 @@ namespace Vodovoz
 		protected void ReDeliverHandler()
 		{
 			Entity.UpdateStatus(isIgnoreAdditionalLoadingDocument: true);
+		}
+
+		protected void OpenOrderCodesDialog()
+		{
+			if(!CanOpenOrderCodes())
+			{
+				return;
+			}
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id);
+		}
+
+		protected bool CanOpenOrderCodes()
+		{
+			if(SelectedRouteListAddressesObjects.Count() > 1)
+			{
+				return false;
+			}
+
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			if(selectedAddress == null || selectedAddress.RouteListItem == null)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		public override void Dispose()

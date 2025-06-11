@@ -8,9 +8,9 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 	public enum ProductCodeProblem
 	{
 		/// <summary>
-		/// Не указано
+		/// Нет
 		/// </summary>
-		[Display(Name = "Не указано")]
+		[Display(Name = "Нет")]
 		None,
 
 		/// <summary>

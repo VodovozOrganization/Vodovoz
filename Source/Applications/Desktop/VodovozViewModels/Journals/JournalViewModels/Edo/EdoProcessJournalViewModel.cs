@@ -21,6 +21,8 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.ViewModels.Edo;
+using Core.Infrastructure;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -103,6 +105,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			CreateOpenOrderAction();
 			CreateCopyTaskIdToClipboardAction();
 			CreateOpenTenderPopupAction();
+			CreateOpenOrderCodesAction();
 		}
 
 		private void CreateOpenTenderPopupAction()
@@ -294,6 +297,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderTaskId));
 					_clipboard.SetText(orderIds);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateOpenOrderCodesAction()
+		{
+			var action = new JournalAction(
+				"Просмотр кодов по заказу",
+				selected => selected.Count() == 1,
+				selected => true,
+				selected =>
+				{
+					var selectedNode = selected.FirstOrDefault() as EdoProcessJournalNode;
+					if(selectedNode == null)
+					{
+						return;
+					}
+					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId);
 				}
 			);
 
