@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using QS.Banks.Domain;
 using QSBanks;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -13,11 +15,10 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{			
 		}
 
-		protected override string Name
-		{
-			get{return "БанковскиеСчета";}
-		}
-
+		protected override string Name => exportData.ExportMode == Export1cMode.ComplexAutomation
+			? "БанковскиеСчетаКонтрагентов"
+			: "БанковскиеСчета";
+		
 		public override ReferenceNode CreateReferenceTo(Account account)
 		{
 			throw new NotImplementedException();
@@ -87,13 +88,13 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			);
 			properties.Add(
 				new PropertyNode("Банк",
-					Common1cTypes.ReferenceBank,
+					Common1cTypes.ReferenceBank(exportData.ExportMode),
 					exportData.BankCatalog.CreateReferenceTo(account.InBank)
 				)
 			);
 			properties.Add(
 				new PropertyNode("БанкДляРасчетов",
-					Common1cTypes.ReferenceBank
+					Common1cTypes.ReferenceBank(exportData.ExportMode)
 				)
 			);
 			properties.Add(
@@ -102,36 +103,52 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					exportData.CurrencyCatalog.CreateReferenceTo(ExportTo1c.Currency.Default)
 				)
 			);
-			properties.Add(
-				new PropertyNode("ВидСчета",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("ДатаЗакрытия",
-					Common1cTypes.Date
-				)
-			);
-			properties.Add(
-				new PropertyNode("ДатаОткрытия",
-					Common1cTypes.Date
-				)
-			);
-			properties.Add(
-				new PropertyNode("МесяцПрописью",
-					Common1cTypes.Boolean
-				)
-			);
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ВидСчета",
+						Common1cTypes.String
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("ДатаЗакрытия",
+						Common1cTypes.Date
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("ДатаОткрытия",
+						Common1cTypes.Date
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("МесяцПрописью",
+						Common1cTypes.Boolean
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("НомерИДатаРазрешения",
+						Common1cTypes.String
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("СуммаБезКопеек",
+						Common1cTypes.Boolean
+					)
+				);
+			}
+
 			properties.Add(
 				new PropertyNode("ТекстНазначения",
 					Common1cTypes.String
 				)
 			);
-			properties.Add(
-				new PropertyNode("НомерИДатаРазрешения",
-					Common1cTypes.String
-				)
-			);
+
 			properties.Add(
 				new PropertyNode("НомерСчета",
 					Common1cTypes.String,
@@ -141,11 +158,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("ТекстКорреспондента",
 					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("СуммаБезКопеек",
-					Common1cTypes.Boolean
 				)
 			);
 			return properties.ToArray();
