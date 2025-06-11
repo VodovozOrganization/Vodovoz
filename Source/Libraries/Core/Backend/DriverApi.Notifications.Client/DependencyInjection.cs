@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Logistics;
+using VodovozBusiness.NotificationSenders;
 
 namespace DriverApi.Notifications.Client
 {
@@ -25,7 +26,7 @@ namespace DriverApi.Notifications.Client
 				.AddScoped<IFastDeliveryOrderAddedNotificationSender, DriverApiNotificationsClient>()
 				.AddScoped<IWaitingTimeChangedNotificationSender, DriverApiNotificationsClient>()
 				.AddScoped<ICashRequestForDriverIsGivenForTakeNotificationSender, DriverApiNotificationsClient>()
-				.AddScoped<IRouteListTransferHandByHandNotificationSender, DriverApiNotificationsClient>();
+				.AddScoped<IRouteListChangesNotificationSender, DriverApiNotificationsClient>();
 
 			return services;
 		}

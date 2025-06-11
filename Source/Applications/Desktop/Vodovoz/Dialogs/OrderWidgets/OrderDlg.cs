@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -42,6 +42,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -140,6 +142,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
 using Type = Vodovoz.Core.Domain.Documents.Type;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz
 {
@@ -219,6 +222,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
@@ -1097,7 +1101,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
-			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;			
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
 
 			UpdateAvailableEnumSignatureTypes();
 
@@ -1274,7 +1278,7 @@ namespace Vodovoz
 					break;
 				case nameof(Entity.SelfDelivery):
 					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW);
-					UpdateCallBeforeArrival();					
+					UpdateCallBeforeArrival();
 					break;
 				case nameof(Entity.IsFastDelivery):
 					UpdateCallBeforeArrival();
@@ -2566,7 +2570,7 @@ namespace Vodovoz
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
-			
+
 			var phones = new List<Phone>();
 
 			phones.AddRange(Entity.Client.Phones);
@@ -2611,9 +2615,9 @@ namespace Vodovoz
 			{
 				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
-			
+
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
-			
+
 			if(fastDeliveryResult.IsFailure)
 			{
 				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing)))
@@ -2678,7 +2682,7 @@ namespace Vodovoz
 
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
-			
+
 			_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -2941,7 +2945,7 @@ namespace Vodovoz
 					rdlDocs.Length > 1
 						? "документов"
 						: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
-				
+
 				if(CanEditByPermission && UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 				{
 					UoWGeneric.Save();
@@ -4040,7 +4044,7 @@ namespace Vodovoz
 		private void OpenUndelivery()
 		{
 			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
-				this,				
+				this,
 				OpenPageOptions.AsSlave,
 				vm =>
 				{
@@ -4060,6 +4064,25 @@ namespace Vodovoz
 				routeListItem.StatusLastUpdate = DateTime.Now;
 				routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UoW.Save(routeListItem);
+
+				var notificationRequest = new NotificationRouteListChangesRequest
+				{
+					OrderId = e.UndeliveredOrder.OldOrder.Id,
+					PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
+				};
+
+				var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
+
+				if(!result.IsSuccess)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						string.Join(", ",
+						result.Errors
+						.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+						.Select(x => x.Message))
+						);
+				}
 			}
 			else
 			{
@@ -5431,7 +5454,7 @@ namespace Vodovoz
 				.ForProperty(Entity, e => e.DeliverySchedule)
 				.UseViewModelJournalSelector<DeliveryScheduleJournalViewModel, DeliveryScheduleFilterViewModel>(filter => filter.RestrictIsNotArchive = true)
 				.UseSelectionDialogAndAutocompleteSelector(
-					() => 
+					() =>
 					{
 						var isForMasterCall = Entity.OrderAddressType == OrderAddressType.Service;
 						return Entity.GetAvailableDeliveryScheduleIds(isForMasterCall);
@@ -5509,7 +5532,7 @@ namespace Vodovoz
 						}
 
 						var serviceDistrict = _deliveryRepository.GetServiceDistrictByCoordinates(UoW, DeliveryPoint.Latitude.Value, DeliveryPoint.Longitude.Value);
-						
+
 						return serviceDistrict?.GetNearestDatesWhenDeliveryIsPossible();
 					}
 
