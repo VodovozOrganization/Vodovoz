@@ -35,8 +35,8 @@ public class AuthorizationService : IAuthorizationService
 
 	public async Task<string> Login(string сertificateThumbPrint, string inn)
 	{
-		var authUrn = "v3/true-api/auth/key";
-		var signInUrn = "v3/true-api/auth/simpleSignIn";
+		var authUrn = "auth/key";
+		var signInUrn = "auth/simpleSignIn";
 
 		var cachedToken = _tokenCacheList.FirstOrDefault(tc => tc.CertificateThumbPrint == сertificateThumbPrint);
 

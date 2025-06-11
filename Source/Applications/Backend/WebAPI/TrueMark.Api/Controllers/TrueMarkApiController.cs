@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,20 +11,22 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Api.Contracts.Dto;
+using TrueMark.Api.Contracts.Requests;
+using TrueMark.Api.Contracts.Responses;
+using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
+using static MassTransit.ValidationResultExtensions;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
-using TrueMark.Api.Extensions;
-using TrueMark.Api.Contracts.Responses;
-using TrueMark.Api.Contracts.Requests;
-using TrueMark.Api.Contracts.Dto;
-using TrueMark.Contracts.Documents;
 
 namespace TrueMark.Api.Controllers;
 
@@ -63,7 +66,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<TrueMarkRegistrationResultDto> ParticipantRegistrationForWaterAsync(string inn)
 	{
-		var uri = $"v3/true-api/participants?inns={inn}";
+		var uri = $"participants?inns={inn}";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить статус регистрации учатниска.");
@@ -125,7 +128,7 @@ public class TrueMarkApiController : ControllerBase
 
 		var innString = string.Join("&inns=", inns);
 
-		var uri = $"v3/true-api/participants?inns={innString}";
+		var uri = $"participants?inns={innString}";
 
 		var response = await _httpClient.GetAsync(uri);
 
@@ -200,7 +203,7 @@ public class TrueMarkApiController : ControllerBase
 		CancellationToken cancellationToken
 		)
 	{
-		var uri = $"v3/true-api/cises/info";
+		var uri = $"cises/info";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
@@ -305,15 +308,12 @@ public class TrueMarkApiController : ControllerBase
 	/// <param name="cancellationToken">Токен отмены</param>
 	/// <returns></returns>
 	[HttpPost]
-	public async Task<HttpResponseMessage> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
+	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"v3/true-api/lk/documents/create?pg=water";
+		var uri = $"lk/documents/create?pg=water";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
-
-		var errorMessage = new StringBuilder();
-		errorMessage.AppendLine("Не удалось выполнить отправку документа вывода из оборота");
 		
 		try
 		{
@@ -334,56 +334,20 @@ public class TrueMarkApiController : ControllerBase
 			var token = await _authorizationService.Login(certificateThumbPrint, inn);
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-			var responseMessage = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
-			var documentId = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
+			var responseResult = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+			responseResult.EnsureSuccessStatusCode();
 
-			return responseMessage;
+			var documentId = await responseResult.Content.ReadAsStringAsync(cancellationToken);
+
+			HttpContext.Response.StatusCode = StatusCodes.Status200OK;
+			return new ObjectResult(documentId);
 		}
 		catch(Exception e)
 		{
-			_logger.LogError(e, errorMessage.ToString());
+			_logger.LogError(e, "Ошибка при отправке документа вывода из оборота");
 
-			return new HttpResponseMessage
-			{
-				StatusCode = System.Net.HttpStatusCode.InternalServerError,
-				ReasonPhrase = errorMessage.AppendLine(e.Message).ToString()
-			};
-		}
-	}
-
-	/// <summary>
-	/// Получение документа из ЧЗ
-	/// </summary>
-	/// <param name="documentId">Идентификатор документа</param>
-	/// <param name="inn">ИНН организации</param>
-	/// <param name="cancellationToken">Токен отмены</param>
-	/// <returns></returns>
-	[HttpGet]
-	public async Task<HttpResponseMessage> RecieveDocument(string documentId, string inn, CancellationToken cancellationToken)
-	{
-		var resultInfoUrl = $"v4/true-api/doc/{documentId}/info";
-		
-		var errorMessage = new StringBuilder();
-		errorMessage.AppendLine("Не удалось выполнить запрос получения документа");
-
-		try
-		{
-			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
-
-			var token = await _authorizationService.Login(certificateThumbPrint, inn);
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-			return await _httpClient.GetAsync(resultInfoUrl, cancellationToken);
-		}
-		catch(Exception e)
-		{
-			_logger.LogError(e, errorMessage.ToString());
-
-			return new HttpResponseMessage
-			{
-				StatusCode = System.Net.HttpStatusCode.InternalServerError,
-				ReasonPhrase = errorMessage.AppendLine(e.Message).ToString()
-			};
+			HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+			return new ObjectResult($"Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}");
 		}
 	}
 
