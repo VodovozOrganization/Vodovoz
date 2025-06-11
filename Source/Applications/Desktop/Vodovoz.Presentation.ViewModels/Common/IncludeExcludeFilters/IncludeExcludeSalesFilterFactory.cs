@@ -364,7 +364,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					var elementsToAdd = _employeeRepository.Get(
 							unitOfWork,
 							specificationExpression,
-							limit: IncludeExludeFiltersViewModel.DefaultLimit)
+							limit: 500)
 						.Select(x => new IncludeExcludeElement<int, Employee>
 						{
 							Id = x.Id,
