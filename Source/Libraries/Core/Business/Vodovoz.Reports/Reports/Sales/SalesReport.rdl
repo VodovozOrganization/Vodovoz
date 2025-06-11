@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -730,6 +730,10 @@ FROM
 				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
          )
        AND (
+             (0 IN (@Recomendation_include) OR (oi.recomendation_id IN (@Recomendation_include)))
+				AND (oi.recomendation_id IS NULL OR NOT (oi.recomendation_id IN (@Recomendation_exclude)))
+         )
+       AND (
              (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
 				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
          )
@@ -958,6 +962,12 @@ GROUP BY T.order_items_id
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
           </QueryParameter>
+          <QueryParameter Name="Recomendation_include">
+            <Value>=Parameters!Recomendation_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="Recomendation_exclude">
+            <Value>=Parameters!Recomendation_exclude</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
@@ -1129,6 +1139,12 @@ SELECT
             (IF(excluded_discountreason!=0,
                 CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
                 '')),
+            (IF(included_recomendation!=0,
+                CONCAT('Вкл.рекомендаций: ',included_recomendation,'\n'),
+                '')),
+            (IF(excluded_recomendation!=0,
+                CONCAT('Искл.рекомендаций: ',excluded_recomendation,'\n'),
+                '')),
             (IF(included_geographic_groups!=0,
                 CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
                 '')),
@@ -1279,6 +1295,17 @@ FROM
                      (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
                      0
              ) AS excluded_discountreason,
+
+         IF(
+                     0 NOT IN (@Recomendation_include),
+                     (SELECT COUNT(id) FROM recomendations WHERE recomendations.id IN(@Recomendation_include)),
+                     0
+             ) AS included_recomendation,
+         IF(
+                     0 NOT IN (@Recomendation_exclude),
+                     (SELECT COUNT(id) FROM recomendations WHERE recomendations.id IN(@Recomendation_exclude)),
+                     0
+             ) AS excluded_recomendation,
 
          IF(
                      0 NOT IN (@GeoGroup_include),
@@ -1504,6 +1531,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Recomendation_include">
+            <Value>=Parameters!Recomendation_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="Recomendation_exclude">
+            <Value>=Parameters!Recomendation_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1997,6 +2030,20 @@ FROM
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Recomendation_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="Recomendation_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

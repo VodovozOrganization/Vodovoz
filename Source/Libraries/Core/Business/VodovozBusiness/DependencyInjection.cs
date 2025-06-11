@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
+using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Options;
@@ -12,6 +14,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using VodovozBusiness.CachingRepositories.Goods;
 
 namespace Vodovoz
 {
@@ -45,6 +48,8 @@ namespace Vodovoz
 				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
 				.AddService<OrderStateKey>(serviceLifetime)
 				.AddService<OnlineOrderStateKey>(serviceLifetime)
+
+				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Nomenclature>, NomenclatureNodesInMemoryCacheRepository>()
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(

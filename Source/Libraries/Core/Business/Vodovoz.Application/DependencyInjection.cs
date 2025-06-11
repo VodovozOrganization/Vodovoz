@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.FileStorage;
@@ -22,6 +22,7 @@ using RevenueService.Client;
 using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 
 namespace Vodovoz.Application
 {
@@ -47,6 +48,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IRecomendationService, RecomendationService>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
