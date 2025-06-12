@@ -1093,7 +1093,7 @@ namespace Vodovoz.Domain.Logistic
 			#region Терминал для оплаты
 
 			//Терминал для оплаты 
-			//TODO Если используются операции по водителю с терминалами, переделать на них.
+			//TODO: Если используются операции по водителю с терминалами, переделать на них.
 
 			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(terminalId);
@@ -1982,7 +1982,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var onlineOrders = Addresses
 				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
-				.GroupBy(x => x.Order.OnlineOrder)
+				.GroupBy(x => x.Order.OnlinePaymentNumber)
 				.Where(g => g.Key != null && g.Count() > 1)
 				.Select(o => o.Key);
 

@@ -6,7 +6,6 @@ using Edo.Problems.Exception.EdoExceptions;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
@@ -16,13 +15,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Library;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -39,6 +38,8 @@ namespace Edo.Receipt.Dispatcher
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
+		private readonly ISaveCodesService _saveCodesService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IBus _messageBus;
 		private readonly int _maxCodesInReceipt;
 
@@ -54,6 +55,8 @@ namespace Edo.Receipt.Dispatcher
 			Tag1260Checker tag1260Checker,
 			IEdoReceiptSettings edoReceiptSettings,
 			IEdoOrderContactProvider edoOrderContactProvider,
+			ISaveCodesService saveCodesService,
+			IOrganizationSettings organizationSettings,
 			IBus messageBus
 			)
 		{
@@ -68,6 +71,8 @@ namespace Edo.Receipt.Dispatcher
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
+			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
@@ -86,6 +91,23 @@ namespace Edo.Receipt.Dispatcher
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
+				return;
+			}
+			
+			var cashPaymentKulerService =
+				order.PaymentType == PaymentType.Cash
+				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
+			
+			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
+
+			if(cashPaymentKulerService && !hasManualSend)
+			{
+				await SaveCodesToPool(receiptEdoTask, cancellationToken);
+				receiptEdoTask.Status = EdoTaskStatus.Completed;
+				receiptEdoTask.ReceiptStatus = EdoReceiptStatus.SavedToPool;
+				receiptEdoTask.EndTime = DateTime.Now;
+				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
@@ -215,6 +237,11 @@ namespace Edo.Receipt.Dispatcher
 			{
 				CreateReceiptMoneyPositions(fiscalDocument);
 			}
+		}
+		
+		private async Task SaveCodesToPool(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
+		{
+			await _saveCodesService.SaveCodesToPool(receiptEdoTask, cancellationToken);
 		}
 
 		public EdoFiscalDocument CreateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)

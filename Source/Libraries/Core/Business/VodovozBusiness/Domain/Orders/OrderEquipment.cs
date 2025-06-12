@@ -220,6 +220,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		public static OrderEquipment Clone(OrderEquipment orderEquipment)
+		{
+			return new OrderEquipment
+			{
+				Order = orderEquipment.Order,
+				Direction = orderEquipment.Direction,
+				Equipment = orderEquipment.Equipment,
+				OrderItem = orderEquipment.OrderItem,
+				OrderRentDepositItem = orderEquipment.OrderRentDepositItem,
+				OrderRentServiceItem = orderEquipment.OrderRentServiceItem,
+				OwnType = orderEquipment.OwnType,
+				DirectionReason = orderEquipment.DirectionReason,
+				Reason = orderEquipment.Reason,
+				Confirmed = orderEquipment.Confirmed,
+				Nomenclature = orderEquipment.Nomenclature,
+				ActualCount = orderEquipment.ActualCount,
+				Count = orderEquipment.Count
+			};
+		}
 	}
 
 	public enum Direction

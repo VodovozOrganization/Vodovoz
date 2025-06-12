@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Orders
 	[EntityPermission]
 	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
+		public const string Table = "orders";
 		private int _id;
 		private DateTime _version;
 		private DateTime? _createDate;
@@ -64,7 +65,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _bottlesByStockActualCount;
 		private int? _driverCallId;
 		private int? _trifle;
-		private int? _onlineOrder;
+		private int? _onlinePaymentNumber;
 		private int? _eShopOrder;
 		private string _counterpartyExternalOrderId;
 		private bool _isContractCloser;
@@ -92,7 +93,8 @@ namespace Vodovoz.Core.Domain.Orders
 		private DeliveryPointEntity _deliveryPoint;
 		private CounterpartyContractEntity _contract;
 		private DeliveryScheduleEntity _deliverySchedule;
-
+		private string _orderPartsIds;
+		
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
@@ -399,11 +401,11 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _trifle, value);
 		}
 
-		[Display(Name = "Номер онлайн заказа")]
-		public virtual int? OnlineOrder
+		[Display(Name = "Номер онлайн оплаты")]
+		public virtual int? OnlinePaymentNumber
 		{
-			get => _onlineOrder;
-			set => SetField(ref _onlineOrder, value);
+			get => _onlinePaymentNumber;
+			set => SetField(ref _onlinePaymentNumber, value);
 		}
 
 		[Display(Name = "Заказ из интернет магазина")]
@@ -632,6 +634,16 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _deliverySchedule;
 			//Нельзя устанавливать, см. логику в Order.cs
 			protected set => SetField(ref _deliverySchedule, value);
+		}
+		
+		/// <summary>
+		/// Id частей заказа
+		/// </summary>
+		[Display(Name = "Id частей заказа")]
+		public virtual string OrderPartsIds
+		{
+			get => _orderPartsIds;
+			set => SetField(ref _orderPartsIds, value);
 		}
 
 		#region Вычисляемые свойства
