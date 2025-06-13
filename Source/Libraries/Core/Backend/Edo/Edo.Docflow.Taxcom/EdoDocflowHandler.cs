@@ -65,6 +65,42 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
+		public async Task SendOfferCancellation(
+			TaxcomDocflowRequestCancellationEvent @event, 
+			CancellationToken cancellationToken
+			)
+		{
+			var docflow = await _uow.Session.QueryOver<TaxcomDocflow>()
+				.Where(x => x.EdoDocumentId == @event.DocumentId)
+				.Where(x => x.DocflowId != null)
+				.OrderBy(x => x.CreationTime).Desc
+				.Take(1)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(docflow == null)
+			{
+				_logger.LogWarning("Не найден документооборот для ЭДО документа №{DocumentId}", @event.DocumentId);
+				return;
+			}
+
+			await _taxcomApiClient.SendOfferCancellationRaw(
+				docflow.DocflowId.Value.ToString(),
+				@event.CancellationReason,
+				cancellationToken
+			);
+		}
+
+		public async Task AcceptOfferCancellation(
+			AcceptingWaitingForCancellationDocflowEvent @event,
+			CancellationToken cancellationToken
+			)
+		{
+			await _taxcomApiClient.AcceptOfferCancellation(
+				@event.DocFlowId,
+				cancellationToken
+			);
+		}
+
 		public async Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
