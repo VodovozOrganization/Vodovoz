@@ -64,16 +64,25 @@ namespace TaxcomEdoConsumer
 							busConf.AddConsumer<
 								AcceptingIngoingTaxcomDocflowWaitingForSignatureEventConsumer,
 								AcceptingIngoingTaxcomDocflowWaitingForSignatureEventConsumerDefinition>();
-							
+
 							busConf.AddConsumer<
 								OutgoingTaxcomDocflowUpdatedEventConsumer,
 								OutgoingTaxcomDocflowUpdatedEventConsumerDefinition>();
-							
+
+							busConf.AddConsumer<
+								AcceptingWaitingForCancellationDocflowEventConsumer,
+								AcceptingWaitingForCancellationDocflowEventConsumerDefinition>();
+
+							busConf.AddConsumer<
+								TaxcomDocflowRequestCancellationEventConsumer,
+								TaxcomDocflowRequestCancellationEventConsumerDefinition>();
+
 							busConf.AddConsumer<TaxcomDocflowSendEventConsumer, TaxcomDocflowSendEventConsumerDefinition>();
-							
+
 							busConf.ConfigureRabbitMq();
-						})
-						.AddStaticScopeForEntity();
+						});
+
+						services.AddStaticScopeForEntity();
 				});
 	}
 }
