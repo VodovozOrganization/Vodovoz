@@ -13,6 +13,7 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 			
 			Map(x => x.LastProcessedEventOutgoingDocuments).Column("last_processed_event_outgoing_documents");
 			Map(x => x.LastProcessedEventIngoingDocuments).Column("last_processed_event_ingoing_documents");
+			Map(x => x.LastProcessedEventWaitingForCancellationDocuments).Column("last_processed_event_waiting_for_cancellation");
 			Map(x => x.OrganizationId).Column("organization_id");
 		}
 	}
