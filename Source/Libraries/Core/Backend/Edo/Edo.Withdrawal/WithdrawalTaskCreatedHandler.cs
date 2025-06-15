@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,6 @@ using TrueMark.Contracts;
 using TrueMark.Contracts.Documents;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -128,8 +127,6 @@ namespace Edo.Withdrawal
 					return;
 				}
 
-				var errorMessage = string.Empty;
-
 				try
 				{
 					var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codesInOrder, cancellationToken);
@@ -152,38 +149,28 @@ namespace Edo.Withdrawal
 
 					var document = CreateIndividualAccountingWithdrawalDocument(order, productInstansesForDocument);
 
-					var documentSendResponse =
-						_trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, order.Contract.Organization.INN, cancellationToken);
+					var trueMarkDocumentId =
+						await _trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, order.Contract.Organization.INN, cancellationToken);
 
 					withdrawalEdoTask.Status = EdoTaskStatus.InProgress;
+
+					var trueMarkDocument = new TrueMarkDocument
+					{
+						Order = order,
+						Guid = new Guid(trueMarkDocumentId),
+						Organization = order.Contract.Organization,
+						Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal
+					};
+
+					await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, ex.Message);
 
-					errorMessage = ex.Message.Substring(0, 1000);
-
 					withdrawalEdoTask.Status = EdoTaskStatus.Problem;
-					withdrawalEdoTask.Problems.Add(new ExceptionEdoTaskProblem
-					{
-						Type = EdoTaskProblemType.Exception,
-						SourceName = "Вывод из оборота",
-						CreationTime = DateTime.Now,
-						State = TaskProblemState.Active,
-						ExceptionMessage = errorMessage
-					});
 				}
 
-				var trueMarkDocument = new TrueMarkDocument
-				{
-					Order = order,
-					Guid = Guid.NewGuid(),
-					IsSuccess = string.IsNullOrEmpty(errorMessage),
-					Organization = order.Contract.Organization,
-					ErrorMessage = errorMessage
-				};
-
-				await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
 				await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 				uow.Commit();
 			}
@@ -208,7 +195,7 @@ namespace Edo.Withdrawal
 				DocumentNumber = order.Id.ToString(),
 				DocumentDate = order.DeliveryDate.Value,
 				PrimaryDocumentCustomName = "UTD",
-				Products = CreateProductIndividualAccountingDtos(order, codes).ToList()
+				Products = products
 			};
 
 			var serializedProductDocument = JsonSerializer.Serialize(productDocument);
@@ -238,19 +225,19 @@ namespace Edo.Withdrawal
 					continue;
 				}
 
-				var productsCount = orderItems.Sum(oi => oi.ActualCount ?? oi.Count);
+				var productsCount = (int)orderItems.Sum(oi => oi.ActualCount ?? oi.Count);
 
 				var productsTotalCost = nomenclatureOrderItems.Value
 					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
 
 				var productsCostPerItem = productsTotalCost / productsCount;
-				
+
 				var nomenclatureGtins = nomenclature.Gtins.Select(x => x.GtinNumber).ToArray();
 
 				var nomenclatureCodes = gtinsCodes
 					.Where(x => nomenclatureGtins.Contains(x.Key))
 					.SelectMany(x => x.Value)
-					.Take(products.Count)
+					.Take(productsCount)
 					.ToList();
 
 				if(!nomenclatureCodes.Any())
