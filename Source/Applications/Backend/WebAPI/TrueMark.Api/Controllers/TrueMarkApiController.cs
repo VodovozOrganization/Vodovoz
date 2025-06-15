@@ -339,15 +339,23 @@ public class TrueMarkApiController : ControllerBase
 
 			var documentId = await responseResult.Content.ReadAsStringAsync(cancellationToken);
 
-			HttpContext.Response.StatusCode = StatusCodes.Status200OK;
-			return new ObjectResult(documentId);
+			return new ContentResult
+			{
+				Content = documentId,
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status200OK
+			};
 		}
 		catch(Exception e)
 		{
 			_logger.LogError(e, "Ошибка при отправке документа вывода из оборота");
 
-			HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-			return new ObjectResult($"Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}");
+			return new ContentResult
+			{
+				Content = "Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}",
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status500InternalServerError
+			};
 		}
 	}
 
