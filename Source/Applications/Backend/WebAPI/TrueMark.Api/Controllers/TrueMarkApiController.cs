@@ -275,7 +275,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 	{
-		return await SignDocument(data, isDeatchedSign, inn, certificateThumbPrint);
+		return await SignDocument(data, isDeatchedSign, certificateThumbPrint, inn);
 	}
 
 	[HttpGet]
