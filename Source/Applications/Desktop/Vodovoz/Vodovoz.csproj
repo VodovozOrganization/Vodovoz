@@ -105,6 +105,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -2089,6 +2092,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
+    <Compile Include="Views\Client\CounterpartyEdoAccountView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountView.cs" />
+    <Compile Include="Views\Client\EdoAccountView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

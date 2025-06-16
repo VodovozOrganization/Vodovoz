@@ -103,6 +103,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.Views.Client;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
 using Type = Vodovoz.Core.Domain.Documents.Type;
@@ -316,6 +317,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			var accountsView = new CounterpartyEdoAccountView();
+			vboxEdoAccounts.Add(accountsView);
+			accountsView.Show();
+
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
@@ -1270,7 +1275,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
-			ybuttonCheckClientInTaxcom.Binding
+			/*ybuttonCheckClientInTaxcom.Binding
 				.AddFuncBinding(Entity,
 					e => e.PersonType == PersonType.legal && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
 					w => w.Sensitive)
@@ -1328,7 +1333,7 @@ namespace Vodovoz
 			ybuttonCheckConsentForEdo.Binding
 				.AddFuncBinding(Entity, e => e.ConsentForEdoStatus == ConsentForEdoStatus.Sent, w => w.Sensitive)
 				.InitializeFromSource();
-
+				*/
 			ybuttonRegistrationInChestnyZnak.Binding
 				.AddFuncBinding(Entity,
 					e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
@@ -1357,7 +1362,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
 
-			specialListCmbAllOperators.Binding
+			/*specialListCmbAllOperators.Binding
 				.AddFuncBinding(Entity,
 					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
 					w => w.Sensitive)
@@ -1371,7 +1376,7 @@ namespace Vodovoz
 					Entity.EdoOperator = counterpartyEdoOperator.EdoOperator;
 					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
 				}
-			};
+			};*/
 
 			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
 				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
@@ -2265,7 +2270,7 @@ namespace Vodovoz
 						Counterparty = Entity
 					});
 
-					specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
+					//specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
 				}
 			}
 
