@@ -1,4 +1,4 @@
-using DriverApi.Notifications.Client;
+﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
@@ -15,6 +15,7 @@ using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
 using Vodovoz.Services;
@@ -24,8 +25,6 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkApi.Client;
-using Vodovoz.Core.Domain.Goods.Recomendations;
 
 namespace Vodovoz.Application
 {
