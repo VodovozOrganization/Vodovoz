@@ -1,7 +1,6 @@
 ﻿using Polly;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -9,7 +8,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
-using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
@@ -73,20 +71,6 @@ namespace TrueMarkApi.Client
 			var documentId = await response.Content.ReadAsStringAsync();
 
 			return documentId;
-		}
-
-		public async Task<CreatedDocumentInfoDto> ReceiveDocument(string documentId, string inn, CancellationToken cancellationToken)
-		{
-			var endPoint = $"api/RecieveDocument?documentId={documentId}&&inn={inn}";
-
-			var response = await _httpClient.GetAsync(endPoint, cancellationToken);
-			response.EnsureSuccessStatusCode();
-
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var createdDocumentInfo = (await JsonSerializer.DeserializeAsync<IEnumerable<CreatedDocumentInfoDto>>(responseBody))
-				.FirstOrDefault();
-
-			return createdDocumentInfo;
 		}
 	}
 }

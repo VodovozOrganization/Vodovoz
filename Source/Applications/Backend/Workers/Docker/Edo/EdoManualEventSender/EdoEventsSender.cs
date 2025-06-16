@@ -35,7 +35,7 @@ namespace EdoManualEventSender
 			Console.WriteLine("13. ReceiptTaskCreatedEvent:");
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
 			Console.WriteLine("15. TransferCompleteEvent (Tender):");
-			Console.WriteLine("15. WithdrawalTaskCreatedEvent:");
+			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
 			Console.WriteLine();
 
 			Console.Write("Выберите тип сообщения: ");
