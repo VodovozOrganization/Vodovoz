@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IComplaintSettings _complaintSettings;
 		private readonly IComplaintFileStorageService _complaintFileStorageService;
 		private readonly IComplaintDiscussionCommentFileStorageService _complaintDiscussionCommentFileStorageService;
+		private readonly IComplaintService _complaintService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IComplaintFileStorageService complaintFileStorageService,
 			IComplaintDiscussionCommentFileStorageService complaintDiscussionCommentFileStorageService,
+			IComplaintService complaintService,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -120,6 +122,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 			_complaintFileStorageService = complaintFileStorageService ?? throw new ArgumentNullException(nameof(complaintFileStorageService));
 			_complaintDiscussionCommentFileStorageService = complaintDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(complaintDiscussionCommentFileStorageService));
+			_complaintService = complaintService ?? throw new ArgumentNullException(nameof(complaintService));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
@@ -870,6 +873,15 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 			}
 			while(repeat);
+		}
+		
+		protected override bool BeforeSave()
+		{
+			var checkDuplicatesFromDate = Entity.CreationDate.AddDays(-1);
+			var checkDuplicatesToDate = Entity.CreationDate.AddDays(1);
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity, checkDuplicatesFromDate, checkDuplicatesToDate);
+
+			return canSave;
 		}
 
 		public override void Dispose()

@@ -271,7 +271,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 		protected override bool BeforeSave()
 		{
-			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
+			var checkDuplicatesFromDate = DateTime.Now.AddDays(-1);
+			var checkDuplicatesToDate = DateTime.Now;
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity, checkDuplicatesFromDate, checkDuplicatesToDate);
 
 			return canSave;
 		}
