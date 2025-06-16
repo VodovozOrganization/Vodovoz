@@ -6,6 +6,7 @@ using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -17,6 +18,7 @@ using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Domain.Settings;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library
@@ -46,6 +48,7 @@ namespace FastPaymentsAPI.Library
 				.AddTransient<FastPaymentPerformedStatusFromOnlineChecker>()
 				.AddTransient<ResponseStatusPerformedFromOnlineChecker>()
 				.AddTransient<ResponseStatusProcessingFromOnlineChecker>()
+				.AddScoped<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
 				
 				//backgroundServices
 				.AddHostedService<FastPaymentStatusUpdater>()

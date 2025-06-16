@@ -2,8 +2,11 @@
 using FastPaymentsApi.Contracts.Responses;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Models
@@ -19,7 +22,7 @@ namespace FastPaymentsAPI.Library.Models
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			PaymentType paymentType,
 			string phoneNumber = null);
 		void SaveNewTicketForOnlineOrder(
@@ -29,11 +32,12 @@ namespace FastPaymentsAPI.Library.Models
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			string callbackUrl);
 		bool UpdateFastPaymentStatus(PaidOrderInfoDTO operationInfoDto, FastPayment fastPayment);
 		void UpdateFastPaymentStatus(FastPayment fastPayment, FastPaymentDTOStatus newStatus, DateTime statusDate);
 		bool ValidateSignature(PaidOrderInfoDTO paidOrderInfoDto, out string paymentSignature);
-		Organization GetOrganization(RequestFromType requestFromType);
+		Result<Organization> GetOrganization(
+			TimeSpan requestTime, FastPaymentRequestFromType fastPaymentRequestFromType, Order order = null);
 	}
 }

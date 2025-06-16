@@ -133,11 +133,13 @@ namespace Vodovoz.ViewModels.Orders
 				TabName = Entity.Title;
 			}
 
-			UndeliveredOrderViewModel = _undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
+			UndeliveredOrderViewModel =
+				_undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
 
 			UndeliveredOrderViewModel.SaveUndelivery += SaveUndelivery;
 
-			UndeliveryDiscussionsViewModel = _undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
+			UndeliveryDiscussionsViewModel = 
+				_undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
 
 			CanEdit = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder)).CanUpdate;
 

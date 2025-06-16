@@ -128,7 +128,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			{
 				ExternalOrderId = onlineOrder.ExternalOrderId,
 				OnlineOrderId = onlineOrder.Id,
-				OrderId = onlineOrder.Order?.Id,
 				DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : null,
 				DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
 				OrderStatus = _externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder)
