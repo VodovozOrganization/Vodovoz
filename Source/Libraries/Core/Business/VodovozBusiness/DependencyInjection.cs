@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
@@ -51,8 +51,6 @@ namespace Vodovoz
 				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
 				.AddService<OrderStateKey>(serviceLifetime)
 				.AddService<OnlineOrderStateKey>(serviceLifetime)
-
-				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Nomenclature>, NomenclatureNodesInMemoryCacheRepository>()
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(
@@ -71,6 +69,7 @@ namespace Vodovoz
 		public static IServiceCollection AddCachingRepositories(
 			this IServiceCollection services)
 			=> services
-				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>();
+				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>()
+				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Nomenclature>, NomenclatureNodesInMemoryCacheRepository>();
 	}
 }
