@@ -12,7 +12,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yTable tableAccount;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOperatoEdo;
+		private global::QS.Views.Control.EntityEntry operatorEdoEntry;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbAllOperators;
 
@@ -71,14 +71,11 @@ namespace Vodovoz.Views.Client
 			this.tableAccount.RowSpacing = ((uint)(6));
 			this.tableAccount.ColumnSpacing = ((uint)(6));
 			// Container child tableAccount.Gtk.Table+TableChild
-			this.evmeOperatoEdo = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeOperatoEdo.Events = ((global::Gdk.EventMask)(256));
-			this.evmeOperatoEdo.Name = "evmeOperatoEdo";
-			this.evmeOperatoEdo.CanEditReference = true;
-			this.evmeOperatoEdo.CanDisposeEntitySelectorFactory = false;
-			this.evmeOperatoEdo.CanOpenWithoutTabParent = false;
-			this.tableAccount.Add(this.evmeOperatoEdo);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tableAccount[this.evmeOperatoEdo]));
+			this.operatorEdoEntry = new global::QS.Views.Control.EntityEntry();
+			this.operatorEdoEntry.Events = ((global::Gdk.EventMask)(256));
+			this.operatorEdoEntry.Name = "operatorEdoEntry";
+			this.tableAccount.Add(this.operatorEdoEntry);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tableAccount[this.operatorEdoEntry]));
 			w2.TopAttach = ((uint)(1));
 			w2.BottomAttach = ((uint)(2));
 			w2.LeftAttach = ((uint)(1));
