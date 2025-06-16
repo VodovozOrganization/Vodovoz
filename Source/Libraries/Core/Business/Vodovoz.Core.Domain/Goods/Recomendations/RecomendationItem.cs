@@ -51,7 +51,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		public virtual int Id
 		{
 			get => _id;
-			protected set => SetField(ref _id, value);
+			protected internal set => SetField(ref _id, value);
 		}
 
 		[Display(Name = "Идентификатор рекомендации")]
@@ -59,7 +59,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		public virtual int RecomendationId
 		{
 			get => _recomendationId;
-			internal set => SetField(ref _recomendationId, value);
+			protected internal set => SetField(ref _recomendationId, value);
 		}
 
 		[Display(Name = "Идентификатор номенклатуры")]
@@ -67,14 +67,14 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		public virtual int NomenclatureId
 		{
 			get => _nomenclatureId;
-			protected set => SetField(ref _nomenclatureId, value);
+			protected internal set => SetField(ref _nomenclatureId, value);
 		}
 
 		[Display(Name = "Идентификатор приоритет")]
 		public virtual int Priority
 		{
 			get => _priority;
-			internal set => SetField(ref _priority, value);
+			protected internal set => SetField(ref _priority, value);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		/// <param name="nomenclatureId"></param>
 		/// <param name="priority"></param>
 		/// <returns></returns>
-		public static RecomendationItem Create(int recomendationId, int nomenclatureId, int priority)
+		internal static RecomendationItem Create(int recomendationId, int nomenclatureId, int priority)
 		{
 			return new RecomendationItem(recomendationId, nomenclatureId, priority);
 		}
