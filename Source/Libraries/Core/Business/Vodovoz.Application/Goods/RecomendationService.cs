@@ -65,6 +65,11 @@ namespace Vodovoz.Application.Goods
 				recomendationItems.Add(baseRecomendationItem);
 			}
 
+			if(concreteRecomendation is null)
+			{
+				return recomendationItems;
+			}
+
 			foreach(var recomendationItem in concreteRecomendation.Items.OrderBy(x => x.Priority))
 			{
 				if(recomendationItems.Count >= limit)
