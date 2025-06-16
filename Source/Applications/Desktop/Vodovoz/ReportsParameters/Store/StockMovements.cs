@@ -13,7 +13,6 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Reports;
@@ -26,6 +25,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Reports
 {

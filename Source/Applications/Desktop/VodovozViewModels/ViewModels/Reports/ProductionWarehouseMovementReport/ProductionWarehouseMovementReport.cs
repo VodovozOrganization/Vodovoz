@@ -1,4 +1,4 @@
-using CsvHelper;
+﻿using CsvHelper;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -10,9 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.Reports
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Warehouses.Documents
 {
 	/// <summary>
 	/// Тип документа
@@ -55,12 +55,12 @@ namespace Vodovoz.Domain.Documents
 		/// <summary>
 		/// Пересортица товаров
 		/// </summary>
-		[Display (Name = "Пересортица товаров")]
+		[Display(Name = "Пересортица товаров")]
 		RegradingOfGoodsDocument,
 		/// <summary>
 		/// Документ доставки
 		/// </summary>
-		[Display (Name = "Документ доставки")]
+		[Display(Name = "Документ доставки")]
 		DeliveryDocument,
 		/// <summary>
 		/// Документы перемещения терминала водителя
@@ -79,4 +79,3 @@ namespace Vodovoz.Domain.Documents
 		DriverTerminalReturn
 	}
 }
-

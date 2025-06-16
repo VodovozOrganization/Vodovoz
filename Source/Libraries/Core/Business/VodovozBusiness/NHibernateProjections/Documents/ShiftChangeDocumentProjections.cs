@@ -1,8 +1,8 @@
 ﻿using NHibernate.Criterion;
 using QS.Project.DB;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.NHibernateProjections.Documents
 {
