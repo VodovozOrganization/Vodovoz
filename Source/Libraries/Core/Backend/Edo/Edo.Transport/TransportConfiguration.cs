@@ -36,6 +36,14 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+			
+			cfg.Message<TenderTaskCreatedEvent>(x => x.SetEntityName("edo.tender-task-created.publish"));
+			cfg.Publish<TenderTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 
 			cfg.Message<TransferRequestCreatedEvent>(x => x.SetEntityName("edo.transfer-request-created.publish"));
 			cfg.Publish<TransferRequestCreatedEvent>(x =>

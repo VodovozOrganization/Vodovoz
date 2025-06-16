@@ -10,11 +10,11 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Employee;
 

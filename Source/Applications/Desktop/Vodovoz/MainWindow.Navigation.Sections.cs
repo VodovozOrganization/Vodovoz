@@ -286,6 +286,14 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
+	
+	/// <summary>
+	/// Журнал проблем документооборота с клиентами
+	/// </summary>
+	protected void OnActionEdoProblemJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProblemJournalViewModel>(null);
+	}
 
 	#endregion Честный знак
 

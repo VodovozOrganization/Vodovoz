@@ -4,8 +4,9 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.PrintableDocuments;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 

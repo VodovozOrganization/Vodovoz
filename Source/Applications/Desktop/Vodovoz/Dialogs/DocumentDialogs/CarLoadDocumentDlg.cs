@@ -9,10 +9,9 @@ using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -236,7 +235,7 @@ namespace Vodovoz
 
 			if(!IsAllItemsInRouteListLoaded())
 			{
-				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые заказы. Частичная погрузка запрещена!");
+				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые, либо госзаказы. Частичная погрузка запрещена!");
 				return false;
 			}
 
@@ -282,7 +281,8 @@ namespace Vodovoz
 			var isNewEntity = Entity.Id == 0;
 
 			var isAllItemsMustBeLoaded =
-				(isNewEntity && Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+				(isNewEntity && Entity.RouteList.Addresses
+					.Select(a => a.Order).Any(o => o.IsNeedIndividualSetOnLoad || o.IsNeedIndividualSetOnLoadForTender))
 				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
 
 			if(!isAllItemsMustBeLoaded)

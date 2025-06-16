@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
 				.GetCurrentUserSettings(_unitOfWork);
 
-			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions);
+			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions.Select(x => x.Id));
 			if(needSave)
 			{
 				_unitOfWork.Save(settings);
@@ -61,7 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 
 			_sortedSubdivisionsIds = settings.CashSubdivisionSortingSettings
 				.OrderBy(x => x.SortingIndex)
-				.Select(x => x.CashSubdivision.Id)
+				.Where(x => x.CashSubdivisionId.HasValue)
+				.Select(x => x.CashSubdivisionId.Value)
 				.ToList();
 
 			RefreshCommand = new DelegateCommand<DocumentsFilterViewModel>(Refresh);
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 			var selectedSubdivisionsIds = filter.Subdivision != null
 				? new int[] { filter.Subdivision.Id }
 				: filter.AvailableSubdivisions?
+					.Where(x => !x.IsArchive)
 					.Select(x => x.Id)
 					.ToArray();
 
@@ -164,6 +166,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		{
 			var selectedSubdivisionsIds = filter.Subdivision is null
 				? filter.AvailableSubdivisions?
+					.Where(x => !x.IsArchive)
 					.Select(x => x.Id)
 					.ToArray()
 				: new int[] { filter.Subdivision.Id };

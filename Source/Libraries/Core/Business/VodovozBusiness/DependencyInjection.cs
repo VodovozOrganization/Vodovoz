@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
+using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Options;
@@ -12,6 +14,8 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using VodovozBusiness.CachingRepositories.Goods;
+using VodovozBusiness.CachingRepositories.Subdivisions;
 
 namespace Vodovoz
 {
@@ -29,7 +33,9 @@ namespace Vodovoz
 				.RegisterClassesByInterfaces("Service", serviceLifetime)
 				.RegisterClassesByInterfaces("Handler", serviceLifetime)
 				.RegisterClassesByInterfaces("Factory", serviceLifetime)
-				
+
+				.AddCachingRepositories()
+
 				.ConfigureBusinessOptions(configuration)
 				.AddService<RouteGeometryCalculator>(serviceLifetime)
 				.AddService<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>(), serviceLifetime)
@@ -59,5 +65,11 @@ namespace Vodovoz
 		public static IServiceCollection ConfigureBusinessOptions(this IServiceCollection services, IConfiguration configuration) => services
 			.Configure<PushNotificationSettings>(pushNotificationOptions =>
 				configuration.GetSection(nameof(PushNotificationSettings)).Bind(pushNotificationOptions));
+
+		public static IServiceCollection AddCachingRepositories(
+			this IServiceCollection services)
+			=> services
+				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>()
+				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Nomenclature>, NomenclatureNodesInMemoryCacheRepository>();
 	}
 }

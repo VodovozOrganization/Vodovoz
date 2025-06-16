@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
@@ -24,6 +24,7 @@ using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -49,6 +50,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
 {
@@ -166,6 +168,8 @@ namespace Vodovoz
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
+			OpenOrderCodesCommand = new DelegateCommand(() => OpenOrderCodesDialog(),() => CanOpenOrderCodes());
+			OpenOrderCodesCommand.CanExecuteChangedWith(this, x => x.SelectedRouteListAddressesObjects);
 		}
 
 		private void CreateInitialRouteListItemStatuses()
@@ -271,6 +275,7 @@ namespace Vodovoz
 		public DelegateCommand ChangeDeliveryTimeCommand { get; }
 		public DelegateCommand SetStatusCompleteCommand { get; }
 		public DelegateCommand ReDeliverCommand { get; }
+		public DelegateCommand OpenOrderCodesCommand { get; }
 
 		#endregion Commands
 
@@ -536,6 +541,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(!_orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, rli.RouteListItem.Order.Id).GetAwaiter().GetResult())
+			{
+				return;
+			}
+
 			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
@@ -553,11 +563,11 @@ namespace Vodovoz
 			   && !_currentPermissionService.ValidatePresetPermission(
 				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				if(order.IsNeedIndividualSetOnLoad
+				if((order.IsNeedIndividualSetOnLoad || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-						"т.к. данный заказ является сетевым, но документ погрузки не находится в статусе \"Погрузка завершена\"";
+						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
 
 					return false;
 				}
@@ -568,6 +578,17 @@ namespace Vodovoz
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 					          "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
+
+					return false;
+				}
+				
+				if(order.IsOrderForTender
+				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
+				   && !order.IsNeedIndividualSetOnLoad
+				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				{
+					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					          "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
 
 					return false;
 				}
@@ -835,6 +856,31 @@ namespace Vodovoz
 		protected void ReDeliverHandler()
 		{
 			Entity.UpdateStatus(isIgnoreAdditionalLoadingDocument: true);
+		}
+
+		protected void OpenOrderCodesDialog()
+		{
+			if(!CanOpenOrderCodes())
+			{
+				return;
+			}
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id);
+		}
+
+		protected bool CanOpenOrderCodes()
+		{
+			if(SelectedRouteListAddressesObjects.Count() > 1)
+			{
+				return false;
+			}
+
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			if(selectedAddress == null || selectedAddress.RouteListItem == null)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		public override void Dispose()

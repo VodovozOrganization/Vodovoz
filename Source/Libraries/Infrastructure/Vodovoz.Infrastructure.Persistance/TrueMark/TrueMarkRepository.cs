@@ -1,5 +1,6 @@
 ﻿using DateTimeHelpers;
 using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
@@ -9,9 +10,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
@@ -174,6 +180,136 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 
 			return result;
+		}
+
+		public bool IsTrueMarkAnyCodeAlreadySaved(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode)
+		{
+			var isCodeAlreadySaved = trueMarkAnyCode.Match(
+				transportCode =>
+					uow.Session.Query<TrueMarkTransportCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any(),
+				groupCode =>
+					uow.Session.Query<TrueMarkWaterGroupCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any(),
+				waterCode =>
+					uow.Session.Query<TrueMarkWaterIdentificationCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any());
+
+			return isCodeAlreadySaved;
+		}
+		
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены складом в документе погрузки автомобиля.
+		/// </summary>
+		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId)
+		{
+			CarLoadDocumentItemTrueMarkProductCode carLoadTrueMarkProductCodeAlias = null;
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+
+			var carLoadCodes = uow.Session.QueryOver(() => carLoadTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => carLoadTrueMarkProductCodeAlias.CarLoadDocumentItem,
+					() => carLoadDocumentItemAlias
+				)
+				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
+				.List();
+
+			return carLoadCodes;
+		}
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из маршрутного листа водителем.
+		/// </summary>
+		public IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId)
+		{
+			RouteListItemTrueMarkProductCode routeListTrueMarkProductCodeAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => routeListTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => routeListTrueMarkProductCodeAlias.RouteListItem,
+					() => routeListItemAlias
+				)
+				.Where(() => routeListItemAlias.Order.Id == orderId)
+				.List();
+
+			return routeListCodes;
+		}
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из самовывоза.
+		/// </summary>
+		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
+		{
+			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
+
+			var selfdeliveryCodes = uow.Session.QueryOver(() => selfdeliveryTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItem,
+					() => selfDeliveryDocumentItemAlias
+				)
+				.Left.JoinAlias(
+					() => selfDeliveryDocumentItemAlias.SelfDeliveryDocument,
+					() => selfDeliveryDocumentAlias
+				)
+				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)
+				.List();
+
+			return selfdeliveryCodes;
+		}
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа, 
+		/// которые были добавлены из пула в виду отсутствия 
+		/// кодов из других источников (склад, водитель, самовывоз).
+		/// </summary>
+		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
+		{
+			AutoTrueMarkProductCode autoProductCodeAlias = null;
+			OrderEdoRequest customerEdoRequestAlias = null;
+
+			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => autoProductCodeAlias.CustomerEdoRequest,
+					() => customerEdoRequestAlias
+				)
+				.Where(() => customerEdoRequestAlias.Order.Id == orderId)
+				.List();
+
+			return poolCodes;
+		}
+
+		public int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var codesRequired = uow.Session.QueryOver(() => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.Count)))
+				.SingleOrDefault<decimal>();
+
+			return (int)codesRequired;
 		}
 	}
 }

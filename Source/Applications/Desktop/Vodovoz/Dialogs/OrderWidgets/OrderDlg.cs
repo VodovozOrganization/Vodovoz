@@ -6,6 +6,7 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
+using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -48,8 +49,10 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -86,7 +89,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
@@ -98,7 +100,9 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
+using Vodovoz.Presentation.Views.Common;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -219,6 +223,10 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private ICounterpartyService _counterpartyService;
+		private readonly IRecomendationService _recomendationService = ScopeProvider.Scope.Resolve<IRecomendationService>();
+
+		private readonly IGenericRepository<Recomendation> _recomendationsRepository = ScopeProvider.Scope.Resolve<IGenericRepository<Recomendation>>();
+		private readonly IGenericRepository<Nomenclature> _nomenclatureGenericRepository = ScopeProvider.Scope.Resolve<IGenericRepository<Nomenclature>>();
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= ScopeProvider.Scope.Resolve<IRentPackagesJournalsViewModelsFactory>();
@@ -1188,7 +1196,7 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Permissions.Order.CanEditGoodsInRouteList);
 		}
@@ -1564,7 +1572,7 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
-				if(Entity.IsNeedIndividualSetOnLoad)
+				if(Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender)
 				{
 					ResetFastDeliveryForNetworkClient();
 
@@ -1596,7 +1604,7 @@ namespace Vodovoz
 
 			ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Error,
-				"Нельзя выбрать доставку за час для сетевого клиента");
+				"Нельзя выбрать доставку за час для сетевого клиента и клиента с целью покупки - Тендер");
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
@@ -2026,7 +2034,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
 			treeDocuments.Selection.Changed += Selection_Changed;
 
-			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+			treeDocuments.RowActivated += OnButtonViewDocumentClicked;
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Новый\nдокументооборот")
@@ -2641,7 +2649,8 @@ namespace Vodovoz
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
-			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType)
+			   && Counterparty.ReasonForLeaving != ReasonForLeaving.Tender)
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))
@@ -2839,6 +2848,13 @@ namespace Vodovoz
 		{
 			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
+			
+			OrderDocumentsOpener(Entity.OrderDocuments
+				.Where(x => x.Type == OrderDocumentType.Invoice
+					|| x.Type == OrderDocumentType.InvoiceBarter
+					|| x.Type == OrderDocumentType.InvoiceContractDoc)
+				.OfType<PrintableOrderDocument>()
+				.ToArray());
 		}
 
 		/// <summary>
@@ -2904,31 +2920,32 @@ namespace Vodovoz
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
-			OrderDocumentsOpener();
+			var selectedObjects = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>().ToArray();
+
+			OrderDocumentsOpener(selectedObjects);
 		}
 
 		/// <summary>
 		/// Открытие соответствующего документу заказа окна.
 		/// </summary>
-		private void OrderDocumentsOpener()
+		private void OrderDocumentsOpener(PrintableOrderDocument[] printableOrderDocuments)
 		{
 			_logger.Info("Открытие документа заказа");
 			
-			if(!treeDocuments.GetSelectedObjects().Any())
+			if(!printableOrderDocuments.Any())
 			{
 				return;
 			}
 
 			var rdlDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.RDL)
-					.ToList();
+					.ToArray();
 
 			if(rdlDocs.Any())
 			{
 				var whatToPrint =
-					rdlDocs.ToList().Count > 1
+					rdlDocs.Length > 1
 						? "документов"
 						: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
 				
@@ -2936,22 +2953,21 @@ namespace Vodovoz
 				{
 					UoWGeneric.Save();
 				}
-				rdlDocs.ForEach(
-					doc =>
+
+				foreach(var doc in rdlDocs)
+				{
+					if(doc is IPrintableRDLDocument document)
 					{
-						if(doc is IPrintableRDLDocument document)
-						{
-							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
-						}
+						NavigationManager
+							.OpenViewModelOnTdi<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
 					}
-				);
+				}
 			}
 
 			var odtDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.ODT)
-					.ToList();
+					.ToArray();
 			
 			if(odtDocs.Any())
 			{
@@ -2970,6 +2986,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderContract.Contract);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
@@ -2992,6 +3009,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderM2Proxy.M2Proxy);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
@@ -3972,7 +3990,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
 
-			if(ycheckFastDelivery.Active && Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}
@@ -4072,7 +4090,7 @@ namespace Vodovoz
 		{
 			UpdateOnlineOrderText();
 
-			if(Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}
@@ -4889,6 +4907,8 @@ namespace Vodovoz
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
+
+
 			if(Entity.Client is null)
 			{
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
@@ -4902,6 +4922,136 @@ namespace Vodovoz
 				return;
 			}
 
+			PrepareRecomendationsPage();
+
+			if(dualtreeviewnodestransferview1.ViewModel.LeftItems.Count > 0)
+			{
+				SwitchToRecomendationPage();
+				return;
+			}
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void PrepareRecomendationsPage()
+		{
+			if(Entity.Client is null
+				|| Entity.DeliveryPoint is null)
+			{
+				return;
+			}
+
+			var recomendationItems = _recomendationService.GetRecomendationItemsForOperator(
+				UoW,
+				Entity.Client.PersonType,
+				Entity.DeliveryPoint.RoomType,
+				Entity.OrderItems.Select(x => x.Nomenclature.Id));
+
+			var nomenclaturesIds = recomendationItems.Select(x => x.NomenclatureId).ToArray();
+
+			var nomenclatures = _nomenclatureGenericRepository
+				.Get(UoW, x => nomenclaturesIds.Contains(x.Id))
+				.ToDictionary(x => x.Id, x => x.Name);
+
+			var nomenclaturesToRecommend = new List<RecomendationsForOrderDualListViewModel.LeftNode>();
+
+			foreach(var recomendationItem in recomendationItems)
+			{
+				nomenclaturesToRecommend.Add(new RecomendationsForOrderDualListViewModel.LeftNode
+				{
+					RecomendationId = recomendationItem.RecomendationId,
+					NomenclatureId = recomendationItem.NomenclatureId,
+					NomenclatureName = nomenclatures[recomendationItem.NomenclatureId]
+				});
+			}
+
+			dualtreeviewnodestransferview1.YTreeviewLeft.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.LeftNode>()
+				.AddColumn("Номенклатуры для рекомендации")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.Finish();
+
+			dualtreeviewnodestransferview1.YTreeViewRight.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.RightNode>()
+				.AddColumn("Номенклатура")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.AddColumn("Количество")
+				.AddNumericRenderer(x => x.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.Editing(true)
+				.EditedEvent(OnSpinRecomendedItemCountEdited)
+				.AddColumn("Цена")
+				.AddNumericRenderer(x => x.Price)
+				.Editing(false)
+				.AddColumn("Сумма")
+				.AddNumericRenderer(x => x.Sum)
+				.Editing(false)
+				.Finish();
+
+			dualtreeviewnodestransferview1.ViewModel = RecomendationsForOrderDualListViewModel.Create(
+				UoW,
+				_nomenclatureGenericRepository,
+				leftItems: nomenclaturesToRecommend,
+				searchLeftPredicate: (searchText, nomenclature) => nomenclature.NomenclatureName.Contains(searchText),
+				searchRightPredicate: (searchText, orderItem) => orderItem.NomenclatureName.Contains(searchText));
+
+			dualtreeviewnodestransferview1.YTreeViewRight.HeadersVisible = true;
+			dualtreeviewnodestransferview1.YTreeviewLeft.HeadersVisible = true;
+
+			ybtnAddItems.Clicked += OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked += OnSkipRecomendationsClicked;
+		}
+
+		private void OnSpinRecomendedItemCountEdited(object o, EditedArgs args)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is RecomendationsForOrderDualListViewModel.RightNode rightNode))
+			{
+				return;
+			}
+
+			rightNode.Count = newCount;
+		}
+
+		private void OnSkipRecomendationsClicked(object sender, EventArgs e)
+		{
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void OnAddSelectedRecomendedItemsClicked(object sender, EventArgs e)
+		{
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+
+			var rightNodes = dualtreeviewnodestransferview1.ViewModel.RightItems as IObservableList<RecomendationsForOrderDualListViewModel.RightNode>;
+
+			var nimenclatureIds = rightNodes.Select(x => x.NomenclatureId).ToArray();
+
+			var nomenclatures = _nomenclatureGenericRepository.Get(UoW, x => nimenclatureIds.Contains(x.Id));
+			
+			foreach(var item in rightNodes)
+			{
+				Entity.AddNomenclature(nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
+			}
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void SwitchToRecomendationPage()
+		{
+			ntbOrder.GetNthPage(1).Hide();
+			ntbOrder.GetNthPage(1).Show();
+
+			ntbOrder.CurrentPage = 1;
+		}
+
+		private void PrepareConfirmationPage()
+		{
 			_summaryInfoBuilder.Clear();
 
 			var clientFIO = Entity.Client.FullName.ToUpper();
@@ -5056,11 +5206,14 @@ namespace Vodovoz
 			ylblResumeLogisticsRequirementsSummary.Text = logisticsRequirementsSummary;
 
 			_summaryInfoBuilder.Append($"{lblResumeLogisticsRequirements.Text} {logisticsRequirementsSummary}");
+		}
 
-			ntbOrder.GetNthPage(1).Hide();
-			ntbOrder.GetNthPage(1).Show();
+		private void SwitchToConfirmationPage()
+		{
+			ntbOrder.GetNthPage(2).Hide();
+			ntbOrder.GetNthPage(2).Show();
 
-			ntbOrder.CurrentPage = 1;
+			ntbOrder.CurrentPage = 2;
 		}
 
 		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()

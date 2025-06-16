@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
@@ -36,8 +36,7 @@ using System.Reflection;
 using System.Security.Principal;
 using Vodovoz.Commons;
 using Vodovoz.Configuration;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Security;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings;
@@ -93,7 +92,7 @@ namespace Vodovoz
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 			var errorMessageModelFactoryWithoutUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, null, null);
-			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactoryWithoutUserService, _applicationInfo);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(AppDIContainer.Resolve<ILogger<DefaultUnhandledExceptionHandler>>(), errorMessageModelFactoryWithoutUserService, _applicationInfo);
 
 			exceptionHandler.SubscribeToUnhandledExceptions();
 			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;

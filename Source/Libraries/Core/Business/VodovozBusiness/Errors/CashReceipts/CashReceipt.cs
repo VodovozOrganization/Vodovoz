@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.CashReceipts
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.CashReceipts
 {
 	public static class CashReceipt
 	{

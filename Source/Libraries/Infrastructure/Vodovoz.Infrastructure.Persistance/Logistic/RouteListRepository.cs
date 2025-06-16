@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -26,7 +27,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -207,7 +207,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			if(warehouse != null)
 			{
 				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
-				if(cashSubdivisions.Contains(warehouse.OwningSubdivision))
+				if(cashSubdivisions.Any(x => x.Id == warehouse.OwningSubdivisionId))
 				{
 					terminal = GetTerminalInRLWithSpecialRequirements(uow, routeList, warehouse);
 					if(routeList.AdditionalLoadingDocument != null)
@@ -284,11 +284,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			if(warehouse != null)
 			{
 				var cashSubdivisions = subdivisionRepository.GetCashSubdivisions(uow);
-				if(cashSubdivisions.Contains(warehouse.OwningSubdivision))
+				if(cashSubdivisions.Any(x => x.Id == warehouse.OwningSubdivisionId))
 				{
 					var terminal = GetTerminalInRL(uow, routeList, warehouse);
 					if(terminal != null)
+					{
 						result.Add(terminal);
+					}
 				}
 				else
 				{
@@ -303,7 +305,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 				var terminal = GetTerminalInRL(uow, routeList);
 				if(terminal != null)
+				{
 					result.Add(terminal);
+				}
 			}
 
 			if(routeList.AdditionalLoadingDocument != null)
@@ -375,16 +379,27 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-
+			
 			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => orderAlias.Id == orderItemsAlias.Order.Id)
 				.Select(Projections.Conditional(
-					Restrictions.Conjunction()
-					.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
-					.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute)),
+					Restrictions.Disjunction()
+						.Add(
+							Restrictions.Conjunction()
+								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
+						)
+						.Add(
+							Restrictions.Conjunction()
+								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
+								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ReasonForLeaving), ReasonForLeaving.Tender))
+						),
 					Projections.Constant(true),
-					Projections.Constant(false)));
+					Projections.Constant(false)
+				));
 
 			var orderIdProjection = Projections.Conditional(
 				Restrictions.Eq(Projections.SubQuery(isNeedIndividualSetOnLoadSubquery), true),

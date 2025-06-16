@@ -1238,6 +1238,7 @@ namespace Vodovoz
 			{
 				var isInnRequired = string.IsNullOrWhiteSpace(Entity.INN) &&
 									(Entity.ReasonForLeaving == ReasonForLeaving.Resale
+									 || Entity.ReasonForLeaving == ReasonForLeaving.Tender
 									 || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 										 && Entity.PersonType == PersonType.legal)
 									 );
@@ -1343,7 +1344,8 @@ namespace Vodovoz
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
 				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+					e => (e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+					     || e.ReasonForLeaving == ReasonForLeaving.Tender,
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();

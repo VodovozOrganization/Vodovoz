@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Application.FileStorage
 {

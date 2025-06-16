@@ -2,7 +2,7 @@
 using Gdk;
 using Gtk;
 using System;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;

@@ -1,6 +1,9 @@
+using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Application.Contacts;
+using RevenueService.Client;
+using TrueMarkApi.Client;
 using Vodovoz.Application.Complaints;
+using Vodovoz.Application.Contacts;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
@@ -10,6 +13,10 @@ using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Subdivisions;
+using Vodovoz.Application.TrueMark;
+using Vodovoz.Application.Users;
+using Vodovoz.Core.Domain.Goods.Recomendations;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
@@ -17,9 +24,6 @@ using Vodovoz.Services.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Subdivisions;
-using DriverApi.Notifications.Client;
-using RevenueService.Client;
-using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
 using Vodovoz.Handlers;
@@ -30,9 +34,13 @@ namespace Vodovoz.Application
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
 			.AddScoped<IRouteOptimizer, RouteOptimizer>()
+			.AddSecurityServices()
 			.AddApplicationServices()
 			.ConfigureFileOptions()
 			.AddRevenueServiceClient();
+
+		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
+			.AddScoped<IUserRoleService, UserRoleService>();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
@@ -48,6 +56,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IRecomendationService, RecomendationService>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;

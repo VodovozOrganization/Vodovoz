@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using MassTransit;
 using NLog;
 using Pacs.Core;
@@ -22,7 +22,7 @@ using Vodovoz;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -34,7 +34,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
-using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using ToolbarStyle = Vodovoz.Core.Domain.Users.Settings.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window
 {

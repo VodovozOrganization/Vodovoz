@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Orders
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Orders
 {
 	public static partial class Discount
 	{

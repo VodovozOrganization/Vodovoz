@@ -2,8 +2,8 @@
 using QS.Osrm;
 using QS.ViewModels;
 using System;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales

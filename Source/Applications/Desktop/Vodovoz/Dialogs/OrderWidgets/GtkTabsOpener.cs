@@ -10,6 +10,7 @@ using QS.ViewModels.Dialog;
 using QSOrmProject;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;

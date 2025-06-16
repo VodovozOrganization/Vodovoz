@@ -23,6 +23,11 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "Перепродажа")]
 		Resale,
 		/// <summary>
+		/// Госзакупки
+		/// </summary>
+		[Display(Name = "Госзакупки")]
+		Tender,
+		/// <summary>
 		/// Иная
 		/// </summary>
 		[Display(Name = "Иная")]

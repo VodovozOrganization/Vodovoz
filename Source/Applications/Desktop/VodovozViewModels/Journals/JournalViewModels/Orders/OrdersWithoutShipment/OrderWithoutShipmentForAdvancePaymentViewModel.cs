@@ -20,7 +20,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;

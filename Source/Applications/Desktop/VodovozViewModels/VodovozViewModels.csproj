@@ -92,9 +92,19 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Goods\RecomendationJournalNode.cs" />
+    <Compile Include="Goods\RecomendationsJournalFilterViewModel.cs" />
+    <Compile Include="Goods\RecomendationsJournalViewModel.cs" />
+    <Compile Include="Goods\RecomendationViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.LeftNode.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.RightNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />
@@ -446,6 +456,8 @@
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReport.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportRow.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
+    <Compile Include="TrueMark\OrderCodeItemViewModel.cs" />
+    <Compile Include="TrueMark\OrderCodesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
@@ -474,6 +486,7 @@
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
+    <Compile Include="ViewModels\Edo\TenderEdoViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
@@ -837,6 +850,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\CarEventTypeNode.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarInsurancesReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarTechInspectReport.cs" />
     <Compile Include="ViewModels\Reports\Cars\CarTechnicalCheckupReport.cs" />
@@ -911,6 +925,8 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNomenclature.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
+    <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCars.cs" />
+    <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCarsRow.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.DisplayRow.cs" />

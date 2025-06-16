@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Errors;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {

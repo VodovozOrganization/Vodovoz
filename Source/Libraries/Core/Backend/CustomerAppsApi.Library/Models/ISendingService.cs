@@ -1,5 +1,5 @@
-using CustomerAppsApi.Library.Dto;
-using Vodovoz.Errors;
+﻿using CustomerAppsApi.Library.Dto;
+using Vodovoz.Core.Domain.Results;
 
 namespace CustomerAppsApi.Library.Models
 {

@@ -11,9 +11,9 @@ using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Services.TrueMark;
@@ -324,28 +324,26 @@ namespace Vodovoz.Application.TrueMark
 		{
 			// Проверяем КИ
 			if(_trueMarkWaterIdentificationCodeRepository
-				.Get(
-					uow,
-					x => x.GTIN == parsedCode.GTIN
-						&& x.SerialNumber == parsedCode.SerialNumber
-						&& x.CheckCode == parsedCode.CheckCode
-						&& !x.IsInvalid,
-					1)
-				.FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
+				   .Get(
+					   uow,
+					   x => x.GTIN == parsedCode.GTIN
+					        && x.SerialNumber == parsedCode.SerialNumber
+					        && !x.IsInvalid,
+					   1)
+				   .FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
 			{
 				return Result.Success<TrueMarkAnyCode>(loadedIdentificationCode);
 			}
 
 			// Проверяем КИГУ
 			if(_trueMarkWaterGroupCodeRepository
-				.Get(
-					uow,
-					x => x.GTIN == parsedCode.GTIN
-						&& x.SerialNumber == parsedCode.SerialNumber
-						&& x.CheckCode == parsedCode.CheckCode
-						&& !x.IsInvalid,
-					1)
-				.FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
+				   .Get(
+					   uow,
+					   x => x.GTIN == parsedCode.GTIN
+					        && x.SerialNumber == parsedCode.SerialNumber
+					        && !x.IsInvalid,
+					   1)
+				   .FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
 			{
 				return Result.Success<TrueMarkAnyCode>(loadedGroupCode);
 			}
@@ -387,7 +385,7 @@ namespace Vodovoz.Application.TrueMark
 
 				productInstanceInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
 
-				if(!(productInstanceInfo.InstanceStatuses.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
+				if(!(productInstanceInfo.InstanceStatuses?.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
 				{
 					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о коде");
 					return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.UnknownCode);
@@ -686,6 +684,247 @@ namespace Vodovoz.Application.TrueMark
 
 			newInnerCodes.Clear();
 			return newCodes;
+		}
+
+		public async Task<Result<IDictionary<string, TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(
+			IEnumerable<string> scannedCodes,
+			CancellationToken cancellationToken = default)
+		{
+			return await CreateTrueMarkAnyCodesByScannedCodesUsingDataFromTrueMark(scannedCodes, cancellationToken);
+		}
+
+		private async Task<Result<IDictionary<string, TrueMarkAnyCode>>> CreateTrueMarkAnyCodesByScannedCodesUsingDataFromTrueMark(
+			IEnumerable<string> scannedCodes,
+			CancellationToken cancellationToken)
+		{
+			var scannedCodesData = new Dictionary<string, TrueMarkAnyCode>();
+			var codes = new List<TrueMarkAnyCode>();
+
+			var requestCodesData = CreateRequestCodesDataByScannedCodes(scannedCodes);
+			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
+
+			if(requestCodesInstanseStatusesDataResult.IsFailure)
+			{
+				return Result.Failure<IDictionary<string, TrueMarkAnyCode>>(requestCodesInstanseStatusesDataResult.Errors);
+			}
+
+			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
+
+			foreach(var codeInstanseStatusData in requestCodesInstanseStatusesDataResult.Value)
+			{
+				var requestCode = codeInstanseStatusData.Key;
+				var instanceStatus = codeInstanseStatusData.Value;
+
+				TrueMarkAnyCode trueMarkAnyCode = null;
+
+				switch(instanceStatus.GeneralPackageType)
+				{
+					case GeneralPackageType.Box:
+						trueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromRawCode(requestCode);
+						break;
+					case GeneralPackageType.Group:
+						trueMarkAnyCode =
+							requestCodesData.ContainsKey(requestCode) && requestCodesData[requestCode].ParsedCode != null
+							? _trueMarkWaterGroupCodeFactory.CreateFromParsedCode(requestCodesData[requestCode].ParsedCode)
+							: _trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+						break;
+					case GeneralPackageType.Unit:
+						trueMarkAnyCode =
+							requestCodesData.ContainsKey(requestCode) && requestCodesData[requestCode].ParsedCode != null
+							? _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(requestCodesData[requestCode].ParsedCode)
+							: _trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus);
+						break;
+					default:
+						trueMarkAnyCode = null;
+						break;
+				}
+
+				if(trueMarkAnyCode != null)
+				{
+					codes.Add(trueMarkAnyCode);
+				}
+				
+				if(!requestCodesData.TryGetValue(requestCode, out var scannedCodeData))
+				{
+					continue;
+				}
+
+				if(scannedCodesData.ContainsKey(scannedCodeData.ScannedCode))
+				{
+					continue;
+				}
+
+				scannedCodesData.Add(scannedCodeData.ScannedCode, trueMarkAnyCode);
+			}
+
+			var newTransportCodes = codes
+				.Where(x => x.IsTrueMarkTransportCode)
+				.Select(x => x.TrueMarkTransportCode)
+				.ToArray();
+
+			var newGroupCodes = codes
+				.Where(x => x.IsTrueMarkWaterGroupCode)
+				.Select(x => x.TrueMarkWaterGroupCode)
+				.ToArray();
+
+			foreach(var code in codes)
+			{
+				code.Match(
+					transportCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(transportCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerTransportCode(transportCode);
+
+						return true;
+					},
+					waterGroupCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						newGroupCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						newTransportCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						newGroupCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						return true;
+					});
+			}
+
+			return scannedCodesData;
+		}
+
+		private IDictionary<string, (string ScannedCode, TrueMarkWaterCode ParsedCode)> CreateRequestCodesDataByScannedCodes(IEnumerable<string> scannedCodes)
+		{
+			IList<(string ScannedCode, string RequestCode, TrueMarkWaterCode ParsedCode)> codes = scannedCodes
+				.Select(x => (x, _trueMarkWaterCodeParser.TryParse(x, out var parsedCode) ? _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode) : x, parsedCode))
+				.ToList();
+
+			var requestCodes = codes
+				.GroupBy(x => x.RequestCode)
+				.ToDictionary(x => x.Key, x => x.Select(c => (c.ScannedCode, c.ParsedCode)).FirstOrDefault());
+
+			return requestCodes;
+		}
+
+		public Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode)
+		{
+			return
+				_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode)
+				? TryGetSavedTrueMarkCodeByScannedCode(uow, parsedCode)
+				: TryGetSavedTrueMarkCodeByScannedCode(uow, scannedCode);
+		}
+
+		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
+		{
+			var result = new Dictionary<string, ProductInstanceStatus>();
+
+			while(requestCodes != null && requestCodes.Any())
+			{
+				var statusesResult = await RequestProductInstanceStatuses(requestCodes, cancellationToken);
+
+				if(statusesResult.IsFailure)
+				{
+					return statusesResult;
+				}
+
+				foreach(var status in statusesResult.Value)
+				{
+					if(result.ContainsKey(status.Key))
+					{
+						continue;
+					}
+					result.Add(status.Key, status.Value);
+				}
+
+				requestCodes = statusesResult.Value
+					.Select(x => x.Value)
+					.Where(x => x.GeneralPackageType != GeneralPackageType.Unit)
+					.SelectMany(x => x.Childs)
+					.ToList();
+			};
+
+			return result;
+		}
+
+		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> RequestProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
+		{
+			if(_organizationsInns is null)
+			{
+				SetOrganizationInns();
+			}
+
+			var instancesStatuses = Enumerable.Empty<ProductInstanceStatus>();
+
+			try
+			{
+				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
+
+				if(productInstancesInfo is null
+					|| !string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
+				{
+					_logger.LogError("Ошибка при запросе к Api TrueMark, ошибка в ответе от Api");
+					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.ErrorResponse);
+				}
+
+				if(productInstancesInfo.InstanceStatuses is null
+					|| !productInstancesInfo.InstanceStatuses.Any())
+				{
+					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
+					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
+				}
+
+				instancesStatuses = productInstancesInfo.InstanceStatuses;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при запросе к API TrueMark");
+				return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.CallFailed);
+			}
+
+			var result = new Dictionary<string, ProductInstanceStatus>();
+
+			foreach(var instanceStatus in instancesStatuses)
+			{
+				var requestCode = requestCodes.FirstOrDefault(rc => rc == instanceStatus.IdentificationCode);
+
+				if(string.IsNullOrWhiteSpace(requestCode))
+				{
+					throw new InvalidOperationException($"No matching code found for IdentificationCode: {instanceStatus.IdentificationCode}");
+				}
+
+				if(result.ContainsKey(requestCode))
+				{
+					continue;
+				}
+
+				result.Add(requestCode, instanceStatus);
+			}
+
+			return result;
 		}
 	}
 }

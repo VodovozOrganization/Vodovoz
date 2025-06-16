@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Edo;
+﻿using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Validation.Sources
 {
@@ -17,6 +14,4 @@ namespace Edo.Problems.Validation.Sources
 			return ((OrderEdoTask)edoTask).OrderEdoRequest;
 		}
 	}
-
-	
 }

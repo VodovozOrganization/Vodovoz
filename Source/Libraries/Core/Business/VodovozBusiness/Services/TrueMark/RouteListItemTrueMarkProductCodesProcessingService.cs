@@ -5,13 +5,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace VodovozBusiness.Services.TrueMark
@@ -116,7 +117,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public void AddTrueMarkCodeToRouteListItem(
 			IUnitOfWork uow,
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
@@ -201,6 +202,73 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
+		/// <inheritdoc/>
+		public async Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListAddress,
+			int orderSaleItemId,
+			TrueMarkAnyCode trueMarkAnyCode,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem,
+			CancellationToken cancellationToken = default)
+		{
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
+				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
+				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			foreach(var code in trueMarkAnyCodes)
+			{
+				if(code.IsTrueMarkWaterIdentificationCode)
+				{
+					var isCodeAlreadyAddedToRouteListItem =
+						routeListAddress.TrueMarkCodes.Any(x =>
+						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
+						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+
+					if(!isCodeAlreadyAddedToRouteListItem)
+					{
+						AddTrueMarkCodeToRouteListItem(
+							uow,
+							routeListAddress,
+							orderSaleItemId,
+							code.TrueMarkWaterIdentificationCode,
+							status,
+							problem);
+					}
+				}
+
+				await code.Match(
+					async transportCode =>
+					{
+						if(transportCode.Id == 0)
+						{
+							await uow.SaveAsync(transportCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					},
+					async groupCode =>
+					{
+						if(groupCode.Id == 0)
+						{
+							await uow.SaveAsync(groupCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					},
+					async waterCode =>
+					{
+						if(waterCode.Id == 0)
+						{
+							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					});
+			}
+		}
+
 		private static Result IsTrueMarkWaterIdentificationCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
 		{
 			if(trueMarkWaterIdentificationCode.IsInvalid)
@@ -254,7 +322,7 @@ namespace VodovozBusiness.Services.TrueMark
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
-			RouteListItem routeListAddress,
+			RouteListItemEntity routeListAddress,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>

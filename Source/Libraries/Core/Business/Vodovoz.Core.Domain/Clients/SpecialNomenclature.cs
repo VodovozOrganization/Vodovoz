@@ -5,6 +5,9 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Clients
 {
+	/// <summary>
+	/// Специальная номенклатура клиента
+	/// </summary>
 	[Appellative(
 			Gender = GrammaticalGender.Feminine,
 			NominativePlural = "специальные номенклатуры клиентов",
@@ -12,11 +15,14 @@ namespace Vodovoz.Core.Domain.Clients
 	[HistoryTrace]
 	public class SpecialNomenclature : PropertyChangedBase, IDomainObject
 	{
-		public virtual int Id { get; set; }
-
 		private NomenclatureEntity _nomenclature;
 		private int _specialId;
 		private CounterpartyEntity _counterparty;
+
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		public virtual int Id { get; set; }
 
 		/// <summary>
 		/// Номенклатура
@@ -47,6 +53,5 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
 		}
-
 	}
 }

@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.TrueMark
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.TrueMark
 {
 	public static class TrueMarkCode
 	{
