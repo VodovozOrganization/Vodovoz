@@ -11,7 +11,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -22,10 +21,8 @@ using TrueMark.Api.Contracts.Responses;
 using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Contracts;
-using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
-using static MassTransit.ValidationResultExtensions;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
 
 namespace TrueMark.Api.Controllers;
@@ -308,13 +305,13 @@ public class TrueMarkApiController : ControllerBase
 	/// <param name="cancellationToken">Токен отмены</param>
 	/// <returns>GUID документа в ЧЗ</returns>
 	[HttpPost]
-	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
+	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
 		var uri = $"lk/documents/create?pg=water";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
-		
+
 		try
 		{
 			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
