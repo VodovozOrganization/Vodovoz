@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Domain.Warehouses
 	public enum WarehouseUsing
 	{
 		/// <summary>
-		/// Отгоузка
+		/// Отгрузка
 		/// </summary>
 		[Display(Name = "Отгрузка")]
 		Shipment,
