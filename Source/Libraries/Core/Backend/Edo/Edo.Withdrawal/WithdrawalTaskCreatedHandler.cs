@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -100,13 +100,13 @@ namespace Edo.Withdrawal
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
-					.Get(uow, x => x.Order.Id == order.Id && (x.IsSuccess || (!x.IsSuccess && x.ErrorMessage != null)))
+					.Get(uow, x => x.Order.Id == order.Id && x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal)
 					.Any();
 
 				if(isTrueMarkDocumentExists)
 				{
 					_logger.LogInformation(
-						"Заказ {OrderId} уже имеет успешный или необработанный документ Честного знака для вывода из оборота, повторная обработка не требуется",
+						"Заказ {OrderId} уже имеет документ Честного знака для вывода из оборота, повторная обработка не требуется",
 						order.Id);
 
 					return;

@@ -306,7 +306,7 @@ public class TrueMarkApiController : ControllerBase
 	/// </summary>
 	/// <param name="documentData">Данные документа</param>
 	/// <param name="cancellationToken">Токен отмены</param>
-	/// <returns></returns>
+	/// <returns>GUID документа в ЧЗ</returns>
 	[HttpPost]
 	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody]SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
