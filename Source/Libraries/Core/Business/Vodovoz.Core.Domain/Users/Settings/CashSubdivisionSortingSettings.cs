@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		private int? _userSettingsId;
 		private int? _cashSubdivisionId;
 
+		/// <summary>
+		/// Конструктор по умолчанию для NHibernate
+		/// </summary>
 		protected CashSubdivisionSortingSettings()
 		{
 		}
@@ -40,12 +43,18 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			_cashSubdivisionId = cashSubdivisionId;
 		}
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id
 		{
 			get => _id;
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Порядок при сортировке
+		/// </summary>
 		[Display(Name = "Порядок при сортировке")]
 		public virtual int SortingIndex
 		{
@@ -53,6 +62,9 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			set => SetField(ref _sortingIndex, value);
 		}
 
+		/// <summary>
+		/// Настройки пользователя
+		/// </summary>
 		[Display(Name = "Настройки пользователя")]
 		public virtual int? UserSettingsId
 		{
@@ -60,6 +72,9 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			set => SetField(ref _userSettingsId, value);
 		}
 
+		/// <summary>
+		/// Подразделение кассы
+		/// </summary>
 		[Display(Name = "Подразделение кассы")]
 		public virtual int? CashSubdivisionId
 		{
