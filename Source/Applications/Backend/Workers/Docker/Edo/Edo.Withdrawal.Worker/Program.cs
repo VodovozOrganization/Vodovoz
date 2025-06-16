@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using QS.Project.Core;
 using System;
 using System.Text;
@@ -48,9 +50,18 @@ namespace Edo.Withdrawal.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoWithdrawal(hostContext.Configuration)
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-					;
+					services
+						.AddOpenTelemetry()
+						.ConfigureResource(resource => resource.AddService("edo.withdrawal.worker"))
+						.WithTracing(tracing =>
+						{
+							tracing
+								.AddHttpClientInstrumentation();
+
+							tracing.AddOtlpExporter();
+						});
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});
