@@ -349,7 +349,7 @@ public class TrueMarkApiController : ControllerBase
 
 			return new ContentResult
 			{
-				Content = "Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}",
+				Content = $"Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}",
 				ContentType = "text/plain",
 				StatusCode = StatusCodes.Status500InternalServerError
 			};
