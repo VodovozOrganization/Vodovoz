@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,8 +14,8 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using WarehouseApi.Contracts.Dto.V1;
 
 namespace WarehouseApi.Controllers.V1
@@ -22,9 +23,12 @@ namespace WarehouseApi.Controllers.V1
 	/// <summary>
 	/// Контроллер для работы со складами
 	/// </summary>
+	[OnlyOneSession]
 	[Route("api/[controller]")]
 	public partial class WarehouseController : VersionedController
 	{
+		private const string _rolesToAccess = nameof(ApplicationUserRole.WarehousePicker);
+
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
 		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;

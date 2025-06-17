@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Employees;
 using WarehouseApi.Contracts.Requests.V1;
 using WarehouseApi.Contracts.Responses.V1;
@@ -23,9 +25,12 @@ namespace WarehouseApi.Controllers.V1
 	/// <summary>
 	/// Контроллер для работы с самовывозами
 	/// </summary>
+	[OnlyOneSession]
 	[Route("api/[controller]")]
 	public class SelfDeliveryController : VersionedController
 	{
+		private const string _rolesToAccess = nameof(ApplicationUserRole.WarehousePicker);
+
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IExternalApplicationUserService _externalApplicationUserService;
 		private readonly ISelfDeliveryService _selfDeliveryService;
