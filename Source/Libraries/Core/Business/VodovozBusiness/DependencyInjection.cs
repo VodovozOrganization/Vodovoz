@@ -13,6 +13,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
+using VodovozBusiness.CachingRepositories.Employees;
 using VodovozBusiness.CachingRepositories.Subdivisions;
 
 namespace Vodovoz
@@ -67,6 +68,7 @@ namespace Vodovoz
 		public static IServiceCollection AddCachingRepositories(
 			this IServiceCollection services)
 			=> services
+				.AddScoped<IEmployeeInMemoryNameWithInitialsCacheRepository, EmployeeInMemoryNameWithInitialsCacheRepository>()
 				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>();
 	}
 }
