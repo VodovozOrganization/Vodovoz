@@ -331,10 +331,9 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 						 .GroupBy(x => (int)x[1])
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
-
-		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => _nomenclatureSettings.SanitisationNomenclatureIds;
-
-
+		
+		
+		
 		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)

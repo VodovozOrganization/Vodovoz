@@ -309,6 +309,8 @@ namespace Vodovoz.Views.Goods
 			checkIsArchive.Active = ViewModel.Entity.IsArchive;
 
 			checkIsArchive.Released += OnCheckIsArchiveReleased;
+			
+			
 
 			entityviewmodelentryShipperCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entityviewmodelentryShipperCounterparty.Binding
