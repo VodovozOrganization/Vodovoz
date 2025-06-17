@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Data;
+﻿using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -15,7 +15,6 @@ using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
@@ -186,8 +185,8 @@ namespace WarehouseApi.Library.Services
 			CancellationToken cancellationToken)
 		{
 			return await _trueMarkWaterCodeService
-				.GetTrueMarkAnyCodesByScannedCodes(_unitOfWork, codesToAdd)
-				.BindAsync(anyCodes => DistributeCodesAsync(anyCodes, selfDeliveryDocument, cancellationToken));
+				.GetTrueMarkAnyCodesByScannedCodes(codesToAdd)
+				.BindAsync(anyCodes => DistributeCodesAsync(anyCodes.Select(x => x.Value).ToList(), selfDeliveryDocument, cancellationToken));
 		}
 
 		private async Task<Result<SelfDeliveryDocument>> DistributeCodesAsync(
@@ -227,23 +226,24 @@ namespace WarehouseApi.Library.Services
 			IDictionary<string, string> codesToChange,
 			CancellationToken cancellationToken)
 		{
-			var allCodes = await _trueMarkWaterCodeService
+			var allCodesResult = await _trueMarkWaterCodeService
 				.GetTrueMarkAnyCodesByScannedCodes(
-					_unitOfWork,
 					codesToChange.Keys.Concat(codesToChange.Values),
 					cancellationToken);
 
-			if(allCodes.IsFailure)
+			if(allCodesResult.IsFailure)
 			{
-				return Result.Failure<SelfDeliveryDocument>(allCodes.Errors);
+				return Result.Failure<SelfDeliveryDocument>(allCodesResult.Errors);
 			}
 
-			var keys = allCodes.Value
+			var allCodes = allCodesResult.Value.Select(x => x.Value);
+
+			var keys = allCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
 				.Select(x => x.TrueMarkWaterIdentificationCode)
 				.Where(x => codesToChange.ContainsKey(x.RawCode));
 
-			var values = allCodes.Value
+			var values = allCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
 				.Select(x => x.TrueMarkWaterIdentificationCode)
 				.Where(x => codesToChange.Values.Contains(x.RawCode));
@@ -274,8 +274,8 @@ namespace WarehouseApi.Library.Services
 		public async Task<Result<SelfDeliveryDocument>> RemoveCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToDelete, CancellationToken cancellationToken)
 		{
 			return await _trueMarkWaterCodeService
-				.GetTrueMarkAnyCodesByScannedCodes(_unitOfWork, codesToDelete)
-				.BindAsync(anyCodes => RemoveDistributedCodes(anyCodes, selfDeliveryDocument, cancellationToken));
+				.GetTrueMarkAnyCodesByScannedCodes(codesToDelete)
+				.BindAsync(anyCodes => RemoveDistributedCodes(anyCodes.Select(x => x.Value).ToList(), selfDeliveryDocument, cancellationToken));
 		}
 
 
