@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Domain.Employees;
 
 namespace VodovozBusiness.Employees
 {
@@ -18,7 +17,7 @@ namespace VodovozBusiness.Employees
 		/// <param name="externalApplicationType"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task<Result<Employee>> GetExternalUserEmployee(
+		Task<Result<EmployeeEntity>> GetExternalUserEmployee(
 			string username,
 			ExternalApplicationType externalApplicationType,
 			CancellationToken cancellationToken);

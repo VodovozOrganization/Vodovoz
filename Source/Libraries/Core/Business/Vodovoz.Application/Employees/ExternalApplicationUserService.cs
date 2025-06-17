@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Domain.Employees;
 using VodovozBusiness.Employees;
 
 namespace Vodovoz.Application.Employees
@@ -14,12 +13,12 @@ namespace Vodovoz.Application.Employees
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
-		private readonly IGenericRepository<Employee> _employeeRepository;
+		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
 
 		public ExternalApplicationUserService(
 			IUnitOfWork unitOfWork,
 			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
-			IGenericRepository<Employee> employeeRepository)
+			IGenericRepository<EmployeeEntity> employeeRepository)
 		{
 			_unitOfWork = unitOfWork
 				?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -29,7 +28,7 @@ namespace Vodovoz.Application.Employees
 				?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
-		public async Task<Result<Employee>> GetExternalUserEmployee(
+		public async Task<Result<EmployeeEntity>> GetExternalUserEmployee(
 			string username,
 			ExternalApplicationType externalApplicationType,
 			CancellationToken cancellationToken)
@@ -41,7 +40,7 @@ namespace Vodovoz.Application.Employees
 						&& x.ExternalApplicationType == externalApplicationType) is ExternalApplicationUser externalApplicationUser
 				&& _employeeRepository.GetFirstOrDefault(
 					_unitOfWork,
-					x => x.Id ==  externalApplicationUser.Id) is Employee employee)
+					x => x.Id == externalApplicationUser.Id) is EmployeeEntity employee)
 			{
 				return await Task.FromResult(employee);
 			}

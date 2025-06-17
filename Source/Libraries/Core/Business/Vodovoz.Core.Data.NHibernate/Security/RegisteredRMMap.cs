@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Users;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Security
+namespace Vodovoz.Core.Data.NHibernate.Security
 {
 	public class RegisteredRMMap : ClassMap<RegisteredRM>
 	{
@@ -17,10 +17,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Security
 			Map(x => x.IsActive).Column("is_active");
 
 			HasManyToMany(x => x.Users)
-								.Table("user_rm_restrictions")
-								.ParentKeyColumn("registered_rm_id")
-								.ChildKeyColumn("user_id")
-								.LazyLoad();
+				.Table("user_rm_restrictions")
+				.ParentKeyColumn("registered_rm_id")
+				.ChildKeyColumn("user_id")
+				.LazyLoad();
 		}
 	}
 }

@@ -2,7 +2,7 @@
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Schemas.Employees;
 
-namespace Vodovoz.Core.Data.NHibernate.Mappings
+namespace Vodovoz.Core.Data.NHibernate.Security
 {
 	public class ExternalApplicationUserMap : ClassMap<ExternalApplicationUser>
 	{
