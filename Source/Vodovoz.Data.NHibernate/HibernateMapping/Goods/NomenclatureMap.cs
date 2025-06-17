@@ -35,6 +35,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Hide).Column("hide");
 			Map(x => x.NoDelivery).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
+			Map(x => x.IsNeedSanitisation).Column("is_need_sanitisation");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
 			Map(x => x.IsDiler).Column("is_diler");

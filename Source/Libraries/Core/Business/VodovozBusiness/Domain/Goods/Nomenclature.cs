@@ -248,6 +248,8 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		
+
 
 		/// <summary>
 		/// Тип топлива
