@@ -427,8 +427,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
 				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => invoiceAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => invoiceAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => invoiceAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -540,8 +540,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return waterQuery
 				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => incomingWaterAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => incomingWaterAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => incomingWaterMaterialAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.SelectList(list => list
@@ -655,8 +655,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return waterQuery
 				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => incomingWaterAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => incomingWaterAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => incomingWaterAlias.Product, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 
@@ -725,8 +725,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
 				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => movementDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -887,8 +887,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
 				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => movementDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -1113,8 +1113,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromEmployee, () => fromEmployeeAlias)
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromCar, () => fromCarAlias)
 				.Left.JoinAlias(() => fromCarAlias.CarModel, () => fromCarModelAlias)
-				.Left.JoinAlias(() => writeOffDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => writeOffDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => writeOffDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => writeOffDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => writeOffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => writeOffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1231,8 +1231,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => selfDeliveryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => selfDeliveryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => selfDeliveryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1352,8 +1352,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => selfDeliveryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => selfDeliveryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => selfDeliveryDocumentReturnedAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1473,8 +1473,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => carLoadDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => carLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => carLoadDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => carLoadDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => carLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1600,8 +1600,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => carUnLoadDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => carUnLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => carUnLoadDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => carUnLoadDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => carUnLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carUnLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1757,8 +1757,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => inventoryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => inventoryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => inventoryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Employee, () => employeeAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
@@ -1915,8 +1915,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => shiftChangeWarehouseDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => shiftChangeWarehouseDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => shiftChangeWarehouseDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -2072,8 +2072,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureOld, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => regradingOfGoodsDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Fine, () => fineAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.TypeOfDefect, () => cullingCategoryAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.RegradingOfGoodsReason, () => regradingOfGoodsReasonAlias)
@@ -2199,8 +2199,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => regradingOfGoodsDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Fine, () => fineAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.TypeOfDefect, () => cullingCategoryAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.RegradingOfGoodsReason, () => regradingOfGoodsReasonAlias)

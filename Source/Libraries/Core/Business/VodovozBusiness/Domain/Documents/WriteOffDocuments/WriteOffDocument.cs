@@ -6,6 +6,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;

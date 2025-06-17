@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 NomenclatureId = rogdi.NomenclatureNew.Id,
 					 DefectSource = rogdi.Source,
 					 DocumentType = typeof(RegradingOfGoodsDocument),
-					 AuthorId = rogd.Author.Id,
+					 AuthorId = rogd.AuthorId.Value,
 					 rogd.Comment
 				 })
 				.ToListAsync(cancellationToken);
@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 DriverId = rl.Driver.Id,
 					 DocumentType = typeof(CarUnloadDocument),
 					 RouteListId = rl.Id,
-					 AuthorId = cud.Author.Id,
+					 AuthorId = cud.AuthorId.Value,
 					 cud.Comment
 				 })
 				.ToListAsync(cancellationToken);

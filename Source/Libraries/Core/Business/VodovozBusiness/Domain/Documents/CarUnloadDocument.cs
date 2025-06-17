@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
@@ -230,9 +231,12 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Author == null)
+			if(AuthorId == null)
+			{
 				yield return new ValidationResult("Не указан кладовщик.",
-					new[] { nameof(Author) });
+					new[] { nameof(AuthorId) });
+			}
+
 			if(RouteList == null)
 				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется разгрузка.",
 					new[] { nameof(RouteList) });

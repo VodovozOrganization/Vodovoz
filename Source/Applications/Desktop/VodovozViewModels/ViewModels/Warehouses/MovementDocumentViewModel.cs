@@ -198,7 +198,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public string AuthorInfo {
 			get {
-				if(Entity.Author == null) {
+				if(Entity.AuthorId == null) {
 					return null;
 				}
 				return $"{Entity.Author.GetPersonNameWithInitials()}, {Entity.TimeStamp:dd.MM.yyyy HH:mm}";
@@ -207,7 +207,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public string LastEditorInfo {
 			get {
-				if(Entity.LastEditor == null) {
+				if(Entity.LastEditorId == null) {
 					return null;
 				}
 				return $"{Entity.LastEditor.GetPersonNameWithInitials()}, {Entity.LastEditedTime:dd.MM.yyyy HH:mm}";
@@ -475,11 +475,11 @@ namespace Vodovoz.ViewModels.Warehouses
 		public override bool Save(bool close)
 		{
 			if(UoW.IsNew) {
-				Entity.Author = CurrentEmployee;
+				Entity.AuthorId = CurrentEmployee?.Id;
 				Entity.TimeStamp = DateTime.Now;
 			}
 
-			Entity.LastEditor = CurrentEmployee;
+			Entity.LastEditorId = CurrentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
 			return base.Save(close);

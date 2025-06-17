@@ -585,10 +585,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+			Entity.LastEditorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(_userWithoutEmployee);
 				return false;
@@ -605,9 +605,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+				Entity.AuthorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			
-				if(Entity.Author == null)
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(_userWithoutEmployee);
 					FailInitialize = true;

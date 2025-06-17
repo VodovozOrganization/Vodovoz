@@ -510,12 +510,12 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			if(UoW.IsNew)
 			{
-				Entity.Author = CurrentEmployee;
+				Entity.AuthorId = CurrentEmployee?.Id;
 				Entity.TimeStamp = DateTime.Now;
 			}
 			else
 			{
-				if(Entity.LastEditor == null)
+				if(Entity.LastEditorId == null)
 				{
 					throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				}
@@ -523,7 +523,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			CreatePurchasePrices();
 
-			Entity.LastEditor = CurrentEmployee;
+			Entity.LastEditorId = CurrentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
 
