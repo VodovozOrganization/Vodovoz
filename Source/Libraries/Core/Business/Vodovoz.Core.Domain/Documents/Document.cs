@@ -1,26 +1,35 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
+using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Warehouses.Documents;
-using Vodovoz.Domain.Documents.DriverTerminal;
-using Vodovoz.Domain.Documents.IncomingInvoices;
-using Vodovoz.Domain.Documents.InventoryDocuments;
-using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Documents.WriteOffDocuments;
-using Vodovoz.Domain.Employees;
-using VodovozBusiness.Domain.Documents;
+using Vodovoz.Core.Domain.Employees;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Documents
 {
+	/// <summary>
+	/// Документ
+	/// </summary>
 	public class Document : PropertyChangedBase, IDomainObject, IDocument
 	{
+		private int _id;
 		private DateTime _timeStamp = DateTime.Now;
 		private DateTime _version;
+		private int? _authorId;
+		private int? _lastEditorId;
+		private DateTime _lastEditedTime;
 
-		public virtual int Id { get; set; }
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
-		public virtual bool CanEdit { get; set; }
-
+		/// <summary>
+		/// Версия
+		/// </summary>
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
 		{
@@ -37,76 +46,43 @@ namespace Vodovoz.Domain.Documents
 			set => SetField (ref _timeStamp, value);
 		}
 
-		Employee author;
-
+		/// <summary>
+		/// Автор
+		/// </summary>
 		[Display (Name = "Автор")]
-		public virtual Employee Author
+		[HistoryIdentifier(TargetType = typeof(EmployeeEntity))]
+		public virtual int? AuthorId
 		{
-			get => author;
-			set => SetField(ref author, value);
+			get => _authorId;
+			set => SetField(ref _authorId, value);
 		}
 
-		Employee lastEditor;
-
+		/// <summary>
+		/// Последний редактор
+		/// </summary>
 		[Display (Name = "Последний редактор")]
-		public virtual Employee LastEditor
+		[HistoryIdentifier(TargetType = typeof(EmployeeEntity))]
+		public virtual int? LastEditorId
 		{
-			get => lastEditor;
-			set => SetField (ref lastEditor, value);
+			get => _lastEditorId;
+			set => SetField (ref _lastEditorId, value);
 		}
 
-		DateTime lastEditedTime;
-
+		/// <summary>
+		/// Последние изменения
+		/// </summary>
 		[Display (Name = "Последние изменения")]
 		public virtual DateTime LastEditedTime
 		{
-			get => lastEditedTime;
-			set => SetField (ref lastEditedTime, value);
+			get => _lastEditedTime;
+			set => SetField (ref _lastEditedTime, value);
 		}
+
+		public virtual bool CanEdit { get; set; }
 
 		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
 
 		public virtual string Number => Id.ToString();
-
-		#region static
-
-		public static Type GetDocClass(DocumentType docType)
-		{
-			switch(docType)
-			{
-				case DocumentType.IncomingInvoice:
-					return typeof(IncomingInvoice);
-				case DocumentType.IncomingWater:
-					return typeof(IncomingWater);
-				case DocumentType.MovementDocument:
-					return typeof(MovementDocument);
-				case DocumentType.WriteoffDocument:
-					return typeof(WriteOffDocument);
-				case DocumentType.SelfDeliveryDocument:
-					return typeof(SelfDeliveryDocument);
-				case DocumentType.CarLoadDocument:
-					return typeof(CarLoadDocument);
-				case DocumentType.CarUnloadDocument:
-					return typeof(CarUnloadDocument);
-				case DocumentType.InventoryDocument:
-					return typeof(InventoryDocument);
-				case DocumentType.ShiftChangeDocument:
-					return typeof(ShiftChangeWarehouseDocument);
-				case DocumentType.RegradingOfGoodsDocument:
-					return typeof(RegradingOfGoodsDocument);
-				case DocumentType.DeliveryDocument:
-					return typeof(DeliveryDocument);
-				case DocumentType.DriverTerminalMovement:
-					return typeof(DriverAttachedTerminalDocumentBase);
-				case DocumentType.DriverTerminalGiveout:
-					return typeof(DriverAttachedTerminalGiveoutDocument);
-				case DocumentType.DriverTerminalReturn:
-					return typeof(DriverAttachedTerminalReturnDocument);
-			}
-			throw new NotSupportedException();
-		}
-
-		#endregion
 	}
 }
 
