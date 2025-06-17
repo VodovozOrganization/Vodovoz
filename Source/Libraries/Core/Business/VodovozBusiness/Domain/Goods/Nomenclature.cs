@@ -27,7 +27,6 @@ namespace Vodovoz.Domain.Goods
 		private bool _isNewBottle;
 		private bool _isDefectiveBottle;
 		private bool _isShabbyBottle;
-		private bool _isNeedSanitisation;
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
@@ -249,15 +248,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		/// <summary>
-		/// Необходима ли сан обработка для номенклатуры
-		/// </summary>
-		[Display(Name = "Санитарная обработка")]
-		public virtual bool IsNeedSanitisation
-		{
-			get => _isNeedSanitisation;
-			set => SetField(ref _isNeedSanitisation, value);
-		}
+		
 
 
 		/// <summary>

@@ -298,7 +298,7 @@ namespace Vodovoz.Views.Goods
 
 			checkNeedSanitisation.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsNeedSanitisation, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanEditNeedSanitisationProperty, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditNeedSanitisation, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			yentryShortName.Binding
