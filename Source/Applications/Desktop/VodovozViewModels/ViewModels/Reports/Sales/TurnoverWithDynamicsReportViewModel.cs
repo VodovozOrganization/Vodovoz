@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -114,6 +115,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_userCanGetContactsInSalesReports =
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+
+			_canViewReportSalesWithCashReceipts =
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -292,6 +296,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{ "Самовывоз", "is_self_delivery" },
 				{ "Клиенты с одним заказом", "with_one_order" },
 			};
+			
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 		}
@@ -722,7 +731,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								.In(subQueryOrdersCount);
 							
 							break;
-						}							
+						}
+						case "only_with_cash_receipts":
+							// TODO query Art8m
+							break;
 						default:
 							throw new NotSupportedException(param.Number);
 					}

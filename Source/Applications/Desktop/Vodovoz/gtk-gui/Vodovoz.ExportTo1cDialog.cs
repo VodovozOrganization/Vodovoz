@@ -338,7 +338,7 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.ylistcomboboxOrganization = global::Gtk.ComboBox.NewText();
+			this.ylistcomboboxOrganization = new global::Gamma.Widgets.yListComboBox();
 			this.ylistcomboboxOrganization.Name = "ylistcomboboxOrganization";
 			this.ylistcomboboxOrganization.AddIfNotExist = false;
 			this.ylistcomboboxOrganization.DefaultFirst = false;

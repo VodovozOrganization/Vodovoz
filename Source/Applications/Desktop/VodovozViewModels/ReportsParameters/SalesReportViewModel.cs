@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
@@ -71,6 +72,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports);
+			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -164,6 +166,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				{ "Самовывоз", "is_self_delivery" },
 			};
+
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 		}
