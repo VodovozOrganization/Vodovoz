@@ -17,6 +17,7 @@ using TrueMarkWorker.Enums;
 using TrueMarkWorker.Factories;
 using TrueMarkWorker.Options;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;

@@ -1,4 +1,4 @@
-﻿namespace TrueMark.Api.Responses;
+﻿namespace TrueMark.Api.Contracts.Responses;
 
 public class GetTrueMarkApiTokenResponse
 {

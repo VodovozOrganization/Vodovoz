@@ -53,5 +53,24 @@ namespace TrueMarkApi.Client
 
 			return result.Result;
 		}
+
+		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken)
+		{
+			var sendDocumentRequest = new
+			{
+				Document = document,
+				Inn = inn
+			};
+
+			string content = JsonSerializer.Serialize(sendDocumentRequest);
+			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+			var response = await _httpClient.PostAsync("api/SendIndividualAccountingWithdrawalDocument", httpContent, cancellationToken);
+			response.EnsureSuccessStatusCode();
+
+			var documentId = await response.Content.ReadAsStringAsync();
+
+			return documentId;
+		}
 	}
 }
