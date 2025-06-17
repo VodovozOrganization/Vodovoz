@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Contacts
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Contacts
 {
 	public static class Phone
 	{

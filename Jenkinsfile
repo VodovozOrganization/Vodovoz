@@ -293,6 +293,8 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ScannedTrueMarkCodesDelayedProcessingWorker/ScannedTrueMarkCodesDelayedProcessingWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
 			}
 		}
 		else if(CAN_BUILD_WEB)

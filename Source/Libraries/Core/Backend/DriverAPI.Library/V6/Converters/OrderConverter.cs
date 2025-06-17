@@ -129,12 +129,12 @@ namespace DriverAPI.Library.V6.Converters
 		private OrderReasonForLeavingDtoType GetOrderType(
 			Order vodovozOrder)
 		{
-			if(vodovozOrder.IsNeedIndividualSetOnLoad)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad || vodovozOrder.IsNeedIndividualSetOnLoadForTender)
 			{
 				return OrderReasonForLeavingDtoType.Distributing;
 			}
 
-			if(vodovozOrder.IsOrderForResale)
+			if(vodovozOrder.IsOrderForResale || vodovozOrder.IsOrderForTender)
 			{
 				return OrderReasonForLeavingDtoType.ForResale;
 			}
@@ -375,7 +375,8 @@ namespace DriverAPI.Library.V6.Converters
 
 			codes = routeListItem.TrueMarkCodes
 				.Where(x => orderItemCodesIds.Contains(x.Id))
-				.Select(x => x.SourceCode)
+				.Where(x => x.SourceCode != null || x.ResultCode != null)
+				.Select(x => x.SourceCode ?? x.ResultCode)
 				.ToList();
 
 			return codes;

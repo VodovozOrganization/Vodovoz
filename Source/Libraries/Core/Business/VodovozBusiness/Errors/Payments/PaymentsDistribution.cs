@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Payments
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Payments
 {
 	public static class PaymentsDistribution
 	{

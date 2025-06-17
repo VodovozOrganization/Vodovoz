@@ -72,6 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 			var selectedSubdivisionsIds = filter.Subdivision != null
 				? new int[] { filter.Subdivision.Id }
 				: filter.AvailableSubdivisions?
+					.Where(x => !x.IsArchive)
 					.Select(x => x.Id)
 					.ToArray();
 
@@ -164,6 +165,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		{
 			var selectedSubdivisionsIds = filter.Subdivision is null
 				? filter.AvailableSubdivisions?
+					.Where(x => !x.IsArchive)
 					.Select(x => x.Id)
 					.ToArray()
 				: new int[] { filter.Subdivision.Id };

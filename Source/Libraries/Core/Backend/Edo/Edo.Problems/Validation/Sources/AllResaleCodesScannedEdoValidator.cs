@@ -56,7 +56,8 @@ namespace Edo.Problems.Validation.Sources
 			
 			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
 
-			return orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad;
+			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad)
+				|| orderEdoRequest.Order.IsOrderForTender;
 		}
 
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider,
@@ -172,9 +173,10 @@ namespace Edo.Problems.Validation.Sources
 			}
 
 			// Валидны ли коды в ЧЗ?
-			var trueMarkValidationResult = await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
-
-			return trueMarkValidationResult.ReadyToSell;
+			var trueMarkValidationResult =
+				await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
+			
+			return trueMarkValidationResult.IsAllValid;
 		}
 	}
 }

@@ -2,7 +2,7 @@
 using DriverApi.Contracts.V6.Responses;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.V6.Services
 {

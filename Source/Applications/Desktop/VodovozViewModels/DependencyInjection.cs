@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels
 				.AddScoped<BankStatementParser>()
 				.AddScoped<IRouteOptimizer, RouteOptimizer>()
 				.AddGeoCoderClient()
+				.AddPresentationViewModels()
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>();
 	}
 }

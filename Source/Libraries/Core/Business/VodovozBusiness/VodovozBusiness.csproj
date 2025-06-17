@@ -11,9 +11,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\email_ad.png" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="ClosedXML">
       <Version>0.97.0</Version>

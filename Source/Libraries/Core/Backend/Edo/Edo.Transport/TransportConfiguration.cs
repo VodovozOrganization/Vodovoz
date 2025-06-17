@@ -36,6 +36,14 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+			
+			cfg.Message<TenderTaskCreatedEvent>(x => x.SetEntityName("edo.tender-task-created.publish"));
+			cfg.Publish<TenderTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 
 			cfg.Message<TransferRequestCreatedEvent>(x => x.SetEntityName("edo.transfer-request-created.publish"));
 			cfg.Publish<TransferRequestCreatedEvent>(x =>
@@ -185,6 +193,14 @@ namespace Edo.Transport
 
 			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
 			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<WithdrawalTaskCreatedEvent>(x => x.SetEntityName("edo.withdrawal_task_created_event.publish"));
+			cfg.Publish<WithdrawalTaskCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
