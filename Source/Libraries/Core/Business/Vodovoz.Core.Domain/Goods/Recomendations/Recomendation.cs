@@ -1,9 +1,14 @@
-﻿using NHibernate.Util;
+using FluentNHibernate.Data;
+using Microsoft.Extensions.DependencyInjection;
+using NHibernate.Util;
+using QS.Dialog;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using QS.Services;
 using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
@@ -25,7 +30,7 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 		Prepositional = "рекомендации",
 		PrepositionalPlural = "рекомендациях")]
 	[HistoryTrace]
-	public class Recomendation : PropertyChangedBase, IDomainObject, INamed
+	public class Recomendation : PropertyChangedBase, IDomainObject, INamed, IValidatableObject
 	{
 		private int _id;
 		private string _name;
@@ -160,6 +165,31 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 			foreach(var item in Items)
 			{
 				item.RecomendationId = Id;
+			}
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+
+			using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Проверка параметров существующих рекомендаций"))
+			{
+				var result = unitOfWork.Session
+					.Query<Recomendation>()
+					.Where(x => !x.IsArchive
+						&& x.RoomType == RoomType
+						&& x.PersonType == PersonType)
+					.Count() == 0;
+
+				if(!result)
+				{
+					yield return new ValidationResult(
+						"Уже существует активная рекомендация с такими параметрами", new[]
+						{
+							nameof(RoomType),
+							nameof(PersonType)
+						});
+				}
 			}
 		}
 	}

@@ -9,8 +9,6 @@ namespace Vodovoz.Core.Data.NHibernate.Goods.Recomendations
 		{
 			Table("goods_recomendation_items");
 
-			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
-
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();

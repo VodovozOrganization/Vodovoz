@@ -83,26 +83,6 @@ namespace Vodovoz.ViewModels.Goods
 
 		public bool CanSave => Entity.Id == 0 ? PermissionResult.CanCreate : PermissionResult.CanUpdate;
 
-		protected override bool BeforeSave()
-		{
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Проверка параметров существующих рекомендаций"))
-			{
-				var result = unitOfWork.Session
-					.Query<Recomendation>()
-					.Where(x => !x.IsArchive
-						&& x.RoomType == Entity.RoomType
-						&& x.PersonType == Entity.PersonType)
-					.Count() == 0;
-
-				if(!result)
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Уже существует активная рекомендация с такими параметрами", "Ошибка");
-				}
-
-				return result;
-			}
-		}
-
 		private void OpenNomenclatureSelectJournal()
 		{
 			NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
