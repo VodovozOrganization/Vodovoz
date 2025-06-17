@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +25,7 @@ namespace WarehouseApi.Controllers.V1
 	/// <summary>
 	/// Контроллер для работы с самовывозами
 	/// </summary>
+	[Authorize(Roles = _rolesToAccess)]
 	[OnlyOneSession]
 	[Route("api/[controller]")]
 	public class SelfDeliveryController : VersionedController
