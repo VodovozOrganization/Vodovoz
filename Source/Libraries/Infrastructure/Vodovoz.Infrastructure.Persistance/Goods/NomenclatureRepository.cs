@@ -564,5 +564,19 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 			.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
 			.List<NamedDomainObjectNode>();
 		}
+
+		public bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId)
+		{
+			if(nomenclatureId == 0) 
+				return false;
+			
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return unitOfWork.Session.QueryOver(() => orderItemAlias)
+				.JoinAlias(o => o.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Nomenclature.Id == nomenclatureId)
+				.RowCount() > 0;
+		}
 	}
 }

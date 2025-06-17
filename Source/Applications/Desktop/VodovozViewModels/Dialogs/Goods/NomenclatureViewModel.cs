@@ -208,6 +208,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool HasAccessToSitesAndAppsTab { get; private set; }
 		public bool OldHasConditionAccounting { get; private set; }
+		public bool CanEditNeedSanitisationProperty { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
@@ -786,6 +787,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			HasAccessToSitesAndAppsTab =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+
+			CanEditNeedSanitisationProperty = !_nomenclatureRepository.CheckAnyOrderWithNomenclature(UoW, Entity.Id);
 		}
 
 		private void SetProperties()
