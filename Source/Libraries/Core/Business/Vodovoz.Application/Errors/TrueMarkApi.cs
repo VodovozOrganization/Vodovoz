@@ -1,5 +1,5 @@
 ﻿using TrueMark.Contracts;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Application.Errors
 {

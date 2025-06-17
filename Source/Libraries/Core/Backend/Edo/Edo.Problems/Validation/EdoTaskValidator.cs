@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,8 +75,11 @@ namespace Edo.Problems.Validation
 				}
 				catch(EdoTaskValidationException ex)
 				{
-					_logger.LogWarning(ex, $"Ошибка валидации задачи {edoTask.GetType().Name} валидатором {validator.Name}. " +
-						$"Возможно в валидаторе не правильно реализован метод {nameof(validator.IsApplicable)}");
+					_logger.LogWarning(ex, "Ошибка валидации задачи {TransferEdoTaskType} валидатором {ValidatorName}. " +
+						"Возможно в валидаторе не правильно реализован метод {MethodName}",
+						edoTask.GetType().Name,
+						validator.Name,
+						nameof(validator.IsApplicable));
 				}
 			}
 

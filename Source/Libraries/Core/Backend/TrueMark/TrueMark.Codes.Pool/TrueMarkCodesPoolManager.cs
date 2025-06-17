@@ -220,12 +220,18 @@ namespace TrueMark.Codes.Pool
 		private IUnitOfWork CreateUow()
 		{
 			var uow = _uowFactory.CreateWithoutRoot();
+			SetSessionTimeout(uow);
+
+			return uow;
+		}
+
+		private void SetSessionTimeout(IUnitOfWork uow)
+		{
 			using(var command = uow.Session.Connection.CreateCommand())
 			{
-				command.CommandText = $"SET SESSION wait_timeout = {20};";
+				command.CommandText = $"SET SESSION wait_timeout = 30;";
 				command.ExecuteNonQuery();
 			}
-			return uow;
 		}
 	}
 }

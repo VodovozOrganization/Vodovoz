@@ -1,10 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Security;
-using ApiClientProvider;
-using EmailSendWorker.Consumers;
-using Mailjet.Api.Abstractions.Configs;
-using Mailjet.Api.Abstractions.Endpoints;
+﻿using EmailSendWorker.Consumers;
+using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +9,8 @@ using NLog.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
+using System;
+using System.Net.Security;
 using Vodovoz.Settings.Pacs;
 
 namespace EmailSendWorker
@@ -22,6 +19,7 @@ namespace EmailSendWorker
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
 			CreateHostBuilder(args).Build().Run();
 		}
 
@@ -63,15 +61,8 @@ namespace EmailSendWorker
 					})
 
 					.AddHttpClient()
-					.AddTransient((sp) =>
-					{
-						var configuration = sp.GetRequiredService<IConfiguration>();
-						var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
-						var apiHelper = new ApiBasicAuthClientProvider(configuration.GetSection(MailjetOptions.Path), httpClient);
-						return new SendEndpoint(apiHelper);
-					})
 					
-					.Configure<MailjetOptions>(hostContext.Configuration.GetSection(MailjetOptions.Path))
+					.AddMailganerApiClient()
 					.AddMassTransit(busConf =>
 					{
 						busConf.AddConsumer<EmailSendConsumer, EmailSendConsumerDefinition>();

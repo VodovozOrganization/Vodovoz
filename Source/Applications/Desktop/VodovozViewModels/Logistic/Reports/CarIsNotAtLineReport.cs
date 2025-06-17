@@ -8,9 +8,9 @@ using System.Linq.Dynamic.Core;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Errors;
 using DateTimeHelpers;
 using Vodovoz.Presentation.ViewModels.Reports;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {

@@ -90,6 +90,10 @@ namespace PayPageAPI.Models
 			{
 				OfertaUrl = "pdf/offer_vv.pdf";
 			}
+			else if(organization.Id == _organizationSettings.KulerServiceOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_kuler_service.pdf";
+			}
 			else
 			{
 				OfertaUrl = "pdf/offer_world_of_drinks.pdf";

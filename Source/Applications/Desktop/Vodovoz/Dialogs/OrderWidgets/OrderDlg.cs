@@ -50,6 +50,7 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -86,7 +87,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
@@ -98,6 +98,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -1188,7 +1189,7 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Permissions.Order.CanEditGoodsInRouteList);
 		}
@@ -1564,7 +1565,7 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
-				if(Entity.IsNeedIndividualSetOnLoad)
+				if(Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender)
 				{
 					ResetFastDeliveryForNetworkClient();
 
@@ -1596,7 +1597,7 @@ namespace Vodovoz
 
 			ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Error,
-				"Нельзя выбрать доставку за час для сетевого клиента");
+				"Нельзя выбрать доставку за час для сетевого клиента и клиента с целью покупки - Тендер");
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
@@ -2026,7 +2027,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = Entity.ObservableOrderDocuments;
 			treeDocuments.Selection.Changed += Selection_Changed;
 
-			treeDocuments.RowActivated += (o, args) => OrderDocumentsOpener();
+			treeDocuments.RowActivated += OnButtonViewDocumentClicked;
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Новый\nдокументооборот")
@@ -2641,7 +2642,8 @@ namespace Vodovoz
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
-			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
+			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType)
+			   && Counterparty.ReasonForLeaving != ReasonForLeaving.Tender)
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))
@@ -2839,6 +2841,13 @@ namespace Vodovoz
 		{
 			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
+			
+			OrderDocumentsOpener(Entity.OrderDocuments
+				.Where(x => x.Type == OrderDocumentType.Invoice
+					|| x.Type == OrderDocumentType.InvoiceBarter
+					|| x.Type == OrderDocumentType.InvoiceContractDoc)
+				.OfType<PrintableOrderDocument>()
+				.ToArray());
 		}
 
 		/// <summary>
@@ -2904,31 +2913,32 @@ namespace Vodovoz
 
 		protected void OnButtonViewDocumentClicked(object sender, EventArgs e)
 		{
-			OrderDocumentsOpener();
+			var selectedObjects = treeDocuments.GetSelectedObjects().OfType<PrintableOrderDocument>().ToArray();
+
+			OrderDocumentsOpener(selectedObjects);
 		}
 
 		/// <summary>
 		/// Открытие соответствующего документу заказа окна.
 		/// </summary>
-		private void OrderDocumentsOpener()
+		private void OrderDocumentsOpener(PrintableOrderDocument[] printableOrderDocuments)
 		{
 			_logger.Info("Открытие документа заказа");
 			
-			if(!treeDocuments.GetSelectedObjects().Any())
+			if(!printableOrderDocuments.Any())
 			{
 				return;
 			}
 
 			var rdlDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.RDL)
-					.ToList();
+					.ToArray();
 
 			if(rdlDocs.Any())
 			{
 				var whatToPrint =
-					rdlDocs.ToList().Count > 1
+					rdlDocs.Length > 1
 						? "документов"
 						: "документа \"" + rdlDocs.Cast<OrderDocument>().First().Type.GetEnumTitle() + "\"";
 				
@@ -2936,22 +2946,21 @@ namespace Vodovoz
 				{
 					UoWGeneric.Save();
 				}
-				rdlDocs.ForEach(
-					doc =>
+
+				foreach(var doc in rdlDocs)
+				{
+					if(doc is IPrintableRDLDocument document)
 					{
-						if(doc is IPrintableRDLDocument document)
-						{
-							TabParent.AddTab(QSReport.DocumentPrinter.GetPreviewTab(document), this, false);
-						}
+						NavigationManager
+							.OpenViewModelOnTdi<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
 					}
-				);
+				}
 			}
 
 			var odtDocs =
-				treeDocuments.GetSelectedObjects()
-					.OfType<PrintableOrderDocument>()
+				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.ODT)
-					.ToList();
+					.ToArray();
 			
 			if(odtDocs.Any())
 			{
@@ -2970,6 +2979,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderContract.Contract);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
@@ -2992,6 +3002,7 @@ namespace Vodovoz
 							() =>
 							{
 								var dialog = OrmMain.CreateObjectDialog(orderM2Proxy.M2Proxy);
+
 								if(dialog != null)
 								{
 									(dialog as IEditableDialog).IsEditable = false;
@@ -3967,7 +3978,7 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
 
-			if(ycheckFastDelivery.Active && Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}
@@ -4067,7 +4078,7 @@ namespace Vodovoz
 		{
 			UpdateOnlineOrderText();
 
-			if(Entity.IsNeedIndividualSetOnLoad)
+			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}

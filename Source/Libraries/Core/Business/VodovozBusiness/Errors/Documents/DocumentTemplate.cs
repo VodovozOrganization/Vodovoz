@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Errors.Documents
+﻿using Vodovoz.Core.Domain.Results;
+
+namespace Vodovoz.Errors.Documents
 {
 	public static class DocumentTemplate
 	{

@@ -12,11 +12,11 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
@@ -366,7 +366,7 @@ namespace WarehouseApi.Library.Errors
 				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
-			if(!order.IsNeedIndividualSetOnLoad)
+			if(!order.IsNeedIndividualSetOnLoad && !order.IsNeedIndividualSetOnLoadForTender)
 			{
 				if(order.PaymentType != PaymentType.Cashless)
 				{
@@ -382,13 +382,13 @@ namespace WarehouseApi.Library.Errors
 
 				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
-					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отрпавки документов по ЭДО, сканирование не требуется", orderId);
+					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отправки документов по ЭДО, сканирование не требуется", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);
 				}
 
 				if(order.Client.OrderStatusForSendingUpd != OrderStatusForSendingUpd.EnRoute)
 				{
-					_logger.LogWarning("Заказе {OrderId} не в статусе в пути для ЭДО", orderId);
+					_logger.LogWarning("Заказ {OrderId} не в статусе в пути для ЭДО", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadOrderIsNotEnRoute(orderId);
 				}
 			}

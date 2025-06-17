@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Errors;
 using Vodovoz.Nodes;
 
 namespace VodovozBusiness.Services.Orders
@@ -65,7 +65,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <param name="digitsNumber">Номер телефона в формате XXXXXXXXXX (только цифры)</param>
 		/// <returns>
 		/// <see cref="Result.IsSuccess"/> - может заказывать промик для новых клиентов,
-		/// <see cref="Result.Failure(Vodovoz.Errors.Error)"/> - нет</returns>
+		/// <see cref="Result.Failure(Error)"/> - нет</returns>
 		Result CanOrderPromoSetForNewClientsFromOnline(
 			IUnitOfWork uow,
 			bool isSelfDelivery,

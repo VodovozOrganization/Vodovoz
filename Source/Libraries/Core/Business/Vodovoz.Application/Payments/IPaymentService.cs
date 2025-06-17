@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Errors;
 
 namespace Vodovoz.Application.Payments
 {

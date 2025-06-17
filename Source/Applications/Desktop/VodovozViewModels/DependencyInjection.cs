@@ -1,6 +1,7 @@
 using GeoCoderApi.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application.BankStatements;
+using Vodovoz.Presentation.ViewModels;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Options;
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels
 				.AddScoped<BankStatementParser>()
 				.AddScoped<IRouteOptimizer, RouteOptimizer>()
 				.AddGeoCoderClient()
+				.AddPresentationViewModels()
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>();
 	}
 }
