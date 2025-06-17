@@ -10,9 +10,8 @@ using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security;
 
 namespace WarehouseApi.Controllers.V1
@@ -22,13 +21,13 @@ namespace WarehouseApi.Controllers.V1
 	public class PushNotificationsController : VersionedController
 	{
 		private readonly IOptions<SecurityOptions> _securityOptions;
-		private readonly IGenericRepository<ExternalApplicationUserForApi> _externalApplicationUserRepository;
+		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			IOptions<SecurityOptions> securityOptions,
-			IGenericRepository<ExternalApplicationUserForApi> externalApplicationUserRepository,
+			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			UserManager<IdentityUser> userManager)
 			: base(logger)
 		{

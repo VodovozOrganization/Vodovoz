@@ -5,11 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using TrueMarkApi.Client;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Core.Data.Interfaces.Employees;
-using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
@@ -46,8 +43,7 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ISelfDeliveryService, SelfDeliveryService>()
-				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
-				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
+				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>();
 
 			services
 				.AddMessageTransportSettings()

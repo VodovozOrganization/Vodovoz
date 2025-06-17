@@ -14,7 +14,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
-using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 
@@ -156,7 +155,7 @@ namespace Vodovoz.Presentation.WebApi.Security
 			if(_securityOptions.Value.Authorization.OnlyOneSessionAllowed)
 			{
 				var externalApplicationUser = _unitOfWork.Session
-					.Query<ExternalApplicationUserForApi>()
+					.Query<ExternalApplicationUser>()
 					.Where(eau => eau.Login == username
 						&& _securityOptions.Value.Authorization.ApplicationUserTypes.Contains(eau.ExternalApplicationType))
 					.FirstOrDefault();

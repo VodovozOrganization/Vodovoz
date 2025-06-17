@@ -2,7 +2,7 @@
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Schemas.Employees;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
+namespace Vodovoz.Core.Data.NHibernate.Mappings
 {
 	public class ExternalApplicationUserMap : ClassMap<ExternalApplicationUser>
 	{
@@ -18,8 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.Token).Column(ExternalApplicationUserSchema.TokenColumn);
 			Map(x => x.ExternalApplicationType)
 				.Column(ExternalApplicationUserSchema.ExternalApplicationTypeColumn);
-
-			References(x => x.Employee).Column(ExternalApplicationUserSchema.EmployeeColumn);
+			Map(x => x.EmployeeId).Column(ExternalApplicationUserSchema.EmployeeColumn);
 		}
 	}
 }

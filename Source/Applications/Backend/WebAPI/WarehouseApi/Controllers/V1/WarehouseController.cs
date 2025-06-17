@@ -32,6 +32,7 @@ namespace WarehouseApi.Controllers.V1
 
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IGenericRepository<UserSettings> _userSettingsRepository;
+		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
 		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IWarehousePermissionService _warehousePermissionService;
 
@@ -43,12 +44,14 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="userSettingsRepository"></param>
 		/// <param name="externalApplicationUserRepository"></param>
 		/// <param name="warehousePermissionService"></param>
+		/// <param name="employeeRepository"></param>
 		public WarehouseController(
 			ILogger<ApiControllerBase> logger,
 			UserManager<IdentityUser> userManager,
 			IGenericRepository<UserSettings> userSettingsRepository,
 			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
-			IWarehousePermissionService warehousePermissionService)
+			IWarehousePermissionService warehousePermissionService,
+			IGenericRepository<EmployeeEntity> employeeRepository)
 			: base(logger)
 		{
 			_userManager = userManager
@@ -59,6 +62,8 @@ namespace WarehouseApi.Controllers.V1
 				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_warehousePermissionService = warehousePermissionService
 				?? throw new ArgumentNullException(nameof(warehousePermissionService));
+			_employeeRepository = employeeRepository
+				?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
 		/// <summary>
@@ -85,15 +90,20 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Сотрудник не имеет доступа к этмоу Api", statusCode: StatusCodes.Status403Forbidden);
 			}
 
-			var employee = apiUser.Employee;
+			var employee = _employeeRepository.GetFirstOrDefault(unitOfWork, x => x.Id == apiUser.EmployeeId);
 
 			if(employee == null)
 			{
 				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
 			}
 
+			if(employee.UserId is null)
+			{
+				return Problem("Пользователь не найден", statusCode: StatusCodes.Status403Forbidden);
+			}
+
 			var accessibleWarehouses = _warehousePermissionService
-				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
+				.GetAvailableWarehousesForUser(unitOfWork, employee.UserId.Value);
 
 			var result = accessibleWarehouses
 				.Select(warehouse => new WarehouseDto
@@ -133,15 +143,20 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Сотрудник не имеет доступа к этмоу Api", statusCode: StatusCodes.Status403Forbidden);
 			}
 
-			var employee = apiUser.Employee;
+			var employee = _employeeRepository.GetFirstOrDefault(unitOfWork, x => x.Id == apiUser.EmployeeId);
 
 			if(employee == null)
 			{
 				return Problem("Сотрудник не найден", statusCode: StatusCodes.Status403Forbidden);
 			}
 
+			if(employee.UserId is null)
+			{
+				return Problem("Пользователь не найден", statusCode: StatusCodes.Status403Forbidden);
+			}
+
 			var accessibleWarehouses = _warehousePermissionService
-				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
+				.GetAvailableWarehousesForUser(unitOfWork, employee.UserId.Value);
 
 			if(!accessibleWarehouses.Any(x => x.Id == warehouseId))
 			{
@@ -149,7 +164,7 @@ namespace WarehouseApi.Controllers.V1
 			}
 
 			var userSettings = _userSettingsRepository
-				.GetFirstOrDefault(unitOfWork, x => x.User.Id == employee.User.Id);
+				.GetFirstOrDefault(unitOfWork, x => x.User.Id == employee.UserId.Value);
 
 			if(userSettings == null)
 			{

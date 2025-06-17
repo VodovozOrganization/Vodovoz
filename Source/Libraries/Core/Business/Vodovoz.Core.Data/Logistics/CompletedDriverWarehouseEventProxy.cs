@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 
 namespace Vodovoz.Core.Data.Logistics
@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Data.Logistics
 			decimal? longitude,
 			decimal? distanceMetersFromScanningLocation,
 			DriverWarehouseEvent @event,
-			EmployeeWithLogin employee,
+			EmployeeEntity employee,
 			int? documentId,
 			int? carId = null)
 		{
@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Data.Logistics
 		public virtual DriverWarehouseEvent DriverWarehouseEvent { get; }
 
 		[Display(Name = "Автор")]
-		public virtual EmployeeWithLogin Employee { get; }
+		public virtual EmployeeEntity Employee { get; }
 
 		[Display(Name = "Автомобиль")]
 		public virtual int? CarId { get; }
@@ -61,7 +61,7 @@ namespace Vodovoz.Core.Data.Logistics
 			decimal? longitude,
 			decimal? distanceMetersFromScanningLocation,
 			DriverWarehouseEvent @event,
-			EmployeeWithLogin employee,
+			EmployeeEntity employee,
 			int? documentId,
 			int? carId = null)
 		{

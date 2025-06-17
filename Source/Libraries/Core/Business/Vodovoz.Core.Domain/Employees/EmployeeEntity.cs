@@ -57,6 +57,7 @@ namespace Vodovoz.Core.Domain.Employees
 		private string _loginForNewUser;
 		private IObservableList<EmployeeFileInformation> _attachedFileInformations = new ObservableList<EmployeeFileInformation>();
 		private string _photoFileName;
+		private int? _userId;
 
 		public EmployeeEntity()
 		{
@@ -360,6 +361,12 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual string ShortName
 		{
 			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+		}
+
+		public virtual int? UserId
+		{
+			get => _userId;
+			set => SetField(ref _userId, value);
 		}
 
 		public virtual string Title => FullName;

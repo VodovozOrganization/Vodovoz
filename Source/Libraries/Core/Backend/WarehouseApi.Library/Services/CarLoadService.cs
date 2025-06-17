@@ -1,18 +1,15 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using OneOf;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Employees;
-using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
@@ -39,8 +36,9 @@ namespace WarehouseApi.Library.Services
 		private readonly ILogger<CarLoadService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
-		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
+		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
@@ -52,14 +50,15 @@ namespace WarehouseApi.Library.Services
 			ILogger<CarLoadService> logger,
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
-			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IGenericRepository<OrderEntity> orderRepository,
+			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
-			IBus messageBus)
+			IBus messageBus,
+			IGenericRepository<EmployeeEntity> employeeRepository)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -67,10 +66,10 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(uow));
 			_carLoadDocumentRepository = carLoadDocumentRepository
 				?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_employeeWithLoginRepository = employeeWithLoginRepository
-				?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
+			_externalApplicationUserRepository = externalApplicationUserRepository
+				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider
 				?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_logisticsEventsCreationService = logisticsEventsCreationService
@@ -83,6 +82,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_messageBus = messageBus
 				?? throw new ArgumentNullException(nameof(messageBus));
+			_employeeRepository = employeeRepository
+				?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
@@ -401,7 +402,7 @@ namespace WarehouseApi.Library.Services
 			{
 				_uow.Commit();
 			}
-			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
 			{
 				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
 
@@ -448,7 +449,7 @@ namespace WarehouseApi.Library.Services
 		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(
 			int orderId,
 			int nomenclatureId,
-			EmployeeWithLogin pickerEmployee,
+			EmployeeEntity pickerEmployee,
 			TrueMarkWaterIdentificationCode waterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
@@ -986,7 +987,7 @@ namespace WarehouseApi.Library.Services
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
 			int documentId,
-			EmployeeWithLogin employee,
+			EmployeeEntity employee,
 			CarLoadDocumentLoadingProcessActionType actionType)
 		{
 			var action = CreateCarLoadDocumentLoadingProcessAction(documentId, employee.Id, actionType);
@@ -1141,10 +1142,22 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public EmployeeWithLogin GetEmployeeProxyByApiLogin(
+		public EmployeeEntity GetEmployeeProxyByApiLogin(
 			string userLogin,
-			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp) =>
-			_employeeWithLoginRepository.GetEmployeeWithLogin(_uow, userLogin, applicationType);
+			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp)
+		{
+			var employeeId = _externalApplicationUserRepository
+				.GetFirstOrDefault(_uow, x => x.Login == userLogin && x.ExternalApplicationType == applicationType)
+				?.EmployeeId;
+
+			if(employeeId == null)
+			{
+				return null;
+			}
+
+			return _employeeRepository.GetFirstOrDefault(_uow, x => x.Id == employeeId);
+
+		}
 
 		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{

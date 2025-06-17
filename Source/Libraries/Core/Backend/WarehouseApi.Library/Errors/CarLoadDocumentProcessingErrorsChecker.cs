@@ -5,15 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Employees;
-using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
@@ -30,8 +28,8 @@ namespace WarehouseApi.Library.Errors
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
-		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
+		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 
 		public CarLoadDocumentProcessingErrorsChecker(
@@ -39,16 +37,16 @@ namespace WarehouseApi.Library.Errors
 			IUnitOfWork uow,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
-			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
+			IGenericRepository<EmployeeEntity> employeeRepository,
 			IGenericRepository<OrderEntity> orderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 		}
@@ -112,7 +110,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee)
+		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeEntity employee)
 		{
 			var lastDocumentLoadingProcessAction =
 				_carLoadDocumentRepository.GetLastLoadingProcessActionByDocumentId(_uow, documentId);
@@ -128,8 +126,8 @@ namespace WarehouseApi.Library.Errors
 			{
 				var leftToEndNoLoadingActionsTimeout = lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout) - DateTime.Now;
 				var pickerEmployee =
-					_employeeWithLoginRepository
-					.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId);
+					_employeeRepository
+					.GetFirstOrDefault(_uow, x => x.Id == lastDocumentLoadingProcessAction.PickerEmployeeId);
 
 				var error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
 					documentId,
