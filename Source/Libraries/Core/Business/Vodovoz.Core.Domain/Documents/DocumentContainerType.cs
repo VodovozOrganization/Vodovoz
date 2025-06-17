@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Documents
 		AccusativePlural = "типов контейнеров документооборота",
 		Prepositional = "типах контейнера документооборота",
 		PrepositionalPlural = "типах контейнеров документооборота")]
-	public enum Type
+	public enum DocumentContainerType
 	{
 		/// <summary>
 		/// УПД

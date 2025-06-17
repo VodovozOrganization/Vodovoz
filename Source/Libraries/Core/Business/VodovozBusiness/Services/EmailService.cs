@@ -13,7 +13,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Email = Vodovoz.Domain.Contacts.Email;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.Services
 {
@@ -76,7 +76,7 @@ namespace Vodovoz.Services
 		{
 			var sendedByEdo = _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Type.Bill) > 0;
+				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
@@ -95,7 +95,7 @@ namespace Vodovoz.Services
 		{
 			var sendedByEdo = _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Type.Bill) > 0;
+				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 
@@ -145,7 +145,7 @@ namespace Vodovoz.Services
 		{
 			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings, true)
 				&& !_emailRepository.HaveSendedEmailForBill(order.Id)
-				&& _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id).Count(x => x.Type == Type.Bill) == 0)
+				&& _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id).Count(x => x.Type == DocumentContainerType.Bill) == 0)
 			{
 				return SendBillToEmail(unitOfWork, order);
 			}

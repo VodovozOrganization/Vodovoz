@@ -31,7 +31,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
-using EdoDocumentType = Vodovoz.Core.Domain.Documents.Type;
+using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment

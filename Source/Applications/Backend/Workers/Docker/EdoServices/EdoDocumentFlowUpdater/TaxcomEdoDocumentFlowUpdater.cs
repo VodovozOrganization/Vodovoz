@@ -25,7 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -428,7 +428,7 @@ namespace EdoDocumentFlowUpdater
 				
 					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-							&& ec.Type == Type.Bill
+							&& ec.Type == DocumentContainerType.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation

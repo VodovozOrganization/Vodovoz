@@ -40,7 +40,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
 using Vodovoz.Core.Domain.Documents;
@@ -640,12 +640,12 @@ namespace Vodovoz.JournalViewModels
 
 			var edoUpdLastRecordIdByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
 				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
-				.And(() => innerEdoContainerAlias.Type == Type.Upd)
+				.And(() => innerEdoContainerAlias.Type == DocumentContainerType.Upd)
 				.Select(Projections.Max(()=> innerEdoContainerAlias.Id));
 
 			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
 					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
-					.And(() => edoContainerAlias.Type == Type.Upd)
+					.And(() => edoContainerAlias.Type == DocumentContainerType.Upd)
 					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 

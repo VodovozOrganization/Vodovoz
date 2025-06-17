@@ -265,8 +265,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => invoiceAlias)
-				.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
+				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
 				.JoinEntityAlias(() => authorAlias, () => invoiceAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => invoiceAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
@@ -339,9 +339,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => waterAlias)
-				.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => authorAlias, () => waterAlias.AuthorId ==authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => waterAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => waterAlias.IncomingWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => waterAlias.Product, () => productAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.IncomingWater)
@@ -551,10 +551,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => writeOffAlias)
-				.JoinQueryOver(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias,
-					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => authorAlias, () => authorAlias.Id == writeOffAlias.AuthorId, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => lastEditorAlias, () => lastEditorAlias.Id == writeOffAlias.LastEditorId, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => lastEditorAlias, () => lastEditorAlias.Id == writeOffAlias.LastEditorId, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias);
 
 			if(FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.WriteoffDocument)
 			{
@@ -632,7 +631,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => inventoryAlias)
-				.JoinQueryOver(() => inventoryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => inventoryAlias.Warehouse, () => warehouseAlias)
 				.JoinEntityAlias(() => authorAlias, () => inventoryAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => inventoryAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => inventoryAlias.Employee, () => employeeStorageFromAlias)
@@ -724,7 +723,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => shiftchangeAlias)
-				.JoinQueryOver(() => shiftchangeAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => shiftchangeAlias.Warehouse, () => warehouseAlias)
 				.JoinEntityAlias(() => authorAlias, () => shiftchangeAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => shiftchangeAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => shiftchangeAlias.Car, () => carStorageFromAlias)
@@ -803,10 +802,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => regradingOfGoodsAlias)
-				.JoinQueryOver(() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias,
-					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => authorAlias, () => regradingOfGoodsAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias);
 
 			if((FilterViewModel.DocumentType != null && FilterViewModel.DocumentType != DocumentType.RegradingOfGoodsDocument)
 				|| FilterViewModel.Driver != null
@@ -868,9 +866,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => selfDeliveryAlias)
-				.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => selfDeliveryAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => selfDeliveryAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinEntityAlias(() => authorAlias, () => selfDeliveryAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => selfDeliveryAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
@@ -942,11 +940,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => loadCarAlias)
-				.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => routeListAlias.Car, () => carAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => loadCarAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => loadCarAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => authorAlias, () => loadCarAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => loadCarAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
@@ -1053,11 +1051,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => unloadCarAlias)
-				.JoinQueryOver(() => unloadCarAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => routeListAlias.Car, () => carAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => carAlias.CarModel, () => carModelAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => unloadCarAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => unloadCarAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(() => authorAlias, () => unloadCarAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => lastEditorAlias, () => unloadCarAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
@@ -1139,10 +1137,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => terminalGiveoutAlias)
-				.JoinQueryOver(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
-					Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0))
-				.JoinQueryOver(() => terminalGiveoutAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => terminalGiveoutAlias.GoodsAccountingOperation, () => operationAlias)
+				.JoinEntityAlias(
+					() => warehouseAlias,
+					Restrictions.And(
+						Restrictions.Lt(Projections.Property(() => operationAlias.Amount), 0),
+						Restrictions.EqProperty(Projections.Property(() => operationAlias.Warehouse.Id), Projections.Property(() => warehouseAlias.Id))),
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => terminalGiveoutAlias.Driver, () => driverAlias)
 				.JoinAlias(() => terminalGiveoutAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null
@@ -1211,10 +1213,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var endDate = FilterViewModel.EndDate;
 
 			var query = uow.Session.QueryOver(() => terminalReturnAlias)
-				.JoinQueryOver(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias, JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => operationAlias.Warehouse, () => warehouseAlias, JoinType.LeftOuterJoin,
-					Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0))
-				.JoinQueryOver(() => terminalReturnAlias.Driver, () => driverAlias, JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => terminalReturnAlias.GoodsAccountingOperation, () => operationAlias)
+				.JoinEntityAlias(() => warehouseAlias, Restrictions.And(
+						Restrictions.Gt(Projections.Property(() => operationAlias.Amount), 0),
+						Restrictions.EqProperty(Projections.Property(() => operationAlias.Warehouse.Id), Projections.Property(() => warehouseAlias.Id))),
+						JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => terminalReturnAlias.Driver, () => driverAlias)
 				.JoinAlias(() => terminalReturnAlias.Author, () => authorAlias, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType != null
