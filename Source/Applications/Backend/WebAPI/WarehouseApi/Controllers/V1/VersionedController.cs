@@ -8,7 +8,7 @@ namespace WarehouseApi.Controllers.V1
 	/// Базовый контроллер с версией
 	/// </summary>
 	[ApiVersion("1.0")]
-	[Route("api/v{version:apiVersion}/[action]")]
+	[Route("api/[action]")]
 	[ApiController]
 	public class VersionedController : ApiControllerBase
 	{
