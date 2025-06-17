@@ -18,6 +18,7 @@ namespace Vodovoz.Controllers
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly object _lockObject = new object();
 
 		public PaymentFromBankClientController(
 			IPaymentItemsRepository paymentItemsRepository,
@@ -110,12 +111,15 @@ namespace Vodovoz.Controllers
 		public void ReturnAllocatedSumToClientBalance(
 			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation)
 		{
-			if(!HasAllocatedSum(uow, order.Id, out var paymentItems, out var allocatedSum))
+			lock(_lockObject)
 			{
-				return;
+				if(!HasAllocatedSum(uow, order.Id, out var paymentItems, out var allocatedSum))
+				{
+					return;
+				}
+
+				CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, order, allocatedSum, paymentItems, refundPaymentReason);
 			}
-			
-			CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, order, allocatedSum, paymentItems, refundPaymentReason);
 		}
 
 		/// <summary>
