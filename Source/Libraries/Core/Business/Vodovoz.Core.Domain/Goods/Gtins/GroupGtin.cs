@@ -4,7 +4,7 @@ using QS.HistoryLog;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
-namespace VodovozBusiness.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods.Gtins
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Групповые Gtin",

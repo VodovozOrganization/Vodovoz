@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Operations;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Goods.Operations
 {
@@ -11,17 +10,17 @@ namespace Vodovoz.Core.Domain.Goods.Operations
 		Nominative = "операция передвижения товаров по складу")]
 	public class GoodsAccountingOperation : OperationBase
 	{
-		private Nomenclature _nomenclature;
+		private int? _nomenclatureId;
 		private decimal _amount;
 
 		#region Свойства
 
 		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual int? NomenclatureId
 		{
-			get => _nomenclature;
-			set => SetField(ref _nomenclature, value);
+			get => _nomenclatureId;
+			set => SetField(ref _nomenclatureId, value);
 		}
 
 		public virtual decimal Amount

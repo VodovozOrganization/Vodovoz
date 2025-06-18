@@ -4,8 +4,8 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Gtins;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {

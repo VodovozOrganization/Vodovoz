@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Vodovoz.Core.Domain.Goods.Gtins;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {

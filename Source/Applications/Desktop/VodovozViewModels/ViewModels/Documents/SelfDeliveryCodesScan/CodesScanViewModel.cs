@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods.Gtins;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -22,7 +23,6 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Models.TrueMark;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 using VodovozInfrastructure.Keyboard;
 

@@ -121,6 +121,13 @@ namespace Vodovoz.Core.Domain.Goods
 		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
 		private bool _isNeedSanitisation;
 
+		private bool _isNewBottle;
+		private bool _isDefectiveBottle;
+		private bool _isShabbyBottle;
+		private decimal _length;
+		private decimal _width;
+		private decimal _height;
+
 		private MeasurementUnits _unit;
 		private NomenclatureEntity _dependsOnNomenclature;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
@@ -243,6 +250,58 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _alternativeNomenclaturePrices;
 			set => SetField(ref _alternativeNomenclaturePrices, value);
+		}
+
+
+		/// <summary>
+		/// Это новая бутыль
+		/// </summary>
+		[Display(Name = "Это новая бутыль")]
+		public virtual bool IsNewBottle
+		{
+			get => _isNewBottle;
+			set
+			{
+				if(SetField(ref _isNewBottle, value) && _isNewBottle)
+				{
+					IsDefectiveBottle = false;
+					IsShabbyBottle = false;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Это бракованая бутыль
+		/// </summary>
+		[Display(Name = "Это бракованая бутыль")]
+		public virtual bool IsDefectiveBottle
+		{
+			get => _isDefectiveBottle;
+			set
+			{
+				if(SetField(ref _isDefectiveBottle, value) && _isDefectiveBottle)
+				{
+					IsNewBottle = false;
+					IsShabbyBottle = false;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Стройка
+		/// </summary>
+		[Display(Name = "Стройка")]
+		public virtual bool IsShabbyBottle
+		{
+			get => _isShabbyBottle;
+			set
+			{
+				if(SetField(ref _isShabbyBottle, value) && _isShabbyBottle)
+				{
+					IsNewBottle = false;
+					IsDefectiveBottle = false;
+				}
+			}
 		}
 
 		/// <summary>
@@ -585,7 +644,56 @@ namespace Vodovoz.Core.Domain.Goods
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
 		}
-		
+
+
+		/// <summary>
+		/// Длина номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Длина")]
+		public virtual decimal Length
+		{
+			get => _length;
+			set
+			{
+				if(SetField(ref _length, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Ширина номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Ширина")]
+		public virtual decimal Width
+		{
+			get => _width;
+			set
+			{
+				if(SetField(ref _width, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Высота номенклатуры, измеряемая в сантиметрах
+		/// </summary>
+		[Display(Name = "Высота")]
+		public virtual decimal Height
+		{
+			get => _height;
+			set
+			{
+				if(SetField(ref _height, value))
+				{
+					OnPropertyChanged(nameof(Volume));
+				}
+			}
+		}
+
 
 		#region Свойства товаров для магазина
 
@@ -1249,7 +1357,13 @@ namespace Vodovoz.Core.Domain.Goods
 
 			return purchasePrice;
 		}
-		
+
+		/// <summary>
+		/// Объем номенклатуры, измеряемый в квадратных метрах
+		/// </summary>
+		[Display(Name = "Объём")]
+		public virtual decimal Volume => Length * Width * Height / 1_000_000;    // 1 000 000
+
 		public override string ToString() => $"id = {Id} Name = {Name}";
 	}
 }
