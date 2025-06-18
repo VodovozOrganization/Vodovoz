@@ -245,7 +245,8 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && orderItemAlias.Nomenclature.IsNeedSanitisation)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
