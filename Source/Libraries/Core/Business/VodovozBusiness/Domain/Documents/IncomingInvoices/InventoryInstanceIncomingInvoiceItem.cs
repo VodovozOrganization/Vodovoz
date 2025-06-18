@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.IncomingInvoices
 {

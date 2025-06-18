@@ -9,8 +9,8 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents

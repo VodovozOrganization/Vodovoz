@@ -1,4 +1,6 @@
 ﻿using NHibernate.Criterion;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations

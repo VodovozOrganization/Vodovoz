@@ -6,9 +6,9 @@ using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Operations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 

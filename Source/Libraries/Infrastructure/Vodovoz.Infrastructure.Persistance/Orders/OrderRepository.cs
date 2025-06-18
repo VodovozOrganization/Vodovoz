@@ -20,7 +20,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
@@ -44,6 +43,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using NHibernate.Linq;
 using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {

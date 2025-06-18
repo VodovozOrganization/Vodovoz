@@ -2,10 +2,10 @@
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Equipments;
 

@@ -3,9 +3,9 @@ using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.Domain.Operations
+namespace Vodovoz.Core.Domain.Goods.Operations
 {
-	[Appellative (Gender = GrammaticalGender.Neuter,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции передвижения товаров по складу",
 		Accusative = "операцию передвижения товаров по складу",
 		Nominative = "операция передвижения товаров по складу")]

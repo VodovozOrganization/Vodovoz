@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;

@@ -25,7 +25,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Profitability;
@@ -51,6 +50,7 @@ using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Print.Store;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Operations;
 
 namespace Vodovoz.ViewModels.Logistic
 {

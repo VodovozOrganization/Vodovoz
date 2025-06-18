@@ -9,6 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 

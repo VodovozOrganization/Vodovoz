@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 
 namespace Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting
 {

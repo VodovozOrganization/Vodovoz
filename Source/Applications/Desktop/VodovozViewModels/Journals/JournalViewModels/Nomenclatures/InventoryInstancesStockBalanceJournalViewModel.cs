@@ -9,6 +9,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Goods.Operations;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;

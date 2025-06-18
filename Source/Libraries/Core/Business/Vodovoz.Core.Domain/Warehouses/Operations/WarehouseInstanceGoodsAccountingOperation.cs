@@ -1,9 +1,10 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Goods.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 
-namespace Vodovoz.Domain.Operations
+namespace Vodovoz.Core.Domain.Warehouses.Operations
 {
-	[Appellative (Gender = GrammaticalGender.Neuter,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции передвижения товаров по складу(экземплярный учет)",
 		Nominative = "операция передвижения товаров по складу(экземплярный учет)")]
 	public class WarehouseInstanceGoodsAccountingOperation : InstanceGoodsAccountingOperation

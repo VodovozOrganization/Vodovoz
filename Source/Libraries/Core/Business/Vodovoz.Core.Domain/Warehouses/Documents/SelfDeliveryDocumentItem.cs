@@ -2,8 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Warehouses.Documents

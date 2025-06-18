@@ -4,12 +4,12 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 
 namespace VodovozBusiness.Domain.Documents
 {

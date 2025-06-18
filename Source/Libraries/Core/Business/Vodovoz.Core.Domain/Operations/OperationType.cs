@@ -1,4 +1,4 @@
-namespace Vodovoz.Domain.Operations
+﻿namespace Vodovoz.Core.Domain.Operations
 {
 	public enum OperationType
 	{

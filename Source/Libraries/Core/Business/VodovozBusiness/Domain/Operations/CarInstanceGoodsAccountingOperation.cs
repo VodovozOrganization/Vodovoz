@@ -1,4 +1,6 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Goods.Operations;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Domain.Operations

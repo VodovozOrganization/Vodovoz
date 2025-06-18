@@ -1,9 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Operations;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz

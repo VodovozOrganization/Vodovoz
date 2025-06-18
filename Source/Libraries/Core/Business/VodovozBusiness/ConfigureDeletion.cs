@@ -55,6 +55,8 @@ using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Goods.Operations;
+using Vodovoz.Core.Domain.Warehouses.Operations;
 
 namespace Vodovoz
 {
