@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2389,12 +2389,12 @@ FROM
 
          IF(
                      0 NOT IN (@Recomendation_include),
-                     (SELECT COUNT(id) FROM recomendations WHERE recomendations.id IN(@Recomendation_include)),
+                     (SELECT COUNT(id) FROM goods_recomendations WHERE goods_recomendations.id IN(@Recomendation_include)),
                      0
              ) AS included_recomendation,
          IF(
                      0 NOT IN (@Recomendation_exclude),
-                     (SELECT COUNT(id) FROM recomendations WHERE recomendations.id IN(@Recomendation_exclude)),
+                     (SELECT COUNT(id) FROM goods_recomendations WHERE goods_recomendations.id IN(@Recomendation_exclude)),
                      0
              ) AS excluded_recomendation,
 
