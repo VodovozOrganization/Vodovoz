@@ -547,6 +547,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Edo", "Edo", "{1F372855-DF6E-45ED-B67C-E6A7D3CE48A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edo.ErrorDebugWorker", "Applications\Backend\Workers\Docker\Edo\Edo.Transfer.Dispatcher.ErrorDebugWorker\Edo.ErrorDebugWorker.csproj", "{FC186601-FD2F-40A2-BC34-6546858A2416}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Withdrawal.Worker", "Applications\Backend\Workers\Docker\Edo\Edo.Withdrawal.Worker\Edo.Withdrawal.Worker.csproj", "{C3ABF79B-82F0-46D7-AFB3-6F793C433AFC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DebugErrors", "DebugErrors", "{D1009313-5375-4D45-A095-F4B400341C9F}"
