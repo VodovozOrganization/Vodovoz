@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Util;
 using QS.Dialog;
@@ -170,25 +170,29 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-
-			using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Проверка параметров существующих рекомендаций"))
+			if(!IsArchive)
 			{
-				var result = unitOfWork.Session
-					.Query<Recomendation>()
-					.Where(x => !x.IsArchive
-						&& x.RoomType == RoomType
-						&& x.PersonType == PersonType)
-					.Count() == 0;
+				var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 
-				if(!result)
+				using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Проверка параметров существующих рекомендаций"))
 				{
-					yield return new ValidationResult(
-						"Уже существует активная рекомендация с такими параметрами", new[]
-						{
+					var result = unitOfWork.Session
+						.Query<Recomendation>()
+						.Where(x => !x.IsArchive
+							&& x.Id != Id
+							&& x.RoomType == RoomType
+							&& x.PersonType == PersonType)
+						.Count() == 0;
+
+					if(!result)
+					{
+						yield return new ValidationResult(
+							"Уже существует активная рекомендация с такими параметрами", new[]
+							{
 							nameof(RoomType),
 							nameof(PersonType)
-						});
+							});
+					}
 				}
 			}
 		}

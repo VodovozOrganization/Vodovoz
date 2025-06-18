@@ -1,12 +1,14 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using System.Reflection;
 using Vodovoz.Core.Domain.Goods.Recomendations;
 
 namespace Vodovoz.ViewModels.Goods
@@ -30,6 +32,8 @@ namespace Vodovoz.ViewModels.Goods
 				  deleteEntityService,
 				  currentPermissionService)
 		{
+			Title = "Журнал " + typeof(Recomendation).GetCustomAttribute<AppellativeAttribute>().GenitivePlural;
+
 			_journalFilterViewModel = journalFilterViewModel
 				?? throw new ArgumentNullException(nameof(journalFilterViewModel));
 
