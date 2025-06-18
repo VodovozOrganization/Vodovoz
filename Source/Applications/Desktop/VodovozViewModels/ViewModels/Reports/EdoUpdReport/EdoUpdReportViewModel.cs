@@ -24,7 +24,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Domain.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
@@ -125,7 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.JoinEntityAlias(() => orderItemAlias, () => orderAlias.Id == orderItemAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinEntityAlias(() => trueMarkApiDocumentAlias, () => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == DocumentContainerType.Upd, JoinType.LeftOuterJoin);
 
 			Junction reportTypeRestriction = null;
 
