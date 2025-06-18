@@ -12,16 +12,14 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security;
 
 namespace WarehouseApi.Controllers.V1
 {
 	[Route("api/[action]")]
 	[ApiController]
-	public class PushNotificationsController : ApiControllerBase
+	public class PushNotificationsController : VersionedController
 	{
-		private readonly ILogger<PushNotificationsController> _logger;
 		private readonly IOptions<SecurityOptions> _securityOptions;
 		private readonly IGenericRepository<ExternalApplicationUserForApi> _externalApplicationUserRepository;
 		private readonly UserManager<IdentityUser> _userManager;
@@ -33,7 +31,6 @@ namespace WarehouseApi.Controllers.V1
 			UserManager<IdentityUser> userManager)
 			: base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_securityOptions = securityOptions ?? throw new ArgumentNullException(nameof(securityOptions));
 			_externalApplicationUserRepository = externalApplicationUserRepository ?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
