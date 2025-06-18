@@ -9,8 +9,7 @@ using QSOrmProject.RepresentationModel;
 using System;
 using System.ComponentModel;
 using System.Linq;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
@@ -87,7 +86,7 @@ namespace Vodovoz
 				.OrderBy(w => w.Name).ToList();
 
 			bool accessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			var navigatiuonManager = _lifetimeScope.Resolve<INavigationManager>();

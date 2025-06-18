@@ -9,13 +9,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 using Vodovoz.Presentation.ViewModels.Reports;
 using VodovozBusiness.Domain.Documents;
 
@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 NomenclatureId = rogdi.NomenclatureNew.Id,
 					 DefectSource = rogdi.Source,
 					 DocumentType = typeof(RegradingOfGoodsDocument),
-					 AuthorId = rogd.Author.Id,
+					 AuthorId = rogd.AuthorId.Value,
 					 rogd.Comment
 				 })
 				.ToListAsync(cancellationToken);
@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					 DriverId = rl.Driver.Id,
 					 DocumentType = typeof(CarUnloadDocument),
 					 RouteListId = rl.Id,
-					 AuthorId = cud.Author.Id,
+					 AuthorId = cud.AuthorId.Value,
 					 cud.Comment
 				 })
 				.ToListAsync(cancellationToken);

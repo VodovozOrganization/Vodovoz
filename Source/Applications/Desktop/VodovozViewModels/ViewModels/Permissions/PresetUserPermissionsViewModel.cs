@@ -6,7 +6,7 @@ using FluentNHibernate.Conventions;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Permissions;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 

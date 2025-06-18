@@ -9,9 +9,17 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 		{
 			Table("store_self_delivery_document");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
-			References(x => x.Order).Column("order_id");
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+
+			References(x => x.Order)
+				.Column("order_id");
+
+			References(x => x.Author)
+				.Column("author_id");
 		}
 	}
 }

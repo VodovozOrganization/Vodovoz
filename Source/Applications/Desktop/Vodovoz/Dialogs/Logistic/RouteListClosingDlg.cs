@@ -111,7 +111,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -614,7 +614,7 @@ namespace Vodovoz
 
 		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
 			?? (_canEditFuelCardNumber =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber)).Value;
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber)).Value;
 
 		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);

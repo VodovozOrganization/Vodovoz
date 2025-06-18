@@ -10,9 +10,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Table("route_list_address_keeping_documents");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.AuthorId).Column("author_id");
 
 			References(x => x.RouteListItem).Column("route_list_address_id");
-			References(x => x.Author).Column("author_id");
 
 			HasMany(x => x.Items).KeyColumn("route_list_keeping_document_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();

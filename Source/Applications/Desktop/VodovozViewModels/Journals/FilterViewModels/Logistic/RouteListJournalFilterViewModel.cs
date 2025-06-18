@@ -87,8 +87,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = restrictedCarTypeOfUse;
 
-			var cashier = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
-			var logistician = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
+			var cashier = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
+			var logistician = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 
 			SubscribeOnCheckChanged();

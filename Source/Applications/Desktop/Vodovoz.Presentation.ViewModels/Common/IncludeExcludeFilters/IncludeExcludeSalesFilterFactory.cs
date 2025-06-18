@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Employees;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters

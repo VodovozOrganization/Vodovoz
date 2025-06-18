@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Domain.Permissions
+﻿using Vodovoz.Core.Domain.Users;
+
+namespace Vodovoz.Domain.Permissions
 {
 	public class DatabasePrivilege : PrivilegeBase
 	{

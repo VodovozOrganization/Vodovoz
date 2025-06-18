@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -123,13 +123,13 @@ namespace Vodovoz
 			}
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 			_canEditPrices = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditPriceDiscountFromRouteList);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteList);
 
 			_canEditOrderAfterRecieptCreated = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanChangeOrderAfterRecieptCreated);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanChangeOrderAfterRecieptCreated);
 
 			Build();
 

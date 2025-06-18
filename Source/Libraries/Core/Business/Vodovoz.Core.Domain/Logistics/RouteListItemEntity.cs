@@ -14,12 +14,19 @@ namespace Vodovoz.Core.Domain.Logistics
 	[HistoryTrace]
 	public class RouteListItemEntity : PropertyChangedBase, IDomainObject
 	{
+		private int _id;
 		private DateTime _version;
+		private RouteListEntity _routeList;
 		private string _unscannedCodesReason;
 		private IObservableList<RouteListItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<RouteListItemTrueMarkProductCode>();
 		private OrderEntity _order;
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
 
 		/// <summary>
 		/// Версия
@@ -29,6 +36,13 @@ namespace Vodovoz.Core.Domain.Logistics
 		{
 			get => _version;
 			set => SetField(ref _version, value);
+		}
+
+		[Display(Name = "Маршрутный лист")]
+		public virtual RouteListEntity RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
 		/// <summary>
