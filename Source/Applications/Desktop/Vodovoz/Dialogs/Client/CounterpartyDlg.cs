@@ -105,7 +105,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz
 {
@@ -1497,7 +1497,7 @@ namespace Vodovoz
 			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
-				.Where(c => c.Type == Type.Upd
+				.Where(c => c.Type == DocumentContainerType.Upd
 					&& !c.IsIncoming
 					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Select(c => c.Order.Id)

@@ -19,9 +19,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.IncomingInvoices
 			Map(x => x.WaybillNumber).Column("waybill_number");
 			Map(x => x.LastEditedTime).Column("last_edit_time");
 			Map(x => x.Comment).Column("comment");
+			Map(x => x.AuthorId).Column("author_id");
+			Map(x => x.LastEditorId).Column("last_editor_id");
 
-			References(x => x.Author).Column("author_id");
-			References(x => x.LastEditor).Column("last_editor_id");
 			References(x => x.Contractor).Column("counterparty_id");
 			References(x => x.Warehouse).Column("warehouse_id");
 

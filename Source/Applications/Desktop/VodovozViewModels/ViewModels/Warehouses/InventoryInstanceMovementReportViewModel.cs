@@ -255,8 +255,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			var queryIncomingInvoice = localUow.Session.QueryOver(() => incomingInvoiceAlias)
 				.JoinAlias(ii => ii.Warehouse, () => warehouseAlias)
-				.JoinAlias(ii => ii.Author, () => authorAlias)
-				.Left.JoinAlias(ii => ii.LastEditor, () => editorAlias)
+				.JoinEntityAlias(() => authorAlias, () => incomingInvoiceAlias.AuthorId == authorAlias.Id, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.JoinEntityAlias(() => editorAlias, () => incomingInvoiceAlias.LastEditorId == editorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(ii => ii.Items, () => incomingInvoiceItemAlias)
 				.JoinAlias(() => incomingInvoiceItemAlias.GoodsAccountingOperation, () => instanceOperationAlias)
 				.Where(() => instanceOperationAlias.InventoryNomenclatureInstance.Id == SelectedInstance.Id)
@@ -273,8 +273,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.TransformUsing(Transformers.AliasToBean<InventoryInstanceMovementHistoryNode>());
 
 			var queryWriteOffMovement = localUow.Session.QueryOver(() => movementDocumentAlias)
-				.JoinAlias(md => md.Author, () => authorAlias)
-				.Left.JoinAlias(md => md.LastEditor, () => editorAlias)
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.JoinEntityAlias(() => editorAlias, () => movementDocumentAlias.LastEditorId == editorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Left.JoinAlias(md => md.FromWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(md => md.FromEmployee, () => employeeStorageAlias)
 				.Left.JoinAlias(md => md.FromCar, () => carStorageAlias)
@@ -295,8 +295,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.TransformUsing(Transformers.AliasToBean<InventoryInstanceMovementHistoryNode>());
 			
 			var queryIncomeMovement = localUow.Session.QueryOver(() => movementDocumentAlias)
-				.JoinAlias(md => md.Author, () => authorAlias)
-				.Left.JoinAlias(md => md.LastEditor, () => editorAlias)
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.JoinEntityAlias(() => editorAlias, () => movementDocumentAlias.LastEditorId == editorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Left.JoinAlias(md => md.ToWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(md => md.ToEmployee, () => employeeStorageAlias)
 				.Left.JoinAlias(md => md.ToCar, () => carStorageAlias)
@@ -317,8 +317,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.TransformUsing(Transformers.AliasToBean<InventoryInstanceMovementHistoryNode>());
 			
 			var queryWriteOffDocument = localUow.Session.QueryOver(() => writeOffDocumentAlias)
-				.JoinAlias(wo => wo.Author, () => authorAlias)
-				.Left.JoinAlias(wo => wo.LastEditor, () => editorAlias)
+				.JoinEntityAlias(() => authorAlias, () => writeOffDocumentAlias.AuthorId == authorAlias.Id, NHibernate.SqlCommand.JoinType.InnerJoin)
+				.JoinEntityAlias(() => editorAlias, () => writeOffDocumentAlias.LastEditorId == editorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Left.JoinAlias(wo => wo.WriteOffFromWarehouse, () => warehouseAlias)
 				.Left.JoinAlias(wo => wo.WriteOffFromEmployee, () => employeeStorageAlias)
 				.Left.JoinAlias(wo => wo.WriteOffFromCar, () => carStorageAlias)

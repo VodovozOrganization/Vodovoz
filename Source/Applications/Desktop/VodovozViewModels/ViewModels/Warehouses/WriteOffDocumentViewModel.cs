@@ -335,10 +335,10 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(
 					"Ваш пользователь не привязан к действующему сотруднику," +
@@ -361,8 +361,10 @@ namespace Vodovoz.ViewModels.Warehouses
 		{
 			if(Entity.Id == 0)
 			{
-				Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-				if(Entity.Author == null)
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.ResponsibleEmployee = currentEmployee;
+				Entity.AuthorId = currentEmployee?.Id;
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(
 						"Ваш пользователь не привязан к действующему сотруднику," +

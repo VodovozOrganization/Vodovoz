@@ -1,16 +1,15 @@
 ﻿using System;
-using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Documents
 {
 	public interface IDocument
 	{
-		Employee Author { get; set; }
+		int? AuthorId { get; set; }
 		bool CanEdit { get; set; }
 		string DateString { get; }
 		int Id { get; set; }
 		DateTime LastEditedTime { get; set; }
-		Employee LastEditor { get; set; }
+		int? LastEditorId { get; set; }
 		string Number { get; }
 		DateTime TimeStamp { get; set; }
 		DateTime Version { get; set; }

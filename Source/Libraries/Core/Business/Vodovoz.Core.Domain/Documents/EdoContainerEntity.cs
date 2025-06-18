@@ -36,7 +36,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
 		private int? _edoTaskId;
-		private Type _type;
+		private DocumentContainerType _type;
 
 		/// <summary>
 		/// Код контейнера
@@ -162,7 +162,7 @@ namespace Vodovoz.Core.Domain.Documents
 		/// Тип документа
 		/// </summary>
 		[Display(Name = "Тип документа")]
-		public virtual Type Type
+		public virtual DocumentContainerType Type
 		{
 			get => _type;
 			set => SetField(ref _type, value);

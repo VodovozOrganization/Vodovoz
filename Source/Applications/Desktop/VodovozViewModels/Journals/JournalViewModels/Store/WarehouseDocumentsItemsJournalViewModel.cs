@@ -353,7 +353,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var invoiceQuery = unitOfWork.Session.QueryOver(() => incomingInvoiceItemAlias)
-				.Left.JoinQueryOver(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
+				.Left.JoinAlias(() => incomingInvoiceItemAlias.Document, () => invoiceAlias);
 
 			if((FilterViewModel.DocumentType is null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
@@ -427,8 +427,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => invoiceAlias.Contractor, () => counterpartyAlias)
 				.Left.JoinAlias(() => invoiceAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => invoiceAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => invoiceAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => invoiceAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => invoiceAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => incomingInvoiceItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -457,7 +457,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => invoiceAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -475,7 +475,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
-				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
+				.JoinAlias(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
@@ -540,8 +540,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return waterQuery
 				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => incomingWaterAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => incomingWaterAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => incomingWaterMaterialAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.SelectList(list => list
@@ -572,7 +572,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => incomingWaterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => incomingWaterAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -590,7 +590,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
-				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
+				.JoinAlias(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
@@ -655,8 +655,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return waterQuery
 				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => incomingWaterAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => incomingWaterAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => incomingWaterAlias.Product, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 
@@ -688,7 +688,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => incomingWaterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => incomingWaterAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -713,7 +713,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
@@ -725,8 +725,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
 				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => movementDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -850,7 +850,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => movementDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => movementDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => movementDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -875,7 +875,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
@@ -887,8 +887,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
 				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
+				.JoinEntityAlias(() => authorAlias, () => movementDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => movementDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -1002,7 +1002,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => movementDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => movementDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => movementDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1023,7 +1023,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeOffDocumentItemAlias)
-				.JoinQueryOver(() => writeOffDocumentItemAlias.Document, () => writeOffDocumentAlias);
+				.JoinAlias(() => writeOffDocumentItemAlias.Document, () => writeOffDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument)
 				&& FilterViewModel.Driver == null
@@ -1113,8 +1113,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromEmployee, () => fromEmployeeAlias)
 				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromCar, () => fromCarAlias)
 				.Left.JoinAlias(() => fromCarAlias.CarModel, () => fromCarModelAlias)
-				.Left.JoinAlias(() => writeOffDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => writeOffDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => writeOffDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => writeOffDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => writeOffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => writeOffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1134,7 +1134,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => writeOffDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => writeOffDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => writeOffDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1154,7 +1154,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var selfDeliveryQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentItemAlias)
-				.JoinQueryOver(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias);
+				.JoinAlias(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
@@ -1231,8 +1231,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => selfDeliveryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => selfDeliveryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => selfDeliveryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1254,7 +1254,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => selfDeliveryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => selfDeliveryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => selfDeliveryDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1275,7 +1275,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var selfDeliveryReturnedQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentReturnedAlias)
-				.JoinQueryOver(() => selfDeliveryDocumentReturnedAlias.Document, () => selfDeliveryDocumentAlias);
+				.JoinAlias(() => selfDeliveryDocumentReturnedAlias.Document, () => selfDeliveryDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
@@ -1352,8 +1352,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => selfDeliveryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => selfDeliveryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => selfDeliveryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => selfDeliveryDocumentReturnedAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1375,7 +1375,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => selfDeliveryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => selfDeliveryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => selfDeliveryDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1396,7 +1396,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
-				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias);
+				.JoinAlias(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
@@ -1473,8 +1473,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => carLoadDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => carLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => carLoadDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => carLoadDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => carLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1500,7 +1500,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => carLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => carLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => carLoadDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1522,7 +1522,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
-					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias);
+				.JoinAlias(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
@@ -1600,8 +1600,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => carUnLoadDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => carUnLoadDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => carUnLoadDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => carUnLoadDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => carUnLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carUnLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1627,7 +1627,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => carUnLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => carUnLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => carUnLoadDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1652,7 +1652,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
-				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias);
+				.JoinAlias(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias);
 
 			var restrictionIncome = Restrictions.GtProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
@@ -1757,8 +1757,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => inventoryDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => inventoryDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => inventoryDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Employee, () => employeeAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
@@ -1810,7 +1810,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => inventoryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => inventoryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => inventoryDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -1830,7 +1830,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ProductGroup productGroupAlias = null;
 
 			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
-				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias);
+				.JoinAlias(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument)
 				&& FilterViewModel.Driver == null
@@ -1915,8 +1915,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Car, () => carAlias)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => shiftChangeWarehouseDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => shiftChangeWarehouseDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => shiftChangeWarehouseDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1977,7 +1977,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => shiftChangeWarehouseDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => shiftChangeWarehouseDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => shiftChangeWarehouseDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -2000,7 +2000,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			RegradingOfGoodsReason regradingOfGoodsReasonAlias = null;
 
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
-				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+				.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
 
 			var finesSubquery = QueryOver.Of<FineItem>()
 				.Where(x => x.Fine.Id == fineAlias.Id)
@@ -2072,8 +2072,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureOld, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => regradingOfGoodsDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Fine, () => fineAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.TypeOfDefect, () => cullingCategoryAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.RegradingOfGoodsReason, () => regradingOfGoodsReasonAlias)
@@ -2103,7 +2103,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentItemAlias.Source).WithAlias(() => resultAlias.DefectSource)
 					.Select(() => regradingOfGoodsReasonAlias.Name).WithAlias(() => resultAlias.RegradingOfGoodsReason)
 					)
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => regradingOfGoodsDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
@@ -2127,7 +2127,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			RegradingOfGoodsReason regradingOfGoodsReasonAlias = null;
 
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
-				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
+				.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
 
 			var finesSubquery = QueryOver.Of<FineItem>()
 				.Where(x => x.Fine.Id == fineAlias.Id)
@@ -2199,8 +2199,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.NomenclatureNew, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => regradingOfGoodsDocumentAlias.LastEditor, () => lastEditorAlias)
+				.JoinEntityAlias(() => authorAlias, () => regradingOfGoodsDocumentAlias.AuthorId == authorAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => lastEditorAlias, () => regradingOfGoodsDocumentAlias.LastEditorId == lastEditorAlias.Id, JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.Fine, () => fineAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.TypeOfDefect, () => cullingCategoryAlias)
 				.Left.JoinAlias(() => regradingOfGoodsDocumentItemAlias.RegradingOfGoodsReason, () => regradingOfGoodsReasonAlias)
@@ -2229,7 +2229,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => cullingCategoryAlias.Name).WithAlias(() => resultAlias.TypeOfDefect)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Source).WithAlias(() => resultAlias.DefectSource)
 					.Select(() => regradingOfGoodsReasonAlias.Name).WithAlias(() => resultAlias.RegradingOfGoodsReason))
-				.OrderBy(x => x.TimeStamp).Desc
+				.OrderBy(() => regradingOfGoodsDocumentAlias.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 

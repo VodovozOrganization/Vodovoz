@@ -43,6 +43,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using VodovozBusiness.CachingRepositories.Employees;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -54,6 +55,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IUserRepository _userRepository;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly IStockRepository _stockRepository;
+		private readonly IEmployeeInMemoryNameWithInitialsCacheRepository _employeeInMemoryNameWithInitialsCacheRepository;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private UserSettings _currentUserSettings;
@@ -90,6 +92,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IStockRepository stockRepository,
 			ViewModelEEVMBuilder<Warehouse> sourceWarehouseViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Warehouse> targetWarehouseViewModelEEVMBuilder,
+			IEmployeeInMemoryNameWithInitialsCacheRepository employeeInMemoryNameWithInitialsCacheRepository,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -117,6 +120,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_employeeInMemoryNameWithInitialsCacheRepository = employeeInMemoryNameWithInitialsCacheRepository
+				?? throw new ArgumentNullException(nameof(employeeInMemoryNameWithInitialsCacheRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			ResolveInnerDependencies();
@@ -198,19 +203,19 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public string AuthorInfo {
 			get {
-				if(Entity.Author == null) {
+				if(Entity.AuthorId == null) {
 					return null;
 				}
-				return $"{Entity.Author.GetPersonNameWithInitials()}, {Entity.TimeStamp:dd.MM.yyyy HH:mm}";
+				return $"{_employeeInMemoryNameWithInitialsCacheRepository.GetTitleById(Entity.AuthorId.Value)}, {Entity.TimeStamp:dd.MM.yyyy HH:mm}";
 			}
 		}
 
 		public string LastEditorInfo {
 			get {
-				if(Entity.LastEditor == null) {
+				if(Entity.LastEditorId == null) {
 					return null;
 				}
-				return $"{Entity.LastEditor.GetPersonNameWithInitials()}, {Entity.LastEditedTime:dd.MM.yyyy HH:mm}";
+				return $"{_employeeInMemoryNameWithInitialsCacheRepository.GetTitleById(Entity.LastEditorId.Value)}, {Entity.LastEditedTime:dd.MM.yyyy HH:mm}";
 			}
 		}
 
@@ -475,11 +480,11 @@ namespace Vodovoz.ViewModels.Warehouses
 		public override bool Save(bool close)
 		{
 			if(UoW.IsNew) {
-				Entity.Author = CurrentEmployee;
+				Entity.AuthorId = CurrentEmployee?.Id;
 				Entity.TimeStamp = DateTime.Now;
 			}
 
-			Entity.LastEditor = CurrentEmployee;
+			Entity.LastEditorId = CurrentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
 			return base.Save(close);

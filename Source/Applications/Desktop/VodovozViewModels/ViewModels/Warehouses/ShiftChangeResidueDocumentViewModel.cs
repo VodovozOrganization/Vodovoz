@@ -469,7 +469,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _currentEmployee;
+			Entity.LastEditorId = _currentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			UpdateInstanceDiscrepancies();
 
@@ -503,7 +503,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _currentEmployee;
+				Entity.AuthorId = _currentEmployee?.Id;
 				Entity.Warehouse = _documentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			}
 			else

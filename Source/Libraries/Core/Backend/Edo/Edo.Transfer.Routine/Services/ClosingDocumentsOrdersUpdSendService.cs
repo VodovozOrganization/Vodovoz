@@ -16,7 +16,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Edo.Transfer.Routine.Services
 {
@@ -66,7 +66,7 @@ namespace Edo.Transfer.Routine.Services
 					   join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
 					   from edoRequest in edoRequests.DefaultIfEmpty()
 					   join ec in uow.Session.Query<EdoContainerEntity>()
-						   on new { OrderId = order.Id, DocType = Type.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
+						   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
 					   from edoContainer in edoContainers.DefaultIfEmpty()
 					   where
 						   order.PaymentType == PaymentType.Cashless

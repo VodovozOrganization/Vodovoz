@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.Application.Documents
 {
@@ -32,39 +32,39 @@ namespace Vodovoz.Application.Documents
 
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке УПД
-		/// <see cref="Type.Upd"/>
+		/// <see cref="DocumentContainerType.Upd"/>
 		/// </summary>
 		/// <param name="order">Заказ, по которому отправляется УПД</param>
 		/// <returns></returns>
 		public EdoContainerBuilder OrderUpd(Order order)
 		{
-			SetEdoContainerType(Type.Upd);
+			SetEdoContainerType(DocumentContainerType.Upd);
 			SetOrder(order);
 			return this;
 		}
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета
-		/// <see cref="Type.Bill"/>
+		/// <see cref="DocumentContainerType.Bill"/>
 		/// </summary>
 		/// <param name="order">Заказ, по которому отправляется Счет</param>
 		/// <returns></returns>
 		public EdoContainerBuilder OrderBill(Order order)
 		{
-			SetEdoContainerType(Type.Bill);
+			SetEdoContainerType(DocumentContainerType.Bill);
 			SetOrder(order);
 			return this;
 		}
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на долг
-		/// <see cref="Type.BillWSForDebt"/>
+		/// <see cref="DocumentContainerType.BillWSForDebt"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на долг</param>
 		/// <returns></returns>
 		public EdoContainerBuilder BillWithoutShipmentForDebt(OrderWithoutShipmentForDebt orderWithoutShipment)
 		{
-			SetEdoContainerType(Type.BillWSForDebt);
+			SetEdoContainerType(DocumentContainerType.BillWSForDebt);
 			_edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipment;
 			SetCounterparty(orderWithoutShipment.Counterparty);
 			return this;
@@ -72,13 +72,13 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на постоплату
-		/// <see cref="Type.BillWSForPayment"/>
+		/// <see cref="DocumentContainerType.BillWSForPayment"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на постоплату</param>
 		/// <returns></returns>
 		public EdoContainerBuilder BillWithoutShipmentForPayment(OrderWithoutShipmentForPayment orderWithoutShipment)
 		{
-			SetEdoContainerType(Type.BillWSForPayment);
+			SetEdoContainerType(DocumentContainerType.BillWSForPayment);
 			_edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipment;
 			SetCounterparty(orderWithoutShipment.Counterparty);
 			return this;
@@ -86,13 +86,13 @@ namespace Vodovoz.Application.Documents
 		
 		/// <summary>
 		/// Установка нужных параметров для контейнера по отправке Счета на предоплату
-		/// <see cref="Type.BillWSForAdvancePayment"/>
+		/// <see cref="DocumentContainerType.BillWSForAdvancePayment"/>
 		/// </summary>
 		/// <param name="orderWithoutShipment">Счет на предоплату</param>
 		/// <returns></returns>
 		public EdoContainerBuilder BillWithoutShipmentForAdvancePayment(OrderWithoutShipmentForAdvancePayment orderWithoutShipment)
 		{
-			SetEdoContainerType(Type.BillWSForAdvancePayment);
+			SetEdoContainerType(DocumentContainerType.BillWSForAdvancePayment);
 			_edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipment;
 			SetCounterparty(orderWithoutShipment.Counterparty);
 			return this;
@@ -133,6 +133,6 @@ namespace Vodovoz.Application.Documents
 			_edoContainer.Counterparty = counterparty;
 		}
 
-		private void SetEdoContainerType(Type edoContainerType) => _edoContainer.Type = edoContainerType;
+		private void SetEdoContainerType(DocumentContainerType edoContainerType) => _edoContainer.Type = edoContainerType;
 	}
 }

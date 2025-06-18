@@ -1,76 +1,18 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
-using Vodovoz.Domain.Employees;
 using VodovozBusiness.Domain.Documents;
 
-namespace Vodovoz.Domain.Documents
+namespace VodovozBusiness.Extensions
 {
-	public class Document : PropertyChangedBase, IDomainObject, IDocument
+	public static class DocumentExtensions
 	{
-		private DateTime _timeStamp = DateTime.Now;
-		private DateTime _version;
-
-		public virtual int Id { get; set; }
-
-		public virtual bool CanEdit { get; set; }
-
-		[Display(Name = "Версия")]
-		public virtual DateTime Version
-		{
-			get => _version;
-			set => SetField(ref _version, value);
-		}
-
-		/// <summary>
-		/// Дата документа
-		/// </summary>
-		public virtual DateTime TimeStamp
-		{
-			get => _timeStamp;
-			set => SetField (ref _timeStamp, value);
-		}
-
-		Employee author;
-
-		[Display (Name = "Автор")]
-		public virtual Employee Author
-		{
-			get => author;
-			set => SetField(ref author, value);
-		}
-
-		Employee lastEditor;
-
-		[Display (Name = "Последний редактор")]
-		public virtual Employee LastEditor
-		{
-			get => lastEditor;
-			set => SetField (ref lastEditor, value);
-		}
-
-		DateTime lastEditedTime;
-
-		[Display (Name = "Последние изменения")]
-		public virtual DateTime LastEditedTime
-		{
-			get => lastEditedTime;
-			set => SetField (ref lastEditedTime, value);
-		}
-
-		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
-
-		public virtual string Number => Id.ToString();
-
-		#region static
-
-		public static Type GetDocClass(DocumentType docType)
+		public static Type ToDocType(this DocumentType docType)
 		{
 			switch(docType)
 			{
@@ -103,10 +45,8 @@ namespace Vodovoz.Domain.Documents
 				case DocumentType.DriverTerminalReturn:
 					return typeof(DriverAttachedTerminalReturnDocument);
 			}
+
 			throw new NotSupportedException();
 		}
-
-		#endregion
 	}
 }
-

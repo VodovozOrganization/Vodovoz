@@ -844,8 +844,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
 		{
 			document.RouteList = uow.GetById<RouteList>(routeListId);
-			document.Author = _currentEmployee;
-			document.LastEditor = _currentEmployee;
+			document.AuthorId = _currentEmployee?.Id;
+			document.LastEditorId = _currentEmployee?.Id;
 			document.LastEditedTime = DateTime.Now;
 			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
 
