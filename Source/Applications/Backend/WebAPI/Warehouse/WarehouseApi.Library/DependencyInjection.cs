@@ -46,6 +46,7 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
+				.AddScoped<ISelfDeliveryService, SelfDeliveryService>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
 
 			services
