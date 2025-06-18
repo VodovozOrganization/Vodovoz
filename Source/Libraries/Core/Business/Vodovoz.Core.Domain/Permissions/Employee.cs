@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Vodovoz.Settings.Database;
+using Vodovoz.Core.Domain.Extensions;
 
 namespace Vodovoz.Core.Domain.Permissions
 {

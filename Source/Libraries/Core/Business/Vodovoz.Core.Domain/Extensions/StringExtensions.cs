@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Vodovoz.Settings.Database
+namespace Vodovoz.Core.Domain.Extensions
 {
 	public static class StringExtensions
 	{
