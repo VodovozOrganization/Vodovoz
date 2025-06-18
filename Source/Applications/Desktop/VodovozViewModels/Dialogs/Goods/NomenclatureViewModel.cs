@@ -777,16 +777,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
 
 			CanEditNeedSanitisation = !Entity.IsNeedSanitisation || !_nomenclatureRepository.CheckAnyOrderWithNomenclature(UoW, Entity.Id);
 		}

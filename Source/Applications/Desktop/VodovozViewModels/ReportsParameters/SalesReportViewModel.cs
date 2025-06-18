@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports);
+			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -86,10 +86,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			SetupFilter();
 

@@ -119,11 +119,11 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.Date = DateTime.Now;
 			}
 
-			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
-			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
-			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
-			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
-			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanReadRouteListProfitability);
+			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
+			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
+			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
+			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
+			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanReadRouteListProfitability);
 			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
 
 			_previousSelectedDate = Entity.Date;
@@ -623,7 +623,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(beforeAcceptValidation.IsFailure)
 			{
 				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
-					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanConfirmOverweighted)
+					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanConfirmOverweighted)
 					|| !_interactiveService.Question(
 						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
 						string.Join("\n", overfillErrorsMessages),

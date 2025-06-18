@@ -193,13 +193,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_financier_cash_request", userId);
 			_cashRequestCoordinator =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_coordinator_cash_request", userId);
-			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier, userId);
+			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier, userId);
 			_roleSecurityService =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 			_hasAccessToHiddenFinancialCategories =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
 		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)

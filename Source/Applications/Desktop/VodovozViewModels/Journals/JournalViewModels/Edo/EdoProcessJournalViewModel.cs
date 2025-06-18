@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			
 			_userCanSentReceiptWasSaveCodes =
 				_userService.GetCurrentUser().IsAdmin
-				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CashReceipt.CanResendDuplicateReceipts);
+				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CashReceipt.CanResendDuplicateReceipts);
 		}
 
 		public override IJournalFilterViewModel JournalFilter 

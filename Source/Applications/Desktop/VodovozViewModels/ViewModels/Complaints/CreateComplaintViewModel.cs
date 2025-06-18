@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			CanEditComplaintClassification =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Complaint.CanEditComplaintClassification);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
 				UoW,

@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_canCreateFuelBalanceCalibrationCarEvent = commonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.Logistic.Car.CanCreateFuelBalanceCalibrationCarEvent);
+				Vodovoz.Core.Domain.Permissions.Logistic.Car.CanCreateFuelBalanceCalibrationCarEvent);
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 			UpdateFileItems();
 

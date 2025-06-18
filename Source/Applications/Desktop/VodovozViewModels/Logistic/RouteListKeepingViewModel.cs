@@ -132,7 +132,7 @@ namespace Vodovoz
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
 			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
-			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
+			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
 			LogisticanEditing = IsUserLogist && AllEditing;
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
@@ -242,10 +242,10 @@ namespace Vodovoz
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
 			&& IsUserLogist
-			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
 
 		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
-			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime)
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts { get; }
@@ -561,7 +561,7 @@ namespace Vodovoz
 			if(newStatus == RouteListItemStatus.Completed
 			   && order.IsOrderContainsIsAccountableInTrueMarkItems
 			   && !_currentPermissionService.ValidatePresetPermission(
-				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
 				if((order.IsNeedIndividualSetOnLoad || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
@@ -739,7 +739,7 @@ namespace Vodovoz
 
 		protected void ChangeDeliveryTimeHandler()
 		{
-			if(_currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime))
+			if(_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime))
 			{
 				if(SelectedRouteListAddresses.Count() != 1)
 				{

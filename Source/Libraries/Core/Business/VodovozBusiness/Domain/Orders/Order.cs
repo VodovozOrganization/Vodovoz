@@ -2997,7 +2997,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted
-				&& permissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
+				&& permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
 			{
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
