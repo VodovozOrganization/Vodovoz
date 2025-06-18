@@ -453,7 +453,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Applications\Backend
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Applications\Backend\WebAPI\RobotMia\Contracts\Contracts.csproj", "{48F08F5B-C2D0-479D-9758-EC75F96687C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi", "Applications\Backend\WebAPI\WarehouseApi\WarehouseApi.csproj", "{31B44F4C-25F8-4D13-B3A8-4288892A89F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi", "Applications\Backend\WebAPI\Warehouse\WarehouseApi\WarehouseApi.csproj", "{31B44F4C-25F8-4D13-B3A8-4288892A89F7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseApi.Contracts", "Libraries\Core\Backend\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj", "{86AAA1F7-D99A-4980-8119-2DA9154BB3E2}"
 EndProject
