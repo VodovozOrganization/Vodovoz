@@ -84,7 +84,7 @@ namespace Vodovoz.Reports
 				Warehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 			}
 
-			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
 			{
 				entryWarehouse.Sensitive = false;

@@ -125,7 +125,7 @@ namespace Vodovoz.Representations
 
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Permissions.Email.CanSendBulkEmails);
+			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Email.CanSendBulkEmails);
 
 			_waterSemiozerieId = nomenclatureSettings.WaterSemiozerieId;
 			_waterSemiozeriePrice = nomenclatureRepository.Get(UoW, n => n.Id == _waterSemiozerieId)
