@@ -1,4 +1,4 @@
-﻿namespace WarehouseApi.Contracts.Dto
+﻿namespace WarehouseApi.Contracts.V1.Dto
 {
 	/// <summary>
 	/// Информация о групповом Gtin

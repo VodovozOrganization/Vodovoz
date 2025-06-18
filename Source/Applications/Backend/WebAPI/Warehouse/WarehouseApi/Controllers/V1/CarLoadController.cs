@@ -14,15 +14,15 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
-using WarehouseApi.Contracts.Dto;
-using WarehouseApi.Contracts.Requests;
-using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Contracts.V1.Requests;
+using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Filters;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
-namespace WarehouseApi.Controllers
+namespace WarehouseApi.Controllers.V1
 {
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]

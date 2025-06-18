@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WarehouseApi.Contracts.Requests
+namespace WarehouseApi.Contracts.V1.Requests
 {
 	/// <summary>
 	/// DTO запроса добавления кода маркировки ЧЗ

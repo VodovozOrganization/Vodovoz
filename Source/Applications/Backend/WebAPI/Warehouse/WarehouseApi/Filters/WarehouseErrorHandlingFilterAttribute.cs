@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WarehouseApi.Contracts.Dto;
-using WarehouseApi.Contracts.Responses;
+using WarehouseApi.Contracts.V1.Responses;
+using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Filters
 {

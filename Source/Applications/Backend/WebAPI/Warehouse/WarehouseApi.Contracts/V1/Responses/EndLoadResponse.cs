@@ -1,4 +1,4 @@
-﻿namespace WarehouseApi.Contracts.Responses
+﻿namespace WarehouseApi.Contracts.V1.Responses
 {
 	/// <summary>
 	/// DTO ответа на запрос завершения погрузки по талону погрузки

@@ -15,7 +15,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security;
 
-namespace WarehouseApi.Controllers
+namespace WarehouseApi.Controllers.V1
 {
 	[Route("api/[action]")]
 	[ApiController]

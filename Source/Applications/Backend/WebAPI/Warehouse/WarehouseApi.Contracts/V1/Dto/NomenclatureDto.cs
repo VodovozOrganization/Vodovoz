@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WarehouseApi.Contracts.Dto
+namespace WarehouseApi.Contracts.V1.Dto
 {
 	/// <summary>
 	/// Номенклатура
