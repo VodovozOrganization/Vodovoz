@@ -24,6 +24,9 @@ using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace WarehouseApi.Controllers.V1
 {
+	/// <summary>
+	/// Контроллер талонов погрузки автомобилей
+	/// </summary>
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
@@ -39,6 +42,13 @@ namespace WarehouseApi.Controllers.V1
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="carLoadService"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public CarLoadController(
 			ILogger<CarLoadController> logger,
 			UserManager<IdentityUser> userManager,
@@ -127,6 +137,7 @@ namespace WarehouseApi.Controllers.V1
 		/// Добавление отсканированного кода маркировки ЧЗ в заказ
 		/// </summary>
 		/// <param name="requestData"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="AddOrderCodeResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
