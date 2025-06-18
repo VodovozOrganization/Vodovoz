@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders.Documents;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace VodovozBusiness.Nodes
 {
@@ -72,7 +72,7 @@ namespace VodovozBusiness.Nodes
 		/// <summary>
 		/// Тип документа в старом документообороте
 		/// </summary>
-		public Type? OldEdoDocumentType { get; set; }
+		public DocumentContainerType? OldEdoDocumentType { get; set; }
 
 		/// <summary>
 		/// Номер счета без отгрузки на предоплату

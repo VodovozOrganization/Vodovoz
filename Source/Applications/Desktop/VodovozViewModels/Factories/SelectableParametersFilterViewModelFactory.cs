@@ -1,8 +1,8 @@
 ﻿using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Widgets;
 

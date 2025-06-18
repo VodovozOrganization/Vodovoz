@@ -105,7 +105,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz
 {
@@ -118,7 +118,7 @@ namespace Vodovoz
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditClientRefer =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Counterparty.CanEditClientRefer);
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -1497,7 +1497,7 @@ namespace Vodovoz
 			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
-				.Where(c => c.Type == Type.Upd
+				.Where(c => c.Type == DocumentContainerType.Upd
 					&& !c.IsIncoming
 					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Select(c => c.Order.Id)

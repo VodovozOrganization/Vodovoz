@@ -19,6 +19,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -394,7 +395,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) &&
-				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageUsers))
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanManageUsers))
 			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });

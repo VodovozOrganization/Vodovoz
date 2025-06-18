@@ -1,8 +1,8 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 
 namespace VodovozBusiness.Services.Subdivisions

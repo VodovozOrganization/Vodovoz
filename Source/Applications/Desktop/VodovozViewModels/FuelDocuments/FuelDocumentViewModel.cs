@@ -445,7 +445,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual bool CanChangeDate =>
 			IsDocumentCanBeEdited
-			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
+			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber,
 				_commonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
 
@@ -604,7 +604,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
 
 		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanGiveFuelLimits);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{

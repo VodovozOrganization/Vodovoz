@@ -296,6 +296,11 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
+			checkNeedSanitisation.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNeedSanitisation, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditNeedSanitisation, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			yentryShortName.Binding
 				.AddBinding(ViewModel.Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter())
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)

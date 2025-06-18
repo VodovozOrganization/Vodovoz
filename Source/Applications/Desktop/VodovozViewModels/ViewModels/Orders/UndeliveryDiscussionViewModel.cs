@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Orders
 
 			_undeliveryPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder));
 			_canCompleteUndeliveryDiscussionPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.Order.UndeliveredOrder.CanCompleteUndeliveryDiscussion);
+				Vodovoz.Core.Domain.Permissions.Order.UndeliveredOrder.CanCompleteUndeliveryDiscussion);
 
 			UoW = uow;
 			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId);

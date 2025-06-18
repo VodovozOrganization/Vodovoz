@@ -3,6 +3,7 @@ using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;

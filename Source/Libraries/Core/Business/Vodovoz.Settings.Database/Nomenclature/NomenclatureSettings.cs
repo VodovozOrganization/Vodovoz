@@ -55,22 +55,7 @@ namespace Vodovoz.Settings.Database.Nomenclature
 		public int NomenclatureToAddWithMasterId => _settingsController.GetIntValue("номенклатура_для_выезда_с_мастером");
 		public int ForfeitId => _settingsController.GetIntValue("forfeit_nomenclature_id");
 		public int MasterCallNomenclatureId => _settingsController.GetIntValue(nameof(MasterCallNomenclatureId));
-
-		public int[] SanitisationNomenclatureIds
-		{
-			get
-			{
-				var ids = _settingsController.GetStringValue("выезд_мастера_для_сан_обр");
-
-				var splitedIds = ids
-					.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
-					.Select(x => int.Parse(x))
-					.ToArray();
-
-				return splitedIds;
-			}
-		}
-
+		
 		public int IdentifierOfOnlineShopGroup
 		{
 			get

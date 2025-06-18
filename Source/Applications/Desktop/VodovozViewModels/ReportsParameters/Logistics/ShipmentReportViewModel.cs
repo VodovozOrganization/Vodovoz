@@ -6,7 +6,7 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Presentation.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistics

@@ -2,9 +2,9 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents.DriverTerminal
 {

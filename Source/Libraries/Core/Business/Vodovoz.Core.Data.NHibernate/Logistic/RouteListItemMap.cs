@@ -9,16 +9,31 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic
 		{
 			Table("route_list_addresses");
 
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
+
 			OptimisticLock.Version();
-			Version(x => x.Version).Column("version");
+			Version(x => x.Version)
+				.Column("version");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
 
-			Map(x => x.UnscannedCodesReason).Column("unscanned_codes_reason");
+			Map(x => x.UnscannedCodesReason)
+				.Column("unscanned_codes_reason");
 			
-			References(x => x.Order).Column("order_id");
+			References(x => x.RouteList)
+				.Column("route_list_id")
+				.Not.Nullable();
 
-			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
+			References(x => x.Order)
+				.Column("order_id");
+
+			HasMany(x => x.TrueMarkCodes)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("route_list_item_id");
 		}
 	}
 }

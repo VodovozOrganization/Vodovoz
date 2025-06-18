@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 

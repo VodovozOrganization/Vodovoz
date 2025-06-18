@@ -18,12 +18,10 @@ using System.Text;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -32,6 +30,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -270,11 +270,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
+		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 
-		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
+		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Core.Domain.Warehouses.Documents.DocumentType.MovementDocument);
 
 		public EntityEntryViewModel<Employee> DriverEntityEntryViewModel { get; private set; }
 

@@ -42,7 +42,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds);
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
 		Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
-		int[] GetSanitisationNomenclature(IUnitOfWork uow);
 
 		#region Rent
 
@@ -90,5 +89,13 @@ namespace Vodovoz.EntityRepositories.Goods
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
 		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
+
+		/// <summary>
+		/// Проверяет есть ли хоть один заказ с этой номенклатупой (OrderItem -> Nomenclature)
+		/// </summary>
+		/// <param name="unitOfWork">UoW</param>
+		/// <param name="nomenclatureId">ID номенклатуры</param>
+		/// <returns></returns>
+		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
 	}
 }
