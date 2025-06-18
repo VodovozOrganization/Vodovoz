@@ -27,7 +27,6 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -63,6 +62,7 @@ using VodovozBusiness.Services.Orders;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.Domain.Orders
 {

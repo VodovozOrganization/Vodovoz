@@ -43,6 +43,7 @@ using VodovozBusiness.Domain.Operations;
 using System.Threading.Tasks;
 using System.Threading;
 using NHibernate.Linq;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {

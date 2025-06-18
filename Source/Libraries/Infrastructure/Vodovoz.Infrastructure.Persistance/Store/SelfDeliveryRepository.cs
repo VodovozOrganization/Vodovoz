@@ -4,7 +4,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 

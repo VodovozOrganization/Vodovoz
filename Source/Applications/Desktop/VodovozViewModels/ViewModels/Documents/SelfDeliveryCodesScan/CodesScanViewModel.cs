@@ -19,7 +19,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Goods;

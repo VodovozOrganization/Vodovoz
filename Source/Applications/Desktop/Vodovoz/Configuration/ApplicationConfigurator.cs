@@ -18,6 +18,7 @@ using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;

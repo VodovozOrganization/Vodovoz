@@ -25,12 +25,13 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Warehouses.Documents
 {
 	/// <summary>
 	/// Отпуск самовывоза
 	/// </summary>
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	[Appellative(
+		Gender = GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
@@ -434,7 +435,7 @@ namespace Vodovoz.Domain.Documents
 					.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
 			}
 
-			TareToReturn = (int)ReturnedItems
+			TareToReturn = ReturnedItems
 				.Where(r => r.Nomenclature.Id == _defBottleId)
 				.Sum(x => x.Amount);
 

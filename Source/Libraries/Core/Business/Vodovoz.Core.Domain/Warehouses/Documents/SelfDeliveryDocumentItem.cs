@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Warehouses.Documents
 {
 	public class SelfDeliveryDocumentItem: SelfDeliveryDocumentItemEntity
 	{
@@ -26,7 +26,9 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref nomenclature, value, () => Nomenclature);
 
 				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
+				{
 					GoodsAccountingOperation.Nomenclature = nomenclature;
+				}
 			}
 		}
 
@@ -113,21 +115,26 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get {
-				string res = String.Empty;
+				string res = string.Empty;
 				if(GoodsAccountingOperation != null)
-					res = String.Format(
+				{
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						GoodsAccountingOperation.Nomenclature.Name,
 						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 						Document.Title
 					);
+				}
 				else if(Nomenclature != null)
-					res = String.Format(
+				{
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						Nomenclature.Name,
 						Nomenclature.Unit.MakeAmountShortStr(Amount),
 						Document.Title
 					);
+				}
+
 				return res;
 			}
 		}

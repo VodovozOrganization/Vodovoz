@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Domain.Documents
+namespace Vodovoz.Core.Domain.Warehouses.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",

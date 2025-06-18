@@ -5,8 +5,8 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz
 {
