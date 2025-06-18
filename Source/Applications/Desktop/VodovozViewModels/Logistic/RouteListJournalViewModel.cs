@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
 
 			TabName = "Журнал МЛ";
 
@@ -745,7 +745,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private bool UserHasOnlyAccessToWarehouseAndComplaints => _userHasOnlyAccessToWarehouseAndComplaints
 			?? (_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin).Value;
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)

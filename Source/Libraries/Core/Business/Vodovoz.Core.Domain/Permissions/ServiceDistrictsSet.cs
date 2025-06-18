@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Permissions
+namespace Vodovoz.Core.Domain.Permissions
 {
 	/// <summary>
 	/// Версии сервисных районов

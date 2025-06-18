@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Vodovoz.Settings.Database;
 
-namespace Vodovoz.Permissions
+namespace Vodovoz.Core.Domain.Permissions
 {
 	/// <summary>
 	/// Права сотрудники

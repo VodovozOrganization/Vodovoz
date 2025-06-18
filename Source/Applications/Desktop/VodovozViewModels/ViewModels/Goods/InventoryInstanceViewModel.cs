@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			CanEdit = PermissionResult.CanUpdate || (Entity.Id == 0 && PermissionResult.CanCreate);
 			CanEditNewEntity = Entity.Id == 0 && (PermissionResult.CanUpdate || PermissionResult.CanCreate);
 			_canEditUsedParameterPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
+				Vodovoz.Core.Domain.Permissions.InventoryNomenclatureInstance.CanEditUsedParameter);
 			_oldIsArchive = Entity.IsArchive;
 			
 			var builder = new CommonEEVMBuilderFactory<InventoryInstanceViewModel>(

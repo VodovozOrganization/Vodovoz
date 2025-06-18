@@ -944,17 +944,17 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			var currentPermissionService = CommonServices.CurrentPermissionService;
 			
-			CanManageUsers = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageUsers);
+			CanManageUsers = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanManageUsers);
 			_canActivateDriverDistrictPrioritySetPermission =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanActivateDriverDistrictPrioritySet);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanActivateDriverDistrictPrioritySet);
 			//Не перенес, т.к. Trainee уже нет и скорее всего надо все сносить
 			_canChangeTraineeToDriver = currentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver");
 			CanManageDriversAndForwarders =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageDriversAndForwarders);
-			CanManageOfficeWorkers = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageOfficeWorkers);
-			CanEditWage = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanEditWage);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanManageDriversAndForwarders);
+			CanManageOfficeWorkers = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanManageOfficeWorkers);
+			CanEditWage = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanEditWage);
 			CanEditOrganisationForSalary =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanEditOrganisationForSalary);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanEditOrganisationForSalary);
 			DriverDistrictPrioritySetPermission = currentPermissionService.ValidateEntityPermission(typeof(DriverDistrictPrioritySet));
 			DriverWorkScheduleSetPermission = currentPermissionService.ValidateEntityPermission(typeof(DriverWorkScheduleSet));
 
@@ -966,7 +966,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			CanEditEmployee = _employeePermissionSet.CanUpdate || (_employeePermissionSet.CanCreate && Entity.Id == 0);
 			CanReadEmployee = _employeePermissionSet.CanRead;
 			CanChangeEmployeeCounterparty =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanChangeEmployeeCounterparty)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanChangeEmployeeCounterparty)
 				&& CanReadEmployee;
 		}
 
@@ -974,7 +974,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			var isAdmin = CommonServices.UserService.GetCurrentUser().IsAdmin;
 			var canWorkWithOnlyDriverDocuments =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanWorkWithOnlyDriverDocuments);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanWorkWithOnlyDriverDocuments);
 			var canWorkWithDocuments = ((Entity.Category == EmployeeCategory.driver || Entity.Category == EmployeeCategory.forwarder) && canWorkWithOnlyDriverDocuments) || !canWorkWithOnlyDriverDocuments || isAdmin;
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead && canWorkWithDocuments;
 			CanAddEmployeeDocument = _employeeDocumentsPermissionsSet.CanCreate && canWorkWithDocuments;

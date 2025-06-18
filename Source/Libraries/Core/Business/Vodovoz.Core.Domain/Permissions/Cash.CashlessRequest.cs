@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using Vodovoz.Domain.Cash;
 
-namespace Vodovoz.Permissions
+namespace Vodovoz.Core.Domain.Permissions
 {
 	public static partial class Cash
 	{
