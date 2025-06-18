@@ -8,6 +8,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods.Recomendations;
 
@@ -44,6 +45,35 @@ namespace Vodovoz.ViewModels.Goods
 
 			JournalFilter = _journalFilterViewModel;
 			_journalFilterViewModel.OnFiltered += OnFiltered;
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+
+			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanCreate;
+			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanUpdate;
+			bool canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+					(selected) => canCreate,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateEntityDialog(),
+					"Insert"
+					);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+					(selected) => canEdit && selected.Any(),
+					(selected) => VisibleEditAction,
+					(selected) => selected.Cast<RecomendationJournalNode>().ToList().ForEach(EditEntityDialog)
+					);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
 		}
 
 		private void OnFiltered(object sender, EventArgs e)
