@@ -49,8 +49,6 @@ namespace Vodovoz.ViewModels.Goods
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
-
 			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanCreate;
 			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanUpdate;
 			bool canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Recomendation)).CanDelete;
