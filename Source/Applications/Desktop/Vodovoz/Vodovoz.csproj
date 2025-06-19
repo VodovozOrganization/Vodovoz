@@ -2096,6 +2096,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountView.cs" />
     <Compile Include="Views\Client\EdoAccountView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
+    <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
