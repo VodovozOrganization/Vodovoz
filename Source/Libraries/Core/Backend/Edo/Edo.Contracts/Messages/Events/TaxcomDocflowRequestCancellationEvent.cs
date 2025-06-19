@@ -13,7 +13,7 @@
 		public string EdoAccount { get; set; }
 
 		/// <summary>
-		/// Id документооборота по ЭДО
+		/// Id ЭДО документа
 		/// </summary>
 		public int DocumentId { get; set; }
 
