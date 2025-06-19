@@ -310,7 +310,7 @@ namespace EdoDocumentFlowUpdater
 			{
 				EdoDocFlowUpdates docFlowUpdates;
 
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки входящих документов"))
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки документов ожидающих аннулирования"))
 				{
 					do
 					{
@@ -354,7 +354,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка в процессе обработки входящих документов");
+				_logger.LogError(e, "Ошибка в процессе обработки документов ожидающих аннулирования");
 			}
 			finally
 			{
