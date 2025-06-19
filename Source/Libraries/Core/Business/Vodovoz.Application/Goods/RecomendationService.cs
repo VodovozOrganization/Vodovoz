@@ -82,7 +82,10 @@ namespace Vodovoz.Application.Goods
 
 			recomendationItems.AddRange(baseRecomendationItems.Take(baseCountToTake));
 
-			recomendationItems.AddRange(specifiedRecomendationItems.Take(specifiedCountToTake));
+			recomendationItems.AddRange(specifiedRecomendationItems
+				.Where(x => !recomendationItems
+					.Any(ri => ri.NomenclatureId == x.NomenclatureId))
+				.Take(specifiedCountToTake));
 
 			return recomendationItems;
 		}
