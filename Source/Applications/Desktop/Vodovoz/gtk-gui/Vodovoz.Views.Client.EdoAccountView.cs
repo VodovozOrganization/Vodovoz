@@ -26,7 +26,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yEntry yentryPersonalAccountCodeInEdo;
 
-		private global::Gamma.Widgets.yEnumComboBox yEnumCmbConsentForEdo1;
+		private global::Gamma.Widgets.yEnumComboBox yEnumCmbConsentForEdo;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelAllOperators;
 
@@ -169,14 +169,14 @@ namespace Vodovoz.Views.Client
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableAccount.Gtk.Table+TableChild
-			this.yEnumCmbConsentForEdo1 = new global::Gamma.Widgets.yEnumComboBox();
-			this.yEnumCmbConsentForEdo1.Name = "yEnumCmbConsentForEdo1";
-			this.yEnumCmbConsentForEdo1.ShowSpecialStateAll = false;
-			this.yEnumCmbConsentForEdo1.ShowSpecialStateNot = false;
-			this.yEnumCmbConsentForEdo1.UseShortTitle = false;
-			this.yEnumCmbConsentForEdo1.DefaultFirst = false;
-			this.tableAccount.Add(this.yEnumCmbConsentForEdo1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableAccount[this.yEnumCmbConsentForEdo1]));
+			this.yEnumCmbConsentForEdo = new global::Gamma.Widgets.yEnumComboBox();
+			this.yEnumCmbConsentForEdo.Name = "yEnumCmbConsentForEdo";
+			this.yEnumCmbConsentForEdo.ShowSpecialStateAll = false;
+			this.yEnumCmbConsentForEdo.ShowSpecialStateNot = false;
+			this.yEnumCmbConsentForEdo.UseShortTitle = false;
+			this.yEnumCmbConsentForEdo.DefaultFirst = false;
+			this.tableAccount.Add(this.yEnumCmbConsentForEdo);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableAccount[this.yEnumCmbConsentForEdo]));
 			w9.TopAttach = ((uint)(3));
 			w9.BottomAttach = ((uint)(4));
 			w9.LeftAttach = ((uint)(1));
@@ -240,7 +240,6 @@ namespace Vodovoz.Views.Client
 			this.btnRemoveEdoAccount.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hboxMain.Add(this.btnRemoveEdoAccount);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.btnRemoveEdoAccount]));
-			w15.PackType = ((global::Gtk.PackType)(1));
 			w15.Position = 2;
 			w15.Expand = false;
 			w15.Fill = false;

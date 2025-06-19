@@ -14,8 +14,6 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yNotebook notebookAccountsByOrganizations;
 
-		private global::Gtk.Label label2;
-
 		private global::Gamma.GtkWidgets.yHBox hboxEdoAccountsHandleBtns;
 
 		private global::Gamma.GtkWidgets.yButton btnAddEdoAccount;
@@ -54,19 +52,12 @@ namespace Vodovoz.Views.Client
 			this.notebookAccountsByOrganizations = new global::Gamma.GtkWidgets.yNotebook();
 			this.notebookAccountsByOrganizations.CanFocus = true;
 			this.notebookAccountsByOrganizations.Name = "notebookAccountsByOrganizations";
-			this.notebookAccountsByOrganizations.CurrentPage = 0;
-			// Notebook tab
-			global::Gtk.Label w1 = new global::Gtk.Label();
-			w1.Visible = true;
-			this.notebookAccountsByOrganizations.Add(w1);
-			this.label2 = new global::Gtk.Label();
-			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Организация");
-			this.notebookAccountsByOrganizations.SetTabLabel(w1, this.label2);
-			this.label2.ShowAll();
+			this.notebookAccountsByOrganizations.CurrentPage = -1;
 			this.vboxCounterpartyEdoAccounts.Add(this.notebookAccountsByOrganizations);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.notebookAccountsByOrganizations]));
-			w2.Position = 0;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.notebookAccountsByOrganizations]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
 			// Container child vboxCounterpartyEdoAccounts.Gtk.Box+BoxChild
 			this.hboxEdoAccountsHandleBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEdoAccountsHandleBtns.Name = "hboxEdoAccountsHandleBtns";
@@ -78,15 +69,15 @@ namespace Vodovoz.Views.Client
 			this.btnAddEdoAccount.UseUnderline = true;
 			this.btnAddEdoAccount.Label = global::Mono.Unix.Catalog.GetString("Добавить ЭДО аккаунт");
 			this.hboxEdoAccountsHandleBtns.Add(this.btnAddEdoAccount);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxEdoAccountsHandleBtns[this.btnAddEdoAccount]));
-			w3.Position = 0;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxEdoAccountsHandleBtns[this.btnAddEdoAccount]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			this.vboxCounterpartyEdoAccounts.Add(this.hboxEdoAccountsHandleBtns);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.hboxEdoAccountsHandleBtns]));
+			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
-			this.vboxCounterpartyEdoAccounts.Add(this.hboxEdoAccountsHandleBtns);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.hboxEdoAccountsHandleBtns]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
 			// Container child vboxCounterpartyEdoAccounts.Gtk.Box+BoxChild
 			this.hboxOrganizationsHandleBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxOrganizationsHandleBtns.Name = "hboxOrganizationsHandleBtns";
@@ -98,15 +89,15 @@ namespace Vodovoz.Views.Client
 			this.btnAddOrganization.UseUnderline = true;
 			this.btnAddOrganization.Label = global::Mono.Unix.Catalog.GetString("Добавить организацию");
 			this.hboxOrganizationsHandleBtns.Add(this.btnAddOrganization);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxOrganizationsHandleBtns[this.btnAddOrganization]));
-			w5.Position = 0;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxOrganizationsHandleBtns[this.btnAddOrganization]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.vboxCounterpartyEdoAccounts.Add(this.hboxOrganizationsHandleBtns);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.hboxOrganizationsHandleBtns]));
+			w5.Position = 2;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vboxCounterpartyEdoAccounts.Add(this.hboxOrganizationsHandleBtns);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.hboxOrganizationsHandleBtns]));
-			w6.Position = 2;
-			w6.Expand = false;
-			w6.Fill = false;
 			this.GtkAlignment.Add(this.vboxCounterpartyEdoAccounts);
 			this.frameEdoAccounts.Add(this.GtkAlignment);
 			this.EdoAccountsTitle = new global::Gtk.Label();
@@ -115,8 +106,10 @@ namespace Vodovoz.Views.Client
 			this.EdoAccountsTitle.UseMarkup = true;
 			this.frameEdoAccounts.LabelWidget = this.EdoAccountsTitle;
 			this.vboxMain.Add(this.frameEdoAccounts);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameEdoAccounts]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameEdoAccounts]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

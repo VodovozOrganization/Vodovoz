@@ -4,6 +4,8 @@ namespace Vodovoz.Views.Client
 {
 	public partial class CounterpartyEdoAccountsByOrganizationView
 	{
+		private global::Gamma.GtkWidgets.yVBox vboxMain;
+
 		private global::Gtk.ScrolledWindow scrolledEdoAccounts;
 
 		private global::Gamma.GtkWidgets.yVBox vboxEdoAccountsByOrganization;
@@ -21,6 +23,10 @@ namespace Vodovoz.Views.Client
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView";
 			// Container child Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.Gtk.Container+ContainerChild
+			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxMain.Name = "vboxMain";
+			this.vboxMain.Spacing = 6;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.scrolledEdoAccounts = new global::Gtk.ScrolledWindow();
 			this.scrolledEdoAccounts.CanFocus = true;
 			this.scrolledEdoAccounts.Name = "scrolledEdoAccounts";
@@ -32,7 +38,12 @@ namespace Vodovoz.Views.Client
 			this.vboxEdoAccountsByOrganization = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxEdoAccountsByOrganization.Name = "vboxEdoAccountsByOrganization";
 			this.vboxEdoAccountsByOrganization.Spacing = 6;
-			// Container child vboxEdoAccountsByOrganization.Gtk.Box+BoxChild
+			w1.Add(this.vboxEdoAccountsByOrganization);
+			this.scrolledEdoAccounts.Add(w1);
+			this.vboxMain.Add(this.scrolledEdoAccounts);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.scrolledEdoAccounts]));
+			w4.Position = 0;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hboxEdoLightsMatrixByOrganization = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEdoLightsMatrixByOrganization.Name = "hboxEdoLightsMatrixByOrganization";
 			this.hboxEdoLightsMatrixByOrganization.Spacing = 6;
@@ -42,25 +53,25 @@ namespace Vodovoz.Views.Client
 			this.ylabelLightsMatrix.Xalign = 1F;
 			this.ylabelLightsMatrix.LabelProp = global::Mono.Unix.Catalog.GetString("Доступные виды оплат:");
 			this.hboxEdoLightsMatrixByOrganization.Add(this.ylabelLightsMatrix);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxEdoLightsMatrixByOrganization[this.ylabelLightsMatrix]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxEdoLightsMatrixByOrganization[this.ylabelLightsMatrix]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child hboxEdoLightsMatrixByOrganization.Gtk.Box+BoxChild
 			this.edoLightsMatrixView = new global::Vodovoz.Views.Client.EdoLightsMatrixView();
 			this.edoLightsMatrixView.Events = ((global::Gdk.EventMask)(256));
 			this.edoLightsMatrixView.Name = "edoLightsMatrixView";
 			this.hboxEdoLightsMatrixByOrganization.Add(this.edoLightsMatrixView);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxEdoLightsMatrixByOrganization[this.edoLightsMatrixView]));
-			w3.Position = 1;
-			this.vboxEdoAccountsByOrganization.Add(this.hboxEdoLightsMatrixByOrganization);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxEdoAccountsByOrganization[this.hboxEdoLightsMatrixByOrganization]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
-			w1.Add(this.vboxEdoAccountsByOrganization);
-			this.scrolledEdoAccounts.Add(w1);
-			this.Add(this.scrolledEdoAccounts);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxEdoLightsMatrixByOrganization[this.edoLightsMatrixView]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			this.vboxMain.Add(this.hboxEdoLightsMatrixByOrganization);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxEdoLightsMatrixByOrganization]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
