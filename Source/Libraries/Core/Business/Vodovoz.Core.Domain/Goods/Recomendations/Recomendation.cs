@@ -168,6 +168,15 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(string.IsNullOrWhiteSpace(Name))
+			{
+				yield return new ValidationResult("Название не может быть пустым", new[] { nameof(Name) });
+			}
+			else if(Name.Length > 255)
+			{
+				yield return new ValidationResult("Название не может быть длиннее 255 символов", new[] { nameof(Name) });
+			}
+
 			if(!IsArchive)
 			{
 				var unitOfWorkFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
