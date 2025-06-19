@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using FluentNHibernate.Conventions;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,11 @@ namespace Vodovoz.Application.Goods
 
 		private IEnumerable<RecomendationItem> GetRecomendationItems(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures, int limit)
 		{
+			if(limit <= 0)
+			{
+				return Enumerable.Empty<RecomendationItem>();
+			}
+
 			var baseRecomendation = _recomendationsRepository
 				.GetFirstOrDefault(
 					unitOfWork,
@@ -44,47 +50,39 @@ namespace Vodovoz.Application.Goods
 						&& x.PersonType == null
 						&& x.RoomType == null);
 
-			var concreteRecomendation = _recomendationsRepository
+			var specifiedRecomendation = _recomendationsRepository
 				.Get(
 					unitOfWork,
 					x => !x.IsArchive
 						&& (x.PersonType != null || x.RoomType != null)
 						&& (x.PersonType == null || x.PersonType == personType)
 						&& (x.RoomType == null || x.RoomType == roomType))
-				.OrderBy(x => x.RoomType == null | x.PersonType == null)
+				.OrderBy(x => x.RoomType != roomType)
+				.ThenBy(x => x.PersonType != personType)
 				.FirstOrDefault();
+
+			var baseRecomendationItems = baseRecomendation?.Items
+				.OrderBy(x => x.Priority)
+				.Where(x => !excludeNomenclatures.Contains(x.NomenclatureId))
+				.ToArray() ?? Enumerable.Empty<RecomendationItem>();
+
+			var specifiedRecomendationItems = specifiedRecomendation?.Items
+				.OrderBy(x => x.Priority)
+				.Where(x => !excludeNomenclatures.Contains(x.NomenclatureId))
+				.ToArray() ?? Enumerable.Empty<RecomendationItem>();
+
+			var baseCount = baseRecomendationItems.Count();
+
+			var specifiedCount = specifiedRecomendationItems.Count();
+
+			var baseCountToTake = Math.Max(1, limit - specifiedCount);
+			var specifiedCountToTake = Math.Max(0, limit - baseCount > 0 ? 1 : 0);
 
 			var recomendationItems = new List<RecomendationItem>();
 
-			var baseRecomendationItem = baseRecomendation.Items
-				.OrderBy(x => x.Priority)
-				.FirstOrDefault(x => !excludeNomenclatures.Contains(x.NomenclatureId));
+			recomendationItems.AddRange(baseRecomendationItems.Take(baseCountToTake));
 
-			if(baseRecomendationItem != null)
-			{
-				recomendationItems.Add(baseRecomendationItem);
-			}
-
-			if(concreteRecomendation is null)
-			{
-				return recomendationItems;
-			}
-
-			foreach(var recomendationItem in concreteRecomendation.Items.OrderBy(x => x.Priority))
-			{
-				if(recomendationItems.Count >= limit)
-				{
-					break;
-				}
-
-				if(recomendationItems.Any(x => x.NomenclatureId == recomendationItem.NomenclatureId)
-					|| excludeNomenclatures.Contains(recomendationItem.NomenclatureId))
-				{
-					continue;
-				}
-
-				recomendationItems.Add(recomendationItem);
-			}
+			recomendationItems.AddRange(specifiedRecomendationItems.Take(specifiedCountToTake));
 
 			return recomendationItems;
 		}
