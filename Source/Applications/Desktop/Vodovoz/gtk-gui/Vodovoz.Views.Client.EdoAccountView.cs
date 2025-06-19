@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Client
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPersonalAccountCodeInEdo;
 
+		private global::Gamma.GtkWidgets.yButton btnRemoveEdoAccount;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -230,11 +232,23 @@ namespace Vodovoz.Views.Client
 			w14.Position = 1;
 			w14.Expand = false;
 			w14.Fill = false;
-			this.vboxMain.Add(this.hboxMain);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxMain]));
-			w15.Position = 0;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.btnRemoveEdoAccount = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveEdoAccount.CanFocus = true;
+			this.btnRemoveEdoAccount.Name = "btnRemoveEdoAccount";
+			this.btnRemoveEdoAccount.UseUnderline = true;
+			this.btnRemoveEdoAccount.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.hboxMain.Add(this.btnRemoveEdoAccount);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.btnRemoveEdoAccount]));
+			w15.PackType = ((global::Gtk.PackType)(1));
+			w15.Position = 2;
 			w15.Expand = false;
 			w15.Fill = false;
+			this.vboxMain.Add(this.hboxMain);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxMain]));
+			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
