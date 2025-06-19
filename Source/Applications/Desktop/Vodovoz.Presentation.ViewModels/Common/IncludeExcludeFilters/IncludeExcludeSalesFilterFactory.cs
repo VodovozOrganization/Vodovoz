@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Employees;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
@@ -353,13 +353,22 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				{
 					Expression<Func<Employee, bool>> specificationExpression = null;
 
-					Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
-						string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
-						|| employee.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
-						|| employee.LastName.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
-						|| employee.Patronymic.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%");
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
 
-					specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					}
 
 					var elementsToAdd = _employeeRepository.Get(
 							unitOfWork,

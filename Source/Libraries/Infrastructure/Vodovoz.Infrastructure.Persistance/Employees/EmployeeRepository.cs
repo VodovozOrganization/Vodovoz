@@ -9,6 +9,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Subdivisions;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

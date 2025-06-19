@@ -25,7 +25,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -2998,7 +2997,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted
-				&& permissionService.ValidatePresetPermission(Vodovoz.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
+				&& permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument))
 			{
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;

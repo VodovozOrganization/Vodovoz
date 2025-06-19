@@ -10,12 +10,12 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -149,7 +149,7 @@ namespace Vodovoz
 			int loadedTerminalAmount = default(int);
 
 			var cashSubdivision = _subdivisionRepository.GetCashSubdivisions(uow);
-			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
+			if(cashSubdivision.Any(x => x.Id == Warehouse.OwningSubdivisionId)) {
 				
 				loadedTerminalAmount = (int)_carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
 
@@ -302,7 +302,7 @@ namespace Vodovoz
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+						Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

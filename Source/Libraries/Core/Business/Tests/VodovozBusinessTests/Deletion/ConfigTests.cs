@@ -4,6 +4,7 @@ using NUnit.Framework;
 using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.Testing;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace VodovozBusinessTests.Deletion
 {
@@ -23,7 +24,7 @@ namespace VodovozBusinessTests.Deletion
 			AddIgnoredClass(typeof(Vodovoz.Domain.Employees.Employee), "Один из основных классов программы. Удалятся не должен.");
 			AddIgnoredClass(typeof(Vodovoz.Domain.Client.Counterparty), "Один из основных классов программы. Удалятся не должен.");
 			AddIgnoredClass(typeof(Vodovoz.Domain.Client.DeliveryPoint), "Один из основных классов программы. Удалятся не должен.");
-			AddIgnoredClass(typeof(Vodovoz.Domain.Store.Warehouse), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Warehouse), "Один из основных классов программы. Удалятся не должен.");
 
 			//Технические классы пока нигде не удаляется через удаление.
 			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.CachedDistance), "Технический клас пока нигде не удаляется через удаление.");

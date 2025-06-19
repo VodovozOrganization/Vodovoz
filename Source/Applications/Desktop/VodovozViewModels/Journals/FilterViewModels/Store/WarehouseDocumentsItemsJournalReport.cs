@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Gamma.Utilities;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

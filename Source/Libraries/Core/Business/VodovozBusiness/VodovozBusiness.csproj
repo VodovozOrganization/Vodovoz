@@ -178,6 +178,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Domain\Security\" />
     <Folder Include="Domain\StoredResources\" />
   </ItemGroup>
 </Project>

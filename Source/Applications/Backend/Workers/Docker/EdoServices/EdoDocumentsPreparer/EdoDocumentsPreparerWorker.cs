@@ -31,7 +31,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Converters;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoDocumentsPreparer
 {
@@ -192,7 +192,7 @@ namespace EdoDocumentsPreparer
 
 						var container = uow
 							.GetAll<EdoContainer>()
-							.Where(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd)
+							.Where(x => x.Order.Id == orderEntity.Id && x.Type == DocumentContainerType.Upd)
 							.OrderByDescending(x => x.Id)
 							.FirstOrDefault();
 

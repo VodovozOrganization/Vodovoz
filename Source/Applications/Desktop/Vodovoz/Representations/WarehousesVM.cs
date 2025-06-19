@@ -4,9 +4,10 @@ using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Store;
 using Gamma.Binding;
 using Vodovoz.Infrastructure;
+using Vodovoz.Core.Domain.Warehouses;
+using NHibernate;
 
 namespace Vodovoz.Representations
 {
@@ -14,7 +15,7 @@ namespace Vodovoz.Representations
 	{
 		public IList<SubdivisionWithWarehousesVMNode> Result { get; set; }
 		public IyTreeModel TreeModel { get; set; }
-		int? parentId;
+		private int? _parentId;
 
 		public override void UpdateNodes()
 		{
@@ -23,7 +24,7 @@ namespace Vodovoz.Representations
 			Warehouse warehouseAlias = null;
 
 			var allSubdivisionNodes = UoW.Session.QueryOver(() => warehouseAlias)
-				.Right.JoinQueryOver(() => warehouseAlias.OwningSubdivision, () => subdivisionAlias)
+				.JoinEntityAlias(() => subdivisionAlias, () => warehouseAlias.OwningSubdivisionId == subdivisionAlias.Id, NHibernate.SqlCommand.JoinType.RightOuterJoin)
 				.SelectList(list => list
 				   .Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.WarehouseId)
 				   .Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.SubdivisionId)
@@ -66,7 +67,7 @@ namespace Vodovoz.Representations
 				Result.Add(w);
 			}
 
-			var subdivisionHierarchy = Result.Where(s => s.ParentId == parentId).ToList();
+			var subdivisionHierarchy = Result.Where(s => s.ParentId == _parentId).ToList();
 			foreach(var sHierarchy in subdivisionHierarchy)
 				SetChildrenRecoursivelyIfTheyHaveWarehouses(sHierarchy);
 			return subdivisionHierarchy;

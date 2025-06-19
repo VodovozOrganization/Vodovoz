@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -22,8 +23,6 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -336,10 +335,10 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(
 					"Ваш пользователь не привязан к действующему сотруднику," +
@@ -362,8 +361,10 @@ namespace Vodovoz.ViewModels.Warehouses
 		{
 			if(Entity.Id == 0)
 			{
-				Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-				if(Entity.Author == null)
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.ResponsibleEmployee = currentEmployee;
+				Entity.AuthorId = currentEmployee?.Id;
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(
 						"Ваш пользователь не привязан к действующему сотруднику," +
@@ -404,7 +405,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void SetPermissions()
 		{
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 			HasAccessToEmployeeStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");

@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;

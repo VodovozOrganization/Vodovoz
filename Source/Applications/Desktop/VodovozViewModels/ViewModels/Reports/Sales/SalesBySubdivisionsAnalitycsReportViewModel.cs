@@ -16,11 +16,12 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Orders;
@@ -75,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}

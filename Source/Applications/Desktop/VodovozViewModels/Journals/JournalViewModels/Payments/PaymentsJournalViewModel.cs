@@ -101,10 +101,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private void SetPermissions()
 		{
 			_canCreateNewManualPayment =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCreateNewManualPaymentFromBankClient);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Payment.BankClient.CanCreateNewManualPaymentFromBankClient);
 
 			_canCancelManualPaymentFromBankClient =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Payment.BankClient.CanCancelManualPaymentFromBankClient);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Payment.BankClient.CanCancelManualPaymentFromBankClient);
 		}
 
 		private void CreateFilter(Action<PaymentsJournalFilterViewModel> filterParams = null)

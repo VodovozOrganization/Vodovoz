@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Documents;
@@ -33,16 +33,16 @@ namespace Vodovoz.Controllers
 
 			var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
 
-			if(transferDocument.Author == null)
+			if(transferDocument.AuthorId == null)
 			{
-				transferDocument.Author = employeeForCurrentUser;
+				transferDocument.AuthorId = employeeForCurrentUser.Id;
 			}
 			if(transferDocument.TimeStamp == default(DateTime))
 			{
 				transferDocument.TimeStamp = DateTime.Now;
 			}
 
-			transferDocument.LastEditor = employeeForCurrentUser;
+			transferDocument.LastEditorId = employeeForCurrentUser.Id;
 			transferDocument.LastEditedTime = DateTime.Now;
 			transferDocument.RouteListFrom = from.RouteList;
 			transferDocument.RouteListTo = to.RouteList;

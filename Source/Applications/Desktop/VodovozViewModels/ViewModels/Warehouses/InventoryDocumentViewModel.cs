@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -26,8 +26,6 @@ using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -52,6 +50,7 @@ using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using QS.Report;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -586,10 +585,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+			Entity.LastEditorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(_userWithoutEmployee);
 				return false;
@@ -606,9 +605,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+				Entity.AuthorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			
-				if(Entity.Author == null)
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(_userWithoutEmployee);
 					FailInitialize = true;

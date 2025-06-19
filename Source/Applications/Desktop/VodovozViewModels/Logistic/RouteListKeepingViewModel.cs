@@ -52,6 +52,7 @@ using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
 {
@@ -136,7 +137,7 @@ namespace Vodovoz
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
 			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
-			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.IsLogistician);
+			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
 			LogisticanEditing = IsUserLogist && AllEditing;
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
@@ -172,6 +173,8 @@ namespace Vodovoz
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
+			OpenOrderCodesCommand = new DelegateCommand(() => OpenOrderCodesDialog(),() => CanOpenOrderCodes());
+			OpenOrderCodesCommand.CanExecuteChangedWith(this, x => x.SelectedRouteListAddressesObjects);
 		}
 
 		private void CreateInitialRouteListItemStatuses()
@@ -244,10 +247,10 @@ namespace Vodovoz
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
 			&& IsUserLogist
-			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
 
 		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
-			&& _currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime)
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts { get; }
@@ -277,6 +280,7 @@ namespace Vodovoz
 		public DelegateCommand ChangeDeliveryTimeCommand { get; }
 		public DelegateCommand SetStatusCompleteCommand { get; }
 		public DelegateCommand ReDeliverCommand { get; }
+		public DelegateCommand OpenOrderCodesCommand { get; }
 
 		#endregion Commands
 
@@ -562,7 +566,7 @@ namespace Vodovoz
 			if(newStatus == RouteListItemStatus.Completed
 			   && order.IsOrderContainsIsAccountableInTrueMarkItems
 			   && !_currentPermissionService.ValidatePresetPermission(
-				   Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
 				if((order.IsNeedIndividualSetOnLoad || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
@@ -759,7 +763,7 @@ namespace Vodovoz
 
 		protected void ChangeDeliveryTimeHandler()
 		{
-			if(_currentPermissionService.ValidatePresetPermission(Permissions.Logistic.RouteList.CanChangeDeliveryTime))
+			if(_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime))
 			{
 				if(SelectedRouteListAddresses.Count() != 1)
 				{
@@ -876,6 +880,31 @@ namespace Vodovoz
 		protected void ReDeliverHandler()
 		{
 			Entity.UpdateStatus(isIgnoreAdditionalLoadingDocument: true);
+		}
+
+		protected void OpenOrderCodesDialog()
+		{
+			if(!CanOpenOrderCodes())
+			{
+				return;
+			}
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id);
+		}
+
+		protected bool CanOpenOrderCodes()
+		{
+			if(SelectedRouteListAddressesObjects.Count() > 1)
+			{
+				return false;
+			}
+
+			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
+			if(selectedAddress == null || selectedAddress.RouteListItem == null)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		public override void Dispose()
