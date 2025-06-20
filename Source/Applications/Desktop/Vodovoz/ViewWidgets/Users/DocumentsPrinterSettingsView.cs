@@ -1,9 +1,10 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using Vodovoz.Domain.Documents;
-using Vodovoz.PrintableDocuments;
+using Vodovoz.Core.Domain.PrintableDocuments;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.ViewModels.Widgets.Print;
 namespace Vodovoz.ViewWidgets.Users
 {
@@ -42,8 +43,7 @@ namespace Vodovoz.ViewWidgets.Users
 			ybuttonConfigurePrinter.BindCommand(ViewModel.ConfigurePrinterSettingCommand);
 			ybuttonRemoveFromList.BindCommand(ViewModel.RemovePrinterSettingCommand);
 
-			ViewModel.ObservablePrinterSettings.ElementAdded += OnPrinterSettingAdded;
-			ViewModel.ObservablePrinterSettings.ElementRemoved += OnPrinterSettingRemoved;
+			ViewModel.ObservablePrinterSettings.CollectionChanged += OnPrinterSettingAdded;
 		}
 
 		private void ConfigureTreeView()
@@ -73,20 +73,14 @@ namespace Vodovoz.ViewWidgets.Users
 			yenumcomboboxDocumentType.AddEnumToHideList(existingDocumentTypes);
 		}
 
-		private void OnPrinterSettingRemoved(object aList, int[] aIdx, object aObject)
-		{
-			UpdateAvailableDocumentTypes();
-		}
-
-		private void OnPrinterSettingAdded(object aList, int[] aIdx)
+		private void OnPrinterSettingAdded(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
 		{
 			UpdateAvailableDocumentTypes();
 		}
 
 		public override void Destroy()
 		{
-			ViewModel.ObservablePrinterSettings.ElementAdded -= OnPrinterSettingAdded;
-			ViewModel.ObservablePrinterSettings.ElementRemoved -= OnPrinterSettingRemoved;
+			ViewModel.ObservablePrinterSettings.CollectionChanged -= OnPrinterSettingAdded;
 
 			base.Destroy();
 		}

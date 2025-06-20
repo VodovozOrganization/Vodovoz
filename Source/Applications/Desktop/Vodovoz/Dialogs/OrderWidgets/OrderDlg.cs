@@ -139,7 +139,7 @@ using VodovozInfrastructure.Utils;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
 using LogLevel = NLog.LogLevel;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz
 {
@@ -1178,7 +1178,7 @@ namespace Vodovoz
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
@@ -1189,9 +1189,9 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
-			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Permissions.Order.CanEditGoodsInRouteList);
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -1346,10 +1346,10 @@ namespace Vodovoz
 
 				switch(selectedType)
 				{
-					case Type.Upd:
+					case DocumentContainerType.Upd:
 						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
 						break;
-					case Type.Bill:
+					case DocumentContainerType.Bill:
 						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
 						break;
 				}
@@ -1359,8 +1359,8 @@ namespace Vodovoz
 
 			var alreadyInProcess = resendAction != null
 				&& (
-						(resendAction.IsNeedToResendEdoUpd && selectedType == Type.Upd)
-						|| (resendAction.IsNeedToResendEdoBill && selectedType == Type.Bill)
+						(resendAction.IsNeedToResendEdoUpd && selectedType == DocumentContainerType.Upd)
+						|| (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill)
 					);
 
 			if(alreadyInProcess)
@@ -1372,8 +1372,8 @@ namespace Vodovoz
 			}
 
 			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is Type.Upd && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == Type.Upd);
-			var canResendBill = selectedType is Type.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == Type.Bill);
+			var canResendUpd = selectedType is DocumentContainerType.Upd && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Upd);
+			var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
 
 			if(canResendUpd || canResendBill)
 			{
@@ -2400,7 +2400,7 @@ namespace Vodovoz
 						else if(_orderService.NeedResendByEdo(UoW, Entity))
 						{
 							_edoService.CancelOldEdoOffers(UoW, Entity);
-							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, Type.Bill);
+							_edoService.SetNeedToResendEdoDocumentForOrder(Entity, DocumentContainerType.Bill);
 						}
 					}
 				}

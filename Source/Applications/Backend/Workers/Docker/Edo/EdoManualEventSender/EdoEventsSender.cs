@@ -35,6 +35,7 @@ namespace EdoManualEventSender
 			Console.WriteLine("13. ReceiptTaskCreatedEvent:");
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
 			Console.WriteLine("15. TransferCompleteEvent (Tender):");
+			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
 			Console.WriteLine();
 
 			Console.Write("Выберите тип сообщения: ");
@@ -86,6 +87,9 @@ namespace EdoManualEventSender
 					break;
 				case 15:
 					SendTransferCompleteTenderEvent();
+					break;
+				case 16:
+					SendWithdrawalTaskCreatedEvent();
 					break;
 				default:
 					break;
@@ -324,6 +328,20 @@ namespace EdoManualEventSender
 				return;
 			}
 			_messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = id }).Wait();
+		}
+
+		private void SendWithdrawalTaskCreatedEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Withdrawal (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = id });
 		}
 	}
 }

@@ -717,7 +717,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			return _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Core.Domain.Documents.Type.Bill) > 0;
+				.Count(x => x.Type == Core.Domain.Documents.DocumentContainerType.Bill) > 0;
 		}
 
 

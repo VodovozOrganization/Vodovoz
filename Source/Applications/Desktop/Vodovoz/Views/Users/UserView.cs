@@ -9,6 +9,7 @@ using Vodovoz.Core;
 using Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Views.Users
 {
@@ -157,7 +158,7 @@ namespace Vodovoz.Views.Users
 				.AddBinding(ViewModel, vm => vm.SelectedUserRole, w => w.SelectedRow)
 				.InitializeFromSource();
 			ytreeviewAddedRoles.RowActivated += (o, args) => ViewModel.RemoveUserRoleCommand.Execute();
-			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.ObservableUserRoles;
+			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.UserRoles;
 			ytreeviewAvailableRoles.Sensitive = ytreeviewAddedRoles.Sensitive = !ViewModel.IsSameUser && ViewModel.HasUserOnServer;
 		}
 

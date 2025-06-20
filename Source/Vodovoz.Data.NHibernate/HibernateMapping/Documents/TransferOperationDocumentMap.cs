@@ -13,6 +13,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 
 			Map(x => x.TimeStamp).Column("operation_time");
 			Map(x => x.Comment).Column("comment");
+			Map(x => x.AuthorId).Column("author_id");
+			Map(x => x.LastEditorId).Column("last_edit_author_id");
 
 			References(x => x.FromClient).Column("from_client_id");
 			References(x => x.FromDeliveryPoint).Column("from_delivery_point_id");
@@ -26,11 +28,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			References(x => x.OutEquipmentDepositOperation).Column("outgoing_equipment_deposit_operation").Cascade.All();
 			References(x => x.IncEquipmentDepositOperation).Column("incoming_equipment_deposit_operation").Cascade.All();
 
-
-			References(x => x.Author).Column("author_id");
-			References(x => x.LastEditor).Column("last_edit_author_id");
 			References(x => x.ResponsiblePerson).Column("responsible_person_id");
-
 		}
 	}
 }

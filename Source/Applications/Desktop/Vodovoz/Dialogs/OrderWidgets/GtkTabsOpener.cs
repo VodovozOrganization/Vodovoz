@@ -10,6 +10,8 @@ using QS.ViewModels.Dialog;
 using QSOrmProject;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -19,6 +21,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -230,17 +233,17 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			tabParent.OpenTab(() => dlg);
 		}
 
-		public ITdiTab CreateWarehouseDocumentOrmMainDialog(ITdiTabParent tabParent, DocumentType type)
+		public ITdiTab CreateWarehouseDocumentOrmMainDialog(ITdiTabParent tabParent, Core.Domain.Warehouses.Documents.DocumentType type)
 		{
 			switch(type)
 			{
-				case DocumentType.IncomingWater:
-				case DocumentType.SelfDeliveryDocument:
-				case DocumentType.CarLoadDocument:
-				case DocumentType.CarUnloadDocument:
+				case Core.Domain.Warehouses.Documents.DocumentType.IncomingWater:
+				case Core.Domain.Warehouses.Documents.DocumentType.SelfDeliveryDocument:
+				case Core.Domain.Warehouses.Documents.DocumentType.CarLoadDocument:
+				case Core.Domain.Warehouses.Documents.DocumentType.CarUnloadDocument:
 					return tabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)));
+						DialogHelper.GenerateDialogHashName(type.ToDocType(), 0),
+						() => OrmMain.CreateObjectDialog(type.ToDocType()));
 				default:
 					throw new NotImplementedException("Тип документа не подерживается");
 			}

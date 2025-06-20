@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports);
+			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports);
 			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -88,10 +88,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			SetupFilter();
 

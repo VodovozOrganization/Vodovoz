@@ -1,15 +1,13 @@
 ﻿using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.PrintableDocuments;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Extensions;
-using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Print;
 
 namespace Vodovoz.ViewModels.Widgets.Print
@@ -34,8 +32,8 @@ namespace Vodovoz.ViewModels.Widgets.Print
 		public DelegateCommand ConfigurePrinterSettingCommand { get; }
 		public DelegateCommand RemovePrinterSettingCommand { get; }
 
-		public GenericObservableList<DocumentPrinterSetting> ObservablePrinterSettings =>
-			UserSettings?.ObservableDocumentPrinterSettings ?? new GenericObservableList<DocumentPrinterSetting>(new List<DocumentPrinterSetting>());
+		public IObservableList<DocumentPrinterSetting> ObservablePrinterSettings =>
+			UserSettings?.DocumentPrinterSettings ?? new ObservableList<DocumentPrinterSetting>();
 
 		public UserSettings UserSettings
 		{
@@ -87,7 +85,7 @@ namespace Vodovoz.ViewModels.Widgets.Print
 				DocumentType = SelectedDocumentType.Value
 			};
 
-			UserSettings.ObservableDocumentPrinterSettings.Add(newPrinterSetting);
+			UserSettings.DocumentPrinterSettings.Add(newPrinterSetting);
 			SelectedDocumentType = null;
 		}
 
@@ -108,7 +106,7 @@ namespace Vodovoz.ViewModels.Widgets.Print
 				return;
 			}
 
-			UserSettings.ObservableDocumentPrinterSettings.Remove(SelectedPrinterSetting);
+			UserSettings.DocumentPrinterSettings.Remove(SelectedPrinterSetting);
 			SelectedDocumentType = null;
 		}
 

@@ -10,12 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
@@ -186,7 +186,7 @@ namespace Vodovoz.ViewWidgets.Store
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+						Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;

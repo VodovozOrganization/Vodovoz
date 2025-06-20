@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Subdivisions
 {

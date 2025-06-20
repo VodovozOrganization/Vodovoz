@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(userService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
@@ -110,11 +110,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			_canViewReportSalesWithCashReceipts =
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
