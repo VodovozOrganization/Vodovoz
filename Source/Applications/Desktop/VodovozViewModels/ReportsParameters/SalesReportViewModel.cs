@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports);
-			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
+			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));

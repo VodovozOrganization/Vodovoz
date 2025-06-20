@@ -1409,6 +1409,9 @@ GROUP BY T.order_items_id
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
           </QueryParameter>
+          <QueryParameter Name="only_with_cash_receipts">
+            <Value>={?only_with_cash_receipts}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >

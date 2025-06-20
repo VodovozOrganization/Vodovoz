@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -117,7 +118,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			_canViewReportSalesWithCashReceipts =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -499,6 +500,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				OrderStatus.Closed
 			};
 
+			var sendedCashReceiptStatuses = new[]
+			{
+				FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed, FiscalDocumentStatus.Completed
+			};
+
 			#region Сбор параметров
 
 			var nomenclaturesCategoriesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
@@ -733,8 +739,30 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							break;
 						}
 						case "only_with_cash_receipts":
-							// TODO query Art8m
+						{
+							EdoFiscalDocument edoFiscalDocumentAlias = null;
+							EdoTask edoTaskAlias = null;
+							OrderEdoRequest edoRequestAlias = null;
+
+							var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+								.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+								.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+								.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+								.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+								.IsIn(sendedCashReceiptStatuses)
+								.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+							if(param.Include)
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereExists(subQueryWithCashReceipts);
+							}
+							else
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+							}
+						
 							break;
+						}
 						default:
 							throw new NotSupportedException(param.Number);
 					}
@@ -1266,6 +1294,31 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						query.WithSubquery
 							.WhereProperty(() => counterpartyAlias.Id)
 							.In(subQueryOrdersCount);
+						
+						break;
+					}
+					case "only_with_cash_receipts":
+					{
+						EdoFiscalDocument edoFiscalDocumentAlias = null;
+						EdoTask edoTaskAlias = null;
+						OrderEdoRequest edoRequestAlias = null;
+
+						var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+							.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+							.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+							.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+							.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+							.IsIn(sendedCashReceiptStatuses)
+							.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+						if(param.Include)
+						{
+							query.WithSubquery.WhereExists(subQueryWithCashReceipts);
+						}
+						else
+						{
+							query.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+						}
 						
 						break;
 					}
