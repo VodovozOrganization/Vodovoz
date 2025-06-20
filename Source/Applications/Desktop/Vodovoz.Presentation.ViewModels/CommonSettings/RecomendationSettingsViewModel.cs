@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.Services;
 using QS.ViewModels;
 using System;
 using Vodovoz.Settings.Nomenclature;
@@ -7,14 +8,23 @@ namespace Vodovoz.Presentation.ViewModels.CommonSettings
 {
 	public class RecomendationSettingsViewModel : WidgetViewModelBase
 	{
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IRecomendationSettings _recomendationSettings;
 		private int _robotCount;
 		private int _operatorCount;
 		private int _ipzCount;
+		private bool _canSave;
 
-		public RecomendationSettingsViewModel(IRecomendationSettings recomendationSettings)
+		public RecomendationSettingsViewModel(
+			ICurrentPermissionService currentPermissionService,
+			IRecomendationSettings recomendationSettings)
 		{
-			_recomendationSettings = recomendationSettings ?? throw new ArgumentNullException(nameof(recomendationSettings));
+			_currentPermissionService = currentPermissionService
+				?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_recomendationSettings = recomendationSettings
+				?? throw new ArgumentNullException(nameof(recomendationSettings));
+
+			CanSave = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.RecomendationSettings.CanChangeSettings);
 
 			_robotCount = _recomendationSettings.RobotCount;
 			_operatorCount = _recomendationSettings.OperatorCount;
@@ -42,7 +52,11 @@ namespace Vodovoz.Presentation.ViewModels.CommonSettings
 			set => SetField(ref _ipzCount, value);
 		}
 
-		public bool CanSave => true;
+		public bool CanSave
+		{
+			get => _canSave;
+			private set => SetField(ref _canSave, value);
+		}
 
 		public DelegateCommand SaveCommand { get; }
 
