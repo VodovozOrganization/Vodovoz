@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.Dto.Orders;
+﻿using CustomerOrdersApi.Library.Dto.Orders;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Results;
 
 namespace CustomerOrdersApi.Library.Services
 {
@@ -16,5 +18,7 @@ namespace CustomerOrdersApi.Library.Services
 		void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo);
 		bool TryUpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto);
 		void CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto);
+		bool ValidateRequestRecomendationsSignature(GetRecomendationsDto getRecomendationsDto, out string generatedSignature);
+		Result<IEnumerable<RecomendationItemDto>, Exception> GetRecomendations(GetRecomendationsDto getRecomendationsDto);
 	}
 }

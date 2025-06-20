@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -404,6 +405,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			GetParameterValues<Counterparty>(sb2);
 			GetParameterValues<Organization>(sb2);
 			GetParameterValues<DiscountReason>(sb2);
+			GetParameterValues<Recomendation>(sb2);
 			GetParameterValues<Subdivision>(sb2);
 			GetParameterValues<Employee>(sb2);
 			GetParameterValues<GeoGroup>(sb2);
@@ -542,6 +544,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
 			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
 			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
+
+			var recomendationsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Recomendation>>();
+			var includedRecomendations = discountReasonsFilter.GetIncluded().ToArray();
+			var excludedRecomendations = discountReasonsFilter.GetExcluded().ToArray();
 
 			var subdivisionsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Subdivision>>();
 			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
@@ -1060,6 +1066,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion DiscountReasons
+
+			#region Recomendations
+
+			if(includedRecomendations.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderItemAlias.RecomendationId),
+					includedRecomendations));
+			}
+
+			if(excludedRecomendations.Any())
+			{
+				query.Where(Restrictions.Not(Restrictions.In(
+					Projections.Property(() => orderItemAlias.RecomendationId),
+					excludedRecomendations)));
+			}
+
+			#endregion Recomendations
 
 			#region Subdivisions
 

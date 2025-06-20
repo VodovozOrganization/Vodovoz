@@ -8,6 +8,7 @@ using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
 using System.Linq;
+using Vodovoz.Presentation.ViewModels.CommonSettings;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
@@ -75,12 +76,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICarInsuranceSettings carInsuranceSettings,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
+			RecomendationSettingsViewModel recomendationSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
+			RecomendationSettingsViewModel = recomendationSettingsViewModel ?? throw new ArgumentNullException(nameof(recomendationSettingsViewModel));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -232,6 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
+		public RecomendationSettingsViewModel RecomendationSettingsViewModel { get; }
 
 		#endregion
 
