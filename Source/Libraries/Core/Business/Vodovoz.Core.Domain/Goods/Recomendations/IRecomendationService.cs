@@ -9,6 +9,6 @@ namespace Vodovoz.Core.Domain.Goods.Recomendations
 	{
 		IEnumerable<RecomendationItem> GetRecomendationItemsForOperator(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures);
 		IEnumerable<RecomendationItem> GetRecomendationItemsForRobot(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures);
-		IEnumerable<RecomendationItem> GetRecomendationItemsForIpz(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures);
+		IEnumerable<RecomendationItem> GetRecomendationItemsForIpz(IUnitOfWork unitOfWork, Source source, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures);
 	}
 }

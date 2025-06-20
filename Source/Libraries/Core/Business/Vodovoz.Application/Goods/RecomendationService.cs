@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Goods.Recomendations;
@@ -27,16 +28,34 @@ namespace Vodovoz.Application.Goods
 				?? throw new ArgumentNullException(nameof(recomendationSettings));
 		}
 
-		public IEnumerable<RecomendationItem> GetRecomendationItemsForIpz(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures) =>
+		public IEnumerable<RecomendationItem> GetRecomendationItemsForIpz(
+			IUnitOfWork unitOfWork,
+			Source source,
+			PersonType personType,
+			RoomType roomType,
+			IEnumerable<int> excludeNomenclatures) =>
 			GetRecomendationItems(unitOfWork, personType, roomType, excludeNomenclatures, _recomendationSettings.IpzCount);
 
-		public IEnumerable<RecomendationItem> GetRecomendationItemsForOperator(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures) =>
+		public IEnumerable<RecomendationItem> GetRecomendationItemsForOperator(
+			IUnitOfWork unitOfWork,
+			PersonType personType,
+			RoomType roomType,
+			IEnumerable<int> excludeNomenclatures) =>
 			GetRecomendationItems(unitOfWork, personType, roomType, excludeNomenclatures, _recomendationSettings.OperatorCount);
 
-		public IEnumerable<RecomendationItem> GetRecomendationItemsForRobot(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures) =>
+		public IEnumerable<RecomendationItem> GetRecomendationItemsForRobot(
+			IUnitOfWork unitOfWork,
+			PersonType personType,
+			RoomType roomType,
+			IEnumerable<int> excludeNomenclatures) =>
 			GetRecomendationItems(unitOfWork, personType, roomType, excludeNomenclatures, _recomendationSettings.RobotCount);
 
-		private IEnumerable<RecomendationItem> GetRecomendationItems(IUnitOfWork unitOfWork, PersonType personType, RoomType roomType, IEnumerable<int> excludeNomenclatures, int limit)
+		private IEnumerable<RecomendationItem> GetRecomendationItems(
+			IUnitOfWork unitOfWork,
+			PersonType personType,
+			RoomType roomType,
+			IEnumerable<int> excludeNomenclatures,
+			int limit)
 		{
 			if(limit <= 0)
 			{

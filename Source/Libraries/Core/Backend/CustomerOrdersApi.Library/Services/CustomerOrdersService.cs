@@ -341,6 +341,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			var recomendationItems = _recomendationService.GetRecomendationItemsForIpz(
 				unitOfWork,
+				getRecomendationsDto.Source,
 				counterparty.PersonType,
 				deliveryPoint.RoomType,
 				addedNomenclatures);
