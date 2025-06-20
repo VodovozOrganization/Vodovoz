@@ -20,19 +20,26 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 			ysbOperator.Binding.CleanSources();
 			ysbOperator.Binding
 				.AddBinding(ViewModel, vm => vm.OperatorCount, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ysbRobot.Binding.CleanSources();
 			ysbRobot.Binding
 				.AddBinding(ViewModel, vm => vm.RobotCount, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ysbIpz.Binding.CleanSources();
 			ysbIpz.Binding
 				.AddBinding(ViewModel, vm => vm.IpzCount, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonSave.Clicked += OnSaveClicked;
+			buttonSave.Binding.CleanSources();
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void OnSaveClicked(object sender, EventArgs e)
