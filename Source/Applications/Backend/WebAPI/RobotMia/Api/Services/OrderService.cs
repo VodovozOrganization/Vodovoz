@@ -147,7 +147,8 @@ namespace Vodovoz.RobotMia.Api.Services
 							_lastOrderCompletedStatuses,
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
-							_nomenclatureSettings.FastDeliveryNomenclatureId)));
+							_nomenclatureSettings.FastDeliveryNomenclatureId,
+							_nomenclatureSettings.ForfeitId)));
 
 			if(order is null)
 			{
@@ -177,7 +178,8 @@ namespace Vodovoz.RobotMia.Api.Services
 							_lastOrderCompletedStatuses,
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
-							_nomenclatureSettings.FastDeliveryNomenclatureId)));
+							_nomenclatureSettings.FastDeliveryNomenclatureId,
+							_nomenclatureSettings.ForfeitId)));
 
 			if(order is null)
 			{
