@@ -139,7 +139,7 @@ namespace Vodovoz.RobotMia.Api.Services
 		public LastOrderResponse GetLastOrderByCounterpartyId(int counterpartyId)
 		{
 			var order = _orderRepository
-				.Get(
+				.GetLastOrDefault(
 					_unitOfWork,
 					OrderSpecification
 						.CreateForCounterpartyId(counterpartyId)
@@ -147,8 +147,7 @@ namespace Vodovoz.RobotMia.Api.Services
 							_lastOrderCompletedStatuses,
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
-							_nomenclatureSettings.FastDeliveryNomenclatureId)))
-				.FirstOrDefault();
+							_nomenclatureSettings.FastDeliveryNomenclatureId)));
 
 			if(order is null)
 			{
@@ -170,7 +169,7 @@ namespace Vodovoz.RobotMia.Api.Services
 		public LastOrderResponse GetLastOrderByDeliveryPointId(int deliveryPointId)
 		{
 			var order = _orderRepository
-				.Get(
+				.GetLastOrDefault(
 					_unitOfWork,
 					OrderSpecification
 						.CreateForDeliveryPointId(deliveryPointId)
@@ -178,8 +177,7 @@ namespace Vodovoz.RobotMia.Api.Services
 							_lastOrderCompletedStatuses,
 							DateTime.Today.AddMonths(-_roboatsSettings.OrdersInMonths),
 							_nomenclatureSettings.PaidDeliveryNomenclatureId,
-							_nomenclatureSettings.FastDeliveryNomenclatureId)))
-				.FirstOrDefault();
+							_nomenclatureSettings.FastDeliveryNomenclatureId)));
 
 			if(order is null)
 			{
