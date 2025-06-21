@@ -30,6 +30,9 @@ namespace Vodovoz.Settings.Database.Edo
 		public int MinCodesCountForStartTransfer => _settingsController
 			.GetIntValue("edo.transfer.min_codes_count_for_start_transfer");
 
+		public TimeSpan TransferTimeoutInterval => _settingsController
+			.GetValue<TimeSpan>("edo.transfer.timeout_interval");
+
 		public int AdditionalPurchasePricePrecentForTransfer
 		{
 			get
