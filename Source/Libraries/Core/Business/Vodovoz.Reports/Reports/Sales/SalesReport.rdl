@@ -850,7 +850,7 @@ FROM
 		       	     	select efd.id from edo_fiscal_documents efd 
 						join edo_tasks et on efd.receipt_edo_task_id = et.id
 						join edo_customer_requests ecr on ecr.order_task_id = et.id
-						where efd.status not in ('WaitingForCallBack','Printed','Completed')
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
 						and ecr.order_id = orders.id
 					)
 				)
@@ -861,7 +861,7 @@ FROM
 		       	     	select efd.id from edo_fiscal_documents efd 
 						join edo_tasks et on efd.receipt_edo_task_id = et.id
 						join edo_customer_requests ecr on ecr.order_task_id = et.id
-						where efd.status not in ('WaitingForCallBack','Printed','Completed')
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
 						and ecr.order_id = orders.id
 					)
 				)
@@ -1711,7 +1711,7 @@ FROM
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
