@@ -304,6 +304,70 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+		}
+
+		private void CheckAndRefreshSelectedGroupsForCashReceiptOnly()
+		{
+			if(!(_filterViewModel.ActiveFilter is IncludeExcludeBoolParamsFilter))
+			{
+				return;
+			}
+
+			var parameters = FilterViewModel.GetReportParametersSet();
+
+			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
+			{
+				return;
+			}
+
+			if(!(value is bool included) || !included)
+			{
+				return;
+			}
+
+			try
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+
+				_leftRightListViewModelFactory.SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(GroupingSelectViewModel);
+
+				var leftGroupingItems = GroupingSelectViewModel.LeftItems;
+
+				var organizationGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Organization);
+
+				var nomenclatureGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != organizationGroup && item != nomenclatureGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+			}
+			finally
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
+			}
 		}
 
 		private void SetupGroupings()
@@ -315,10 +379,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
 		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+
 			if(SelectedGroupings.LastOrDefault() != GroupingType.Nomenclature)
 			{
 				ShowResidueForNomenclaturesWithoutSales = false;
 			}
+
 			OnPropertyChanged(nameof(SelectedGroupings));
 		}
 
@@ -1428,6 +1495,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public override void Dispose()
 		{
 			ReportGenerationCancelationTokenSource?.Dispose();
+			_filterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
 			base.Dispose();
 		}
 	}
