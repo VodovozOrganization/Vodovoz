@@ -448,6 +448,11 @@ namespace Vodovoz
 			{
 				Entity.Referrer = null;
 			}
+			
+			if(e.PropertyName == nameof(Entity.PersonType))
+			{
+				OnPersonTypeChanged();
+			}
 		}
 
 		private void ConfigureTabInfo()
@@ -564,10 +569,7 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			DelayDaysForBuyerValue.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"can_change_delay_days_for_buyers_and_chain_store");
-
+			
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -785,6 +787,16 @@ namespace Vodovoz
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void OnPersonTypeChanged()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.DelayDaysForBuyers = Entity.PersonType == PersonType.legal ? 7 : 0;
 		}
 
 		private void UpdateCounterpartyClassificationValues()
