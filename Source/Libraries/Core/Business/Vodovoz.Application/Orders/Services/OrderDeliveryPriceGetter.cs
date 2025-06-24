@@ -47,7 +47,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			#endregion
 
-			var district = order.DeliveryPoint != null
+			
+			var district = order.DeliveryPoint?.District != null
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
