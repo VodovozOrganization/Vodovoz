@@ -15,6 +15,7 @@ using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
 using Vodovoz.Services;
@@ -53,6 +54,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IRecomendationService, RecomendationService>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;
