@@ -273,12 +273,12 @@ namespace Edo.Documents
 				if(orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
 					var assignedQuantity = 0;
-					while(assignedQuantity < orderItem.Count)
+					while(assignedQuantity < orderItem.CurrentCount)
 					{
 						// Необходимо найти коды для номенклатуры на все кол-во
 						// и привязать их к инвентарной позиции УПД
 
-						var availableQuantity = orderItem.Count - assignedQuantity;
+						var availableQuantity = orderItem.CurrentCount - assignedQuantity;
 
 						// сначала ищем и назначем из групповых кодов
 
