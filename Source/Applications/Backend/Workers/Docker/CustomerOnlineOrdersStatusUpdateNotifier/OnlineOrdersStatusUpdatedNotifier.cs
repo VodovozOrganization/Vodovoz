@@ -104,7 +104,9 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 							httpCode = await notificationService.NotifyOfOnlineOrderStatusUpdatedAsync(
 								GetOnlineOrderStatusUpdatedDto(notification), notification.OnlineOrder.Source);
 							
-							_logger.LogInformation("Данные отправлены");
+							_logger.LogInformation("Ответ по отправке уведомления по заказу {OnlineOrderId}: {HttpCode}",
+								onlineOrderId,
+								httpCode);
 						}
 						catch(Exception e)
 						{
