@@ -44,35 +44,35 @@
 
 // 100	Настройки
 // 101	Настройки. Идентификаторы нод
-NODE_VOD1 = "Vod1"
-NODE_VOD3 = "Vod3"
-NODE_VOD5 = "Vod5"
-NODE_VOD6 = "Vod6"
-NODE_VOD7 = "Vod7"
-NODE_VOD13 = "Vod13"
-NODE_WIN_BUILD = "WIN_BUILD"
-NODE_DOCKER_BUILD = "DOCKER_BUILD"
+def NODE_VOD1 = "Vod1"
+def NODE_VOD3 = "Vod3"
+def NODE_VOD5 = "Vod5"
+def NODE_VOD6 = "Vod6"
+def NODE_VOD7 = "Vod7"
+def NODE_VOD13 = "Vod13"
+def NODE_WIN_BUILD = "WIN_BUILD"
+def NODE_DOCKER_BUILD = "DOCKER_BUILD"
 
 // 102.1	Настройки. Глобальные
-ARCHIVE_EXTENTION = '.7z'
-APP_PATH = "Vodovoz/Source/Applications"
-WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
-WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
-DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
-DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
-UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
-JOB_FOLDER_NAME = GetJobFolderName()
+def ARCHIVE_EXTENTION = '.7z'
+def APP_PATH = "Vodovoz/Source/Applications"
+def WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
+def WIN_BUILD_TOOL = "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe"
+def DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
+def DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
+def UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
+def JOB_FOLDER_NAME = GetJobFolderName()
 
 // 102.2	Настройки. Вычисляемые
-GIT_BRANCH = env.BRANCH_NAME
-JENKINS_BRANCH_NAME = env.BRANCH_NAME
+def GIT_BRANCH = env.BRANCH_NAME
+def JENKINS_BRANCH_NAME = env.BRANCH_NAME
 
 // 102.3	Настройки. Флаги:
-IS_PULL_REQUEST = env.CHANGE_ID != null
-IS_DEVELOP = GIT_BRANCH == 'develop'
-IS_HOTFIX = GIT_BRANCH == 'master'
-IS_RELEASE = GIT_BRANCH ==~ /^[Rr]elease(.*?)/
-IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
+def IS_PULL_REQUEST = env.CHANGE_ID != null
+def IS_DEVELOP = GIT_BRANCH == 'develop'
+def IS_HOTFIX = GIT_BRANCH == 'master'
+def IS_RELEASE = GIT_BRANCH ==~ /^[Rr]elease(.*?)/
+def IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 103	Настройки. Подготовка репозитория
 
@@ -80,42 +80,42 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 // 105	Настройки. Сборка
 
-ARTIFACT_DATE_TIME = new Date().format("MMdd_HHmm")
-CAN_BUILD_DESKTOP = true
-CAN_BUILD_WEB = true
-CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+def ARTIFACT_DATE_TIME = new Date().format("MMdd_HHmm")
+def CAN_BUILD_DESKTOP = true
+def CAN_BUILD_WEB = true
+def CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 
 // 106	Настройки. Архивация
-CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || GIT_BRANCH == 'Beta')
-CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+def CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || GIT_BRANCH == 'Beta')
+def CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
 
 // 107.1	Настройки. Доставка
-CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
-CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
-WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
+def CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
+def CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
+def WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
 
 // 107.2	Настройки. Доставка. Пути
-DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+def WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
-DEPLOY_PATH = "F:/WORK/_BUILDS"
-CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (GIT_BRANCH == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
-CAN_DEPLOY_FOR_USERS_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
+def DEPLOY_PATH = "F:/WORK/_BUILDS"
+def CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (GIT_BRANCH == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
+def CAN_DEPLOY_FOR_USERS_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 
 // 109	Настройки. Публикация	
-CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
+def CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
 //Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
-NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
-NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
-NEW_RELEASE_FOLDER_NAME = "NewRelease"
-DESKTOP_HOTFIX_PUBLISH_PATH = DESKTOP_WORK_PATH
-DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/${NEW_RELEASE_FOLDER_NAME}"
-WEB_PUBLISH_PATH = "E:/CD"
+def NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
+def NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
+def NEW_RELEASE_FOLDER_NAME = "NewRelease"
+def DESKTOP_HOTFIX_PUBLISH_PATH = DESKTOP_WORK_PATH
+def DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/${NEW_RELEASE_FOLDER_NAME}"
+def WEB_PUBLISH_PATH = "E:/CD"
 
 
 //-----------------------------------------------------------------------
@@ -775,14 +775,14 @@ def GetJobFolderName(){
 }
 
 def GetFolderNameFromWinPath(folderPath){
-	splitted = folderPath.split("\\\\")
-	folderName = splitted[splitted.length-1]
+	def splitted = folderPath.split("\\\\")
+	def folderName = splitted[splitted.length-1]
 	return folderName
 }
 
 def GetFolderName(folderPath){
-	splitted = folderPath.split("/")
-	folderName = splitted[splitted.length-1]
+	def splitted = folderPath.split("/")
+	def folderName = splitted[splitted.length-1]
 	return folderName
 }
 
