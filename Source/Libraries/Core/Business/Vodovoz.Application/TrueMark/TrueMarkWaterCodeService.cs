@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using iTextSharp.text.pdf;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
+using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
@@ -815,6 +817,117 @@ namespace Vodovoz.Application.TrueMark
 			}
 
 			return scannedCodesData;
+		}
+
+		public async Task<Result<TrueMarkCodeStaging>> CreateTrueMarkCodeStagingByScannedCodeUsingDataFromTrueMark(
+			string scannedCode,
+			CancellationToken cancellationToken)
+		{
+			var codes = new List<TrueMarkCodeStaging>();
+
+			var requestCodesData = CreateRequestCodesDataByScannedCodes(new List<string> { scannedCode });
+			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
+
+			if(requestCodesInstanseStatusesDataResult.IsFailure)
+			{
+				return Result.Failure<TrueMarkCodeStaging>(requestCodesInstanseStatusesDataResult.Errors);
+			}
+
+			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
+
+			foreach(var codeInstanseStatusData in requestCodesInstanseStatusesDataResult.Value)
+			{
+				var requestCode = codeInstanseStatusData.Key;
+				var instanceStatus = codeInstanseStatusData.Value;
+
+				var code = new TrueMarkCodeStaging();
+				TrueMarkWaterCode parsedCode = null;
+
+				if(requestCodesData.TryGetValue(requestCode, out var requestCodeData))
+				{
+					parsedCode = requestCodeData.ParsedCode;
+				}
+
+				switch(instanceStatus.GeneralPackageType)
+				{
+					case GeneralPackageType.Box:
+						{
+							code.CodeType = TrueMarkCodeStagingType.Transport;
+							code.RawCode = requestCode;
+						}
+						break;
+					case GeneralPackageType.Group:
+						{
+							code.CodeType = TrueMarkCodeStagingType.Group;
+
+							if(parsedCode != null)
+							{
+								code.RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length));
+								code.GTIN = parsedCode.GTIN;
+								code.SerialNumber = parsedCode.SerialNumber;
+								code.CheckCode = parsedCode.CheckCode;
+							}
+							else
+							{
+								var identificationCode = instanceStatus.IdentificationCode;
+
+								var serialNumber = identificationCode
+									.Replace(instanceStatus.Gtin, "")
+									.Replace("0121", "");
+
+								code.RawCode = "\\u001d" + identificationCode + "\\u001d";
+								code.GTIN = instanceStatus.Gtin;
+								code.SerialNumber = serialNumber;
+							}
+						}
+						break;
+					case GeneralPackageType.Unit:
+						{
+							code.CodeType = TrueMarkCodeStagingType.Identification;
+
+							if(parsedCode != null)
+							{
+								code.RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length));
+								code.GTIN = parsedCode.GTIN;
+								code.SerialNumber = parsedCode.SerialNumber;
+								code.CheckCode = parsedCode.CheckCode;
+							}
+							else
+							{
+								var identificationCode = instanceStatus.IdentificationCode;
+
+								var serialNumber = identificationCode
+									.Replace(instanceStatus.Gtin, "")
+									.Replace("0121", "");
+
+								code.RawCode = "\\u001d" + identificationCode + "\\u001d";
+								code.GTIN = instanceStatus.Gtin;
+								code.SerialNumber = serialNumber;
+							}
+						}
+						break;
+					default:
+						code = null;
+						break;
+				}
+
+				if(code != null)
+				{
+					codes.Add(code);
+				}
+			}
+
+			foreach(var code in codes)
+			{
+				var parentCode = codes
+					.FirstOrDefault(c => codesInstanseStatuses
+						.FirstOrDefault(cis => cis.Childs.Contains(code.IdentificationCode))
+						?.IdentificationCode == c.IdentificationCode);
+
+				parentCode?.AddInnerCode(code);
+			}
+
+			return codes.FirstOrDefault();
 		}
 
 		private IDictionary<string, (string ScannedCode, TrueMarkWaterCode ParsedCode)> CreateRequestCodesDataByScannedCodes(IEnumerable<string> scannedCodes)

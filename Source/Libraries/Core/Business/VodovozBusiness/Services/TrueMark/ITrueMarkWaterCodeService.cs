@@ -71,5 +71,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <returns>Результат</returns>
 		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
+		Task<Result<TrueMarkCodeStaging>> CreateTrueMarkCodeStagingByScannedCodeUsingDataFromTrueMark(string scannedCode, CancellationToken cancellationToken);
 	}
 }
