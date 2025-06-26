@@ -621,6 +621,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 			
 			Entity.Order = null;
+			Entity.OrderRating = null;
 		}
 
 		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
