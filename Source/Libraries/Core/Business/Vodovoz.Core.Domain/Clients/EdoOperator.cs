@@ -1,11 +1,11 @@
-﻿using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
-namespace Vodovoz.Domain.Client
+namespace Vodovoz.Core.Domain.Clients
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "операторы ЭДО",
