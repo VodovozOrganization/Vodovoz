@@ -32,6 +32,18 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Задача завершена
 		/// </summary>
 		[Display(Name = "Завершена")]
-		Completed
+		Completed,
+
+		/// <summary>
+		/// Отменяется
+		/// </summary>
+		[Display(Name = "Отменяется")]
+		InCancellation,
+
+		/// <summary>
+		/// Отменена
+		/// </summary>
+		[Display(Name = "Отменена")]
+		Cancelled
 	}
 }

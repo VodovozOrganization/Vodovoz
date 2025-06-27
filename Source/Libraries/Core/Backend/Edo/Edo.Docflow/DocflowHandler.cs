@@ -219,7 +219,6 @@ namespace Edo.Docflow
 					break;
 
 				// аннулирование
-				// мапим на Problem
 				case EdoDocFlowStatus.WaitingForCancellation:
 					document.Status = EdoDocumentStatus.WaitingForCancellation;
 					break;
@@ -260,6 +259,40 @@ namespace Edo.Docflow
 			{
 				await _messageBus.Publish(message, cancellationToken);
 			}
+		}
+
+		public async Task HandleTransferDocumentCancellation(int taskId, string reason, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.QueryOver<TransferEdoDocument>()
+				.Where(x => x.TransferTaskId == taskId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogWarning("Документ для задачи трансфера №{TaskId} не найден.", taskId);
+				return;
+			}
+
+			if(document.Status == EdoDocumentStatus.Cancelled)
+			{
+				_logger.LogWarning("Документ для задачи трансфера №{TaskId} уже отменен.", taskId);
+				return;
+			}
+
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(taskId, cancellationToken);
+
+			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
+				.Where(x => x.Id == transferTask.TransferOrderId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			var message = new TaxcomDocflowRequestCancellationEvent
+			{
+				EdoAccount = transferOrder.Seller.TaxcomEdoAccountId,
+				DocumentId = document.Id,
+				CancellationReason = reason
+			};
+
+			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		public void Dispose()
