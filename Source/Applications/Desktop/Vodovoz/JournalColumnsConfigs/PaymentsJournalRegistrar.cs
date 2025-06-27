@@ -13,7 +13,9 @@ namespace Vodovoz.JournalColumnsConfigs
 	internal sealed class PaymentsJournalRegistrar : ColumnsConfigRegistrarBase<PaymentsJournalViewModel, PaymentJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<PaymentJournalNode> config) =>
-			config.AddColumn("№")
+			config.AddColumn("Код")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("№")
 					.AddTextRenderer(x => x.PaymentNum.ToString())
 				.AddColumn("Дата")
 					.AddTextRenderer(x => x.Date.ToShortDateString())
