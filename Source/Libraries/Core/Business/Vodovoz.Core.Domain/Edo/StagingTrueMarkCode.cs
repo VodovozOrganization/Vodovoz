@@ -19,15 +19,15 @@ namespace Vodovoz.Core.Domain.Edo
 		Genitive = "коде ЧЗ для промежуточного хранения",
 		GenitivePlural = "коды ЧЗ для промежуточного хранения")]
 	[HistoryTrace]
-	public class TrueMarkCodeStaging : PropertyChangedBase, IDomainObject
+	public class StagingTrueMarkCode : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private string _rawCode;
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
-		private TrueMarkCodeStagingType _codeType;
-		private TrueMarkCodeStagingRelatedDocumentType _relatedDocumentType;
+		private StagingTrueMarkCodeType _codeType;
+		private StagingTrueMarkCodeRelatedDocumentType _relatedDocumentType;
 		private int _relatedDocumentId;
 
 		/// <summary>
@@ -91,7 +91,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Тип кода
 		/// </summary>
 		[Display(Name = "Тип кода")]
-		public virtual TrueMarkCodeStagingType CodeType
+		public virtual StagingTrueMarkCodeType CodeType
 		{
 			get => _codeType;
 			set => SetField(ref _codeType, value);
@@ -101,7 +101,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Тип связанного документа
 		/// </summary>
 		[Display(Name = "Тип связанного документа")]
-		public virtual TrueMarkCodeStagingRelatedDocumentType RelatedDocumentType
+		public virtual StagingTrueMarkCodeRelatedDocumentType RelatedDocumentType
 		{
 			get => _relatedDocumentType;
 			set => SetField(ref _relatedDocumentType, value);
@@ -118,14 +118,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		public virtual string IdentificationCode =>
-			CodeType == TrueMarkCodeStagingType.Transport
+			CodeType == StagingTrueMarkCodeType.Transport
 			? RawCode
 			: $"01{GTIN}21{SerialNumber}";
 
-		public virtual IObservableList<TrueMarkCodeStaging> InnerCodes { get; set; }
-			= new ObservableList<TrueMarkCodeStaging>();
+		public virtual IObservableList<StagingTrueMarkCode> InnerCodes { get; set; }
+			= new ObservableList<StagingTrueMarkCode>();
 
-		public virtual void AddInnerCode(TrueMarkCodeStaging innerCode)
+		public virtual void AddInnerCode(StagingTrueMarkCode innerCode)
 		{
 			innerCode.ParentCodeId = Id;
 			InnerCodes.Add(innerCode);
@@ -153,7 +153,7 @@ namespace Vodovoz.Core.Domain.Edo
 		AccusativePlural = "типы кодов ЧЗ для промежуточного хранения",
 		Genitive = "типа кода ЧЗ для промежуточного хранения",
 		GenitivePlural = "типы кодов ЧЗ для промежуточного хранения")]
-	public enum TrueMarkCodeStagingType
+	public enum StagingTrueMarkCodeType
 	{
 		/// <summary>
 		/// Код экземпляра
@@ -185,7 +185,7 @@ namespace Vodovoz.Core.Domain.Edo
 		AccusativePlural = "типы связанных документов кодов ЧЗ для промежуточного хранения",
 		Genitive = "типе связанного документа кода ЧЗ для промежуточного хранения",
 		GenitivePlural = "типах связанных документов кодов ЧЗ для промежуточного хранения")]
-	public enum TrueMarkCodeStagingRelatedDocumentType
+	public enum StagingTrueMarkCodeRelatedDocumentType
 	{
 		/// <summary>
 		/// Строка талона погрузки

@@ -39,6 +39,7 @@ namespace Vodovoz.Application.TrueMark
 		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
 		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
 		private readonly ITrueMarkWaterIdentificationCodeFactory _trueMarkWaterIdentificationCodeFactory;
+		private readonly IStagingTrueMarkCodeFactory _stagingTrueMarkCodeFactory;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkWaterIdentificationCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodeRepository;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
@@ -57,6 +58,7 @@ namespace Vodovoz.Application.TrueMark
 			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
 			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,
 			ITrueMarkWaterIdentificationCodeFactory trueMarkWaterIdentificationCodeFactory,
+			IStagingTrueMarkCodeFactory stagingTrueMarkCodeFactory,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodeRepository,
 			IGenericRepository<TrueMarkProductCode> trueMarkProductCodeRepository,
 			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,
@@ -80,6 +82,8 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(trueMarkWaterGroupCodeFactory));
 			_trueMarkWaterIdentificationCodeFactory = trueMarkWaterIdentificationCodeFactory
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeFactory));
+			_stagingTrueMarkCodeFactory = stagingTrueMarkCodeFactory
+				?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeFactory));
 			_trueMarkWaterIdentificationCodeRepository = trueMarkWaterIdentificationCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeRepository));
 			_trueMarkProductCodeRepository = trueMarkProductCodeRepository
@@ -819,18 +823,20 @@ namespace Vodovoz.Application.TrueMark
 			return scannedCodesData;
 		}
 
-		public async Task<Result<TrueMarkCodeStaging>> CreateTrueMarkCodeStagingByScannedCodeUsingDataFromTrueMark(
+		public async Task<Result<StagingTrueMarkCode>> CreateTrueMarkCodeStagingByScannedCodeUsingDataFromTrueMark(
 			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
 			CancellationToken cancellationToken)
 		{
-			var codes = new List<TrueMarkCodeStaging>();
+			var codes = new List<StagingTrueMarkCode>();
 
 			var requestCodesData = CreateRequestCodesDataByScannedCodes(new List<string> { scannedCode });
 			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
 
 			if(requestCodesInstanseStatusesDataResult.IsFailure)
 			{
-				return Result.Failure<TrueMarkCodeStaging>(requestCodesInstanseStatusesDataResult.Errors);
+				return Result.Failure<StagingTrueMarkCode>(requestCodesInstanseStatusesDataResult.Errors);
 			}
 
 			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
@@ -840,7 +846,7 @@ namespace Vodovoz.Application.TrueMark
 				var requestCode = codeInstanseStatusData.Key;
 				var instanceStatus = codeInstanseStatusData.Value;
 
-				var code = new TrueMarkCodeStaging();
+				StagingTrueMarkCode code = null;
 				TrueMarkWaterCode parsedCode = null;
 
 				if(requestCodesData.TryGetValue(requestCode, out var requestCodeData))
@@ -851,60 +857,19 @@ namespace Vodovoz.Application.TrueMark
 				switch(instanceStatus.GeneralPackageType)
 				{
 					case GeneralPackageType.Box:
-						{
-							code.CodeType = TrueMarkCodeStagingType.Transport;
-							code.RawCode = requestCode;
-						}
+						code = _stagingTrueMarkCodeFactory.CreateTransportCodeFromRawCode(requestCode, relatedDocumentType, relatedDocumentId);
 						break;
 					case GeneralPackageType.Group:
-						{
-							code.CodeType = TrueMarkCodeStagingType.Group;
-
-							if(parsedCode != null)
-							{
-								code.RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length));
-								code.GTIN = parsedCode.GTIN;
-								code.SerialNumber = parsedCode.SerialNumber;
-								code.CheckCode = parsedCode.CheckCode;
-							}
-							else
-							{
-								var identificationCode = instanceStatus.IdentificationCode;
-
-								var serialNumber = identificationCode
-									.Replace(instanceStatus.Gtin, "")
-									.Replace("0121", "");
-
-								code.RawCode = "\\u001d" + identificationCode + "\\u001d";
-								code.GTIN = instanceStatus.Gtin;
-								code.SerialNumber = serialNumber;
-							}
-						}
+						code =
+							parsedCode != null
+							? _stagingTrueMarkCodeFactory.CreateGroupCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId)
+							: _stagingTrueMarkCodeFactory.CreateGroupCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId);						
 						break;
 					case GeneralPackageType.Unit:
-						{
-							code.CodeType = TrueMarkCodeStagingType.Identification;
-
-							if(parsedCode != null)
-							{
-								code.RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length));
-								code.GTIN = parsedCode.GTIN;
-								code.SerialNumber = parsedCode.SerialNumber;
-								code.CheckCode = parsedCode.CheckCode;
-							}
-							else
-							{
-								var identificationCode = instanceStatus.IdentificationCode;
-
-								var serialNumber = identificationCode
-									.Replace(instanceStatus.Gtin, "")
-									.Replace("0121", "");
-
-								code.RawCode = "\\u001d" + identificationCode + "\\u001d";
-								code.GTIN = instanceStatus.Gtin;
-								code.SerialNumber = serialNumber;
-							}
-						}
+						code =
+							parsedCode != null
+							? _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId)
+							: _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId);
 						break;
 					default:
 						code = null;
