@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.Entity;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -37,7 +39,11 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Id = GetReferenceId(obj),
 					CatalogueType = this.Name
 				};
-			item.Reference = CreateReferenceTo(obj);	
+			item.Reference = CreateReferenceTo(obj);
+
+			item.Reference.Properties.Add(
+				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString()));
+			
 			item.Properties.AddRange(GetProperties(obj));
 			exportData.Objects.Add(item);
 		}

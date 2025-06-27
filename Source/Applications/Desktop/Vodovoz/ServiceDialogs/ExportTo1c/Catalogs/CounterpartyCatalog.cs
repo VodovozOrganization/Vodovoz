@@ -25,11 +25,32 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				exportData.Errors.Add($"Для контрагента {counterparty.Id} - '{counterparty.Name}' не заполнен ИНН.");
 
 			int id = GetReferenceId(counterparty);
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("ИНН",
 					Common1cTypes.String,
-			                     counterparty.INN)
+					counterparty.INN)
 			);
+
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				referenceNode.Properties.Add(
+					new PropertyNode("КПП",
+						Common1cTypes.String,
+						counterparty.KPP));
+
+				referenceNode.Properties.Add(
+					new PropertyNode("Наименование",
+						Common1cTypes.String,
+						counterparty.Name));
+				
+				referenceNode.Properties.Add(
+					new PropertyNode("НаименованиеПолное",
+						Common1cTypes.String,
+						counterparty.FullName
+					));
+			}
+			
+			return referenceNode;
 		}
 
 		protected override PropertyNode[] GetProperties(Counterparty counterparty)
@@ -41,12 +62,15 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 
-			properties.Add(
-				new PropertyNode("Наименование",
-					Common1cTypes.String,
-					counterparty.Name
-				)
-			);
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("Наименование",
+						Common1cTypes.String,
+						counterparty.Name
+					)
+				);
+			}
 
 			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
 			{
@@ -123,20 +147,26 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					)
 				);
 			}
-			
-			properties.Add(
-				new PropertyNode("НаименованиеПолное",
-					Common1cTypes.String,
-					counterparty.FullName
-				)
-			);
 
-			properties.Add(
-				new PropertyNode("КПП",
-					Common1cTypes.String,
-					counterparty.KPP
-				)
-			);
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("НаименованиеПолное",
+						Common1cTypes.String,
+						counterparty.FullName
+					)
+				);
+			}
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("КПП",
+						Common1cTypes.String,
+						counterparty.KPP
+					)
+				);
+			}
 
 			if(counterparty.MainCounterparty != null && counterparty.MainCounterparty.PersonType != PersonType.natural)
 			{

@@ -13,13 +13,18 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 		public static readonly string InvoiceDocument = "ДокументСсылка.СчетФактураВыданный";
 		public static readonly string EnumNaturalOrLegal = "ПеречислениеСсылка.ЮридическоеФизическоеЛицо";
 		public static readonly string EnumWarehouseTypes = "ПеречислениеСсылка.ТипыСкладов";
+		public static readonly string EnumNomenclatureTypes = "ПеречислениеСсылка.ТипыНоменклатуры";
 		public static readonly string EnumInvoiceType = "ПеречислениеСсылка.ВидСчетаФактурыВыставленного";
 
 		public static string Vat(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "СправочникСсылка.СтавкиНДС"
 			: "ПеречислениеСсылка.СтавкиНДС";
 		
-		public static readonly string EnumVATTypes = "ПеречислениеСсылка.ВидыСтавокНДС";
+		public static readonly string ReferenceCountry = "СправочникСсылка.СтраныМира";
+		
+		public static string EnumVATTypes (Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
+		? "СправочникСсылка.СтавкиНДС"	
+		: "ПеречислениеСсылка.ВидыСтавокНДС";
 
 		public static string EnumContractType(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "ПеречислениеСсылка.ТипыДоговоров"
@@ -28,8 +33,6 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 		public static string ReferenceAccount(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "СправочникСсылка.БанковскиеСчетаКонтрагентов"
 			: "СправочникСсылка.БанковскиеСчета"; 
-		
-		public static readonly string ReferenceCountry = "СправочникСсылка.СтраныМира";
 		
 		public static string ReferenceBank(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "КлассификаторБанков"

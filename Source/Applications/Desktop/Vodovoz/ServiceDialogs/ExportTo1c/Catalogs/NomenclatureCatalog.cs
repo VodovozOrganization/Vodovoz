@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
@@ -59,7 +59,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				);
 			}
 
-			if (nomenclature.Unit != null)
+			if(nomenclature.Unit != null)
 			{
 				properties.Add(
 					new PropertyNode("ЕдиницаИзмерения",
@@ -76,6 +76,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					)
 				);
 			}
+			
 			properties.Add(
 				new PropertyNode("Описание",
 					Common1cTypes.String
@@ -95,7 +96,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 
 			properties.Add(
 				new PropertyNode(vatName,
-					Common1cTypes.EnumVATTypes,
+					Common1cTypes.EnumVATTypes(exportData.ExportMode),
 					vat
 				)
 			);

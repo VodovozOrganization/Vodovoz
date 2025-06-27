@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -112,7 +112,8 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String,
 					ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")),
+				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString())
 			);
 
 			exportInvoiceDocument.Properties.Add(
@@ -200,6 +201,7 @@ namespace Vodovoz.ExportTo1c
 					Common1cTypes.Numeric
 				)
 			);
+			
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Контрагент",
 					Common1cTypes.ReferenceCounterparty,
@@ -230,7 +232,8 @@ namespace Vodovoz.ExportTo1c
 			};
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")),
+				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString())
 			);
 
 			var exportGoodsTable = new TableNode {
@@ -381,7 +384,11 @@ namespace Vodovoz.ExportTo1c
 					new PropertyNode(
 						"Дата", 
 						Common1cTypes.Date,
-						order.DeliveryDate.Value.Date.ToString("s"))
+						order.DeliveryDate.Value.Date.ToString("s")),
+					new PropertyNode(
+						"{УникальныйИдентификатор}",
+						Common1cTypes.String,
+						Guid.NewGuid().ToString())
 				);
 
 				var exportGoodsTable = new TableNode
@@ -579,6 +586,16 @@ namespace Vodovoz.ExportTo1c
 						Common1cTypes.Numeric
 					)
 				);
+			}
+
+			if(ExportMode == Export1cMode.ComplexAutomation)
+			{
+				record.Properties.Add(
+					new PropertyNode(
+						"СуммаРучнойСкидки",
+						Common1cTypes.Numeric,
+						orderItem.DiscountMoney
+					));
 			}
 
 			if(!isService) 

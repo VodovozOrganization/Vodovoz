@@ -36,6 +36,16 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ТипНоменклатуры",
+						Common1cTypes.EnumNomenclatureTypes,
+						nomenclatureType1c.Name
+					)
+				);
+			}
+
 			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
 			{
 				properties.Add(
