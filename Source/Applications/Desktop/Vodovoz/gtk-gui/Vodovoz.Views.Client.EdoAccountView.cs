@@ -88,7 +88,6 @@ namespace Vodovoz.Views.Client
 			this.vboxCopyParametersFromOther.Add(this.menuBtnCopyParametersFrom);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxCopyParametersFromOther[this.menuBtnCopyParametersFrom]));
 			w2.Position = 1;
-			w2.Expand = false;
 			w2.Fill = false;
 			this.hboxMain.Add(this.vboxCopyParametersFromOther);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxCopyParametersFromOther]));
@@ -110,7 +109,7 @@ namespace Vodovoz.Views.Client
 			w4.TopAttach = ((uint)(4));
 			w4.BottomAttach = ((uint)(5));
 			w4.RightAttach = ((uint)(4));
-			w4.YPadding = ((uint)(5));
+			w4.YPadding = ((uint)(12));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableAccount.Gtk.Table+TableChild
@@ -286,7 +285,6 @@ namespace Vodovoz.Views.Client
 			this.vboxDeleteWdget.Add(this.btnRemoveEdoAccount);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDeleteWdget[this.btnRemoveEdoAccount]));
 			w18.Position = 1;
-			w18.Expand = false;
 			w18.Fill = false;
 			this.hboxMain.Add(this.vboxDeleteWdget);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxDeleteWdget]));
