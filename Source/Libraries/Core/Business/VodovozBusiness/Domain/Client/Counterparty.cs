@@ -564,6 +564,12 @@ namespace Vodovoz.Domain.Client
 			return CounterpartyEdoAccounts
 				.FirstOrDefault(x => x.OrganizationId == organizationId && x.IsDefault);
 		}
+		
+		public virtual CounterpartyEdoAccount EdoAccount(int organizationId, string account)
+		{
+			return CounterpartyEdoAccounts
+				.SingleOrDefault(x => x.OrganizationId == organizationId && x.PersonalAccountIdInEdo == account);
+		}
 
 		public override bool LegalAndHasAnyDefaultAccountAgreedForEdo =>
 			PersonType == PersonType.legal
