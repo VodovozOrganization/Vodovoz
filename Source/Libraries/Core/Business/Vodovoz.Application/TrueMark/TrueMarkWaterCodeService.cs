@@ -1,7 +1,4 @@
-﻿using iTextSharp.text.pdf;
-using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
-using OneOf.Types;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -20,7 +17,6 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
@@ -340,8 +336,8 @@ namespace Vodovoz.Application.TrueMark
 				   .Get(
 					   uow,
 					   x => x.GTIN == parsedCode.GTIN
-					        && x.SerialNumber == parsedCode.SerialNumber
-					        && !x.IsInvalid,
+							&& x.SerialNumber == parsedCode.SerialNumber
+							&& !x.IsInvalid,
 					   1)
 				   .FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
 			{
@@ -353,8 +349,8 @@ namespace Vodovoz.Application.TrueMark
 				   .Get(
 					   uow,
 					   x => x.GTIN == parsedCode.GTIN
-					        && x.SerialNumber == parsedCode.SerialNumber
-					        && !x.IsInvalid,
+							&& x.SerialNumber == parsedCode.SerialNumber
+							&& !x.IsInvalid,
 					   1)
 				   .FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
 			{
@@ -463,7 +459,7 @@ namespace Vodovoz.Application.TrueMark
 				if(trueMarkAnyCode.IsTrueMarkTransportCode)
 				{
 					var innerCodes = createCodesResult.Value.ToArray();
-					
+
 					foreach(var innerCode in innerCodes)
 					{
 						if(innerCode.IsTrueMarkTransportCode)
@@ -756,7 +752,7 @@ namespace Vodovoz.Application.TrueMark
 				{
 					codes.Add(trueMarkAnyCode);
 				}
-				
+
 				if(!requestCodesData.TryGetValue(requestCode, out var scannedCodeData))
 				{
 					continue;
@@ -878,7 +874,8 @@ namespace Vodovoz.Application.TrueMark
 					.Where(x => x.GeneralPackageType != GeneralPackageType.Unit)
 					.SelectMany(x => x.Childs)
 					.ToList();
-			};
+			}
+			;
 
 			return result;
 		}
@@ -970,11 +967,6 @@ namespace Vodovoz.Application.TrueMark
 			if(existingRootCodeResult.IsFailure)
 			{
 				var error = createCodeResult.Errors.FirstOrDefault();
-				return Result.Failure<IEnumerable<StagingTrueMarkCode>>(error);
-			}
-
-			if(existingRootCodeResult.Value.Any())
-			{
 				return Result.Failure<IEnumerable<StagingTrueMarkCode>>(error);
 			}
 
