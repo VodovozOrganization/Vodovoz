@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,13 +15,15 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Api.Contracts.Dto;
+using TrueMark.Api.Contracts.Requests;
+using TrueMark.Api.Contracts.Responses;
+using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
-using TrueMark.Api.Responses;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
-using TrueMark.Api.Extensions;
 
 namespace TrueMark.Api.Controllers;
 
@@ -269,9 +272,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<byte[]> Sign(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 	{
-		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
-
-		return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
+		return await SignDocument(data, isDeatchedSign, certificateThumbPrint, inn);
 	}
 
 	[HttpGet]
@@ -296,6 +297,74 @@ public class TrueMarkApiController : ControllerBase
 			};
 		}
 	}
+
+	/// <summary>
+	/// Отправка документа вывода из оборота
+	/// </summary>
+	/// <param name="documentData">Данные документа</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns>GUID документа в ЧЗ</returns>
+	[HttpPost]
+	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
+	{
+		var uri = $"lk/documents/create?pg=water";
+
+		var document = documentData.Document;
+		var inn = documentData.Inn;
+
+		try
+		{
+			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
+
+			var sign = await SignDocument(document, true, certificateThumbPrint, inn);
+
+			var documentToSend = new SendDocumentDto
+			{
+				DocumentFormat = "MANUAL",
+				Type = "LK_RECEIPT",
+				ProductDocument = Convert.ToBase64String(Encoding.UTF8.GetBytes(document)),
+				Signature = Convert.ToBase64String(sign)
+			};
+
+			var httpContent = new StringContent(JsonSerializer.Serialize(documentToSend), Encoding.UTF8, "application/json");
+
+			var token = await _authorizationService.Login(certificateThumbPrint, inn);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			var responseResult = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+			responseResult.EnsureSuccessStatusCode();
+
+			var documentId = await responseResult.Content.ReadAsStringAsync(cancellationToken);
+
+			return new ContentResult
+			{
+				Content = documentId,
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status200OK
+			};
+		}
+		catch(Exception e)
+		{
+			_logger.LogError(e, "Ошибка при отправке документа вывода из оборота");
+
+			return new ContentResult
+			{
+				Content = $"Не удалось выполнить отправку документа вывода из оборота. Ошибка: {e.Message}",
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status500InternalServerError
+			};
+		}
+	}
+
+	private async Task<byte[]> SignDocument(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
+	{
+		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);
+
+		return await _authorizationService.CreateAttachedSignedCmsWithStore2012_256(data, isDeatchedSign, currentCert.CertPath, currentCert.CertPwd);
+	}
+
+	private string GetCertificateThumbPrintByInn(string inn) =>
+		_options.Value.OrganizationCertificates.Where(c => c.Inn == inn).Select(x => x.CertificateThumbPrint).SingleOrDefault();
 
 	private static List<Task<Response<ProductInstanceInfoResponse>>> CreateRequestsTasks(
 		IRequestClient<ProductInstanceInfoRequest> requestClient,

@@ -4,6 +4,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -20,6 +21,7 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private int _id;
 		private DateTime _version;
+		private EmployeeEntity _author;
 		private RouteListEntity _routeList;
 		private CarLoadDocumentLoadOperationState _loadOperationState;
 		private IObservableList<CarLoadDocumentItemEntity> _items = new ObservableList<CarLoadDocumentItemEntity>();
@@ -45,14 +47,12 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _version, value);
 		}
 
-		/// <summary>
-		/// Статус талона погрузки
-		/// </summary>
-		[Display(Name = "Статус талона погрузки")]
-		public virtual CarLoadDocumentLoadOperationState LoadOperationState
+
+		[Display(Name = "Автор")]
+		public virtual EmployeeEntity Author
 		{
-			get => _loadOperationState;
-			set => SetField(ref _loadOperationState, value);
+			get => _author;
+			set => SetField(ref _author, value);
 		}
 
 		/// <summary>
@@ -63,6 +63,16 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _routeList;
 			set => SetField(ref _routeList, value);
+		}
+
+		/// <summary>
+		/// Статус талона погрузки
+		/// </summary>
+		[Display(Name = "Статус талона погрузки")]
+		public virtual CarLoadDocumentLoadOperationState LoadOperationState
+		{
+			get => _loadOperationState;
+			set => SetField(ref _loadOperationState, value);
 		}
 
 		/// <summary>

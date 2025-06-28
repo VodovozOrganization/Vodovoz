@@ -28,7 +28,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Taxcom.Docflow.Utility;
-using Vodovoz.Core.Domain.Documents;
+using Edo.Withdrawal;
 
 namespace CustomTaskDebugExecutor
 {
@@ -104,6 +104,7 @@ namespace CustomTaskDebugExecutor
 				.AddEdoTransferDispatcherServices()
 				.AddEdoTransferRoutineServices()
 				.AddEdoTransferSenderServices()
+				.AddEdoWithdrawalService()
 				;
 
 			services.AddScoped<EdoExecutor>();

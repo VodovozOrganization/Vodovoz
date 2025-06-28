@@ -431,6 +431,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
@@ -2092,6 +2093,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
+    <Compile Include="Views\Edo\TenderEdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
+    <Compile Include="Views\TrueMark\OrderCodesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsView.cs" />
     <Compile Include="Views\Client\EdoAccountView.cs" />
@@ -2101,10 +2106,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Cash\Payments\" />
     <Folder Include="Dialogs\Cash\Payments\" />
+    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

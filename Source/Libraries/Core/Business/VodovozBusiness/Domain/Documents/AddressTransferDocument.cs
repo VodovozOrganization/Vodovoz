@@ -6,6 +6,7 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents

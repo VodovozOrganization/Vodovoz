@@ -459,6 +459,8 @@
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReport.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportRow.cs" />
     <Compile Include="Transport\Reports\IncorrectFuel\IncorrectFuelReportViewModel.cs" />
+    <Compile Include="TrueMark\OrderCodeItemViewModel.cs" />
+    <Compile Include="TrueMark\OrderCodesViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
@@ -490,6 +492,7 @@
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
+    <Compile Include="ViewModels\Edo\TenderEdoViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />

@@ -100,7 +100,7 @@ using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz
 {
@@ -113,7 +113,7 @@ namespace Vodovoz
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditClientRefer =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.Counterparty.CanEditClientRefer);
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -459,6 +459,11 @@ namespace Vodovoz
 			{
 				Entity.Referrer = null;
 			}
+			
+			if(e.PropertyName == nameof(Entity.PersonType))
+			{
+				OnPersonTypeChanged();
+			}
 		}
 
 		private void ConfigureTabInfo()
@@ -575,10 +580,7 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			DelayDaysForBuyerValue.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"can_change_delay_days_for_buyers_and_chain_store");
-
+			
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -796,6 +798,16 @@ namespace Vodovoz
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void OnPersonTypeChanged()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.DelayDaysForBuyers = Entity.PersonType == PersonType.legal ? 7 : 0;
 		}
 
 		private void UpdateCounterpartyClassificationValues()
@@ -1426,7 +1438,7 @@ namespace Vodovoz
 			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
-				.Where(c => c.Type == Type.Upd
+				.Where(c => c.Type == DocumentContainerType.Upd
 					&& !c.IsIncoming
 					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Select(c => c.Order.Id)

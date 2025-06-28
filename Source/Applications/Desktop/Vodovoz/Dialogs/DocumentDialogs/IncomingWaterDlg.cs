@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -6,8 +7,8 @@ using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -25,7 +26,7 @@ namespace Vodovoz
 	public partial class IncomingWaterDlg : QS.Dialog.Gtk.EntityDialogBase<IncomingWater>
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		static ILogger<IncomingWaterDlg> _logger;
 		private IEmployeeRepository _employeeRepository;
 		private IUserRepository _userRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
@@ -39,8 +40,8 @@ namespace Vodovoz
 			ResolveDependencies();
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null)
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -68,6 +69,7 @@ namespace Vodovoz
 
 		private void ResolveDependencies()
 		{
+			_logger = _lifetimeScope.Resolve<ILogger<IncomingWaterDlg>>();
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
 			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
@@ -105,7 +107,7 @@ namespace Vodovoz
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
@@ -181,17 +183,17 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info("Сохраняем документ производства...");
+			_logger.LogInformation("Сохраняем документ производства...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 

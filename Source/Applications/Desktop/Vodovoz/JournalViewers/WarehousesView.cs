@@ -7,7 +7,7 @@ using QS.Navigation;
 using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalViewers

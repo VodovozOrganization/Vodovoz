@@ -1,4 +1,5 @@
-using Autofac;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
@@ -12,12 +13,11 @@ using System.Linq;
 using Vodovoz.Additions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
@@ -40,7 +40,7 @@ namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
 	{
-		private static NLog.Logger _logger;
+		private static ILogger<CarUnloadDocumentDlg> _logger;
 
 		private INomenclatureSettings _nomenclatureSettings;
 
@@ -105,8 +105,8 @@ namespace Vodovoz
 
 		private void ResolveDependencies()
 		{
-			_logger = NLog.LogManager.GetCurrentClassLogger();
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_logger = _lifetimeScope.Resolve<ILogger<CarUnloadDocumentDlg>>();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
@@ -128,8 +128,8 @@ namespace Vodovoz
 		private void ConfigureNewDoc()
 		{
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null)
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -287,9 +287,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
@@ -300,9 +300,9 @@ namespace Vodovoz
 				Entity.RouteList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
 			}
 
-			_logger.Info("Сохраняем разгрузочный талон...");
+			_logger.LogInformation("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save();
-			_logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 
@@ -428,7 +428,7 @@ namespace Vodovoz
 						continue;
 				}
 
-				_logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
+				_logger.LogWarning("Номенклатура {@Nomenclature} не найдена в заказах мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
 				var newItem = new ReceptionItemNode(item);
 				returnsreceptionview.AddItem(newItem);
 			}

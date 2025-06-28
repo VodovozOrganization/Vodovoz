@@ -4,10 +4,10 @@ using NUnit.Framework;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 using System.Linq;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace VodovozBusinessTests.Domain.Documents
 {

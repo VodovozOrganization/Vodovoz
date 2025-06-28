@@ -14,13 +14,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Print;
@@ -117,7 +117,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CurrentUser.IsAdmin;
 
 			var instancePermissionResult =
@@ -510,12 +510,12 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			if(UoW.IsNew)
 			{
-				Entity.Author = CurrentEmployee;
+				Entity.AuthorId = CurrentEmployee?.Id;
 				Entity.TimeStamp = DateTime.Now;
 			}
 			else
 			{
-				if(Entity.LastEditor == null)
+				if(Entity.LastEditorId == null)
 				{
 					throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				}
@@ -523,7 +523,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			CreatePurchasePrices();
 
-			Entity.LastEditor = CurrentEmployee;
+			Entity.LastEditorId = CurrentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
 

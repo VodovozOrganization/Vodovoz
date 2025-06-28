@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders.Documents;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			var documents = UoW.GetAll<EdoContainer>()
 				.Where(x => 
 					x.Counterparty.Id == Entity.Id
-					&& x.Type == Type.Upd
+					&& x.Type == DocumentContainerType.Upd
 					&& !x.IsIncoming
 					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Succeed
 					&& x.Created >= startDate
@@ -126,7 +126,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 					}
 				}
 
-				_edoService.SetNeedToResendEdoDocumentForOrder(order, Type.Upd);
+				_edoService.SetNeedToResendEdoDocumentForOrder(order, DocumentContainerType.Upd);
 			}
 
 			Close(false, CloseSource.Cancel);

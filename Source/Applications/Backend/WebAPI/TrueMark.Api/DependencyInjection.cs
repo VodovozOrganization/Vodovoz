@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +11,6 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
-using TrueMark.Api.Controllers;
 using TrueMark.Api.Options;
 using TrueMark.Api.Services.Authorization;
 using Microsoft.Extensions.Options;
