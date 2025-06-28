@@ -53,6 +53,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 			.AddTrueMarkApiClient()
 			.AddOrderServicesDependencies()
 		;

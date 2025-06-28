@@ -1,7 +1,10 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -29,6 +32,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private StagingTrueMarkCodeType _codeType;
 		private StagingTrueMarkCodeRelatedDocumentType _relatedDocumentType;
 		private int _relatedDocumentId;
+		private OrderItemEntity _orderItem;
 
 		/// <summary>
 		/// Идентификатор
@@ -50,7 +54,6 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Необработанный код
 		/// </summary>
-		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
 		{
 			get => _rawCode;
@@ -117,6 +120,16 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _relatedDocumentId, value);
 		}
 
+		/// <summary>
+		/// Строка заказа
+		/// </summary>
+		[Display(Name = "Строка заказа")]
+		public virtual OrderItemEntity OrderItem
+		{
+			get => _orderItem;
+			set => SetField(ref _orderItem, value);
+		}
+
 		public virtual string IdentificationCode =>
 			CodeType == StagingTrueMarkCodeType.Transport
 			? RawCode
@@ -137,6 +150,74 @@ namespace Vodovoz.Core.Domain.Edo
 			{
 				innerCode.ParentCodeId = Id;
 			}
+		}
+
+		public virtual bool IsTransport =>
+			CodeType == StagingTrueMarkCodeType.Transport;
+		public virtual bool IsGroup =>
+			CodeType == StagingTrueMarkCodeType.Group;
+		public virtual bool IsIdentification =>
+			CodeType == StagingTrueMarkCodeType.Identification;
+
+		/// <summary>
+		/// Получаем все коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// </summary>
+		public virtual IList<StagingTrueMarkCode> AllCodes =>
+			AllTransportCodes
+			.Union(AllGroupCodes)
+			.Union(AllIdentificationCodes)
+			.ToList();
+
+		/// <summary>
+		/// Получаем все транспортные коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// </summary>
+		public virtual IList<StagingTrueMarkCode> AllTransportCodes =>
+			GetAllCodesOfType(this, StagingTrueMarkCodeType.Transport);
+
+		/// <summary>
+		/// Получаем все групповые коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// </summary>
+		public virtual IList<StagingTrueMarkCode> AllGroupCodes =>
+			GetAllCodesOfType(this, StagingTrueMarkCodeType.Group);
+
+		/// <summary>
+		/// Получаем все коды экземпляров, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// </summary>
+		public virtual IList<StagingTrueMarkCode> AllIdentificationCodes =>
+			GetAllCodesOfType(this, StagingTrueMarkCodeType.Identification);
+
+		private IList<StagingTrueMarkCode> GetAllCodesOfType(StagingTrueMarkCode code, StagingTrueMarkCodeType codeType)
+		{
+			var resultCodes = new List<StagingTrueMarkCode>();
+
+			if(code.CodeType == codeType)
+			{
+				resultCodes.Add(code);
+			}
+
+			foreach(var innerCode in code.InnerCodes)
+			{
+				resultCodes.AddRange(GetAllCodesOfType(innerCode, codeType));
+			}
+
+			return resultCodes;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if(obj is StagingTrueMarkCode code)
+			{
+				return IdentificationCode == code.IdentificationCode;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		public override int GetHashCode()
+		{
+			return -1155050507 + EqualityComparer<string>.Default.GetHashCode(IdentificationCode);
 		}
 	}
 

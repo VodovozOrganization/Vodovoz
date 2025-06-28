@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -71,7 +72,9 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <returns>Результат</returns>
 		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
-		Task<Result<StagingTrueMarkCode>> CreateTrueMarkCodeStagingByScannedCodeUsingDataFromTrueMark(string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
-			int relatedDocumentId, CancellationToken cancellationToken);
+		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+		Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(IUnitOfWork uow, IEnumerable<StagingTrueMarkCode> codes, CancellationToken cancellationToken);
+		Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(IUnitOfWork uow, StagingTrueMarkCode code, CancellationToken cancellationToken);
 	}
 }
