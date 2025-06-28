@@ -14,7 +14,6 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
-using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
@@ -35,14 +34,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms.VisualStyles;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -56,7 +53,6 @@ using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -133,6 +129,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
@@ -272,6 +269,7 @@ namespace Vodovoz
 		private IBottlesRepository _bottlesRepository;
 		private IDeliveryPointRepository _deliveryPointRepository;
 		private IOrderContractUpdater _orderContractUpdater;
+		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -409,6 +407,8 @@ namespace Vodovoz
 				}
 			}
 		}
+		
+		public Organization Organization => Contract?.Organization;
 
 		public DeliveryPoint DeliveryPoint
 		{
@@ -638,6 +638,7 @@ namespace Vodovoz
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
 			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
+			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -2644,7 +2645,7 @@ namespace Vodovoz
 
 			if(_emailAddressForBill == null
 			   && _emailService.NeedSendBillToEmail(UoW, Entity)
-			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
 				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
@@ -2669,7 +2670,7 @@ namespace Vodovoz
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
 
-			edoLightsMatrixViewModel.RefreshLightsMatrix(Counterparty);
+			edoLightsMatrixViewModel.RefreshLightsMatrix(CurrentCounterpartyEdoAccount());
 
 			var edoLightsMatrixPaymentType = PaymentType == PaymentType.Cashless
 				? EdoLightsMatrixPaymentType.Cashless
@@ -2709,6 +2710,13 @@ namespace Vodovoz
 			}
 			
 			return Result.Success();
+		}
+
+		private CounterpartyEdoAccount CurrentCounterpartyEdoAccount()
+		{
+			var currentCounterpartyEdoAccount =
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Counterparty, Organization?.Id);
+			return currentCounterpartyEdoAccount;
 		}
 
 		private (bool SplitedOrder, Result Result) TryAcceptOrder()
@@ -4222,7 +4230,7 @@ namespace Vodovoz
 
 			if(_emailAddressForBill == null
 			   && _emailService.NeedSendBillToEmail(UoW, Entity)
-			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
 				return;

@@ -41,6 +41,9 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="mscorlib" />
+    <Reference Include="TISystems.TTC.CRM.BE">
+      <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutAuthorsViewModel.cs" />
@@ -460,8 +463,11 @@
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsByOrganizationViewModel.cs" />
+    <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
+    <Compile Include="ViewModels\Counterparty\EdoAccountViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\ExistingExternalCounterpartyNode.cs" />
     <Compile Include="ViewModels\Counterparty\ExternalCounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\ExternalCounterpartyMatchingViewModel.cs" />

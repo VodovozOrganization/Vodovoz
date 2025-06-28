@@ -56,8 +56,8 @@ namespace Vodovoz.Views.Client
 			this.vboxCounterpartyEdoAccounts.Add(this.notebookAccountsByOrganizations);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxCounterpartyEdoAccounts[this.notebookAccountsByOrganizations]));
 			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			//w1.Expand = false;
+			//w1.Fill = false;
 			// Container child vboxCounterpartyEdoAccounts.Gtk.Box+BoxChild
 			this.hboxEdoAccountsHandleBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEdoAccountsHandleBtns.Name = "hboxEdoAccountsHandleBtns";

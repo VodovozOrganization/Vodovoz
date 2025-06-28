@@ -1420,7 +1420,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual new bool IsNeedIndividualSetOnLoad =>
 			PaymentType == PaymentType.Cashless
-			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+			//&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
 
 		/// <summary>

@@ -385,7 +385,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 							Restrictions.Conjunction()
 								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
 								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
-								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
+								/*.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))*/
 						)
 						.Add(
 							Restrictions.Conjunction()

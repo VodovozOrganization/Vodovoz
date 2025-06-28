@@ -1212,7 +1212,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
-				.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+				//.And(() => counterpartyAlias.NeedSendBillByEdo && counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
 				.TransformUsing(Transformers.DistinctRootEntity);
 			
@@ -1326,7 +1326,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
-							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							//.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
@@ -1379,7 +1379,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
-							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							//.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
@@ -1462,7 +1462,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
-							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							//.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 							)
@@ -1730,7 +1730,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				{
 					additionalParametersRestriction.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
-						.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						//.Add(() => clientAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
 				}
 
@@ -2034,9 +2034,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(Restrictions.Disjunction()
 					.Add(() => (counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 								|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-								&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+								/*&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree*/)
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+						/*&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree*/))
 				.And(orderStatusRestriction)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.SetTimeout(120)

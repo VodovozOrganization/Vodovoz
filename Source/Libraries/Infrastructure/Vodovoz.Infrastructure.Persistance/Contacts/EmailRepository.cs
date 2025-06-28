@@ -152,7 +152,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 						||
 								(
-									isForBill && !order.Client.NeedSendBillByEdo || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
+									isForBill && !order.Client.NeedSendBillByEdo// || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
 								)
 								&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 

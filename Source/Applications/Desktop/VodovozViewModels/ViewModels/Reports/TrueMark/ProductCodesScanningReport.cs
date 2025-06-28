@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					 routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
 					 && routeListItem.Status == RouteListItemStatus.Completed
 					 && !(order.PaymentType == Domain.Client.PaymentType.Cashless
-						 && client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						 //&& client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 						 && client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
 					 && markedProductsInOrderCount > 0
 

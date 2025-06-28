@@ -123,7 +123,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual EmailTemplate GetEmailTemplate()
 		{
-			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+			var hasAgreeForEdo = false;//Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 
 			if( Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{

@@ -24,7 +24,9 @@ using RevenueService.Client;
 using Vodovoz.Application.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
+using Vodovoz.Application.Clients;
 using Vodovoz.Application.Receipts;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Receipts;
 
 namespace Vodovoz.Application
@@ -50,6 +52,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

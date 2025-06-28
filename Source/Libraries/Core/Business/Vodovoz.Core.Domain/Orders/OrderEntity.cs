@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -671,11 +672,20 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Проверка, является ли клиент по заказу сетевым покупателем
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
 		/// </summary>
-		public virtual bool IsNeedIndividualSetOnLoad =>
-			PaymentType == PaymentType.Cashless
-			&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
-		
+		public virtual bool IsNeedIndividualSetOnLoad(ICounterpartyEdoAccountEntityController edoAccountController)
+		{
+			if(Client is null)
+			{
+				return false;
+			}
+			
+			var edoAccount = edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Client, Contract?.Organization?.Id);
+			
+			return PaymentType == PaymentType.Cashless
+				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+		}
+
 		/// <summary>
 		/// Проверка на госзаказ
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
