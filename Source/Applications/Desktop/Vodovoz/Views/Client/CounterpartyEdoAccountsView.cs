@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using Gtk;
 using QS.Dialog;
@@ -8,16 +6,15 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Utilities;
 using QS.Views;
-using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.Views.Client
 {
 	[ToolboxItem(true)]
-	public partial class CounterpartyEdoAccountView : ViewBase<CounterpartyEdoAccountsViewModel>
+	public partial class CounterpartyEdoAccountsView : ViewBase<CounterpartyEdoAccountsViewModel>
 	{
-		public CounterpartyEdoAccountView(CounterpartyEdoAccountsViewModel viewModel) : base(viewModel)
+		public CounterpartyEdoAccountsView(CounterpartyEdoAccountsViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			Configure();
@@ -98,27 +95,6 @@ namespace Vodovoz.Views.Client
 			notebookAccountsByOrganizations.AppendPage(accountView, $"{organizationName}");
 			accountView.HeightRequest = 500;
 			accountView.Show();
-		}
-
-		private void OnEdoAccountsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			if(e.Action == NotifyCollectionChangedAction.Add)
-			{
-				ViewModel.AddEdoAccountCommand.Execute(null);
-				
-				//var accountView = new EdoAccountView(ViewModel.EdoAccountViewModelsByOrganizationId.Last());
-				//vboxEdoAccountsByOrganization.Add(accountView);
-				//accountView.Show();
-			}
-			else if(e.Action == NotifyCollectionChangedAction.Remove)
-			{
-				
-			}
-		}
-
-		protected override void OnDestroyed()
-		{
-			base.OnDestroyed();
 		}
 	}
 }

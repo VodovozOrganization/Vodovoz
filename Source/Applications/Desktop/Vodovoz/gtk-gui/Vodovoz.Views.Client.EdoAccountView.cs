@@ -84,7 +84,7 @@ namespace Vodovoz.Views.Client
 			this.menuBtnCopyParametersFrom.UseUnderline = true;
 			this.menuBtnCopyParametersFrom.UseMarkup = false;
 			this.menuBtnCopyParametersFrom.LabelXAlign = 0F;
-			this.menuBtnCopyParametersFrom.Label = global::Mono.Unix.Catalog.GetString("Скопировать данные\nоператора и кабинета");
+			this.menuBtnCopyParametersFrom.Label = global::Mono.Unix.Catalog.GetString("Вставить данные\nоператора и кабинета");
 			this.vboxCopyParametersFromOther.Add(this.menuBtnCopyParametersFrom);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vboxCopyParametersFromOther[this.menuBtnCopyParametersFrom]));
 			w2.Position = 1;

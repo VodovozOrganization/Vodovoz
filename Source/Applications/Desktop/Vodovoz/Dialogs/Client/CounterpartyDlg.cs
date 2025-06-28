@@ -399,7 +399,7 @@ namespace Vodovoz
 				new TypedParameter(typeof(ITdiTab), this)
 			);
 			
-			var accountsView = new CounterpartyEdoAccountView(_counterpartyEdoAccountsViewModel);
+			var accountsView = new CounterpartyEdoAccountsView(_counterpartyEdoAccountsViewModel);
 			vboxEdoAccounts.Add(accountsView);
 			accountsView.Show();
 		}

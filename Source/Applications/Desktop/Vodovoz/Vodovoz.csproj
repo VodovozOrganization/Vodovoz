@@ -2092,8 +2092,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
-    <Compile Include="Views\Client\CounterpartyEdoAccountView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountView.cs" />
+    <Compile Include="Views\Client\CounterpartyEdoAccountsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsView.cs" />
     <Compile Include="Views\Client\EdoAccountView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />

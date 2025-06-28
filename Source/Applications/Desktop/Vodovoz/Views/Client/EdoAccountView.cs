@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
+using Gtk;
 using QS.ViewModels.Control.EEVM;
 using QS.Views;
 using Vodovoz.Core.Domain.Clients;
@@ -15,6 +18,9 @@ namespace Vodovoz.Views.Client
 	[ToolboxItem(true)]
 	public partial class EdoAccountView : ViewBase<EdoAccountViewModel>
 	{
+		private Menu _menuCopyFrom;
+		private IDictionary<int, IList<MenuItem>> _menuItemsCopyFrom;
+		
 		public EdoAccountView(EdoAccountViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -28,7 +34,8 @@ namespace Vodovoz.Views.Client
 			radioBtnIsDefault.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsDefault, w => w.Active)
 				.InitializeFromSource();
-			
+
+			ConfigureMenuCopyFrom();
 			ybuttonCheckClientInTaxcom.BindCommand(ViewModel.CheckClientInTaxcomCommand);
 
 			InitializeEntries();
@@ -59,6 +66,48 @@ namespace Vodovoz.Views.Client
 			specialListCmbAllOperators.ItemSelected += OnAllOperatorsItemSelected;
 			
 			btnRemoveEdoAccount.BindCommand(ViewModel.RemoveEdoAccountCommand);
+		}
+
+		private void ConfigureMenuCopyFrom()
+		{
+			_menuItemsCopyFrom = new Dictionary<int, IList<MenuItem>>();
+			_menuCopyFrom = new Menu();
+			menuBtnCopyParametersFrom.Menu = _menuCopyFrom;
+
+			foreach(var edoAccountsByOrganizationId in ViewModel.Counterparty.CounterpartyEdoAccounts.ToLookup(x => x.OrganizationId))
+			{
+				if(ViewModel.Entity.OrganizationId == edoAccountsByOrganizationId.Key)
+				{
+					continue;
+				}
+
+				if(!_menuItemsCopyFrom.TryGetValue(edoAccountsByOrganizationId.Key.Value, out var menuItemsCopyFrom))
+				{
+					menuItemsCopyFrom = new List<MenuItem>();
+					_menuItemsCopyFrom.Add(edoAccountsByOrganizationId.Key.Value, menuItemsCopyFrom);
+				}
+				
+				var organization = ViewModel.UoW.GetById<Domain.Organizations.Organization>(edoAccountsByOrganizationId.Key.Value);
+				var menuItem = new MenuItem(organization.Name);
+				var menuItemMenu = new Menu();
+				menuItem.Submenu = menuItemMenu;
+				_menuCopyFrom.Add(menuItem);
+				var i = 1;
+				
+				foreach(var edoAccount in edoAccountsByOrganizationId)
+				{
+					var subItem = new MenuItem($"Аккаунт №{i}");
+					menuItemMenu.Add(subItem);
+					i++;
+				}
+			}
+			
+			_menuCopyFrom.ShowAll();
+
+			if(!_menuCopyFrom.Children.Any())
+			{
+				menuBtnCopyParametersFrom.Sensitive = false;
+			}
 		}
 
 		private void InitializeEntries()

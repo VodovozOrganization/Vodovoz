@@ -210,9 +210,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Error checking contact list");
+				_logger.LogError(
+					ex,
+					"Ошибка при проверке контрагента {Client} от организации {OrganizationId} в Такском",
+					Counterparty.Name,
+					Entity.OrganizationId);
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Ошибка при проверке контрагента в Такском.");
+					"Ошибка при проверке контрагента в Такском");
 
 				return;
 			}
@@ -220,12 +224,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			if(contactResult?.Contacts == null)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Контрагент не найден через Такском.");
+					"Контрагент не найден через Такском");
 
 				return;
 			}
 
-			//TODO: добавить запись статуса контакта
 			if(contactResult.Contacts.Length == 1)
 			{
 				var contactListItem = contactResult.Contacts[0];
@@ -235,7 +238,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				TryRefreshEdoLightsMatrix();
 
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"Оператор получен.");
+					"Оператор получен");
 
 				return;
 			}
@@ -262,7 +265,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			Entity.PersonalAccountIdInEdo = null;
 
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-				"У контрагента найдено несколько операторов, выберите нужный из списка.");
+				"У контрагента найдено несколько операторов, выберите нужный из списка");
 		}
 		
 		private void CheckConsentForEdo()
