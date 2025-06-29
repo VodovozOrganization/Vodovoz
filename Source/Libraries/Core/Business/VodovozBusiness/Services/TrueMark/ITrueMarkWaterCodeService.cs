@@ -74,7 +74,26 @@ namespace VodovozBusiness.Services.TrueMark
 		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
 		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Создает код ЧЗ для промежуточного хранения на основе отсканированного кода
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="orderItem">Строка заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат создания кода</returns>
 		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверят, что код ЧЗ для промежуточного хранения уже используется в кодах товаров
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
 		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
 	}
 }
