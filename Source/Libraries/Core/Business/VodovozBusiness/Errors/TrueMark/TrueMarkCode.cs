@@ -155,5 +155,11 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCode),
 				nameof(AggregatedCode),
 				"Код ЧЗ участвует в агрегации");
+
+		public static Error TrueMarkCodeIsAlreadyAdded =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeIsAlreadyAdded),
+				"Код ЧЗ уже был добавлен");
 	}
 }

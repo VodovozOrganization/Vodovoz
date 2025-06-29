@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -142,6 +143,17 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			innerCode.ParentCodeId = Id;
 			InnerCodes.Add(innerCode);
+		}
+
+		public virtual void RemoveInnerCode(StagingTrueMarkCode innerCode)
+		{
+			if(!InnerCodes.Contains(innerCode))
+			{
+				throw new InvalidOperationException(
+					$"Код {innerCode.IdentificationCode} не найден в списке вложенных кодов текущего кода {IdentificationCode}");
+			}
+
+			InnerCodes.Remove(innerCode);
 		}
 
 		public virtual void UpdateChildCodes()

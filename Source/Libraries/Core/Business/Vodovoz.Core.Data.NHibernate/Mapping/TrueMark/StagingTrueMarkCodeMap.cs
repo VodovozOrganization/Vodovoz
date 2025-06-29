@@ -3,9 +3,9 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 {
-	public class TrueMarkCodeStagingMap : ClassMap<StagingTrueMarkCode>
+	public class StagingTrueMarkCodeMap : ClassMap<StagingTrueMarkCode>
 	{
-		public TrueMarkCodeStagingMap()
+		public StagingTrueMarkCodeMap()
 		{
 			Table("true_mark_code_staging");
 

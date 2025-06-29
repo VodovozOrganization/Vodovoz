@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
+using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
@@ -946,6 +948,26 @@ namespace Vodovoz.Application.TrueMark
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
+				await CreateStagingTrueMarkCode(
+					uow,
+					scannedCode,
+					relatedDocumentType,
+					relatedDocumentId,
+					orderItem,
+					cancellationToken);
+
+			return Result.Success<IEnumerable<StagingTrueMarkCode>>(new List<StagingTrueMarkCode>());
+		}
+
+		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			OrderItemEntity orderItem,
+			CancellationToken cancellationToken = default)
+		{
+			var createCodeResult =
 				await CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 					scannedCode,
 					relatedDocumentType,
@@ -956,7 +978,7 @@ namespace Vodovoz.Application.TrueMark
 			if(createCodeResult.IsFailure)
 			{
 				var error = createCodeResult.Errors.FirstOrDefault();
-				return Result.Failure<IEnumerable<StagingTrueMarkCode>>(error);
+				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
 			var stagingTrueMarkCode = createCodeResult.Value;
@@ -967,10 +989,51 @@ namespace Vodovoz.Application.TrueMark
 			if(existingRootCodeResult.IsFailure)
 			{
 				var error = createCodeResult.Errors.FirstOrDefault();
-				return Result.Failure<IEnumerable<StagingTrueMarkCode>>(error);
+				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
-			return Result.Success<IEnumerable<StagingTrueMarkCode>>(new List<StagingTrueMarkCode>());
+			if(existingRootCodeResult.Value.Any())
+			{
+				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsAlreadyAdded);
+			}
+
+			var existingInnerCodesResult =
+				await GetSavedStagingTrueMarkCodesAddedToDocument(uow, stagingTrueMarkCode.AllCodes, cancellationToken);
+
+			if(existingInnerCodesResult.IsFailure)
+			{
+				var error = existingInnerCodesResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			if(existingInnerCodesResult.Value.Any())
+			{
+				foreach(var existingCode in existingInnerCodesResult.Value)
+				{
+					var getCodePredicate = StagingTrueMarkCodeSpecification.CreateForCode(existingCode).Expression.Compile();
+
+					var duplicatedAddingCode = stagingTrueMarkCode.AllCodes
+						.FirstOrDefault(getCodePredicate);
+
+					if(duplicatedAddingCode is null)
+					{
+						continue;
+					}
+
+					foreach(var code in stagingTrueMarkCode.AllCodes)
+					{
+						if(code.InnerCodes.Any(getCodePredicate))
+						{
+							code.RemoveInnerCode(duplicatedAddingCode);
+							code.AddInnerCode(existingCode);
+						}
+					}
+				}
+			}
+
+			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
+
+			return Result.Success(stagingTrueMarkCode);
 		}
 
 		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
@@ -996,7 +1059,7 @@ namespace Vodovoz.Application.TrueMark
 			{
 				if(instanceStatus.Status != ProductInstanceStatusEnum.Introduced)
 				{
-					return Result.Failure<StagingTrueMarkCode>(Errors.TrueMarkApi.CodeNotInCorrectStatus);
+					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced);
 				}
 
 				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
@@ -1052,9 +1115,9 @@ namespace Vodovoz.Application.TrueMark
 				parentCode?.AddInnerCode(code);
 			}
 
-			var topCode = codes.First(x => x.ParentCodeId == null);
+			var rootCode = codes.First(x => x.ParentCodeId == null);
 
-			return topCode;
+			return rootCode;
 		}
 
 		public async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
@@ -1086,13 +1149,10 @@ namespace Vodovoz.Application.TrueMark
 
 			foreach(var code in codes)
 			{
+				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForCode(code).Expression.Compile();
+
 				existingCodes.AddRange(addedCodesResult.Value
-					.Where(c => ((code.IsTransport && c.RawCode == code.RawCode)
-							|| (!code.IsTransport && c.GTIN == code.GTIN && c.SerialNumber == code.SerialNumber))
-						&& c.Id != code.Id
-						&& c.RelatedDocumentType == code.RelatedDocumentType
-						&& c.RelatedDocumentId == code.RelatedDocumentId
-						&& c.OrderItem.Id == code.OrderItem.Id)
+					.Where(existingCodesPredicate)
 					.ToList());
 			}
 
@@ -1106,12 +1166,7 @@ namespace Vodovoz.Application.TrueMark
 		{
 			return await _stagingTrueMarkCodeRepository.GetAsync(
 				uow,
-				c => ((code.IsTransport && c.RawCode == code.RawCode)
-						|| (!code.IsTransport && c.GTIN == code.GTIN && c.SerialNumber == code.SerialNumber))
-					&& c.Id != code.Id
-					&& c.RelatedDocumentType == code.RelatedDocumentType
-					&& c.RelatedDocumentId == code.RelatedDocumentId
-					&& c.OrderItem.Id == code.OrderItem.Id,
+				StagingTrueMarkCodeSpecification.CreateForCode(code),
 				cancellationToken: cancellationToken);
 		}
 	}
