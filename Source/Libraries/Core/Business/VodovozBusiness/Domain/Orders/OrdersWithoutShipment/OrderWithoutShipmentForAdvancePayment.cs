@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -174,7 +175,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
 

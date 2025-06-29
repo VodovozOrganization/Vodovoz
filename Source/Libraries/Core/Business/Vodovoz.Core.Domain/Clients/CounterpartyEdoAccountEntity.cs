@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
@@ -46,7 +47,14 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual string PersonalAccountIdInEdo
 		{
 			get => _personalAccountIdInEdo;
-			set => SetField(ref _personalAccountIdInEdo, value);
+			set
+			{
+				var cleanedId = value == null
+					? null
+					: Regex.Replace(value, @"\s+", string.Empty);
+
+				SetField(ref _personalAccountIdInEdo, cleanedId?.ToUpper());
+			}
 		}
 
 		/// <summary>

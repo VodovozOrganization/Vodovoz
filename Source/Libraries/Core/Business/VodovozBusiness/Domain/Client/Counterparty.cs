@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual new IList<Phone> Phones
+		public new virtual IList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "E-mail адреса")]
-		public virtual new IList<Email> Emails
+		public new virtual IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
@@ -209,7 +209,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "ЭДО аккаунты контрагента")]
-		public virtual IObservableList<CounterpartyEdoAccount> CounterpartyEdoAccounts
+		public new virtual IObservableList<CounterpartyEdoAccount> CounterpartyEdoAccounts
 		{
 			get => _counterpartyEdoAccounts;
 			set => SetField(ref _counterpartyEdoAccounts, value);
