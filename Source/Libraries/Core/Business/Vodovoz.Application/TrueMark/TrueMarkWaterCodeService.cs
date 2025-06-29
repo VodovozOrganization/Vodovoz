@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Domain.Client.Specifications;
@@ -47,6 +47,7 @@ namespace Vodovoz.Application.TrueMark
 		private readonly IGenericRepository<TrueMarkTransportCode> _trueMarkTransportCodeRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<OrganizationEntity> _organizationRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 
 		private IList<string> _organizationsInns;
@@ -67,6 +68,7 @@ namespace Vodovoz.Application.TrueMark
 			IGenericRepository<TrueMarkTransportCode> trueMarkTransportCodeRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<OrganizationEntity> organizationRepository,
+			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings)
 		{
 			_logger = logger
@@ -99,6 +101,8 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_organizationRepository = organizationRepository
 				?? throw new ArgumentNullException(nameof(organizationRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings
 				?? throw new ArgumentNullException(nameof(edoSettings));
 		}
@@ -939,27 +943,7 @@ namespace Vodovoz.Application.TrueMark
 			return result;
 		}
 
-		public virtual async Task<Result<IEnumerable<StagingTrueMarkCode>>> AddStagingTrueMarkCode(
-			IUnitOfWork uow,
-			string scannedCode,
-			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
-			int relatedDocumentId,
-			OrderItemEntity orderItem,
-			CancellationToken cancellationToken = default)
-		{
-			var createCodeResult =
-				await CreateStagingTrueMarkCode(
-					uow,
-					scannedCode,
-					relatedDocumentType,
-					relatedDocumentId,
-					orderItem,
-					cancellationToken);
-
-			return Result.Success<IEnumerable<StagingTrueMarkCode>>(new List<StagingTrueMarkCode>());
-		}
-
-		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
@@ -994,7 +978,7 @@ namespace Vodovoz.Application.TrueMark
 
 			if(existingRootCodeResult.Value.Any())
 			{
-				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsAlreadyAdded);
+				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate);
 			}
 
 			var existingInnerCodesResult =
@@ -1120,7 +1104,7 @@ namespace Vodovoz.Application.TrueMark
 			return rootCode;
 		}
 
-		public async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> codes,
 			CancellationToken cancellationToken)
@@ -1159,7 +1143,7 @@ namespace Vodovoz.Application.TrueMark
 			return existingCodes;
 		}
 
-		public async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
 			IUnitOfWork uow,
 			StagingTrueMarkCode code,
 			CancellationToken cancellationToken)
@@ -1168,6 +1152,22 @@ namespace Vodovoz.Application.TrueMark
 				uow,
 				StagingTrueMarkCodeSpecification.CreateForCode(code),
 				cancellationToken: cancellationToken);
+		}
+
+		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			var usedProductCodes =
+				await _trueMarkRepository.GetUsedTrueMarkProductCodeByStagingTrueMarkCode(uow, stagingTrueMarkCode, cancellationToken);
+
+			if(usedProductCodes.Any())
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed);
+			}
+
+			return Result.Success();
 		}
 	}
 }

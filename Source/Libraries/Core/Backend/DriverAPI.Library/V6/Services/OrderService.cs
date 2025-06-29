@@ -1144,188 +1144,65 @@ namespace DriverAPI.Library.V6.Services
 			OrderItem vodovozOrderItem,
 			string scannedCode,
 			SourceProductCodeStatus status,
-			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false)
+			CancellationToken cancellationToken)
 		{
-			var trueMarkCodeResult =
-				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
-
-			if(trueMarkCodeResult.IsFailure)
-			{
-				var error = trueMarkCodeResult.Errors.FirstOrDefault();
-
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			var aggregationValidationResult = _routeListItemTrueMarkProductCodesProcessingService.ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
-
-			if(aggregationValidationResult.IsFailure)
-			{
-				var error = aggregationValidationResult.Errors.FirstOrDefault();
-
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			try
-			{
-				trueMarkCodeResult.Value.Match(
-					transportCode =>
-					{
-						_uow.Save(transportCode);
-						return true;
-					},
-					waterGroupCode =>
-					{
-						_uow.Save(waterGroupCode);
-						return true;
-					},
-					waterIdentificationCode =>
-					{
-						_uow.Save(waterIdentificationCode);
-						return true;
-					});
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-
-				var error = Errors.UnitOfWork.CommitError;
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
-
-			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
-				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
-				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
-
-			var newIdentificationCodes = trueMarkAnyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.ToArray();
-
-			var newIdentificationCodesIds = newIdentificationCodes.Select(x => x.Id).ToArray();
-
-			var newCodesUsedInResult = _uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
-				.Where(x => newIdentificationCodesIds
-					.Contains(x.ResultCode.Id))
-				.ToArray();
-
-			var newCodesUsedInSource = _uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
-				.Where(x => newIdentificationCodesIds
-					.Contains(x.SourceCode.Id))
-				.ToArray();
-
-			var newCodesUsed = newCodesUsedInResult.Concat(newCodesUsedInSource).ToArray();
-
-			// Надо ли проверять наличие кода в погрузочниках или везде??
-
-			if(newCodesUsed.Length > 0)
-			{
-				var usedIdentificationCodes = newCodesUsed
-					.Select(x => x.ResultCode?.IdentificationCode
-						?? x.SourceCode?.IdentificationCode)
-					.ToArray();
-
-				_logger.LogWarning(
-					"Отсканированные коды уже использованы: {@IdentificationCodes}",
-					usedIdentificationCodes);
-
-				var error = Errors.TrueMark.CodesAlreadyInUse;
-
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message + ": " + string.Join(", ", usedIdentificationCodes)
-				});
-			}
-
-			NomenclatureTrueMarkCodesDto nomenclatureDto = null;
-
-			var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-			foreach(var trueMarkAnyCode in trueMarkAnyCodes)
-			{
-				trueMarkCodes.Add(trueMarkAnyCode.Match(
-					PopulateTransportCode(trueMarkAnyCodes),
-					PopulateGroupCode(trueMarkAnyCodes),
-					PopulateWaterCode(trueMarkAnyCodes)));
-
-				if(!trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
-				{
-					continue;
-				}
-
-				var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
+			var createCodeResult =
+				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
 					uow,
-					trueMarkAnyCode.TrueMarkWaterIdentificationCode,
-					routeListAddress,
+					scannedCode,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListAddress.Id,
 					vodovozOrderItem,
-					cancellationToken,
-					isCheckForCodeChange,
-					true);
+					cancellationToken);
 
-				if(codeCheckingResult.IsFailure)
+			if(createCodeResult.IsFailure)
+			{
+				var error = createCodeResult.Errors.FirstOrDefault();
+
+				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
 				{
-					uow.Session?.GetCurrentTransaction()?.Rollback();
-
-					var error = codeCheckingResult.Errors.FirstOrDefault();
-
-					var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-					return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-					{
-						Nomenclature = null,
-						Result = RequestProcessingResultTypeDto.Error,
-						Error = error.Message
-					});
-				}
-
-				_routeListItemTrueMarkProductCodesProcessingService
-					.AddTrueMarkCodeToRouteListItem(
-						uow,
-						routeListAddress,
-						vodovozOrderItem.Id,
-						trueMarkAnyCode.TrueMarkWaterIdentificationCode,
-						status,
-						ProductCodeProblem.None);
-
-				if(nomenclatureDto is null)
-				{
-					nomenclatureDto = _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(vodovozOrderItem, routeListAddress);
-				}
-
-				uow.Save(routeListAddress);
+					Nomenclature = null,
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message
+				});
 			}
+
+			var stagingTrueMarkCode = createCodeResult.Value;
+
+			var isCodeCanBeAddedResult =
+				await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
+					uow,
+					stagingTrueMarkCode,
+					vodovozOrderItem,
+					cancellationToken);
+
+			if(isCodeCanBeAddedResult.IsFailure)
+			{
+				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
+
+				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
+				{
+					Nomenclature = null,
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message
+				});
+			}
+
+			await uow.CommitAsync(cancellationToken);
+
+			var nomenclatureDto =
+				_orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(vodovozOrderItem, routeListAddress);
+
+			var trueMarkCodeDtos =
+				stagingTrueMarkCode.AllCodes.Select(PopulateStagingTrueMarkCodes(stagingTrueMarkCode.AllCodes));
 
 			if(nomenclatureDto != null)
 			{
-				nomenclatureDto.Codes = trueMarkCodes;
+				nomenclatureDto.Codes = trueMarkCodeDtos;
 			}
 
 			var successResponse = new TrueMarkCodeProcessingResultResponse
@@ -1334,12 +1211,7 @@ namespace DriverAPI.Library.V6.Services
 				Result = RequestProcessingResultTypeDto.Success,
 				Error = null
 			};
-
-			if(nomenclatureDto != null)
-			{
-				nomenclatureDto.Codes = trueMarkCodes;
-			}
-
+			
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
@@ -1535,8 +1407,7 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				newScannedCode,
 				status,
-				cancellationToken,
-				true);
+				cancellationToken);
 			
 			_uow.Save(routeListAddress);
 
@@ -1587,87 +1458,32 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		private static Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(IEnumerable<StagingTrueMarkCode> allCodes)
 		{
-			return waterCode =>
+			return stagingCode =>
 			{
 				string parentRawCode = null;
 
-				if(waterCode.ParentTransportCodeId != null)
+				if(stagingCode.ParentCodeId != null)
 				{
 					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
+						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
+						?.RawCode;
 				}
 
-				if(waterCode.ParentWaterGroupCodeId != null)
+				var level = stagingCode.CodeType switch
 				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
+					StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
+					StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
+					StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
+					_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel")
+				};
 
 				return new TrueMarkCodeDto
 				{
-					Code = waterCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.unit,
+					Code = stagingCode.RawCode,
+					Level = level,
 					Parent = parentRawCode,
-				};
-			};
-		}
-
-		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return groupCode =>
-			{
-				string parentRawCode = null;
-
-				if(groupCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				if(groupCode.ParentWaterGroupCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = groupCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.group,
-					Parent = parentRawCode
-				};
-			};
-		}
-
-		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return transportCode =>
-			{
-				string parentRawCode = null;
-
-				if(transportCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = transportCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.transport,
-					Parent = parentRawCode
 				};
 			};
 		}

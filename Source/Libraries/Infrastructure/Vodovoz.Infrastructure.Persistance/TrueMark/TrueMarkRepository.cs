@@ -311,5 +311,24 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			return (int)codesRequired;
 		}
+
+		public async Task<IEnumerable<TrueMarkProductCode>> GetUsedTrueMarkProductCodeByStagingTrueMarkCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from identificationCode in uow.Session.Query<TrueMarkWaterIdentificationCode>()
+				join tmpc in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals tmpc.ResultCode.Id into productCodes
+				from productCode in productCodes.DefaultIfEmpty()
+				where
+				productCode.Id != null
+				&& identificationCode.GTIN == stagingTrueMarkCode.GTIN
+				&& identificationCode.SerialNumber == stagingTrueMarkCode.SerialNumber
+				&& (productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted || productCode.SourceCodeStatus == SourceProductCodeStatus.Changed)
+				select productCode;
+
+			return await query.ToListAsync(cancellationToken);
+		}
 	}
 }

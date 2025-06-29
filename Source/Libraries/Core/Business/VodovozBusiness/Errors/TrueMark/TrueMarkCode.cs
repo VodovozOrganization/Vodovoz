@@ -156,10 +156,31 @@ namespace Vodovoz.Errors.TrueMark
 				nameof(AggregatedCode),
 				"Код ЧЗ участвует в агрегации");
 
-		public static Error TrueMarkCodeIsAlreadyAdded =>
+		/// <summary>
+		/// Код ЧЗ уже был добавлен
+		/// </summary>
+		public static Error StagingTrueMarkCodeDuplicate =>
 			new Error(
 				typeof(TrueMarkCode),
-				nameof(TrueMarkCodeIsAlreadyAdded),
+				nameof(StagingTrueMarkCodeDuplicate),
 				"Код ЧЗ уже был добавлен");
+
+		/// <summary>
+		/// В связанный документ уже были добавлены коды ЧЗ. Добавление кода для промежуточного хранения невозможно
+		/// </summary>
+		public static Error RelatedDocumentHasTrueMarkCodes =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(RelatedDocumentHasTrueMarkCodes),
+				"В связанный документ уже были добавлены коды ЧЗ. Добавление кода для промежуточного хранения невозможно");
+
+		/// <summary>
+		/// Суммарное количество кодов превышает необходимое для строки заказа
+		/// </summary>
+		public static Error TrueMarkCodesCountMoreThenInOrderItem =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodesCountMoreThenInOrderItem),
+				"Суммарное количество кодов превышает необходимое для строки заказа");
 	}
 }

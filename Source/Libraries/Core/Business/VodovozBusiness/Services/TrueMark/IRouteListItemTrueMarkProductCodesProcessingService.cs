@@ -28,7 +28,6 @@ namespace VodovozBusiness.Services.TrueMark
 		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItemEntity routeListAddress, int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
 
-		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, RouteListItem routeListAddress, OrderItem orderItem, CancellationToken cancellationToken, bool isCheckForCodeChange = false, bool skipCodeIntroducedAndHasCorrectInnCheck = false);
 		Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult);
 
 		/// <summary>
@@ -43,5 +42,14 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <returns>Результат операции</returns>
 		Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
 			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет может ли код ЧЗ для промежуточного хранения быть добавлен к строке МЛ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
+		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, OrderItem orderItem, CancellationToken cancellationToken);
 	}
 }

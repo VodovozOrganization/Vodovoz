@@ -74,8 +74,7 @@ namespace VodovozBusiness.Services.TrueMark
 		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
 		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
-		Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(IUnitOfWork uow, IEnumerable<StagingTrueMarkCode> codes, CancellationToken cancellationToken);
-		Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(IUnitOfWork uow, StagingTrueMarkCode code, CancellationToken cancellationToken);
-		Task<Result<IEnumerable<StagingTrueMarkCode>>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
 	}
 }

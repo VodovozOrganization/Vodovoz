@@ -20,7 +20,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = StagingTrueMarkCodeType.Transport,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItem = orderItem
+				OrderItemId = orderItem.Id
 			};
 		}
 
@@ -96,7 +96,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItem = orderItem
+				OrderItemId = orderItem.Id
 			};
 		}
 
@@ -123,7 +123,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItem = orderItem
+				OrderItemId = orderItem.Id
 			};
 		}
 	}

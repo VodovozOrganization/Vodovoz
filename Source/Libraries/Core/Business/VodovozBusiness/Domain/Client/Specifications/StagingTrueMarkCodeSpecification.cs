@@ -12,6 +12,6 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				&& c.Id != code.Id
 				&& c.RelatedDocumentType == code.RelatedDocumentType
 				&& c.RelatedDocumentId == code.RelatedDocumentId
-				&& c.OrderItem.Id == code.OrderItem.Id);
+				&& c.OrderItemId == code.OrderItemId);
 	}
 }
