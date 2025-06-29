@@ -145,7 +145,6 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
     <Compile Include="ErrorReporting\DefaultErrorMessageModelTest.cs" />
     <Compile Include="ErrorReporting\SingletonErrorReporterTest.cs" />
-    <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
