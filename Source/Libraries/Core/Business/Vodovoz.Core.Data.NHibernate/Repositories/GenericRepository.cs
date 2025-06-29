@@ -107,6 +107,22 @@ namespace Vodovoz.Infrastructure.Persistance
 		}
 
 		/// <inheritdoc/>
+		public async Task<Result<IEnumerable<TEntity>>> GetAsync(
+			IUnitOfWork unitOfWork,
+			ExpressionSpecification<TEntity> expressionSpecification,
+			int limit = 0,
+			CancellationToken cancellationToken = default)
+		{
+			if(limit != 0)
+			{
+				return GetQueriable(unitOfWork, expressionSpecification.Expression).Take(limit).ToList();
+			}
+
+			return await GetQueriable(unitOfWork, expressionSpecification.Expression)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
 		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
 		{
 			return GetQueriable(unitOfWork, expressionSpecification).FirstOrDefault();

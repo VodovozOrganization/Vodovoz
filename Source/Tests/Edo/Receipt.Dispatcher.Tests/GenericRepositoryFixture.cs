@@ -54,6 +54,11 @@ namespace Receipt.Dispatcher.Tests
 				.MapAsync(x => x.Select(map));
 		}
 
+		public async Task<Result<IEnumerable<TEntity>>> GetAsync(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification, int limit = 0, CancellationToken cancellationToken = default)
+		{
+			return await GetAsync(unitOfWork, expressionSpecification.Expression, limit, cancellationToken);
+		}
+
 		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
 		{
 			return Data.FirstOrDefault(predicate.Compile());

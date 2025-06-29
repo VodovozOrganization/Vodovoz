@@ -57,6 +57,7 @@ namespace Vodovoz.Core.Domain.Repositories
 		/// <param name="limit"></param>
 		/// <returns></returns>
 		Task<Result<IEnumerable<TResult>>> GetAsync<TResult>(IUnitOfWork unitOfWork, Func<TEntity, TResult> map, Expression<Func<TEntity, bool>> predicate = null, int limit = 0);
+		Task<Result<IEnumerable<TEntity>>> GetAsync(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification, int limit = 0, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получение 1го элемента из базы данных.
