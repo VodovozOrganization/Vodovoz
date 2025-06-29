@@ -22,7 +22,7 @@ namespace Edo.Documents
 
 			services.AddEdo();
 			services.AddCodesPool();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 
 			return services;
 		}

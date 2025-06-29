@@ -73,6 +73,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz
 {
@@ -109,6 +110,7 @@ namespace Vodovoz
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
+		private IOrderContractUpdater _contractUpdater;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
@@ -210,6 +212,7 @@ namespace Vodovoz
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
+			_contractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
 		}
 
 		private void ConfigureDlg()
@@ -769,7 +772,8 @@ namespace Vodovoz
 				_deliveryRulesSettings,
 				_flyerRepository,
 				NavigationManager,
-				_lifetimeScope);
+				_lifetimeScope,
+				_contractUpdater);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;

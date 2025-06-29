@@ -18,6 +18,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
 {
@@ -136,6 +137,7 @@ namespace EmailPrepareWorker
 			var emailDocumentPreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailDocumentPreparer>();
 			var emailSendMessagePreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSendMessagePreparer>();
 			var mySqlConnectionStringBuilder = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<MySqlConnector.MySqlConnectionStringBuilder>();
+			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
 
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
 
@@ -173,8 +175,14 @@ namespace EmailPrepareWorker
 						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
 						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 							{
-								emailSendMessageBuilder = new SendEmailMessageBuilder(unitOfWork, emailSettings, emailRepository,
-									emailDocumentPreparer, counterpartyEmail, _instanceId);
+								emailSendMessageBuilder = new SendEmailMessageBuilder(
+									unitOfWork,
+									emailSettings,
+									emailRepository,
+									emailDocumentPreparer,
+									edoAccountController,
+									counterpartyEmail,
+									_instanceId);
 
 								break;
 							}
@@ -185,6 +193,7 @@ namespace EmailPrepareWorker
 									emailRepository,
 									unitOfWork,
 									emailDocumentPreparer,
+									edoAccountController,
 									counterpartyEmail,
 									_instanceId);
 

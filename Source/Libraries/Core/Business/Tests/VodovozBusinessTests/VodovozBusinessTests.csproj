@@ -97,10 +97,6 @@
       <Project>{BA8E8ACF-ECB0-4617-9E09-D1BE93992D0E}</Project>
       <Name>QS.Testing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
-      <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
-      <Name>SmsPaymentService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj">
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
       <Name>Vodovoz.Core.Domain</Name>
@@ -149,7 +145,6 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
     <Compile Include="ErrorReporting\DefaultErrorMessageModelTest.cs" />
     <Compile Include="ErrorReporting\SingletonErrorReporterTest.cs" />
-    <Compile Include="SmsPaymentService\SmsPaymentItemDTOCalculateTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />

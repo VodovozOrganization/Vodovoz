@@ -75,7 +75,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 					services.AddHttpClient();
 
 					services.AddEdo();
-					services.AddEdoProblemRegistation();
+					services.AddEdoProblemRegistration();
 					services.AddCodesPool();
 
 					services.AddEdoTransfer();
@@ -93,7 +93,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						;
 
 					services.AddEdo();
-					services.AddEdoProblemRegistation();
+					services.AddEdoProblemRegistration();
 					services.AddCodesPool();
 
 					services.AddEdoMassTransit(

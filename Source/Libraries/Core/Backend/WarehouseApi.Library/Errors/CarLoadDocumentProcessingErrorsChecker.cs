@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.TrueMark;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -33,6 +35,7 @@ namespace WarehouseApi.Library.Errors
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountController;
 
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
@@ -41,7 +44,8 @@ namespace WarehouseApi.Library.Errors
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
-			IGenericRepository<OrderEntity> orderRepository)
+			IGenericRepository<OrderEntity> orderRepository,
+			ICounterpartyEdoAccountEntityController counterpartyEdoAccountController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -50,7 +54,8 @@ namespace WarehouseApi.Library.Errors
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-
+			_counterpartyEdoAccountController =
+				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 
 		public Result IsCarLoadDocumentLoadingCanBeStarted(
@@ -366,7 +371,7 @@ namespace WarehouseApi.Library.Errors
 				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
-			if(!order.IsNeedIndividualSetOnLoad && !order.IsNeedIndividualSetOnLoadForTender)
+			if(!order.IsNeedIndividualSetOnLoad(_counterpartyEdoAccountController) && !order.IsNeedIndividualSetOnLoadForTender)
 			{
 				if(order.PaymentType != PaymentType.Cashless)
 				{
@@ -380,7 +385,10 @@ namespace WarehouseApi.Library.Errors
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(orderId);
 				}
 
-				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				var edoAccount = _counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+					order.Client, order.Contract.Organization.Id);
+
+				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
 					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отправки документов по ЭДО, сканирование не требуется", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);

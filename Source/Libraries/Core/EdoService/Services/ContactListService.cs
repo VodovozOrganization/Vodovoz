@@ -1,6 +1,5 @@
 ﻿using EdoService.Library.Converters;
 using EdoService.Library.Dto;
-using NLog;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -22,6 +21,7 @@ namespace EdoService.Library.Services
 		private readonly IEdoLogger _edoLogger;
 
 		public ContactListService(
+			IEdoLogger edoLogger,
 			IAuthorizationService authorizationService,
 			IEdoSettings edoSettings,
 			IContactStateConverter contactStateConverter)
@@ -30,8 +30,7 @@ namespace EdoService.Library.Services
 			_contactStateConverter = contactStateConverter ?? throw new ArgumentNullException(nameof(contactStateConverter));
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 
-			var logger = LogManager.GetCurrentClassLogger();
-			_edoLogger = new EdoLogger(logger);
+			_edoLogger = edoLogger ?? throw new ArgumentNullException(nameof(edoLogger));
 
 			_httpClient = new HttpClient()
 			{

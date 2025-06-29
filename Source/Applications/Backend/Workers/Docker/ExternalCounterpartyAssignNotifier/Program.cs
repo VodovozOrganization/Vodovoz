@@ -13,6 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using Notifier = ExternalCounterpartyAssignNotifier.Services.NotificationService;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -59,7 +60,7 @@ namespace ExternalCounterpartyAssignNotifier
 					{
 						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 					})
-					.AddHttpClient<INotificationService, NotificationService>(client =>
+					.AddHttpClient<INotificationService, Notifier>(client =>
 					{
 						client.Timeout = TimeSpan.FromSeconds(15);
 					});

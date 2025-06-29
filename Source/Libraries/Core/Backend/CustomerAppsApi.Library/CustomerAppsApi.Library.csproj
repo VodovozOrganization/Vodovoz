@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />

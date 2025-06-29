@@ -26,7 +26,7 @@ namespace Edo.Receipt.Dispatcher
 			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
 
 			services.AddEdo();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
 
 			return services;

@@ -3,6 +3,7 @@ using System.Linq;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Converters
 {
@@ -10,19 +11,24 @@ namespace Vodovoz.Converters
 	{
 		private readonly ICounterpartyConverter _counterpartyConverter;
 		private readonly IOrganizationConverter _organizationConverter;
+		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 
 		public OrderWithoutShipmentConverter(
 			ICounterpartyConverter counterpartyConverter,
-			IOrganizationConverter organizationConverter)
+			IOrganizationConverter organizationConverter,
+			ICounterpartyEdoAccountController counterpartyEdoAccountController)
 		{
 			_counterpartyConverter = counterpartyConverter ?? throw new ArgumentNullException(nameof(counterpartyConverter));
 			_organizationConverter = organizationConverter ?? throw new ArgumentNullException(nameof(organizationConverter));
+			_counterpartyEdoAccountController = counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 		
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForDebtToOrderWithoutShipmentInfo(
 			OrderWithoutShipmentForDebt orderForDebt, Organization organization, DateTime dateTime)
 		{
-			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(orderForDebt.Client);
+			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
+				orderForDebt.Client,
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForDebt.Client, organization.Id));
 			
 			return new OrderWithoutShipmentForDebtInfo
 			{
@@ -37,7 +43,9 @@ namespace Vodovoz.Converters
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForPaymentToOrderWithoutShipmentInfo(
 			OrderWithoutShipmentForPayment orderForPayment, Organization organization, DateTime dateTime)
 		{
-			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(orderForPayment.Client);
+			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
+				orderForPayment.Client,
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForPayment.Client, organization.Id));
 			
 			return new OrderWithoutShipmentForPaymentInfo
 			{
@@ -52,7 +60,9 @@ namespace Vodovoz.Converters
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForAdvancePaymentToOrderWithoutShipmentInfo(
 			OrderWithoutShipmentForAdvancePayment orderForAdvancePayment, Organization organization, DateTime dateTime)
 		{
-			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(orderForAdvancePayment.Client);
+			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
+				orderForAdvancePayment.Client,
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForAdvancePayment.Client, organization.Id));
 			
 			return new OrderWithoutShipmentForAdvancePaymentInfo
 			{

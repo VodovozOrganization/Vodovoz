@@ -16,7 +16,7 @@ namespace Edo.Transfer.Dispatcher
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddEdoTransfer();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 
 			services.TryAddScoped<TransferSender>();
 			services.TryAddScoped<TransferSendPreparer>();
