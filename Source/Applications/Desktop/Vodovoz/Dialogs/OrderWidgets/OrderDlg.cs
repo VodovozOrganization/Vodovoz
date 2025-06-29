@@ -1616,7 +1616,7 @@ namespace Vodovoz
 		{
 			if(ycheckFastDelivery.Active)
 			{
-				if(Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender)
+				if(Entity.IsNeedIndividualSetOnLoad(_counterpartyEdoAccountController) || Entity.IsNeedIndividualSetOnLoadForTender)
 				{
 					ResetFastDeliveryForNetworkClient();
 
@@ -4099,7 +4099,8 @@ namespace Vodovoz
 			ControlsActionBottleAccessibility();
 			UpdateOnlineOrderText();
 
-			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
+			if(ycheckFastDelivery.Active
+				&& (Entity.IsNeedIndividualSetOnLoad(_counterpartyEdoAccountController) || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}
@@ -4199,7 +4200,8 @@ namespace Vodovoz
 		{
 			UpdateOnlineOrderText();
 
-			if(ycheckFastDelivery.Active && (Entity.IsNeedIndividualSetOnLoad || Entity.IsNeedIndividualSetOnLoadForTender))
+			if(ycheckFastDelivery.Active
+				&& (Entity.IsNeedIndividualSetOnLoad(_counterpartyEdoAccountController) || Entity.IsNeedIndividualSetOnLoadForTender))
 			{
 				ResetFastDeliveryForNetworkClient();
 			}

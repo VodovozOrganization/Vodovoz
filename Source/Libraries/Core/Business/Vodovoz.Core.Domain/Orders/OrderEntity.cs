@@ -669,24 +669,6 @@ namespace Vodovoz.Core.Domain.Orders
 			Client?.ReasonForLeaving == ReasonForLeaving.Tender;
 
 		/// <summary>
-		/// Проверка, является ли клиент по заказу сетевым покупателем
-		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
-		/// </summary>
-		public virtual bool IsNeedIndividualSetOnLoad(ICounterpartyEdoAccountEntityController edoAccountController)
-		{
-			if(Client is null)
-			{
-				return false;
-			}
-			
-			var edoAccount = edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Client, Contract?.Organization?.Id);
-			
-			return PaymentType == PaymentType.Cashless
-				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
-				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
-		}
-
-		/// <summary>
 		/// Проверка на госзаказ
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
 		/// (сканировать марки на складе для отправки документов в статусе заказа "В Пути")
@@ -756,6 +738,24 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		#endregion Вычисляемые свойства
+		
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoad(ICounterpartyEdoAccountEntityController edoAccountController)
+		{
+			if(Client is null)
+			{
+				return false;
+			}
+			
+			var edoAccount = edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Client, Contract?.Organization?.Id);
+			
+			return PaymentType == PaymentType.Cashless
+				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+		}
 
 		public override string ToString()
 		{

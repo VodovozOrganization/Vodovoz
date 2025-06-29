@@ -32,6 +32,7 @@ using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -64,6 +65,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -81,7 +83,8 @@ namespace DriverAPI.Library.V6.Services
 			IOrderSettings orderSettings,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			IGenericRepository<CarLoadDocument> carLoadDocumentRepository
+			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
+			ICounterpartyEdoAccountController edoAccountController
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -100,6 +103,7 @@ namespace DriverAPI.Library.V6.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 		}
 
 		/// <summary>
@@ -397,7 +401,7 @@ namespace DriverAPI.Library.V6.Services
 				&& await _orderRepository.IsAllDriversScannedCodesInOrderProcessed(_uow, vodovozOrder.Id);
 
 			var edoRequestCreated = false;
-			if((!vodovozOrder.IsNeedIndividualSetOnLoad && !vodovozOrder.IsNeedIndividualSetOnLoadForTender)
+			if((!vodovozOrder.IsNeedIndividualSetOnLoad(_edoAccountController) && !vodovozOrder.IsNeedIndividualSetOnLoadForTender)
 				&& edoRequest == null
 				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || isAllOwnNeedsOrderDriversScannedCodesProcessed))
 			{
@@ -613,7 +617,8 @@ namespace DriverAPI.Library.V6.Services
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress)
 		{
-			if(routeListAddress.Order.IsNeedIndividualSetOnLoad || routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
+			if(routeListAddress.Order.IsNeedIndividualSetOnLoad(_edoAccountController)
+				|| routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
 			{
 				return CheckNetworkClientOrderScannedCodes(routeListAddress);
 			}
@@ -826,7 +831,7 @@ namespace DriverAPI.Library.V6.Services
 
 			var hasCodesInCarLoadDocument = carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
 
-			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse && hasCodesInCarLoadDocument)
+			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController) && hasCodesInCarLoadDocument)
 			{
 				_logger.LogWarning("Коды ЧЗ сетевого, либо госзаказа {OrderId} должны добавляться на складе", orderId);
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе");
@@ -1688,7 +1693,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(OrderErrors.NotFound);
 			}
 
-			if(vodovozOrder.IsNeedIndividualSetOnLoad
+			if(vodovozOrder.IsNeedIndividualSetOnLoad(_edoAccountController)
 			   || vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 			{
 				_logger.LogWarning("Заказ {OrderId} не является заказом для собственных нужд", orderId);

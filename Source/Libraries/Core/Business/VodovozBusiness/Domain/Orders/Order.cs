@@ -58,6 +58,7 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Vodovoz.Core.Domain.Contacts;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1416,15 +1417,6 @@ namespace Vodovoz.Domain.Orders
 			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
 
 		/// <summary>
-		/// Проверка, является ли клиент по заказу сетевым покупателем
-		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
-		/// </summary>
-		public virtual new bool IsNeedIndividualSetOnLoad =>
-			PaymentType == PaymentType.Cashless
-			//&& Client?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute;
-
-		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи
 		/// </summary>
 		public virtual bool IsOrderForResale =>
@@ -1754,6 +1746,24 @@ namespace Vodovoz.Domain.Orders
 			{
 				_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
 			}
+		}
+		
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoad(ICounterpartyEdoAccountController edoAccountController)
+		{
+			if(Client is null)
+			{
+				return false;
+			}
+			
+			var edoAccount = edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Client, Contract?.Organization?.Id);
+			
+			return PaymentType == PaymentType.Cashless
+				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
 
 		public virtual void AddDeliveryPointCommentToOrder()
