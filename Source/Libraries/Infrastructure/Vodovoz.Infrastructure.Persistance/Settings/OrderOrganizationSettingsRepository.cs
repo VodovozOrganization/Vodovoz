@@ -14,15 +14,6 @@ namespace Vodovoz.Infrastructure.Persistance.Settings
 {
 	public class OrderOrganizationSettingsRepository : IOrderOrganizationSettingsRepository
 	{
-		public bool OrganizationBasedOrderContentSettingsWithOrganizationExists(IUnitOfWork uow, int organizationId, int? settingsId = null)
-		{
-			return false;
-				/*(from settings in uow.Session.Query<OrganizationBasedOrderContentSettings>()
-					where settings.Organization.Id == organizationId
-						&& settings.Id != settingsId
-					select settings).FirstOrDefault() != null;*/
-		}
-		
 		public IEnumerable<INamedDomainObject> GetSameNomenclaturesInOrganizationBasedOrderContentSettings(
 			IUnitOfWork uow, IEnumerable<int> nomenclatureIds, int? settingsId = null)
 		{

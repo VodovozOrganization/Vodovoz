@@ -8,7 +8,6 @@ namespace Vodovoz.EntityRepositories.Settings
 {
 	public interface IOrderOrganizationSettingsRepository
 	{
-		bool OrganizationBasedOrderContentSettingsWithOrganizationExists(IUnitOfWork uow, int organizationId, int? settingsId = null);
 		IEnumerable<INamedDomainObject> GetSameNomenclaturesInOrganizationBasedOrderContentSettings(
 			IUnitOfWork uow, IEnumerable<int> nomenclatureIds, int? settingsId = null);
 		IEnumerable<INamedDomainObject> GetSameProductGroupsInOrganizationBasedOrderContentSettings(

@@ -18,8 +18,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OnlineCashBoxRegistrationRequired).Column("online_cashbox_registration_required");
 			Map(x => x.RegistrationInAvangardRequired).Column("registration_in_avangard_required");
 			Map(x => x.RegistrationInTaxcomRequired).Column("registration_in_taxcom_required");
-
-			//References(x => x.OrganizationForOnlinePayments).Column("organization_for_avangard_payments_id");
 		}
 	}
 }

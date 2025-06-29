@@ -1866,12 +1866,14 @@ namespace Vodovoz.ViewModels.Logistic
 								() => defaultOrganizationEdoAccountAlias,
 								JoinType.InnerJoin,
 								Restrictions.Where(
-									() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId))
+									() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
+										&& defaultOrganizationEdoAccountAlias.IsDefault))
 							.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 								() => edoAccountByOrderOrganizationAlias,
 								JoinType.LeftOuterJoin,
 								Restrictions.Where(
-									() => edoAccountByOrderOrganizationAlias.OrganizationId == contractAlias.Organization.Id))
+									() => edoAccountByOrderOrganizationAlias.OrganizationId == contractAlias.Organization.Id
+										&& edoAccountByOrderOrganizationAlias.IsDefault))
 							;
 
 						additionalParametersRestriction.Add(Restrictions.Conjunction()
