@@ -12,7 +12,6 @@ using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -27,6 +26,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -48,6 +48,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -63,7 +64,8 @@ namespace DriverAPI.Library.V5.Services
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			IOrderContractUpdater contractUpdater)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -79,6 +81,7 @@ namespace DriverAPI.Library.V5.Services
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
 
 		/// <summary>
@@ -280,7 +283,7 @@ namespace DriverAPI.Library.V5.Services
 				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
 			}
 
-			vodovozOrder.PaymentType = paymentType;
+			vodovozOrder.UpdatePaymentType(paymentType, _contractUpdater);
 			vodovozOrder.PaymentByTerminalSource = paymentByTerminalSource;
 
 			_uow.Save(vodovozOrder);

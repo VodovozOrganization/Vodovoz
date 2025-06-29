@@ -33,6 +33,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -65,6 +66,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
+		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 
 		public OrderService(
@@ -84,6 +86,7 @@ namespace DriverAPI.Library.V6.Services
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
+			IOrderContractUpdater contractUpdater,
 			ICounterpartyEdoAccountController edoAccountController
 			)
 		{
@@ -103,6 +106,7 @@ namespace DriverAPI.Library.V6.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 		}
 
@@ -307,7 +311,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(Errors.Security.Authorization.OrderAccessDenied);
 			}
 
-			vodovozOrder.PaymentType = paymentType;
+			vodovozOrder.UpdatePaymentType(paymentType, _contractUpdater);
 			vodovozOrder.PaymentByTerminalSource = paymentByTerminalSource;
 
 			_uow.Save(vodovozOrder);

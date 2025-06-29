@@ -330,9 +330,13 @@ namespace RoboatsService.Handlers
 			var paymentType = payment.MapToPaymentType();
 			
 			if(_orderOrganizationManager.OrderHasGoodsFromSeveralOrganizations(
-				DateTime.Now.TimeOfDay, watersInfo.Select(x => x.NomenclatureId).ToList(), false, paymentType, null))
+				watersInfo.Select(x => x.NomenclatureId).ToList()))
 			{
-				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.OrderHasGoodsSoldFromSeveralOrganizations, RoboatsCallOperation.CreateOrder,
+				_callRegistrator.RegisterFail(
+					ClientPhone,
+					RequestDto.CallGuid,
+					RoboatsCallFailType.OrderHasGoodsSoldFromSeveralOrganizations,
+					RoboatsCallOperation.CreateOrder,
 					"Невозможно создать заказ. Выбранные товары в заказе, продаются от разных организаций. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
