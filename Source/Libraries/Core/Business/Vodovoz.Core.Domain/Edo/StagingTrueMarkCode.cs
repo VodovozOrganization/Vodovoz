@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -50,6 +49,9 @@ namespace Vodovoz.Core.Domain.Edo
 			}
 		}
 
+		/// <summary>
+		/// Id родительского кода
+		/// </summary>
 		public virtual int? ParentCodeId { get; set; }
 
 		/// <summary>
@@ -131,20 +133,35 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _orderItemId, value);
 		}
 
+		/// <summary>
+		/// Идентификационный код
+		/// </summary>
 		public virtual string IdentificationCode =>
 			CodeType == StagingTrueMarkCodeType.Transport
 			? RawCode
 			: $"01{GTIN}21{SerialNumber}";
 
+		/// <summary>
+		/// Вложенные коды
+		/// </summary>
 		public virtual IObservableList<StagingTrueMarkCode> InnerCodes { get; set; }
 			= new ObservableList<StagingTrueMarkCode>();
 
+		/// <summary>
+		/// Добавление вложенного кода
+		/// </summary>
+		/// <param name="innerCode">Вложенный код</param>
 		public virtual void AddInnerCode(StagingTrueMarkCode innerCode)
 		{
 			innerCode.ParentCodeId = Id;
 			InnerCodes.Add(innerCode);
 		}
 
+		/// <summary>
+		/// Удаление вложенного кода
+		/// </summary>
+		/// <param name="innerCode">Вложенный код</param>
+		/// <exception cref="InvalidOperationException"></exception>
 		public virtual void RemoveInnerCode(StagingTrueMarkCode innerCode)
 		{
 			if(!InnerCodes.Contains(innerCode))
@@ -156,23 +173,26 @@ namespace Vodovoz.Core.Domain.Edo
 			InnerCodes.Remove(innerCode);
 		}
 
-		public virtual void UpdateChildCodes()
-		{
-			foreach(var innerCode in InnerCodes)
-			{
-				innerCode.ParentCodeId = Id;
-			}
-		}
-
+		/// <summary>
+		/// Является транспортным кодом
+		/// </summary>
 		public virtual bool IsTransport =>
 			CodeType == StagingTrueMarkCodeType.Transport;
+
+		/// <summary>
+		/// Является групповым кодом
+		/// </summary>
 		public virtual bool IsGroup =>
 			CodeType == StagingTrueMarkCodeType.Group;
+
+		/// <summary>
+		/// Является кодом экземпляра
+		/// </summary>
 		public virtual bool IsIdentification =>
 			CodeType == StagingTrueMarkCodeType.Identification;
 
 		/// <summary>
-		/// Получаем все коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// Получаем все коды, входящие в состав текущего кода, включая сам код и вложенные коды всех уровней
 		/// </summary>
 		public virtual IList<StagingTrueMarkCode> AllCodes =>
 			AllTransportCodes
@@ -181,19 +201,19 @@ namespace Vodovoz.Core.Domain.Edo
 			.ToList();
 
 		/// <summary>
-		/// Получаем все транспортные коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// Получаем все транспортные коды, входящие в состав текущего кода, включая сам код (если является транспортным кодом) и вложенные коды всех уровней
 		/// </summary>
 		public virtual IList<StagingTrueMarkCode> AllTransportCodes =>
 			GetAllCodesOfType(this, StagingTrueMarkCodeType.Transport);
 
 		/// <summary>
-		/// Получаем все групповые коды, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// Получаем все групповые коды, входящие в состав текущего кода, включая сам код (если является групповым кодом) и вложенные коды всех уровней
 		/// </summary>
 		public virtual IList<StagingTrueMarkCode> AllGroupCodes =>
 			GetAllCodesOfType(this, StagingTrueMarkCodeType.Group);
 
 		/// <summary>
-		/// Получаем все коды экземпляров, входящие в состав текущего кода. Поиск выполняется по всей структуре кода, включая сам код и все вложенные
+		/// Получаем все коды экземпляров, входящие в состав текущего кода, включая сам код (если является кодом экземпляра) и вложенные коды всех уровней
 		/// </summary>
 		public virtual IList<StagingTrueMarkCode> AllIdentificationCodes =>
 			GetAllCodesOfType(this, StagingTrueMarkCodeType.Identification);
@@ -213,6 +233,14 @@ namespace Vodovoz.Core.Domain.Edo
 			}
 
 			return resultCodes;
+		}
+
+		private void UpdateChildCodes()
+		{
+			foreach(var innerCode in InnerCodes)
+			{
+				innerCode.ParentCodeId = Id;
+			}
 		}
 
 		public override bool Equals(object obj)
