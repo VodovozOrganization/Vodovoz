@@ -112,8 +112,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String,
 					ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")),
-				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString())
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")))
 			);
 
 			exportInvoiceDocument.Properties.Add(
@@ -232,8 +231,7 @@ namespace Vodovoz.ExportTo1c
 			};
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, ExportMode == Export1cMode.IPForTinkoff ? order.OnlineOrder.Value : order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")),
-				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString())
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s")))
 			);
 
 			var exportGoodsTable = new TableNode {
@@ -384,11 +382,7 @@ namespace Vodovoz.ExportTo1c
 					new PropertyNode(
 						"Дата", 
 						Common1cTypes.Date,
-						order.DeliveryDate.Value.Date.ToString("s")),
-					new PropertyNode(
-						"{УникальныйИдентификатор}",
-						Common1cTypes.String,
-						Guid.NewGuid().ToString())
+						order.DeliveryDate.Value.Date.ToString("s")))
 				);
 
 				var exportGoodsTable = new TableNode

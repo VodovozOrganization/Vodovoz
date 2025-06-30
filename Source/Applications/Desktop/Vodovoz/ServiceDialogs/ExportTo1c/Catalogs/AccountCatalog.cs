@@ -67,9 +67,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				};
 			item.Reference = CreateReferenceTo(account,owner);
 			
-			item.Reference.Properties.Add(
-				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString()));
-			
 			item.Properties.AddRange(GetProperties(account,owner));
 			exportData.Objects.Add(item);
 		}

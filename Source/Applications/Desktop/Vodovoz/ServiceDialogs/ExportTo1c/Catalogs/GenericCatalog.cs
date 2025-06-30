@@ -40,9 +40,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					CatalogueType = this.Name
 				};
 			item.Reference = CreateReferenceTo(obj);
-
-			item.Reference.Properties.Add(
-				new PropertyNode("{УникальныйИдентификатор}", Common1cTypes.String, Guid.NewGuid().ToString()));
 			
 			item.Properties.AddRange(GetProperties(obj));
 			exportData.Objects.Add(item);
