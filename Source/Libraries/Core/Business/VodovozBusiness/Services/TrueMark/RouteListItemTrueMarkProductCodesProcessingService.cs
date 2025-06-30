@@ -204,6 +204,40 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success(stagingTrueMarkCode);
 		}
 
+		public async Task<Result> RemoveStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			int routeListItemId,
+			int orderItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var existingCodeResult =
+				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
+					uow,
+					scannedCode,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListItemId,
+					orderItemId);
+
+			if(existingCodeResult.IsFailure)
+			{
+				var error = existingCodeResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			var codeToRemove = existingCodeResult.Value;
+
+			if(codeToRemove.ParentCodeId != null)
+			{
+				var error = TrueMarkCodeErrors.AggregatedCode;
+				return Result.Failure(error);
+			}
+
+			await uow.DeleteAsync(codeToRemove, cancellationToken: cancellationToken);
+
+			return Result.Success();
+		}
+
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,

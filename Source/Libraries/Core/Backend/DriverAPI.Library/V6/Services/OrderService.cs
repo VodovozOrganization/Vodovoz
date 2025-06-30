@@ -832,7 +832,7 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе");
 			}
 
-			var result = await AddStagingTrueMarkCodeWithCodeChecking(
+			var result = await AddStagingTrueMarkCode(
 				routeListAddress,
 				vodovozOrderItem,
 				scannedCode,
@@ -920,7 +920,7 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, $"Нельзя заменить код в заказе {orderId}, адрес МЛ {routeListAddress.Id} не в пути");
 			}
 
-			return await ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
+			return await ChangeStagingTrueMarkCode(
 				routeListAddress,
 				vodovozOrderItem,
 				oldScannedCode,
@@ -985,120 +985,25 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(RouteListItemErrors.NotEnRouteState, vodovozOrderItem, routeListAddress, $"Нельзя удалить код из заказа {orderId}, адрес МЛ {routeListAddress.Id} не в пути");
 			}
 
-			var oldTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode, cancellationToken);
+			var removeCodeResult = await RemoveStagingTrueMarkCode(
+				_uow,
+				routeListAddress,
+				vodovozOrderItem.Id,
+				scannedCode,
+				cancellationToken);
 
-			if(oldTrueMarkCodeResult.IsFailure)
+			if(removeCodeResult.IsFailure)
 			{
-				var error = oldTrueMarkCodeResult.Errors.FirstOrDefault();
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			IEnumerable<TrueMarkAnyCode> oldTrueMarkAnyCodes = oldTrueMarkCodeResult.Value.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
-				.ToArray();
-
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
-
-			if(oldTrueMarkCodeResult.Value.Match(
-				transportCode => transportCode.ParentTransportCodeId != null,
-				groupCode => groupCode.ParentTransportCodeId != null
-					|| groupCode.ParentWaterGroupCodeId != null,
-				waterCode => waterCode.ParentTransportCodeId != null
-					|| waterCode.ParentWaterGroupCodeId != null))
-			{
-				var error = Errors.TrueMark.AggregatedCodeRemovalAttempt;
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			foreach(var codeToRemove in oldTrueMarkAnyCodes)
-			{
-				if(!codeToRemove.IsTrueMarkWaterIdentificationCode)
-				{
-					continue;
-				}
-
-				var result = RemoveTrueMarkCodeFromRouteListItem(
-					_uow,
-					routeListAddress,
-					vodovozOrderItem.Id,
-					codeToRemove.TrueMarkWaterIdentificationCode);
-
-				if(result.IsFailure)
-				{
-					return RequestProcessingResult.CreateFailure(
-						Result.Failure<TrueMarkCodeProcessingResultResponse>(result.Errors),
-						new TrueMarkCodeProcessingResultResponse
-						{
-							Nomenclature = null,
-							Result = RequestProcessingResultTypeDto.Error,
-							Error = $"Не удалось удалить код: {string.Join(", ", result.Errors.Select(x => x.Message))}",
-						});
-				}
-			}
-
-			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodes)
-			{
-				oldCodeToRemoveFromDatabase.Match(
-					transportCode =>
+				return RequestProcessingResult.CreateFailure(
+					Result.Failure<TrueMarkCodeProcessingResultResponse>(removeCodeResult.Errors),
+					new TrueMarkCodeProcessingResultResponse
 					{
-						transportCode.ClearAllCodes();
-						return true;
-					},
-					groupCode =>
-					{
-						groupCode.ClearAllCodes();
-						return true;
-					},
-					waterCode =>
-					{
-						return true;
+						Nomenclature = null,
+						Result = RequestProcessingResultTypeDto.Error,
+						Error = $"Не удалось удалить код: {string.Join(", ", removeCodeResult.Errors.Select(x => x.Message))}",
 					});
 			}
-
-			try
-			{
-				_uow.Commit();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-			}
-
-			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodes)
-			{
-				oldCodeToRemoveFromDatabase.Match(
-					transportCode =>
-					{
-						_uow.Delete(transportCode);
-						return true;
-					},
-					groupCode =>
-					{
-						_uow.Delete(groupCode);
-						return true;
-					},
-					waterCode =>
-					{
-						_uow.Delete(waterCode);
-						return true;
-					});
-			}
-
+			
 			try
 			{
 				_uow.Commit();
@@ -1140,7 +1045,7 @@ namespace DriverAPI.Library.V6.Services
 			return RequestProcessingResult.CreateFailure(result, response);
 		}
 
-		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> AddStagingTrueMarkCodeWithCodeChecking(
+		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> AddStagingTrueMarkCode(
 			RouteListItem routeListAddress,
 			OrderItem vodovozOrderItem,
 			string scannedCode,
@@ -1199,7 +1104,7 @@ namespace DriverAPI.Library.V6.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
+		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeStagingTrueMarkCode(
 			RouteListItem routeListAddress,
 			OrderItem vodovozOrderItem,
 			string oldScannedCode,
@@ -1336,11 +1241,12 @@ namespace DriverAPI.Library.V6.Services
 					continue;
 				}
 
-				var result = RemoveTrueMarkCodeFromRouteListItem(
+				var result = await RemoveStagingTrueMarkCode(
 					_uow,
 					routeListAddress,
 					vodovozOrderItem.Id,
-					codeToRemove.TrueMarkWaterIdentificationCode);
+					oldScannedCode,
+					cancellationToken);
 
 				if(result.IsFailure)
 				{
@@ -1384,7 +1290,7 @@ namespace DriverAPI.Library.V6.Services
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-			var addCodesResult = await AddStagingTrueMarkCodeWithCodeChecking(
+			var addCodesResult = await AddStagingTrueMarkCode(
 				routeListAddress,
 				vodovozOrderItem,
 				newScannedCode,
@@ -1406,35 +1312,26 @@ namespace DriverAPI.Library.V6.Services
 			return addCodesResult;
 		}
 
-		public Result RemoveTrueMarkCodeFromRouteListItem(
+		private async Task<Result> RemoveStagingTrueMarkCode(
 			IUnitOfWork uow,
 			RouteListItem routeListAddress,
 			int vodovozOrderItemId,
-			TrueMarkWaterIdentificationCode codeToRemove)
+			string scannedCode,
+			CancellationToken cancellationToken)
 		{
-			var productCode =
-				routeListAddress.TrueMarkCodes
-					.Where(x => x.SourceCode.Id == codeToRemove.Id)
-					.FirstOrDefault();
+			var removeCodeResult =
+				await _routeListItemTrueMarkProductCodesProcessingService.RemoveStagingTrueMarkCode(
+					uow,
+					scannedCode,
+					routeListAddress.Id,
+					vodovozOrderItemId,
+					cancellationToken);
 
-			if(productCode is null)
+			if(removeCodeResult.IsFailure)
 			{
-				var error = TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound;
+				var error = removeCodeResult.Errors.FirstOrDefault();
 				return Result.Failure(error);
 			}
-
-			routeListAddress.TrueMarkCodes.Remove(productCode);
-
-			var productCodeOrderItem = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(uow, vodovozOrderItemId)
-				.Where(x => x.TrueMarkProductCodeId == productCode.Id)
-				.FirstOrDefault();
-
-			if(productCodeOrderItem != null)
-			{
-				uow.Delete(productCodeOrderItem);
-			}
-
-			uow.Save(routeListAddress);
 
 			return Result.Success();
 		}

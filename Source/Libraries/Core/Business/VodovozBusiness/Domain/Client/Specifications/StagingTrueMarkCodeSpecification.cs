@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NPOI.SS.Formula.Functions;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Specifications;
@@ -7,6 +8,14 @@ namespace VodovozBusiness.Domain.Client.Specifications
 {
 	public static class StagingTrueMarkCodeSpecification
 	{
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForExcludeCodeId(int codeId)
+			=> new ExpressionSpecification<StagingTrueMarkCode>(
+				c => c.Id != codeId);
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForExcludeCodesIds(IEnumerable<int> codeIds)
+			=> new ExpressionSpecification<StagingTrueMarkCode>(
+				c => !codeIds.Contains(c.Id));
+
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocument(
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId)
@@ -14,25 +23,54 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				c => c.RelatedDocumentType == relatedDocumentType
 					&& c.RelatedDocumentId == relatedDocumentId);
 
-		public static ExpressionSpecification<StagingTrueMarkCode> CreateForCode(StagingTrueMarkCode code)
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForOrderItemId(int orderItemId)
 			=> new ExpressionSpecification<StagingTrueMarkCode>(
-				c => ((code.IsTransport && c.RawCode == code.RawCode)
-						|| (!code.IsTransport && c.GTIN == code.GTIN && c.SerialNumber == code.SerialNumber))
-					&& c.Id != code.Id
-					&& c.RelatedDocumentType == code.RelatedDocumentType
-					&& c.RelatedDocumentId == code.RelatedDocumentId
-					&& c.OrderItemId == code.OrderItemId);
+				c => c.OrderItemId == orderItemId);
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForCodeType(StagingTrueMarkCodeType codeType)
+			=> new ExpressionSpecification<StagingTrueMarkCode>(
+				c => c.CodeType == codeType);
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForCodeData(
+			bool isTransportCode,
+			string rawCode,
+			string gtin,
+			string serialNumber)
+			=> new ExpressionSpecification<StagingTrueMarkCode>(
+				c => ((isTransportCode && c.RawCode == rawCode) || (!isTransportCode && c.GTIN == gtin && c.SerialNumber == serialNumber)));
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderIdCodeData(
+			bool isTransportCode,
+			string rawCode,
+			string gtin,
+			string serialNumber,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int orderItemid)
+			=> CreateForCodeData(isTransportCode, rawCode, gtin, serialNumber)
+				& CreateForRelatedDocument(relatedDocumentType, relatedDocumentId)
+				& CreateForOrderItemId(orderItemid);
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForStagingCodeDuplicates(StagingTrueMarkCode code)
+			=> CreateForCodeData(code.IsTransport, code.RawCode, code.GTIN, code.SerialNumber)
+				& CreateForRelatedDocument(code.RelatedDocumentType, code.RelatedDocumentId)
+				& CreateForOrderItemId(code.OrderItemId)
+				& CreateForExcludeCodeId(code.Id);
+
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderItemIdentificationCodes(
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int orderItemId)
+			=> CreateForRelatedDocument(relatedDocumentType, relatedDocumentId)
+				& CreateForOrderItemId(orderItemId)
+				& CreateForCodeType(StagingTrueMarkCodeType.Identification);
 
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int orderItemId,
 			IEnumerable<int> excludeIds)
-			=> new ExpressionSpecification<StagingTrueMarkCode>(
-				c => c.RelatedDocumentType == relatedDocumentType
-					&& c.RelatedDocumentId == relatedDocumentId
-					&& c.OrderItemId == orderItemId
-					&& c.CodeType == StagingTrueMarkCodeType.Identification
-					&& !excludeIds.Contains(c.Id));
+			=> CreateForRelatedDocumentOrderItemIdentificationCodes(relatedDocumentType, relatedDocumentId, orderItemId)
+				& CreateForExcludeCodesIds(excludeIds);
 	}
 }

@@ -882,7 +882,6 @@ namespace Vodovoz.Application.TrueMark
 					.SelectMany(x => x.Childs)
 					.ToList();
 			}
-			;
 
 			return result;
 		}
@@ -969,7 +968,7 @@ namespace Vodovoz.Application.TrueMark
 			var stagingTrueMarkCode = createCodeResult.Value;
 
 			var existingRootCodeResult =
-				await GetSavedStagingTrueMarkCodesAddedToDocument(uow, stagingTrueMarkCode, cancellationToken);
+				await GetStagingTrueMarkCodeSavedDuplicates(uow, stagingTrueMarkCode, cancellationToken);
 
 			if(existingRootCodeResult.IsFailure)
 			{
@@ -983,7 +982,7 @@ namespace Vodovoz.Application.TrueMark
 			}
 
 			var existingInnerCodesResult =
-				await GetSavedStagingTrueMarkCodesAddedToDocument(uow, stagingTrueMarkCode.AllCodes, cancellationToken);
+				await GetStagingTrueMarkCodesSavedDuplicates(uow, stagingTrueMarkCode.AllCodes, cancellationToken);
 
 			if(existingInnerCodesResult.IsFailure)
 			{
@@ -995,7 +994,7 @@ namespace Vodovoz.Application.TrueMark
 			{
 				foreach(var existingCode in existingInnerCodesResult.Value)
 				{
-					var getCodePredicate = StagingTrueMarkCodeSpecification.CreateForCode(existingCode).Expression.Compile();
+					var getCodePredicate = StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(existingCode).Expression.Compile();
 
 					var duplicatedAddingCode = stagingTrueMarkCode.AllCodes
 						.FirstOrDefault(getCodePredicate);
@@ -1014,6 +1013,50 @@ namespace Vodovoz.Application.TrueMark
 						}
 					}
 				}
+			}
+
+			return Result.Success(stagingTrueMarkCode);
+		}
+
+		public Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int orderItemId)
+		{
+			StagingTrueMarkCode stagingTrueMarkCode = null;
+
+			if(_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode))
+			{
+				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
+						true,
+						scannedCode,
+						string.Empty,
+						string.Empty,
+						relatedDocumentType,
+						relatedDocumentId,
+						orderItemId));
+			}
+			else
+			{
+				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
+						false,
+						parsedCode.SourceCode,
+						parsedCode.GTIN,
+						parsedCode.SerialNumber,
+						relatedDocumentType,
+						relatedDocumentId,
+						orderItemId));
+			}
+
+			if(stagingTrueMarkCode is null)
+			{
+				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound);
 			}
 
 			return Result.Success(stagingTrueMarkCode);
@@ -1103,7 +1146,7 @@ namespace Vodovoz.Application.TrueMark
 			return rootCode;
 		}
 
-		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetStagingTrueMarkCodesSavedDuplicates(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> codes,
 			CancellationToken cancellationToken)
@@ -1132,7 +1175,7 @@ namespace Vodovoz.Application.TrueMark
 
 			foreach(var code in codes)
 			{
-				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForCode(code).Expression.Compile();
+				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(code).Expression.Compile();
 
 				existingCodes.AddRange(addedCodesResult.Value
 					.Where(existingCodesPredicate)
@@ -1142,14 +1185,14 @@ namespace Vodovoz.Application.TrueMark
 			return existingCodes;
 		}
 
-		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetSavedStagingTrueMarkCodesAddedToDocument(
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetStagingTrueMarkCodeSavedDuplicates(
 			IUnitOfWork uow,
 			StagingTrueMarkCode code,
 			CancellationToken cancellationToken)
 		{
 			return await _stagingTrueMarkCodeRepository.GetAsync(
 				uow,
-				StagingTrueMarkCodeSpecification.CreateForCode(code),
+				StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(code),
 				cancellationToken: cancellationToken);
 		}
 

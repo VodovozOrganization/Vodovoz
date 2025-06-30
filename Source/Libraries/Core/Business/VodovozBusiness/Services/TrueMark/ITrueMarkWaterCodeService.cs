@@ -103,5 +103,16 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список кодов</returns>
 		Task<IEnumerable<StagingTrueMarkCode>> GetAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает сохраненный код Честного Знака для промежуточного хранения по отсканированному коду
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="orderItemId">Id строки заказа</param>
+		/// <returns>Результат поиска кода</returns>
+		Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int orderItemId);
 	}
 }
