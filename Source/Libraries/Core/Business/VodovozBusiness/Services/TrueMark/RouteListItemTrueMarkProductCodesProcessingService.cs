@@ -148,6 +148,21 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 		}
 
+		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
+			RouteListItemEntity routeListAddress,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem) =>
+			new RouteListItemTrueMarkProductCode()
+			{
+				CreationTime = DateTime.Now,
+				SourceCodeStatus = status,
+				SourceCode = trueMarkWaterIdentificationCode,
+				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
+				RouteListItem = routeListAddress,
+				Problem = problem
+			};
+
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
@@ -172,7 +187,7 @@ namespace VodovozBusiness.Services.TrueMark
 			var stagingTrueMarkCode = createCodeResult.Value;
 
 			var isCodeCanBeAddedResult =
-				await IsTrueMarkCodeCanBeAddedToRouteListItem(
+				await IsStagingTrueMarkCodeCanBeAdded(
 					uow,
 					stagingTrueMarkCode,
 					orderItem,
@@ -189,7 +204,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		private async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
+		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			OrderItem orderItem,
@@ -294,20 +309,5 @@ namespace VodovozBusiness.Services.TrueMark
 
 			return Result.Success();
 		}
-
-		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
-			RouteListItemEntity routeListAddress,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			SourceProductCodeStatus status,
-			ProductCodeProblem problem) =>
-			new RouteListItemTrueMarkProductCode()
-			{
-				CreationTime = DateTime.Now,
-				SourceCodeStatus = status,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				RouteListItem = routeListAddress,
-				Problem = problem
-			};
 	}
 }
