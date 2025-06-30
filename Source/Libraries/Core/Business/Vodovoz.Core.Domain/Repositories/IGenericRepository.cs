@@ -60,6 +60,22 @@ namespace Vodovoz.Core.Domain.Repositories
 		Task<Result<IEnumerable<TEntity>>> GetAsync(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification, int limit = 0, CancellationToken cancellationToken = default);
 
 		/// <summary>
+		/// Получение количества элементов из базы данных
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="predicate"></param>
+		/// <returns></returns>
+		int GetCount(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate);
+
+		/// <summary>
+		/// Получение количества элементов из базы данных
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="expressionSpecification"></param>
+		/// <returns></returns>
+		int GetCount(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification);
+
+		/// <summary>
 		/// Получение 1го элемента из базы данных.
 		/// </summary>
 		/// <param name="unitOfWork"></param>

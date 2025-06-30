@@ -59,6 +59,16 @@ namespace Receipt.Dispatcher.Tests
 			return await GetAsync(unitOfWork, expressionSpecification.Expression, limit, cancellationToken);
 		}
 
+		public int GetCount(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return Data.Count(predicate.Compile());
+		}
+
+		public int GetCount(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return Data.Where(expressionSpecification.Expression.Compile()).Count();
+		}
+
 		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
 		{
 			return Data.FirstOrDefault(predicate.Compile());

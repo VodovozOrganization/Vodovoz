@@ -80,6 +80,12 @@ namespace Vodovoz.Infrastructure.Persistance
 		}
 
 		/// <inheritdoc/>
+		public int GetCount(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
+		{
+			return GetQueriable(unitOfWork, predicate).Count();
+		}
+
+		/// <inheritdoc/>
 		public async Task<Result<IEnumerable<TEntity>>> GetAsync(
 			IUnitOfWork unitOfWork,
 			Expression<Func<TEntity, bool>> predicate = null,
@@ -132,6 +138,12 @@ namespace Vodovoz.Infrastructure.Persistance
 		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
 		{
 			return GetQueriable(unitOfWork, expressionSpecification).OrderByDescending(x => x.Id).FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public int GetCount(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return GetQueriable(unitOfWork, expressionSpecification).Count();
 		}
 
 		/// <inheritdoc/>
