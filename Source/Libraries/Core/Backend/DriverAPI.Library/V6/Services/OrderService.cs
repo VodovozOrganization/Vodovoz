@@ -16,8 +16,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -1016,7 +1014,7 @@ namespace DriverAPI.Library.V6.Services
 						Error = $"Не удалось удалить код: {string.Join(", ", removeCodeResult.Errors.Select(x => x.Message))}",
 					});
 			}
-			
+
 			try
 			{
 				_uow.Commit();
@@ -1113,7 +1111,7 @@ namespace DriverAPI.Library.V6.Services
 				Result = RequestProcessingResultTypeDto.Success,
 				Error = null
 			};
-			
+
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
@@ -1265,7 +1263,7 @@ namespace DriverAPI.Library.V6.Services
 					_logger.LogWarning("У заказа {OrderId} заказа не найдена: {OrderItemId}", orderSaleItemId);
 					return Result.Failure(OrderItemErrors.NotFound);
 				}
-				
+
 				var bottleCodes = scannedBottle.BottleCodes
 					.Distinct()
 					.Select(x => new DriversScannedTrueMarkCode
