@@ -1,11 +1,11 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	public interface IRouteOptimizer : INotifyPropertyChanged
 	{

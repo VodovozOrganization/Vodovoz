@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -16,13 +16,14 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NHibernate.SqlCommand;
+using QS.Validation;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -40,6 +41,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
@@ -50,6 +52,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using VodovozBusiness.Domain.Client;
+using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic

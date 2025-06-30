@@ -1,24 +1,23 @@
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
-using QS.Osrm;
-using QS.Project.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using QS.Osrm;
+using QS.Project.Services;
 using Vodovoz.Core.Domain;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.Settings.Common;
+using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Services.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Класс для массового расчета расстояний между точками.
@@ -43,7 +42,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		public static int TasksCount = 5;
 		#endregion
 
-		private readonly ILogger<ExtDistanceCalculator> _logger;
+		private readonly ILogger<Vodovoz.ViewModels.Services.RouteOptimization.ExtDistanceCalculator> _logger;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IGlobalSettings _globalSettings;
 		private IUnitOfWork _unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
@@ -84,7 +83,7 @@ namespace Vodovoz.Application.Services.Logistics.RouteOptimization
 		/// <param name="statisticsTxtAction">Функция для буфера для отображения статистики</param>
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
 		public ExtDistanceCalculator(
-			ILogger<ExtDistanceCalculator> logger,
+			ILogger<Vodovoz.ViewModels.Services.RouteOptimization.ExtDistanceCalculator> logger,
 			IGlobalSettings globalSettings,
 			ICachedDistanceRepository cachedDistanceRepository,
 			DeliveryPoint[] points,

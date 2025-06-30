@@ -1,6 +1,6 @@
 ﻿using Google.OrTools.ConstraintSolver;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
 	/// <summary>
 	/// Класс для всех адресов не являющихся складом погрузки и разгрузки, возвращает 1.

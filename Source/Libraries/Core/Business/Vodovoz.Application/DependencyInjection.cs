@@ -7,7 +7,6 @@ using Vodovoz.Application.Contacts;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
@@ -37,7 +36,6 @@ namespace Vodovoz.Application
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
-			.AddScoped<IRouteOptimizer, RouteOptimizer>()
 			.AddSecurityServices()
 			.AddApplicationServices()
 			.ConfigureFileOptions()

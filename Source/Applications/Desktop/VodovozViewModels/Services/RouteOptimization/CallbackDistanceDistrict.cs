@@ -8,9 +8,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 
-namespace Vodovoz.Application.Logistics.RouteOptimization
+namespace Vodovoz.ViewModels.Services.RouteOptimization
 {
-
 	/// <summary>
 	/// Класс обратного вызова возвращает расстояния с учетом всевозможных штрафов.
 	/// </summary>
