@@ -67,7 +67,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Код GTIN
 		/// </summary>
 		[Display(Name = "Код GTIN")]
-		public virtual string GTIN
+		public virtual string Gtin
 		{
 			get => _gtin;
 			set => SetField(ref _gtin, value);
@@ -139,7 +139,7 @@ namespace Vodovoz.Core.Domain.Edo
 		public virtual string IdentificationCode =>
 			CodeType == StagingTrueMarkCodeType.Transport
 			? RawCode
-			: $"01{GTIN}21{SerialNumber}";
+			: $"01{Gtin}21{SerialNumber}";
 
 		/// <summary>
 		/// Вложенные коды

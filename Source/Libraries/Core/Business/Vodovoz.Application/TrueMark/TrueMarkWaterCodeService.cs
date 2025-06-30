@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Irony.Parsing;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -1224,6 +1225,133 @@ namespace Vodovoz.Application.TrueMark
 					cancellationToken: cancellationToken);
 
 			return allCodesResult.Value;
+		}
+
+		public async Task<Result> SaveTrueMarkProductCodes(
+			IUnitOfWork uow,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			CancellationToken cancellationToken)
+		{
+			var allStagingCodesResult =
+				await _stagingTrueMarkCodeRepository.GetAsync(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocument(relatedDocumentType, relatedDocumentId),
+					cancellationToken: cancellationToken);
+
+			var allStagingCodes = allStagingCodesResult.Value;
+
+			var rootCodes = allStagingCodes
+				.Where(x => x.ParentCodeId == null)
+				.ToList();
+
+			var trueMarkCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var stagingCode in allStagingCodes)
+			{
+				var trueMarkAnyCode = GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, stagingCode);
+				trueMarkCodes.Add(trueMarkAnyCode);
+			}
+			
+			foreach(var code in trueMarkCodes)
+			{
+				code.Match(
+					transportCode =>
+					{
+						trueMarkCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(transportCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerTransportCode(transportCode);
+
+						return true;
+					},
+					waterGroupCode =>
+					{
+						trueMarkCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						trueMarkCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerGroupCode(waterGroupCode);
+
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						trueMarkCodes
+							.FirstOrDefault(ntc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								?.IdentificationCode == ntc.RawCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						trueMarkCodes
+							.FirstOrDefault(ngc => codesInstanseStatuses
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
+								?.IdentificationCode == ngc.IdentificationCode)
+							?.AddInnerWaterCode(waterIdentificationCode);
+
+						return true;
+					});
+			}
+
+			foreach(var code in trueMarkCodes)
+			{
+				var parentStagingCode =
+					allStagingCodes
+					.FirstOrDefault(sc => sc.InnerCodes
+						.Any(c => (c.IsTransport && code.IsTrueMarkTransportCode && c.RawCode == code.TrueMarkTransportCode.RawCode)
+							|| (c.IsGroup && code.IsTrueMarkWaterGroupCode && c.Gtin == code.TrueMarkWaterGroupCode.GTIN && c.SerialNumber == code.TrueMarkWaterGroupCode.SerialNumber)
+							|| (c.IsIdentification && code.IsTrueMarkWaterIdentificationCode && c.Gtin == code.TrueMarkWaterIdentificationCode.GTIN && c.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber)));
+
+				var parentTrueMarkAnyCode = trueMarkCodes
+					.FirstOrDefault(c => (parentStagingCode.IsTransport && c.IsTrueMarkTransportCode && parentStagingCode.RawCode == c.TrueMarkTransportCode.RawCode)
+							|| (parentStagingCode.IsGroup && c.IsTrueMarkWaterGroupCode && parentStagingCode.Gtin == c.TrueMarkWaterGroupCode.GTIN && parentStagingCode.SerialNumber == c.TrueMarkWaterGroupCode.SerialNumber)
+							|| (parentStagingCode.IsIdentification && c.IsTrueMarkWaterIdentificationCode && parentStagingCode.Gtin == c.TrueMarkWaterIdentificationCode.GTIN && parentStagingCode.SerialNumber == c.TrueMarkWaterIdentificationCode.SerialNumber));
+
+				parentTrueMarkAnyCode?.AddInnerCode(code);
+			}
+		}
+
+		private TrueMarkAnyCode GetSavedOrCreateTrueMarkAnyCodeByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingCode)
+		{
+			switch(stagingCode.CodeType)
+			{
+				case StagingTrueMarkCodeType.Identification:
+					return _trueMarkWaterIdentificationCodeRepository
+						.Get(
+						uow,
+						x => x.GTIN == stagingCode.Gtin
+							&& x.SerialNumber == stagingCode.SerialNumber
+							&& !x.IsInvalid,
+						1)
+						.FirstOrDefault() ?? _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
+				case StagingTrueMarkCodeType.Group:
+					return _trueMarkWaterGroupCodeRepository
+						.Get(
+						uow,
+						x => x.GTIN == stagingCode.Gtin
+							&& x.SerialNumber == stagingCode.SerialNumber
+							&& !x.IsInvalid,
+						1)
+						.FirstOrDefault() ?? _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
+				case StagingTrueMarkCodeType.Transport:
+					return _trueMarkTransportCodeRepository
+						.Get(
+							uow,
+							x => x.RawCode == stagingCode.RawCode && !x.IsInvalid,
+							1)
+						.FirstOrDefault() ?? _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
+				default:
+					throw new ArgumentException(
+						$"Неизвестный тип кода ЧЗ для промежуточного хранения: {stagingCode.CodeType}",
+						nameof(stagingCode));
+			}
 		}
 	}
 }

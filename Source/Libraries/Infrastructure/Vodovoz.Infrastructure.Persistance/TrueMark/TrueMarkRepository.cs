@@ -323,7 +323,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				from productCode in productCodes.DefaultIfEmpty()
 				where
 				productCode.Id != null
-				&& identificationCode.GTIN == stagingTrueMarkCode.GTIN
+				&& identificationCode.GTIN == stagingTrueMarkCode.Gtin
 				&& identificationCode.SerialNumber == stagingTrueMarkCode.SerialNumber
 				&& (productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted || productCode.SourceCodeStatus == SourceProductCodeStatus.Changed)
 				select productCode;

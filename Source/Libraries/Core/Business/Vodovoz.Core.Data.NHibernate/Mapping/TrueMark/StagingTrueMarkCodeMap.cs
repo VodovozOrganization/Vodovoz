@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 
 			Map(x => x.ParentCodeId).Column("parent_code_id");
 			Map(x => x.RawCode).Column("raw_code");
-			Map(x => x.GTIN).Column("gtin");
+			Map(x => x.Gtin).Column("gtin");
 			Map(x => x.SerialNumber).Column("serial_number");
 			Map(x => x.CheckCode).Column("check_code");
 			Map(x => x.CodeType).Column("code_type");

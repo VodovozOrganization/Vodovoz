@@ -37,7 +37,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 			string gtin,
 			string serialNumber)
 			=> new ExpressionSpecification<StagingTrueMarkCode>(
-				c => ((isTransportCode && c.RawCode == rawCode) || (!isTransportCode && c.GTIN == gtin && c.SerialNumber == serialNumber)));
+				c => ((isTransportCode && c.RawCode == rawCode) || (!isTransportCode && c.Gtin == gtin && c.SerialNumber == serialNumber)));
 
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderIdCodeData(
 			bool isTransportCode,
@@ -52,7 +52,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				& CreateForOrderItemId(orderItemid);
 
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForStagingCodeDuplicates(StagingTrueMarkCode code)
-			=> CreateForCodeData(code.IsTransport, code.RawCode, code.GTIN, code.SerialNumber)
+			=> CreateForCodeData(code.IsTransport, code.RawCode, code.Gtin, code.SerialNumber)
 				& CreateForRelatedDocument(code.RelatedDocumentType, code.RelatedDocumentId)
 				& CreateForOrderItemId(code.OrderItemId)
 				& CreateForExcludeCodeId(code.Id);

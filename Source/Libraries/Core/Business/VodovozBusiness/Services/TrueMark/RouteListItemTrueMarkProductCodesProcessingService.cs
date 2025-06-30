@@ -330,7 +330,7 @@ namespace VodovozBusiness.Services.TrueMark
 				.ToList();
 
 			var codesGtin = stagingTrueMarkCode.AllIdentificationCodes
-				.Select(x => x.GTIN)
+				.Select(x => x.Gtin)
 				.FirstOrDefault();
 
 			if(!nomenclatureGtins.Contains(codesGtin))

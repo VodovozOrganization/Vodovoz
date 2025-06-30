@@ -90,7 +90,7 @@ namespace Vodovoz.Application.TrueMark
 			return new StagingTrueMarkCode
 			{
 				RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
-				GTIN = parsedCode.GTIN,
+				Gtin = parsedCode.GTIN,
 				SerialNumber = parsedCode.SerialNumber,
 				CheckCode = parsedCode.CheckCode,
 				CodeType = codeType,
@@ -118,7 +118,7 @@ namespace Vodovoz.Application.TrueMark
 			return new StagingTrueMarkCode
 			{
 				RawCode = rawCode,
-				GTIN = productInstanceStatus.Gtin,
+				Gtin = productInstanceStatus.Gtin,
 				SerialNumber = serialNumber,
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,

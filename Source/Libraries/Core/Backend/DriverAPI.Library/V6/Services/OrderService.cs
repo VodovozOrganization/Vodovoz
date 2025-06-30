@@ -618,7 +618,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeListAddress.Order.IsOrderForResale || routeListAddress.Order.IsOrderForTender)
 			{
-				return CheckResaleOrderScannedCodes(routeListAddress);
+				return ProcessResaleOrderScannedCodes(routeListAddress);
 			}
 
 			return await ProcessOwnUseOrderScannedCodesAsync(completeOrderInfo, routeListAddress);
@@ -668,7 +668,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private Result CheckResaleOrderScannedCodes(RouteListItem routeListAddress)
+		private Result ProcessResaleOrderScannedCodes(RouteListItem routeListAddress)
 		{
 			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
 		}
