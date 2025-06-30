@@ -1032,10 +1032,10 @@ namespace Vodovoz.Application.TrueMark
 				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
 					uow,
 					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
-						true,
-						scannedCode,
-						string.Empty,
-						string.Empty,
+						false,
+						parsedCode.SourceCode,
+						parsedCode.GTIN,
+						parsedCode.SerialNumber,
 						relatedDocumentType,
 						relatedDocumentId,
 						orderItemId));
@@ -1045,10 +1045,10 @@ namespace Vodovoz.Application.TrueMark
 				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
 					uow,
 					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
-						false,
-						parsedCode.SourceCode,
-						parsedCode.GTIN,
-						parsedCode.SerialNumber,
+						true,
+						scannedCode,
+						string.Empty,
+						string.Empty,
 						relatedDocumentType,
 						relatedDocumentId,
 						orderItemId));
@@ -1090,7 +1090,7 @@ namespace Vodovoz.Application.TrueMark
 
 				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
 				{
-					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
+					//return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
 				}
 			}
 
