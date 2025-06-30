@@ -72,8 +72,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <returns>Результат</returns>
 		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
-		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
-			int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Создает код ЧЗ для промежуточного хранения на основе отсканированного кода
@@ -95,5 +93,15 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат проверки</returns>
 		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает все коды Честного Знака для промежуточного хранения, связанные с указанным документом
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список кодов</returns>
+		Task<IEnumerable<StagingTrueMarkCode>> GetAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken);
 	}
 }

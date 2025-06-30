@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -1015,12 +1016,10 @@ namespace Vodovoz.Application.TrueMark
 				}
 			}
 
-			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
-
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
@@ -1168,6 +1167,21 @@ namespace Vodovoz.Application.TrueMark
 			}
 
 			return Result.Success();
+		}
+
+		public async Task<IEnumerable<StagingTrueMarkCode>> GetAllTrueMarkStagingCodesByRelatedDocument(
+			IUnitOfWork uow,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			CancellationToken cancellationToken)
+		{
+			var allCodesResult =
+				await _stagingTrueMarkCodeRepository.GetAsync(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocument(relatedDocumentType, relatedDocumentId),
+					cancellationToken: cancellationToken);
+
+			return allCodesResult.Value;
 		}
 	}
 }

@@ -832,13 +832,16 @@ namespace DriverAPI.Library.V6.Services
 				return GetFailureTrueMarkCodeProcessingResponse(TrueMarkCodeErrors.TrueMarkCodesHaveToBeAddedInWarehouse, vodovozOrderItem, routeListAddress, $"Коды ЧЗ сетевого заказа {orderId} должны добавляться на складе");
 			}
 
-			var result = await AddTrueMarkCodeToRouteListItemWithCodeChecking(
-				_uow,
+			var result = await AddStagingTrueMarkCodeWithCodeChecking(
 				routeListAddress,
 				vodovozOrderItem,
 				scannedCode,
-				SourceProductCodeStatus.Accepted,
 				cancellationToken);
+
+			if(result.Result.IsFailure)
+			{
+				return result;
+			}
 
 			try
 			{
@@ -922,7 +925,6 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
-				SourceProductCodeStatus.Accepted,
 				cancellationToken);
 		}
 
@@ -1138,27 +1140,23 @@ namespace DriverAPI.Library.V6.Services
 			return RequestProcessingResult.CreateFailure(result, response);
 		}
 
-		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> AddTrueMarkCodeToRouteListItemWithCodeChecking(
-			IUnitOfWork uow,
+		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> AddStagingTrueMarkCodeWithCodeChecking(
 			RouteListItem routeListAddress,
 			OrderItem vodovozOrderItem,
 			string scannedCode,
-			SourceProductCodeStatus status,
 			CancellationToken cancellationToken)
 		{
-			var createCodeResult =
-				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
-					uow,
+			var addingCodeResult =
+				await _routeListItemTrueMarkProductCodesProcessingService.AddStagingTrueMarkCode(
+					_uow,
 					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
 					routeListAddress.Id,
 					vodovozOrderItem,
 					cancellationToken);
 
-			if(createCodeResult.IsFailure)
+			if(addingCodeResult.IsFailure)
 			{
-				var error = createCodeResult.Errors.FirstOrDefault();
-
+				var error = addingCodeResult.Errors.FirstOrDefault();
 				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
 
 				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
@@ -1169,36 +1167,22 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			var stagingTrueMarkCode = createCodeResult.Value;
-
-			var isCodeCanBeAddedResult =
-				await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
-					uow,
-					stagingTrueMarkCode,
-					vodovozOrderItem,
-					cancellationToken);
-
-			if(isCodeCanBeAddedResult.IsFailure)
-			{
-				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
-
-				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-				{
-					Nomenclature = null,
-					Result = RequestProcessingResultTypeDto.Error,
-					Error = error.Message
-				});
-			}
-
-			await uow.CommitAsync(cancellationToken);
+			var stagingTrueMarkCode = addingCodeResult.Value;
 
 			var nomenclatureDto =
 				_orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(vodovozOrderItem, routeListAddress);
 
+			var allCodes =
+				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+					_uow,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListAddress.Id,
+					cancellationToken);
+
 			var trueMarkCodeDtos =
-				stagingTrueMarkCode.AllCodes.Select(PopulateStagingTrueMarkCodes(stagingTrueMarkCode.AllCodes));
+				allCodes
+				.Where(c => c.OrderItemId == vodovozOrderItem.Id)
+				.Select(PopulateStagingTrueMarkCodes(stagingTrueMarkCode.AllCodes));
 
 			if(nomenclatureDto != null)
 			{
@@ -1215,12 +1199,11 @@ namespace DriverAPI.Library.V6.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
+		private async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeTrueMarkCodeToRouteListItemWithCodeChecking(
 			RouteListItem routeListAddress,
 			OrderItem vodovozOrderItem,
 			string oldScannedCode,
 			string newScannedCode,
-			SourceProductCodeStatus status,
 			CancellationToken cancellationToken)
 		{
 			var oldTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, oldScannedCode, cancellationToken);
@@ -1401,12 +1384,10 @@ namespace DriverAPI.Library.V6.Services
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-			var addCodesResult = await AddTrueMarkCodeToRouteListItemWithCodeChecking(
-				_uow,
+			var addCodesResult = await AddStagingTrueMarkCodeWithCodeChecking(
 				routeListAddress,
 				vodovozOrderItem,
 				newScannedCode,
-				status,
 				cancellationToken);
 			
 			_uow.Save(routeListAddress);
@@ -1483,7 +1464,7 @@ namespace DriverAPI.Library.V6.Services
 				{
 					Code = stagingCode.RawCode,
 					Level = level,
-					Parent = parentRawCode,
+					Parent = parentRawCode
 				};
 			};
 		}

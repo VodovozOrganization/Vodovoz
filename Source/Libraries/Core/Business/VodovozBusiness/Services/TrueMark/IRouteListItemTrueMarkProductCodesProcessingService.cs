@@ -44,12 +44,14 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Проверяет может ли код ЧЗ для промежуточного хранения быть добавлен к строке МЛ
+		/// Добавляет код Честного Знака для промежуточного хранения с привязкой к строке маршрутного листа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="scannedCode">Отсканированный код ЧЗ</param>
+		/// <param name="routeListItemId">Id строки МЛ</param>
+		/// <param name="orderItem">Строка заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат проверки</returns>
-		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, OrderItem orderItem, CancellationToken cancellationToken);
+		/// <returns>Результат добавления кода</returns>
+		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int routeListItemId, OrderItem orderItem, CancellationToken cancellationToken = default);
 	}
 }

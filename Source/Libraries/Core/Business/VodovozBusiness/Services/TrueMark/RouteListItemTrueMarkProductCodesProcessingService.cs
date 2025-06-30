@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.Domain.Client.Specifications;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace VodovozBusiness.Services.TrueMark
@@ -146,7 +148,48 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 		}
 
-		public async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
+		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			int routeListItemId,
+			OrderItem orderItem,
+			CancellationToken cancellationToken = default)
+		{
+			var createCodeResult =
+				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+					uow,
+					scannedCode,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListItemId,
+					orderItem,
+					cancellationToken);
+
+			if(createCodeResult.IsFailure)
+			{
+				return createCodeResult;
+			}
+
+			var stagingTrueMarkCode = createCodeResult.Value;
+
+			var isCodeCanBeAddedResult =
+				await IsTrueMarkCodeCanBeAddedToRouteListItem(
+					uow,
+					stagingTrueMarkCode,
+					orderItem,
+					cancellationToken);
+
+			if(isCodeCanBeAddedResult.IsFailure)
+			{
+				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
+
+			return Result.Success(stagingTrueMarkCode);
+		}
+
+		private async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			OrderItem orderItem,
@@ -204,21 +247,25 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsStagingTrueMarkCodesCountCanBeAdded(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, OrderItem orderItem)
+		private Result IsStagingTrueMarkCodesCountCanBeAdded(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			OrderItem orderItem)
 		{
 			var routeListItemId = stagingTrueMarkCode.RelatedDocumentId;
 			var orderItemId = stagingTrueMarkCode.OrderItemId;
 
-			var addedStagingCodesCount = _stagingTrueMarkCodeRepository.Get(
+			var addedStagingCodesCount = _stagingTrueMarkCodeRepository.GetCount(
 				uow,
-				x => x.RelatedDocumentType == stagingTrueMarkCode.RelatedDocumentType
-					&& x.RelatedDocumentId == stagingTrueMarkCode.RelatedDocumentId
-					&& x.OrderItemId == orderItemId)
-				.Count();
+				StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListItemId,
+					orderItemId,
+					stagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id)));
 
 			var newStagingCodesCount = stagingTrueMarkCode.AllIdentificationCodes.Count;
 
-			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount >= (orderItem.ActualCount ?? orderItem.Count);
+			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount <= (orderItem.ActualCount ?? orderItem.Count);
 
 			if(!isCodeCanBeAdded)
 			{
