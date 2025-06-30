@@ -21,10 +21,6 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 			: "ПеречислениеСсылка.СтавкиНДС";
 		
 		public static readonly string ReferenceCountry = "СправочникСсылка.СтраныМира";
-		
-		public static string EnumVATTypes (Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
-		? "СправочникСсылка.СтавкиНДС"	
-		: "ПеречислениеСсылка.ВидыСтавокНДС";
 
 		public static string EnumContractType(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "ПеречислениеСсылка.ТипыДоговоров"
@@ -45,6 +41,7 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 		public static readonly string ReferenceNomenclature = "СправочникСсылка.Номенклатура";
 		public static readonly string ReferencePriceType = "СправочникСсылка.ТипыЦенНоменклатуры";
 		public static readonly string ReferenceWarehouse = "СправочникСсылка.Склады";
+		public static readonly string ReferenceVat = "СправочникСсылка.СтавкиНДС";
 		
 		public static string ReferenceMeasurementUnit(Export1cMode export1CMode) => export1CMode == Export1cMode.ComplexAutomation
 			? "СправочникСсылка.УпаковкиЕдиницыИзмерения"

@@ -664,6 +664,7 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\VatCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.ComplexAutomationDefaultExchangeStrings.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\IRulesNode.cs" />

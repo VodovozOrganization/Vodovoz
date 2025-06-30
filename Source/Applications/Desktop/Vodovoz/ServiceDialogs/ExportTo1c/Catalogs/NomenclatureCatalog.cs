@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ServiceDialogs.ExportTo1c;
@@ -87,20 +88,37 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			{
 				properties.Add(new PropertyNode("НомерГТД","СправочникСсылка.НомераГТД"));
 			}
+			
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				var vatCatalog = new VatCatalog(exportData)
+				{
+					Vat = nomenclature.VAT
+				};
 
-			var vatName = exportData.ExportMode == Export1cMode.ComplexAutomation
-				? "СтавкаНДС"
-				: "ВидСтавкиНДС";
+				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
+				
+				properties.Add(
+					new PropertyNode("СтавкаНДС",
+						Common1cTypes.ReferenceVat,
+						vatReference
+					)
+				);
+			}
+			else
+			{
+				var vatName = "ВидСтавкиНДС";
 
-			var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
+				var vat =  nomenclature.VAT.GetAttribute<Value1cType>().Value;
 
-			properties.Add(
-				new PropertyNode(vatName,
-					Common1cTypes.EnumVATTypes(exportData.ExportMode),
-					vat
-				)
-			);
-
+				properties.Add(
+					new PropertyNode(vatName,
+						Common1cTypes.Vat(exportData.ExportMode),
+						vat
+					)
+				);
+			}
+			
 			var isService = !Nomenclature.GetCategoriesForGoods().Contains(nomenclature.Category);
 
 			if(isService)
@@ -122,14 +140,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				properties.Add(
 					new PropertyNode("ВидНоменклатуры",
 						Common1cTypes.ReferenceNomenclatureType,
-						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.ServicesType)
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.ServicesType(exportData.ExportMode))
 					)
 				);
 			else
 				properties.Add(
 					new PropertyNode("ВидНоменклатуры",
 						Common1cTypes.ReferenceNomenclatureType,
-						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.GoodsType)
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.GoodsType(exportData.ExportMode))
 					)
 				);
 
