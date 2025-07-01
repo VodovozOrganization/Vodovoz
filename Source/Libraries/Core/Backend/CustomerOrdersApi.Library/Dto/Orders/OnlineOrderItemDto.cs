@@ -9,6 +9,12 @@
 		/// Id номенклатуры в ДВ
 		/// </summary>
 		public int NomenclatureId { get; set; }
+		
+		
+		/// <summary>
+		///  id основания скидки из справочника основания скидок
+		/// </summary>
+		public int? DiscountBasisId { get; set; }
 
 		/// <summary>
 		/// Цена

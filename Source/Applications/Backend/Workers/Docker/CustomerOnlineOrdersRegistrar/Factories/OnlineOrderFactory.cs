@@ -96,6 +96,20 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 						applicableDiscountReason = discountReason;
 					}
 				}
+				else if(onlineOrderItemDto.DiscountBasisId != null)
+				{
+					var discountReason = uow.GetById<DiscountReason>((int)onlineOrderItemDto.DiscountBasisId);
+					
+					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
+					{
+						applicableDiscountReason = discountReason;
+						
+						//Скидка = Цена - 1 рубль (задача 5299)
+						onlineOrderItemDto.IsDiscountInMoney = true;
+						onlineOrderItemDto.Discount = onlineOrderItemDto.Price - 1;
+						onlineOrderItemDto.Price = 1;
+					}
+				}
 				
 				PromotionalSet promoSet = null;
 
@@ -106,6 +120,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
+					onlineOrderItemDto.DiscountBasisId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
 					onlineOrderItemDto.Discount,

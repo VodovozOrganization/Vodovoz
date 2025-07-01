@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Orders
 	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
 	{
 		private int? _nomenclatureId;
+		private int? _discountBasisId;
 		private decimal _price;
 		private bool _isDiscountInMoney;
 		private decimal _percentDiscount;
@@ -43,6 +44,14 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _nomenclatureId;
 			set => SetField(ref _nomenclatureId, value);
+		}
+		
+		//ID основания скидки для Воды за 1 рубль (задача 5299)
+		[Display(Name = "Id основания скидки")]
+		public virtual int? DiscountBasisId
+		{
+			get => _discountBasisId;
+			set => SetField(ref _discountBasisId, value);
 		}
 		
 		[Display(Name = "Цена")]
@@ -130,6 +139,7 @@ namespace Vodovoz.Domain.Orders
 		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
+			int? discountBasisId,
 			decimal count,
 			bool isDiscountInMoney,
 			decimal discount,
@@ -144,6 +154,7 @@ namespace Vodovoz.Domain.Orders
 			var onlineOrderItem = new OnlineOrderItem
 			{
 				NomenclatureId = nomenclatureId,
+				DiscountBasisId = discountBasisId,
 				Count = count,
 				IsDiscountInMoney = isDiscountInMoney,
 				Price = price,
