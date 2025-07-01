@@ -191,7 +191,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
 			{
 				properties.Add(
-					new PropertyNode("ЮрАдрес",
+					new PropertyValueParameterNode("ЮрАдрес",
 						Common1cTypes.String,
 						counterparty.JurAddress
 					)

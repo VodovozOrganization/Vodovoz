@@ -668,6 +668,7 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.ComplexAutomationDefaultExchangeStrings.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\IRulesNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyValueParameterNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RulesNode.DefaultExchangeStrings.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Xml.Linq;
 using Vodovoz.Domain;
 using System.Collections.Generic;
@@ -36,7 +36,8 @@ namespace Vodovoz.ExportTo1c
 		public PropertyNode(string name, string type)
 			:this(name,type,new PropertyNullNode()){}
 
-		public XElement ToXml(){
+		public virtual XElement ToXml()
+		{
 			var xml = new XElement("Свойство",
 				new XAttribute("Имя", Name),
 				new XAttribute("Тип", Type),
