@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
@@ -21,7 +22,7 @@ namespace Vodovoz.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
+		/*public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
 		{
 			var isDeliveryForFree =
 				onlineOrder.IsSelfDelivery
@@ -43,6 +44,35 @@ namespace Vodovoz.Application.Orders.Services
 			_onlineOrderStateKey.InitializeFields(onlineOrder);
 			var price = district.GetDeliveryPrice(_onlineOrderStateKey, 0m);
 			return price;
+		}*/
+
+		public Result<decimal> GetDeliveryPrice(OnlineOrder onlineOrder)
+		{
+			var isDeliveryForFree =
+				onlineOrder.IsSelfDelivery
+				|| (onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery)
+				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
+			
+			if(isDeliveryForFree)
+			{
+				return Result.Success(0m);
+			}
+			
+			if(onlineOrder.DeliveryPoint is null)
+			{
+				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint);
+			}
+			
+			var district = onlineOrder.DeliveryPoint?.District;
+
+			if(district is null)
+			{
+				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint);
+			}
+			
+			_onlineOrderStateKey.InitializeFields(onlineOrder);
+			var price = district.GetDeliveryPrice(_onlineOrderStateKey, 0m);
+			return Result.Success(price);
 		}
 	}
 }

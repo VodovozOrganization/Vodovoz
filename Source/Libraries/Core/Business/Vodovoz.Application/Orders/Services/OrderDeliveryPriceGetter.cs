@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -25,7 +26,7 @@ namespace Vodovoz.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
 		{
 			#region перенести всё это в OrderStateKey
 
@@ -42,16 +43,25 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(isDeliveryForFree)
 			{
-				return default;
+				return Result.Success(0m);
 			}
 
 			#endregion
 
+			if(order.DeliveryPoint is null)
+			{
+				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint);
+			}
 			
 			var district = order.DeliveryPoint?.District != null
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
+			if(district is null)
+			{
+				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint);
+			}
+			
 			_orderStateKey.InitializeFields(order);
 
 			var price =
@@ -59,7 +69,7 @@ namespace Vodovoz.Application.Orders.Services
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 
-			return price;
+			return Result.Success(price);
 		}
 	}
 }

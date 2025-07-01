@@ -138,10 +138,13 @@ namespace Vodovoz.Application.Orders.Services
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
 
-		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
 			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
-			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+			
+			if (deliveryPrice.IsFailure) return deliveryPrice;
+			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice.Value);
+			return deliveryPrice;
 		}
 
 		/// <summary>
@@ -175,7 +178,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var result = UpdateDeliveryCost(unitOfWork, order);
 				return order.OrderSum;
 			}
 		}
@@ -238,7 +241,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var result = UpdateDeliveryCost(unitOfWork, order);
 
 				return
 				(
@@ -433,7 +436,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var result = UpdateDeliveryCost(unitOfWork, order);
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -579,7 +582,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var result = UpdateDeliveryCost(unitOfWork, order);
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -634,7 +637,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
-			UpdateDeliveryCost(uow, order);
+			var result = UpdateDeliveryCost(uow, order);
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded();

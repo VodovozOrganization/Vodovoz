@@ -2793,7 +2793,7 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			var result = _orderService.UpdateDeliveryCost(UoW, Entity);
 		}
 
 		/// <summary>
