@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public ICommand RemoveEdoAccountCommand { get; private set; }
 
 		//TODO: продумать логику доступности кнопки, возможно не стоит ее так ограничивать
-		public bool CanCheckCheckConsentForEdo => Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent;
+		public bool CanCheckConsentForEdo => Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent;
 		
 		public bool CanSendInviteByTaxcom => Entity.EdoOperator != null
 			&& !string.IsNullOrWhiteSpace(Entity.PersonalAccountIdInEdo)
@@ -140,24 +140,23 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		
 		private void Initialize()
 		{
-			var checkConsentForEdoCommand = new DelegateCommand(CheckConsentForEdo);
-			checkConsentForEdoCommand.CanExecuteChangedWith(this, x => x.CanCheckCheckConsentForEdo);
+			var checkConsentForEdoCommand = new DelegateCommand(CheckConsentForEdo, () => CanCheckConsentForEdo);
+			checkConsentForEdoCommand.CanExecuteChangedWith(this, x => x.CanCheckConsentForEdo);
 			CheckConsentForEdoCommand = checkConsentForEdoCommand;
 			
-			var checkClientCommand = new DelegateCommand(CheckClientInTaxcom);
+			var checkClientCommand = new DelegateCommand(CheckClientInTaxcom, () => CanCheckClientInTaxcom);
 			checkClientCommand.CanExecuteChangedWith(this, x => x.CanCheckClientInTaxcom);
 			CheckClientInTaxcomCommand = checkClientCommand;
 			
-			var sendInviteByTaxcomCommand = new DelegateCommand(SendInviteByTaxcom);
+			var sendInviteByTaxcomCommand = new DelegateCommand(SendInviteByTaxcom, () => CanSendInviteByTaxcom);
 			sendInviteByTaxcomCommand.CanExecuteChangedWith(this, x => x.CanSendInviteByTaxcom);
 			SendInviteByTaxcomCommand = sendInviteByTaxcomCommand;
 			
-			var sendManualInviteByTaxcomCommand = new DelegateCommand(SendManualInviteByTaxcom);
+			var sendManualInviteByTaxcomCommand = new DelegateCommand(SendManualInviteByTaxcom, () => CanSendManualInviteByTaxcom);
 			sendManualInviteByTaxcomCommand.CanExecuteChangedWith(this, x => x.CanSendManualInviteByTaxcom);
 			SendManualInviteByTaxcomCommand = sendManualInviteByTaxcomCommand;
 			
 			var removeEdoAccountCommand = new DelegateCommand(RemoveEdoAccount);
-			removeEdoAccountCommand.CanExecuteChangedWith(this, x => x.CanSendManualInviteByTaxcom);
 			RemoveEdoAccountCommand = removeEdoAccountCommand;
 			
 			SetPropertyChangeRelations();
@@ -180,7 +179,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				e => e.ConsentForEdoStatus,
 				() => CanSendInviteByTaxcom,
 				() => CanSendManualInviteByTaxcom,
-				() => CanCheckCheckConsentForEdo
+				() => CanCheckConsentForEdo
 			);
 			
 			SetPropertyChangeRelation(
