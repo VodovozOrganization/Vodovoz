@@ -21,30 +21,6 @@ namespace Vodovoz.Application.Orders.Services
 				(nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings)))
 				.PaidDeliveryNomenclatureId;
 		}
-		
-		/*public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
-		{
-			var isDeliveryForFree =
-				onlineOrder.IsSelfDelivery
-				|| (onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery)
-				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
-			
-			if(isDeliveryForFree)
-			{
-				return default;
-			}
-			
-			var district = onlineOrder.DeliveryPoint?.District;
-
-			if(district is null)
-			{
-				return default;
-			}
-			
-			_onlineOrderStateKey.InitializeFields(onlineOrder);
-			var price = district.GetDeliveryPrice(_onlineOrderStateKey, 0m);
-			return price;
-		}*/
 
 		public Result<decimal> GetDeliveryPrice(OnlineOrder onlineOrder)
 		{
