@@ -48,6 +48,8 @@ namespace Vodovoz.ExportTo1c.Catalogs
 						Common1cTypes.String,
 						counterparty.FullName
 					));
+				
+				
 			}
 			
 			return referenceNode;
@@ -147,6 +149,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					)
 				);
 			}
+			
 
 			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
 			{
@@ -156,10 +159,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 						counterparty.FullName
 					)
 				);
-			}
-
-			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
-			{
+				
 				properties.Add(
 					new PropertyNode("КПП",
 						Common1cTypes.String,
@@ -184,6 +184,16 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					new PropertyNode(
 						"ГоловнойКонтрагент",
 						Common1cTypes.ReferenceCounterparty
+					)
+				);
+			}
+
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ЮрАдрес",
+						Common1cTypes.String,
+						counterparty.JurAddress
 					)
 				);
 			}
