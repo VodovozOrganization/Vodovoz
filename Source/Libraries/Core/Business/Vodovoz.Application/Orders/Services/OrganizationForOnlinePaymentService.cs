@@ -35,7 +35,7 @@ namespace Vodovoz.Application.Orders.Services
 			FastPaymentRequestFromType requestFromType)
 		{
 			if(requestFromType == FastPaymentRequestFromType.FromMobileAppByQr
-				|| requestFromType == FastPaymentRequestFromType.FromDesktopByCard)
+				|| requestFromType == FastPaymentRequestFromType.FromSiteByQr)
 			{
 				return GetOrganizationByPaymentType(uow, requestTime, requestFromType);
 			}
@@ -72,7 +72,7 @@ namespace Vodovoz.Application.Orders.Services
 				return clientWorksThroughOrganization.Value;
 			}
 
-			if(!string.IsNullOrWhiteSpace(order.OrderPartsIds))
+			if(!string.IsNullOrWhiteSpace(order.OrderPartsIds) || orderOrganization.Id == _organizationSettings.KulerServiceOrganizationId)
 			{
 				return GetOrganizationByRequestType(uow, orderOrganization, requestTime, requestFromType);
 			}
