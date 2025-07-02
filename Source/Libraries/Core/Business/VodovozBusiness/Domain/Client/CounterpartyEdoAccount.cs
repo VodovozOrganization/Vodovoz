@@ -27,7 +27,7 @@ namespace VodovozBusiness.Domain.Client
 		/// Клиент
 		/// </summary>
 		[Display(Name = "Клиент")]
-		public virtual new Counterparty Counterparty
+		public new virtual Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);

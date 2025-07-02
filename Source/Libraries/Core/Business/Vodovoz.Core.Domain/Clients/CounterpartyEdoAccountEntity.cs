@@ -97,7 +97,20 @@ namespace Vodovoz.Core.Domain.Clients
 			set => SetField(ref _consentForEdoStatus, value);
 		}
 
-		public virtual string Title => $"{EdoOperator?.Name} ({PersonalAccountIdInEdo})";
+		public virtual string Title
+		{
+			get
+			{
+				string personalAccountIdInEdo = null;
+
+				if(!string.IsNullOrWhiteSpace(PersonalAccountIdInEdo))
+				{
+					personalAccountIdInEdo = $"({PersonalAccountIdInEdo})";
+				}
+				
+				return $"ЭДО аккаунт {Id} {EdoOperator?.Name} {personalAccountIdInEdo}";
+			}
+		}
 
 		public static CounterpartyEdoAccountEntity Create(
 			CounterpartyEntity counterpartyEntity,
