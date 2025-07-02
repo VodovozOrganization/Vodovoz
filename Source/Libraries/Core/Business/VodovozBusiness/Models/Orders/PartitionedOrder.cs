@@ -56,6 +56,8 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
 			_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
 			_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+			_resultOrder.UpdatePaymentByCardFrom(_copiedOrder.PaymentByCardFrom, _contractUpdater);
+			_resultOrder.OnlinePaymentNumber = _copiedOrder.OnlinePaymentNumber;
 			_resultOrder.DeliverySchedule = _copiedOrder.DeliverySchedule;
 			_resultOrder.Author = _copiedOrder.Author;
 			_resultOrder.Comment = _copiedOrder.Comment;
