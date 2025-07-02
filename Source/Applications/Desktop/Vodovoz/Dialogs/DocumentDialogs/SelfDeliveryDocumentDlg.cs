@@ -285,7 +285,7 @@ namespace Vodovoz
 
 		private void OpenOrderCodesDialog(object sender, EventArgs e)
 		{
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, Entity.Id);
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, Entity.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		private void OnYbuttonScanCodesOnClicked(object sender, EventArgs e)

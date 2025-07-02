@@ -316,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 					{
 						return;
 					}
-					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId);
+					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 
