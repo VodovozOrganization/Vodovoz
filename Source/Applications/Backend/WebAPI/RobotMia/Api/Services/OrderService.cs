@@ -299,6 +299,11 @@ namespace Vodovoz.RobotMia.Api.Services
 				order.RecalculateItemsPrice();
 				var result = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
 
+				if(result.IsFailure)
+				{
+					throw new InvalidOperationException("При расчете стоимости заказа произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+				}
+
 				return new CalculatePriceResponse
 				{
 					OrderPrice = order.OrderSum,

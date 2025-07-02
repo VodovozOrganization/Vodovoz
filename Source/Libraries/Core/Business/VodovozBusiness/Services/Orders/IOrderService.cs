@@ -18,7 +18,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		decimal GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
+		Result<decimal> GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
 		Result<decimal> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
 		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);

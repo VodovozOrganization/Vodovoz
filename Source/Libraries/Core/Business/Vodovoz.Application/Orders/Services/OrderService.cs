@@ -150,7 +150,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		public decimal GetOrderPrice(CreateOrderRequest createOrderRequest)
+		public Result<decimal> GetOrderPrice(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -179,6 +179,13 @@ namespace Vodovoz.Application.Orders.Services
 
 				order.RecalculateItemsPrice();
 				var result = UpdateDeliveryCost(unitOfWork, order);
+
+				if(result.IsFailure)
+				{
+					_logger.LogError("При расчете стоимости доставки в доставке {Id} произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message), order.Id));
+					throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+				}
+				
 				return order.OrderSum;
 			}
 		}
@@ -437,6 +444,11 @@ namespace Vodovoz.Application.Orders.Services
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
 			var result = UpdateDeliveryCost(unitOfWork, order);
+			if(result.IsFailure)
+			{
+				_logger.LogError("При расчете стоимости доставки в заказе {Id} произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message), order.Id));
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -583,6 +595,11 @@ namespace Vodovoz.Application.Orders.Services
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
 			var result = UpdateDeliveryCost(unitOfWork, order);
+			if(result.IsFailure)
+			{
+				throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -638,6 +655,10 @@ namespace Vodovoz.Application.Orders.Services
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			var result = UpdateDeliveryCost(uow, order);
+			if(result.IsFailure)
+			{
+				return 0;
+			}
 			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
