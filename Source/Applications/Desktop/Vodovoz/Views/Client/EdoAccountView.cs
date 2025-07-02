@@ -96,7 +96,8 @@ namespace Vodovoz.Views.Client
 				
 				foreach(var edoAccount in edoAccountsByOrganizationId)
 				{
-					var subItem = new MenuItem($"Аккаунт №{i}");
+					var subItem = new yMenuItem($"Аккаунт №{i}");
+					subItem.BindCommand(ViewModel.CopyFromEdoOperatorWithAccountCommand, edoAccount);
 					menuItemMenu.Add(subItem);
 					i++;
 				}

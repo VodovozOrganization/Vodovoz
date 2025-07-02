@@ -78,13 +78,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public ITdiTab ParentTab { get; private set; }
 		public ILifetimeScope Scope { get; private set; }
 		public INavigationManager NavigationManager { get; }
-
 		
 		public ICommand CheckClientInTaxcomCommand { get; private set; }
 		public ICommand CheckConsentForEdoCommand { get; private set; }
 		public ICommand SendInviteByTaxcomCommand { get; private set; }
 		public ICommand SendManualInviteByTaxcomCommand { get; private set; }
 		public ICommand RemoveEdoAccountCommand { get; private set; }
+		public ICommand CopyFromEdoOperatorWithAccountCommand { get; private set; }
 
 		//TODO: продумать логику доступности кнопки, возможно не стоит ее так ограничивать
 		public bool CanCheckConsentForEdo => Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent;
@@ -115,7 +115,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			&& Counterparty.PersonType == PersonType.legal
 			&& Counterparty.ReasonForLeaving != ReasonForLeaving.Unknown
 			&& Counterparty.ReasonForLeaving != ReasonForLeaving.Other;
-		
+
+		public bool CanCopyFromEdoOperatorWithAccount =>
+			Entity.ConsentForEdoStatus != ConsentForEdoStatus.Sent
+			&& Entity.ConsentForEdoStatus != ConsentForEdoStatus.Agree;
+
 		public void ResetConsentForEdo()
 		{
 			Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
@@ -158,10 +162,16 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			
 			var removeEdoAccountCommand = new DelegateCommand(RemoveEdoAccount);
 			RemoveEdoAccountCommand = removeEdoAccountCommand;
-			
+
+			var copyFromEdoOperatorWithAccountCommand = new DelegateCommand<CounterpartyEdoAccount>(
+				CopyFromEdoOperatorWithAccount,
+				acc => CanCopyFromEdoOperatorWithAccount);
+			copyFromEdoOperatorWithAccountCommand.CanExecuteChangedWith(this, x => x.CanCopyFromEdoOperatorWithAccount);
+			CopyFromEdoOperatorWithAccountCommand = copyFromEdoOperatorWithAccountCommand;
+
 			SetPropertyChangeRelations();
 		}
-		
+
 		private void SetPropertyChangeRelations()
 		{
 			SetPropertyChangeRelation(
@@ -179,7 +189,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				e => e.ConsentForEdoStatus,
 				() => CanSendInviteByTaxcom,
 				() => CanSendManualInviteByTaxcom,
-				() => CanCheckConsentForEdo
+				() => CanCheckConsentForEdo,
+				() => CanCopyFromEdoOperatorWithAccount
 			);
 			
 			SetPropertyChangeRelation(
@@ -422,6 +433,29 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			
 			Counterparty.CounterpartyEdoAccounts.Remove(Entity);
 			RemovedEdoAccountAction?.Invoke(Entity);
+		}
+		
+		private void CopyFromEdoOperatorWithAccount(CounterpartyEdoAccount edoAccount)
+		{
+			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent
+				|| Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Нельзя копировать данные аккаунта на аккаунт с отправленным приглашением или с согласием");
+				return;
+			}
+
+			if(edoAccount.EdoOperator is null && string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Данные оператора и аккаунта не заполнены в копируемом аккаунте!");
+				return;
+			}
+			
+			Entity.EdoOperator = edoAccount.EdoOperator;
+			Entity.PersonalAccountIdInEdo = edoAccount.PersonalAccountIdInEdo;
 		}
 		
 		private void TryRefreshEdoLightsMatrix()
