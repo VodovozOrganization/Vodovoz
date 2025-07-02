@@ -48,8 +48,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 						Common1cTypes.String,
 						counterparty.FullName
 					));
-				
-				
 			}
 			
 			return referenceNode;
@@ -150,7 +148,6 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				);
 			}
 			
-
 			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
 			{
 				properties.Add(

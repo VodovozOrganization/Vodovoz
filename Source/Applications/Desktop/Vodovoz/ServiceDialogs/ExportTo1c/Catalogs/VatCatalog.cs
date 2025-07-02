@@ -35,6 +35,5 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			return new PropertyNode[] { };
 		}
-		
 	}
 }

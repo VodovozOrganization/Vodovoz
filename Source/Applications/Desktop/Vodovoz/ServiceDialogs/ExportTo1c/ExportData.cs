@@ -88,9 +88,9 @@ namespace Vodovoz.ExportTo1c
 		public void AddOrder(Order order)
 		{
 			OrdersTotalSum += order.OrderSum;
-			if(order.PaymentType == PaymentType.PaidOnline
-			   || order.PaymentType == PaymentType.Cash
-			   || order.PaymentType == PaymentType.Terminal)
+			if(order.PaymentType != PaymentType.Barter
+			   && order.PaymentType != PaymentType.ContractDocumentation
+			   && order.PaymentType != PaymentType.Cashless)
 			{
 				CreateRetailDocument(order);
 
