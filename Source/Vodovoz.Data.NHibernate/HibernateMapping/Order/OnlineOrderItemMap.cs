@@ -12,7 +12,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
 			Map(x => x.NomenclatureId).Column("first_nomenclature_id");
-			Map(x => x.DiscountBasisId).Column("discount_basis_id");
 			Map(x => x.PromoSetId).Column("first_promo_set_id");
 			Map(x => x.Price).Column("price");
 			Map(x => x.Count).Column("count");

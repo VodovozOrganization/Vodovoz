@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
@@ -283,17 +282,10 @@ namespace Vodovoz.Application.Orders.Services
 		
 		private void ValidateDiscountProperties(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
-			if(onlineOrderItem.OnlineOrder.IsSelfDelivery)
-			{
-				ValidateDiscountParametersFromSelfDelivery(onlineOrderItem, errors);
-			}
-			else
-			{
-				ValidateDiscountParametersFromDeliveryOrder(onlineOrderItem, errors);
-			}
+			ValidateDiscountParametersFromNotPromoSet(onlineOrderItem, errors);
 		}
 
-		private void ValidateDiscountParametersFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
 			if(onlineOrderItem.DiscountReason != null)
 			{
@@ -302,18 +294,18 @@ namespace Vodovoz.Application.Orders.Services
 
 				if(applicableDiscount)
 				{
-					ValidateApplicableDiscountFromSelfDelivery(onlineOrderItem, errors);
+					ValidateApplicableDiscountFromNotPromoSet(onlineOrderItem, errors);
 				}
 				else
 				{
-					ValidateNotApplicableDiscountFromSelfDelivery(onlineOrderItem, errors);
+					ValidateNotApplicableDiscountFromNotPromoSet(onlineOrderItem, errors);
 				}
 			}
 			else
 			{
 				if(onlineOrderItem.GetDiscount > 0)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInOnlineOrder(
 						onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
 				}
 						
@@ -321,11 +313,11 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void ValidateApplicableDiscountFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		private void ValidateApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
 			if(onlineOrderItem.GetDiscount != onlineOrderItem.DiscountReason.Value)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInOnlineOrder(
 					onlineOrderItem.Nomenclature.ToString(),
 					onlineOrderItem.DiscountReason.Value,
 					onlineOrderItem.GetDiscount));
@@ -353,31 +345,14 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		private void ValidateNotApplicableDiscountFromSelfDelivery(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		private void ValidateNotApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
 		{
 			if(onlineOrderItem.GetDiscount > 0)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotApplicableDiscountToNomenclatureOnlineOrder(
 					onlineOrderItem.Nomenclature.ToString()));
 			}
 							
-			if(onlineOrderItem.IsDiscountInMoney)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
-			}
-
-			onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
-		}
-
-		private void ValidateDiscountParametersFromDeliveryOrder(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
-		{
-			if(onlineOrderItem.GetDiscount > 0)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountNomenclatureInDeliveryOnlineOrder(
-					onlineOrderItem.Nomenclature.ToString()));
-			}
-
 			if(onlineOrderItem.IsDiscountInMoney)
 			{
 				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrder(
