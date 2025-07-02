@@ -2784,15 +2784,7 @@ namespace Vodovoz
 			var needOpenSavedOrders = false;
 			Result<IEnumerable<int>> result = null;
 			
-			if(MessageDialogHelper.RunQuestionDialog("После сохранения открыть итоговые заказы?"))
-			{
-				needOpenSavedOrders = true;
-				result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
-			}
-			else
-			{
-				result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
-			}
+			result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
 
 			if(result.IsFailure)
 			{
@@ -2800,7 +2792,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(needOpenSavedOrders)
+			if(MessageDialogHelper.RunQuestionDialog("После сохранения открыть итоговые заказы?"))
 			{
 				foreach(var orderId in result.Value)
 				{
