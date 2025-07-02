@@ -350,13 +350,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			/*if(!CommonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
-			{
-				return;
-			}*/
-			
-			//RemoveEmptyEmailsAndPhones();
-
 			if(!_validator.Validate(Entity, _counterpartyValidationContext))
 			{
 				return;
@@ -402,11 +395,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			if(resultMessage.IsSuccess)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
-
-				//TODO: действительно ли нужно сохранять отдельно клиента после отправки
-				//UoW.Save();
-				//UoW.Commit();
-
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 					"Приглашение отправлено.");
 			}
