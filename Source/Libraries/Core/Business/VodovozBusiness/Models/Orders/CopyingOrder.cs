@@ -132,8 +132,25 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentException($"Должно быть выбрано только свойство.");
 			}
 
-			var value = propertyInfo.GetValue(_copiedOrder);
-			propertyInfo.SetValue(_resultOrder, value);
+			switch(propertyInfo.Name)
+			{
+				case nameof(Order.PaymentType):
+					_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
+					break;
+				case nameof(Order.Client):
+					_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
+					break;
+				case nameof(Order.DeliveryPoint):
+					_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
+					break;
+				case nameof(Order.DeliveryDate):
+					_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+					break;
+				default:
+					var value = propertyInfo.GetValue(_copiedOrder);
+					propertyInfo.SetValue(_resultOrder, value);
+					break;
+			}
 		}
 
 		/// <summary>
