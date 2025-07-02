@@ -85,29 +85,19 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 
 				DiscountReason applicableDiscountReason = null;
 				
-				if(onlineOrder.IsSelfDelivery
-				   && !onlineOrderItemDto.PromoSetId.HasValue
-				   && nomenclature != null)
+				if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				{
+					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+				}
+				else if(onlineOrder.IsSelfDelivery
+				        && !onlineOrderItemDto.PromoSetId.HasValue
+				        && nomenclature != null)
 				{
 					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
 
 					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
 					{
 						applicableDiscountReason = discountReason;
-					}
-				}
-				else if(onlineOrderItemDto.DiscountBasisId != null)
-				{
-					var discountReason = uow.GetById<DiscountReason>((int)onlineOrderItemDto.DiscountBasisId);
-					
-					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
-					{
-						applicableDiscountReason = discountReason;
-						
-						//Скидка = Цена - 1 рубль (задача 5299)
-						onlineOrderItemDto.IsDiscountInMoney = true;
-						onlineOrderItemDto.Discount = onlineOrderItemDto.Price - 1;
-						onlineOrderItemDto.Price = 1;
 					}
 				}
 				
@@ -120,7 +110,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
-					onlineOrderItemDto.DiscountBasisId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
 					onlineOrderItemDto.Discount,
