@@ -95,7 +95,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		private bool ContainsSubdivision(Subdivision authorSubdivision, IEnumerable<Subdivision> setSubdivisions) => 
 			authorSubdivision != null
-			&& setSubdivisions.Any(authorSubdivision.IsChildOf);
+			&& setSubdivisions.Any(x => x.Id == authorSubdivision.Id || authorSubdivision.IsChildOf(x));
 		
 		private void UpdatePartOrder(
 			IEnumerable<IProduct> processingProducts,
