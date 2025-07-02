@@ -32,11 +32,11 @@ namespace Vodovoz.Views.Reports
 
 		private global::Gtk.Label label1;
 
-		private global::Gtk.RadioButton dateGroupRadioButton;
+		private global::Gamma.GtkWidgets.yRadioButton dateGroupRadioButton;
 
-		private global::Gtk.RadioButton carGroupRadioButton;
+		private global::Gamma.GtkWidgets.yRadioButton carGroupRadioButton;
 
-		private global::Gtk.RadioButton driverGroupRadioButton;
+		private global::Gamma.GtkWidgets.yRadioButton driverGroupRadioButton;
 
 		private global::Gamma.GtkWidgets.yButton buttonExport;
 
@@ -204,9 +204,10 @@ namespace Vodovoz.Views.Reports
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vboxFilters.Gtk.Box+BoxChild
-			this.dateGroupRadioButton = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("По дате"));
+			this.dateGroupRadioButton = new global::Gamma.GtkWidgets.yRadioButton();
 			this.dateGroupRadioButton.CanFocus = true;
 			this.dateGroupRadioButton.Name = "dateGroupRadioButton";
+			this.dateGroupRadioButton.Label = global::Mono.Unix.Catalog.GetString("По дате");
 			this.dateGroupRadioButton.DrawIndicator = true;
 			this.dateGroupRadioButton.UseUnderline = true;
 			this.dateGroupRadioButton.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -216,9 +217,10 @@ namespace Vodovoz.Views.Reports
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vboxFilters.Gtk.Box+BoxChild
-			this.carGroupRadioButton = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("По автомобилю"));
+			this.carGroupRadioButton = new global::Gamma.GtkWidgets.yRadioButton();
 			this.carGroupRadioButton.CanFocus = true;
 			this.carGroupRadioButton.Name = "carGroupRadioButton";
+			this.carGroupRadioButton.Label = global::Mono.Unix.Catalog.GetString("По автомобилю");
 			this.carGroupRadioButton.DrawIndicator = true;
 			this.carGroupRadioButton.UseUnderline = true;
 			this.carGroupRadioButton.Group = this.dateGroupRadioButton.Group;
@@ -228,9 +230,10 @@ namespace Vodovoz.Views.Reports
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child vboxFilters.Gtk.Box+BoxChild
-			this.driverGroupRadioButton = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("По водителю"));
+			this.driverGroupRadioButton = new global::Gamma.GtkWidgets.yRadioButton();
 			this.driverGroupRadioButton.CanFocus = true;
 			this.driverGroupRadioButton.Name = "driverGroupRadioButton";
+			this.driverGroupRadioButton.Label = global::Mono.Unix.Catalog.GetString("По водителю");
 			this.driverGroupRadioButton.DrawIndicator = true;
 			this.driverGroupRadioButton.UseUnderline = true;
 			this.driverGroupRadioButton.Group = this.dateGroupRadioButton.Group;
