@@ -167,6 +167,8 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId,
 			CancellationToken cancellationToken = default)
 		{
+			//Проверить, что временные коды были добавлены, старые коды не были добавлены, количество кодов совпадает
+
 			var addProductCodesResult =
 				await AddProductCodesToRouteListItemFromStagingCodes(
 					uow,
@@ -190,6 +192,15 @@ namespace VodovozBusiness.Services.TrueMark
 			if(deleteStagingCodesResult.IsFailure)
 			{
 				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			var allCodesAddedToOrderResult =
+				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
+
+			if(allCodesAddedToOrderResult.IsFailure)
+			{
+				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
 				return Result.Failure(error);
 			}
 
@@ -416,6 +427,19 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(stagingTrueMarkCode.RawCode);
 				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		{
+			var isAllTrueMarkCodesAdded =
+				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, orderId);
+
+			if(!isAllTrueMarkCodesAdded)
+			{
+				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 			}
 
 			return Result.Success();

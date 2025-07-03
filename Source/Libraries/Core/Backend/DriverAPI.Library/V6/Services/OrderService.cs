@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
@@ -609,7 +610,9 @@ namespace DriverAPI.Library.V6.Services
 
 		private async Task<Result> ProcessScannedCodes(
 			IDriverOrderShipmentInfo completeOrderInfo,
-			RouteListItem routeListAddress)
+			RouteListItem routeListAddress,
+			int orderItemId,
+			CancellationToken cancellationToken)
 		{
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad || routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
 			{
@@ -618,7 +621,11 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeListAddress.Order.IsOrderForResale || routeListAddress.Order.IsOrderForTender)
 			{
-				return ProcessResaleOrderScannedCodes(routeListAddress);
+				return await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemAndDeleteStagingCodes(
+					_uow,
+					routeListAddress,
+					orderItemId,
+					cancellationToken);
 			}
 
 			return await ProcessOwnUseOrderScannedCodesAsync(completeOrderInfo, routeListAddress);
@@ -663,24 +670,6 @@ namespace DriverAPI.Library.V6.Services
 			foreach(var scannedCode in driversScannedCodes)
 			{
 				await _uow.SaveAsync(scannedCode);
-			}
-
-			return Result.Success();
-		}
-
-		private Result ProcessResaleOrderScannedCodes(RouteListItem routeListAddress)
-		{
-			return IsAllRouteListItemTrueMarkProductCodesAddedToOrder(routeListAddress.Order.Id);
-		}
-
-		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(int orderId)
-		{
-			var isAllTrueMarkCodesAdded =
-				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(_uow, orderId);
-
-			if(!isAllTrueMarkCodesAdded)
-			{
-				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 			}
 
 			return Result.Success();
