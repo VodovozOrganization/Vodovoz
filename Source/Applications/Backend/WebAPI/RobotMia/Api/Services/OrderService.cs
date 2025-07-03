@@ -297,7 +297,12 @@ namespace Vodovoz.RobotMia.Api.Services
 				}
 
 				order.RecalculateItemsPrice();
-				_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+				var result = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+
+				if(result.IsFailure)
+				{
+					throw new InvalidOperationException("При расчете стоимости заказа произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+				}
 
 				return new CalculatePriceResponse
 				{
@@ -468,7 +473,7 @@ namespace Vodovoz.RobotMia.Api.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+			var result = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
 			_vodovozOrderService.AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 

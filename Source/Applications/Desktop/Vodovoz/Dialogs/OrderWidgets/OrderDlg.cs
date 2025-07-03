@@ -2793,7 +2793,12 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			var result = _orderService.UpdateDeliveryCost(UoW, Entity);
+
+			if(result.IsFailure)
+			{
+				MessageDialogHelper.RunWarningDialog("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+			}
 		}
 
 		/// <summary>
