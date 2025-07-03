@@ -142,8 +142,8 @@ namespace VodovozBusiness.Domain.Settings
 				}
 			}
 
-			if(OrderContentSet == 1 && Organizations.Count > 1
-				|| (Organizations.Count == 1 && Organizations[0].Id != organizationSettings.KulerServiceOrganizationId))
+			if(OrderContentSet == 1 && (Organizations.Count > 1
+				|| (Organizations.Count == 1 && Organizations[0].Id != organizationSettings.KulerServiceOrganizationId)))
 			{
 				yield return new ValidationResult(
 					"В первом множестве либо не должно Организаций, либо выбрана только одна - Кулер Сервис");
