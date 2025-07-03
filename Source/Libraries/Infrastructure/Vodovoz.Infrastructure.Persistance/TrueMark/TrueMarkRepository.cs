@@ -1,4 +1,5 @@
-﻿using DateTimeHelpers;
+﻿using Core.Infrastructure;
+using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -194,11 +195,29 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			return isCodeAlreadySaved;
 		}
-		
-		/// <summary>
-		/// Возвращает коды маркировки для заказа,
-		/// которые были добавлены складом в документе погрузки автомобиля.
-		/// </summary>
+
+		public IEnumerable<TrueMarkTransportCode> GetTransportCodes(IUnitOfWork uow, IEnumerable<int> transportCodeIds)
+		{
+			TrueMarkTransportCode trueMarkTransportCodeAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => trueMarkTransportCodeAlias)
+				.WhereRestrictionOn(() => trueMarkTransportCodeAlias.Id).IsIn(transportCodeIds.ToArray())
+				.List();
+
+			return routeListCodes;
+		}
+
+		public IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds)
+		{
+			TrueMarkWaterGroupCode trueMarkWaterGroupCodeAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => trueMarkWaterGroupCodeAlias)
+				.WhereRestrictionOn(() => trueMarkWaterGroupCodeAlias.Id).IsIn(groupCodeIds.ToArray())
+				.List();
+
+			return routeListCodes;
+		}
+
 		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId)
 		{
 			CarLoadDocumentItemTrueMarkProductCode carLoadTrueMarkProductCodeAlias = null;
@@ -219,10 +238,6 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			return carLoadCodes;
 		}
 
-		/// <summary>
-		/// Возвращает коды маркировки для заказа,
-		/// которые были добавлены из маршрутного листа водителем.
-		/// </summary>
 		public IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId)
 		{
 			RouteListItemTrueMarkProductCode routeListTrueMarkProductCodeAlias = null;
@@ -243,10 +258,6 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			return routeListCodes;
 		}
 
-		/// <summary>
-		/// Возвращает коды маркировки для заказа,
-		/// которые были добавлены из самовывоза.
-		/// </summary>
 		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
 		{
 			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
@@ -272,11 +283,6 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			return selfdeliveryCodes;
 		}
 
-		/// <summary>
-		/// Возвращает коды маркировки для заказа, 
-		/// которые были добавлены из пула в виду отсутствия 
-		/// кодов из других источников (склад, водитель, самовывоз).
-		/// </summary>
 		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;

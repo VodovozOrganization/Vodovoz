@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -25,15 +28,15 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if(String.IsNullOrWhiteSpace(nomenclature.Code1c))
 				exportData.Errors.Add($"Для номенклатуры {nomenclature.Id} - '{nomenclature.Name}' не заполнен код 1с.");
 
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("Код",
 					Common1cTypes.String,
 			                     nomenclature.Code1c
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean
-				)
-			);
+				));
+			
+			referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean));
+			
+			return referenceNode;
 		}
 
 		protected override PropertyNode[] GetProperties(Nomenclature nomenclature)
@@ -57,11 +60,11 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				);
 			}
 
-			if (nomenclature.Unit != null)
+			if(nomenclature.Unit != null)
 			{
 				properties.Add(
 					new PropertyNode("ЕдиницаИзмерения",
-						Common1cTypes.ReferenceMeasurementUnit,
+						Common1cTypes.ReferenceMeasurementUnit(exportData.ExportMode),
 						exportData.MeasurementUnitCatalog.CreateReferenceTo(nomenclature.Unit)
 					)
 				);
@@ -70,58 +73,81 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			{
 				properties.Add(
 					new PropertyNode("ЕдиницаИзмерения",
-						Common1cTypes.ReferenceMeasurementUnit
+						Common1cTypes.ReferenceMeasurementUnit(exportData.ExportMode)
 					)
 				);
 			}
+			
 			properties.Add(
-				new PropertyNode("Комментарий",
+				new PropertyNode("Описание",
 					Common1cTypes.String
 				)
 			);
-			properties.Add(
-				new PropertyNode("НомерГТД",
-					"СправочникСсылка.НомераГТД"
-				)
-			);
 
-			var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(new PropertyNode("НомерГТД","СправочникСсылка.НомераГТД"));
+			}
+			
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				var vatCatalog = new VatCatalog(exportData)
+				{
+					Vat = nomenclature.VAT
+				};
 
-			properties.Add(
-				new PropertyNode("ВидСтавкиНДС",
-					Common1cTypes.EnumVATTypes,
-					vat
-				)
-			);
+				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
+				
+				properties.Add(
+					new PropertyNode("СтавкаНДС",
+						Common1cTypes.ReferenceVat,
+						vatReference
+					)
+				);
+			}
+			else
+			{
+				var vatName = "ВидСтавкиНДС";
 
+				var vat =  nomenclature.VAT.GetAttribute<Value1cType>().Value;
+
+				properties.Add(
+					new PropertyNode(vatName,
+						Common1cTypes.Vat(exportData.ExportMode),
+						vat
+					)
+				);
+			}
+			
 			var isService = !Nomenclature.GetCategoriesForGoods().Contains(nomenclature.Category);
 
-			if (isService)
-				properties.Add(
-					new PropertyNode("Услуга",
-						Common1cTypes.Boolean,
-						"true"
-					)
-				);
+			if(isService)
+			{
+				if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+				{
+					properties.Add(new PropertyNode("Услуга", Common1cTypes.Boolean, "true"));
+				}
+			}
 			else
-				properties.Add(
-					new PropertyNode("Услуга",
-						Common1cTypes.Boolean
-					)
-				);
+			{
+				if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+				{
+					properties.Add(new PropertyNode("Услуга", Common1cTypes.Boolean));
+				}
+			}
 
 			if (isService)
 				properties.Add(
 					new PropertyNode("ВидНоменклатуры",
 						Common1cTypes.ReferenceNomenclatureType,
-						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.ServicesType)
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.ServicesType(exportData.ExportMode))
 					)
 				);
 			else
 				properties.Add(
 					new PropertyNode("ВидНоменклатуры",
 						Common1cTypes.ReferenceNomenclatureType,
-						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.GoodsType)
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.GoodsType(exportData.ExportMode))
 					)
 				);
 
