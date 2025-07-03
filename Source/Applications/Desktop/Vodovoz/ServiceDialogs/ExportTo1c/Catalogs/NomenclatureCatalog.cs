@@ -107,13 +107,11 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			}
 			else
 			{
-				var vatName = "ВидСтавкиНДС";
-
-				var vat =  nomenclature.VAT.GetAttribute<Value1cType>().Value;
+				var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
 
 				properties.Add(
-					new PropertyNode(vatName,
-						Common1cTypes.Vat(exportData.ExportMode),
+					new PropertyNode("ВидСтавкиНДС",
+						Common1cTypes.EnumVATTypes,
 						vat
 					)
 				);
