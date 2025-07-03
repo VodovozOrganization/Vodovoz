@@ -68,14 +68,14 @@ namespace Vodovoz.Application.Orders.Services
 						continue;
 					}
 
-					if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+					if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var processingGoodsAndEquipments))
 					{
-						goodsAndEquipments =
+						processingGoodsAndEquipments =
 							new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
-						goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+						goodsAndEquipmentsBySets.Add(setSettings, processingGoodsAndEquipments);
 					}
 
-					goodsAndEquipments.Goods.Add(processingGoods[i]);
+					processingGoodsAndEquipments.Goods.Add(processingGoods[i]);
 
 					var dependentEquipments = processingEquipments.Where(x =>
 							x.OrderItem.Id == processingGoods[i].Id
@@ -85,15 +85,22 @@ namespace Vodovoz.Application.Orders.Services
 
 					foreach(var dependentEquipment in dependentEquipments)
 					{
-						goodsAndEquipments.Equipments.Add(dependentEquipment);
+						processingGoodsAndEquipments.Equipments.Add(dependentEquipment);
 						processingEquipments.Remove(dependentEquipment);
 					}
 
 					processingGoods.Remove(processingGoods[i]);
 				}
+				
+				if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+				{
+					goodsAndEquipments =
+						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+					goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+				}
+				
+				ProcessEquipmentsNotDependsOrderItems(processingEquipments, setSettings, goodsAndEquipments);
 			}
-			
-			ProcessEquipments(processingEquipments, organizationBasedOrderContentSettings, goodsAndEquipmentsBySets);
 
 			if(goodsAndEquipmentsBySets.Count == 0
 				|| goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
@@ -115,21 +122,19 @@ namespace Vodovoz.Application.Orders.Services
 					new PartOrderWithGoods(organization, keyPairValue.Value.Goods, keyPairValue.Value.Equipments));
 			}
 
-			if(processingGoods.Any())
+			if(processingGoods.Any() || processingEquipments.Any())
 			{
 				return _organizationByOrderAuthorHandler.SplitOrderByOrganizations(
-					uow, requestTime, setsOrganizations, organizationChoice, processingGoods);
+					uow, requestTime, setsOrganizations, organizationChoice, processingGoods, processingEquipments);
 			}
 
 			return setsOrganizations.Values;
 		}
 
-		private void ProcessEquipments(
+		private void ProcessEquipmentsNotDependsOrderItems(
 			IList<OrderEquipment> processingEquipments,
-			IEnumerable<OrganizationBasedOrderContentSettings> organizationBasedOrderContentSettings,
-			IDictionary<
-				OrganizationBasedOrderContentSettings,
-				(IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
+			OrganizationBasedOrderContentSettings setSettings,
+			(IList<IProduct> Goods, IList<OrderEquipment> Equipments) setGoodsAndEquipments)
 		{
 			var j = 0;
 				
@@ -142,22 +147,14 @@ namespace Vodovoz.Application.Orders.Services
 					j++;
 					continue;
 				}
-
-				var firstSetSettings = organizationBasedOrderContentSettings.FirstOrDefault(x => x.OrderContentSet == 1);
-
-				if(firstSetSettings is null)
+				
+				if(!NomenclatureBelongsSet(processingEquipments[j].Nomenclature, setSettings))
 				{
-					throw new InvalidOperationException("Нет настроек выбора организации для первого множества!");
-				}
-					
-				if(!goodsAndEquipmentsBySets.TryGetValue(firstSetSettings, out var goodsAndEquipments))
-				{
-					goodsAndEquipments =
-						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
-					goodsAndEquipmentsBySets.Add(firstSetSettings, goodsAndEquipments);
+					j++;
+					continue;
 				}
 
-				goodsAndEquipments.Equipments.Add(processingEquipments[j]);
+				setGoodsAndEquipments.Equipments.Add(processingEquipments[j]);
 				processingEquipments.RemoveAt(j);
 			}
 		}
@@ -218,6 +215,11 @@ namespace Vodovoz.Application.Orders.Services
 		private bool NomenclatureBelongsSet(
 			Nomenclature nomenclature, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
 		{
+			if(nomenclature is null)
+			{
+				return false;
+			}
+			
 			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(nomenclature))
 			{
 				return true;

@@ -32,19 +32,22 @@ namespace Vodovoz.Application.Orders.Services
 		/// <param name="organizationChoice">Данные для подбора организации</param>
 		/// <param name="processingProducts">Обрабатываемые товары</param>
 		/// <param name="uow">unit of work</param>
+		/// <param name="processingEquipments">Обрабатываемое оборудование</param>
 		/// <returns></returns>
 		public IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
 			IUnitOfWork uow,
 			TimeSpan requestTime,
 			Dictionary<short, PartOrderWithGoods> setsPartsOrders,
 			OrderOrganizationChoice organizationChoice,
-			IEnumerable<IProduct> processingProducts)
+			IEnumerable<IProduct> processingProducts,
+			IEnumerable<OrderEquipment> processingEquipments)
 		{
 			var organizationByOrderAuthorSettings = uow.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
 
 			if(organizationByOrderAuthorSettings is null)
 			{
-				CreateNewPartOrderOrUpdateExisting(uow, requestTime, setsPartsOrders, organizationChoice, processingProducts);
+				CreateNewPartOrderOrUpdateExisting(
+					uow, requestTime, setsPartsOrders, organizationChoice, processingProducts, processingEquipments);
 				return setsPartsOrders.Values;
 			}
 
@@ -53,7 +56,7 @@ namespace Vodovoz.Application.Orders.Services
 				if(setsPartsOrders.TryGetValue(
 					organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
 				{
-					UpdatePartOrder(processingProducts, setSettings);
+					UpdatePartOrder(processingProducts, processingEquipments, setSettings);
 					return setsPartsOrders.Values;
 				}
 
@@ -62,11 +65,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(setsPartsOrders.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
 			{
-				UpdatePartOrder(processingProducts, defaultSetSettings);
+				UpdatePartOrder(processingProducts, processingEquipments, defaultSetSettings);
 				return setsPartsOrders.Values;
 			}
 
-			CreateNewPartOrderOrUpdateExisting(uow, requestTime, setsPartsOrders, organizationChoice, processingProducts);
+			CreateNewPartOrderOrUpdateExisting(
+				uow, requestTime, setsPartsOrders, organizationChoice, processingProducts, processingEquipments);
 			return setsPartsOrders.Values;
 		}
 
@@ -75,7 +79,8 @@ namespace Vodovoz.Application.Orders.Services
 			TimeSpan requestTime,
 			Dictionary<short, PartOrderWithGoods> setsPartsOrders,
 			OrderOrganizationChoice organizationChoice,
-			IEnumerable<IProduct> processingProducts)
+			IEnumerable<IProduct> processingProducts,
+			IEnumerable<OrderEquipment> processingEquipments)
 		{
 			var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
 
@@ -86,7 +91,7 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 				
-				UpdatePartOrder(processingProducts, partOrder);
+				UpdatePartOrder(processingProducts, processingEquipments, partOrder);
 				return;
 			}
 
@@ -99,10 +104,20 @@ namespace Vodovoz.Application.Orders.Services
 		
 		private void UpdatePartOrder(
 			IEnumerable<IProduct> processingProducts,
+			IEnumerable<OrderEquipment> processingEquipments,
 			PartOrderWithGoods partOrderFromSet)
 		{
-			var list = partOrderFromSet.Goods as List<IProduct>;
-			list.AddRange(processingProducts);
+			if(processingProducts.Any())
+			{
+				var list = partOrderFromSet.Goods as List<IProduct>;
+				list?.AddRange(processingProducts);
+			}
+
+			if(processingEquipments.Any())
+			{
+				var list = partOrderFromSet.OrderEquipments as List<OrderEquipment>;
+				list?.AddRange(processingEquipments);
+			}
 		}
 	}
 }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Organizations;
 
 namespace VodovozBusiness.Domain.Settings
 {
@@ -53,6 +55,14 @@ namespace VodovozBusiness.Domain.Settings
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var organizationSettings = validationContext.GetService<IOrganizationSettings>();
+
+			if(organizationSettings == null)
+			{
+				throw new InvalidOperationException(
+					$"В контейнере зависимостей {typeof(OrganizationBasedOrderContentSettings)} не зарегистрирован сервис {nameof(IOrganizationSettings)}");
+			}
+			
 			if(!validationContext.Items.TryGetValue("OtherSetsSettings", out var data)
 				|| !(data is IList<OrganizationBasedOrderContentSettings> otherSetsData))
 			{
@@ -131,7 +141,19 @@ namespace VodovozBusiness.Domain.Settings
 						$"Если заполнены организации у множества {OrderContentSet}, то должны быть заполнены и товары/группы товаров");
 				}
 			}
+
+			if(OrderContentSet == 1 && Organizations.Count > 1
+				|| (Organizations.Count == 1 && Organizations[0].Id != organizationSettings.KulerServiceOrganizationId))
+			{
+				yield return new ValidationResult(
+					"В первом множестве либо не должно Организаций, либо выбрана только одна - Кулер Сервис");
+			}
 			
+			if(OrderContentSet != 1 && Organizations.Any(x => x.Id == organizationSettings.KulerServiceOrganizationId))
+			{
+				yield return new ValidationResult(
+					$"В {OrderContentSet} множестве не может быть организации Кулер Сервис");
+			}
 		}
 	}
 }
