@@ -22,6 +22,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
@@ -43,6 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
@@ -100,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
 			EntityJournalOpener entityJournalOpener,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
+			IOrganizationSettings organizationSettings,
 			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -110,6 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_organizationViewModelBuilder =
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -831,7 +835,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					{ "OtherSetsSettings", otherSetSettings }
 				};
 
-				validationRequests.Add(new ValidationRequest(keyPairValue.Value, new ValidationContext(keyPairValue.Value, contextItems)));
+				var validationContext = new ValidationContext(keyPairValue.Value, contextItems);
+				validationContext.ServiceContainer.AddService(typeof(IOrganizationSettings), _organizationSettings);
+
+				validationRequests.Add(new ValidationRequest(keyPairValue.Value, validationContext));
 			}
 		}
 
