@@ -869,7 +869,7 @@ namespace Vodovoz
 				return;
 			}
 			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id);
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		protected bool CanOpenOrderCodes()

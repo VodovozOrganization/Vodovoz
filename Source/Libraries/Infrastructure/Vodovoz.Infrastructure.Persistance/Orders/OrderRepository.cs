@@ -201,6 +201,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			switch(mode)
 			{
 				case Export1cMode.BuhgalteriaOOO:
+				case Export1cMode.ComplexAutomation:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.Cashless)

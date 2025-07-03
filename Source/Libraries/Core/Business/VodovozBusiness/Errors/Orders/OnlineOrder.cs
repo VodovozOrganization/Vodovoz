@@ -117,26 +117,19 @@ namespace Vodovoz.Errors.Orders
 				$"Номенклатура {nomenclature} пришла с неправильно установленной ценой" +
 				$"\nДолжно быть {price}, а передано {onlineOrderItemPrice}");
 		
-		public static Error IncorrectDiscountNomenclatureInDeliveryOnlineOrder(string nomenclature) =>
+		public static Error NotApplicableDiscountToNomenclatureOnlineOrder(string nomenclature) =>
 			new Error(
 				typeof(OnlineOrder),
-				nameof(IncorrectDiscountNomenclatureInDeliveryOnlineOrder),
-				$"Номенклатура {nomenclature} пришла со скидкой, тогда как в доставляемом заказе" +
-				"\nне должно быть скидок на товар, кроме промо наборов");
-		
-		public static Error NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder(string nomenclature) =>
-			new Error(
-				typeof(OnlineOrder),
-				nameof(NotApplicableDiscountToNomenclatureSelfDeliveryOnlineOrder),
+				nameof(NotApplicableDiscountToNomenclatureOnlineOrder),
 				$"Номенклатура {nomenclature} пришла со скидкой, хотя у нее" +
 				"\nне должно быть скидки на товар, кроме промо наборов");
 		
-		public static Error IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder(
+		public static Error IncorrectDiscountNomenclatureInOnlineOrder(
 			string nomenclature, decimal discount, decimal onlineOrderItemDiscount) =>
 			new Error(
 				typeof(OnlineOrder),
-				nameof(IncorrectDiscountNomenclatureInSelfDeliveryOnlineOrder),
-				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой в самовывозе" +
+				nameof(IncorrectDiscountNomenclatureInOnlineOrder),
+				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой" +
 				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
 		
 		public static Error IncorrectDiscountTypeInOnlineOrder(

@@ -296,36 +296,27 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.GetDiscount > 0)
+					if(node.DiscountReason != null)
 					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery)
-					{
-						if(node.DiscountReason != null)
+						if(node.Nomenclature != null
+							&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
 						{
-							if(node.Nomenclature != null
-							   && !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
-							
-							if(node.GetDiscount != node.DiscountReason.Value)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
-						else
+							
+						if(node.GetDiscount != node.DiscountReason.Value)
 						{
-							if(node.GetDiscount > 0)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+					}
+					else
+					{
+						if(node.GetDiscount > 0)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 					}
 					
@@ -340,41 +331,32 @@ namespace Vodovoz.Views.Orders
 				.Editing(false)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.IsDiscountInMoney)
+					if(node.DiscountReason != null)
 					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery)
-					{
-						if(node.DiscountReason != null)
+						switch(node.DiscountReason.ValueType)
 						{
-							switch(node.DiscountReason.ValueType)
-							{
-								case DiscountUnits.money:
-									if(!node.IsDiscountInMoney)
-									{
-										cell.CellBackgroundGdk = GdkColors.DangerBase;
-										return;
-									}
-									break;
-								case DiscountUnits.percent:
-									if(node.IsDiscountInMoney)
-									{
-										cell.CellBackgroundGdk = GdkColors.DangerBase;
-										return;
-									}
-									break;
-							}
+							case DiscountUnits.money:
+								if(!node.IsDiscountInMoney)
+								{
+									cell.CellBackgroundGdk = GdkColors.DangerBase;
+									return;
+								}
+								break;
+							case DiscountUnits.percent:
+								if(node.IsDiscountInMoney)
+								{
+									cell.CellBackgroundGdk = GdkColors.DangerBase;
+									return;
+								}
+								break;
 						}
-						else
+					}
+					else
+					{
+						if(node.IsDiscountInMoney)
 						{
-							if(node.IsDiscountInMoney)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 					}
 					
@@ -387,14 +369,7 @@ namespace Vodovoz.Views.Orders
 				.AddTextRenderer(node => node.DiscountReason != null ? node.DiscountReason.Name : string.Empty)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.DiscountReason != null)
-					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery
-						&& node.Nomenclature != null
+					if(node.Nomenclature != null
 						&& node.DiscountReason != null
 						&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
 					{
