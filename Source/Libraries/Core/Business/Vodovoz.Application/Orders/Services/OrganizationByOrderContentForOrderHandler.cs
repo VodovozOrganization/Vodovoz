@@ -92,14 +92,7 @@ namespace Vodovoz.Application.Orders.Services
 					processingGoods.Remove(processingGoods[i]);
 				}
 				
-				if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
-				{
-					goodsAndEquipments =
-						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
-					goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
-				}
-				
-				ProcessEquipmentsNotDependsOrderItems(processingEquipments, setSettings, goodsAndEquipments);
+				ProcessEquipmentsNotDependsOrderItems(processingEquipments, setSettings, goodsAndEquipmentsBySets);
 			}
 
 			if(goodsAndEquipmentsBySets.Count == 0
@@ -134,7 +127,7 @@ namespace Vodovoz.Application.Orders.Services
 		private void ProcessEquipmentsNotDependsOrderItems(
 			IList<OrderEquipment> processingEquipments,
 			OrganizationBasedOrderContentSettings setSettings,
-			(IList<IProduct> Goods, IList<OrderEquipment> Equipments) setGoodsAndEquipments)
+			IDictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
 		{
 			var j = 0;
 				
@@ -154,7 +147,14 @@ namespace Vodovoz.Application.Orders.Services
 					continue;
 				}
 
-				setGoodsAndEquipments.Equipments.Add(processingEquipments[j]);
+				if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+				{
+					goodsAndEquipments =
+						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+					goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+				}
+				
+				goodsAndEquipments.Equipments.Add(processingEquipments[j]);
 				processingEquipments.RemoveAt(j);
 			}
 		}
