@@ -161,6 +161,85 @@ namespace VodovozBusiness.Services.TrueMark
 				Problem = problem
 			};
 
+		public async Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListItem,
+			int orderItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var addProductCodesResult =
+				await AddProductCodesToRouteListItemFromStagingCodes(
+					uow,
+					routeListItem,
+					orderItemId,
+					cancellationToken);
+
+			if(addProductCodesResult.IsFailure)
+			{
+				var error = addProductCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			var deleteStagingCodesResult =
+				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
+					uow,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListItem.Id,
+					cancellationToken);
+
+			if(deleteStagingCodesResult.IsFailure)
+			{
+				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> AddProductCodesToRouteListItemFromStagingCodes(
+			IUnitOfWork uow,
+			RouteListItemEntity routeListItem,
+			int orderItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var stagingCodes =
+				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				uow,
+				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+				routeListItem.Id,
+				cancellationToken);
+
+			var rootStagingCodes = stagingCodes
+				.Where(x => x.ParentCodeId == null)
+				.ToList();
+
+			var trueMarkAnyCodesResult =
+				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromRootStagingCodes(
+					uow,
+					rootStagingCodes,
+					cancellationToken);
+
+			if(trueMarkAnyCodesResult.IsFailure)
+			{
+				var error = trueMarkAnyCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
+			{
+				await AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+					uow,
+					routeListItem,
+					orderItemId,
+					trueMarkAnyCode,
+					SourceProductCodeStatus.Accepted,
+					ProductCodeProblem.None,
+					cancellationToken);
+			}
+
+			return Result.Success();
+		}
+
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,

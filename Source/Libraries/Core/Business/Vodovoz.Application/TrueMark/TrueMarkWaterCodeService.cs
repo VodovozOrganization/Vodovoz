@@ -1,5 +1,4 @@
-﻿using Irony.Parsing;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -1199,7 +1198,7 @@ namespace Vodovoz.Application.TrueMark
 		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken = default)
 		{
 			var usedProductCodes =
 				await _trueMarkRepository.GetUsedTrueMarkProductCodeByStagingTrueMarkCode(uow, stagingTrueMarkCode, cancellationToken);
@@ -1216,7 +1215,7 @@ namespace Vodovoz.Application.TrueMark
 			IUnitOfWork uow,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken = default)
 		{
 			var allCodesResult =
 				await _stagingTrueMarkCodeRepository.GetAsync(
@@ -1227,125 +1226,120 @@ namespace Vodovoz.Application.TrueMark
 			return allCodesResult.Value;
 		}
 
-		public async Task<Result> SaveTrueMarkProductCodes(
+		public async Task<Result> DeleteAllTrueMarkStagingCodesByRelatedDocument(
 			IUnitOfWork uow,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken = default)
 		{
-			var allStagingCodesResult =
+			var allCodesResult =
 				await _stagingTrueMarkCodeRepository.GetAsync(
 					uow,
 					StagingTrueMarkCodeSpecification.CreateForRelatedDocument(relatedDocumentType, relatedDocumentId),
 					cancellationToken: cancellationToken);
 
-			var allStagingCodes = allStagingCodesResult.Value;
-
-			var rootCodes = allStagingCodes
+			var rootCodes = allCodesResult.Value
 				.Where(x => x.ParentCodeId == null)
 				.ToList();
 
-			var trueMarkCodes = new List<TrueMarkAnyCode>();
-
-			foreach(var stagingCode in allStagingCodes)
+			foreach(var rootCode in rootCodes)
 			{
-				var trueMarkAnyCode = GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, stagingCode);
-				trueMarkCodes.Add(trueMarkAnyCode);
-			}
-			
-			foreach(var code in trueMarkCodes)
-			{
-				code.Match(
-					transportCode =>
-					{
-						trueMarkCodes
-							.FirstOrDefault(ntc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(transportCode.RawCode))
-								?.IdentificationCode == ntc.RawCode)
-							?.AddInnerTransportCode(transportCode);
-
-						return true;
-					},
-					waterGroupCode =>
-					{
-						trueMarkCodes
-							.FirstOrDefault(ntc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
-								?.IdentificationCode == ntc.RawCode)
-							?.AddInnerGroupCode(waterGroupCode);
-
-						trueMarkCodes
-							.FirstOrDefault(ngc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterGroupCode.IdentificationCode))
-								?.IdentificationCode == ngc.IdentificationCode)
-							?.AddInnerGroupCode(waterGroupCode);
-
-						return true;
-					},
-					waterIdentificationCode =>
-					{
-						trueMarkCodes
-							.FirstOrDefault(ntc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
-								?.IdentificationCode == ntc.RawCode)
-							?.AddInnerWaterCode(waterIdentificationCode);
-
-						trueMarkCodes
-							.FirstOrDefault(ngc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
-								?.IdentificationCode == ngc.IdentificationCode)
-							?.AddInnerWaterCode(waterIdentificationCode);
-
-						return true;
-					});
+				await uow.DeleteAsync(rootCode, cancellationToken);
 			}
 
-			foreach(var code in trueMarkCodes)
-			{
-				var parentStagingCode =
-					allStagingCodes
-					.FirstOrDefault(sc => sc.InnerCodes
-						.Any(c => (c.IsTransport && code.IsTrueMarkTransportCode && c.RawCode == code.TrueMarkTransportCode.RawCode)
-							|| (c.IsGroup && code.IsTrueMarkWaterGroupCode && c.Gtin == code.TrueMarkWaterGroupCode.GTIN && c.SerialNumber == code.TrueMarkWaterGroupCode.SerialNumber)
-							|| (c.IsIdentification && code.IsTrueMarkWaterIdentificationCode && c.Gtin == code.TrueMarkWaterIdentificationCode.GTIN && c.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber)));
-
-				var parentTrueMarkAnyCode = trueMarkCodes
-					.FirstOrDefault(c => (parentStagingCode.IsTransport && c.IsTrueMarkTransportCode && parentStagingCode.RawCode == c.TrueMarkTransportCode.RawCode)
-							|| (parentStagingCode.IsGroup && c.IsTrueMarkWaterGroupCode && parentStagingCode.Gtin == c.TrueMarkWaterGroupCode.GTIN && parentStagingCode.SerialNumber == c.TrueMarkWaterGroupCode.SerialNumber)
-							|| (parentStagingCode.IsIdentification && c.IsTrueMarkWaterIdentificationCode && parentStagingCode.Gtin == c.TrueMarkWaterIdentificationCode.GTIN && parentStagingCode.SerialNumber == c.TrueMarkWaterIdentificationCode.SerialNumber));
-
-				parentTrueMarkAnyCode?.AddInnerCode(code);
-			}
+			return Result.Success();
 		}
 
-		private TrueMarkAnyCode GetSavedOrCreateTrueMarkAnyCodeByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingCode)
+		public async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromRootStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> rootStagingCodes,
+			CancellationToken cancellationToken = default)
+		{
+			if(rootStagingCodes.Any(x => x.ParentCodeId == null))
+			{
+				throw new ArgumentException(
+					"Поддерживается обработка кодов промежуточного хранения верхнего уровня. Коды, имеющие родителя не могут быть обработаны",
+					nameof(rootStagingCodes));
+			}
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var rootStagingCode in rootStagingCodes)
+			{
+				trueMarkAnyCodes.Add(await CreateTrueMarkAnyCodeFromStagingCode(uow, rootStagingCode, cancellationToken));
+			}
+
+			return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);
+		}
+
+		private async Task<TrueMarkAnyCode> CreateTrueMarkAnyCodeFromStagingCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingCode,
+			CancellationToken cancellationToken)
+		{
+			var trueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, stagingCode, cancellationToken);
+			var innerCodes = await GetInnerCodes(uow, stagingCode, cancellationToken);
+
+			foreach(var innerCode in innerCodes)
+			{
+				trueMarkAnyCode.AddInnerTrueMarkAnyCode(innerCode);
+			}
+
+			return trueMarkAnyCode;
+		}
+
+		private async Task<IEnumerable<TrueMarkAnyCode>> GetInnerCodes(
+			IUnitOfWork uow,
+			StagingTrueMarkCode parentStagingCode,
+			CancellationToken cancellationToken)
+		{
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var innerStagingCode in parentStagingCode.InnerCodes)
+			{
+				var innerTrueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, innerStagingCode, cancellationToken);
+
+				if(innerStagingCode.InnerCodes.Any())
+				{
+					innerTrueMarkAnyCode.AddInnerTrueMarkAnyCodes(await GetInnerCodes(uow, innerStagingCode, cancellationToken));
+				}
+
+				trueMarkAnyCodes.Add(innerTrueMarkAnyCode);
+			}
+
+			return trueMarkAnyCodes;
+		}
+
+		private async Task<TrueMarkAnyCode> GetSavedOrCreateTrueMarkAnyCodeByStagingCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingCode,
+			CancellationToken cancellationToken)
 		{
 			switch(stagingCode.CodeType)
 			{
 				case StagingTrueMarkCodeType.Identification:
-					return _trueMarkWaterIdentificationCodeRepository
-						.Get(
+					return (await _trueMarkWaterIdentificationCodeRepository
+						.GetAsync(
 						uow,
-						x => x.GTIN == stagingCode.Gtin
-							&& x.SerialNumber == stagingCode.SerialNumber
-							&& !x.IsInvalid,
-						1)
+						TrueMarkWaterIdentificationCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
+						1,
+						cancellationToken)).Value
 						.FirstOrDefault() ?? _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
 				case StagingTrueMarkCodeType.Group:
-					return _trueMarkWaterGroupCodeRepository
-						.Get(
+					return (await _trueMarkWaterGroupCodeRepository
+						.GetAsync(
 						uow,
-						x => x.GTIN == stagingCode.Gtin
-							&& x.SerialNumber == stagingCode.SerialNumber
-							&& !x.IsInvalid,
-						1)
+						TrueMarkWaterGroupCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
+						1,
+						cancellationToken)).Value
 						.FirstOrDefault() ?? _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
 				case StagingTrueMarkCodeType.Transport:
-					return _trueMarkTransportCodeRepository
-						.Get(
+					return (await _trueMarkTransportCodeRepository
+						.GetAsync(
 							uow,
-							x => x.RawCode == stagingCode.RawCode && !x.IsInvalid,
-							1)
+							TrueMarkTransportCodeSpecification.CreateForRawCode(stagingCode.RawCode),
+							1,
+							cancellationToken)).Value
 						.FirstOrDefault() ?? _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
 				default:
 					throw new ArgumentException(

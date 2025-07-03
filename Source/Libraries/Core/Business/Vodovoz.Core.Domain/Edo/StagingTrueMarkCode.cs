@@ -153,6 +153,20 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <param name="innerCode">Вложенный код</param>
 		public virtual void AddInnerCode(StagingTrueMarkCode innerCode)
 		{
+			if(CodeType == StagingTrueMarkCodeType.Group
+				&& innerCode.CodeType != StagingTrueMarkCodeType.Group
+				&& innerCode.CodeType != StagingTrueMarkCodeType.Identification)
+			{
+				throw new InvalidOperationException(
+					$"Невозможно добавить вложенный код {innerCode.IdentificationCode} типа {innerCode.CodeType} в групповой код {IdentificationCode}");
+			}
+
+			if(CodeType == StagingTrueMarkCodeType.Identification)
+			{
+				throw new InvalidOperationException(
+						$"Невозможно добавить вложенный код {innerCode.IdentificationCode} типа {innerCode.CodeType} в код экземпляра {IdentificationCode}");
+			}
+
 			innerCode.ParentCodeId = Id;
 			InnerCodes.Add(innerCode);
 		}
