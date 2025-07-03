@@ -785,13 +785,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			foreach(var keyPairValue in OrganizationsByOrderContent)
 			{
 				var organizationByOrderContent = keyPairValue.Value;
-				
-				//на всякий уточнить, действительно ли мы пропускаем такие сущности и не сохраняем
-				if(!organizationByOrderContent.ProductGroups.Any() && !organizationByOrderContent.Nomenclatures.Any())
-				{
-					continue;
-				}
-				
 				UowOrderOrganizationSettings.Save(organizationByOrderContent);
 			}
 		}
