@@ -828,8 +828,6 @@
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\BankCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\ContractCatalog.cs" />
@@ -2100,6 +2098,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
     <Compile Include="Views\TrueMark\OrderCodesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
+    <Compile Include="Views\Logistic\ExportTo1CView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

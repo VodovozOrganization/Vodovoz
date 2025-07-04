@@ -735,7 +735,7 @@ public partial class MainWindow : Window
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
-		var dialogSettingsFactory = _autofacScope.Resolve<IDialogSettingsFactory>();
+		/*var dialogSettingsFactory = _autofacScope.Resolve<IDialogSettingsFactory>();
 		var fileDialogService = _autofacScope.Resolve<IFileDialogService>();
 		var orderRepository = _autofacScope.Resolve<IOrderRepository>();
 		var orderSettings = _autofacScope.Resolve<IOrderSettings>();
@@ -744,7 +744,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
 			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory, orderRepository, dialogSettingsFactory, fileDialogService, orderSettings, commonServises)
-		);
+		);*/
 	}
 
 	void ActionExportCounterpartiesTo1c_Activated(object sender, System.EventArgs e)
