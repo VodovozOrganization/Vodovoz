@@ -5,6 +5,7 @@ using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
@@ -32,7 +33,7 @@ namespace FastPaymentsAPI.Library.Notifications
 		public async Task NotifyPaymentStatusChangeAsync(FastPayment payment)
 		{
 			var paymentFromId = payment.PaymentByCardFrom.Id;
-			if(paymentFromId != (int)RequestFromType.FromMobileAppByQr)
+			if(paymentFromId != (int)FastPaymentRequestFromType.FromMobileAppByQr)
 			{
 				_logger.LogWarning("Попытка отправки уведомления на мобильное приложение для платежа с не соответствующем источником оплаты. " +
 					"Источник оплаты: {paymentFrom}.", payment.PaymentByCardFrom.Name);

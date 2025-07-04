@@ -25,7 +25,7 @@ namespace Vodovoz.Core.Domain.Goods
 		PrepositionalPlural = "номенклатурах")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class NomenclatureEntity : PropertyChangedBase, IDomainObject, IBusinessObject, INamed, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class NomenclatureEntity : PropertyChangedBase, INamedDomainObject, IBusinessObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
 	{
 		private int _id;
 		private string _name;

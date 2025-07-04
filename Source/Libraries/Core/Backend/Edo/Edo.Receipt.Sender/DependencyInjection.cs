@@ -22,7 +22,7 @@ namespace Edo.Receipt.Sender
 			services.TryAddScoped<ReceiptSender>();
 
 			services.AddEdo();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 
 			return services;
 		}

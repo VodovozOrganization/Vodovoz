@@ -30,10 +30,21 @@ namespace VodovozBusinessTests.Domain.Orders
 	[TestFixture()]
 	public class OrderTests
 	{
-
+		private static IOrderContractUpdater _contractUpdater;
+		
+		[SetUp]
+		public void Init()
+		{
+			_contractUpdater = Substitute.For<IOrderContractUpdater>();
+		}
+		
 		#region OrderItemsPacks
 
-		private static Order ForfeitWaterAndEmptyBottles(Order order, int waterCount, int forfeitCount, int emptyBottlesCount = 0)
+		private static Order ForfeitWaterAndEmptyBottles(
+			Order order,
+			int waterCount,
+			int forfeitCount,
+			int emptyBottlesCount = 0)
 		{
 			Nomenclature forfeitNomenclature = Substitute.For<Nomenclature>();
 			forfeitNomenclature.Category.Returns(NomenclatureCategory.bottle);
@@ -46,18 +57,21 @@ namespace VodovozBusinessTests.Domain.Orders
 			waterNomenclature.Category.Returns(NomenclatureCategory.water);
 			waterNomenclature.IsDisposableTare.Returns(false);
 
-			order.AddNomenclature(forfeitNomenclature, forfeitCount);
-			order.AddNomenclature(emptyBottleNomenclature, emptyBottlesCount);
-			order.AddNomenclature(waterNomenclature, waterCount);
+			order.AddNomenclature(order.UoW, _contractUpdater, forfeitNomenclature, forfeitCount);
+			order.AddNomenclature(order.UoW, _contractUpdater, emptyBottleNomenclature, emptyBottlesCount);
+			order.AddNomenclature(order.UoW, _contractUpdater, waterNomenclature, waterCount);
 
 			return order;
 		}
 
-		private static Order OrderItemsWithPriceAndCount(Order order, Nomenclature nomenclature, params (int ActualCount, int Price)[] countAndPrice)
+		private static Order OrderItemsWithPriceAndCount(
+			Order order,
+			Nomenclature nomenclature,
+			params (int ActualCount, int Price)[] countAndPrice)
 		{
 			foreach(var i in countAndPrice)
 			{
-				order.AddNomenclature(nomenclature);
+				order.AddNomenclature(order.UoW, _contractUpdater, nomenclature);
 				var item = order.OrderItems.LastOrDefault();
 				item.SetPrice(i.Price);
 				item.SetActualCount(i.ActualCount);
@@ -72,14 +86,9 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		private Order CreateTestOrderWithEquipmentRefundAndRecivedDeposit()
 		{
-			Order testOrder = new Order {
-				OrderItems = new List<OrderItem>(),
-				DeliveryDate = DateTime.Now,
-				OrderDepositItems = new List<OrderDepositItem>(),
-				DepositOperations = new List<DepositOperation>()
-			};
-
-			Nomenclature depositNomenclature = Substitute.For<Nomenclature>();
+			var testOrder = CreateTestOrder();
+			
+			var depositNomenclature = Substitute.For<Nomenclature>();
 			depositNomenclature.TypeOfDepositCategory.Returns(TypeOfDepositCategory.EquipmentDeposit);
 			//OrderItem recivedDepositOrderItem = new OrderItem {
 			//	Nomenclature = depositNomenclature,
@@ -88,7 +97,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Price = 150m,
 			//};
 
-			testOrder.AddNomenclature(depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
 
 			var item = testOrder.OrderItems.LastOrDefault();
 
@@ -110,12 +119,7 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		private Order CreateTestOrderWithBottleRefundAndRecivedDeposit()
 		{
-			Order testOrder = new Order {
-				OrderItems = new List<OrderItem>(),
-				DeliveryDate = DateTime.Now,
-				OrderDepositItems = new List<OrderDepositItem>(),
-				DepositOperations = new List<DepositOperation>()
-			};
+			var testOrder = CreateTestOrder();
 
 			Nomenclature depositNomenclature = Substitute.For<Nomenclature>();
 			depositNomenclature.TypeOfDepositCategory.Returns(TypeOfDepositCategory.BottleDeposit);
@@ -127,7 +131,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Price = 322,
 			//};
 
-			testOrder.AddNomenclature(depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
 			var item = testOrder.OrderItems.LastOrDefault();
 			item.SetPrice(322);
 			item.SetActualCount(2);
@@ -145,14 +149,29 @@ namespace VodovozBusinessTests.Domain.Orders
 			return testOrder;
 		}
 
+		private static Order CreateTestOrder()
+		{
+			var uow = Substitute.For<IUnitOfWork>();
+			
+			var testOrder = new Order {
+				OrderItems = new List<OrderItem>(),
+				OrderDepositItems = new List<OrderDepositItem>(),
+				DepositOperations = new List<DepositOperation>(),
+				UoW = uow
+			};
+			testOrder.UpdateDeliveryDate(DateTime.Now, _contractUpdater, out var message);
+			
+			return testOrder;
+		}
+
 		private Order CreateTestOrderWithClient()
 		{
 			Order testOrder = new Order();
 			testOrder.DeliverySchedule = Substitute.For<DeliverySchedule>();
 			testOrder.Contract = Substitute.For<CounterpartyContract>();
 
-			Counterparty testClient = new Counterparty();
-			testOrder.Client = testClient;
+			var testClient = new Counterparty();
+			testOrder.UpdateClient(testClient, _contractUpdater, out var message);
 			testClient.DefaultDocumentType = DefaultDocumentType.torg12;
 			testClient.PaymentMethod = PaymentType.Cashless;
 
@@ -191,10 +210,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderItemMock3.Discount.Returns(0);
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
 
-			Order orderUnderTest = new Order {
+			var orderUnderTest = new Order {
 				UoW = Substitute.For<IUnitOfWork>(),
-				Client = Substitute.For<Counterparty>(),
-				DeliveryPoint = Substitute.For<DeliveryPoint>(),
+				
 
 				OrderItems = new List<OrderItem> {
 					orderItemMock0,
@@ -208,6 +226,9 @@ namespace VodovozBusinessTests.Domain.Orders
 					promotionalSetMockNotExisting
 				}
 			};
+			
+			orderUnderTest.UpdateClient(Substitute.For<Counterparty>(), _contractUpdater, out var updateClientMessage);
+			orderUnderTest.UpdateDeliveryPoint(Substitute.For<DeliveryPoint>(), _contractUpdater);
 
 			// act
 			//order.ClearPromotionSets();//если private переделать на public успех
@@ -385,12 +406,13 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			var intercativeServiceMock = Substitute.For<IInteractiveService>();
-			Order orderUnderTest = new Order {
+			var orderUnderTest = new Order {
 				UoW = Substitute.For<IUnitOfWork>(),
-				Client = Substitute.For<Counterparty>(),
-				DeliveryPoint = Substitute.For<DeliveryPoint>(),
 				InteractiveService = intercativeServiceMock
 			};
+			
+			orderUnderTest.UpdateClient(Substitute.For<Counterparty>(), _contractUpdater, out var updateClientMessage);
+			orderUnderTest.UpdateDeliveryPoint(Substitute.For<DeliveryPoint>(), _contractUpdater);
 			
 			var dict = new Dictionary<int, int[]>
 			{
@@ -460,7 +482,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.ReturnsNull();
 
-			Order orderUnderTest = new Order { Client = client };
+			var orderUnderTest = new Order();
+			orderUnderTest.UpdateClient(client, _contractUpdater, out var updateClientMessage);
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -499,7 +522,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.Returns(firstOrder);
 
-			Order orderUnderTest = new Order { Client = client };
+			var orderUnderTest = new Order();
+			orderUnderTest.UpdateClient(client, _contractUpdater, out var updateClientMessage);
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -525,7 +549,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 			client.FirstOrder.Returns(firstOrder);
 
-			Order orderUnderTest = new Order { Client = client };
+			var orderUnderTest = new Order();
+			orderUnderTest.UpdateClient(client, _contractUpdater, out var updateClientMessage);
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
@@ -541,13 +566,14 @@ namespace VodovozBusinessTests.Domain.Orders
 		#endregion
 
 		#region UpdateOperationTests
-		static IEnumerable WaterForfeitBottleOrderItems()
+
+		private static IEnumerable WaterForfeitBottleOrderItems()
 		{
-			Order order = new Order
+			var order = new Order
 			{
 				Id = 1,
-				DeliveryDate = DateTime.Now,
 			};
+			order.UpdateDeliveryDate(DateTime.Now, _contractUpdater, out var updateDeliveryDate);
 
 			yield return new object[] { ForfeitWaterAndEmptyBottles(order, 10, 10), 10, 10 };
 			yield return new object[] { ForfeitWaterAndEmptyBottles(order, 7, 5), 7, 5 };
@@ -585,12 +611,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void Check_DepositOperation_Creation_For_Equipment()
 		{
 			// arrange
-			Order testOrder = CreateTestOrderWithEquipmentRefundAndRecivedDeposit();
-			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			var testOrder = CreateTestOrderWithEquipmentRefundAndRecivedDeposit();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations(uow);
-
+			var operations = testOrder.UpdateDepositOperations(testOrder.UoW);
 
 			var EquipmentDeposit = operations
 							.OfType<DepositOperation>()
@@ -606,12 +630,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void Check_DepositOperation_Creation_For_Bottles()
 		{
 			// arrange
-			Order testOrder = CreateTestOrderWithBottleRefundAndRecivedDeposit();
-			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			var testOrder = CreateTestOrderWithBottleRefundAndRecivedDeposit();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations(uow);
-
+			var operations = testOrder.UpdateDepositOperations(testOrder.UoW);
 
 			var BottleDeposit = operations
 							.OfType<DepositOperation>()
@@ -626,13 +648,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void Check_DepositOperation_Creation_For_Contract_Closer()
 		{
 			// arrange
-			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
-
-			Order testOrder = new Order {
-				OrderItems = new List<OrderItem>(),
-				DeliveryDate = DateTime.Now,
-				DepositOperations = new List<DepositOperation>()
-			};
+			var testOrder = CreateTestOrder();
 			testOrder.IsContractCloser = true;
 
 			Nomenclature depositNomenclature = Substitute.For<Nomenclature>();
@@ -644,13 +660,13 @@ namespace VodovozBusinessTests.Domain.Orders
 			//};
 			//testOrder.OrderItems.Add(recivedDepositOrderItem);
 
-			testOrder.AddNomenclature(depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
 
 			var item = testOrder.OrderItems.LastOrDefault();
 			item.SetPrice(322);
 
 			// act
-			var operations = testOrder.UpdateDepositOperations(uow);
+			var operations = testOrder.UpdateDepositOperations(testOrder.UoW);
 
 			// assert
 			Assert.That(operations?.FirstOrDefault(), Is.EqualTo(null));
@@ -794,12 +810,11 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			Order orderUnderTest = new Order {
 				Id = 1,
-				DeliveryDate = new DateTime(2000, 01, 02),
 				SelfDelivery = true,
 				IsContractCloser = false,
 				ReturnedTare = 1
 			};
-
+			orderUnderTest.UpdateDeliveryDate(new DateTime(2000, 01, 02), _contractUpdater, out var message);
 			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
 
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
@@ -834,22 +849,20 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Nomenclature = nomenclatureMock01,
 			//	Count = 15
 			//};
-
+			var  uow = Substitute.For<IUnitOfWork>();
 			Order orderUnderTest = new Order {
 				Id = 1,
-				DeliveryDate = new DateTime(2000, 01, 02),
 				SelfDelivery = true,
 				IsContractCloser = false,
 				//OrderItems = new List<OrderItem> { orderItem01 },
 				ReturnedTare = 1
 			};
-
-			orderUnderTest.AddNomenclature(nomenclatureMock01, 15);
+			orderUnderTest.UoW = uow;
+			orderUnderTest.UpdateDeliveryDate(new DateTime(2000, 01, 02), _contractUpdater, out var message);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock01, 15);
 
 			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
-
-			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
-			orderUnderTest.UoW = uow;
+			
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
 			var standartNomenclatures = Substitute.For<INomenclatureSettings>();
@@ -889,7 +902,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Nomenclature = nomenclatureMock03,
 			//	Count = 41
 			//};
-
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			Order orderUnderTest = new Order {
 				Id = 1,
 				BottlesMovementOperation = new BottlesMovementOperation {
@@ -897,20 +910,19 @@ namespace VodovozBusinessTests.Domain.Orders
 					Delivered = -1,
 					Returned = -1
 				},
-				DeliveryDate = new DateTime(1999, 05, 12),
+				
 				SelfDelivery = true,
 				IsContractCloser = false,
 				//OrderItems = new List<OrderItem> { orderItem01, orderItem02 },
 				ReturnedTare = 3
 			};
-
-			orderUnderTest.AddNomenclature(nomenclatureMock01, 7);
-			orderUnderTest.AddNomenclature(nomenclatureMock03, 41);
+			orderUnderTest.UoW = uow;
+			orderUnderTest.UpdateDeliveryDate(new DateTime(1999, 05, 12), _contractUpdater, out var message);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock01, 7);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock03, 41);
 
 			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
 
-			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
-			orderUnderTest.UoW = uow;
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
 			var standartNomenclatures = Substitute.For<INomenclatureSettings>();
@@ -957,13 +969,14 @@ namespace VodovozBusinessTests.Domain.Orders
 				Count = 3,
 				Direction = Direction.Deliver
 			};
-
+			
+			var uow = Substitute.For<IUnitOfWork>();
 			Order orderUnderTest = new Order {
 				//OrderItems = new List<OrderItem> { orderItem },
 				OrderEquipments = new List<OrderEquipment> { orderEquipment },
 			};
 
-			orderUnderTest.AddNomenclature(nomenclatureMockOrderItem, 2);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMockOrderItem, 2);
 
 			// act
 			var vol = orderUnderTest.FullVolume(countOrderItems, countOrderEquipment);
@@ -1038,12 +1051,13 @@ namespace VodovozBusinessTests.Domain.Orders
 				Direction = Direction.Deliver
 			};
 
+			var uow = Substitute.For<IUnitOfWork>();
 			Order orderUnderTest = new Order {
 				//OrderItems = new List<OrderItem> { orderItem },
 				OrderEquipments = new List<OrderEquipment> { orderEquipment },
 			};
 
-			orderUnderTest.AddNomenclature(nomenclatureMockOrderItem, 8);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMockOrderItem, 8);
 
 			// act
 			var weight = orderUnderTest.FullWeight(countOrderItems, countOrderEquipment);
@@ -1056,9 +1070,8 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void GetContact_WhenNoClientInOrder_ThenReturnsNull()
 		{
 			// arrange
-			Order order = new Order {
-				Client = null
-			};
+			// Client = null
+			Order order = new Order();
 
 			// act
 			var contact = order.GetContact();
@@ -1074,9 +1087,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			var client = Substitute.For<Counterparty>();
 
 			Order order = new Order {
-				Client = client,
 				SelfDelivery = true
 			};
+			order.UpdateClient(client, _contractUpdater, out var message);
 
 			// act
 			var contact = order.GetContact();
@@ -1098,9 +1111,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Client = client,
 				SelfDelivery = true
 			};
+			order.UpdateClient(client, _contractUpdater, out var message);
 
 			// act
 			var contact = order.GetContact();
@@ -1126,9 +1139,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Client = client,
 				SelfDelivery = true
 			};
+			order.UpdateClient(client, _contractUpdater, out var message);
 
 			// act
 			var contact = order.GetContact();
@@ -1154,9 +1167,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			);
 
 			Order order = new Order {
-				Client = client,
 				SelfDelivery = true
 			};
+			order.UpdateClient(client, _contractUpdater, out var message);
 
 			// act
 			var contact = order.GetContact();
@@ -1183,10 +1196,9 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			Order order = new Order {
-				Client = client,
-				DeliveryPoint = dp
-			};
+			var order = new Order();
+			order.UpdateClient(client, _contractUpdater, out var message);
+			order.UpdateDeliveryPoint(dp, _contractUpdater);
 
 			// act
 			var contact = order.GetContact();
@@ -1213,10 +1225,9 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			Order order = new Order {
-				Client = client,
-				DeliveryPoint = dp
-			};
+			var order = new Order();
+			order.UpdateClient(client, _contractUpdater, out var message);
+			order.UpdateDeliveryPoint(dp, _contractUpdater);
 
 			// act
 			var contact = order.GetContact();
@@ -1237,10 +1248,9 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			Order order = new Order {
-				Client = client,
-				DeliveryPoint = dp
-			};
+			var order = new Order();
+			order.UpdateClient(client, _contractUpdater, out var message);
+			order.UpdateDeliveryPoint(dp, _contractUpdater);
 
 			// act
 			var contact = order.GetContact();
@@ -1265,10 +1275,9 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			Order order = new Order {
-				Client = client,
-				DeliveryPoint = dp
-			};
+			var order = new Order();
+			order.UpdateClient(client, _contractUpdater, out var message);
+			order.UpdateDeliveryPoint(dp, _contractUpdater);
 
 			// act
 			var contact = order.GetContact();
@@ -1306,10 +1315,9 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			Order order = new Order {
-				Client = client,
-				DeliveryPoint = dp
-			};
+			var order = new Order();
+			order.UpdateClient(client, _contractUpdater, out var message);
+			order.UpdateDeliveryPoint(dp, _contractUpdater);
 
 			// act
 			var contact = order.GetContact();

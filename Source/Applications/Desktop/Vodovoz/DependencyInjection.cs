@@ -74,6 +74,8 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
+using Vodovoz.ViewModels.Journals.Mappings;
+using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
@@ -213,7 +215,9 @@ namespace Vodovoz
 				.AddTransient<EntityModelFactory>()
 
 				.AddPacs()
-				.AddScoped<MessageService>();
+				.AddScoped<MessageService>()
+				.AddSingleton<EntityToJournalMappings>()
+				.AddScoped<EntityJournalOpener>();
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();

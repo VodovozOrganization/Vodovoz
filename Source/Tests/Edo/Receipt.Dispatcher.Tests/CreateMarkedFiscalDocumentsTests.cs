@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests
@@ -534,6 +535,7 @@ namespace Receipt.Dispatcher.Tests
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
 				Substitute.For<IEdoOrderContactProvider>(),
 				saveCodesService,
+				Substitute.For<IOrganizationSettings>(),
 				bus);
 		}
 

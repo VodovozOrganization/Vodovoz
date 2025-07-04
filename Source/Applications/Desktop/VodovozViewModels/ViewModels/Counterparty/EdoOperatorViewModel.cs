@@ -2,6 +2,7 @@
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty

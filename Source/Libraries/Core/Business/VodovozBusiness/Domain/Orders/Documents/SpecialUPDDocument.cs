@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -119,9 +120,16 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string Title => String.Format($"Особый УПД №{Order.Id} от {Order.DeliveryDate:d}");
 		public virtual Counterparty Counterparty => Order?.Client;
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
-			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+			var hasAgreeForEdo = false;
+
+			if(edoAccountController != null)
+			{
+				var edoAccount = 
+					edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Order.Client, Order.Contract.Organization.Id);
+				hasAgreeForEdo = edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+			}
 
 			if(Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{

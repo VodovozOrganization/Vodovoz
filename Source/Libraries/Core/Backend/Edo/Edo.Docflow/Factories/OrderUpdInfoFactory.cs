@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
@@ -23,14 +24,18 @@ namespace Edo.Docflow.Factories
 		private const string _dateFormatString = "dd.MM.yyyy";
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
 
 		public OrderUpdInfoFactory(
 			IUnitOfWork uow,
-			ITrueMarkCodeRepository trueMarkCodeRepository
+			ITrueMarkCodeRepository trueMarkCodeRepository,
+			ICounterpartyEdoAccountEntityController edoAccountEntityController
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
+			_edoAccountEntityController =
+				edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 		}
 
 		public async Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
@@ -62,6 +67,8 @@ namespace Edo.Docflow.Factories
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			var products = await GetProducts(documentEdoTask, cancellationToken);
+			var edoAccount =
+				_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
 
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -70,8 +77,8 @@ namespace Edo.Docflow.Factories
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),
-				Customer = GetCustomerInfo(order),
-				Consignee = GetConsigneeInfo(order.Client, order.DeliveryPoint),
+				Customer = GetCustomerInfo(order, edoAccount),
+				Consignee = GetConsigneeInfo(order.Client, edoAccount, order.DeliveryPoint),
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(payments),
@@ -85,14 +92,15 @@ namespace Edo.Docflow.Factories
 		private SellerInfo GetSellerInfo(OrderEntity order) =>
 			new SellerInfo { Organization = GetOrganizationInfo(order.Contract.Organization) };
 
-		private CustomerInfo GetCustomerInfo(OrderEntity order) =>
-			new CustomerInfo { Organization = GetCustomerOrganizationInfo(order.Client) };
+		private CustomerInfo GetCustomerInfo(OrderEntity order, CounterpartyEdoAccountEntity edoAccount) =>
+			new CustomerInfo { Organization = GetCustomerOrganizationInfo(order.Client, edoAccount) };
 
-		private ConsigneeInfo GetConsigneeInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+		private ConsigneeInfo GetConsigneeInfo(
+			CounterpartyEntity counterparty, CounterpartyEdoAccountEntity edoAccount, DeliveryPointEntity deliveryPoint)
 		{
 			var consignee = new ConsigneeInfo
 			{
-				Organization = GetConsigneeOrganizationInfo(counterparty, deliveryPoint)
+				Organization = GetConsigneeOrganizationInfo(counterparty, edoAccount, deliveryPoint)
 			};
 			
 			if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
@@ -235,7 +243,7 @@ namespace Edo.Docflow.Factories
 			return organizationInfo;
 		}
 		
-		private OrganizationInfo GetCustomerOrganizationInfo(CounterpartyEntity counterparty)
+		private OrganizationInfo GetCustomerOrganizationInfo(CounterpartyEntity counterparty, CounterpartyEdoAccountEntity edoAccount)
 		{
 			if(counterparty.PersonType == PersonType.natural)
 			{
@@ -262,12 +270,15 @@ namespace Edo.Docflow.Factories
 				counterparty.INN,
 				clientKpp,
 				counterparty.JurAddress,
-				counterparty.PersonalAccountIdInEdo);
+				edoAccount.PersonalAccountIdInEdo);
 
 			return organizationInfo;
 		}
 		
-		private OrganizationInfo GetConsigneeOrganizationInfo(CounterpartyEntity counterparty, DeliveryPointEntity deliveryPoint)
+		private OrganizationInfo GetConsigneeOrganizationInfo(
+			CounterpartyEntity counterparty,
+			CounterpartyEdoAccountEntity edoAccount,
+			DeliveryPointEntity deliveryPoint)
 		{
 			var address = string.Empty;
 			var kpp = string.Empty;
@@ -283,7 +294,7 @@ namespace Edo.Docflow.Factories
 						counterparty.INN,
 						kpp,
 						address,
-						counterparty.PersonalAccountIdInEdo);
+						edoAccount.PersonalAccountIdInEdo);
 				case CargoReceiverSource.Special:
 					if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
 					{
@@ -295,11 +306,11 @@ namespace Edo.Docflow.Factories
 							counterparty.INN,
 							kpp,
 							address,
-							counterparty.PersonalAccountIdInEdo);
+							edoAccount.PersonalAccountIdInEdo);
 					}
-					return GetCustomerOrganizationInfo(counterparty);
+					return GetCustomerOrganizationInfo(counterparty, edoAccount);
 				default:
-					return GetCustomerOrganizationInfo(counterparty);
+					return GetCustomerOrganizationInfo(counterparty, edoAccount);
 			}
 		}
 		
