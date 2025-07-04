@@ -159,8 +159,14 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				join address in uow.Session.Query<RouteListItem>()
 					on order.Id equals address.Order.Id into addresses
 				from address in addresses.DefaultIfEmpty()
-				join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccount>()
-					on order.Client.Id equals defaultEdoAccount.Counterparty.Id
+				join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+					on new { a = order.Client.Id, b = (int?)contract.Organization.Id, c = true }
+					equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+					into edoAccountsByOrder
+				from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+				join defaultVodovozEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+					on new { a = order.Client.Id, b = (int?)_organizationSettings.VodovozOrganizationId, c = true }
+					equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 				where
 					order.Id == currentOrder.Id
 					&& (
@@ -170,11 +176,9 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 							&& address.AddressTransferType == AddressTransferType.FromFreeBalance
 						||
 						(
-							isForBill && !order.Client.NeedSendBillByEdo
-							|| (defaultEdoAccount.IsDefault
-									&& defaultEdoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree
-									&& (defaultEdoAccount.OrganizationId == organization.Id
-										|| defaultEdoAccount.OrganizationId != _organizationSettings.VodovozOrganizationId))
+							isForBill && (!order.Client.NeedSendBillByEdo
+								|| edoAccountByOrder.ConsentForEdoStatus != ConsentForEdoStatus.Agree
+								|| defaultVodovozEdoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 						)
 						&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 						)

@@ -77,17 +77,21 @@ namespace Edo.Transfer.Routine.Services
 					   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
 					from edoContainer in edoContainers.DefaultIfEmpty()
 					join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
-						on client.Id equals defaultEdoAccount.Counterparty.Id
+						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }
+						equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+						into edoAccountsByOrder
+					from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+					join defaultVodovozEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)_organizationSettings.VodovozOrganizationId, c = true }
+						equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 					where
 						order.PaymentType == PaymentType.Cashless
 						&& order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
 						&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 						&& _orderStatusesToSendUpd.Contains(order.OrderStatus)
 						&& client.IsNewEdoProcessing
-						&& defaultEdoAccount.IsDefault
-							&& defaultEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-							&& (defaultEdoAccount.OrganizationId == organization.Id
-								|| defaultEdoAccount.OrganizationId == _organizationSettings.VodovozOrganizationId)
+						&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+							|| defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 						&& !client.IsNotSendDocumentsByEdo
 						&& edoContainer.Id == null
 						&& edoRequest.Id == null

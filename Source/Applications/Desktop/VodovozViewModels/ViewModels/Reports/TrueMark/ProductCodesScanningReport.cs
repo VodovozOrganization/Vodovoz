@@ -72,7 +72,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
 					from identificationCode in identificationCodes.DefaultIfEmpty()
 					join defaultEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
-						on client.Id equals defaultEdoAccount.Counterparty.Id
+						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }
+						equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+					into edoAccountsByOrder
+					from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+					join defaultVodovozEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)organizationSettings.VodovozOrganizationId, c = true }
+						equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 
 					let markedProductsInOrderCount =
 						(int?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
@@ -87,10 +93,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 						routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
 						&& routeListItem.Status == RouteListItemStatus.Completed
 						&& !(order.PaymentType == Domain.Client.PaymentType.Cashless
-							&& defaultEdoAccount.IsDefault
-							&& defaultEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-							&& (defaultEdoAccount.OrganizationId == contract.Organization.Id
-								|| defaultEdoAccount.OrganizationId == organizationSettings.VodovozOrganizationId)
+							&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+								|| defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							&& client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
 						&& markedProductsInOrderCount > 0
 
