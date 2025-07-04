@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -15,13 +16,17 @@ namespace Vodovoz.Application.Orders.Services
 	public class OrganizationByOrderAuthorHandler
 	{
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
-		
+		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
+
 		public OrganizationByOrderAuthorHandler(
-			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler)
+			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
+			IOrganizationForOrderFromSet organizationForOrderFromSet)
 		{
 			_organizationByPaymentTypeForOrderHandler =
 				organizationByPaymentTypeForOrderHandler
 				?? throw new ArgumentNullException(nameof(organizationByPaymentTypeForOrderHandler));
+			_organizationForOrderFromSet =
+				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 		}
 
 		/// <summary>
@@ -53,14 +58,26 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(ContainsSubdivision(organizationChoice.AuthorSubdivision, organizationByOrderAuthorSettings.OrderAuthorsSubdivisions))
 			{
-				if(setsPartsOrders.TryGetValue(
-					organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet, out var setSettings))
+				var orderContentSet = organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet;
+				
+				if(!setsPartsOrders.TryGetValue(orderContentSet, out var partOrderWithGoods))
 				{
-					UpdatePartOrder(processingProducts, processingEquipments, setSettings);
+					var setSettings =
+						uow
+							.GetAll<OrganizationBasedOrderContentSettings>()
+							.FirstOrDefault(x => x.OrderContentSet == orderContentSet);
+
+					var organization =
+						_organizationForOrderFromSet.GetOrganizationForOrderFromSet(requestTime, setSettings, true)
+						?? _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
+					
+					CreateNewPartOrderOrUpdateExisting(
+						uow, requestTime, setsPartsOrders, organizationChoice, processingProducts, processingEquipments, organization);
 					return setsPartsOrders.Values;
 				}
 
-				throw new InvalidOperationException("Organization by order authors subdivision not found");
+				UpdatePartOrder(processingProducts, processingEquipments, partOrderWithGoods);
+				return setsPartsOrders.Values;
 			}
 
 			if(setsPartsOrders.TryGetValue(OrganizationByOrderAuthorSettings.DefaultSetForAuthorNotIncludedSet, out var defaultSetSettings))
@@ -80,13 +97,17 @@ namespace Vodovoz.Application.Orders.Services
 			Dictionary<short, PartOrderWithGoods> setsPartsOrders,
 			OrderOrganizationChoice organizationChoice,
 			IEnumerable<IProduct> processingProducts,
-			IEnumerable<OrderEquipment> processingEquipments)
+			IEnumerable<OrderEquipment> processingEquipments,
+			Organization organization = null)
 		{
-			var org = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
+			if(organization is null)
+			{
+				organization = _organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
+			}
 
 			foreach(var partOrder in setsPartsOrders.Values)
 			{
-				if(partOrder.Organization.Id != org.Id)
+				if(partOrder.Organization.Id != organization.Id)
 				{
 					continue;
 				}
@@ -95,7 +116,7 @@ namespace Vodovoz.Application.Orders.Services
 				return;
 			}
 
-			setsPartsOrders.Add(short.MaxValue, new PartOrderWithGoods(org, processingProducts));
+			setsPartsOrders.Add(short.MaxValue, new PartOrderWithGoods(organization, processingProducts));
 		}
 
 		private bool ContainsSubdivision(Subdivision authorSubdivision, IEnumerable<Subdivision> setSubdivisions) => 
