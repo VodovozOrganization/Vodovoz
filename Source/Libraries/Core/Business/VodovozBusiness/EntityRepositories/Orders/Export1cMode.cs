@@ -11,6 +11,10 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <summary>
 		///Комплексная автоматизация
 		/// </summary>
-		ComplexAutomation
+		ComplexAutomation,
+		/// <summary>
+		///Розничная продажа
+		/// </summary>
+		RetailReport
 	}
 }

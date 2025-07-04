@@ -7,25 +7,49 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
+using QS.Dialog;
+using QS.Project.Services.FileDialog;
+using QS.Services;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ServiceDialogs.ExportTo1c;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C;
 
 namespace Vodovoz
 {
 	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
     {
-        bool exportInProgress;
-
-        public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
+	    private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+	    private readonly IOrderRepository _orderRepository;
+	    private readonly IDialogSettingsFactory _dialogSettingsFactory;
+	    private readonly IFileDialogService _fileDialogService;
+	    private readonly IOrderSettings _orderSettings;
+	    private readonly ICommonServices _commonServices;
+	    bool exportInProgress;
+        public ExportTo1cDialog(
+	        IUnitOfWorkFactory unitOfWorkFactory,
+	        IOrderRepository orderRepository,
+	        IDialogSettingsFactory  dialogSettingsFactory,
+	        IFileDialogService fileDialogService,
+	        IOrderSettings orderSettings,
+	        ICommonServices commonServices)
         {
-            Build();
-            TabName = "Выгрузка в 1с 8.3";
+	        Build();
+
+	        _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+	        _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+	        _dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
+	        _fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+	        _orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+	        TabName = "Выгрузка в 1с 8.3";
 
             comboOrganization.ItemsList = unitOfWorkFactory.CreateWithoutRoot().GetAll<Organization>();
             
@@ -42,7 +66,49 @@ namespace Vodovoz
                 }
             };
             
+            ylistcomboboxOrganization.ItemsList = unitOfWorkFactory.CreateWithoutRoot().GetAll<Organization>();
+            ylistcomboboxOrganization.SetRenderTextFunc((Organization x) => x.Name);
+            
+            ybuttonRetailReport.Clicked += (sender, args) => CreateRetailReport(comboOrganization.SelectedItem as Organization);
+            
             UpdateExportSensitivity();
+        }
+
+        private void CreateRetailReport(Organization organization)
+        {
+	        var dateStart = dateperiodpicker1.StartDate;
+	        var dateEnd = dateperiodpicker1.EndDate;
+	        
+	        if(organization is null)
+	        {
+		        _commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не выбрана организация");
+		        
+		        return;
+	        }
+
+	        if(dateStart != dateEnd)
+	        {
+		        _commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Нельзя сформировать отчёт за диапазон дат. Выберите одну дату.");
+		        
+		        return;
+	        }
+	        
+	        var retailSalesReport  = new RetailSalesReportFor1C
+	        {
+		        Organization = organization,
+		        OrganizationVersionStartDate = dateStart,
+		        SaleDate = dateStart,
+		        Suffix = organization.Suffix
+	        };
+
+	        using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
+	        {
+		        var orders = _orderRepository.GetOrdersToExport1c8(unitOfWork,_orderSettings, Export1cMode.RetailReport, dateStart, dateEnd, organization.Id);
+		        
+		        retailSalesReport.Generate(orders);
+	        }
+
+	        retailSalesReport.SaveReport(_dialogSettingsFactory, _fileDialogService);
         }
 
         private ExportData exportData;

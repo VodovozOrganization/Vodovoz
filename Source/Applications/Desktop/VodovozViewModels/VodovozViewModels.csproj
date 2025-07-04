@@ -921,6 +921,8 @@
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCars.cs" />
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCarsRow.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1CRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1C.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.DisplayRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.HeaderRow.cs" />
@@ -1321,6 +1323,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
+      <Project>{a6c1914f-7732-49f5-baba-8bbba521faab}</Project>
+      <Name>QSProjectsLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
       <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>

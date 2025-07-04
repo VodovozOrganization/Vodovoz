@@ -68,6 +68,10 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.OKVED, w => w.Text)
 				.InitializeFromSource();
 
+			yentrySuffix.Binding
+				.AddBinding(ViewModel.Entity, e => e.Suffix, w => w.Text)
+				.InitializeFromSource();
+
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(ViewModel.UoW, ViewModel.Entity);

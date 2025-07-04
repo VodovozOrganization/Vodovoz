@@ -156,6 +156,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				orderSettings.PaymentByCardFromMobileAppId
 			};
 
+			var notRetailPadeTypes = new[]
+			{
+				PaymentType.Barter,
+				PaymentType.Cashless,
+				PaymentType.ContractDocumentation
+			};
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
@@ -197,6 +204,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				case Export1cMode.RetailReport:
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.WhereRestrictionOn(() => orderAlias.PaymentType).Not.IsIn(notRetailPadeTypes);
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					CashReceipt cashReceiptAlias = null;
@@ -252,7 +264,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			query.TransformUsing(Transformers.DistinctRootEntity);
 
-			return query.List();
+			return query
+				.Take(200)
+				.List();
 		}
 
 		public IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

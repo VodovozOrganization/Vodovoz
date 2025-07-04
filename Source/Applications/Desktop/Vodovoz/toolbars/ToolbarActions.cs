@@ -11,6 +11,8 @@ using QS.Project.Services;
 using QS.Report.ViewModels;
 using QSReport;
 using System;
+using QS.Project.Services.FileDialog;
+using QS.Services;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
@@ -18,6 +20,7 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
@@ -30,10 +33,12 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
@@ -730,9 +735,15 @@ public partial class MainWindow : Window
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
+		var dialogSettingsFactory = _autofacScope.Resolve<IDialogSettingsFactory>();
+		var fileDialogService = _autofacScope.Resolve<IFileDialogService>();
+		var orderRepository = _autofacScope.Resolve<IOrderRepository>();
+		var orderSettings = _autofacScope.Resolve<IOrderSettings>();
+		var commonServises = _autofacScope.Resolve<ICommonServices>();
+		
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
+			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory, orderRepository, dialogSettingsFactory, fileDialogService, orderSettings, commonServises)
 		);
 	}
 
