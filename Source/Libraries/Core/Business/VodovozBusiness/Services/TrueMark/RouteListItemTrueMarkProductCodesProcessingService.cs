@@ -11,10 +11,12 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Client.Specifications;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
 
 namespace VodovozBusiness.Services.TrueMark
 {
@@ -163,23 +165,66 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public async Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
-			RouteListItemEntity routeListItem,
-			int orderItemId,
+			RouteListItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
 			//Проверить, что временные коды были добавлены, старые коды не были добавлены, количество кодов совпадает
+			var order = routeListItem.Order;
 
-			var addProductCodesResult =
-				await AddProductCodesToRouteListItemFromStagingCodes(
-					uow,
-					routeListItem,
-					orderItemId,
-					cancellationToken);
+			var stagingCodes =
+				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				uow,
+				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+				routeListItem.Id,
+				cancellationToken);
 
-			if(addProductCodesResult.IsFailure)
+			var orderItemStaginCodes = stagingCodes
+				.GroupBy(x => x.OrderItemId)
+				.ToDictionary(x => x.Key, x => x.ToList());
+
+			foreach(var orderItem in order.OrderItems)
 			{
-				var error = addProductCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
+				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
+				{
+					var error = TrueMarkCodeErrors.NotAllCodesAdded;
+					return Result.Failure(error);
+				}
+
+				var stagingCodesForOrderItemCount = stagingCodesForOrderItem
+					.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
+
+				var orderItemCount = orderItem.ActualCount ?? orderItem.Count;
+
+				if(stagingCodesForOrderItemCount < orderItemCount)
+				{
+					var error = TrueMarkCodeErrors.NotAllCodesAdded;
+					return Result.Failure(error);
+				}
+
+				if(stagingCodesForOrderItemCount > orderItemCount)
+				{
+					var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+					return Result.Failure(error);
+				}
+
+				var addProductCodesResult =
+					await AddProductCodesToRouteListItemFromStagingCodes(
+						uow,
+						stagingCodesForOrderItem,
+						routeListItem,
+						orderItem.Id,
+						cancellationToken);
+
+				if(addProductCodesResult.IsFailure)
+				{
+					var error = addProductCodesResult.Errors.FirstOrDefault();
+					return Result.Failure(error);
+				}
 			}
 
 			var deleteStagingCodesResult =
@@ -209,17 +254,11 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private async Task<Result> AddProductCodesToRouteListItemFromStagingCodes(
 			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			RouteListItemEntity routeListItem,
 			int orderItemId,
 			CancellationToken cancellationToken = default)
 		{
-			var stagingCodes =
-				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
-				uow,
-				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-				routeListItem.Id,
-				cancellationToken);
-
 			var rootStagingCodes = stagingCodes
 				.Where(x => x.ParentCodeId == null)
 				.ToList();
@@ -336,8 +375,8 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в водительском приложении, могут быть добавлены");
 			}
-
-			var codeCheckingProcessResult = IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId);
+			
+			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(orderItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -345,6 +384,13 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, orderItem.Nomenclature);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult = IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -407,6 +453,17 @@ namespace VodovozBusiness.Services.TrueMark
 			if(!isCodeCanBeAdded)
 			{
 				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsNomeclatureAccountableInTrueMark(Nomenclature nomenclature)
+		{
+			if(!nomenclature.IsAccountableInTrueMark)
+			{
+				var error = NomenclatureErrors.CreateIsNotAccountableInTrueMark(nomenclature.Name);
 				return Result.Failure(error);
 			}
 

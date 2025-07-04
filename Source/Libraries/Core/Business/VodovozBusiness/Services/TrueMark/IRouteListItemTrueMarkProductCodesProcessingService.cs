@@ -69,10 +69,10 @@ namespace VodovozBusiness.Services.TrueMark
 		/// Добавляет коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="routeListItem">Id строки МЛ</param>
+		/// <param name="order">Заказ</param>
 		/// <param name="orderItemId">Id строки заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат добавления кодов к строке МЛ</returns>
-		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItemEntity routeListItem, int orderItemId, CancellationToken cancellationToken = default);
+		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
 	}
 }

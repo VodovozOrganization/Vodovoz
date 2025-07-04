@@ -1255,7 +1255,7 @@ namespace Vodovoz.Application.TrueMark
 			IEnumerable<StagingTrueMarkCode> rootStagingCodes,
 			CancellationToken cancellationToken = default)
 		{
-			if(rootStagingCodes.Any(x => x.ParentCodeId == null))
+			if(!rootStagingCodes.All(x => x.ParentCodeId == null))
 			{
 				throw new ArgumentException(
 					"Поддерживается обработка кодов промежуточного хранения верхнего уровня. Коды, имеющие родителя не могут быть обработаны",

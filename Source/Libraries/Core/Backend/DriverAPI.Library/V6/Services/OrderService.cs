@@ -311,7 +311,12 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
+		public async Task<Result> CompleteOrderDelivery(
+			DateTime actionTime,
+			Employee driver,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			IDriverComplaintInfo driverComplaintInfo,
+			CancellationToken cancellationToken)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -357,7 +362,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<PayByQrResponse>(RouteListItemErrors.NotEnRouteState);
 			}
 
-			var trueMarkCodesProcessResult = await ProcessScannedCodes(completeOrderInfo, routeListAddress);
+			var trueMarkCodesProcessResult = await ProcessScannedCodes(completeOrderInfo, routeListAddress, cancellationToken);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -435,7 +440,8 @@ namespace DriverAPI.Library.V6.Services
 		public async Task<Result> UpdateOrderShipmentInfoAsync(
 			DateTime actionTime,
 			Employee driver,
-			IDriverOrderShipmentInfo completeOrderInfo)
+			IDriverOrderShipmentInfo completeOrderInfo,
+			CancellationToken cancellationToken)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -482,7 +488,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var trueMarkCodesProcessResult =
-				await ProcessScannedCodes(completeOrderInfo, routeListAddress);
+				await ProcessScannedCodes(completeOrderInfo, routeListAddress, cancellationToken);
 
 			if(trueMarkCodesProcessResult.IsFailure)
 			{
@@ -611,7 +617,6 @@ namespace DriverAPI.Library.V6.Services
 		private async Task<Result> ProcessScannedCodes(
 			IDriverOrderShipmentInfo completeOrderInfo,
 			RouteListItem routeListAddress,
-			int orderItemId,
 			CancellationToken cancellationToken)
 		{
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad || routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
@@ -624,7 +629,6 @@ namespace DriverAPI.Library.V6.Services
 				return await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemAndDeleteStagingCodes(
 					_uow,
 					routeListAddress,
-					orderItemId,
 					cancellationToken);
 			}
 
