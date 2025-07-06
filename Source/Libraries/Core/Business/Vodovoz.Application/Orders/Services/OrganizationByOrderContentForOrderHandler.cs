@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -20,11 +19,13 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly OrganizationByOrderAuthorHandler _organizationByOrderAuthorHandler;
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
 		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		public OrganizationByOrderContentForOrderHandler(
 			OrganizationByOrderAuthorHandler organizationByOrderAuthorHandler,
 			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
-			IOrganizationForOrderFromSet organizationForOrderFromSet)
+			IOrganizationForOrderFromSet organizationForOrderFromSet,
+			INomenclatureSettings nomenclatureSettings)
 		{
 			_organizationByOrderAuthorHandler =
 				organizationByOrderAuthorHandler ?? throw new ArgumentNullException(nameof(organizationByOrderAuthorHandler));
@@ -33,6 +34,7 @@ namespace Vodovoz.Application.Orders.Services
 				?? throw new ArgumentNullException(nameof(organizationByPaymentTypeForOrderHandler));
 			_organizationForOrderFromSet =
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
@@ -49,9 +51,21 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			
 			var setsOrganizations = new Dictionary<short, PartOrderWithGoods>();
-			var processingGoods = organizationChoice.Goods.ToList();
-			var processingEquipments = organizationChoice.OrderEquipments.ToList();
+			IProduct paidDelivery = null;
+			IList<IProduct> processingGoodsWithoutPaidDelivery = new List<IProduct>();
 
+			foreach(var product in organizationChoice.Goods)
+			{
+				if(product.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId)
+				{
+					paidDelivery = product;
+					continue;
+				}
+				
+				processingGoodsWithoutPaidDelivery.Add(product);
+			}
+			
+			var processingEquipments = organizationChoice.OrderEquipments.ToList();
 			var organizationBasedOrderContentSettings = uow.GetAll<OrganizationBasedOrderContentSettings>().ToArray();
 			var goodsAndEquipmentsBySets =
 				new Dictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)>();
@@ -60,9 +74,9 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				var i = 0;
 				
-				while(i < processingGoods.Count)
+				while(i < processingGoodsWithoutPaidDelivery.Count)
 				{
-					if(!ProductBelongsSet(processingGoods[i], setSettings))
+					if(!ProductBelongsSet(processingGoodsWithoutPaidDelivery[i], setSettings))
 					{
 						i++;
 						continue;
@@ -75,12 +89,12 @@ namespace Vodovoz.Application.Orders.Services
 						goodsAndEquipmentsBySets.Add(setSettings, processingGoodsAndEquipments);
 					}
 
-					processingGoodsAndEquipments.Goods.Add(processingGoods[i]);
+					processingGoodsAndEquipments.Goods.Add(processingGoodsWithoutPaidDelivery[i]);
 
 					var dependentEquipments = processingEquipments.Where(x =>
-							x.OrderItem.Id == processingGoods[i].Id
-							|| x.OrderRentDepositItem.Id == processingGoods[i].Id
-							|| x.OrderRentServiceItem.Id == processingGoods[i].Id)
+							x.OrderItem.Id == processingGoodsWithoutPaidDelivery[i].Id
+							|| x.OrderRentDepositItem.Id == processingGoodsWithoutPaidDelivery[i].Id
+							|| x.OrderRentServiceItem.Id == processingGoodsWithoutPaidDelivery[i].Id)
 						.ToList();
 
 					foreach(var dependentEquipment in dependentEquipments)
@@ -89,19 +103,42 @@ namespace Vodovoz.Application.Orders.Services
 						processingEquipments.Remove(dependentEquipment);
 					}
 
-					processingGoods.Remove(processingGoods[i]);
+					processingGoodsWithoutPaidDelivery.Remove(processingGoodsWithoutPaidDelivery[i]);
 				}
 				
 				ProcessEquipmentsNotDependsOrderItems(processingEquipments, setSettings, goodsAndEquipmentsBySets);
 			}
 
-			if(goodsAndEquipmentsBySets.Count == 0
-				|| goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
+			if(goodsAndEquipmentsBySets.Count == 0)
 			{
 				return new[]
 				{
 					new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
 				};
+			}
+			
+			if(paidDelivery is null)
+			{
+				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
+				{
+					return new[]
+					{
+						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
+					};
+				}
+			}
+			else
+			{
+				var setGoodsAndEquipments = goodsAndEquipmentsBySets.First().Value;
+				setGoodsAndEquipments.Goods.Add(paidDelivery);
+				
+				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
+				{
+					return new[]
+					{
+						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
+					};
+				}
 			}
 			
 			foreach(var keyPairValue in goodsAndEquipmentsBySets)
@@ -115,10 +152,10 @@ namespace Vodovoz.Application.Orders.Services
 					new PartOrderWithGoods(organization, keyPairValue.Value.Goods, keyPairValue.Value.Equipments));
 			}
 
-			if(processingGoods.Any() || processingEquipments.Any())
+			if(processingGoodsWithoutPaidDelivery.Any() || processingEquipments.Any())
 			{
 				return _organizationByOrderAuthorHandler.SplitOrderByOrganizations(
-					uow, requestTime, setsOrganizations, organizationChoice, processingGoods, processingEquipments);
+					uow, requestTime, setsOrganizations, organizationChoice, processingGoodsWithoutPaidDelivery, processingEquipments);
 			}
 
 			return setsOrganizations.Values;

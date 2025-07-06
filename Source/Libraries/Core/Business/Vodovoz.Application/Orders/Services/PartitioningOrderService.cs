@@ -82,6 +82,7 @@ namespace Vodovoz.Application.Orders.Services
 
 					resultOrder.UpdateDocuments();
 					_orderContractUpdater.ForceUpdateContract(uow, resultOrder, partOrderWithGoods.Organization);
+					
 					_orderConfirmationService.AcceptOrder(uow, employee, resultOrder, false);
 
 					i++;
@@ -92,6 +93,12 @@ namespace Vodovoz.Application.Orders.Services
 
 				foreach(var order in orders)
 				{
+					if(order.GetTotalWater19LCount() == 0)
+					{
+						order.BottlesReturn = null;
+						order.ReturnedTare = null;
+					}
+					
 					order.Comment = $"Заказ был разбит на части. Номера созданных заказов: {parts}\n" + order.Comment;
 					order.OrderPartsIds = parts;
 				}
