@@ -28,6 +28,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
+		private bool _isGroupingOnlyByRouteList;
+
 		public ProfitabilityReportModifier()
 		{
 			_expressionRowProvider = new FooterExpressionRowProvider();
@@ -36,6 +38,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
 		{
+			_isGroupingOnlyByRouteList = groupings.Count() == 0 && groupings.First() == GroupingType.RouteList;
+
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
 			{
@@ -64,6 +68,16 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
 				AddAction(removeAutoOwnerTypeColumn);
+			}
+
+			if(_isGroupingOnlyByRouteList)
+			{
+				AddAction(new FindAndModifyTextbox(
+					"Textbox125_group1",
+					textbox =>
+					{
+						textbox.Value = "=Round(Iif(Sum({total_price})=0, -99999, Sum({profitability})*100/Sum({total_price})), 2)";
+					}));
 			}
 		}
 
@@ -121,7 +135,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			NewTableGroupWithCellsFromDetails groupModifyAction;
 
-			if(groupingType == GroupingType.RouteList && groupsCount == 1)
+			if(_isGroupingOnlyByRouteList)
 			{
 				groupModifyAction = new NewTableGroupWithCellsFromDetails(
 					_tableName, 

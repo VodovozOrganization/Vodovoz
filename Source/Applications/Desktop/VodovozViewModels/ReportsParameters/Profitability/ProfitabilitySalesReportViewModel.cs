@@ -219,7 +219,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			_source = GetReportSource();
 
+			SetGeneratedReportTextItemsModifier();
+
 			LoadReport();
+		}
+
+		private void SetGeneratedReportTextItemsModifier()
+		{
+			var selectedGroupings = GetGroupingParameters().Select(x => (GroupingType)x.Value);
+			if(selectedGroupings.Count() == 1 && selectedGroupings.First() == GroupingType.RouteList)
+			{
+				SetReportTextItemsModifier(new Func<string, string>(text =>
+				{
+					if(decimal.TryParse(text, out var value))
+					{
+						if(value == -99999)
+						{
+							return "Продажи=0";
+						}
+					}
+
+					return text;
+				}));
+			}
 		}
 
 		private string GetReportSource()
