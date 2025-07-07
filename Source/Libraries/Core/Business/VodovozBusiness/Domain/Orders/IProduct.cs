@@ -4,6 +4,7 @@ namespace Vodovoz.Domain.Orders
 {
 	public interface IProduct
 	{
+		int Id { get; }
 		decimal Count { get; }
 		decimal GetDiscount { get; }
 		bool IsDiscountInMoney { get; }

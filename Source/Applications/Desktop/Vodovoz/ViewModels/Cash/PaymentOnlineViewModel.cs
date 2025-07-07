@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -18,6 +18,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
@@ -26,6 +27,7 @@ namespace Vodovoz.ViewModels.Cash
 	{
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
+			IOrderContractUpdater contractUpdater,
 			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
@@ -52,13 +55,11 @@ namespace Vodovoz.ViewModels.Cash
 				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			}
 
-			if(employeeService is null)
-			{
-				throw new ArgumentNullException(nameof(employeeService));
-			}
-
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_currentEmployee = employeeService.GetEmployeeForCurrentUser();
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_currentEmployee = 
+				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				.GetEmployeeForCurrentUser(UoW);
 
 			TabName = "Онлайн оплата";
 
@@ -83,7 +84,7 @@ namespace Vodovoz.ViewModels.Cash
 		public PaymentFrom PaymentOnlineFrom
 		{
 			get => Entity.PaymentByCardFrom;
-			set => Entity.PaymentByCardFrom = value;
+			set => Entity.UpdatePaymentByCardFrom(value, _contractUpdater);
 		}
 
 		public List<PaymentFrom> ItemsList { get; private set; }
@@ -91,7 +92,7 @@ namespace Vodovoz.ViewModels.Cash
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CloseCommand { get; }
 
-		public bool CanSave => Entity.OnlineOrder != null;
+		public bool CanSave => Entity.OnlinePaymentNumber != null;
 
 		private void SaveHandler()
 		{

@@ -7,11 +7,27 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Windows.Input;
+using Microsoft.Extensions.Logging;
+using QS.DomainModel.Entity;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
+using Vodovoz.ViewModels.Organizations;
+using Vodovoz.ViewModels.Services;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -23,9 +39,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICarInsuranceSettings _carInsuranceSettings;
+		private readonly ILogger<GeneralSettingsViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private ILifetimeScope _lifetimeScope;
+		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
+		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
@@ -70,6 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
 		public GeneralSettingsViewModel(
+			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
 			IFuelControlSettings fuelControlSettings,
 			ICarInsuranceSettings carInsuranceSettings,
@@ -77,12 +98,25 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
-			INavigationManager navigation) : base(commonServices?.InteractiveService, navigation)
+			INavigationManager navigation,
+			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
+			EntityJournalOpener entityJournalOpener,
+			IOrganizationForOrderFromSet organizationForOrderFromSet,
+			IOrganizationSettings organizationSettings,
+			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
+			EntityJournalOpener = entityJournalOpener ?? throw new ArgumentNullException(nameof(entityJournalOpener));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_organizationViewModelBuilder =
+				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			OrganizationForOrderFromSet = 
+				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
@@ -154,11 +188,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
 			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+			CanEditOrderOrganizationsSettings = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Permissions.GeneralSettings.CanEditOrderOrganizationsSettings);
 			CanEditDailyFuelLimitsSetting =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
 			InitializeAccountingSettingsViewModels();
+			ConfigureOrderOrganizationsSettings();
 		}
 
 		#region RouteListPrintedFormPhones
@@ -641,6 +679,250 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion Бухгалтерия
 
+		#region Настройка юр.лиц в заказе
+		
+		public IOrganizationForOrderFromSet OrganizationForOrderFromSet { get; }
+
+		public bool CanEditOrderOrganizationsSettings { get; private set; }
+
+		public ICommand SaveOrderOrganizationSettingsCommand { get; private set; }
+		
+		private int _orderSettingsCurrentPage;
+		public int OrderSettingsCurrentPage
+		{
+			get => _orderSettingsCurrentPage;
+			set => SetField(ref _orderSettingsCurrentPage, value);
+		}
+		
+		private bool _orderGeneralSettingsTabActive;
+		public bool OrderGeneralSettingsTabActive
+		{
+			get => _orderGeneralSettingsTabActive;
+			set
+			{
+				if(SetField(ref _orderGeneralSettingsTabActive, value) && value)
+				{
+					OrderSettingsCurrentPage = 0;
+				}
+			}
+		}
+
+		private bool _orderOrganizationSettingsTabActive;
+		public bool OrderOrganizationSettingsTabActive
+		{
+			get => _orderOrganizationSettingsTabActive;
+			set
+			{
+				if(SetField(ref _orderOrganizationSettingsTabActive, value) && value)
+				{
+					OrderSettingsCurrentPage = 1;
+				}
+			}
+		}
+		
+		private short _selectedOrganizationBasedOrderContentSet;
+
+		public short SelectedOrganizationBasedOrderContentSet
+		{
+			get => _selectedOrganizationBasedOrderContentSet;
+			set
+			{
+				if(SetField(ref _selectedOrganizationBasedOrderContentSet, value))
+				{
+					_organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings = OrganizationsByOrderContent[value];
+				}
+			}
+		}
+
+		public IUnitOfWork UowOrderOrganizationSettings { get; private set; }
+		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
+		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
+		public IEnumerable<short> AuthorsSets { get; private set; }
+		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
+		public ILookup<PaymentType, PaymentTypeOrganizationSettings> PaymentTypesOrganizationSettings { get; private set; }
+
+		private void ConfigureOrderOrganizationsSettings()
+		{
+			UowOrderOrganizationSettings = _unitOfWorkFactory.CreateWithoutRoot("Настройки юр лиц для заказа");
+			InitializeOrderOrganizationsSettingsCommands();
+			ConfigureDataForSetWidgets();
+			ConfigurePaymentTypeSettings();
+		}
+
+		private void InitializeOrderOrganizationsSettingsCommands()
+		{
+			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
+		}
+
+		private void SaveOrderOrganizationsSettings()
+		{
+			if(!ValidateOrderOrganizationSettings())
+			{
+				return;
+			}
+
+			SaveOrganizationBasedOrderContentSettings();
+			SavePaymentTypesOrganizationSettings();
+			SaveOrganizationByOrderAuthorSettings();
+			
+			try
+			{
+				UowOrderOrganizationSettings.Commit();
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки по выбору организации для заказа сохранены!");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при сохранении настроек юр лиц для заказа");
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"При сохранении настроек юр лиц для заказа произошла ошибка. Переоткройте вкладку и попробуйте снова");
+				Close(false, CloseSource.Self);
+			}
+		}
+
+		private void SaveOrganizationBasedOrderContentSettings()
+		{
+			foreach(var keyPairValue in OrganizationsByOrderContent)
+			{
+				var organizationByOrderContent = keyPairValue.Value;
+				UowOrderOrganizationSettings.Save(organizationByOrderContent);
+			}
+		}
+		
+		private void SavePaymentTypesOrganizationSettings()
+		{
+			foreach(var groupSettings in PaymentTypesOrganizationSettings)
+			{
+				foreach(var paymentTypeOrganizationSettings in groupSettings)
+				{
+					UowOrderOrganizationSettings.Save(paymentTypeOrganizationSettings);
+				}
+			}
+		}
+		
+		private void SaveOrganizationByOrderAuthorSettings()
+		{
+			UowOrderOrganizationSettings.Save(_organizationByOrderAuthorSettings);
+		}
+
+		private bool ValidateOrderOrganizationSettings()
+		{
+			var validationRequests = new List<ValidationRequest>();
+			AddValidationRequestsForOrganizationsByOrderContentSettings(validationRequests);
+			AddValidationRequestsForPaymentTypesOrganizationSettings(validationRequests);
+
+			return _validator.Validate(validationRequests);
+		}
+
+		private void AddValidationRequestsForOrganizationsByOrderContentSettings(ICollection<ValidationRequest> validationRequests)
+		{
+			foreach(var keyPairValue in OrganizationsByOrderContent)
+			{
+				var otherSetSettings = OrganizationsByOrderContent
+					.Where(x => x.Key != keyPairValue.Key)
+					.Select(x => x.Value)
+					.ToList();
+
+				var contextItems = new Dictionary<object, object>
+				{
+					{ "OtherSetsSettings", otherSetSettings }
+				};
+
+				var validationContext = new ValidationContext(keyPairValue.Value, contextItems);
+				validationContext.ServiceContainer.AddService(typeof(IOrganizationSettings), _organizationSettings);
+
+				validationRequests.Add(new ValidationRequest(keyPairValue.Value, validationContext));
+			}
+		}
+
+		private void AddValidationRequestsForPaymentTypesOrganizationSettings(ICollection<ValidationRequest> validationRequests)
+		{
+			foreach(var paymentTypeOrganizationSettings in PaymentTypesOrganizationSettings)
+			{
+				foreach(var paymentTypeSettings in paymentTypeOrganizationSettings)
+				{
+					validationRequests.Add(new ValidationRequest(paymentTypeSettings));
+				}
+			}
+		}
+
+		private void ConfigureDataForSetWidgets()
+		{
+			var orderContentSettings =
+				UowOrderOrganizationSettings
+					.GetAll<OrganizationBasedOrderContentSettings>()
+					.ToDictionary(x => x.OrderContentSet);
+
+			OrganizationsByOrderContent = orderContentSettings;
+			
+			InitializeDataForSet1(orderContentSettings);
+			InitializeDataForSet2(orderContentSettings);
+			InitializeDataForSet3();
+		}
+
+		private void InitializeDataForSet1(IDictionary<short, OrganizationBasedOrderContentSettings> organizationsByOrderContent)
+		{
+			const short set = 1;
+			organizationsByOrderContent.TryGetValue(set, out var organizationSettings);
+			
+			if(organizationSettings is null)
+			{
+				organizationSettings = new OrganizationBasedOrderContentSettings
+				{
+					OrderContentSet = set
+				};
+				
+				organizationsByOrderContent.Add(set, organizationSettings);
+			}
+		}
+
+		private void InitializeDataForSet2(IDictionary<short, OrganizationBasedOrderContentSettings> organizationsByOrderContent)
+		{
+			const short set = 2;
+			organizationsByOrderContent.TryGetValue(set, out var organizationSettings);
+			
+			if(organizationSettings is null)
+			{
+				organizationSettings = new OrganizationBasedOrderContentSettings
+				{
+					OrderContentSet = set
+				};
+				
+				organizationsByOrderContent.Add(set, organizationSettings);
+			}
+		}
+		
+		private void InitializeDataForSet3()
+		{
+			AuthorsSets = OrganizationsByOrderContent.Keys.ToList();
+			
+			_organizationByOrderAuthorSettings =
+				UowOrderOrganizationSettings.GetAll<OrganizationByOrderAuthorSettings>().SingleOrDefault();
+
+			if(_organizationByOrderAuthorSettings is null)
+			{
+				_organizationByOrderAuthorSettings = new OrganizationByOrderAuthorSettings();
+				SelectedOrganizationBasedOrderContentSet = 1;
+			}
+			else
+			{
+				_selectedOrganizationBasedOrderContentSet =
+					_organizationByOrderAuthorSettings.OrganizationBasedOrderContentSettings.OrderContentSet;
+			}
+			
+			AuthorsSubdivisions = _organizationByOrderAuthorSettings.OrderAuthorsSubdivisions;
+		}
+		
+		private void ConfigurePaymentTypeSettings()
+		{
+			PaymentTypesOrganizationSettings = UowOrderOrganizationSettings.GetAll<PaymentTypeOrganizationSettings>()
+				.ToLookup(x => x.PaymentType);
+		}
+
+		#endregion
+		
+		public EntityJournalOpener EntityJournalOpener { get; }
+
 		private void InitializeSettingsViewModels()
 		{
 			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, _unitOfWorkFactory, NavigationManager,
@@ -720,6 +1002,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public override void Dispose()
 		{
 			EmployeeFixedPricesViewModel.Dispose();
+			UowOrderOrganizationSettings.Dispose();
 			base.Dispose();
 		}
 	}
