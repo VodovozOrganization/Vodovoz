@@ -1,5 +1,8 @@
-﻿using Vodovoz.Core.Domain.Edo;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Specifications;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace VodovozBusiness.Domain.Client.Specifications
 {
@@ -16,6 +19,10 @@ namespace VodovozBusiness.Domain.Client.Specifications
 		public static ExpressionSpecification<TrueMarkWaterIdentificationCode> CreateForSerialNumber(string serialNumber)
 			=> new ExpressionSpecification<TrueMarkWaterIdentificationCode>(
 				c => c.SerialNumber == serialNumber);
+
+		public static ExpressionSpecification<TrueMarkWaterIdentificationCode> CreateForSerialNumbers(IEnumerable<string> serialNumbers)
+			=> new ExpressionSpecification<TrueMarkWaterIdentificationCode>(
+				c => serialNumbers.Contains(c.SerialNumber));
 
 		public static ExpressionSpecification<TrueMarkWaterIdentificationCode> CreateForValidGtinSerialNumber(string gtin, string serialNumber)
 			=> CreateForValidCode()

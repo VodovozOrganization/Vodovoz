@@ -1310,6 +1310,181 @@ namespace Vodovoz.Application.TrueMark
 			return trueMarkAnyCodes;
 		}
 
+		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			var transportSagingCodes  = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Transport)
+				.ToList();
+
+			var groupStagingCodes = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Group)
+				.ToList();
+
+			var identificationStagingCodes = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Identification)
+				.ToList();
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			if(transportSagingCodes.Any())
+			{
+				trueMarkAnyCodes.AddRange(
+					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken));
+			}
+
+			if(groupStagingCodes.Any())
+			{
+				trueMarkAnyCodes.AddRange(
+					await GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(uow, groupStagingCodes, cancellationToken));
+			}
+
+			if(identificationStagingCodes.Any())
+			{
+				trueMarkAnyCodes.AddRange(
+					await GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(uow, identificationStagingCodes, cancellationToken));
+			}
+
+			return trueMarkAnyCodes;
+		}
+
+		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Transport))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только транспортные коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkTransportCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkTransportCodeSpecification.CreateForRawCodes(stagingCodes.Select(x => x.RawCode)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных транспортных кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value;
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				var savedCode = savedCodes.FirstOrDefault(x => x.RawCode == stagingCode.RawCode);
+				if(savedCode != null)
+				{
+					trueMarkAnyCodes.Add(savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
+					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+				}
+			}
+
+			return trueMarkAnyCodes;
+		}
+
+		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Group))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только групповые коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkWaterGroupCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkWaterGroupCodeSpecification.CreateForSerialNumbers(stagingCodes.Select(x => x.SerialNumber)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных групповых кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value;
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
+				if(savedCode != null)
+				{
+					trueMarkAnyCodes.Add(savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
+					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+				}
+			}
+
+			return trueMarkAnyCodes;
+		}
+
+		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Identification))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только индивидуальные коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkWaterIdentificationCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkWaterIdentificationCodeSpecification.CreateForSerialNumbers(stagingCodes.Select(x => x.SerialNumber)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных индивидуальных кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value;
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
+				if(savedCode != null)
+				{
+					trueMarkAnyCodes.Add(savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
+					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+				}
+			}
+
+			return trueMarkAnyCodes;
+		}
+
 		private async Task<TrueMarkAnyCode> GetSavedOrCreateTrueMarkAnyCodeByStagingCode(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingCode,
