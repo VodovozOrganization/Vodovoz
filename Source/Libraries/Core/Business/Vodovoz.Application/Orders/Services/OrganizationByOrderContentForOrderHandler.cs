@@ -92,9 +92,9 @@ namespace Vodovoz.Application.Orders.Services
 					processingGoodsAndEquipments.Goods.Add(processingGoodsWithoutPaidDelivery[i]);
 
 					var dependentEquipments = processingEquipments.Where(x =>
-							x.OrderItem.Id == processingGoodsWithoutPaidDelivery[i].Id
-							|| x.OrderRentDepositItem.Id == processingGoodsWithoutPaidDelivery[i].Id
-							|| x.OrderRentServiceItem.Id == processingGoodsWithoutPaidDelivery[i].Id)
+							(x.OrderItem != null && x.OrderItem.Id == processingGoodsWithoutPaidDelivery[i].Id)
+							|| (x.OrderRentDepositItem != null && x.OrderRentDepositItem.Id == processingGoodsWithoutPaidDelivery[i].Id)
+							|| (x.OrderRentServiceItem != null && x.OrderRentServiceItem.Id == processingGoodsWithoutPaidDelivery[i].Id))
 						.ToList();
 
 					foreach(var dependentEquipment in dependentEquipments)
