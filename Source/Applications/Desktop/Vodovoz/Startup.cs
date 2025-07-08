@@ -25,7 +25,6 @@ using QS.Validation;
 using QS.ViewModels;
 using QS.Widgets.GtkUI;
 using QSProjectsLib;
-using SmsPaymentService;
 using System;
 using System.Globalization;
 using System.IO;
@@ -36,8 +35,7 @@ using System.Reflection;
 using System.Security.Principal;
 using Vodovoz.Commons;
 using Vodovoz.Configuration;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Security;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings;
@@ -343,13 +341,6 @@ namespace Vodovoz
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint("Закончена настройка удаления");
 
-			if(settingsController.ContainsSetting("sms_payment_send_enabled_database") && settingsController.ContainsSetting("sms_payment_send_service_address"))
-			{
-				if(settingsController.GetStringValue("sms_payment_send_enabled_database") == loginDialogName)
-				{
-					SmsPaymentServiceSetting.Init(settingsController.GetStringValue("sms_payment_send_service_address"));
-				}
-			}
 			DriverApiSettings.InitializeNotifications(settingsController, loginDialogName);
 
 			CreateTempDir();

@@ -1,5 +1,7 @@
-﻿using DateTimeHelpers;
+﻿using Core.Infrastructure;
+using DateTimeHelpers;
 using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
@@ -9,10 +11,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
@@ -188,6 +194,128 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					uow.Session.Query<TrueMarkWaterIdentificationCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any());
 
 			return isCodeAlreadySaved;
+		}
+
+		public IEnumerable<TrueMarkTransportCode> GetTransportCodes(IUnitOfWork uow, IEnumerable<int> transportCodeIds)
+		{
+			TrueMarkTransportCode trueMarkTransportCodeAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => trueMarkTransportCodeAlias)
+				.WhereRestrictionOn(() => trueMarkTransportCodeAlias.Id).IsIn(transportCodeIds.ToArray())
+				.List();
+
+			return routeListCodes;
+		}
+
+		public IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds)
+		{
+			TrueMarkWaterGroupCode trueMarkWaterGroupCodeAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => trueMarkWaterGroupCodeAlias)
+				.WhereRestrictionOn(() => trueMarkWaterGroupCodeAlias.Id).IsIn(groupCodeIds.ToArray())
+				.List();
+
+			return routeListCodes;
+		}
+
+		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId)
+		{
+			CarLoadDocumentItemTrueMarkProductCode carLoadTrueMarkProductCodeAlias = null;
+			CarLoadDocumentItem carLoadDocumentItemAlias = null;
+
+			var carLoadCodes = uow.Session.QueryOver(() => carLoadTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => carLoadTrueMarkProductCodeAlias.CarLoadDocumentItem,
+					() => carLoadDocumentItemAlias
+				)
+				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
+				.List();
+
+			return carLoadCodes;
+		}
+
+		public IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId)
+		{
+			RouteListItemTrueMarkProductCode routeListTrueMarkProductCodeAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var routeListCodes = uow.Session.QueryOver(() => routeListTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => routeListTrueMarkProductCodeAlias.RouteListItem,
+					() => routeListItemAlias
+				)
+				.Where(() => routeListItemAlias.Order.Id == orderId)
+				.List();
+
+			return routeListCodes;
+		}
+
+		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
+		{
+			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
+
+			var selfdeliveryCodes = uow.Session.QueryOver(() => selfdeliveryTrueMarkProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItem,
+					() => selfDeliveryDocumentItemAlias
+				)
+				.Left.JoinAlias(
+					() => selfDeliveryDocumentItemAlias.SelfDeliveryDocument,
+					() => selfDeliveryDocumentAlias
+				)
+				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)
+				.List();
+
+			return selfdeliveryCodes;
+		}
+
+		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
+		{
+			AutoTrueMarkProductCode autoProductCodeAlias = null;
+			OrderEdoRequest customerEdoRequestAlias = null;
+
+			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Left.JoinAlias(
+					() => autoProductCodeAlias.CustomerEdoRequest,
+					() => customerEdoRequestAlias
+				)
+				.Where(() => customerEdoRequestAlias.Order.Id == orderId)
+				.List();
+
+			return poolCodes;
+		}
+
+		public int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var codesRequired = uow.Session.QueryOver(() => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.Count)))
+				.SingleOrDefault<decimal>();
+
+			return (int)codesRequired;
 		}
 	}
 }

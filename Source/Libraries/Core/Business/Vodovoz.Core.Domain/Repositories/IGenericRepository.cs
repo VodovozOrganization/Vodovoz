@@ -65,6 +65,7 @@ namespace Vodovoz.Core.Domain.Repositories
 		/// <param name="predicate"></param>
 		/// <returns></returns>
 		TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate);
+		TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification);
 
 		/// <summary>
 		/// Получение последнего элемента из базы данных.
@@ -73,6 +74,7 @@ namespace Vodovoz.Core.Domain.Repositories
 		/// <param name="predicate"></param>
 		/// <returns></returns>
 		TEntity GetLastOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate);
+		TEntity GetLastOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification);
 
 		/// <summary>
 		/// Получение значения из базы данных.

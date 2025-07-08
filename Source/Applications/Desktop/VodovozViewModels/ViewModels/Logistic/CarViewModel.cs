@@ -160,13 +160,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FuelCardVersionViewModel.ParentDialog = this;
 
 			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
+				Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
 				commonServices.UserService.CurrentUserId);
 
 			CanChangeCarModel =
-				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
+				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeCarModel);
 			CanEditFuelCardNumber =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber);
 			CanViewFuelCard =
 				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
 

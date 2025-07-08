@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Domain.Store;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Warehouses
@@ -17,6 +18,8 @@ namespace Vodovoz.ViewModels.Warehouses
 	public class WarehouseViewModel : EntityTabViewModelBase<Warehouse>
 	{
 		private ILifetimeScope _lifetimeScope;
+		private Subdivision _movementDocumentsNotificationsSubdivisionRecipientId;
+		private Subdivision _owningSubdivision;
 
 		public WarehouseViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -40,6 +43,20 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanArchiveWarehouse { get; private set; }
 		public IList<Subdivision> Subdivisions { get; }
+
+		public Subdivision MovementDocumentsNotificationsSubdivisionRecipient
+		{
+			get => this.GetIdRefField(ref _movementDocumentsNotificationsSubdivisionRecipientId, Entity.MovementDocumentsNotificationsSubdivisionRecipientId);
+			set => this.SetIdRefField(SetField, ref _movementDocumentsNotificationsSubdivisionRecipientId, () => Entity.MovementDocumentsNotificationsSubdivisionRecipientId, value);
+		}
+
+
+		public Subdivision OwningSubdivision
+		{
+			get => this.GetIdRefField(ref _owningSubdivision, Entity.MovementDocumentsNotificationsSubdivisionRecipientId);
+			set => this.SetIdRefField(SetField, ref _owningSubdivision, () => Entity.MovementDocumentsNotificationsSubdivisionRecipientId, value);
+		}
+
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
 		private void SetPermissions()
@@ -49,7 +66,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private void ConfigureViewModels()
 		{
-			SubdivisionViewModel = new CommonEEVMBuilderFactory<Warehouse>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			SubdivisionViewModel = new CommonEEVMBuilderFactory<WarehouseViewModel>(this, this, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(e => e.MovementDocumentsNotificationsSubdivisionRecipient)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()

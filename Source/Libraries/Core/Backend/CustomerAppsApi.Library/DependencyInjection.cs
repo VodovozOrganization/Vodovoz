@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Factories;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -21,6 +21,8 @@ using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using DriverApi.Notifications.Client;
+using Vodovoz.Application.Clients;
+using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library
 {
@@ -29,6 +31,7 @@ namespace CustomerAppsApi.Library
 	/// </summary>
 	public static class DependencyInjection
 	{
+		//TODO: переделать на подключение общих библиотек с зависимостями
 		/// <summary>
 		/// Добавление сервисов библиотеки
 		/// </summary>
@@ -44,7 +47,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
 				.AddScoped<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
 				.AddScoped<ICounterpartyModelFactory, CounterpartyModelFactory>()
-				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
 				.AddScoped<ICounterpartyFactory, CounterpartyFactory>()
 				.AddScoped<INomenclatureFactory, NomenclatureFactory>()
 				.AddScoped<IPromotionalSetFactory, PromotionalSetFactory>()
@@ -64,7 +66,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddDriverApiNotificationsSenders()
-				.AddScoped<FastDeliveryHandler>()
+				.AddScoped<IFastDeliveryHandler, FastDeliveryHandler>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
@@ -81,7 +83,8 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<RentPackagesFrequencyRequestsHandler>()
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
-				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>();
+				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 			return services;
 		}

@@ -3,8 +3,8 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.ViewModels.PermissionNode;
 using VodovozBusiness.Services.Subdivisions;
 

@@ -331,10 +331,9 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 						 .GroupBy(x => (int)x[1])
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
-
-		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => _nomenclatureSettings.SanitisationNomenclatureIds;
-
-
+		
+		
+		
 		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
@@ -564,6 +563,20 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.Select(p => p.Name).WithAlias(() => resultAlias.Name))
 			.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
 			.List<NamedDomainObjectNode>();
+		}
+
+		public bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId)
+		{
+			if(nomenclatureId == 0) 
+				return false;
+			
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return unitOfWork.Session.QueryOver(() => orderItemAlias)
+				.JoinAlias(o => o.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Nomenclature.Id == nomenclatureId)
+				.RowCount() > 0;
 		}
 	}
 }

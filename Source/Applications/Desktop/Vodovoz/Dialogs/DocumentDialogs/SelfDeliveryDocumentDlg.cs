@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -18,10 +18,10 @@ using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -41,6 +41,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
 using VodovozBusiness.Services.TrueMark;
 
@@ -72,8 +73,8 @@ namespace Vodovoz
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
 			ResolveDependencies();
 
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
@@ -266,6 +267,25 @@ namespace Vodovoz
 			ybuttonScanCodes.Clicked +=	OnYbuttonScanCodesOnClicked;
 
 			ConfigureValidationContext(_validationContextFactory);
+
+			var buttonOpenOrderCodes = new Gamma.GtkWidgets.yButton();
+			buttonOpenOrderCodes.CanFocus = true;
+			buttonOpenOrderCodes.Name = "ybuttonOpenOrderCodes";
+			buttonOpenOrderCodes.UseUnderline = true;
+			buttonOpenOrderCodes.Label = Mono.Unix.Catalog.GetString("Просмотреть коды заказа");
+			hbox5.Add(buttonOpenOrderCodes);
+			var w8 = ((Box.BoxChild)(hbox5[buttonOpenOrderCodes]));
+			w8.PackType = PackType.End;
+			w8.Position = 4;
+			w8.Expand = false;
+			w8.Fill = false;
+			buttonOpenOrderCodes.Show();
+			buttonOpenOrderCodes.Clicked += OpenOrderCodesDialog;
+		}
+
+		private void OpenOrderCodesDialog(object sender, EventArgs e)
+		{
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, Entity.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		private void OnYbuttonScanCodesOnClicked(object sender, EventArgs e)
@@ -341,9 +361,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null) {
+			if(Entity.LastEditorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
@@ -395,7 +415,13 @@ namespace Vodovoz
 				return;
 			}
 
-			var parentSubdivision = Entity.Warehouse?.OwningSubdivision;
+			Subdivision parentSubdivision = null;
+
+			if(Entity.Warehouse?.OwningSubdivisionId != null)
+			{
+				parentSubdivision = UoW.GetById<Subdivision>(Entity.Warehouse.OwningSubdivisionId.Value);
+			}
+
 			var geoGroup = parentSubdivision?.GeographicGroup;
 
 			while(geoGroup == null && parentSubdivision != null )

@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using LogisticsEventsApi.Contracts;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Logistics.Drivers;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Employee;
 
 namespace EventsApi.Library.Services

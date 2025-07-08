@@ -123,7 +123,7 @@ namespace Vodovoz.ViewWidgets.Store
 					{
 						_userHasOnlyAccessToWarehouseAndComplaints =
 							ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-								Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+								Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 							&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 					}
 

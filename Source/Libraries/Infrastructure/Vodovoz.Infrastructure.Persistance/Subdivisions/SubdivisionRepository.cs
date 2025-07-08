@@ -12,9 +12,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Store;
 using Vodovoz.Settings;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Infrastructure.Persistance.Subdivisions
 {
@@ -109,8 +109,9 @@ namespace Vodovoz.Infrastructure.Persistance.Subdivisions
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
 		public IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false)
 		{
+			var subdivisionId = subdivision?.Id;
 			var query = uow.Session.QueryOver<Warehouse>()
-							.Where(w => w.OwningSubdivision == subdivision)
+							.Where(w => w.OwningSubdivisionId == subdivisionId)
 							.OrderBy(w => w.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}

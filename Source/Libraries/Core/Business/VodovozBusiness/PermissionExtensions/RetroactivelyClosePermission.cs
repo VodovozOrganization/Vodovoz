@@ -1,8 +1,8 @@
-﻿using System;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+﻿using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Documents;
 using VodovozBusiness.Domain.Payments;
+using Type = System.Type;
 
 namespace Vodovoz.PermissionExtensions
 {

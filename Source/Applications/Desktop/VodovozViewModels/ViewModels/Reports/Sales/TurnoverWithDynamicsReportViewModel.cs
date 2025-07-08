@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -57,6 +58,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -96,7 +98,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(userService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
@@ -109,11 +111,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
+
+			_canViewReportSalesWithCashReceipts =
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -292,8 +297,77 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{ "Самовывоз", "is_self_delivery" },
 				{ "Клиенты с одним заказом", "with_one_order" },
 			};
+			
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+		}
+
+		private void CheckAndRefreshSelectedGroupsForCashReceiptOnly()
+		{
+			if(!(_filterViewModel.ActiveFilter is IncludeExcludeBoolParamsFilter))
+			{
+				return;
+			}
+
+			var parameters = FilterViewModel.GetReportParametersSet();
+
+			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
+			{
+				return;
+			}
+
+			if(!(value is bool included) || !included)
+			{
+				return;
+			}
+
+			try
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+
+				_leftRightListViewModelFactory.SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(GroupingSelectViewModel);
+
+				var leftGroupingItems = GroupingSelectViewModel.LeftItems;
+
+				var organizationGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Organization);
+
+				var nomenclatureGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != organizationGroup && item != nomenclatureGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+			}
+			finally
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
+			}
 		}
 
 		private void SetupGroupings()
@@ -305,10 +379,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
 		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+
 			if(SelectedGroupings.LastOrDefault() != GroupingType.Nomenclature)
 			{
 				ShowResidueForNomenclaturesWithoutSales = false;
 			}
+
 			OnPropertyChanged(nameof(SelectedGroupings));
 		}
 
@@ -488,6 +565,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
+			};
+
+			var sendedCashReceiptStatuses = new[]
+			{
+				FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed, FiscalDocumentStatus.Completed
 			};
 
 			#region Сбор параметров
@@ -722,7 +804,32 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								.In(subQueryOrdersCount);
 							
 							break;
-						}							
+						}
+						case "only_with_cash_receipts":
+						{
+							EdoFiscalDocument edoFiscalDocumentAlias = null;
+							EdoTask edoTaskAlias = null;
+							OrderEdoRequest edoRequestAlias = null;
+
+							var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+								.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+								.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+								.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+								.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+								.IsIn(sendedCashReceiptStatuses)
+								.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+							if(param.Include)
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereExists(subQueryWithCashReceipts);
+							}
+							else
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+							}
+						
+							break;
+						}
 						default:
 							throw new NotSupportedException(param.Number);
 					}
@@ -1257,6 +1364,31 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						
 						break;
 					}
+					case "only_with_cash_receipts":
+					{
+						EdoFiscalDocument edoFiscalDocumentAlias = null;
+						EdoTask edoTaskAlias = null;
+						OrderEdoRequest edoRequestAlias = null;
+
+						var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+							.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+							.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+							.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+							.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+							.IsIn(sendedCashReceiptStatuses)
+							.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+						if(param.Include)
+						{
+							query.WithSubquery.WhereExists(subQueryWithCashReceipts);
+						}
+						else
+						{
+							query.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+						}
+						
+						break;
+					}
 					default:
 						throw new NotSupportedException(param.Number);
 				}
@@ -1363,6 +1495,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public override void Dispose()
 		{
 			ReportGenerationCancelationTokenSource?.Dispose();
+			_filterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
 			base.Dispose();
 		}
 	}

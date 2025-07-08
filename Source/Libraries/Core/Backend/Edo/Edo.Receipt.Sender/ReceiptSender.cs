@@ -159,7 +159,7 @@ namespace Edo.Receipt.Sender
 			}
 			catch(CashboxException ex)
 			{
-				_logger.LogWarning("Ошибка при отправке чека по задаче №{edoTaskId}.", edoTask.Id);
+				_logger.LogWarning(ex, "Ошибка при отправке чека по задаче №{edoTaskId}", edoTask.Id);
 				throw;
 			}
 

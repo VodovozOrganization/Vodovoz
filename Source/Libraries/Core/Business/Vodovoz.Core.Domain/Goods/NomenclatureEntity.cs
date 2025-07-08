@@ -25,7 +25,7 @@ namespace Vodovoz.Core.Domain.Goods
 		PrepositionalPlural = "номенклатурах")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class NomenclatureEntity : PropertyChangedBase, IDomainObject, IBusinessObject, INamed, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class NomenclatureEntity : PropertyChangedBase, INamedDomainObject, IBusinessObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
 	{
 		private int _id;
 		private string _name;
@@ -119,6 +119,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private ProductivityUnits? _coolingProductivityUnits;
 		private ProductivityComparisionSign? _heatingProductivityComparisionSign;
 		private ProductivityComparisionSign? _coolingProductivityComparisionSign;
+		private bool _isNeedSanitisation;
 
 		private MeasurementUnits _unit;
 		private NomenclatureEntity _dependsOnNomenclature;
@@ -129,7 +130,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
 
-		public NomenclatureEntity()
+		public NomenclatureEntity() 
 		{
 			Category = NomenclatureCategory.water;
 		}
@@ -1121,6 +1122,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _coolingProductivityComparisionSign;
 			set => SetField(ref _coolingProductivityComparisionSign, value);
+		}
+		
+		/// <summary>
+		/// Необходима ли сан обработка для номенклатуры
+		/// </summary>
+		[Display(Name = "Санитарная обработка")]
+		public virtual bool IsNeedSanitisation
+		{
+			get => _isNeedSanitisation;
+			set => SetField(ref _isNeedSanitisation, value);
 		}
 
 		#endregion Онлайн характеристики для ИПЗ

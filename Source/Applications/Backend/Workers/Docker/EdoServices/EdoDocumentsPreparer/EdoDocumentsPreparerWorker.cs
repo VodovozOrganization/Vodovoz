@@ -30,8 +30,9 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Converters;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoDocumentsPreparer
 {
@@ -57,6 +58,7 @@ namespace EdoDocumentsPreparer
 		private readonly IFileDataFactory _fileDataFactory;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IHostApplicationLifetime _applicationLifetime;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly DateTime _startDate;
 
 		public EdoDocumentsPreparerWorker(
@@ -77,7 +79,8 @@ namespace EdoDocumentsPreparer
 			IInfoForCreatingEdoBillFactory billInfoFactory,
 			IFileDataFactory fileDataFactory,
 			IPublishEndpoint publishEndpoint,
-			IHostApplicationLifetime applicationLifetime)
+			IHostApplicationLifetime applicationLifetime,
+			ICounterpartyEdoAccountController edoAccountController)
 		{
 			_logger = logger;
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -98,6 +101,7 @@ namespace EdoDocumentsPreparer
 			_fileDataFactory = fileDataFactory ?? throw new ArgumentNullException(nameof(fileDataFactory));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_startDate = DateTime.Now;
 		}
 
@@ -192,7 +196,7 @@ namespace EdoDocumentsPreparer
 
 						var container = uow
 							.GetAll<EdoContainer>()
-							.Where(x => x.Order.Id == orderEntity.Id && x.Type == Type.Upd)
+							.Where(x => x.Order.Id == orderEntity.Id && x.Type == DocumentContainerType.Upd)
 							.OrderByDescending(x => x.Id)
 							.FirstOrDefault();
 
@@ -345,7 +349,7 @@ namespace EdoDocumentsPreparer
 			await uow.SaveAsync(edoContainer);
 			await uow.CommitAsync();
 
-			if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, document, task))
+			if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, order.Contract.Organization.Id, document, task))
 			{
 				return;
 			}
@@ -452,7 +456,7 @@ namespace EdoDocumentsPreparer
 					await uow.SaveAsync(edoContainer);
 					await uow.CommitAsync();
 
-					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, "Счет"))
+					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, order.Contract.Organization.Id, "Счет"))
 					{
 						continue;
 					}
@@ -526,6 +530,7 @@ namespace EdoDocumentsPreparer
 						uow,
 						edoContainer,
 						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id,
+						organization.Id,
 						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle()))
 					{
 						continue;
@@ -627,12 +632,15 @@ namespace EdoDocumentsPreparer
 			IUnitOfWork uow,
 			EdoContainer edoContainer,
 			int documentId,
+			int organizationId,
 			string document,
 			BulkAccountingEdoTask task = null)
 		{
-			if(edoContainer.Counterparty != null
-			   && (string.IsNullOrWhiteSpace(edoContainer.Counterparty.PersonalAccountIdInEdo)
-				   || edoContainer.Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree))
+			var edoAccount =
+				_edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(edoContainer.Counterparty, organizationId);
+
+			if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
+				|| edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			{
 				await TrySaveContainerByErrorState(
 					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО", task);

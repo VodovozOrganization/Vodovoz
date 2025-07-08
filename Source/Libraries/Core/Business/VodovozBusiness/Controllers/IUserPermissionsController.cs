@@ -2,8 +2,8 @@
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.Controllers
 {

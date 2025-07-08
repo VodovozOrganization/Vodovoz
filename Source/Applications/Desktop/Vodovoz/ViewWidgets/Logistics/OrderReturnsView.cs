@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Orders;
@@ -51,15 +50,17 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog, INotifyPropertyChanged
 	{
 		#region Поля и свойства
 
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -87,14 +88,59 @@ namespace Vodovoz
 		private RouteListItem _routeListItem;
 		private bool _canEditPrices;
 		private bool _canEditOrderAfterRecieptCreated;
-
-		private OrderNode _orderNode;
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
+		private int? _oldDeliveryPointId;
+		private int? _oldCounterpartyId;
 
 		public IUnitOfWork UoW { get; }
-
+		
 		public ICallTaskWorker CallTaskWorker { get; }
+		
+		private Order BaseOrder { get; set; }
+		
+		public Counterparty Client
+		{
+			get => BaseOrder.Client;
+			private set
+			{
+				BaseOrder.UpdateClient(value, _contractUpdater, out var message);
+
+				if(!string.IsNullOrWhiteSpace(message))
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+				}
+			}
+		}
+
+		public DeliveryPoint DeliveryPoint
+		{
+			get => BaseOrder.DeliveryPoint;
+			private set => BaseOrder.UpdateDeliveryPoint(value, _contractUpdater);
+		}
+		
+		public ChangedType CompletedChange
+		{
+			get
+			{
+				if(!_oldCounterpartyId.HasValue || !_oldDeliveryPointId.HasValue)
+				{
+					return ChangedType.None;
+				}
+
+				if(Client.Id == _oldCounterpartyId && DeliveryPoint.Id != _oldDeliveryPointId)
+				{
+					return ChangedType.DeliveryPoint;
+				}
+
+				if(Client.Id != _oldCounterpartyId)
+				{
+					return ChangedType.Both;
+				}
+
+				return ChangedType.None;
+			}
+		}
 
 		#endregion
 
@@ -115,7 +161,8 @@ namespace Vodovoz
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IOrderContractUpdater orderContractUpdater)
 		{
 			if(currentPermissionService is null)
 			{
@@ -123,13 +170,13 @@ namespace Vodovoz
 			}
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 			_canEditPrices = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditPriceDiscountFromRouteList);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteList);
 
 			_canEditOrderAfterRecieptCreated = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Order.CanChangeOrderAfterRecieptCreated);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanChangeOrderAfterRecieptCreated);
 
 			Build();
 
@@ -149,6 +196,7 @@ namespace Vodovoz
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 		}
 
 		public bool CanFormOrderWithLiquidatedCounterparty { get; }
@@ -157,7 +205,7 @@ namespace Vodovoz
 
 		public int? OrderId => _routeListItem?.Order?.Id;
 		private bool IsClientSelectedAndOrderCashlessAndPaid =>
-			_orderNode.Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
+			Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
@@ -254,13 +302,13 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
+					_routeListItem.Order.AddWaterForSale(UoW, _contractUpdater, nomenclature, 0, 0);
 					break;
 				case NomenclatureCategory.master:
-					_routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
+					_routeListItem.Order.AddMasterNomenclature(UoW, _contractUpdater, nomenclature, 0);
 					break;
 				default:
-					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(nomenclature, true);
+					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(UoW, _contractUpdater, nomenclature, true);
 					break;
 			}
 
@@ -279,12 +327,12 @@ namespace Vodovoz
 				_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			}
 
-			_orderNode = new OrderNode(_routeListItem.Order);
+			Initialize(_routeListItem.Order);
 
 			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
-			ConfigureDeliveryPointRefference(_orderNode.Client);
+			ConfigureDeliveryPointRefference(Client);
 
 			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
 
@@ -379,7 +427,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlineOrder, w => w.Text, new NullableIntToStringConverter())
+			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlinePaymentNumber, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };
@@ -399,9 +447,36 @@ namespace Vodovoz
 			OnClientEntryViewModelChanged(null, null);
 		}
 
+		private void Initialize(Order order)
+		{
+			if(BaseOrder != null)
+			{
+				UnsubscribeBaseOrder();
+			}
+			
+			BaseOrder = order;
+			BaseOrder.PropertyChanged += OnOrderPropertyChanged;
+
+			_oldDeliveryPointId = order.DeliveryPoint?.Id;
+			_oldCounterpartyId = order.Client?.Id;
+		}
+
+		private void OnOrderPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Order.DeliveryPoint))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DeliveryPoint)));
+			}
+			
+			if(e.PropertyName == nameof(Order.Client))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Client)));
+			}
+		}
+
 		private IEntityEntryViewModel GetClientEntityEntryViewModel()
 		{
-			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, _tdiNavigationManager, _lifetimeScope);
+			var builder = new LegacyEEVMBuilderFactory<OrderReturnsView>(this, this, UoW, _tdiNavigationManager, _lifetimeScope);
 
 			var viewModel = builder.ForProperty(x => x.Client)
 				.UseTdiEntityDialog()
@@ -510,8 +585,11 @@ namespace Vodovoz
 
 			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
 			deliveryPointJournalFactory.SetDeliveryPointJournalFilterViewModel(deliveryPointFilter);
-			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
-			entityVMEntryDeliveryPoint.Binding.AddBinding(_orderNode, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			entityVMEntryDeliveryPoint
+				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
+			entityVMEntryDeliveryPoint.Binding
+				.AddBinding(this, s => s.DeliveryPoint, w => w.Subject)
+				.InitializeFromSource();
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
@@ -578,28 +656,27 @@ namespace Vodovoz
 
 		private void AcceptOrderChange()
 		{
-			if(_orderNode.CompletedChange == OrderNode.ChangedType.None)
+			if(CompletedChange == ChangedType.None)
 			{
-				_orderNode = new OrderNode(_routeListItem.Order);
+				Initialize(_routeListItem.Order);
 				return;
 			}
 
-			if(_orderNode.CompletedChange == OrderNode.ChangedType.DeliveryPoint)
+			if(CompletedChange == ChangedType.DeliveryPoint)
 			{
-				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
+				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater);
 			}
 
-			if(_orderNode.CompletedChange == OrderNode.ChangedType.Both)
+			if(CompletedChange == ChangedType.Both)
 			{
-				var _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+				var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 				//Сначала ставим точку доставки чтобы при установке клиента она была доступна,
 				//иначе при записи клиента убирается не его точка доставки и будет ошибка при
 				//изменении документов которые должны меняться при смене клиента потомучто точка
 				//доставки будет пустая
-				_routeListItem.Order.DeliveryPoint = _orderNode.DeliveryPoint;
-				_routeListItem.Order.Client = _orderNode.Client;
-				_routeListItem.Order.UpdateBottleMovementOperation(
-					UoW, _nomenclatureSettings, _routeListItem.BottlesReturned);
+				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater);
+				_routeListItem.Order.UpdateClient(Client, _contractUpdater, out var updateClientMessage);
+				_routeListItem.Order.UpdateBottleMovementOperation(UoW, nomenclatureSettings, _routeListItem.BottlesReturned);
 			}
 		}
 
@@ -650,7 +727,7 @@ namespace Vodovoz
 			_lastCounterparty = clientEntry.ViewModel.Entity as Counterparty;
 
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
-			_orderNode.DeliveryPoint = null;
+			DeliveryPoint = null;
 
 			if(clientEntry.ViewModel.Entity != null)
 			{
@@ -665,9 +742,9 @@ namespace Vodovoz
 				return;
 			}
 
-			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
+			var previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
 			Enum[] hideEnums = { PaymentType.Cashless };
-			PersonType personType = (clientEntry.ViewModel.Entity as Counterparty).PersonType;
+			var personType = (clientEntry.ViewModel.Entity as Counterparty).PersonType;
 
 			if(personType == PersonType.natural)
 			{
@@ -703,7 +780,7 @@ namespace Vodovoz
 			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode
 				&& selectedItemNode.OrderItem != null)
 			{
-				_routeListItem.Order.RemoveItemFromClosingOrder(selectedItemNode.OrderItem);
+				_routeListItem.Order.RemoveItemFromClosingOrder(UoW, _contractUpdater, selectedItemNode.OrderItem);
 				UpdateItemsList();
 			}
 		}
@@ -714,7 +791,7 @@ namespace Vodovoz
 			//значит такое оборудование можно удалять из изменения заказа
 			if(e.OrderItem == null && e.Count == 0)
 			{
-				_routeListItem.Order.RemoveEquipment(e);
+				_routeListItem.Order.RemoveEquipment(UoW, _contractUpdater, e);
 			}
 		}
 
@@ -772,9 +849,15 @@ namespace Vodovoz
 			if(_undeliveryViewModel != null)
 			{
 				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+				UnsubscribeBaseOrder();
 			}
 
 			base.Dispose();
+		}
+
+		private void UnsubscribeBaseOrder()
+		{
+			BaseOrder.PropertyChanged -= OnOrderPropertyChanged;
 		}
 	}
 }

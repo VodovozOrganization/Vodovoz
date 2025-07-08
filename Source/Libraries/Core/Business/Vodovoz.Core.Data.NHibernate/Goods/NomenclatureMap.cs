@@ -265,7 +265,10 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.StorageCell)
 				.Column("storage_cell");
-
+			
+			Map(x => x.IsNeedSanitisation)
+				.Column("is_need_sanitisation");
+			
 			//Планирование продаж для КЦ
 			Map(x => x.PlanDay)
 				.Column("plan_day");

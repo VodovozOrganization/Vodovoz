@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -99,7 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
@@ -108,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			CanEditComplaintClassification =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Complaint.CanEditComplaintClassification);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Complaint.CanEditComplaintClassification);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
 				UoW,
@@ -271,7 +272,9 @@ namespace Vodovoz.ViewModels.Complaints
 
 		protected override bool BeforeSave()
 		{
-			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity);
+			var checkDuplicatesFromDate = DateTime.Now.AddDays(-1);
+			var checkDuplicatesToDate = DateTime.Now;
+			var canSave = _complaintService.CheckForDuplicateComplaint(UoW, Entity, checkDuplicatesFromDate, checkDuplicatesToDate);
 
 			return canSave;
 		}

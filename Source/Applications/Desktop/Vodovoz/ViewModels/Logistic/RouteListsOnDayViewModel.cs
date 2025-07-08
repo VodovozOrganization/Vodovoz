@@ -16,12 +16,10 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using QS.Validation;
+using NHibernate.SqlCommand;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
@@ -40,15 +38,16 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using VodovozBusiness.Domain.Client;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -70,6 +69,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IGlobalSettings _globalSettings;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		private Employee _employee;
 		private bool _excludeTrucks;
@@ -121,7 +121,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteOptimizer routeOptimizer,
 			IGlobalSettings globalSettings,
 			ICachedDistanceRepository cachedDistanceRepository,
-			IRouteListProfitabilityController routeListProfitabilityController)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			IOrganizationSettings organizationSettings)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(geographicGroupRepository == null)
@@ -142,6 +143,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -151,7 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 
@@ -1828,6 +1830,9 @@ namespace Vodovoz.ViewModels.Logistic
 			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 			Order orderBaseAlias = null;
+			CounterpartyContract contractAlias = null;
+			CounterpartyEdoAccount edoAccountByOrderOrganizationAlias = null;
+			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 
 			ObservableDeliverySummary.Clear();
 
@@ -1854,12 +1859,29 @@ namespace Vodovoz.ViewModels.Logistic
 					if(_isCodesScanInWarehouseRequiredFilterParameterSelected)
 					{
 						baseQuery
-							.JoinAlias(() => orderBaseAlias.Client, () => counterpartyAlias);
+							.JoinAlias(() => orderBaseAlias.Client, () => counterpartyAlias)
+							.JoinAlias(() => orderBaseAlias.Contract, () => contractAlias)
+							.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
+								() => defaultOrganizationEdoAccountAlias,
+								JoinType.InnerJoin,
+								Restrictions.Where(
+									() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
+										&& defaultOrganizationEdoAccountAlias.IsDefault))
+							.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
+								() => edoAccountByOrderOrganizationAlias,
+								JoinType.LeftOuterJoin,
+								Restrictions.Where(
+									() => edoAccountByOrderOrganizationAlias.OrganizationId == contractAlias.Organization.Id
+										&& edoAccountByOrderOrganizationAlias.IsDefault))
+							;
 
 						additionalParametersRestriction.Add(Restrictions.Conjunction()
 							.Add(() => orderBaseAlias.PaymentType == PaymentType.Cashless)
-							.Add(() => counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-							.Add(() => counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute));
+							.Add(() => counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+							.Add(Restrictions.Disjunction()
+								.Add(() => edoAccountByOrderOrganizationAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+								.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+						);
 					}
 
 					baseQuery.Where(additionalParametersRestriction);

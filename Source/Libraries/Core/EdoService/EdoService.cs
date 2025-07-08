@@ -15,7 +15,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoService.Library
 {
@@ -34,13 +34,13 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, Type type) where T : IDomainObject
+		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
 				var edoDocumentsActions = UpdateEdoDocumentAction(uow, entity, type);
 
-				if(type == Type.Upd)
+				if(type == DocumentContainerType.Upd)
 				{
 					var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 						.Where(x => x.Order.Id == entity.GetId())
@@ -70,7 +70,7 @@ namespace EdoService.Library
 			}
 		}
 
-		private OrderEdoTrueMarkDocumentsActions UpdateEdoDocumentAction(IUnitOfWork uow, IDomainObject entity, Type type)
+		private OrderEdoTrueMarkDocumentsActions UpdateEdoDocumentAction(IUnitOfWork uow, IDomainObject entity, DocumentContainerType type)
 		{
 			var restriction = GetRestrictionByType(entity, type);
 
@@ -85,7 +85,7 @@ namespace EdoService.Library
 
 			FillEdoDocumentsActionByType(edoDocumentsAction, entity, type);
 
-			if(type == Type.Upd)
+			if(type == DocumentContainerType.Upd)
 			{
 				edoDocumentsAction.IsNeedToResendEdoUpd = true;
 			}
@@ -99,21 +99,21 @@ namespace EdoService.Library
 			return edoDocumentsAction;
 		}
 
-		private void FillEdoDocumentsActionByType(OrderEdoTrueMarkDocumentsActions edoDocumentsAction, IDomainObject entity, Type type)
+		private void FillEdoDocumentsActionByType(OrderEdoTrueMarkDocumentsActions edoDocumentsAction, IDomainObject entity, DocumentContainerType type)
 		{
 			switch(type)
 			{
-				case Type.Bill:
-				case Type.Upd:
+				case DocumentContainerType.Bill:
+				case DocumentContainerType.Upd:
 					edoDocumentsAction.Order = (Order)entity;
 					break;
-				case Type.BillWSForDebt:
+				case DocumentContainerType.BillWSForDebt:
 					edoDocumentsAction.OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt)entity;
 					break;
-				case Type.BillWSForPayment:
+				case DocumentContainerType.BillWSForPayment:
 					edoDocumentsAction.OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)entity;
 					break;
-				case Type.BillWSForAdvancePayment:
+				case DocumentContainerType.BillWSForAdvancePayment:
 					edoDocumentsAction.OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)entity;
 					break;
 				default:
@@ -121,18 +121,18 @@ namespace EdoService.Library
 			}
 		}
 
-		private Expression<Func<OrderEdoTrueMarkDocumentsActions, bool>> GetRestrictionByType(IDomainObject entity, Type type)
+		private Expression<Func<OrderEdoTrueMarkDocumentsActions, bool>> GetRestrictionByType(IDomainObject entity, DocumentContainerType type)
 		{
 			switch(type)
 			{
-				case Type.Bill:
-				case Type.Upd:
+				case DocumentContainerType.Bill:
+				case DocumentContainerType.Upd:
 					return x => x.Order.Id == entity.GetId();
-				case Type.BillWSForDebt:
+				case DocumentContainerType.BillWSForDebt:
 					return x => x.OrderWithoutShipmentForDebt.Id == entity.GetId();
-				case Type.BillWSForPayment:
+				case DocumentContainerType.BillWSForPayment:
 					return x => x.OrderWithoutShipmentForPayment.Id == entity.GetId();
-				case Type.BillWSForAdvancePayment:
+				case DocumentContainerType.BillWSForAdvancePayment:
 					return x => x.OrderWithoutShipmentForAdvancePayment.Id == entity.GetId();
 				default:
 					throw new NotImplementedException($"Не поддерживаемый тип {type.GetEnumDisplayName()}");
@@ -159,7 +159,7 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateOrderForDocument(OrderEntity order, Type type)
+		public Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type)
 		{
 			var errors = new List<Error>();
 
@@ -187,13 +187,13 @@ namespace EdoService.Library
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
 				.Where(ooec => containersToRevokeStatuses.Contains(ooec.EdoDocFlowStatus));
 
-			var restriction = GetRestrictionByType(order, Type.Bill);
+			var restriction = GetRestrictionByType(order, DocumentContainerType.Bill);
 
 			var edoDocumentsAction = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
 				.Where(restriction)
 				.FirstOrDefault() ?? new OrderEdoTrueMarkDocumentsActions();
 
-			FillEdoDocumentsActionByType(edoDocumentsAction, order, Type.Bill);
+			FillEdoDocumentsActionByType(edoDocumentsAction, order, DocumentContainerType.Bill);
 
 			edoDocumentsAction.IsNeedOfferCancellation = true;
 

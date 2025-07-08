@@ -11,8 +11,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -247,6 +247,8 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 		}
+
+		
 
 
 		/// <summary>
@@ -549,6 +551,16 @@ namespace Vodovoz.Domain.Goods
 				price = nomPrice?.Price ?? 0;
 			}
 			return price;
+		}
+		
+		/// <summary>
+		/// Принадлежит ли номенклатура товарной группе
+		/// </summary>
+		/// <param name="productGroup">Проверяемая товарная группа</param>
+		/// <returns></returns>
+		public virtual bool IsBelongsProductGroup(ProductGroup productGroup)
+		{
+			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
 		}
 
 		#endregion Методы

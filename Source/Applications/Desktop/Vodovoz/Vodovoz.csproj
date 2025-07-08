@@ -105,6 +105,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
+    <Reference Include="GammaBinding">
+      <HintPath>..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\bin\Debug\GammaBinding.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -421,13 +424,14 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\CustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
-    <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Commons\DeprecatedObservableListReorderableTreeModel.cs" />
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
     <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
@@ -663,6 +667,12 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\VatCatalog.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.ComplexAutomationDefaultExchangeStrings.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\IRulesNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyValueParameterNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RulesNode.DefaultExchangeStrings.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -680,6 +690,7 @@
     <Compile Include="ViewModels\Mango\MangoViewModelNavigator.cs" />
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
     <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
+    <Compile Include="Views\Common\AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -727,8 +738,7 @@
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
-    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.OrderNode.ChangedType.cs" />
-    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.OrderNode.cs" />
+    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.AddOrderEnum.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
@@ -2089,13 +2099,25 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
+    <Compile Include="Views\Edo\TenderEdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
+    <Compile Include="Views\TrueMark\OrderCodesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
+    <Compile Include="Views\Client\CounterpartyEdoAccountsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsView.cs" />
+    <Compile Include="Views\Client\EdoAccountView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
+    <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Cash\Payments\" />
     <Folder Include="Dialogs\Cash\Payments\" />
+    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2454,10 +2476,6 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\SmsPaymentService\SmsPaymentService.csproj">
-      <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
-      <Name>SmsPaymentService</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>

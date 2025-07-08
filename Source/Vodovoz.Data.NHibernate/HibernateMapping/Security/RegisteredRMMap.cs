@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Security;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Security
 {
