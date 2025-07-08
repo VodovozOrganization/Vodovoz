@@ -2898,11 +2898,11 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 			
-			var result = _orderService.UpdateDeliveryCost(UoW, Entity);
+			var deliveryCostResult = _orderService.UpdateDeliveryCost(UoW, Entity);
 
-			if(result.IsFailure)
+			if(deliveryCostResult.IsFailure)
 			{
-				MessageDialogHelper.RunWarningDialog("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+				MessageDialogHelper.RunWarningDialog("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
 			}
 			
 			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
@@ -2931,7 +2931,7 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			var result = _orderService.UpdateDeliveryCost(UoW, Entity); //ignore
 		}
 
 		/// <summary>

@@ -595,10 +595,10 @@ namespace Vodovoz.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			var result = UpdateDeliveryCost(unitOfWork, order);
-			if(result.IsFailure)
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			if(deliveryCostResult.IsFailure)
 			{
-				throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+				throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
 			}
 			
 			AddLogisticsRequirements(order);
@@ -655,8 +655,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
-			var result = UpdateDeliveryCost(uow, order);
-			if(result.IsFailure)
+			var deliveryCostResult = UpdateDeliveryCost(uow, order);
+			if(deliveryCostResult.IsFailure)
 			{
 				return 0;
 			}
