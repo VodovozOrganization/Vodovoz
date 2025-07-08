@@ -86,8 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public ICommand RemoveEdoAccountCommand { get; private set; }
 		public ICommand CopyFromEdoOperatorWithAccountCommand { get; private set; }
 
-		//TODO: продумать логику доступности кнопки, возможно не стоит ее так ограничивать
-		public bool CanCheckConsentForEdo => Entity.ConsentForEdoStatus == ConsentForEdoStatus.Sent;
+		public bool CanCheckConsentForEdo => true;
 		
 		public bool CanSendInviteByTaxcom => Entity.EdoOperator != null
 			&& !string.IsNullOrWhiteSpace(Entity.PersonalAccountIdInEdo)
@@ -245,6 +244,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
 				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId);
 
+				if(contactListItem.State != null)
+				{
+					Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
+				}
+
 				TryRefreshEdoLightsMatrix();
 
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
@@ -291,6 +295,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 					"Проверка согласия невозможна, должен быть заполнен ИНН");
+				return;
+			}
+			
+			if(Entity.EdoOperator is null || string.IsNullOrWhiteSpace(Entity.PersonalAccountIdInEdo))
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+					"Проверка согласия невозможна, должны быть заполнены данные оператора и кабинета клиента");
 				return;
 			}
 
@@ -350,7 +361,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			if(!_validator.Validate(Entity, _counterpartyValidationContext))
+			if(!_validator.Validate(Entity.Counterparty, _counterpartyValidationContext))
 			{
 				return;
 			}
