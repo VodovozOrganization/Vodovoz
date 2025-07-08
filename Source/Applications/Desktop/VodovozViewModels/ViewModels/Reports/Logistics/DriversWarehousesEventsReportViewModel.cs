@@ -8,6 +8,7 @@ using Autofac;
 using ClosedXML.Excel;
 using DateTimeHelpers;
 using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -378,47 +379,100 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			}
 			else if(IsCarGroup)
 			{
-				if(nodes.Count == 0) return;
-    
-				var firstNode = nodes.First();
-				var currentCar = firstNode.CarModelWithNumber;
-				var nextNode = AddNextSingleEventNode(firstNode);
-
-				for(var i = 1; i < nodes.Count; i++)
+				if(nodes.Count == 0)
 				{
-					var node = nodes[i];
-					if(currentCar == node.CarModelWithNumber && nextNode.SecondEventName == null && node.EventId != nextNode.FirstEventId)
+					return;
+				}
+				
+				while(nodes.Count > 0)
+				{
+					var firstNode = nodes.First();
+					var currentCar = firstNode.CarModelWithNumber;
+					var nextNode = AddNextSingleEventNode(firstNode);
+					var nodeIndex = 1;
+					var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
+
+					while(true)
 					{
-						FillSecondEventData(node, nextNode);
-					}
-					else
-					{
-						nextNode = AddNextSingleEventNode(node);
-						currentCar = node.CarModelWithNumber;
+
+						if(nodeIndex >= nodes.Count)
+						{
+							nodes.Remove(firstNode);
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].CarModelWithNumber == currentCar && 
+						        nodes[nodeIndex].EventId == FirstEvent.Id && firstNode.EventId == SecondEvent.Id && nodes[nodeIndex].EventTime <= firstNode.EventTime)
+						{
+							FillFirstEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].CarModelWithNumber == currentCar &&
+						        nodes[nodeIndex].EventId == SecondEvent.Id && firstNode.EventId == FirstEvent.Id && nodes[nodeIndex].EventTime >= firstNode.EventTime)
+						{
+							FillSecondEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else
+						{
+							nodeIndex++;
+						}
 					}
 				}
 			}
 			else if(IsDriverGroup)
 			{
-				if(nodes.Count == 0) return;
-    
-				var firstNode = nodes.First();
-				var currentDriver = firstNode.DriverFio;
-				var nextNode = AddNextSingleEventNode(firstNode);
-
-				for(var i = 1; i < nodes.Count; i++)
+				if(nodes.Count == 0)
 				{
-					var node = nodes[i];
-					if(currentDriver == node.DriverFio && 
-					   nextNode.SecondEventName == null && 
-					   node.EventId != nextNode.FirstEventId)
+					return;
+				}
+				
+				while(nodes.Count > 0)
+				{
+					var firstNode = nodes.First();
+					var currentFio = firstNode.DriverFio;
+					var nextNode = AddNextSingleEventNode(firstNode);
+					var nodeIndex = 1;
+					var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
+
+					while(true)
 					{
-						FillSecondEventData(node, nextNode);
-					}
-					else
-					{
-						nextNode = AddNextSingleEventNode(node);
-						currentDriver = node.DriverFio;
+						if(nodeIndex >= nodes.Count)
+						{
+							nodes.Remove(firstNode);
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].DriverFio == currentFio && 
+						        nodes[nodeIndex].EventId == FirstEvent.Id && firstNode.EventId == SecondEvent.Id  && nodes[nodeIndex].EventTime <= firstNode.EventTime)
+						{
+							FillFirstEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].DriverFio == currentFio &&
+						        nodes[nodeIndex].EventId == SecondEvent.Id && firstNode.EventId == FirstEvent.Id  && nodes[nodeIndex].EventTime >= firstNode.EventTime)
+						{
+							FillSecondEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else
+						{
+							nodeIndex++;
+						}
 					}
 				}
 			}
