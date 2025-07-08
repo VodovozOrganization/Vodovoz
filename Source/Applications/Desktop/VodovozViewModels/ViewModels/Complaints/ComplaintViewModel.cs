@@ -215,6 +215,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 				Entity.Driver = routeList.Driver;
 			}
+			
+			if(e.PropertyName == nameof(Entity.ComplaintType))
+			{
+				OnComplaintTypeChanged();
+			}
 		}
 
 		[PropertyChangedAlso(nameof(CanChangeDetalization))]
@@ -606,6 +611,17 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.ComplaintKind,
 				() => CanChangeDetalization);
+		}
+
+		private void OnComplaintTypeChanged()
+		{
+			if(Entity.ComplaintType == ComplaintType.Client)
+			{
+				return;
+			}
+			
+			Entity.Order = null;
+			Entity.OrderRating = null;
 		}
 
 		private void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)

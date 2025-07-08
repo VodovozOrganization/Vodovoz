@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -505,7 +505,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -839,8 +839,33 @@ FROM
        	     	AND NOT (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
        	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
        	     )
-       	     AND (@is_self_delivery IS NULL OR orders.self_delivery = @is_self_delivery)
-         )
+       	   )
+       AND (@is_self_delivery IS NULL OR orders.self_delivery = @is_self_delivery)
+       AND (
+    		 @only_with_cash_receipts IS NULL
+    		 OR (
+   	    		 	@only_with_cash_receipts = TRUE
+   	    			AND EXISTS
+		       	    (
+		       	     	select efd.id from edo_fiscal_documents efd 
+						join edo_tasks et on efd.receipt_edo_task_id = et.id
+						join edo_customer_requests ecr on ecr.order_task_id = et.id
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
+						and ecr.order_id = orders.id
+					)
+				)
+			OR (
+   	    		 	@only_with_cash_receipts = FALSE
+   	    			AND NOT EXISTS
+		       	    (
+		       	     	select efd.id from edo_fiscal_documents efd 
+						join edo_tasks et on efd.receipt_edo_task_id = et.id
+						join edo_customer_requests ecr on ecr.order_task_id = et.id
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
+						and ecr.order_id = orders.id
+					)
+				)
+     	)
      GROUP BY order_items.id
     ) as T
 GROUP BY T.order_items_id
@@ -958,9 +983,12 @@ GROUP BY T.order_items_id
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
           </QueryParameter>
+          <QueryParameter Name="only_with_cash_receipts">
+            <Value>={?only_with_cash_receipts}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1068,7 +1096,7 @@ GROUP BY T.order_items_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SET @classification_include = 0;
@@ -1507,7 +1535,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1997,6 +2025,13 @@ FROM
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="only_with_cash_receipts">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

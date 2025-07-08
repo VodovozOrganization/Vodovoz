@@ -31,8 +31,10 @@ using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Exceptions;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
+using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Specifications.Orders;
 using static RobotMiaApi.Errors.RobotMiaErrors;
+using CreateOrderRequest = Vodovoz.RobotMia.Contracts.Requests.V1.CreateOrderRequest;
 using IVodovozOrderService = VodovozBusiness.Services.Orders.IOrderService;
 using PaymentType = Vodovoz.RobotMia.Contracts.Requests.V1.PaymentType;
 using VodovozPaymentType = Vodovoz.Domain.Client.PaymentType;
@@ -64,8 +66,9 @@ namespace Vodovoz.RobotMia.Api.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
+		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly Employee _robotMiaEmployee;
 
 		/// <summary>
@@ -86,6 +89,8 @@ namespace Vodovoz.RobotMia.Api.Services
 		/// <param name="counterpartyContractRepository"></param>
 		/// <param name="counterpartyContractFactory"></param>
 		/// <param name="paymentFromBankClientController"></param>
+		/// <param name="contractUpdater"></param>
+		/// <param name="orderConfirmationService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -101,8 +106,9 @@ namespace Vodovoz.RobotMia.Api.Services
 			ICallTaskWorker callTaskWorker,
 			IOrderDailyNumberController orderDailyNumberController,
 			ICounterpartyContractRepository counterpartyContractRepository,
-			ICounterpartyContractFactory counterpartyContractFactory,
-			IPaymentFromBankClientController paymentFromBankClientController)
+			IPaymentFromBankClientController paymentFromBankClientController,
+			IOrderContractUpdater contractUpdater,
+			IOrderConfirmationService orderConfirmationService)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -128,10 +134,10 @@ namespace Vodovoz.RobotMia.Api.Services
 				?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_counterpartyContractRepository = counterpartyContractRepository
 				?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			_counterpartyContractFactory = counterpartyContractFactory
-				?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_paymentFromBankClientController = paymentFromBankClientController
 				?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 
 			_robotMiaEmployee = employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 		}
@@ -209,7 +215,12 @@ namespace Vodovoz.RobotMia.Api.Services
 			using var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>();
 
 			var order = CreateOrder(unitOfWork, _robotMiaEmployee, createOrderRequest);
-			order.SaveEntity(unitOfWork, _robotMiaEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			order.SaveEntity(
+				unitOfWork,
+				_contractUpdater,
+				_robotMiaEmployee,
+				_orderDailyNumberController,
+				_paymentFromBankClientController);
 			return order.Id;
 		}
 
@@ -221,7 +232,12 @@ namespace Vodovoz.RobotMia.Api.Services
 				using var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>();
 
 				var order = CreateOrder(unitOfWork, _robotMiaEmployee, createOrderRequest);
-				order.SaveEntity(unitOfWork, _robotMiaEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+				order.SaveEntity(
+					unitOfWork,
+					_contractUpdater,
+					_robotMiaEmployee,
+					_orderDailyNumberController,
+					_paymentFromBankClientController);
 
 				var paymentSent = await TryingSendPayment(createOrderRequest.ContactPhone, order.Id);
 
@@ -258,12 +274,12 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				Order order = unitOfWork.Root;
 				order.Author = _robotMiaEmployee;
-				order.Client = counterparty;
-				order.DeliveryPoint = deliveryPoint;
-				order.PaymentType = VodovozPaymentType.Cash;
+				order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
+				order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
+				order.UpdatePaymentType(VodovozPaymentType.Cash, _contractUpdater);
 
 				order.DeliverySchedule = deliverySchedule;
-				order.DeliveryDate = calculatePriceRequest.DeliveryDate;
+				order.UpdateDeliveryDate(calculatePriceRequest.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
 
 				var nomenclaturesToAddIds = calculatePriceRequest.OrderSaleItems.Select(x => x.NomenclatureId).ToArray();
 
@@ -278,13 +294,13 @@ namespace Vodovoz.RobotMia.Api.Services
 
 					if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 					{
-						order.AddNomenclature(nomenclature, saleItem.Count);
+						order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 						continue;
 					}
 
 					if(nomenclature.Category == NomenclatureCategory.water)
 					{
-						order.AddWaterForSale(nomenclature, saleItem.Count);
+						order.AddWaterForSale(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 					}
 					else if(!nomenclaturesParameters.ContainsKey(nomenclature.Id)
 					        || nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
@@ -294,7 +310,7 @@ namespace Vodovoz.RobotMia.Api.Services
 					}
 					else
 					{
-						order.AddNomenclature(nomenclature, saleItem.Count);
+						order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 					}
 				}
 
@@ -359,8 +375,7 @@ namespace Vodovoz.RobotMia.Api.Services
 			using var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>();
 
 			var order = CreateOrder(unitOfWork, _robotMiaEmployee, createOrderRequest);
-			order.AcceptOrder(_robotMiaEmployee, _callTaskWorker);
-			order.SaveEntity(unitOfWork, _robotMiaEmployee, _orderDailyNumberController, _paymentFromBankClientController);
+			_orderConfirmationService.AcceptOrder(unitOfWork, _robotMiaEmployee, order);
 			return order.Id;
 		}
 
@@ -377,8 +392,8 @@ namespace Vodovoz.RobotMia.Api.Services
 
 			Order order = unitOfWork.Root;
 			order.Author = author;
-			order.Client = counterparty;
-			order.DeliveryPoint = deliveryPoint;
+			order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
+			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
 			order.Comment = createOrderRequest.DriverAppComment;
 			order.CallBeforeArrivalMinutes = createOrderRequest.CallBeforeArrivalMinutes;
 
@@ -394,25 +409,26 @@ namespace Vodovoz.RobotMia.Api.Services
 			switch(createOrderRequest.PaymentType)
 			{
 				case PaymentType.Cash:
-					order.PaymentType = VodovozPaymentType.Cash;
+					order.UpdatePaymentType(VodovozPaymentType.Cash, _contractUpdater);
 					break;
 				case PaymentType.TerminalQR:
-					order.PaymentType = VodovozPaymentType.Terminal;
+					order.UpdatePaymentType(VodovozPaymentType.Terminal, _contractUpdater);
 					order.PaymentByTerminalSource = PaymentByTerminalSource.ByQR;
 					break;
 				case PaymentType.TerminalCard:
-					order.PaymentType = VodovozPaymentType.Terminal;
+					order.UpdatePaymentType(VodovozPaymentType.Terminal, _contractUpdater);
 					order.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
 					break;
 				case PaymentType.SmsQR:
-					order.PaymentType = VodovozPaymentType.SmsQR;
+					order.UpdatePaymentType(VodovozPaymentType.SmsQR, _contractUpdater);
 					break;
 			}
 
+			
 			order.DeliverySchedule = deliverySchedule;
-			order.DeliveryDate = createOrderRequest.DeliveryDate;
+			order.UpdateDeliveryDate(createOrderRequest.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
 
-			order.UpdateOrCreateContract(unitOfWork, _counterpartyContractRepository, _counterpartyContractFactory);
+			_contractUpdater.UpdateOrCreateContract(unitOfWork, order);
 
 			order.SignatureType = createOrderRequest.SignatureType.MapToVodovozSignatureType();
 
@@ -454,7 +470,7 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 				{
-					order.AddNomenclature(nomenclature, saleItem.Count);
+					order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 					continue;
 				}
 
@@ -466,11 +482,11 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Category == NomenclatureCategory.water)
 				{
-					order.AddWaterForSale(nomenclature, saleItem.Count);
+					order.AddWaterForSale(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 				}
 				else
 				{
-					order.AddNomenclature(nomenclature, saleItem.Count);
+					order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 				}
 			}
 
