@@ -36,14 +36,20 @@ namespace Vodovoz.Application.Orders.Services
 			
 			if(onlineOrder.DeliveryPoint is null)
 			{
-				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint);
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint, 
+					new Error(typeof(OnlineOrder), nameof(onlineOrder.DeliveryPoint), $"Нет точки дооставки в заказе №{onlineOrder.Id}")
+				]);
 			}
 			
 			var district = onlineOrder.DeliveryPoint?.District;
 
 			if(district is null)
 			{
-				return Result.Failure<decimal>(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint);
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint,
+					new Error(typeof(OnlineOrder), nameof(onlineOrder.DeliveryPoint.District), $"Нет привязанного района к точке доставки №{onlineOrder.DeliveryPoint.Id}")
+				]);
 			}
 			
 			_onlineOrderStateKey.InitializeFields(onlineOrder);

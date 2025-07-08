@@ -140,11 +140,11 @@ namespace Vodovoz.Application.Orders.Services
 
 		public Result<decimal> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
 			
-			if (deliveryPrice.IsFailure) return deliveryPrice;
-			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice.Value);
-			return deliveryPrice;
+			if (deliveryPriceResult.IsFailure) return deliveryPriceResult;
+			order.UpdateDeliveryItem(unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPriceResult.Value);
+			return deliveryPriceResult;
 		}
 
 		/// <summary>
@@ -178,12 +178,12 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				var result = UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
 
-				if(result.IsFailure)
+				if(deliveryCostResult.IsFailure)
 				{
-					_logger.LogError("При расчете стоимости доставки в доставке {Id} произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message), order.Id));
-					throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message)));
+					_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+					throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
 				}
 				
 				return order.OrderSum;
@@ -248,7 +248,13 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				var result = UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(deliveryCostResult.IsFailure)
+				{
+					_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+					throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				}
 
 				return
 				(
@@ -443,10 +449,12 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			var result = UpdateDeliveryCost(unitOfWork, order);
-			if(result.IsFailure)
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			
+			if(deliveryCostResult.IsFailure)
 			{
-				_logger.LogError("При расчете стоимости доставки в заказе {Id} произошла ошибка:\n" + string.Join("\n", result.Errors.Select(e => e.Message), order.Id));
+				_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
 			}
 			
 			AddLogisticsRequirements(order);
