@@ -34,12 +34,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using QS.DomainModel.Tracking;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -2553,27 +2555,45 @@ namespace Vodovoz
 				return possibleConfirmation;
 			}
 
-			try
+			using(var transaction = UoW.Session.BeginTransaction())
 			{
-				var acceptResult = TryAcceptOrder();
-
-				if(!acceptResult.SplitedOrder && acceptResult.Result.IsSuccess)
+				try
 				{
-					Save();
+					var acceptResult = TryAcceptOrder();
+
+					if(!acceptResult.SplitedOrder && acceptResult.Result.IsSuccess)
+					{
+						transaction.Commit();
+						GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)UoW);
+						Save();
+					}
+
+					return acceptResult.Result;
 				}
+				catch(Exception e)
+				{
+					if(!transaction.WasCommitted
+						&& !transaction.WasRolledBack
+						&& transaction.IsActive
+						&& UoW.Session.Connection.State == ConnectionState.Open)
+					{
+						try
+						{
+							transaction.Rollback();
+						}
+						catch { }
+					}
 
-				return acceptResult.Result;
-			}
-			catch(Exception e)
-			{
-				OnCloseTab(false);
+					transaction.Dispose();
+					OnCloseTab(false);
 
-				TabParent.OpenTab(() => new OrderDlg(Entity.Id));
+					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
 
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-				return Result.Failure(Errors.Orders.Order.AcceptException);
+					return Result.Failure(Errors.Orders.Order.AcceptException);
+				}
 			}
 		}
 
