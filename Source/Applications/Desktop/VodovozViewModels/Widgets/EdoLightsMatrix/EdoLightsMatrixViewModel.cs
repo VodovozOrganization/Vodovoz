@@ -5,6 +5,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 {
@@ -68,9 +69,16 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			}
 		}
 
-		public void RefreshLightsMatrix(Counterparty counterparty)
+		public void RefreshLightsMatrix(CounterpartyEdoAccount edoAccount)
 		{
 			UnLightAll();
+
+			if(edoAccount is null)
+			{
+				return;
+			}
+
+			var counterparty = edoAccount.Counterparty;
 
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Unknown)
 			{
@@ -109,7 +117,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.legal
-				   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+				   && edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				{
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Cashless, PossibleAccessState.Allowed);
 					Colorize(ReasonForLeaving.Resale, EdoLightsMatrixPaymentType.Receipt, PossibleAccessState.Allowed);
@@ -127,7 +135,7 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && counterparty.PersonType == PersonType.legal)
 			{
 				Colorize(ReasonForLeaving.ForOwnNeeds, EdoLightsMatrixPaymentType.Cashless,
-					counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+					edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 						? PossibleAccessState.Allowed
 						: PossibleAccessState.Unknown);
 			}

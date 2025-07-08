@@ -1,10 +1,9 @@
 using System;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Controllers;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
@@ -13,12 +12,13 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 {
 	public abstract class OnlineOrderConsumer
 	{
-		protected readonly ILogger<OnlineOrderConsumer> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOnlineOrderFactory _onlineOrderFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IOrderService _orderService;
+		
+		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
 		protected OnlineOrderConsumer(
 			ILogger<OnlineOrderConsumer> logger,
@@ -28,7 +28,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDiscountReasonSettings discountReasonSettings,
 			IOrderService orderService)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
@@ -38,7 +38,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		
 		protected virtual void TryRegisterOnlineOrder(OnlineOrderInfoDto message)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}"))
 			{
 				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
 					uow,
@@ -48,8 +48,10 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 				uow.Save(onlineOrder);
 				uow.Commit();
+				
+				var externalOrderId = message.ExternalOrderId;
 
-				_logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
 				var orderId = 0;
 				
 				try
@@ -58,24 +60,24 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				}
 				catch(Exception e)
 				{
-					_logger.LogError(
+					Logger.LogError(
 						e,
 						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
-						message.ExternalOrderId);
+						externalOrderId);
 				}
 				finally
 				{
 					if(orderId == default)
 					{
-						_logger.LogInformation(
+						Logger.LogInformation(
 							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
-							message.ExternalOrderId);
+							externalOrderId);
 					}
 					else
 					{
-						_logger.LogInformation(
+						Logger.LogInformation(
 							"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
-							message.ExternalOrderId,
+							externalOrderId,
 							orderId);
 					}
 				}

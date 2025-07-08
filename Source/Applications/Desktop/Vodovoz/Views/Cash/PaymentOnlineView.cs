@@ -1,4 +1,4 @@
-﻿using QS.Views.GtkUI;
+using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
@@ -21,7 +21,7 @@ namespace Vodovoz.Views.Cash
 
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
-				e => e.OnlineOrder,
+				e => e.OnlinePaymentNumber,
 				w => w.Text,
 				new NullableIntToStringConverter()).InitializeFromSource();
 

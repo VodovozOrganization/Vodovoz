@@ -15,12 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Google.OrTools">
-      <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\libs\Google.OrTools\Win\Google.OrTools.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="ExcelDataReader" Version="3.7.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0" />
   </ItemGroup>

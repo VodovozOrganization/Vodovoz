@@ -3,6 +3,7 @@ using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		string Title { get; }
 		DateTime? DocumentDate { get; }
 		Counterparty Counterparty { get; }
-		EmailTemplate GetEmailTemplate();
+		EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null);
 		ReportInfo GetReportInfo(string connectionString = null);
 	}
 
