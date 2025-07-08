@@ -206,6 +206,22 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+			
+			cfg.Message<RequestTaskCancellationEvent>(x => x.SetEntityName("edo.request-task-cancellation.publish"));
+			cfg.Publish<RequestTaskCancellationEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<RequestDocflowCancellationEvent>(x => x.SetEntityName("edo.request-docflow-cancellation.publish"));
+			cfg.Publish<RequestDocflowCancellationEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 
 			AddTaxcomEdoTopology(cfg);
 		}
@@ -295,6 +311,16 @@ namespace Edo.Transport
 			cfg.Message<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
 				x.SetEntityName($"{AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent.Event}.publish"));
 			cfg.Publish<AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Send<AcceptingWaitingForCancellationDocflowEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<AcceptingWaitingForCancellationDocflowEvent>(x =>
+				x.SetEntityName($"{AcceptingWaitingForCancellationDocflowEvent.Event}.publish"));
+			cfg.Publish<AcceptingWaitingForCancellationDocflowEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Direct;
 				x.Durable = true;
