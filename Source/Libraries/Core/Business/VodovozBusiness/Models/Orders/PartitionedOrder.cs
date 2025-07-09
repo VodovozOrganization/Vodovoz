@@ -80,7 +80,7 @@ namespace Vodovoz.Models.Orders
 			_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
 			_resultOrder.CallBeforeArrivalMinutes = _copiedOrder.CallBeforeArrivalMinutes;
 			_resultOrder.IsDoNotMakeCallBeforeArrival = _copiedOrder.IsDoNotMakeCallBeforeArrival;
-			_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
+			_resultOrder.SelfDeliveryGeoGroup = _copiedOrder.SelfDeliveryGeoGroup;
 
 			return this;
 		}
