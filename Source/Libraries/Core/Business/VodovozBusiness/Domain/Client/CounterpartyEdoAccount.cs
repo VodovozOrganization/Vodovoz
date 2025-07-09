@@ -52,5 +52,27 @@ namespace VodovozBusiness.Domain.Client
 				ConsentForEdoStatus = consentForEdoStatus
 			};
 		}
+		
+		//Т.к. Counterparty это другое свойство, отличное от Entity, переопределяем Title, но с тем же алгоритмом
+		public override string Title
+		{
+			get
+			{
+				string personalAccountIdInEdo = null;
+				string counterpartyId = null;
+
+				if(!string.IsNullOrWhiteSpace(PersonalAccountIdInEdo))
+				{
+					personalAccountIdInEdo = $"({PersonalAccountIdInEdo})";
+				}
+				
+				if(Counterparty != null)
+				{
+					counterpartyId = $"клиента {Counterparty.Id}";
+				}
+				
+				return $"ЭДО аккаунт {Id} {counterpartyId} {EdoOperator?.Name} {personalAccountIdInEdo}";
+			}
+		}
 	}
 }
