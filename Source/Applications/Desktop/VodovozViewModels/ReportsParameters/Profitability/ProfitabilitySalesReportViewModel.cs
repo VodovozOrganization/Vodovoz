@@ -247,7 +247,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 					return text;
 				}));
+
+				return;
 			}
+
+			ResetReportTextItemsModifier();
 		}
 
 		private string GetReportSource()
