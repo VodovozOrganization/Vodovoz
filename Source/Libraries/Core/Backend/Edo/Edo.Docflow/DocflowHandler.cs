@@ -160,7 +160,8 @@ namespace Edo.Docflow
 			{
 				case EdoDocFlowStatus.InProgress:
 					// Тут сделать обработку успешной отправки
-					// проверять по документам такском а не по статусу InProgress
+					// проверять по документам такскома не по статусу InProgress
+					document.Status = EdoDocumentStatus.InProgress;
 					break;
 				case EdoDocFlowStatus.Succeed:
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
