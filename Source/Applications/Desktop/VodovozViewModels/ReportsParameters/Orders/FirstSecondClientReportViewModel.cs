@@ -23,6 +23,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 		private IEnumerable<DiscountReason> _discountReasons;
 		private bool _hasPromoset;
 		private bool _showOnlyClientsWithOneOrder;
+		private IList<OrderStatus> _firstOrderStatuses;
+		private IList<OrderStatus> _secondOrderStatuses;
 
 		public FirstSecondClientReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -46,6 +48,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			DiscountReasons = _discountReasonRepository.GetDiscountReasons(UoW);
 
 			GenerateReportCommand = new DelegateCommand(LoadReport);
+
+			_firstOrderStatuses = SelectedByDefaultOrderStatuses;
+			_secondOrderStatuses = SelectedByDefaultOrderStatuses;
 		}
 
 		public DelegateCommand GenerateReportCommand;
@@ -94,6 +99,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			set => SetField(ref _showOnlyClientsWithOneOrder, value);
 		}
 
+		public virtual IList<OrderStatus> FirstOrderStatuses
+		{
+			get => _firstOrderStatuses;
+			set => SetField(ref _firstOrderStatuses, value);
+		}
+
+		public virtual IList<OrderStatus> SecondOrderStatuses
+		{
+			get => _secondOrderStatuses;
+			set => SetField(ref _secondOrderStatuses, value);
+		}
+
+		private IList<OrderStatus> SelectedByDefaultOrderStatuses =>
+			new List<OrderStatus> { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 		protected override Dictionary<string, object> Parameters
 		{
