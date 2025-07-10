@@ -12,6 +12,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _tableName = "TableSales";
 
 		private const string _itemDataName = "TextboxItemData";
+		private const string _marginPercentTextboxName = "TextboxMarginPercent";
 
 		private const string _groupLevel1Name = "group1";
 		private const string _groupLevel2Name = "group2";
@@ -28,7 +29,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
-		private bool _isGroupingOnlyByRouteList;
+		private bool _isGroupingByRouteListOnly;
 
 		public ProfitabilityReportModifier()
 		{
@@ -36,9 +37,11 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
-		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
+		public static int NoMarginPercentValue = -999999;
+
+		public void Setup(IEnumerable<GroupingType> groupings, bool isGroupingByRouteListOnly)
 		{
-			_isGroupingOnlyByRouteList = groupings.Count() == 0 && groupings.First() == GroupingType.RouteList;
+			_isGroupingByRouteListOnly = isGroupingByRouteListOnly;
 
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
@@ -58,28 +61,33 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
 
-			if(!isShowRouteListInfo)
+			if(_isGroupingByRouteListOnly)
 			{
-				var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
-				AddAction(setColumnWidthAction);
-
-				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
-				AddAction(removeAutoTypeColumn);
-
-				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
-				AddAction(removeAutoOwnerTypeColumn);
+				AddAction(GetModifyMarginPercenTexboxAction());
+				return;
 			}
 
-			if(_isGroupingOnlyByRouteList)
-			{
-				AddAction(new FindAndModifyTextbox(
-					"Textbox125_group1",
+			var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
+			AddAction(setColumnWidthAction);
+
+			var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
+			AddAction(removeAutoTypeColumn);
+
+			var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
+			AddAction(removeAutoOwnerTypeColumn);
+		}
+
+		private ModifierAction GetModifyMarginPercenTexboxAction() =>
+			new FindAndModifyTextbox(
+					$"{_marginPercentTextboxName}_group1",
 					textbox =>
 					{
-						textbox.Value = "=Round(Iif(Sum({total_price})=0, -99999, Sum({profitability})*100/Sum({total_price})), 2)";
-					}));
-			}
-		}
+						textbox.Value =
+							"=Round(Iif(Sum({total_price})=0,"
+							+ NoMarginPercentValue +
+							", Sum({profitability})*100/Sum({total_price})), 2)";
+					});
+
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
 		{
@@ -135,7 +143,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			NewTableGroupWithCellsFromDetails groupModifyAction;
 
-			if(_isGroupingOnlyByRouteList)
+			if(_isGroupingByRouteListOnly)
 			{
 				groupModifyAction = new NewTableGroupWithCellsFromDetails(
 					_tableName, 

@@ -136,6 +136,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
+
+		private IEnumerable<GroupingType> SelectedGroupings =>
+			GetGroupingParameters().Select(x => (GroupingType)x.Value);
+
+		private bool IsGroupingByRouteListOnly =>
+			SelectedGroupings.Count() == 1 && SelectedGroupings.First() == GroupingType.RouteList;
+
 		private void SetupFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
@@ -226,14 +233,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetGeneratedReportTextItemsModifier()
 		{
-			var selectedGroupings = GetGroupingParameters().Select(x => (GroupingType)x.Value);
-			if(selectedGroupings.Count() == 1 && selectedGroupings.First() == GroupingType.RouteList)
+			if(IsGroupingByRouteListOnly)
 			{
 				SetReportTextItemsModifier(new Func<string, string>(text =>
 				{
 					if(decimal.TryParse(text, out var value))
 					{
-						if(value == -99999)
+						if(value == ProfitabilityReportModifier.NoMarginPercentValue)
 						{
 							return "Продажи=0";
 						}
@@ -286,12 +292,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 			else
 			{
-				var isRouteListGroupingTypeSelected = groupParameters.Select(x => (GroupingType)x.Value).First() == GroupingType.RouteList;
-				var isOnlyOneGroupingTypeSelected = groupParameters.Count() == 1;
-				var isShowRouteListInfo = isRouteListGroupingTypeSelected && isOnlyOneGroupingTypeSelected;
-
 				var modifier = new ProfitabilityReportModifier();
-				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value), isShowRouteListInfo);
+				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value), IsGroupingByRouteListOnly);
 				result = modifier;
 			}
 			return result;
