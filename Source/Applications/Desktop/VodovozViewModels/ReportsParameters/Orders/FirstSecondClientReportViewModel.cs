@@ -125,7 +125,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 						{ "discount_id", DiscountReason?.Id ?? 0 },
 						{ "show_only_client_with_one_order", ShowOnlyClientsWithOneOrder },
 						{ "author_employer_id", Author?.Id ?? 0 },
-						{ "has_promo_set", HasPromoset }
+						{ "has_promo_set", HasPromoset },
+						{ "first_order_statuses", FirstOrderStatuses },
+						{ "second_order_statuses", SecondOrderStatuses }
 					};
 
 				return parameters;
