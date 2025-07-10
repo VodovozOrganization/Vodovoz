@@ -244,16 +244,39 @@ namespace EdoContactsUpdater
 			foreach(var counterparty in counterparties)
 			{
 				_logger.LogInformation("Обновляем данные у клиента Id {CounterpartyId}", counterparty.Id);
+
+				var edoOperator = _counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
+				var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
+
+				if(edoAccount != null)
+				{
+					edoAccount.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+					
+					await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+					return;
+				}
 				
-				var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId)
-					?? CounterpartyEdoAccount.Create(
-						counterparty,
-						_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]),
-						contact.EdxClientId,
-						organization.Id,
-						counterparty.DefaultEdoAccount(organization.Id) is null,
-						ConsentForEdoStatus.Agree
-					);
+				var defaultEdoAccount = counterparty.DefaultEdoAccount(organization.Id);
+				edoAccount = defaultEdoAccount;
+
+				if(edoAccount is null)
+				{
+					edoAccount = CreateEdoAccount(contact, organization, counterparty, edoOperator, true);
+				}
+				else
+				{
+					if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
+					{
+						edoAccount.PersonalAccountIdInEdo = contact.EdxClientId;
+						edoAccount.EdoOperator = edoOperator;
+						edoAccount.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+					}
+					else
+					{
+						edoAccount = CreateEdoAccount(contact, organization, counterparty, edoOperator, defaultEdoAccount is null);
+					}
+				}
 
 				await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
@@ -266,6 +289,23 @@ namespace EdoContactsUpdater
 			
 			_logger.LogInformation("Ждем {Delay}сек", delay);
 			await Task.Delay(delay * 1000, cancellationToken);
+		}
+		
+		private CounterpartyEdoAccount CreateEdoAccount(
+			EdoContactInfo contact,
+			Organization organization,
+			Counterparty counterparty,
+			EdoOperator edoOperator,
+			bool isDefault)
+		{
+			return CounterpartyEdoAccount.Create(
+				counterparty,
+				edoOperator,
+				contact.EdxClientId,
+				organization.Id,
+				isDefault,
+				ConsentForEdoStatus.Agree
+			);
 		}
 	}
 }
