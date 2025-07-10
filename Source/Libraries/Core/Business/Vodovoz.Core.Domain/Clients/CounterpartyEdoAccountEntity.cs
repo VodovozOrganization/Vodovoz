@@ -102,13 +102,19 @@ namespace Vodovoz.Core.Domain.Clients
 			get
 			{
 				string personalAccountIdInEdo = null;
+				string counterpartyId = null;
 
 				if(!string.IsNullOrWhiteSpace(PersonalAccountIdInEdo))
 				{
 					personalAccountIdInEdo = $"({PersonalAccountIdInEdo})";
 				}
 				
-				return $"ЭДО аккаунт {Id} {EdoOperator?.Name} {personalAccountIdInEdo}";
+				if(Counterparty != null)
+				{
+					counterpartyId = $"клиента {Counterparty.Id}";
+				}
+				
+				return $"ЭДО аккаунт {Id} {counterpartyId} {EdoOperator?.Name} {personalAccountIdInEdo}";
 			}
 		}
 
