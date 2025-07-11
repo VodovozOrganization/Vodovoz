@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
-			_currentEmployee = 
+			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForCurrentUser(UoW);
 
@@ -86,7 +86,12 @@ namespace Vodovoz.ViewModels.Cash
 			get => Entity.PaymentByCardFrom;
 			set => Entity.UpdatePaymentByCardFrom(value, _contractUpdater);
 		}
-
+		public bool RequiresShipmentConfirmationWarning()
+		{
+			return Entity.SelfDelivery
+				   && Entity.PayAfterShipment
+				   && Entity.OrderStatus != OrderStatus.OnLoading;
+		}
 		public List<PaymentFrom> ItemsList { get; private set; }
 
 		public DelegateCommand SaveCommand { get; }

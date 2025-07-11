@@ -1,3 +1,5 @@
+﻿using System;
+using QS.Dialog;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
@@ -8,15 +10,18 @@ namespace Vodovoz.Views.Cash
 {
 	public partial class PaymentByCardView : TabViewBase<PaymentByCardViewModel>
 	{
-		public PaymentByCardView(PaymentByCardViewModel viewModel) : base(viewModel)
+		private readonly IInteractiveService _interactiveService;
+		public PaymentByCardView(PaymentByCardViewModel viewModel,
+			IInteractiveService interactiveService) : base(viewModel)
 		{
+			_interactiveService = interactiveService;
 			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+			ybuttonSave.Clicked += SaveHandler;
 			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
 
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
@@ -43,6 +48,24 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
 				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
+		}
+
+		private void SaveHandler(object sender, EventArgs e)
+		{
+			if(ViewModel.RequiresShipmentConfirmationWarning())
+			{
+				var result = _interactiveService.Question(new[] { "Продолжить", "Отмена" },
+					"Заказ ещё не отгружен. При продолжении оплаты заказ будет закрыт, и отгрузка станет невозможной. Продолжить?", "Ошибка");
+
+				if(string.IsNullOrEmpty(result) || result == "Отмена")
+				{
+					return;
+				}
+			}
+			if(ViewModel.SaveCommand.CanExecute())
+			{
+				ViewModel.SaveCommand.Execute();
+			}
 		}
 	}
 }
