@@ -9,6 +9,7 @@ using Vodovoz.ViewModels.Store.Reports;
 using Gamma.ColumnConfig;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Store.Reports
 {
@@ -51,6 +52,8 @@ namespace Vodovoz.Store.Reports
 
 			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
 
+
+
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 
 			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
@@ -70,6 +73,9 @@ namespace Vodovoz.Store.Reports
 			hpaned1.Position = _hpanedDefaultPosition;
 
 			UpdateSliderArrow();
+
+			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			//yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
 
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
