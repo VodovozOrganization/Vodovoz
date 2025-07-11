@@ -63,7 +63,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>37.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>63.2pt</Width>
@@ -90,7 +90,7 @@
             <Width>86.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.8pt</Width>
+            <Width>64.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -747,7 +747,7 @@ JOIN order_items oi ON oi.order_id = o.id
 LEFT JOIN discount_reasons dr ON oi.discount_reason_id = dr.id
 WHERE
 	o.delivery_date &gt;= @start_date and o.delivery_date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
-	AND o.order_status IN ('Shipped', 'UnloadingOnStock', 'Closed')
+	AND o.order_status IN (@first_order_statuses)
 	AND o.is_first_order = 1
 	AND (@author_employer_id = 0 OR o.author_employee_id = @author_employer_id)
 	AND 
@@ -766,6 +766,7 @@ SELECT
     c.full_name AS client_name,
     o.id AS order_id,
     o.delivery_date AS order_delivery_date,
+    o.order_status as order_status,
     IFNULL(SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)),0) AS order_total_sum,
     IFNULL(GET_PARAMETER('AdvancedPaymentNomenclatureId'),0) as advanced_payment_sum
 FROM orders o 
@@ -773,7 +774,6 @@ JOIN counterparty c ON o.client_id = c.id
 JOIN order_items oi ON oi.order_id = o.id
 WHERE
 	o.delivery_date &gt;= @start_date and o.delivery_date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
-	AND o.order_status IN ('Shipped', 'UnloadingOnStock', 'Closed')
 	AND o.client_id IN (SELECT client_id FROM first_orders_data)
 	AND NOT o.id IN (SELECT order_id FROM first_orders_data)
 GROUP BY o.id
@@ -806,10 +806,13 @@ SELECT
 	sod.order_delivery_date as second_order_delivery_date,
 	sod.order_total_sum as second_order_total_sum
 FROM first_orders_data fod
-LEFT JOIN second_orders_data sod ON fod.client_id = sod.client_id AND sod.order_id = (SELECT MIN(order_id) FROM second_orders_data WHERE client_id = fod.client_id)
+LEFT JOIN second_orders_data sod
+	ON fod.client_id = sod.client_id
+		AND sod.order_total_sum &gt; sod.advanced_payment_sum
+		AND sod.order_status IN (@second_order_statuses)
+		AND sod.order_id = (SELECT MIN(order_id) FROM second_orders_data WHERE client_id = fod.client_id)
 WHERE
 	fod.order_total_sum &gt; fod.advanced_payment_sum
-	AND sod.order_total_sum &gt; sod.advanced_payment_sum
 	AND (@show_only_client_with_one_order = 0 OR sod.order_id IS NULL)
 ORDER BY fod.client_id
 ;</CommandText>
