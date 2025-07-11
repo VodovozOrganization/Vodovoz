@@ -59,13 +59,13 @@ namespace Vodovoz.Application.Orders.Services
 			var orderParts = SplitOrderByOrganizations(uow, requestTime, organizationChoice);
 			var canSplitOrderWithDeposits = true;
 
-			if(!organizationChoice.OrderDepositItems.Any())
+			if(!organizationChoice.OrderDepositItems.Any() || orderParts.Count() == 1)
 			{
 				return PartitionedOrderByOrganizations.Create(canSplitOrderWithDeposits, orderParts);
 			}
 
 			var depositsSum = organizationChoice.OrderDepositItems.Sum(x => x.ActualSum);
-				
+
 			foreach(var orderPart in orderParts)
 			{
 				if(depositsSum > orderPart.GoodsSum)
