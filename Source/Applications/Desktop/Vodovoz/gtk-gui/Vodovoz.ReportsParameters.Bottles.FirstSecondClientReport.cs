@@ -86,8 +86,9 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Основание скидки:");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Основание скидки\nпервого заказа:");
 			this.label2.Wrap = true;
+			this.label2.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
 			w3.TopAttach = ((uint)(1));
@@ -99,7 +100,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.labelDate = new global::Gtk.Label();
 			this.labelDate.Name = "labelDate";
 			this.labelDate.Xalign = 1F;
-			this.labelDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.labelDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата доставки заказа:");
 			this.table1.Add(this.labelDate);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDate]));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -212,7 +213,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор заказа:");
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор первого заказа:");
 			this.hbox3.Add(this.label3);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label3]));
 			w18.Position = 0;
