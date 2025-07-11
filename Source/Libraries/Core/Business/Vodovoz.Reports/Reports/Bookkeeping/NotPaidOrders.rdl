@@ -1160,11 +1160,11 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           <QueryParameter Name="Counterparty_exclude">
             <Value>={?Counterparty_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="Counterparty_exclude">
-            <Value>={?Counterparty_exclude}</Value>
-          </QueryParameter>
           <QueryParameter Name="Organization_include">
             <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="CounterpartyType_include">
             <Value>={?CounterpartyType_include}</Value>
