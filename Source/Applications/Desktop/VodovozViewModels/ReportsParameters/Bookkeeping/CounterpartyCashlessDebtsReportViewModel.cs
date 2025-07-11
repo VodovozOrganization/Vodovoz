@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
@@ -15,6 +15,8 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Delivery;
 
@@ -29,6 +31,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
+		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
@@ -43,6 +46,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
+			IGenericRepository<Organization> organizationRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory
@@ -52,6 +56,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			if(deliveryScheduleSettings is null)
 			{
@@ -232,7 +237,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				filtersText.AppendLine($"С {StartDate.Value:d} по {EndDate.Value:d}");
 			}
 
-			foreach (var parameter in parameters)
+			foreach(var parameter in parameters)
 			{
 				switch(parameter.Key)
 				{
@@ -313,7 +318,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 			return filtersText.ToString();
 		}
-		
+
 		private void ShowInfoMessage()
 		{
 			_commonServices.InteractiveService.ShowMessage(
@@ -506,6 +511,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			};
 
 			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			// Добавление фильтра организаций
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _organizationRepository);
 
 			return includeExludeFiltersViewModel;
 		}
