@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Delivery;
@@ -311,6 +312,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						if(parameter.Value is string[] excludedDebtType && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.типов задолженности: {excludedDebtType.Length}");
+						}
+						break;
+					case "Organization_include":
+						if(parameter.Value is string[] includedOrganizations && !isReportBySingleCounterpartyDebt)
+						{
+							filtersText.AppendLine($"Вкл.организаций: {includedOrganizations.Length}");
+						}
+						break;
+					case "Organization_exclude":
+						if(parameter.Value is string[] excludedOrganizations && !isReportBySingleCounterpartyDebt)
+						{
+							filtersText.AppendLine($"Искл.организаций: {excludedOrganizations.Length}");
 						}
 						break;
 				}
