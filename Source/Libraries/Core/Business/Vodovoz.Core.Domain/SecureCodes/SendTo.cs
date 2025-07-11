@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Contracts.Common
+namespace Vodovoz.Core.Domain.SecureCodes
 {
 	/// <summary>
 	/// Куда отправлять данные

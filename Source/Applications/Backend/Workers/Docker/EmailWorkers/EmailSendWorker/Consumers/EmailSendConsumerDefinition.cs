@@ -20,7 +20,6 @@ namespace EmailSendWorker.Consumers
 			IConsumerConfigurator<EmailSendConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
-			endpointConfigurator.UseMessageRetry(r => r.Interval(5, 2500));
 		}
 	}
 }

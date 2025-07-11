@@ -1,5 +1,4 @@
 ﻿using System;
-using Contracts.Common;
 
 namespace Contracts.Requests
 {
@@ -20,7 +19,7 @@ namespace Contracts.Requests
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public Source Source { get; set; }
+		public int Source { get; set; }
 		/// <summary>
 		/// Ip адрес пользователя
 		/// </summary>
@@ -36,6 +35,6 @@ namespace Contracts.Requests
 		/// <summary>
 		/// Id клиента/пользователя в ИПЗ
 		/// </summary>
-		public Guid? ExternalCounterpartyId { get; set; }
+		public Guid ExternalCounterpartyId { get; set; }
 	}
 }

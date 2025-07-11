@@ -1,5 +1,5 @@
 ﻿using System;
-using Contracts.Common;
+using Vodovoz.Core.Domain.SecureCodes;
 
 namespace Contracts.Requests
 {
@@ -9,7 +9,7 @@ namespace Contracts.Requests
 	public class SendSecureCodeDto
 	{
 		/// <summary>
-		/// Тип отправки <see cref="Contracts.Common.SendTo"/>
+		/// Тип отправки <see cref="SendTo"/>
 		/// </summary>
 		public SendTo Method { get; set; }
 		/// <summary>
@@ -23,7 +23,7 @@ namespace Contracts.Requests
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public Source Source { get; set; }
+		public int Source { get; set; }
 		/// <summary>
 		/// Ip адрес пользователя
 		/// </summary>

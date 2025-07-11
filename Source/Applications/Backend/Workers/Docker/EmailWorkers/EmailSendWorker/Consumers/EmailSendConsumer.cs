@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RabbitMQ.EmailSending.Contracts;
 
 namespace EmailSendWorker.Consumers
 {
@@ -35,7 +36,7 @@ namespace EmailSendWorker.Consumers
             }
 
             _logger.LogInformation(
-            	"Recieved message to send to recipients: {Recipients} with subject: \"{Subject}\", with {Attachmetscount} attachments",
+            	"Recieved message to send to recipients: {Recipients} with subject: \"{Subject}\", with {AttachmentsCount} attachments",
 	            recipients.ToString(),
 	            message.Subject,
 	            message.Attachments?.Count ?? 0);
@@ -52,8 +53,16 @@ namespace EmailSendWorker.Consumers
             {
 				foreach(var email in emails)
 				{
-					await _mailganerClient.Send(email);
+					var sendResponse = await _mailganerClient.Send(email);
+
+					if(sendResponse.Status != "OK")
+					{
+						_logger.LogError("Произошла ошибка при отправке {Error}", sendResponse.Message);
+						throw new InvalidOperationException("Произошла ошибка при отправке");
+					}
 				}
+				
+				await context.RespondAsync(SentEmailResponse.Create(true));
 			}
             catch(Exception e)
             {
