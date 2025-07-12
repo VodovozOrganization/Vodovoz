@@ -21,9 +21,6 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
-	<PackageReference Include="Google.OrTools" Version="6.4.4495">
-	  <TreatAsUsed>true</TreatAsUsed>
-	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -50,6 +50,7 @@ namespace Vodovoz.Core.Data.NHibernate.Clients
 			Map(x => x.Intercom).Column("intercom");
 			Map(x => x.KPP).Column("KPP");
 			Map(x => x.Organization).Column("organization");
+			Map(x => x.BuildingFromOnline).Column("building_from_online");
 		}
 	}
 }

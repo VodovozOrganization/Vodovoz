@@ -1,5 +1,6 @@
 using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Application.Clients.Services;
 using RevenueService.Client;
 using TrueMarkApi.Client;
 using Vodovoz.Application.Complaints;
@@ -10,7 +11,6 @@ using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
-using Vodovoz.Application.Services;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;

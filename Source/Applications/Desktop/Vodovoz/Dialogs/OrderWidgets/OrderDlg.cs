@@ -2626,13 +2626,13 @@ namespace Vodovoz
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
 			
-			var phones = new List<Phone>();
+			var phones = new List<string>();
 
-			phones.AddRange(Counterparty.Phones);
+			phones.AddRange(Entity.Client.Phones.Select(x => x.DigitsNumber));
 
 			if(DeliveryPoint != null)
 			{
-				phones.AddRange(DeliveryPoint.Phones);
+				phones.AddRange(Entity.DeliveryPoint.Phones.Select(x => x.DigitsNumber));
 			}
 
 			var hasPromoSetForNewClients = Entity.PromotionalSets.Any(x => x.PromotionalSetForNewClients);

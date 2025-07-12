@@ -5,11 +5,21 @@ using CustomerAppsApi.Library.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
+using VodovozBusiness.Services.Clients.DeliveryPoints;
 
 namespace CustomerAppsApi.Library.Factories
 {
 	public class DeliveryPointFactory : IDeliveryPointFactory
 	{
+		private readonly IDeliveryPointBuildingNumberHandler _deliveryPointBuildingNumberHandler;
+
+		public DeliveryPointFactory(
+			IDeliveryPointBuildingNumberHandler deliveryPointBuildingNumberHandler)
+		{
+			_deliveryPointBuildingNumberHandler =
+				deliveryPointBuildingNumberHandler ?? throw new ArgumentNullException(nameof(deliveryPointBuildingNumberHandler));
+		}
+		
 		public ExternalCreatingDeliveryPoint CreateNewExternalCreatingDeliveryPoint(Source source, string uniqueKey)
 		{
 			return new ExternalCreatingDeliveryPoint
@@ -22,6 +32,9 @@ namespace CustomerAppsApi.Library.Factories
 		
 		public DeliveryPoint CreateNewDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
+			var formattedBuilding = _deliveryPointBuildingNumberHandler.TryConvertBuildingStringToErpFormat(
+				newDeliveryPointInfoDto.Building);
+			
 			return new DeliveryPoint
 			{
 				Counterparty = new Counterparty
@@ -35,15 +48,19 @@ namespace CustomerAppsApi.Library.Factories
 				City = newDeliveryPointInfoDto.City,
 				LocalityType = newDeliveryPointInfoDto.LocalityType,
 				LocalityTypeShort = newDeliveryPointInfoDto.LocalityTypeShort,
-				Street = newDeliveryPointInfoDto.Street,
+				Street = newDeliveryPointInfoDto.Street.Trim(' '),
 				StreetType = newDeliveryPointInfoDto.StreetType,
 				StreetTypeShort = newDeliveryPointInfoDto.StreetTypeShort,
-				Building = newDeliveryPointInfoDto.Building,
+				Building = formattedBuilding,
 				Floor = newDeliveryPointInfoDto.Floor,
 				Entrance = newDeliveryPointInfoDto.Entrance,
 				Room = newDeliveryPointInfoDto.Room,
 				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
-				Intercom = newDeliveryPointInfoDto.Intercom
+				Intercom = newDeliveryPointInfoDto.Intercom,
+				CityFiasGuid = newDeliveryPointInfoDto.CityFiasGuid,
+				StreetFiasGuid = newDeliveryPointInfoDto.StreetFiasGuid,
+				BuildingFiasGuid = newDeliveryPointInfoDto.BuildingFiasGuid,
+				BuildingFromOnline = newDeliveryPointInfoDto.Building
 			};
 		}
 		
@@ -63,9 +80,9 @@ namespace CustomerAppsApi.Library.Factories
 			};
 		}
 
-		public DeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId)
+		public CreatedDeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId)
 		{
-			return new DeliveryPointDto
+			return new CreatedDeliveryPointDto
 			{
 				DeliveryPointErpId = deliveryPointId,
 				CounterpartyErpId = newDeliveryPointInfoDto.CounterpartyErpId,
@@ -83,13 +100,16 @@ namespace CustomerAppsApi.Library.Factories
 				Latitude = newDeliveryPointInfoDto.Latitude,
 				Longitude = newDeliveryPointInfoDto.Longitude,
 				OnlineComment = newDeliveryPointInfoDto.OnlineComment,
-				Intercom = newDeliveryPointInfoDto.Intercom
+				Intercom = newDeliveryPointInfoDto.Intercom,
+				CityFiasGuid = newDeliveryPointInfoDto.CityFiasGuid,
+				StreetFiasGuid = newDeliveryPointInfoDto.StreetFiasGuid,
+				BuildingFiasGuid = newDeliveryPointInfoDto.BuildingFiasGuid
 			};
 		}
 
-		private DeliveryPointDto CreateDeliveryPointDto(DeliveryPointForSendNode deliveryPointForSend)
+		private CreatedDeliveryPointDto CreateDeliveryPointDto(DeliveryPointForSendNode deliveryPointForSend)
 		{
-			return new DeliveryPointDto
+			return new CreatedDeliveryPointDto
 			{
 				DeliveryPointErpId = deliveryPointForSend.Id,
 				CounterpartyErpId = deliveryPointForSend.CounterpartyId,

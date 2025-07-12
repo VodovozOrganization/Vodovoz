@@ -25,9 +25,9 @@ namespace Vodovoz.Cores
 			IUnitOfWork uow,
 			int orderId,
 			DeliveryPoint deliveryPoint,
-			IEnumerable<Phone> phones)
+			IEnumerable<string> phoneNumbers)
 		{
-			var result = _freeLoaderChecker.CheckFreeLoaders(uow, orderId, deliveryPoint, phones);
+			var result = _freeLoaderChecker.CheckFreeLoaders(uow, orderId, deliveryPoint, phoneNumbers);
 
 			if(!result)
 			{

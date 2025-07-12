@@ -68,6 +68,7 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private bool _addCertificatesAlways;
 		private string _onlineComment;
 		private string _intercom;
+		private string _buildingFromOnline;
 
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<EmailEntity> _emails;
@@ -570,6 +571,17 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		{
 			get => _intercom;
 			set => SetField(ref _intercom, value);
+		}
+		
+		/// <summary>
+		/// Номер дома из ИПЗ, как есть(без форматирования)
+		/// </summary>
+		[Display(Name = "Номер дома из ИПЗ, как есть(без форматирования)")]
+		[IgnoreHistoryTrace]
+		public virtual string BuildingFromOnline
+		{
+			get => _buildingFromOnline;
+			set => SetField(ref _buildingFromOnline, value);
 		}
 
 		#endregion
