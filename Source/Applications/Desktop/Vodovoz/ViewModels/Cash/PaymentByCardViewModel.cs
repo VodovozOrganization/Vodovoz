@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,6 +12,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
@@ -78,6 +79,14 @@ namespace Vodovoz.ViewModels.Cash
 		public DelegateCommand CloseCommand { get; }
 
 		public bool CanSave => Entity.OnlinePaymentNumber != null;
+
+		public bool RequiresShipmentConfirmationWarning()
+		{
+			return Entity.SelfDelivery
+			       && Entity.PayAfterShipment
+			       && Entity.OrderStatus != OrderStatus.OnLoading;
+		}
+
 
 		private void SaveHandler()
 		{
