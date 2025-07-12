@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -747,9 +747,11 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
-					if(!IsLoadedFrom1C && BottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
+					if(!IsLoadedFrom1C && BottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare)
+					   && OrderAddressType != OrderAddressType.Service)
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
 							new[] { this.GetPropertyName(o => o.Contract) });
+
 					if(BottlesReturn.HasValue && BottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReason == null)
 						yield return new ValidationResult("Необходимо указать причину забора тары.",
 							new[] { nameof(ReturnTareReason) });
