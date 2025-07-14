@@ -129,7 +129,7 @@ namespace Vodovoz.ViewModels.Cash
 				OnPropertyChanged(nameof(PaymentType));
 			}
 
-			if(e.PropertyName == nameof(Entity.OnlineOrder))
+			if(e.PropertyName == nameof(Entity.OnlinePaymentNumber))
 			{
 				OnPropertyChanged(nameof(CanSave));
 			}

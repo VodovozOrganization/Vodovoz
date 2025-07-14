@@ -362,6 +362,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					},
 					Projections.Constant(int.MaxValue)
 				);
+			
+			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
 
 			#region Фильтрация
 			
@@ -472,7 +474,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrdersIds)
+					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(r => r.RequestForCallStatus).Asc()
 				.ThenBy(r => r.Created).Desc()
