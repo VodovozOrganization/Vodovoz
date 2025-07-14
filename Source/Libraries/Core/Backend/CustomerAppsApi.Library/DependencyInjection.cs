@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Factories;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -8,6 +8,8 @@ using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Numeric;
+using Vodovoz.Application.Clients.Services;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Converters;
@@ -15,6 +17,8 @@ using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
+using VodovozBusiness.Services.Clients.DeliveryPoints;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using DriverApi.Notifications.Client;
 using Vodovoz.Application.Clients;
@@ -77,6 +81,9 @@ namespace CustomerAppsApi.Library
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
 				.AddSingleton<RentPackagesFrequencyRequestsHandler>()
+				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
+				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
 				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 			return services;

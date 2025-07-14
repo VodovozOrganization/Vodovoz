@@ -188,12 +188,18 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				return;
 			}
+			
+			var contactNumber =
+				!string.IsNullOrWhiteSpace(_onlineOrder.ContactPhone) && _onlineOrder.ContactPhone.Length > 2
+					? _onlineOrder.ContactPhone.Substring(2)
+					: null;
 
 			var result = _freeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
 				uow,
 				_onlineOrder.IsSelfDelivery,
 				_onlineOrder.CounterpartyId,
-				_onlineOrder.DeliveryPointId);
+				_onlineOrder.DeliveryPointId,
+				contactNumber);
 
 			if(result.IsSuccess)
 			{

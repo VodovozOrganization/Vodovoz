@@ -76,7 +76,7 @@ namespace CustomerAppsApi.Library.Models
 			}
 		}
 
-		public DeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode)
+		public CreatedDeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode)
 		{
 			_logger.LogInformation("Поступил запрос добавления ТД клиенту {CounterpartyId} от {Source}",
 				newDeliveryPointInfoDto.CounterpartyErpId,
