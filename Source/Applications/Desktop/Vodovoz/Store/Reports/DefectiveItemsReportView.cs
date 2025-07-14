@@ -51,9 +51,7 @@ namespace Vodovoz.Store.Reports
 				.InitializeFromSource();
 
 			entityentryDriver.ViewModel = ViewModel.DriverViewModel;
-
-
-
+			
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 
 			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
@@ -73,10 +71,15 @@ namespace Vodovoz.Store.Reports
 			hpaned1.Position = _hpanedDefaultPosition;
 
 			UpdateSliderArrow();
-
+			
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
-			//yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
-
+			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
+			
+			checkWarehouseEnable.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsWarehouseEnabled, w => w.Active)
+				.InitializeFromSource();
+			
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
@@ -90,6 +93,11 @@ namespace Vodovoz.Store.Reports
 					QueueDraw();
 				});
 			}
+		}
+		
+		void YentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			ViewModel.SelectedWarehouse = yentryrefWarehouse.Subject as Warehouse;
 		}
 
 		private void RefreshReportPreview()
@@ -106,37 +114,84 @@ namespace Vodovoz.Store.Reports
 				.AddColumn("Автор").AddTextRenderer(x => x.AuthorLastName)
 				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment)
 				.Finish();
-
-			var summaryConfigPart = new FluentColumnsConfig<DefectiveItemsReport.SummaryDisplayRow>()
-			   .AddColumn("Из них")
-			   .AddTextRenderer(x => x.Title);
-
-			var dynamicColumnsTitles = ViewModel.Report.WarehouseNames;
-			var dynamicColumnsCount = dynamicColumnsTitles.Count();
-
-			ytreeviewSummaryBySource.CreateFluentColumnsConfig<DefectiveItemsReport.SummaryBySourceRow>()
-				.AddColumn("").AddTextRenderer(x => $"{x.Value} браков по вине {x.Title}")
-				.Finish();
-
-			ytreeviewSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryBySourceRows;
-
-			for(var i = 0; i < dynamicColumnsCount; i++)
+			
+			ytreeviewMain.ItemsDataSource = ViewModel.Report.Rows;
+			
+			if(ViewModel.IsWarehouseEnabled && ViewModel.SelectedWarehouse != null)
 			{
-				var currentId = i;
+				// Разбивка виновных в разрезе номенклатур
+				var dynamicSourceNameColumns = ViewModel.Report.SourceNames;
+				var summaryByNomenclatureConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByNomenclatureRow>()
+					.AddColumn("Номеклатура")
+					.AddTextRenderer(x => x.NomeclatureName);
+				
+				for(var i = 1; i < dynamicSourceNameColumns.Count; i++)
+				{
+					var currentId = i;
+					
+					
+					summaryByNomenclatureConfig
+						.AddColumn(dynamicSourceNameColumns.ElementAt(currentId))
+						.AddTextRenderer(x => x.DynamicColumns.ElementAt(currentId).ToString());
+				}
+				
+				ytreeviewSummaryBySource.ColumnsConfig = summaryByNomenclatureConfig.Finish();
+				ytreeviewSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryByNomenclatureRows;
+				
+				
+				// Разбивка по видам брака в разрезе номенклатур
+				var dynamicDefectNameColumns = ViewModel.Report.DefectNames;
+				var summaryByNomenclatureWithTypeDefectConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow>()
+					.AddColumn("Номеклатура")
+					.AddTextRenderer(x => x.NomeclatureName);
+				
+				for(var i = 0; i < dynamicDefectNameColumns.Count; i++)
+				{
+					var currentId = i;
 
-				summaryConfigPart.AddColumn(dynamicColumnsTitles.ElementAt(currentId))
-					.AddTextRenderer(x => x.DynamicColls.ElementAt(currentId).ToString());
+					summaryByNomenclatureWithTypeDefectConfig
+						.AddColumn(dynamicDefectNameColumns.ElementAt(currentId))
+						.AddTextRenderer(x => x.DynamicColumns.ElementAt(currentId).ToString());
+				}
+				
+				ytreeviewSummary.ColumnsConfig = summaryByNomenclatureWithTypeDefectConfig.Finish();
+				ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryByNomenclatureWithTypeDefectRows;
 			}
-
-			summaryConfigPart.AddColumn("Итог")
-				.AddTextRenderer(x => x.Summary);
-
-			ytreeviewSummary.ColumnsConfig = summaryConfigPart.Finish();
-
-			if(ViewModel.Report != null)
+			else
 			{
-				ytreeviewMain.ItemsDataSource = ViewModel.Report.Rows;
-				ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryDisplayRows;
+				var summaryConfigPart = new FluentColumnsConfig<DefectiveItemsReport.SummaryDisplayRow>()
+					.AddColumn("Из них")
+					.AddTextRenderer(x => x.Title);
+
+				var dynamicColumnsTitles = ViewModel.Report.WarehouseNames;
+				var dynamicColumnsCount = dynamicColumnsTitles.Count();
+				
+				ytreeviewSummaryBySource.CreateFluentColumnsConfig<DefectiveItemsReport.SummaryBySourceRow>()
+					.AddColumn("")
+					.AddTextRenderer(x => $"{x.Value} браков по вине {x.Title}")
+					.Finish();
+
+				ytreeviewSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryBySourceRows;
+
+				for(var i = 0; i < dynamicColumnsCount; i++)
+				{
+					var currentId = i;
+
+					summaryConfigPart
+						.AddColumn(dynamicColumnsTitles.ElementAt(currentId))
+						.AddTextRenderer(x => x.DynamicColls.ElementAt(currentId).ToString());
+				}
+
+				summaryConfigPart
+					.AddColumn("Итог")
+					.AddTextRenderer(x => x.Summary);
+
+				ytreeviewSummary.ColumnsConfig = summaryConfigPart.Finish();
+
+				if(ViewModel.Report != null)
+				{
+					ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryDisplayRows;
+				}
 			}
 		}
 

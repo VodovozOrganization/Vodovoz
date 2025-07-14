@@ -13,6 +13,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 			public DateTime Date { get; set; }
 			public int WarehouseId { get; internal set; }
 			public decimal Amount { get; set; }
+			public int NomenclatureId { get; set; }
 			public string DefectiveItemName { get; set; }
 			public string DriverLastName { get; set; }
 			public int? RouteListId { get; set; }
