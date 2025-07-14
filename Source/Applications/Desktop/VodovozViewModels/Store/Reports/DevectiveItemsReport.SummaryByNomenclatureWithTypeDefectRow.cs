@@ -9,12 +9,13 @@ namespace Vodovoz.ViewModels.Store.Reports
 			/// <summary>
 			/// Название номенклатуры
 			/// </summary>
-			public string NomeclatureName { get; set; }
+			public string NomeclatureNameForDefectRow { get; set; }
 			
 			/// <summary>
 			/// Количество по типам дефекта
 			/// </summary>
-			public IEnumerable<string> DynamicColumns { get; set; }
+			public IEnumerable<string> DynamicColumnsByNomenclatureWithTypeDefectRow { get; set; }
+			
 		}
 	}
 }

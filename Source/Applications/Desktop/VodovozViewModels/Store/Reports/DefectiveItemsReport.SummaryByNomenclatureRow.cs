@@ -9,17 +9,13 @@ namespace Vodovoz.ViewModels.Store.Reports
 			/// <summary>
 			/// Название номенклатуры
 			/// </summary>
-			public string NomeclatureName { get; set; }
+			public string NomeclatureNameForSourceRow { get; set; }
 			
 			/// <summary>
 			/// Количество по виновным string
 			/// </summary>
-			public IEnumerable<string> DynamicColumns { get; set; }
+			public IEnumerable<string> DynamicColumnsByNomenclatureRow { get; set; }
 			
-			/// <summary>
-			/// Количество по виновным decimal
-			/// </summary>
-			public IEnumerable<decimal> DynamicColumnsValue { get; set; }
 		}
 	}
 }

@@ -123,16 +123,16 @@ namespace Vodovoz.Store.Reports
 				var dynamicSourceNameColumns = ViewModel.Report.SourceNames;
 				var summaryByNomenclatureConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByNomenclatureRow>()
 					.AddColumn("Номеклатура")
-					.AddTextRenderer(x => x.NomeclatureName);
+					.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
 				
-				for(var i = 1; i < dynamicSourceNameColumns.Count; i++)
+				for(var i = 0; i < dynamicSourceNameColumns.Count; i++)
 				{
 					var currentId = i;
 					
 					
 					summaryByNomenclatureConfig
 						.AddColumn(dynamicSourceNameColumns.ElementAt(currentId))
-						.AddTextRenderer(x => x.DynamicColumns.ElementAt(currentId).ToString());
+						.AddTextRenderer(x => x.DynamicColumnsByNomenclatureRow.ElementAt(currentId).ToString());
 				}
 				
 				ytreeviewSummaryBySource.ColumnsConfig = summaryByNomenclatureConfig.Finish();
@@ -143,7 +143,7 @@ namespace Vodovoz.Store.Reports
 				var dynamicDefectNameColumns = ViewModel.Report.DefectNames;
 				var summaryByNomenclatureWithTypeDefectConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow>()
 					.AddColumn("Номеклатура")
-					.AddTextRenderer(x => x.NomeclatureName);
+					.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
 				
 				for(var i = 0; i < dynamicDefectNameColumns.Count; i++)
 				{
@@ -151,7 +151,7 @@ namespace Vodovoz.Store.Reports
 
 					summaryByNomenclatureWithTypeDefectConfig
 						.AddColumn(dynamicDefectNameColumns.ElementAt(currentId))
-						.AddTextRenderer(x => x.DynamicColumns.ElementAt(currentId).ToString());
+						.AddTextRenderer(x => x.DynamicColumnsByNomenclatureWithTypeDefectRow.ElementAt(currentId).ToString());
 				}
 				
 				ytreeviewSummary.ColumnsConfig = summaryByNomenclatureWithTypeDefectConfig.Finish();

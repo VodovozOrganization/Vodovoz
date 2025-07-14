@@ -66,10 +66,11 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public DateTime CreatedAt { get; }
 
 		public IEnumerable<DefectiveItemsReportRow> Rows { get; }
-		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
-		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
 		public IEnumerable<SummaryByNomenclatureRow> SummaryByNomenclatureRows { get; }
 		public IEnumerable<SummaryByNomenclatureWithTypeDefectRow> SummaryByNomenclatureWithTypeDefectRows { get; }
+		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
+		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
+		
 		public List<string> WarehouseNames { get; }
 		public List<string> SourceNames { get; }
 		public List<string> DefectNames { get; }
@@ -515,6 +516,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 					(from DefectSource source in Enum.GetValues(typeof(DefectSource))
 						select source.GetEnumDisplayName())
 					.ToList();
+				sourceNames.RemoveAt(0);
+				
 				
 				var summaryByNomenclatureRows = nomenclatureIds
 					.Select(nomenclatureId => new
@@ -522,27 +525,27 @@ namespace Vodovoz.ViewModels.Store.Reports
 						nomenclatureId,
 						amountBySource =
 							(from DefectSource source in Enum.GetValues(typeof(DefectSource))
+								where source != Vodovoz.Domain.Documents.DefectSource.None
 								select sortedRows.Where(x => x.DefectSource == source && x.NomenclatureId == nomenclatureId)
 									.Sum(x => x.Amount)).ToList()
 					})
 					.Select(t => new SummaryByNomenclatureRow()
 					{
-						NomeclatureName = nomenclatureIdsNames[t.nomenclatureId].Name,
-						DynamicColumns = t.amountBySource.Select(x => x.ToString("# ##0")),
-						DynamicColumnsValue = t.amountBySource
+						NomeclatureNameForSourceRow = nomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByNomenclatureRow = t.amountBySource.Select(x => x.ToString("# ##0")),
 					})
 					.ToList();
 				
 				var summaryByColumn = new List<decimal>();
-				for(var i = 0; i <  Enum.GetValues(typeof(DefectSource)).Length; i++)
+				for(var i = 0; i <  Enum.GetValues(typeof(DefectSource)).Length - 1; i++)
 				{
-					var currentSum = summaryByNomenclatureRows.Sum(row => row.DynamicColumnsValue.ElementAt(i));
+					var currentSum = summaryByNomenclatureRows.Sum(row => decimal.Parse(row.DynamicColumnsByNomenclatureRow.ElementAt(i)));
 					summaryByColumn.Add(currentSum);
 				}
 				summaryByNomenclatureRows.Add(new SummaryByNomenclatureRow()
 				{
-					NomeclatureName = "Итог",
-					DynamicColumns = summaryByColumn.Select(x => x.ToString("# ##0")),
+					NomeclatureNameForSourceRow = "Итог",
+					DynamicColumnsByNomenclatureRow = summaryByColumn.Select(x => x.ToString("# ##0")),
 				});
 
 				var defectNames = defectTypesIdsNames.Values
@@ -562,8 +565,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 					})
 					.Select(t => new SummaryByNomenclatureWithTypeDefectRow()
 					{
-						NomeclatureName = nomenclatureIdsNames[t.nomenclatureId].Name,
-						DynamicColumns = t.amountByDefect.Select(x => x.ToString("# ##0")),
+						NomeclatureNameForDefectRow = nomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByNomenclatureWithTypeDefectRow = t.amountByDefect.Select(x => x.ToString("# ##0")),
 					})
 					.ToList();
 
@@ -571,6 +574,5 @@ namespace Vodovoz.ViewModels.Store.Reports
 					null, sourceNames, defectNames, summaryByNomenclatureRows, summaryByNomenclatureWithTypeDefectRows);
 			}
 		}
-		
 	}
 }
