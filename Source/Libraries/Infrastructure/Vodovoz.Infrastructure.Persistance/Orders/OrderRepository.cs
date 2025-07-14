@@ -1623,7 +1623,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				select new OrderDto
 				{
-					OrderId = null,
+					OrderId = order.Id,
 					OnlineOrderId = onlineOrder.Id,
 					OrderStatus = orderStatus,
 					//OrderPaymentStatus = orderPaymentStatus, на старте null
