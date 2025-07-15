@@ -3892,7 +3892,7 @@ namespace Vodovoz
 
 			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
 			{
-				ylabelBottlesDebtAtDeliveryPoint.Visible = true;
+				ylabelBottlesDebtAtDeliveryPoint.Visible = Entity.OrderAddressType != OrderAddressType.Service;
 				ylabelBottlesDebtAtDeliveryPoint.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг бутылей по адресу: {bottlesAtDeliveryPoint} бут.</span>";
 			}
 			else
@@ -5150,7 +5150,10 @@ namespace Vodovoz
 			var bottlesToReturn = $"{Entity.BottlesReturn ?? 0} бут.";
 			ylblBottlesPlannedToReturn.Text = bottlesToReturn;
 
-			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
+			if(lblBottlesPlannedToReturn.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
+			}
 
 			var isPaymentTypeCash = PaymentType == PaymentType.Cash;
 			var paymentType = PaymentType.GetEnumTitle().ToUpper();
@@ -5568,6 +5571,7 @@ namespace Vodovoz
 					label7.Visible = false;
 					lblBottlesPlannedToReturn.Visible = false;
 					ylblBottlesPlannedToReturn.Visible = false;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = false;
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
