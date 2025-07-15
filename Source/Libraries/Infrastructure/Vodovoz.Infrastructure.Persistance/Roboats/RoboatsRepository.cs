@@ -322,7 +322,7 @@ namespace Vodovoz.Infrastructure.Persistance.Roboats
 					.Future<Order>();
 
 				var deliveryPointQuery = CreateLastOrdersBaseQuery()
-					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint.Category)
+					.Fetch(SelectMode.Fetch, () => orderAlias.DeliveryPoint)
 					.Future<Order>();
 
 				orders = deliveryPointQuery.ToList();
