@@ -177,6 +177,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
+		public virtual string Title => $"{NameString} {DirectionString}";
+
 		#endregion
 
 		#region Функции
