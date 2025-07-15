@@ -106,6 +106,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -195,6 +196,7 @@ namespace Vodovoz
 		private int _advancedPaymentNomenclatureId;
 
 		private IOrderSettings _orderSettings;
+		private IOrganizationSettings _organizationSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
@@ -641,6 +643,7 @@ namespace Vodovoz
 			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
 			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1707,9 +1710,10 @@ namespace Vodovoz
 		private void TryAddFlyers()
 		{
 			if(Entity.SelfDelivery
-			   || Entity.OrderStatus != OrderStatus.NewOrder
-			   || DeliveryPoint?.District == null
-			   || !DeliveryDate.HasValue)
+				|| Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId
+				|| Entity.OrderStatus != OrderStatus.NewOrder
+				|| DeliveryPoint?.District == null
+				|| !DeliveryDate.HasValue)
 			{
 				return;
 			}

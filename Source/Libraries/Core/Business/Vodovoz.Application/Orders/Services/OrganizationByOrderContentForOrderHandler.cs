@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.Orders;
@@ -20,12 +21,14 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly OrganizationByPaymentTypeForOrderHandler _organizationByPaymentTypeForOrderHandler;
 		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IFlyerRepository _flyerRepository;
 
 		public OrganizationByOrderContentForOrderHandler(
 			OrganizationByOrderAuthorHandler organizationByOrderAuthorHandler,
 			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IFlyerRepository flyerRepository)
 		{
 			_organizationByOrderAuthorHandler =
 				organizationByOrderAuthorHandler ?? throw new ArgumentNullException(nameof(organizationByOrderAuthorHandler));
@@ -35,6 +38,7 @@ namespace Vodovoz.Application.Orders.Services
 			_organizationForOrderFromSet =
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 		}
 
 		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
@@ -150,6 +154,47 @@ namespace Vodovoz.Application.Orders.Services
 				setsOrganizations.Add(
 					keyPairValue.Key.OrderContentSet,
 					new PartOrderWithGoods(organization, keyPairValue.Value.Goods, keyPairValue.Value.Equipments));
+			}
+
+			//если товары только Кулер Сервиса и в оборудовании листовки, убираем их и выставляем один заказ без разбиений
+			if(setsOrganizations.Count == 1
+				&& setsOrganizations.ContainsKey(1)
+				&& !processingGoodsWithoutPaidDelivery.Any()
+				&& processingEquipments.Any())
+			{
+				if(organizationChoice.DeliveryDate.HasValue)
+				{
+					var activeFlyers = _flyerRepository.GetAllActiveFlyersByDate(uow, organizationChoice.DeliveryDate.Value);
+
+					var i = 0;
+					var orderEquipmentsList = organizationChoice.OrderEquipments as IList<OrderEquipment>;
+					
+					while(i < processingEquipments.Count)
+					{
+						if(processingEquipments[i].Nomenclature == null)
+						{
+							i++;
+							continue;
+						}
+
+						var flyerFromEquipment = activeFlyers
+							.FirstOrDefault(x => x.FlyerNomenclature != null
+								&& x.FlyerNomenclature.Id == processingEquipments[i].Nomenclature.Id);
+
+						if(flyerFromEquipment != null)
+						{
+							var removingEquipment = processingEquipments[i];
+							
+							orderEquipmentsList?.Remove(removingEquipment);
+							processingEquipments.Remove(removingEquipment);
+						}
+					}
+
+					if(!processingEquipments.Any())
+					{
+						return setsOrganizations.Values;
+					}
+				}
 			}
 
 			if(processingGoodsWithoutPaidDelivery.Any() || processingEquipments.Any())
