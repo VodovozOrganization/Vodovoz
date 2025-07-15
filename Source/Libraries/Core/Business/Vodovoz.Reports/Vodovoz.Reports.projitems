@@ -636,9 +636,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Reports\Store\DefectiveItemsReportForOneWarehouse.rdl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="$(MSBuildThisFileDirectory)Reports\Store\DefectiveItemsReportForOneWarehouse.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

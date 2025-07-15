@@ -4,6 +4,9 @@ namespace Vodovoz.ViewModels.Store.Reports
 {
 	public partial class DefectiveItemsReport
 	{
+		/// <summary>
+		/// Строка номенклатуры для таблицы номенклатуры-источник брака
+		/// </summary>
 		public class SummaryByNomenclatureRow
 		{
 			/// <summary>
