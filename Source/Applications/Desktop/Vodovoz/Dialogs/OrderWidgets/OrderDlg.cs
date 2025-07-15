@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -5563,6 +5563,11 @@ namespace Vodovoz
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = false;
+					label7.Visible = false;
+					lblBottlesPlannedToReturn.Visible = false;
+					ylblBottlesPlannedToReturn.Visible = false;
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
