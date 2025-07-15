@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz;
 using Vodovoz.Domain.Client;
@@ -12,6 +13,7 @@ namespace VodovozBusiness.Models.Orders
 	public class OrderOrganizationChoice
 	{
 		public int OrderId { get; private set; }
+		public DateTime? DeliveryDate { get; private set; }
 		public Subdivision AuthorSubdivision { get; private set; }
 		public CounterpartyContract Contract { get; private set; }
 		public DeliveryPoint DeliveryPoint { get; private set; }
@@ -37,6 +39,7 @@ namespace VodovozBusiness.Models.Orders
 			return new OrderOrganizationChoice
 			{
 				OrderId = 0,
+				DeliveryDate = onlineOrder.DeliveryDate,
 				AuthorSubdivision = onlineOrder.EmployeeWorkWith?.Subdivision,
 				Contract = null,
 				DeliveryPoint = onlineOrder.DeliveryPoint,
@@ -59,6 +62,7 @@ namespace VodovozBusiness.Models.Orders
 			return new OrderOrganizationChoice
 			{
 				OrderId = order.Id,
+				DeliveryDate = order.DeliveryDate,
 				AuthorSubdivision = order.Author?.Subdivision,
 				Contract = order.Contract,
 				DeliveryPoint = order.DeliveryPoint,
