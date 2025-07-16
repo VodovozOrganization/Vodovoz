@@ -90,15 +90,18 @@ namespace Vodovoz.ViewModels.Cash
 				&& Entity.SelfDelivery
 				&& Entity.OrderStatus != OrderStatus.OnLoading;
 
-			if(isUnshippedSelfDeliveryWithPayAfterShipment)
+			if(!isUnshippedSelfDeliveryWithPayAfterShipment)
 			{
-				if(!_interactiveService.Question(
-					"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
-					"Внимание"))
-				{
-					return false;
-				}
+				return true;
 			}
+
+			if(!_interactiveService.Question(
+				"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+				"Внимание"))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
