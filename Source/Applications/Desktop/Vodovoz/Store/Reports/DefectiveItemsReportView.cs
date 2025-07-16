@@ -209,5 +209,12 @@ namespace Vodovoz.Store.Reports
 		{
 			arrowSlider.ArrowType = scrolledwindow1.Visible ? ArrowType.Left : ArrowType.Right;
 		}
+
+		public override void Dispose()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			
+			base.Dispose();
+		}
 	}
 }
