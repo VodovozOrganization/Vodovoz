@@ -1,6 +1,8 @@
+﻿using Gamma.Widgets.Additions;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Views;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -34,6 +36,23 @@ namespace Vodovoz.ReportsParameters.Bottles
 			ycheckbutton1.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowOnlyClientsWithOneOrder, w => w.Active)
 				.InitializeFromSource();
+
+			enumchecklistFirstOrderStatuses.EnumType = typeof(OrderStatus);
+			enumchecklistFirstOrderStatuses.Binding
+				.AddBinding(
+					ViewModel,
+					vm => vm.FirstOrderStatuses,
+					w => w.SelectedValuesList,
+					new EnumsListConverter<OrderStatus>()).InitializeFromSource();
+
+			enumchecklistSecondOrderStatuses.EnumType = typeof(OrderStatus);
+			enumchecklistSecondOrderStatuses.Binding
+				.AddBinding(
+					ViewModel,
+					vm => vm.SecondOrderStatuses,
+					w => w.SelectedValuesList,
+					new EnumsListConverter<OrderStatus>()).InitializeFromSource();
+
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}

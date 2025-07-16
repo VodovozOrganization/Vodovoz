@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\TrueMarkApi.Client\TrueMarkApi.Client.csproj" />
     <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
     <ProjectReference Include="..\..\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
+    <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
