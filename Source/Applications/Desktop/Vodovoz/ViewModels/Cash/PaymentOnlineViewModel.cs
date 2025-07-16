@@ -102,8 +102,7 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			if(Entity.SelfDelivery
 				&& Entity.PayAfterShipment
-				&& (Entity.OrderStatus
-				!= OrderStatus.OnLoading))
+				&& Entity.OrderStatus != OrderStatus.OnLoading)
 			{
 				if(!_interactiveService.Question(
 						"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
