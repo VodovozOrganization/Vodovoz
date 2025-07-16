@@ -12,7 +12,7 @@ namespace Vodovoz.Settings.Database.SecureCodes
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
-		public int TimeForNextCodeSeconds => _settingsController.GetIntValue("SecureCodeSender.TimeForNextCode");
+		public int TimeForNextCodeSeconds => _settingsController.GetIntValue("SecureCodeSender.TimeForNextCodeSeconds");
 		public int CodeLifetimeSeconds => _settingsController.GetIntValue("SecureCodeSender.CodeLifetimeSeconds");
 	}
 }

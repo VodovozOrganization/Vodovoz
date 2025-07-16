@@ -69,7 +69,9 @@ namespace SecureCodeSenderApi.Services
 					Id = 0,
 					Trackable = false,
 					InstanceId = instanceId
-				}
+				},
+				
+				Attachments = new List<EmailAttachment>()
 			};
 
 			var response = await _client.GetResponse<SentEmailResponse>(sendEmailMessage);

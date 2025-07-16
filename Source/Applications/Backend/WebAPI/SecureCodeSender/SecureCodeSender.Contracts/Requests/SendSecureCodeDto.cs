@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.SecureCodes;
 
 namespace SecureCodeSender.Contracts.Requests
@@ -23,7 +24,7 @@ namespace SecureCodeSender.Contracts.Requests
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public int Source { get; set; }
+		public Source Source { get; set; }
 		/// <summary>
 		/// Ip адрес пользователя
 		/// </summary>

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using SecureCodeSender.Contracts.Requests;
 using SecureCodeSender.Contracts.Responses;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.SecureCodes;
@@ -89,13 +88,14 @@ namespace SecureCodeSenderApi.Services
 		
 		public (int Response, string Message) CheckSecureCode(CheckSecureCodeDto checkSecureCodeDto)
 		{
-			var savedCodeData = _generatedSecureCodeRepository.GetLastOrDefault(
+			var savedCodeData = _generatedSecureCodeRepository.Get(
 				_uow,
 				x => x.Code == checkSecureCodeDto.Code
 					&& x.UserPhone == checkSecureCodeDto.UserPhone
 					&& x.Target == checkSecureCodeDto.Target
 					&& x.UserAgent == checkSecureCodeDto.UserAgent
-					&& x.ExternalCounterpartyId == checkSecureCodeDto.ExternalCounterpartyId);
+					&& x.ExternalCounterpartyId == checkSecureCodeDto.ExternalCounterpartyId)
+				.LastOrDefault();
 
 			if(savedCodeData is null)
 			{
@@ -126,7 +126,7 @@ namespace SecureCodeSenderApi.Services
 				sendSecureCodeDto.Method,
 				sendSecureCodeDto.Target,
 				sendSecureCodeDto.UserPhone,
-				Enum.Parse<Source>(sendSecureCodeDto.Source.ToString()),
+				sendSecureCodeDto.Source,
 				sendSecureCodeDto.Ip,
 				sendSecureCodeDto.UserAgent,
 				sendSecureCodeDto.ErpCounterpartyId,

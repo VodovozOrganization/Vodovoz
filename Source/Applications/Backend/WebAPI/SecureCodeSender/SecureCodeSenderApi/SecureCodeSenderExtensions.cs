@@ -4,17 +4,28 @@ using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QS.Project.Core;
 using RabbitMQ.EmailSending.Contracts;
 using RabbitMQ.MailSending;
 using SecureCodeSenderApi.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Presentation.WebApi;
 
 namespace SecureCodeSenderApi
 {
+	/// <summary>
+	/// Расширения для апи
+	/// </summary>
 	public static class SecureCodeSenderExtensions
 	{
+		/// <summary>
+		/// Добавление всех необходимых зависимостей и регистраций
+		/// </summary>
+		/// <param name="services">Контейнер</param>
+		/// <param name="configuration">Конфигурация</param>
+		/// <returns></returns>
 		public static IServiceCollection AddSecureCodeSenderApi(this IServiceCollection services, IConfiguration configuration)
 		{
 			services
@@ -39,11 +50,20 @@ namespace SecureCodeSenderApi
 					busConf.AddRequestClient<SentEmailResponse>(
 						new Uri($"exchange:{configuration.GetValue<string>("RabbitOptions:AuthorizationCodesExchange")}"));
 					busConf.ConfigureRabbitMq();
-				});
-			
+				})
+				.AddVersioning();
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			services.AddStaticHistoryTracker();
+
 			return services;
 		}
 		
+		/// <summary>
+		/// Добавление зависимостей
+		/// </summary>
+		/// <param name="services">Контейнер</param>
+		/// <returns></returns>
 		private static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
 			services

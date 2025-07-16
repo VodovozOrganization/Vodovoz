@@ -57,14 +57,14 @@ namespace Vodovoz.Core.Domain.SecureCodes
 			IsUsed = false;
 		}
 
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		/// <summary>
 		/// Код авторизации
 		/// </summary>
 		[Display(Name = "Код авторизации")]
 		[IgnoreHistoryTrace]
-		public string Code
+		public virtual string Code
 		{
 			get => _code;
 			set => SetField(ref _code, value);
@@ -75,7 +75,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// </summary>
 		[Display(Name = "Создан")]
 		[IgnoreHistoryTrace]
-		public DateTime Created
+		public virtual DateTime Created
 		{
 			get => _created;
 			set => SetField(ref _created, value);
@@ -85,7 +85,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Тип отправки <see cref="SendTo"/>
 		/// </summary>
 		[Display(Name = "Тип отправки")]
-		public SendTo Method
+		public virtual SendTo Method
 		{
 			get => _method;
 			set => SetField(ref _method, value);
@@ -95,7 +95,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Куда отправляем код
 		/// </summary>
 		[Display(Name = "Куда отправляем код")]
-		public string Target
+		public virtual string Target
 		{
 			get => _target;
 			set => SetField(ref _target, value);
@@ -105,7 +105,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Телефон пользователя
 		/// </summary>
 		[Display(Name = "Телефон пользователя")]
-		public string UserPhone
+		public virtual string UserPhone
 		{
 			get => _userPhone;
 			set => SetField(ref _userPhone, value);
@@ -115,7 +115,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Источник запроса
 		/// </summary>
 		[Display(Name = "Источник запроса")]
-		public Source Source
+		public virtual Source Source
 		{
 			get => _source;
 			set => SetField(ref _source, value);
@@ -125,7 +125,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Ip адрес пользователя
 		/// </summary>
 		[Display(Name = "Ip адрес пользователя")]
-		public string Ip
+		public virtual string Ip
 		{
 			get => _ip;
 			set => SetField(ref _ip, value);
@@ -135,7 +135,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Характеристика агента
 		/// </summary>
 		[Display(Name = "Характеристика агента")]
-		public string UserAgent
+		public virtual string UserAgent
 		{
 			get => _userAgent;
 			set => SetField(ref _userAgent, value);
@@ -145,7 +145,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Id клиента в Erp
 		/// </summary>
 		[Display(Name = "Id клиента")]
-		public int? CounterpartyId
+		public virtual int? CounterpartyId
 		{
 			get => _counterpartyId;
 			set => SetField(ref _counterpartyId, value);
@@ -155,7 +155,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Id клиента/пользователя в ИПЗ
 		/// </summary>
 		[Display(Name = "Id клиента/пользователя в ИПЗ")]
-		public Guid? ExternalCounterpartyId
+		public virtual Guid? ExternalCounterpartyId
 		{
 			get => _externalCounterpartyId;
 			set => SetField(ref _externalCounterpartyId, value);
@@ -165,7 +165,7 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Использован
 		/// </summary>
 		[Display(Name = "Использован")]
-		public bool IsUsed
+		public virtual bool IsUsed
 		{
 			get => _isUsed;
 			set => SetField(ref _isUsed, value);

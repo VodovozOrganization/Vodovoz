@@ -12,6 +12,9 @@ using Vodovoz.Presentation.WebApi.Common;
 
 namespace SecureCodeSenderApi.Controllers.V1
 {
+	/// <summary>
+	/// Контроллер для работы с кодами авторизации
+	/// </summary>
 	public class SecureCodeController : VersionedController
 	{
 		private readonly ISecureCodeHandler _secureCodeHandler;
@@ -24,7 +27,17 @@ namespace SecureCodeSenderApi.Controllers.V1
 			_secureCodeHandler = secureCodeHandler ?? throw new ArgumentNullException(nameof(secureCodeHandler));
 		}
 
-		[HttpPost]
+		/// <summary>
+		/// Генерация и отправка коа авторизации
+		/// </summary>
+		/// <param name="sendSecureCodeDto">Информация для отправки</param>
+		/// <returns>
+		/// 200 - в случае успеха с временем до следующего запроса
+		/// 404 - неверный код доступа
+		/// 408 - истекший код
+		/// 500 - ошибка
+		/// </returns>
+		[HttpPost("Send")]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -43,7 +56,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 					return Problem(result.Errors.First().Message);
 				}
 
-				return Ok(result.Value.TimeForNextCode);
+				return Ok(SecureCodeSent.Create(result.Value.TimeForNextCode));
 			}
 			catch(Exception e)
 			{
@@ -57,7 +70,15 @@ namespace SecureCodeSenderApi.Controllers.V1
 			}
 		}
 		
-		[HttpGet]
+		/// <summary>
+		/// Проверка кода авторизации
+		/// </summary>
+		/// <param name="checkSecureCodeDto">Данные для проверки</param>
+		/// <returns>
+		/// 200 - в случае успеха
+		/// 500 - ошибка/неудача
+		/// </returns>
+		[HttpGet("Check")]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
