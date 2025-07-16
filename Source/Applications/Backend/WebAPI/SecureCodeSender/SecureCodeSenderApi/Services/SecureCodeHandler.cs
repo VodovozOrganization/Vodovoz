@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Contracts.Requests;
-using Contracts.Responses;
+using SecureCodeSender.Contracts.Requests;
+using SecureCodeSender.Contracts.Responses;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;

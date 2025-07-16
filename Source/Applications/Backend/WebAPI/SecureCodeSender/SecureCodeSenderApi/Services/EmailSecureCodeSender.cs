@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Contracts.Responses;
+using SecureCodeSender.Contracts.Responses;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using QS.DomainModel.UoW;

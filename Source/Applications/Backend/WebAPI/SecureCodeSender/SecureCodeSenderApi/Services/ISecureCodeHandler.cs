@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Contracts.Requests;
+using SecureCodeSender.Contracts.Requests;
 using Vodovoz.Core.Domain.Results;
 
 namespace SecureCodeSenderApi.Services

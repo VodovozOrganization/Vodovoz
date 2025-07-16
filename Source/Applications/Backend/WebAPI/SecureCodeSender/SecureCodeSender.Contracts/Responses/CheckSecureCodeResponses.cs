@@ -1,4 +1,4 @@
-﻿namespace Contracts.Responses
+﻿namespace SecureCodeSender.Contracts.Responses
 {
 	public static class CheckSecureCodeResponses
 	{

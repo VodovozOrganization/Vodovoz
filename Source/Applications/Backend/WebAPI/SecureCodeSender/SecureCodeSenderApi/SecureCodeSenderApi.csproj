@@ -18,7 +18,7 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
-    <ProjectReference Include="..\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\SecureCodeSender.Contracts\SecureCodeSender.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

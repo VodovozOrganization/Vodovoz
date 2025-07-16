@@ -1,19 +1,15 @@
 ﻿using System;
-using Vodovoz.Core.Domain.SecureCodes;
 
-namespace Contracts.Requests
+namespace SecureCodeSender.Contracts.Requests
 {
-	/// <summary>
-	/// Данные по запросу формирования и отправки авторизационного кода
-	/// </summary>
-	public class SendSecureCodeDto
+	public class CheckSecureCodeDto
 	{
 		/// <summary>
-		/// Тип отправки <see cref="SendTo"/>
+		/// Код авторизации
 		/// </summary>
-		public SendTo Method { get; set; }
+		public string Code { get; set; }
 		/// <summary>
-		/// Куда отправляем код
+		/// Куда отправлялся код
 		/// </summary>
 		public string Target { get; set; }
 		/// <summary>
@@ -39,6 +35,6 @@ namespace Contracts.Requests
 		/// <summary>
 		/// Id клиента/пользователя в ИПЗ
 		/// </summary>
-		public Guid? ExternalCounterpartyId { get; set; }
+		public Guid ExternalCounterpartyId { get; set; }
 	}
 }

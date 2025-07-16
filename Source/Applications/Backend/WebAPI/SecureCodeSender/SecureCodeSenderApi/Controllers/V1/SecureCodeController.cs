@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Contracts.Requests;
-using Contracts.Responses;
+using SecureCodeSender.Contracts.Requests;
+using SecureCodeSender.Contracts.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
