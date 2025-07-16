@@ -1,6 +1,8 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -67,8 +69,18 @@ namespace Edo.Admin
 				await CancelTransferTask(transfer, reason, cancellationToken);
 			}
 
-			edoTask.Status = EdoTaskStatus.InCancellation;
+			if(edoTask.Status == EdoTaskStatus.New)
+			{
+				edoTask.Status = EdoTaskStatus.Cancelled;
+			}
+			else
+			{
+				edoTask.Status = EdoTaskStatus.InCancellation;
+			}
+
 			edoTask.CancellationReason = reason;
+
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 		}
 
 		private async Task CancelTransferTask(
@@ -77,8 +89,19 @@ namespace Edo.Admin
 			CancellationToken cancellationToken
 			)
 		{
+			if(transferEdoTask.Status.IsIn(
+				EdoTaskStatus.Completed,
+				EdoTaskStatus.Cancelled,
+				EdoTaskStatus.InCancellation
+				))
+			{
+				return;
+			}
+
 			transferEdoTask.Status = EdoTaskStatus.InCancellation;
 			transferEdoTask.CancellationReason = reason;
+
+			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 
 			var message = new RequestDocflowCancellationEvent
 			{
