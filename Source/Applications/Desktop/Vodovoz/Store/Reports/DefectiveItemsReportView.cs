@@ -74,6 +74,7 @@ namespace Vodovoz.Store.Reports
 			
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
+			yentryrefWarehouse.CanEditReference = false;
 			
 			checkWarehouseEnable.Binding
 				.AddSource(ViewModel)
