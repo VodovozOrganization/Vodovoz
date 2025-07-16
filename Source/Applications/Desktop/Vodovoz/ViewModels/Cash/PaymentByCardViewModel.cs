@@ -84,20 +84,24 @@ namespace Vodovoz.ViewModels.Cash
 
 		public bool CanSave => Entity.OnlinePaymentNumber != null;
 
-		private void SaveHandler()
+		protected override bool BeforeSave()
 		{
-			if(Entity.SelfDelivery
-				&& Entity.PayAfterShipment
-				&& (Entity.OrderStatus
-				!= OrderStatus.OnLoading))
+			if(Entity.PayAfterShipment
+				&& Entity.SelfDelivery
+				&& Entity.OrderStatus != OrderStatus.OnLoading)
 			{
 				if(!_interactiveService.Question(
-						"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
-						"Внимание"))
+					"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+					"Внимание"))
 				{
-					return;
+					return false;
 				}
 			}
+			return true;
+		}
+
+		private void SaveHandler()
+		{
 			if(Entity.SelfDelivery)
 			{
 				if(!Save(false))
