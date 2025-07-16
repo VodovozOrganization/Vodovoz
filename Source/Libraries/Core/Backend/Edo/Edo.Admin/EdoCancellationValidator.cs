@@ -70,7 +70,9 @@ namespace Edo.Admin
 
 			var canCancel = edoTask.Stage.IsIn(
 				DocumentEdoTaskStage.New,
-				DocumentEdoTaskStage.Transfering
+				DocumentEdoTaskStage.Transfering,
+				DocumentEdoTaskStage.Sending,
+				DocumentEdoTaskStage.Sent
 			);
 			return canCancel && canCancelTransfers;
 		}
@@ -101,6 +103,16 @@ namespace Edo.Admin
 		{
 			var transferTasks = edoTask.TransferIterations
 				.SelectMany(x => x.TransferEdoRequests.Select(t => t.TransferEdoTask));
+			var allTransfersCompleted = transferTasks.All(x => x.Status.IsIn(
+				EdoTaskStatus.Completed,
+				EdoTaskStatus.Cancelled
+			));
+
+			if(allTransfersCompleted)
+			{
+				return true;
+			}
+
 			var canCancelTransfers = transferTasks.All(x => CanCancelTransferEdoTask(x));
 			return canCancelTransfers;
 		}
