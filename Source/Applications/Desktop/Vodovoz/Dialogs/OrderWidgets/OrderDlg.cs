@@ -5551,16 +5551,34 @@ namespace Vodovoz
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.StorageLogistics:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.ChainStore:
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.Service:
 					ybuttonToDeliveryAddressType.Visible = true;
