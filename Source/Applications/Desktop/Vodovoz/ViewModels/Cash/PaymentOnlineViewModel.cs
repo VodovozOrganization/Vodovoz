@@ -100,9 +100,11 @@ namespace Vodovoz.ViewModels.Cash
 
 		protected override bool BeforeSave()
 		{
-			if(Entity.PayAfterShipment
+			bool isUnshippedSelfDeliveryWithPayAfterShipment = Entity.PayAfterShipment
 				&& Entity.SelfDelivery
-				&& Entity.OrderStatus != OrderStatus.OnLoading)
+				&& Entity.OrderStatus != OrderStatus.OnLoading;
+
+			if(isUnshippedSelfDeliveryWithPayAfterShipment)
 			{
 				if(!_interactiveService.Question(
 					"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
@@ -113,6 +115,7 @@ namespace Vodovoz.ViewModels.Cash
 			}
 			return true;
 		}
+
 		private void SaveHandler()
 		{
 			if(Entity.SelfDelivery)
