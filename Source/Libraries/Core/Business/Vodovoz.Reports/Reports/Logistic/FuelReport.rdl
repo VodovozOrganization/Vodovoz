@@ -1161,7 +1161,6 @@ SELECT
 	route_lists_transactions.liters_limits,
 	route_lists_transactions.reg_number,
 	route_lists_transactions.is_fine,
-	#route_lists_transactions.fuel_transactions_quantity,
 	route_lists_transactions.fuel_transactions_total_sum,
 	route_lists_transactions.gazprom_product_name,
     ROUND((@fuel_balance:=@fuel_balance - IF(route_lists_transactions.is_fine=0,route_lists_transactions.liters_outlayed,0) + route_lists_transactions.fuel_transactions_quantity + IFNULL(route_lists_transactions.payed_for_fuel / (
