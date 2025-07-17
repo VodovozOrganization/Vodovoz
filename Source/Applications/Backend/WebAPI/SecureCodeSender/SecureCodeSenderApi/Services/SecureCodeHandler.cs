@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SecureCodeSender.Contracts.Requests;
 using SecureCodeSender.Contracts.Responses;
 using QS.DomainModel.UoW;
@@ -13,17 +14,20 @@ namespace SecureCodeSenderApi.Services
 {
 	public class SecureCodeHandler : ISecureCodeHandler
 	{
+		private readonly ILogger<SecureCodeHandler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ISecureCodeSettings _secureCodeSettings;
 		private readonly IGenericRepository<GeneratedSecureCode> _generatedSecureCodeRepository;
 		private readonly IEmailSecureCodeSender _emailSecureCodeSender;
 
 		public SecureCodeHandler(
+			ILogger<SecureCodeHandler> logger,
 			IUnitOfWork uow,
 			ISecureCodeSettings secureCodeSettings,
 			IGenericRepository<GeneratedSecureCode> generatedSecureCodeRepository,
 			IEmailSecureCodeSender emailSecureCodeSender)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_secureCodeSettings = secureCodeSettings ?? throw new ArgumentNullException(nameof(secureCodeSettings));
 			_generatedSecureCodeRepository =
@@ -35,20 +39,24 @@ namespace SecureCodeSenderApi.Services
 		{
 			if(sendSecureCodeDto.Method == SendTo.Phone)
 			{
+				_logger.LogWarning("Нет реализации отправки на мобильный телефон");
 				return Result.Failure<(string Code, int TimeForNextCode)>(
 					new Error(nameof(SecureCodeHandler), "Нет реализации отправки на мобильный телефон"));
 			}
 
 			var resultCode = GenerateSecureCode(sendSecureCodeDto);
+			var generatedSecureCode = CreateGeneratedSecureCode(resultCode.Code, sendSecureCodeDto);
 
 			switch(sendSecureCodeDto.Method)
 			{
 				case SendTo.Email:
 					var sentResult =
-						await _emailSecureCodeSender.SendCodeToEmail(_uow, CreateGeneratedSecureCode(resultCode.Code, sendSecureCodeDto));
+						await _emailSecureCodeSender.SendCodeToEmail(_uow, generatedSecureCode);
 
 					if(!sentResult)
 					{
+						_logger.LogWarning("Не получилось отправить код на почту");
+						UseCode(generatedSecureCode);
 						return Result.Failure<(string Code, int TimeForNextCode)>(
 							new Error(nameof(SecureCodeHandler), ResponseMessage.Error));
 					}
@@ -99,23 +107,36 @@ namespace SecureCodeSenderApi.Services
 
 			if(savedCodeData is null)
 			{
+				_logger.LogWarning("Код {Code} для {ExternalCounterpartyId} не прошел проверку {Message}",
+					checkSecureCodeDto.Code,
+					checkSecureCodeDto.ExternalCounterpartyId,
+					CheckSecureCodeResponses.WrongCode.Message);
+				
 				return CheckSecureCodeResponses.WrongCode;
 			}
 
 			if(savedCodeData.IsUsed)
 			{
+				_logger.LogWarning("Код {Code} для {ExternalCounterpartyId} не прошел проверку {Message}",
+					checkSecureCodeDto.Code,
+					checkSecureCodeDto.ExternalCounterpartyId,
+					CheckSecureCodeResponses.CodeHasExpired.Message);
 				return CheckSecureCodeResponses.CodeHasExpired;
 			}
 			
 			if((DateTime.Now - savedCodeData.Created).Seconds > _secureCodeSettings.CodeLifetimeSeconds)
 			{
-				savedCodeData.IsUsed = true;
-				_uow.Save(savedCodeData);
-				_uow.Commit();
-				
+				UseCode(savedCodeData);
+				_logger.LogWarning("Код {Code} для {ExternalCounterpartyId} уже истек",
+					checkSecureCodeDto.Code,
+					checkSecureCodeDto.ExternalCounterpartyId);
 				return CheckSecureCodeResponses.CodeHasExpired;
 			}
 			
+			UseCode(savedCodeData);
+			_logger.LogInformation("Код {Code} для {ExternalCounterpartyId} прошел проверки",
+				checkSecureCodeDto.Code,
+				checkSecureCodeDto.ExternalCounterpartyId);
 			return CheckSecureCodeResponses.Ok;
 		}
 
@@ -136,6 +157,13 @@ namespace SecureCodeSenderApi.Services
 			_uow.Commit();
 
 			return generatedSecureCode;
+		}
+		
+		private void UseCode(GeneratedSecureCode savedCodeData)
+		{
+			savedCodeData.IsUsed = true;
+			_uow.Save(savedCodeData);
+			_uow.Commit();
 		}
 	}
 }
