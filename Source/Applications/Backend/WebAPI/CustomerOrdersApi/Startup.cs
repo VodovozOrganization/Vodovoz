@@ -4,6 +4,7 @@ using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -70,16 +71,28 @@ namespace CustomerOrdersApi
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.ApplicationServices.GetService<IUserService>();
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerOrdersApi v1"));
+				app.UseSwaggerUI(options =>
+				{
+					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+					foreach(var description in provider.ApiVersionDescriptions)
+					{
+						options.SwaggerEndpoint(
+							$"/swagger/{description.GroupName}/swagger.json",
+							description.ApiVersion.ToString());
+					}
+				});
 			}
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
 			app.UseAuthorization();
+			app.UseApiVersioning();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
 	}

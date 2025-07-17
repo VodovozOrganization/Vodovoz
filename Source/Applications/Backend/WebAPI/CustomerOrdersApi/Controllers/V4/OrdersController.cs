@@ -31,7 +31,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			
 			try
 			{
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
 					sourceName,
 					onlineOrderInfoDto.ExternalOrderId,
@@ -42,14 +42,14 @@ namespace CustomerOrdersApi.Controllers.V4
 					return InvalidSignature(onlineOrderInfoDto.Signature, generatedSignature);
 				}
 
-				Logger.LogInformation("Подпись валидна, отправляем в очередь");
+				_logger.LogInformation("Подпись валидна, отправляем в очередь");
 				await _publishEndpoint.Publish(onlineOrderInfoDto);
 				
 				return Accepted();
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e,
+				_logger.LogError(e,
 					"Ошибка при регистрации заказа {ExternalOrderId} от {Source}",
 					onlineOrderInfoDto.ExternalOrderId,
 					sourceName);
@@ -66,7 +66,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			
 			try
 			{
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Поступил запрос от {Source} на получение деталей заказа {OrderId} c подписью {Signature}, проверяем...",
 					sourceName,
 					orderId,
@@ -77,14 +77,14 @@ namespace CustomerOrdersApi.Controllers.V4
 					return InvalidSignature(getDetailedOrderInfoDto.Signature, generatedSignature);
 				}
 
-				Logger.LogInformation("Подпись валидна, получаем данные");
+				_logger.LogInformation("Подпись валидна, получаем данные");
 				var orderInfo = _customerOrdersService.GetDetailedOrderInfo(getDetailedOrderInfoDto);
 				
 				return Ok(orderInfo);
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e,
+				_logger.LogError(e,
 					"Ошибка при получении деталей заказа {OrderId} от {Source}",
 					orderId,
 					sourceName);
@@ -100,7 +100,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			
 			try
 			{
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Поступил запрос от {Source} на получение заказов клиента {CounterpartyId} c подписью {Signature}, проверяем...",
 					sourceName,
 					getOrdersDto.CounterpartyErpId,
@@ -111,7 +111,7 @@ namespace CustomerOrdersApi.Controllers.V4
 					return InvalidSignature(getOrdersDto.Signature, generatedSignature);
 				}
 
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Подпись валидна, получаем заказы клиента {CounterpartyId} страница {Page}",
 					getOrdersDto.CounterpartyErpId,
 					getOrdersDto.Page);
@@ -122,7 +122,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e,
+				_logger.LogError(e,
 					"Ошибка при получении заказов клиента {CounterpartyId} от {Source}",
 					getOrdersDto.CounterpartyErpId,
 					sourceName);

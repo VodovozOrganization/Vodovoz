@@ -3,22 +3,24 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
-	[ApiController]
-	[Route("/api/[action]")]
-	public class SignatureControllerBase : ControllerBase
+	/// <summary>
+	/// Контроллер для эндпойнтов с контрольной суммой
+	/// </summary>
+	public class SignatureControllerBase : VersionedController
 	{
 		private const string _invalidSignature = "Неккоректная контрольная сумма";
 		
-		public SignatureControllerBase(ILogger<SignatureControllerBase> logger)
-		{
-			Logger = logger;
-		}
+		public SignatureControllerBase(ILogger<SignatureControllerBase> logger) : base(logger) { }
 
-		protected ILogger<SignatureControllerBase> Logger { get; }
-		
+		/// <summary>
+		/// Неверная контрольная сумма
+		/// </summary>
+		/// <param name="requestSignature">Контрольная сумма запроса</param>
+		/// <param name="generatedSignature">Расчитанная контрольная сумма</param>
+		/// <returns></returns>
 		protected IActionResult InvalidSignature(string requestSignature, string generatedSignature)
 		{
-			Logger.LogWarning(
+			_logger.LogWarning(
 				"{InvalidSignature}. Пришла {ReceivedSign}, должна быть {GeneratedSign}",
 				_invalidSignature,
 				requestSignature,

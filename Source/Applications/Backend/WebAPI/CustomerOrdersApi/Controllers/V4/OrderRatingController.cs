@@ -37,7 +37,7 @@ namespace CustomerOrdersApi.Controllers.V4
 
 			try
 			{
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Поступил запрос от {Source} на регистрацию оценки заказа {OrderId} c подписью {Signature}, проверяем...",
 					sourceName,
 					orderRatingInfo.OnlineOrderId,
@@ -53,7 +53,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(
+				_logger.LogError(
 					e,
 					"Ошибка при попытке оценки заказа {OnlineOrderId} от {Source}",
 					orderRatingInfo.OnlineOrderId,
@@ -69,7 +69,7 @@ namespace CustomerOrdersApi.Controllers.V4
 
 			try
 			{
-				Logger.LogInformation("Пришел запрос на получение всех причин оценки заказа от {Source}", sourceName);
+				_logger.LogInformation("Пришел запрос на получение всех причин оценки заказа от {Source}", sourceName);
 
 				if(_memoryCache.TryGetValue(source, out var value))
 				{
@@ -86,7 +86,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при получении причин оценок заказа от {Source}", sourceName);
+				_logger.LogError(e, "Ошибка при получении причин оценок заказа от {Source}", sourceName);
 				return Problem();
 			}
 		}

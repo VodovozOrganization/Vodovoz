@@ -25,7 +25,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			
 			try
 			{
-				Logger.LogInformation(
+				_logger.LogInformation(
 					"Поступил запрос от {Source} на создание заявки на звонок c подписью {Signature}, проверяем...",
 					sourceName,
 					creatingInfoDto.Signature);
@@ -35,14 +35,14 @@ namespace CustomerOrdersApi.Controllers.V4
 					return InvalidSignature(creatingInfoDto.Signature, generatedSignature);
 				}
 
-				Logger.LogInformation("Подпись валидна, сохраняем");
+				_logger.LogInformation("Подпись валидна, сохраняем");
 				_customerOrdersService.CreateRequestForCall(creatingInfoDto);
 				
 				return Ok();
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e,
+				_logger.LogError(e,
 					"Ошибка при сохранении заявки на звонок контакта {Phone} от {Source}",
 					creatingInfoDto.PhoneNumber,
 					sourceName);
