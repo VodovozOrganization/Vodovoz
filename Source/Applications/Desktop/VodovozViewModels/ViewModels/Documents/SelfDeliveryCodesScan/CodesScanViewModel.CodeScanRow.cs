@@ -41,6 +41,27 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			/// Доп. информация
 			/// </summary>
 			public string AdditionalInformation { get; set; }
+			
+			/// <summary>
+			/// Текст в поле "Наличие в заказе"
+			/// </summary>
+			public string HasInOrderString
+			{
+				get
+				{
+					if(HasInOrder is null)
+					{
+						return null;
+					}
+
+					return HasInOrder.Value ? "Да" : "Нет";
+				}
+			}
+			
+			/// <summary>
+			/// Дуюдикат кода
+			/// </summary>
+			public bool IsDuplicate { get; set; }
 		}
 	}
 }

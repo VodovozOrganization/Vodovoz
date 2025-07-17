@@ -19,6 +19,7 @@ namespace Vodovoz.Views.Documents
 		private readonly Color _colorBase = GdkColors.PrimaryBase;
 		private readonly Color _colorAggregate = GdkColors.InsensitiveBase;
 		private readonly Color _colorCurrencCodeInProcess = GdkColors.LightYellow2;
+		private readonly Color _colorDuplicate = GdkColors.Red2;
 
 		public CodesScanView(CodesScanViewModel viewModel) : base(viewModel)
 		{
@@ -49,10 +50,8 @@ namespace Vodovoz.Views.Documents
 				.AddTextRenderer(n => n.NomenclatureName)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("Наличие в заказе")
-				.AddTextRenderer(n => n.HasInOrder.HasValue ? (n.HasInOrder.Value ? "Да" : "Нет") : "")
-				.AddSetter((c, n) =>
-					c.CellBackgroundGdk = n.Children.Any() ? _colorAggregate :
-						n.HasInOrder.HasValue ? n.HasInOrder.Value ? _colorGreen : _colorLightRed : _colorBase)
+				.AddTextRenderer(n => n.HasInOrderString)
+				.AddSetter((c, n) => c.CellBackgroundGdk = GetHasInOrderColor(n))
 				.AddColumn("Валиден в ЧЗ")
 				.AddTextRenderer(n => n.IsTrueMarkValid.HasValue ? (n.IsTrueMarkValid.Value ? "Да" : "Нет") : "")
 				.AddSetter((c, n) =>
@@ -65,8 +64,6 @@ namespace Vodovoz.Views.Documents
 				.AddTextRenderer(n => n.AdditionalInformation)
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.RawCode == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
-				.WrapMode(WrapMode.Word).WrapWidth(400)
-				.AddColumn("")
 				.Finish();
 
 			treeViewCodes.YTreeModel =
@@ -98,6 +95,26 @@ namespace Vodovoz.Views.Documents
 			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+		}
+
+		private Color GetHasInOrderColor(CodesScanViewModel.CodeScanRow n)
+		{
+			if(n.IsDuplicate)
+			{
+				return _colorDuplicate;
+			}
+			
+			if(n.Children.Any())
+			{
+				return _colorAggregate;
+			}
+
+			if(n.HasInOrder.HasValue)
+			{
+				return n.HasInOrder.Value ? _colorGreen : _colorLightRed;
+			}
+
+			return _colorBase;
 		}
 
 		private void OnYbuttonCopyCodesClicked(object sender, EventArgs e)
