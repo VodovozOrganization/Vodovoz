@@ -1,7 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
-using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.V4;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;

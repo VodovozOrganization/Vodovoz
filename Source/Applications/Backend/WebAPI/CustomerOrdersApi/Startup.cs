@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.V4;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -78,11 +78,8 @@ namespace CustomerOrdersApi
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseRouting();
-
 			app.UseAuthorization();
-
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
 	}

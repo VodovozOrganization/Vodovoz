@@ -1,6 +1,6 @@
 using System;
 using CustomerOnlineOrdersRegistrar.Factories;
-using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
