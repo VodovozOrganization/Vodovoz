@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.ViewModels.Extensions;
@@ -42,6 +43,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private DefectSource? _defectSource;
+		private bool _isWarehouseEnabled;
+		private Warehouse _selectedWarehouse;
 
 		public DefectiveItemsReportViewModel(
 			ILogger<DefectiveItemsReportViewModel> logger,
@@ -169,6 +172,18 @@ namespace Vodovoz.ViewModels.Store.Reports
 			set => SetField(ref _isGenerating, value);
 		}
 
+		public bool IsWarehouseEnabled
+		{
+			get => _isWarehouseEnabled;
+			set => SetField(ref _isWarehouseEnabled, value);
+		}
+
+		public Warehouse SelectedWarehouse
+		{
+			get => _selectedWarehouse;
+			set => SetField(ref _selectedWarehouse, value);
+		}
+
 		private async Task GenerateReportAsync(CancellationToken cancellationToken)
 		{
 			_guiDispatcher.RunInGuiTread(() =>
@@ -179,7 +194,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 
 			try
 			{
-				var reportResult = await DefectiveItemsReport.Create(UnitOfWork, StartDate, EndDate, DefectSource, Driver?.Id, cancellationToken);
+				var reportResult = await DefectiveItemsReport.Create(UnitOfWork, StartDate, EndDate, DefectSource, Driver?.Id, cancellationToken, IsWarehouseEnabled ? SelectedWarehouse : null);
 
 				_guiDispatcher.RunInGuiTread(() =>
 				{
