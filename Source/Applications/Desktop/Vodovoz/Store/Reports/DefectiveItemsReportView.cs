@@ -74,6 +74,7 @@ namespace Vodovoz.Store.Reports
 			
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
+			yentryrefWarehouse.CanEditReference = false;
 			
 			checkWarehouseEnable.Binding
 				.AddSource(ViewModel)
@@ -207,6 +208,14 @@ namespace Vodovoz.Store.Reports
 		private void UpdateSliderArrow()
 		{
 			arrowSlider.ArrowType = scrolledwindow1.Visible ? ArrowType.Left : ArrowType.Right;
+		}
+
+		public override void Dispose()
+		{
+			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			
+			base.Dispose();
 		}
 	}
 }
