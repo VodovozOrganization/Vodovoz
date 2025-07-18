@@ -1710,8 +1710,7 @@ namespace Vodovoz
 		private void TryAddFlyers()
 		{
 			if(Entity.SelfDelivery
-				|| Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId
-				|| Entity.OrderStatus != OrderStatus.NewOrder
+				|| (Entity.OrderStatus != OrderStatus.NewOrder && Entity.OrderStatus != OrderStatus.WaitForPayment)
 				|| DeliveryPoint?.District == null
 				|| !DeliveryDate.HasValue)
 			{
@@ -1731,6 +1730,11 @@ namespace Vodovoz
 			}
 
 			RemoveFlyers();
+
+			if(Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId)
+			{
+				return;
+			}
 
 			foreach(var flyer in activeFlyers)
 			{
@@ -3711,6 +3715,11 @@ namespace Vodovoz
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				OnFormOrderActions();
+			}
+
+			if(DeliveryPoint != null
+				&& (Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.WaitForPayment))
+			{
 				TryAddFlyers();
 			}
 
