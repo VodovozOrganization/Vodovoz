@@ -252,7 +252,11 @@ namespace Edo.Problems
 					problem.TaskItems.Add(newItem);
 				}
 
-				problem.CustomItems.Clear();
+				foreach(var existsItem in problem.CustomItems.ToList())
+				{
+					problem.CustomItems.Remove(existsItem);
+					await uow.DeleteAsync(existsItem, cancellationToken: cancellationToken);
+				}
 				foreach(var customItem in customItems)
 				{
 					customItem.Problem = problem;
