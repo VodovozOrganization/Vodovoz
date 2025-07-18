@@ -314,13 +314,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						}
 						break;
 					case "Organization_include":
-						if(parameter.Value is string[] includedOrganizations && !isReportBySingleCounterpartyDebt)
+						if(parameter.Value is string[] includedOrganizations)
 						{
 							filtersText.AppendLine($"Вкл.организаций: {includedOrganizations.Length}");
 						}
 						break;
 					case "Organization_exclude":
-						if(parameter.Value is string[] excludedOrganizations && !isReportBySingleCounterpartyDebt)
+						if(parameter.Value is string[] excludedOrganizations)
 						{
 							filtersText.AppendLine($"Искл.организаций: {excludedOrganizations.Length}");
 						}
