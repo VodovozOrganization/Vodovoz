@@ -165,6 +165,7 @@ namespace Vodovoz.Application.Orders.Services
 				if(organizationChoice.DeliveryDate.HasValue)
 				{
 					var activeFlyers = _flyerRepository.GetAllActiveFlyersByDate(uow, organizationChoice.DeliveryDate.Value);
+					var allFlyersNomenclaturesIds = _flyerRepository.GetAllFlyersNomenclaturesIds(uow);
 
 					var i = 0;
 					var orderEquipmentsList = organizationChoice.OrderEquipments as IList<OrderEquipment>;
@@ -181,13 +182,13 @@ namespace Vodovoz.Application.Orders.Services
 							.FirstOrDefault(x => x.FlyerNomenclature != null
 								&& x.FlyerNomenclature.Id == processingEquipments[i].Nomenclature.Id);
 
-						if(flyerFromEquipment != null)
+						if(flyerFromEquipment != null || allFlyersNomenclaturesIds.Contains(processingEquipments[i].Nomenclature.Id))
 						{
-							var removingEquipment = processingEquipments[i];
-							
-							orderEquipmentsList?.Remove(removingEquipment);
-							processingEquipments.Remove(removingEquipment);
+							RemoveFlyerFromEquipment(processingEquipments, i, orderEquipmentsList);
+							continue;
 						}
+
+						i++;
 					}
 
 					if(!processingEquipments.Any())
@@ -205,42 +206,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			return setsOrganizations.Values;
 		}
-
-		private void ProcessEquipmentsNotDependsOrderItems(
-			IList<OrderEquipment> processingEquipments,
-			OrganizationBasedOrderContentSettings setSettings,
-			IDictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
-		{
-			var j = 0;
-				
-			while(j < processingEquipments.Count)
-			{
-				if(processingEquipments[j].OrderItem != null
-					|| processingEquipments[j].OrderRentServiceItem != null
-					|| processingEquipments[j].OrderRentDepositItem != null)
-				{
-					j++;
-					continue;
-				}
-				
-				if(!NomenclatureBelongsSet(processingEquipments[j].Nomenclature, setSettings))
-				{
-					j++;
-					continue;
-				}
-
-				if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
-				{
-					goodsAndEquipments =
-						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
-					goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
-				}
-				
-				goodsAndEquipments.Equipments.Add(processingEquipments[j]);
-				processingEquipments.RemoveAt(j);
-			}
-		}
-
+		
 		public bool OrderHasGoodsFromSeveralOrganizations(
 			IUnitOfWork uow,
 			IList<int> nomenclatureIds)
@@ -277,6 +243,49 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			
 			return nomenclatureIds.Any() && kulerServiceProductIds.Any();
+		}
+
+		private void ProcessEquipmentsNotDependsOrderItems(
+			IList<OrderEquipment> processingEquipments,
+			OrganizationBasedOrderContentSettings setSettings,
+			IDictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
+		{
+			var j = 0;
+				
+			while(j < processingEquipments.Count)
+			{
+				if(processingEquipments[j].OrderItem != null
+					|| processingEquipments[j].OrderRentServiceItem != null
+					|| processingEquipments[j].OrderRentDepositItem != null)
+				{
+					j++;
+					continue;
+				}
+				
+				if(!NomenclatureBelongsSet(processingEquipments[j].Nomenclature, setSettings))
+				{
+					j++;
+					continue;
+				}
+
+				if(!goodsAndEquipmentsBySets.TryGetValue(setSettings, out var goodsAndEquipments))
+				{
+					goodsAndEquipments =
+						new ValueTuple<IList<IProduct>, IList<OrderEquipment>>(new List<IProduct>(), new List<OrderEquipment>());
+					goodsAndEquipmentsBySets.Add(setSettings, goodsAndEquipments);
+				}
+				
+				goodsAndEquipments.Equipments.Add(processingEquipments[j]);
+				processingEquipments.RemoveAt(j);
+			}
+		}
+		
+		private void RemoveFlyerFromEquipment(List<OrderEquipment> processingEquipments, int i, IList<OrderEquipment> orderEquipmentsList)
+		{
+			var removingEquipment = processingEquipments[i];
+							
+			orderEquipmentsList?.Remove(removingEquipment);
+			processingEquipments.Remove(removingEquipment);
 		}
 		
 		private bool ProductBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
