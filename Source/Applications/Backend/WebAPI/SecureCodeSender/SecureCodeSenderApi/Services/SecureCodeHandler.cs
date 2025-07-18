@@ -123,8 +123,8 @@ namespace SecureCodeSenderApi.Services
 					CheckSecureCodeResponses.CodeHasExpired.Message);
 				return CheckSecureCodeResponses.CodeHasExpired;
 			}
-			
-			if((DateTime.Now - savedCodeData.Created).Seconds > _secureCodeSettings.CodeLifetimeSeconds)
+
+			if((DateTime.Now - savedCodeData.Created).TotalSeconds > _secureCodeSettings.CodeLifetimeSeconds)
 			{
 				UseCode(savedCodeData);
 				_logger.LogWarning("Код {Code} для {ExternalCounterpartyId} уже истек",
