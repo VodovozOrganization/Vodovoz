@@ -1,29 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SecureCodeSender.Contracts.Responses;
-using Mailjet.Api.Abstractions;
+﻿using Mailjet.Api.Abstractions;
 using MassTransit;
 using QS.DomainModel.UoW;
 using RabbitMQ.EmailSending.Contracts;
 using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.SecureCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.SecureCodes;
 
 namespace SecureCodeSenderApi.Services
 {
 	public class EmailSecureCodeSender : IEmailSecureCodeSender
 	{
 		private readonly IEmailSettings _emailSettings;
+		private readonly ISecureCodeSettings _secureCodeSettings;
 		private readonly IRequestClient<SendEmailMessage> _client;
 		
 		public EmailSecureCodeSender(
 			IEmailSettings emailSettings,
+			ISecureCodeSettings secureCodeSettings,
 			IRequestClient<SendEmailMessage> client)
 		{
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_secureCodeSettings = secureCodeSettings ?? throw new ArgumentNullException(nameof(secureCodeSettings));
 			_client = client ?? throw new ArgumentNullException(nameof(client));
 		}
 		
@@ -33,8 +36,6 @@ namespace SecureCodeSenderApi.Services
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 				.List<object>()
 				.FirstOrDefault());
-
-			var message = $"Весёлый Водовоз: код для входа - {secureCode.Code}";
 
 			Counterparty client = null;
 
@@ -61,9 +62,8 @@ namespace SecureCodeSenderApi.Services
 				},
 
 				Subject = "Код авторизации",
-
-				TextPart = message,
-				HTMLPart = message,
+				HTMLPart = SecureCodeEmailHtmlTemplate.GetTemplate(
+					secureCode.Code, secureCode.Target, _secureCodeSettings.CodeLifetimeSeconds / 60),
 				Payload = new EmailPayload
 				{
 					Id = 0,
