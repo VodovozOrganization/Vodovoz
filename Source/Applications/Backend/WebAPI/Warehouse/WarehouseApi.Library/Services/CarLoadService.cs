@@ -4,7 +4,6 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using OneOf;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,7 @@ using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
+using WarehouseApi.Library.Extensions;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
@@ -164,70 +164,9 @@ namespace WarehouseApi.Library.Services
 				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
 			};
 
-			foreach(var documentOrderItem in documentOrderItems)
-			{
-				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
-				{
-					if(trueMarkProductCode.ResultCode == null)
-					{
-						continue;
-					}
-
-					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
-						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
-					{
-						continue;
-					}
-
-					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
-
-					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
-					{
-						continue;
-					}
-
-					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
-
-					if(codeToAddInfo is null)
-					{
-						continue;
-					}
-
-					var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-					var allCodes = parentCode.Match(
-						transportCode => transportCode.GetAllCodes(),
-						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode })
-						.ToArray();
-
-					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
-						&& documentOrderItem.TrueMarkCodes.Any(y =>
-							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
-							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.ToArray();
-
-					foreach(var anyCode in allCodes)
-					{
-						if(anyCode.IsTrueMarkWaterIdentificationCode
-							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
-						{
-							continue;
-						}
-
-						trueMarkCodes.Add(
-							anyCode.Match(
-								PopulateTransportCode(allCodes),
-								PopulateGroupCode(allCodes),
-								PopulateWaterCode(allCodes)));
-					}
-
-					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
-					codeToAddInfo.Codes.AddRange(trueMarkCodes);
-				}
-			}
-
+			response.Order.Items
+				.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, documentOrderItems.SelectMany(x=>x.TrueMarkCodes));
+			
 			var checkResult = _documentErrorsChecker.IsOrderNeedIndividualSetOnLoad(orderId);
 
 			if(checkResult.IsFailure)
