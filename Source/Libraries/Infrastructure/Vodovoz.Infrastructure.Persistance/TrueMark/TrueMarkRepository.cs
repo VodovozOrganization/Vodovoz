@@ -4,6 +4,7 @@ using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
+using NHibernate.SqlCommand;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -287,17 +288,25 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
 			OrderEdoRequest customerEdoRequestAlias = null;
+			EdoTaskItem edoTaskItemAlias = null;
+
+			
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.JoinEntityAlias(
+					() => edoTaskItemAlias,
+					() => edoTaskItemAlias.ProductCode.Id == autoProductCodeAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.Left.JoinAlias(
 					() => autoProductCodeAlias.CustomerEdoRequest,
 					() => customerEdoRequestAlias
 				)
-				.Where(() => customerEdoRequestAlias.Order.Id == orderId)
+				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == customerEdoRequestAlias.Task.Id)
 				.List();
 
 			return poolCodes;

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -3892,7 +3892,7 @@ namespace Vodovoz
 
 			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
 			{
-				ylabelBottlesDebtAtDeliveryPoint.Visible = true;
+				ylabelBottlesDebtAtDeliveryPoint.Visible = Entity.OrderAddressType != OrderAddressType.Service;
 				ylabelBottlesDebtAtDeliveryPoint.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг бутылей по адресу: {bottlesAtDeliveryPoint} бут.</span>";
 			}
 			else
@@ -5150,7 +5150,10 @@ namespace Vodovoz
 			var bottlesToReturn = $"{Entity.BottlesReturn ?? 0} бут.";
 			ylblBottlesPlannedToReturn.Text = bottlesToReturn;
 
-			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
+			if(lblBottlesPlannedToReturn.Visible)
+			{
+				_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
+			}
 
 			var isPaymentTypeCash = PaymentType == PaymentType.Cash;
 			var paymentType = PaymentType.GetEnumTitle().ToUpper();
@@ -5548,21 +5551,45 @@ namespace Vodovoz
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.StorageLogistics:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.ChainStore:
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.Service:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = false;
+					label7.Visible = false;
+					lblBottlesPlannedToReturn.Visible = false;
+					ylblBottlesPlannedToReturn.Visible = false;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = false;
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
