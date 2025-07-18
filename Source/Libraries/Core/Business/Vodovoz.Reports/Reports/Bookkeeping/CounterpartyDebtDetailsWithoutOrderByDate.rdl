@@ -1239,6 +1239,10 @@ INNER JOIN cashless_movement_operations cmo ON cmo.id = pwo.cashless_movement_op
 INNER JOIN organizations o ON o.id = pwo.organization_id 
 INNER JOIN financial_categories_groups fcg ON pwo.financial_expense_category_id = fcg.id
 WHERE pwo.counterparty_id = @counterparty_id
+  AND (
+                  (0 IN (@Organization_include) OR (o.id IN (@Organization_include)))
+            AND (NOT (o.id IN (@Organization_exclude)) OR o.id IS NULL)
+              )
   AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
   AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
 ORDER BY `date` DESC;</CommandText>
@@ -1251,6 +1255,12 @@ ORDER BY `date` DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1342,6 +1352,20 @@ ORDER BY `date` DESC;</CommandText>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
