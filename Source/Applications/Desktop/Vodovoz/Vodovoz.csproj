@@ -684,6 +684,7 @@
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
     <Compile Include="ViewModels\Cash\PaymentOnlineViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\OrderEditViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.FilterEnumParameterNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.AddressAdditionalParameterType.cs" />
     <Compile Include="ViewModels\Mango\CounterpartyOrderViewModel.cs" />
@@ -733,6 +734,7 @@
     <Compile Include="Views\Employees\PremiumRaskatGAZelleView.cs" />
     <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Goods\NomenclaturePurchasePricesView.cs" />
+    <Compile Include="Views\Logistic\OrderEditView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
@@ -2115,9 +2117,6 @@
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Cash\Payments\" />
-    <Folder Include="Dialogs\Cash\Payments\" />
-    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

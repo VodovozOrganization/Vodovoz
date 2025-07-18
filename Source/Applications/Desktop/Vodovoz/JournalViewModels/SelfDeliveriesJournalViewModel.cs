@@ -1,3 +1,4 @@
+﻿using Autofac;
 using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -26,11 +27,14 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Logistic;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -55,7 +59,7 @@ namespace Vodovoz.Representations
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
-			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -437,6 +441,31 @@ namespace Vodovoz.Representations
 						}
 					}
 
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Изменить",
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						return selectedNodes.Count() == 1;
+					},
+					selectedItems => true,
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+						{
+							NavigationManager.OpenViewModel<OrderEditViewModel, IEntityUoWBuilder>(
+								this,
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								OpenPageOptions.AsSlave);
+						}
+
+					}
 				)
 			);
 		}
