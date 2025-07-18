@@ -7,6 +7,7 @@ using Gtk;
 using QS.Views.Dialog;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
+using VodovozInfrastructure.Extensions;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Documents
@@ -50,7 +51,7 @@ namespace Vodovoz.Views.Documents
 				.AddTextRenderer(n => n.NomenclatureName)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("Наличие в заказе")
-				.AddTextRenderer(n => n.HasInOrderString)
+				.AddTextRenderer(n => n.HasInOrder.ConvertToNullOrYesOrNo())
 				.AddSetter((c, n) => c.CellBackgroundGdk = GetHasInOrderColor(n))
 				.AddColumn("Валиден в ЧЗ")
 				.AddTextRenderer(n => n.IsTrueMarkValid.HasValue ? (n.IsTrueMarkValid.Value ? "Да" : "Нет") : "")

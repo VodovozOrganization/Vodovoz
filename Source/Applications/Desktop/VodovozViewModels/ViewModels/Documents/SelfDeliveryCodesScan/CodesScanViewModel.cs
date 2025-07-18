@@ -462,7 +462,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						,
 						waterCode => new List<int> { waterCode.Id });
 
-			var isUsedCodeInDb = _trueMarkProductCodesRepository.Get(_unitOfWork, c => allUnitCodes.Contains(c.ResultCode.Id)).Any();
+			var isUsedCodeInDb = _trueMarkProductCodesRepository
+				.Get(_unitOfWork, c => allUnitCodes.Contains(c.ResultCode.Id), limit: 1)
+				.Any();
 
 			return isUsedCodeInDb;
 		}
