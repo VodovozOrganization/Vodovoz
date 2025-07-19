@@ -41,6 +41,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			/// Доп. информация
 			/// </summary>
 			public string AdditionalInformation { get; set; }
+			/// <summary>
+			/// Дуюдикат кода
+			/// </summary>
+			public bool IsDuplicate { get; set; }
 		}
 	}
 }
