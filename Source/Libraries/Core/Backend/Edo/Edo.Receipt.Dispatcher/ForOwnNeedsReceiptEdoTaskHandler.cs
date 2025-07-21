@@ -1071,7 +1071,7 @@ namespace Edo.Receipt.Dispatcher
 				catch(EdoCodePoolMissingCodeException ex) 
 				{
 					exception = ex;
-					if(!problemGtins.Any(x => x.GTIN == gtin))
+					if(!problemGtins.Any(x => x.Gtin == gtin))
 					{
 						problemGtins.Add(new EdoProblemGtinItem
 						{
@@ -1102,7 +1102,7 @@ namespace Edo.Receipt.Dispatcher
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				if(!problemGtins.Any(x => x.GTIN == gtin))
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
 					problemGtins.Add(new EdoProblemGtinItem
 					{
