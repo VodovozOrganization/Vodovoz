@@ -12,7 +12,7 @@ namespace DriverApi.Contracts.V6.Requests
 		/// Номер заказа
 		/// </summary>
 		[Required]
-		public int OrderId { get; set; }
+		public int? OrderId { get; set; }
 
 		/// <summary>
 		/// Тип события для уведомлений

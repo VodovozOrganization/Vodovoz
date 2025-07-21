@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V6.Requests;
+using DriverApi.Contracts.V6.Requests;
 using DriverAPI.Library.V6.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -334,15 +334,6 @@ namespace DriverAPI.Controllers.V6
 		{
 			var orderId = notificationRouteListChangesRequest?.OrderId;
 
-			if(orderId is null)
-			{
-				return Problem("В запросе отсутствует номер заказа", statusCode: StatusCodes.Status202Accepted);
-			}
-			if(notificationRouteListChangesRequest?.PushNotificationDataEventType is null)
-			{
-				return Problem("В запросе отсутствует тип уведомления!", statusCode: StatusCodes.Status202Accepted);
-			}
-
 			switch(notificationRouteListChangesRequest.PushNotificationDataEventType)
 			{
 				case PushNotificationDataEventType.TransferAddressFromHandToHand:
@@ -495,7 +486,7 @@ namespace DriverAPI.Controllers.V6
 			{
 				var message = $"Отправка PUSH-сообщения прервана, водитель заказа {orderId} не подписан на PUSH-сообщения.";
 
-				return Problem(message, statusCode: StatusCodes.Status202Accepted);
+				return Problem(message, statusCode: StatusCodes.Status404NotFound);
 			}
 
 			var routeListId = _routeListItemRepository
@@ -509,7 +500,7 @@ namespace DriverAPI.Controllers.V6
 			{
 				var message = $"Отправка PUSH-сообщения прервана, МЛ для заказа {orderId} не найден.";
 
-				return Problem(message, statusCode: StatusCodes.Status202Accepted);
+				return Problem(message, statusCode: StatusCodes.Status404NotFound);
 			}
 
 			_logger.LogInformation("Отправка PUSH-сообщения об изменении состава маршрутного листа ({OrderId})", orderId);

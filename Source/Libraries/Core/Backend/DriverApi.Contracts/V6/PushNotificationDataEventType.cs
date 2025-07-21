@@ -10,7 +10,7 @@ namespace DriverApi.Contracts.V6
 	public enum PushNotificationDataEventType
 	{
 		/// <summary>
-		/// Передача заказов между водителями из свободных остатков
+		/// Передача заказов с передачей товара от водителя
 		/// </summary>				
 		TransferAddressFromHandToHand,
 
