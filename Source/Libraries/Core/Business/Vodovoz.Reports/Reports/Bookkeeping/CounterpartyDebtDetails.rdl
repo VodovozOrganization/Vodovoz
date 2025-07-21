@@ -924,6 +924,10 @@ WHERE
              ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
 				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
          )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
   AND o.payment_type = 'Cashless'
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
@@ -972,6 +976,12 @@ ORDER BY date DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="OrderStatus_exclude">
             <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="is_closing_documents">
             <Value>={?is_closing_documents}</Value>

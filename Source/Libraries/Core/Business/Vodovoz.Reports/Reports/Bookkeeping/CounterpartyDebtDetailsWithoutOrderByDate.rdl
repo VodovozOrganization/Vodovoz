@@ -982,6 +982,9 @@
 FROM orders o
          INNER JOIN payment_items pi ON o.id = pi.order_id
          INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+         INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+         INNER JOIN organizations org ON cc.organization_id = org.id
+
 WHERE
         o.client_id = @counterparty_id
   AND pi.payment_item_status != 'Cancelled'
@@ -994,6 +997,10 @@ WHERE
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
       )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
 
@@ -1066,6 +1073,8 @@ SELECT
     0 AS sorting_rank_payment_docs
 FROM orders o
 INNER JOIN counterparty c on c.id = o.client_id 
+INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+INNER JOIN organizations org ON cc.organization_id = org.id
 WHERE
         o.client_id = @counterparty_id
   AND o.order_payment_status != 'Paid'
@@ -1074,6 +1083,10 @@ WHERE
              ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
 				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
          )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
   AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
@@ -1152,6 +1165,12 @@ ORDER BY date DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="OrderStatus_exclude">
             <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="is_closing_documents">
             <Value>={?is_closing_documents}</Value>
