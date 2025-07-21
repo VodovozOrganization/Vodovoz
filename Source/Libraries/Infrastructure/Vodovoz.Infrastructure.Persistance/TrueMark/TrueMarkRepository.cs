@@ -3,8 +3,10 @@ using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -22,8 +24,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
@@ -129,57 +133,54 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 		public async Task<IDictionary<string, int>> GetMissingCodesCount(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			var result = new Dictionary<string, int>();
+			Gtin gtinAlias = null;
+			EdoProblemGtinItem problemItemAlias = null;
+			EdoTaskProblem problemAlias = null;
+			OrderEdoRequest orderRequestAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
-			var orderProblems =
-				await (from edoTaskProblem in uow.Session.Query<EdoTaskProblem>()
-					   join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTaskProblem.EdoTask.Id equals edoRequest.Task.Id
-					   join order in uow.Session.Query<Domain.Orders.Order>() on edoRequest.Order.Id equals order.Id
-					   where
-					   edoTaskProblem.Type == EdoTaskProblemType.Exception
-					   && edoTaskProblem.SourceName == nameof(EdoCodePoolMissingCodeException)
-					   && edoTaskProblem.State == TaskProblemState.Active
-					   select new
-					   {
-						   Order = order,
-						   Items = edoTaskProblem.CustomItems.ToList()
-					   })
-				 .ToListAsync(cancellationToken);
+			var gtinProblems = await uow.Session.QueryOver(() => gtinAlias)
+				.JoinEntityAlias(
+					() => problemItemAlias,
+					() => problemItemAlias.Gtin.Id == gtinAlias.Id,
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => problemItemAlias.Problem, () => problemAlias,
+					() => problemItemAlias.Problem.Id == problemAlias.Id
+						&& problemAlias.Type == EdoTaskProblemType.Exception
+						&& problemAlias.SourceName == nameof(EdoCodePoolMissingCodeException)
+						&& problemAlias.State == TaskProblemState.Active
+				)
+				.JoinEntityAlias(
+					() => orderRequestAlias,
+					() => orderRequestAlias.Task.Id == problemAlias.EdoTask.Id,
+					JoinType.LeftOuterJoin)
+				.JoinEntityAlias(
+					() => orderItemAlias,
+					() => orderItemAlias.Order.Id == orderRequestAlias.Order.Id,
+					JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias,
+					() => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id
+						&& gtinAlias.Nomenclature.Id == nomenclatureAlias.Id
+				)
+				.WhereRestrictionOn(() => nomenclatureAlias.Id).IsNotNull()
+				.SelectList(list => list
+					.SelectGroup(() => gtinAlias.GtinNumber)
+					.Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderItemAlias.ActualCount),
+							Projections.Property(() => orderItemAlias.Count)
+						))
+					)
+				)
+				.TransformUsing(Transformers.PassThrough)
+				.ListAsync<object[]>();
 
-			var ordersProblemItems = orderProblems
-				.GroupBy(x => x.Order)
-				.ToDictionary(
-					g => g.Key,
-					g => g.SelectMany(x => x.Items).ToList());
-
-			foreach(var orderProblemItems in ordersProblemItems)
-			{
-				var orderItems = orderProblemItems.Key?.OrderItems;
-
-				if(orderItems is null || !orderItems.Any())
-				{
-					continue;
-				}
-
-				var missingGtins = orderProblemItems.Value
-					.Where(x => x is EdoProblemGtinItem)
-					.Cast<EdoProblemGtinItem>()
-					.Select(x => x.Gtin.GtinNumber)
-					.Distinct()
-					.ToList();
-
-				foreach(var missingGtin in missingGtins)
-				{
-					var bottlesHavingGtinCount = (int)orderItems
-						.Where(x => x.Nomenclature.Gtins.Select(gtin => gtin.GtinNumber).Contains(missingGtin))
-						.Select(x => x.ActualCount ?? x.Count)
-						.Sum();
-
-					result.TryGetValue(missingGtin, out int gtinsCount);
-
-					result[missingGtin] = gtinsCount + bottlesHavingGtinCount;
-				}
-			}
+			var result = gtinProblems.ToDictionary(
+				key => (string)key[0],
+				key => (int)(decimal)key[1]);
 
 			return result;
 		}
@@ -288,9 +289,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
 			OrderEdoRequest customerEdoRequestAlias = null;
-			EdoTaskItem edoTaskItemAlias = null;
-
-			
+			EdoTaskItem edoTaskItemAlias = null;	
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -307,6 +306,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					() => customerEdoRequestAlias
 				)
 				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == customerEdoRequestAlias.Task.Id)
+				.Where(() => customerEdoRequestAlias.Order.Id == orderId)
 				.List();
 
 			return poolCodes;

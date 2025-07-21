@@ -75,11 +75,12 @@ namespace DatabaseServiceWorker
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
 
-						.AddHostedService<PowerBiExportWorker>()
-						.ConfigurePowerBiExportWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
-						.AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
-						.AddScoped<IPowerBiExporter, PowerBiExporter>()
+						// Пока отключаем воркер экпорта в PowerBi
+						// .AddHostedService<PowerBiExportWorker>()
+						// .ConfigurePowerBiExportWorker(hostContext)
+						// .ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
+						// .AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
+						// .AddScoped<IPowerBiExporter, PowerBiExporter>()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
