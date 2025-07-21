@@ -1130,6 +1130,9 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
+			var regulatoryDocument =
+				_uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
+
 			bool isValid = true;
 
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
@@ -1160,7 +1163,6 @@ namespace Edo.Receipt.Dispatcher
 					return IndustryRequisitePrepareResult.Problem;
 				}
 
-				var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
 				if(regulatoryDocument == null)
 				{
 					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
