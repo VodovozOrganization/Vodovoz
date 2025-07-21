@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order.OrdersWithoutShipment
 
 			References(x => x.Author).Column("author_id");
 			References(x => x.Client).Column("client_id");
+			References(x => x.Organization).Column("organization_id");
 
 			HasMany(x => x.OrderWithoutDeliveryForAdvancePaymentItems).Cascade
 				.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("bill_ws_for_advance_payment_id");

@@ -1,4 +1,8 @@
-﻿using ClosedXML.Report;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using ClosedXML.Report;
 using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.Presentation.ViewModels.Extensions
@@ -7,7 +11,10 @@ namespace Vodovoz.Presentation.ViewModels.Extensions
 	{
 		public static XLTemplate RenderTemplate(this IClosedXmlReport closedXmlReport, bool adjustColumnsToContents = true, bool adjustRowsToContents = true)
 		{
+			
+			
 			var template = closedXmlReport.GetRawTemplate();
+			
 			template.AddVariable(closedXmlReport);
 			template.Generate();
 

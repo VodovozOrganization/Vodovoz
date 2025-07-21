@@ -22,7 +22,7 @@ namespace DriverAPI.Library.V5.Services
 
 		public FastPaymentStatus? GetOrderFastPaymentStatus(int orderId, int? onlineOrder = null)
 		{
-			onlineOrder ??= _uow.GetById<Order>(orderId).OnlineOrder;
+			onlineOrder ??= _uow.GetById<Order>(orderId).OnlinePaymentNumber;
 
 			return _fastPaymentRepository.GetOrderFastPaymentStatus(_uow, orderId, onlineOrder);
 		}

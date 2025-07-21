@@ -9,9 +9,10 @@ namespace Vodovoz.Application.Orders.Services
 		Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder);
 
 		Order FillOrderFromOnlineOrder(
+			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			Employee employee = null,
+			Employee author = null,
 			bool manualCreation = false);
 	}
 }

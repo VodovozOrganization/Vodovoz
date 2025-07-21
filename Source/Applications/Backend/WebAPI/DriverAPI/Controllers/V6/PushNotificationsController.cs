@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6.Requests;
+﻿using DriverApi.Contracts.V6.Requests;
 using DriverAPI.Library.V6.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -352,7 +352,7 @@ namespace DriverAPI.Controllers.V6
 			}
 
 			return Problem($"Неизвестный запрос на уведомление водителя по заказу {orderId.Value}",
-				statusCode: StatusCodes.Status202Accepted);
+				statusCode: StatusCodes.Status422UnprocessableEntity);
 		}
 		
 		private async Task<IActionResult> NotifyOfOrderTransferFromHandToHand(
@@ -490,7 +490,6 @@ namespace DriverAPI.Controllers.V6
 		private async Task<IActionResult> NotifyOfRouteListContentChangedAsync(IUnitOfWork unitOfWork, int orderId)
 		{
 			var token = _apiRouteListService.GetActualDriverPushNotificationsTokenByOrderId(orderId);
-
 
 			if(string.IsNullOrWhiteSpace(token))
 			{

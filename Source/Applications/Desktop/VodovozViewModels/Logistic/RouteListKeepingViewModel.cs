@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -53,6 +53,7 @@ using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 using Vodovoz.ViewModels.TrueMark;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
@@ -80,6 +81,7 @@ namespace Vodovoz
 			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -109,6 +111,7 @@ namespace Vodovoz
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
 			IEdoSettings edoSettings,
 			MessageService messageService,
+			ICounterpartyEdoAccountController edoAccountController,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -131,8 +134,8 @@ namespace Vodovoz
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
-
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -568,7 +571,7 @@ namespace Vodovoz
 			   && !_currentPermissionService.ValidatePresetPermission(
 				   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				if((order.IsNeedIndividualSetOnLoad || order.IsNeedIndividualSetOnLoadForTender)
+				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
@@ -578,7 +581,7 @@ namespace Vodovoz
 				}
 
 				if(order.IsOrderForResale
-				   && !order.IsNeedIndividualSetOnLoad
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
 				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
@@ -589,7 +592,7 @@ namespace Vodovoz
 				
 				if(order.IsOrderForTender
 				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
-				   && !order.IsNeedIndividualSetOnLoad
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
 				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
@@ -889,7 +892,7 @@ namespace Vodovoz
 				return;
 			}
 			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id);
+			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		protected bool CanOpenOrderCodes()

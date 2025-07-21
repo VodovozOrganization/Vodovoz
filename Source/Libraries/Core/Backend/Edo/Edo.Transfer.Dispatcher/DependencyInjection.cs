@@ -20,7 +20,7 @@ namespace Edo.Transfer.Dispatcher
 			services
 				.AddEdo()
 				.AddEdoTransfer()
-				.AddEdoProblemRegistation()
+				.AddEdoProblemRegistration()
 				;
 
 			return services;

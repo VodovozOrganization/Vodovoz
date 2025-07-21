@@ -3,13 +3,10 @@ using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
-using Edo.Problems.Exception;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Exceptions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
@@ -21,7 +18,6 @@ using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
@@ -30,6 +26,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -47,6 +44,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
 		private readonly ISaveCodesService _saveCodesService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
@@ -71,6 +69,7 @@ namespace Edo.Receipt.Dispatcher
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IEdoOrderContactProvider edoOrderContactProvider,
 			ISaveCodesService saveCodesService,
+			IOrganizationSettings organizationSettings,
 			IBus messageBus
 			)
 		{
@@ -88,6 +87,7 @@ namespace Edo.Receipt.Dispatcher
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
 			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
@@ -135,13 +135,16 @@ namespace Edo.Receipt.Dispatcher
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
-
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
 				return;
 			}
+
+			var cashPaymentKulerService =
+				order.PaymentType == PaymentType.Cash
+				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
 
 			// принудительная отправка чека
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
@@ -153,7 +156,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// всегда отправлять чек клиенту
 			var hasAlwaysSend = receiptEdoTask.OrderEdoRequest.Order.Client.AlwaysSendReceipts;
-			if(hasAlwaysSend)
+			if(hasAlwaysSend && !cashPaymentKulerService)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
@@ -161,7 +164,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// проверка на наличие чека на сумму за сегодня
 			var hasReceiptOnSumToday = await HasReceiptOnSumToday(receiptEdoTask, cancellationToken);
-			if(!hasReceiptOnSumToday)
+			if(!hasReceiptOnSumToday && !cashPaymentKulerService)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
@@ -1056,7 +1059,7 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(NomenclatureEntity nomenclature, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			foreach(var gtin in nomenclature.Gtins.Reverse())
@@ -1068,10 +1071,13 @@ namespace Edo.Receipt.Dispatcher
 				catch(EdoCodePoolMissingCodeException ex) 
 				{
 					exception = ex;
-					problemGtins.Add(new EdoProblemGtinItem
+					if(!problemGtins.Any(x => x.Gtin == gtin))
 					{
-						Gtin = gtin
-					});
+						problemGtins.Add(new EdoProblemGtinItem
+						{
+							Gtin = gtin
+						});
+					}
 				}
 			}
 
@@ -1086,7 +1092,7 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			try
@@ -1096,10 +1102,13 @@ namespace Edo.Receipt.Dispatcher
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				problemGtins.Add(new EdoProblemGtinItem
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
-					Gtin = gtin
-				});
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
+				}
 			}
 
 			if(codeId == 0)

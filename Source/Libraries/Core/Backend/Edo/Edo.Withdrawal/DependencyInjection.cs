@@ -12,6 +12,16 @@ namespace Edo.Withdrawal
 {
 	public static class DependencyInjection
 	{
+		public static IServiceCollection AddEdoWithdrawalService(this IServiceCollection services)
+		{
+			services
+				.AddScoped<IEdoDocflowRepository, EdoDocflowRepository>()
+				.AddScoped<WithdrawalTaskCreatedHandler>()
+				.AddTrueMarkApiClient();
+
+			return services;
+		}
+
 		public static IServiceCollection AddEdoWithdrawal(this IServiceCollection services, IConfiguration configuration)
 		{
 			services.AddEdoMassTransit(configureBus: cfg =>
@@ -19,10 +29,7 @@ namespace Edo.Withdrawal
 				cfg.AddConsumer<WithdrawalTaskCreatedConsumer, WithdrawalTaskCreatedConsumerDefinition>();
 			});
 
-			services
-				.AddScoped<IEdoDocflowRepository, EdoDocflowRepository>()
-				.AddScoped<WithdrawalTaskCreatedHandler>()
-				.AddTrueMarkApiClient();
+			AddEdoWithdrawalService(services);
 
 			return services;
 		}

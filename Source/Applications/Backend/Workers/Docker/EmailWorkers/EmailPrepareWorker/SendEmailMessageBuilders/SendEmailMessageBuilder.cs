@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Controllers;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
@@ -20,6 +21,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		protected readonly IEmailSettings _emailSettings;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private EmailTemplate _template;
 		private readonly int _instanceId;
@@ -31,6 +33,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
 			IEmailDocumentPreparer emailDocumentPreparer,
+			ICounterpartyEdoAccountController edoAccountController,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId)
 		{
@@ -42,6 +45,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailDocumentPreparer = emailDocumentPreparer
 				?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_counterpartyEmail = counterpartyEmail
 				?? throw new ArgumentNullException(nameof(counterpartyEmail));
 			_instanceId = instanceId;
@@ -108,7 +112,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			}
 			else
 			{
-				_template = document.GetEmailTemplate();
+				_template = document.GetEmailTemplate(_edoAccountController);
 			}
 
 			_sendEmailMessage.Subject = $"{_template.Title} {document.Title}";

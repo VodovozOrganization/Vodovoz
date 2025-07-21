@@ -1,4 +1,5 @@
 using QS.DomainModel.Entity;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ExportTo1c
 {
@@ -8,23 +9,19 @@ namespace Vodovoz.ExportTo1c
 		public string Name{ get; set; }
 		public bool IsService{ get; set;}
 
-		public static NomenclatureType1c GoodsType { get; private set;}
-		public static NomenclatureType1c ServicesType { get; private set;}
-
-		static NomenclatureType1c()
+		public static NomenclatureType1c GoodsType(Export1cMode export1CMode) => new NomenclatureType1c
 		{
-			GoodsType = new NomenclatureType1c {
-				Id = 1,
-				Name = "Товары",
-				IsService = false
-			};
+			Id = 1,
+			Name = export1CMode == Export1cMode.ComplexAutomation ? "Товар" : "Товары",
+			IsService = false
+		};
 
-			ServicesType = new NomenclatureType1c {
-				Id = 2,
-				Name = "Услуги",
-				IsService = true
-			};
-		}
+		public static NomenclatureType1c ServicesType(Export1cMode export1CMode) => new NomenclatureType1c
+		{
+			Id = 2,
+			Name = export1CMode == Export1cMode.ComplexAutomation ? "Услуга" : "Услуги",
+			IsService = true
+		};
 	}
 }
 

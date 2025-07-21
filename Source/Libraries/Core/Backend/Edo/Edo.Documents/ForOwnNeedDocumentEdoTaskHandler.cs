@@ -273,12 +273,12 @@ namespace Edo.Documents
 				if(orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
 					var assignedQuantity = 0;
-					while(assignedQuantity < orderItem.Count)
+					while(assignedQuantity < orderItem.CurrentCount)
 					{
 						// Необходимо найти коды для номенклатуры на все кол-во
 						// и привязать их к инвентарной позиции УПД
 
-						var availableQuantity = orderItem.Count - assignedQuantity;
+						var availableQuantity = orderItem.CurrentCount - assignedQuantity;
 
 						// сначала ищем и назначем из групповых кодов
 
@@ -470,7 +470,7 @@ namespace Edo.Documents
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			try
@@ -480,10 +480,13 @@ namespace Edo.Documents
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				problemGtins.Add(new EdoProblemGtinItem
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
-					Gtin = gtin
-				});
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
+				}
 			}
 
 			if(codeId == 0)

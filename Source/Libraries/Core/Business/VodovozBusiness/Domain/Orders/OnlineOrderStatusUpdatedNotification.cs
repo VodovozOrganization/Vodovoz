@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? HttpCode { get; set; }
 		public virtual DateTime? SentDate { get; set; }
 		
-		public static OnlineOrderStatusUpdatedNotification CreateOnlineOrderStatusUpdatedNotification(OnlineOrder onlineOrder)
+		public static OnlineOrderStatusUpdatedNotification Create(OnlineOrder onlineOrder)
 		{
 			return new OnlineOrderStatusUpdatedNotification
 			{

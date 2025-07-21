@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -19,16 +21,16 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			int id = GetReferenceId(folder);
 
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("Код",
 					Common1cTypes.String,
 					folder.Code1c
-				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean,
-					"true"
 				)
 			);
+			
+			referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean, "true"));
+			
+			return referenceNode;
 		}
 
 		protected override PropertyNode[] GetProperties(Folder1c folder)
