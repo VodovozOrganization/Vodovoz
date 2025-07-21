@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -55,7 +55,7 @@ namespace Vodovoz.Representations
 			ICashRepository cashRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
-			Action<OrderJournalFilterViewModel> filterConfig = null)
+			Action<OrderJournalFilterViewModel> filterConfig = null) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -404,7 +404,10 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 						{
-							NavigationManager.OpenViewModel<PaymentByCardViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							NavigationManager.OpenViewModel<PaymentByCardViewModel, IEntityUoWBuilder>(
+								this,
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								OpenPageOptions.AsSlave);
 						}
 					}
 
@@ -427,7 +430,10 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 						{
-							NavigationManager.OpenViewModel<PaymentOnlineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							NavigationManager.OpenViewModel<PaymentOnlineViewModel, IEntityUoWBuilder>(
+								this,
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								OpenPageOptions.AsSlave);
 						}
 					}
 

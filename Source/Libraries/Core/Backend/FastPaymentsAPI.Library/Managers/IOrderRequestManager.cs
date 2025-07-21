@@ -3,6 +3,7 @@ using FastPaymentsApi.Contracts.Responses;
 using System;
 using System.Threading.Tasks;
 using FastPaymentsApi.Contracts;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
@@ -16,7 +17,7 @@ namespace FastPaymentsAPI.Library.Managers
 		Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto,
 			Organization organization,
-			RequestFromType requestFromType);
+			FastPaymentRequestFromType fastPaymentRequestFromType);
 		Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization);
 		Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization);
 	}

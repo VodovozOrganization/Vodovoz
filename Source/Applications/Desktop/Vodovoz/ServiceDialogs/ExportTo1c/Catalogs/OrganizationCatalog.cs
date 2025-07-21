@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -19,12 +21,22 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		public override ReferenceNode CreateReferenceTo(Organization organization)
 		{
 			int id = GetReferenceId(organization);
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("ИНН",
 					Common1cTypes.String,
 					organization.INN
-				)		
+				)
 			);
+
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				referenceNode.Properties.Add(
+					new PropertyNode("КПП",
+						Common1cTypes.String,
+						organization.KPP));
+			}
+			
+			return referenceNode;
 		}
 
 		protected override PropertyNode[] GetProperties(Organization organization)
@@ -58,20 +70,28 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.String,
 					organization.OGRN
 				)
-			);		
-			
-			properties.Add(
-				new PropertyNode("КПП",
-					Common1cTypes.String,
-					organization.KPP
-				)
 			);
-			properties.Add(
-				new PropertyNode("ВидСтавокЕСНиПФР",
-					"ПеречислениеСсылка.УдалитьВидыСтавокЕСНиПФР",
-					"ДляНеСельскохозяйственныхПроизводителей"
-				)
-			);
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("КПП",
+						Common1cTypes.String,
+						organization.KPP
+					)
+				);
+			}
+
+			if(exportData.ExportMode != Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("ВидСтавокЕСНиПФР",
+						"ПеречислениеСсылка.УдалитьВидыСтавокЕСНиПФР",
+						"ДляНеСельскохозяйственныхПроизводителей"
+					)
+				);
+			}
+
 			properties.Add(
 				new PropertyNode("ЮридическоеФизическоеЛицо",
 					Common1cTypes.EnumNaturalOrLegal,

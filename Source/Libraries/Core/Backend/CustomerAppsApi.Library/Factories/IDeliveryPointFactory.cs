@@ -12,6 +12,6 @@ namespace CustomerAppsApi.Library.Factories
 		DeliveryPoint CreateNewDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto);
 		DeliveryPointsDto CreateDeliveryPointsDto(IEnumerable<DeliveryPointForSendNode> deliveryPointsForSend);
 		DeliveryPointsDto CreateErrorDeliveryPointsInfo(string errorMessage);
-		DeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId);
+		CreatedDeliveryPointDto CreateDeliveryPointDto(NewDeliveryPointInfoDto newDeliveryPointInfoDto, int deliveryPointId);
 	}
 }

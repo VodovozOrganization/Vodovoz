@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Core.Infrastructure;
 using Gamma.ColumnConfig;
 using Microsoft.Extensions.Logging;
 using NHibernate.Engine;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
+using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Extensions;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Views.Orders
 {
@@ -90,7 +95,7 @@ namespace Vodovoz.Views.Orders
 			lblOrder.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanShowOrder, w => w.Visible)
-				.AddBinding(vm => vm.Order, w => w.LabelProp)
+				.AddBinding(vm => vm.Orders, w => w.LabelProp)
 				.InitializeFromSource();
 			
 			lblStatus.Binding
@@ -291,36 +296,27 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.GetDiscount > 0)
+					if(node.DiscountReason != null)
 					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery)
-					{
-						if(node.DiscountReason != null)
+						if(node.Nomenclature != null
+							&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
 						{
-							if(node.Nomenclature != null
-							   && !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
-							
-							if(node.GetDiscount != node.DiscountReason.Value)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
-						else
+							
+						if(node.GetDiscount != node.DiscountReason.Value)
 						{
-							if(node.GetDiscount > 0)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+					}
+					else
+					{
+						if(node.GetDiscount > 0)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 					}
 					
@@ -335,41 +331,32 @@ namespace Vodovoz.Views.Orders
 				.Editing(false)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.IsDiscountInMoney)
+					if(node.DiscountReason != null)
 					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery)
-					{
-						if(node.DiscountReason != null)
+						switch(node.DiscountReason.ValueType)
 						{
-							switch(node.DiscountReason.ValueType)
-							{
-								case DiscountUnits.money:
-									if(!node.IsDiscountInMoney)
-									{
-										cell.CellBackgroundGdk = GdkColors.DangerBase;
-										return;
-									}
-									break;
-								case DiscountUnits.percent:
-									if(node.IsDiscountInMoney)
-									{
-										cell.CellBackgroundGdk = GdkColors.DangerBase;
-										return;
-									}
-									break;
-							}
+							case DiscountUnits.money:
+								if(!node.IsDiscountInMoney)
+								{
+									cell.CellBackgroundGdk = GdkColors.DangerBase;
+									return;
+								}
+								break;
+							case DiscountUnits.percent:
+								if(node.IsDiscountInMoney)
+								{
+									cell.CellBackgroundGdk = GdkColors.DangerBase;
+									return;
+								}
+								break;
 						}
-						else
+					}
+					else
+					{
+						if(node.IsDiscountInMoney)
 						{
-							if(node.IsDiscountInMoney)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 					}
 					
@@ -382,14 +369,7 @@ namespace Vodovoz.Views.Orders
 				.AddTextRenderer(node => node.DiscountReason != null ? node.DiscountReason.Name : string.Empty)
 				.AddSetter((cell, node) =>
 				{
-					if(!node.OnlineOrder.IsSelfDelivery && node.DiscountReason != null)
-					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
-					}
-
-					if(node.OnlineOrder.IsSelfDelivery
-						&& node.Nomenclature != null
+					if(node.Nomenclature != null
 						&& node.DiscountReason != null
 						&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
 					{
@@ -480,11 +460,11 @@ namespace Vodovoz.Views.Orders
 
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
-			var page = (ViewModel.NavigationManager as ITdiCompatibilityNavigation)
-				.OpenTdiTabOnTdi<OrderDlg, OnlineOrder>(Tab, ViewModel.Entity, OpenPageOptions.AsSlave);
+			var navigation = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
+			var page = navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
 			page.PageClosed += OnOrderTabClosed;
 		}
-		
+
 		private void OnOrderTabClosed(object sender, EventArgs e)
 		{
 			var page = sender as ITdiPage;
@@ -509,9 +489,21 @@ namespace Vodovoz.Views.Orders
 					"Обновляем данные онлайн заказа {OnlineOrderId} после выставления заказа {OrderId}",
 					ViewModel.Entity.Id,
 					orderId);
-				
-				var order = ViewModel.UoW.GetById<Order>(orderId);
-				ViewModel.Entity.SetOrderPerformed(order);
+
+				var savedOrder = ViewModel.UoW.GetById<Order>(orderId);
+				IEnumerable<Order> orders = null;
+
+				if(!string.IsNullOrWhiteSpace(savedOrder.OrderPartsIds))
+				{
+					orders = savedOrder.OrderPartsIds.ParseNumbers().Select(x => ViewModel.UoW.GetById<Order>(x)).ToList();
+				}
+				else
+				{
+					orders = new[] { savedOrder };
+				}
+
+				ViewModel.Entity.SetOrderPerformed(orders);
+
 				var notification = ViewModel.CreateNewNotification();
 				ViewModel.UoW.Save(notification);
 				ViewModel.Save(true);

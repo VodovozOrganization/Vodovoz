@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
@@ -23,30 +24,48 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			int id = GetReferenceId(contract);
 
-			if(exportData.ExportMode == Export1cMode.BuhgalteriaOOO && contract.Organization.INN != "7816453294")
-				exportData.Errors.Add($"Выгрузка в 1с возможна только для организации ООО \"Весёлый водовоз\" (ИНН 7816453294). Договор {contract.Title} оформлен на дугую организацию.");
+			if((exportData.ExportMode == Export1cMode.BuhgalteriaOOO || exportData.ExportMode == Export1cMode.ComplexAutomation)
+			   && contract.Organization.INN != "7816453294")
+			{
+				exportData.Errors.Add(
+					$"Выгрузка в 1с возможна только для организации ООО \"Весёлый водовоз\" (ИНН 7816453294). Договор {contract.Title} оформлен на дугую организацию.");
+			}
 
-			return new ReferenceNode(id,
+			var referenceNode = new ReferenceNode(id,
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
 				                 contract.TitleIn1c
 				),
-				new PropertyNode("ЭтоГруппа",
-					Common1cTypes.Boolean
-				),
-				new PropertyNode("Владелец",
-					Common1cTypes.ReferenceCounterparty,
-					exportData.CounterpartyCatalog.CreateReferenceTo(contract.Counterparty)
-				),
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
 				                 exportData.OrganizationCatalog.CreateReferenceTo(contract.Organization)
-				),
-				new PropertyNode("ВидДоговора",
-					Common1cTypes.EnumContractType,
-					"СПокупателем"
 				)
 			);
+
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				referenceNode.Properties.Add(new PropertyNode("ТипДоговора", Common1cTypes.EnumContractType(exportData.ExportMode), "СПокупателем"));
+				
+				referenceNode.Properties.Add(
+					new PropertyNode(
+						"Контрагент",
+						Common1cTypes.ReferenceCounterparty,
+						exportData.CounterpartyCatalog.CreateReferenceTo(contract.Counterparty)));
+			}
+			else
+			{
+				referenceNode.Properties.Add(new PropertyNode("ЭтоГруппа", Common1cTypes.Boolean));
+
+				referenceNode.Properties.Add(new PropertyNode("ВидДоговора", Common1cTypes.EnumContractType(exportData.ExportMode), "СПокупателем"));
+
+				referenceNode.Properties.Add(
+					new PropertyNode(
+						"Владелец",
+						Common1cTypes.ReferenceCounterparty,
+						exportData.CounterpartyCatalog.CreateReferenceTo(contract.Counterparty)));
+			}
+
+			return referenceNode;
 		}
 
 		public ReferenceNode CreateReferenceToContract(Domain.Orders.Order order)
@@ -66,34 +85,52 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		protected override PropertyNode[] GetProperties(CounterpartyContract contract)
 		{
 			var properties = new List<PropertyNode>();
-			properties.Add(
-				new PropertyNode("Родитель",
-					Common1cTypes.ReferenceContract
-				)
-			);
+			
+			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
+			{
+				properties.Add(
+					new PropertyNode("Номер",
+						Common1cTypes.String,
+						contract.Number
+					)
+				);
+			}
+			else
+			{
+				properties.Add(
+					new PropertyNode("Родитель",
+						Common1cTypes.ReferenceContract
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("ТипЦен",
+						Common1cTypes.ReferencePriceType
+					)
+				);
+				
+				// TODO WTF!!! там 2 таких: один - null, другой true
+				properties.Add(
+					new PropertyNode("РасчетыВУсловныхЕдиницах",
+						Common1cTypes.Boolean
+					)
+				);
+				
+				properties.Add(
+					new PropertyNode("Код",
+						Common1cTypes.String,
+						contract.Number
+					)
+				);
+			}
+
 			properties.Add(
 				new PropertyNode("ВалютаВзаиморасчетов",
 					Common1cTypes.ReferenceCurrency,
 					exportData.CurrencyCatalog.CreateReferenceTo(Currency.Default)
 				)
 			);
-			properties.Add(
-				new PropertyNode("ТипЦен",
-					Common1cTypes.ReferencePriceType
-				)
-			);
-			// TODO WTF!!! там 2 таких: один - null, другой true
-			properties.Add(
-				new PropertyNode("РасчетыВУсловныхЕдиницах",
-					Common1cTypes.Boolean
-				)
-			);
-			properties.Add(
-				new PropertyNode("Код",
-					Common1cTypes.String,
-				                 contract.Number
-				)
-			);
+
 			return properties.ToArray();
 		}
 	}

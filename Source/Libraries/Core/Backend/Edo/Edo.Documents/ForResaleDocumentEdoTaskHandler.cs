@@ -222,9 +222,9 @@ namespace Edo.Documents
 				}
 
 				var assignedQuantity = 0;
-				while(assignedQuantity < orderItem.Count)
+				while(assignedQuantity < orderItem.CurrentCount)
 				{
-					var availableQuantity = orderItem.Count - assignedQuantity;
+					var availableQuantity = orderItem.CurrentCount - assignedQuantity;
 
 					var availableGroupGtins = orderItem.Nomenclature.GroupGtins
 						.Where(x => x.CodesCount <= availableQuantity)

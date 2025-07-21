@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Tender;
+using Edo.Withdrawal;
 using Taxcom.Docflow.Utility;
 
 namespace CustomTaskDebugExecutor
@@ -107,6 +108,10 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("19. TransferCompleteEvent (для Тендера) - [Edo.Tender]");
 			Console.WriteLine("   Продолжение обработки после трансфера задачи на отправку Тендера клиенту");
 			Console.WriteLine();
+			
+			Console.WriteLine("20. WithdrawalTaskCreatedEvent (для Вывода из оборота) - [Edo.Withdrawal]");
+			Console.WriteLine("    Первичная подготовка данных в задаче на отправку документа вывода из оборота");
+			Console.WriteLine();
 
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
@@ -169,6 +174,9 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 19:
 					await ReceiveTenderTransferCompleteEvent(cancellationToken);
+					break;
+				case 20:
+					await ReceiveWithdrawalCreateEvent(cancellationToken);
 					break;
 				default:
 					break;
@@ -505,6 +513,25 @@ and ecr.source != 'Manual'
 				await Task.WhenAll(events);
 			}
 		}
+
+		private async Task ReceiveWithdrawalCreateEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Withdrawal (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<WithdrawalTaskCreatedHandler>();
+			await service.HandleWithdrawal(id, cancellationToken);
+		}
+		
 
 		private async Task RehandleTaxcomAcceptDocuments(CancellationToken cancellationToken)
 		{

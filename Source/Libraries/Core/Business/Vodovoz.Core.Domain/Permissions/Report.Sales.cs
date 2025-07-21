@@ -17,6 +17,12 @@ namespace Vodovoz.Core.Domain.Permissions
 			/// </summary>
 			[Display(Name = "Доступ к финансовой отчетности компании")]
 			public static string CanAccessSalesReports => "can_access_sales_reports";
+
+			/// <summary>
+			/// Просмотр продаж с чеками в отчётах
+			/// </summary>
+			[Display(Name = "Просмотр продаж с чеками в отчётах")]
+			public static string CanViewReportSalesWithCashReceipts => "CanViewReportSalesWithCashReceipts";
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Edo.Transport;
+using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +10,7 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
@@ -52,7 +53,8 @@ namespace WarehouseApi.Library
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory, CallTaskSingletonFactory>()
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
-				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
+				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
+				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			services
 				.AddMessageTransportSettings()

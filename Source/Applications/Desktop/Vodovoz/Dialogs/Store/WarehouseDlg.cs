@@ -17,13 +17,15 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz
 {
+	[Obsolete("Проверить соответствие с WarehouseView, если все ровно - удалить этот класс и все перевести на View" +
+		"если нет - доработать и опять же все перевести на View")]
 	public partial class WarehouseDlg : QS.Dialog.Gtk.EntityDialogBase<Warehouse>, INotifyPropertyChanged
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 		private readonly ILifetimeScope _lifetimeScope;
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private Subdivision _owningSubdivision;
-		private Warehouse _movementDocumentsNotificationsSubdivisionRecipient;
+		private Subdivision _movementDocumentsNotificationsSubdivisionRecipient;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -116,10 +118,10 @@ namespace Vodovoz
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 		public INavigationManager NavigationManager { get; }
 
-		public Warehouse MovementDocumentsNotificationsSubdivisionRecipient
+		public Subdivision MovementDocumentsNotificationsSubdivisionRecipient
 		{
-			get => GetIdRefField<Warehouse, Warehouse>(ref _movementDocumentsNotificationsSubdivisionRecipient, Entity.MovementDocumentsNotificationsSubdivisionRecipientId);
-			set => SetIdRefField<Warehouse, Warehouse>(SetField, ref _movementDocumentsNotificationsSubdivisionRecipient, () => Entity.MovementDocumentsNotificationsSubdivisionRecipientId, value);
+			get => GetIdRefField<Subdivision, Subdivision>(ref _movementDocumentsNotificationsSubdivisionRecipient, Entity.MovementDocumentsNotificationsSubdivisionRecipientId);
+			set => SetIdRefField<Subdivision, Subdivision>(SetField, ref _movementDocumentsNotificationsSubdivisionRecipient, () => Entity.MovementDocumentsNotificationsSubdivisionRecipientId, value);
 		}
 
 		public Subdivision OwningSubdivision
