@@ -112,6 +112,7 @@ using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
+using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 
 namespace Vodovoz
 {
