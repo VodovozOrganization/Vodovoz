@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -31,6 +31,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Logistic;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -437,6 +438,30 @@ namespace Vodovoz.Representations
 						}
 					}
 
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Изменить самовывоз",
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						return selectedNodes.Count() == 1;
+					},
+					selectedItems => true,
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+						{
+							NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
+								this,
+								EntityUoWBuilder.ForOpen(selectedNode.Id),
+								OpenPageOptions.AsSlave);
+						}
+					}
 				)
 			);
 		}
