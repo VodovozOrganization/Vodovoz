@@ -2109,6 +2109,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
+    <Compile Include="Views\Logistic\SelfDeliveringOrderEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
