@@ -1,20 +1,12 @@
-﻿using DocumentFormat.OpenXml.Presentation;
-using FluentNHibernate.Data;
-using Gamma.GtkWidgets.Cells;
+﻿using Gamma.Utilities;
 using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using QSWidgetLib;
-using ReactiveUI;
-using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
+
 namespace Vodovoz.Views.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -43,9 +35,6 @@ namespace Vodovoz.Views.Logistic
 			ycheckbuttonPaymentAfterShipment.Binding
 				.AddBinding(ViewModel.Entity, e => e.PayAfterShipment, w => w.Active)
 				.InitializeFromSource();
-			//Не Работает
-			//specialListCmbSelfDeliveryGeoGroup.Binding.AddBinding(ViewModel.Entity, e => e.SelfDeliveryGeoGroup, w => w.SelectedItem)
-			//	.InitializeFromSource();
 
 			specialListCmbSelfDeliveryGeoGroup.ItemsList = ViewModel.GetSelfDeliveryGeoGroups();
 			specialListCmbSelfDeliveryGeoGroup.Binding
@@ -53,11 +42,14 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(e => e.SelfDelivery, w => w.Visible)
 				.InitializeFromSource();
 
-			//yentryPaymentType.Binding
-			//	.AddBinding(ViewModel.Entity, e => e.PaymentType, w => w.Text)
-			//	.InitializeFromSource();
+			yentryPaymentType.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.PaymentType.GetEnumTitle(), w => w.Text)
+				.InitializeFromSource();
 
 			buttonSelectPaymentType.BindCommand(ViewModel.PaymentTypeCommand);
+			/*buttonSelectPaymentType.Sensitive = true;
+			buttonSelectPaymentType.Clicked += (sender, e) =>
+				ViewModel.PaymentTypeCommand.Execute(new object[] { sender, e });*/
 
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
@@ -113,13 +105,9 @@ namespace Vodovoz.Views.Logistic
 					.SetDisplayFunc(x => x.Name)
 					.DynamicFillListFunc(item =>
 					{
-						var orderReasons = ViewModel.Entity.OrderItems
-							.Select(oi => oi.DiscountReason)
-							.Where(dr => dr != null)
-							.Distinct()
-							.ToList();
-
-						return orderReasons;
+						var list = ViewModel.DiscountReasons.Where(
+								dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
+						return list;
 					})
 					.EditedEvent(ViewModel.OnDiscountReasonComboEdited)
 					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
