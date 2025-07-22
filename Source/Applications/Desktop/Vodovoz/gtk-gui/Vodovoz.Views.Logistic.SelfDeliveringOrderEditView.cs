@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient1;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPaymentAfterShipment;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPayAfterShipment;
 
 		private global::Gtk.HBox hbox3;
 
@@ -41,6 +41,8 @@ namespace Vodovoz.Views.Logistic
 		private global::Gtk.HBox hbox8;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPaymentNumber;
+
+		private global::Gamma.GtkWidgets.yEntry yentryPaymentNumber;
 
 		private global::Gtk.Frame frameOrderItems;
 
@@ -112,21 +114,23 @@ namespace Vodovoz.Views.Logistic
 			this.hbox2.Add(this.entityVMEntryClient1);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityVMEntryClient1]));
 			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.ycheckbuttonPaymentAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonPaymentAfterShipment.CanFocus = true;
-			this.ycheckbuttonPaymentAfterShipment.Name = "ycheckbuttonPaymentAfterShipment";
-			this.ycheckbuttonPaymentAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
-			this.ycheckbuttonPaymentAfterShipment.Active = true;
-			this.ycheckbuttonPaymentAfterShipment.DrawIndicator = true;
-			this.ycheckbuttonPaymentAfterShipment.UseUnderline = true;
-			this.vbox1.Add(this.ycheckbuttonPaymentAfterShipment);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPaymentAfterShipment]));
+			this.ycheckbuttonPayAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonPayAfterShipment.CanFocus = true;
+			this.ycheckbuttonPayAfterShipment.Name = "ycheckbuttonPayAfterShipment";
+			this.ycheckbuttonPayAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
+			this.ycheckbuttonPayAfterShipment.Active = true;
+			this.ycheckbuttonPayAfterShipment.DrawIndicator = true;
+			this.ycheckbuttonPayAfterShipment.UseUnderline = true;
+			this.vbox1.Add(this.ycheckbuttonPayAfterShipment);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPayAfterShipment]));
 			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
@@ -234,11 +238,22 @@ namespace Vodovoz.Views.Logistic
 			w18.Position = 0;
 			w18.Expand = false;
 			w18.Fill = false;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
-			w19.Position = 4;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.yentryPaymentNumber = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryPaymentNumber.CanFocus = true;
+			this.yentryPaymentNumber.Name = "yentryPaymentNumber";
+			this.yentryPaymentNumber.IsEditable = true;
+			this.yentryPaymentNumber.InvisibleChar = '•';
+			this.hbox8.Add(this.yentryPaymentNumber);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryPaymentNumber]));
+			w19.Position = 1;
 			w19.Expand = false;
 			w19.Fill = false;
+			this.vbox1.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
+			w20.Position = 4;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frameOrderItems = new global::Gtk.Frame();
 			this.frameOrderItems.Name = "frameOrderItems";
@@ -254,10 +269,10 @@ namespace Vodovoz.Views.Logistic
 			this.GtkAlignment43.Add(this.treeItems);
 			this.frameOrderItems.Add(this.GtkAlignment43);
 			this.vbox1.Add(this.frameOrderItems);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
-			w22.Position = 5;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
+			w23.Position = 5;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
