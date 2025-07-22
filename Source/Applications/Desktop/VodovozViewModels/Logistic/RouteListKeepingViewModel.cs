@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
@@ -20,6 +19,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using QS.Extensions.Observable.Collections.List;
@@ -48,6 +49,7 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 using Vodovoz.ViewModels.TrueMark;
@@ -80,6 +82,7 @@ namespace Vodovoz
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -108,7 +111,8 @@ namespace Vodovoz
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
 			IEdoSettings edoSettings,
 			MessageService messageService,
-			ICounterpartyEdoAccountController edoAccountController)
+			ICounterpartyEdoAccountController edoAccountController,
+			IRouteListChangesNotificationSender routeListChangesNotificationSender)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -131,7 +135,7 @@ namespace Vodovoz
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
-
+			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -610,6 +614,25 @@ namespace Vodovoz
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
+
+			var notificationRequest = new NotificationRouteListChangesRequest
+			{
+				OrderId = e.UndeliveredOrder.OldOrder.Id ,
+				PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
+			};
+
+			var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
+
+			if(!result.IsSuccess)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					string.Join(", ",
+					result.Errors
+					.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+					.Select(x => x.Message))
+					);
+			}
 		}
 
 		private void OnForwarderChanged(object sender, EventArgs e)
