@@ -954,12 +954,20 @@ SELECT
     END AS doc_status,
     p.payment_purpose AS payment_description
 FROM payments_from_bank_client p
-    LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+INNER JOIN payment_items pi ON pi.payment_id = p.id
+INNER JOIN orders o ON o.id = pi.order_id
+INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+INNER JOIN organizations org ON cc.organization_id = org.id
 WHERE
     p.counterparty_id = @counterparty_id
   AND p.status != 'Cancelled'
   AND (@start_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &gt;= @start_date)
   AND (@end_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &lt;= @end_date)
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
 ORDER BY date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
