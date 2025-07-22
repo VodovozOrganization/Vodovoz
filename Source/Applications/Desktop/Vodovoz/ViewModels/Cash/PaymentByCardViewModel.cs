@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,6 +12,8 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
@@ -27,6 +29,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IInteractiveService _interactiveService;
 
 		public PaymentByCardViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -37,7 +40,8 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOrderContractUpdater contractUpdater,
-			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IEmployeeService employeeService,
+			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderSettings == null)
 			{
@@ -50,9 +54,10 @@ namespace Vodovoz.ViewModels.Cash
 
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
-			_currentEmployee = 
+			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForCurrentUser(UoW);
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			TabName = "Оплата по карте";
 
@@ -79,22 +84,43 @@ namespace Vodovoz.ViewModels.Cash
 
 		public bool CanSave => Entity.OnlinePaymentNumber != null;
 
+		protected override bool BeforeSave()
+		{
+			bool isUnshippedSelfDeliveryWithPayAfterShipment = Entity.PayAfterShipment
+				&& Entity.SelfDelivery
+				&& Entity.OrderStatus != OrderStatus.OnLoading;
+
+			if(!isUnshippedSelfDeliveryWithPayAfterShipment)
+			{
+				return true;
+			}
+
+			if(!_interactiveService.Question(
+				"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+				"Внимание"))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
 		private void SaveHandler()
 		{
 			if(Entity.SelfDelivery)
 			{
 				if(!Save(false))
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
 					return;
 				}
 
 				var document = Entity.OrderDocuments
-					.FirstOrDefault(x =>
-						x.Type == OrderDocumentType.Invoice
-						|| x.Type == OrderDocumentType.InvoiceBarter
-						|| x.Type == OrderDocumentType.InvoiceContractDoc)
-					as IPrintableRDLDocument;
+						.FirstOrDefault(x =>
+							x.Type == OrderDocumentType.Invoice
+							|| x.Type == OrderDocumentType.InvoiceBarter
+							|| x.Type == OrderDocumentType.InvoiceContractDoc)
+						as IPrintableRDLDocument;
 
 				var page = NavigationManager
 					.OpenViewModel<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
