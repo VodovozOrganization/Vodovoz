@@ -1005,21 +1005,21 @@ namespace Vodovoz.Application.Logistics
 
 			return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 		}
-
+		
 		public Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress)
 		{
-			var transferItems = _routeListAddressTransferItemRepository.Get(
+			var transferItemsWithOldAddress = _routeListAddressTransferItemRepository.Get(
 				unitOfWork,
 				atdi => atdi.OldAddress.Order.Id == routeListAddress.Order.Id)
 					.OrderByDescending(atdi => atdi.Id);
 
 			RouteListItem source = null;
 
-			bool targetFound = false;
+			bool targetWithNewAddressFound = false;
 
-			var targetTransferItem = transferItems.FirstOrDefault(ti => ti.NewAddress.Id == routeListAddress.Id);
+			var lastTargetTransferItemWithNewAddress = transferItemsWithOldAddress.FirstOrDefault(ti => ti.NewAddress.Id == routeListAddress.Id);
 
-			if(targetTransferItem is null)
+			if(lastTargetTransferItemWithNewAddress is null)
 			{
 				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
@@ -1030,36 +1030,36 @@ namespace Vodovoz.Application.Logistics
 				return Result.Failure<RouteListItem>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
 			}
 
-			foreach(var transferItem in transferItems)
+			foreach(var transferItemWithOldAddress in transferItemsWithOldAddress)
 			{
-				if(!targetFound)
+				if(!targetWithNewAddressFound)
 				{
-					if(transferItem.Id != targetTransferItem.Id)
+					if(transferItemWithOldAddress.Id != lastTargetTransferItemWithNewAddress.Id)
 					{
 						continue;
 					}
 
-					targetFound = true;
+					targetWithNewAddressFound = true;
 				}
-
-				if(transferItem.AddressTransferType != AddressTransferType.FromHandToHand)
+				
+				if(transferItemWithOldAddress.AddressTransferType != AddressTransferType.FromHandToHand)
 				{
 					break;
 				}
 
-				if(transferItem.OldAddress.RecievedTransferAt != null)
+				if(transferItemWithOldAddress.OldAddress.RecievedTransferAt != null)
 				{
-					source = transferItem.OldAddress;
+					source = transferItemWithOldAddress.OldAddress;
 					break;
 				}
 
-				if(transferItem == transferItems.Last())
+				if(transferItemWithOldAddress == transferItemsWithOldAddress.Last())
 				{
-					source = transferItem.OldAddress;
+					source = transferItemWithOldAddress.OldAddress;
 					break;
 				}
 
-				source = transferItem.OldAddress;
+				source = transferItemWithOldAddress.OldAddress;
 			}
 
 			if(source != null && source.RouteList.Id == routeListAddress.RouteList.Id)

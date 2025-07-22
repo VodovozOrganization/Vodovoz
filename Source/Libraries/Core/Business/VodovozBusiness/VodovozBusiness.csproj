@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
@@ -132,6 +132,7 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\Edo\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
       <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>

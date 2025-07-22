@@ -1193,6 +1193,10 @@
       <Project>{08476744-5B1E-4140-A351-8EF107183230}</Project>
       <Name>GeoCoderApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj">
+      <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
+      <Name>DriverApi.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
       <Name>Edo.Transport</Name>
