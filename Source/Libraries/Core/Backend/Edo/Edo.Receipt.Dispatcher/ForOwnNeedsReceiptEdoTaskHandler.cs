@@ -1130,23 +1130,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask,
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return IndustryRequisitePrepareResult.Problem;
-			}
-
-			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return IndustryRequisitePrepareResult.Problem;
-			}
+			var regulatoryDocument =
+				_uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
 
 			bool isValid = true;
 
@@ -1167,6 +1152,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask,
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return IndustryRequisitePrepareResult.Problem;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return IndustryRequisitePrepareResult.Problem;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
@@ -1220,10 +1222,8 @@ namespace Edo.Receipt.Dispatcher
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
 				return IndustryRequisitePrepareResult.Succeeded;
 			}
-			else
-			{
-				return IndustryRequisitePrepareResult.NeedToChange;
-			}
+
+			return IndustryRequisitePrepareResult.NeedToChange;
 		}
 
 		private EdoFiscalDocument PrepareFiscalDocument(ReceiptEdoTask receiptEdoTask, int documentIndex)
