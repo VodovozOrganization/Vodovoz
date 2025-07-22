@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
@@ -16,6 +17,17 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = "Редактирование самовывоза";
+			var t = Entity.GetNomenclaturesWithFixPrices;
+			var e = Entity;
+		
+		}
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseCommand { get; }
+
+		protected override bool BeforeSave()
+		{
+
+			return base.BeforeSave();
 		}
 	}
 }
