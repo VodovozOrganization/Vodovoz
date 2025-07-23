@@ -19,13 +19,18 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
@@ -41,6 +46,8 @@ namespace Vodovoz.Representations
 		private readonly ILogger<SelfDeliveriesJournalViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly ICashRepository _cashRepository;
+		private readonly IGenericRepository<Income> _incomeRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _userCanChangePayTypeToByCard;
 
@@ -54,14 +61,18 @@ namespace Vodovoz.Representations
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICashRepository cashRepository,
+			IOrderRepository orderRepository,
+			IGenericRepository<Income> incomeRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
-			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_incomeRepository = incomeRepository ?? throw new ArgumentNullException(nameof(incomeRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -456,10 +467,44 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 						{
-							NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
-								this,
-								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								OpenPageOptions.AsSlave);
+							using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+							{
+								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
+
+								var income = _incomeRepository.Get(uow, x => x.Order.Id == order.Id)
+									.Take(1)
+									.SingleOrDefault();
+
+								var edoUpd = _orderRepository
+									.GetEdoContainersByOrderId(uow, order.Id)
+									.Where(x => x.Type == DocumentContainerType.Upd)
+									.FirstOrDefault();
+
+								if(income != null || edoUpd != null)
+								{
+									var message = "Для изменения самовывоза необходимо сперва ";
+									if(income != null)
+									{
+										message += $"удалить ПКО №{income.Id}";
+										if(edoUpd != null)
+										{
+											message += " или аннулировать УПД по ЭДО";
+										}
+									}
+									else
+									{
+										message += $"аннулировать УПД по ЭДО №{edoUpd.Id}";
+									}
+
+									_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+									return;
+								}
+
+								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
+									this,
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									OpenPageOptions.AsSlave);
+							}
 						}
 					}
 				)

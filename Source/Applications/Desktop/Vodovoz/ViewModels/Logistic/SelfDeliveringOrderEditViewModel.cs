@@ -72,6 +72,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 
+			_discountReasons = _canChoosePremiumDiscount
+				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
+				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+
 			var orderDate = Entity.DeliveryDate.HasValue 
 				? Entity.DeliveryDate.Value.ToString("dd.MM.yyyy") 
 				: "дата не указана";
@@ -82,10 +86,6 @@ namespace Vodovoz.ViewModels.Logistic
 			PaymentTypeCommand = new DelegateCommand(() => OnSelectPaymentTypeClicked());
 
 			SetPermissions();
-
-			_discountReasons = _canChoosePremiumDiscount
-				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
-				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 		}
 
 		public void OnSpinPriceEdited(object o, EditedArgs args)
