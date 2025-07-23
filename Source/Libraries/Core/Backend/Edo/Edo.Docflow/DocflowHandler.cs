@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Edo.Docflow
 {
@@ -117,13 +119,14 @@ namespace Edo.Docflow
 			{
 				case CustomerEdoRequestType.Order:
 					var order = documentTask.OrderEdoRequest.Order;
-					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id);
-					var filteredPayments = 
-						payments.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
-						.Distinct();
+					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id)
+						.Select(payment => payment.GetFirstParentRefundedPaymentOrCurrent())
+						.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
+						.Distinct()
+						.ToList();
 					
 					sender = order.Contract.Organization;
-					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments, cancellationToken);
+					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, payments, cancellationToken);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
