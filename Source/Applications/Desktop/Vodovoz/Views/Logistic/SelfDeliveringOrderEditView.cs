@@ -3,6 +3,7 @@ using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
@@ -49,6 +50,13 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSelectPaymentType.BindCommand(ViewModel.PaymentTypeCommand);
 
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
+				.InitializeFromSource();
+
 			yentryPaymentNumber.Binding
 				.AddBinding(ViewModel.Entity,
 				e => e.OnlinePaymentNumber,
@@ -79,7 +87,9 @@ namespace Vodovoz.Views.Logistic
 					.AddSetter((c, n) =>
 					{
 						if(ViewModel.Entity.OrderStatus == OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus == OrderStatus.NotDelivered)
+						{
 							c.Text = CurrencyWorks.GetShortCurrencyString(n.OriginalSum);
+						}
 					}
 					)
 				.AddColumn("Скидка")

@@ -70,18 +70,18 @@ namespace Vodovoz.ViewModels.Logistic
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 
-			TabName = "Редактирование самовывоза";
+			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 
-			SaveCommand = new DelegateCommand(
-				() => Save(),
-				() => BeforeSave());
-			CloseCommand = new DelegateCommand(() => Console.WriteLine());
+			var orderDate = Entity.DeliveryDate.HasValue 
+				? Entity.DeliveryDate.Value.ToString("dd.MM.yyyy") 
+				: "дата не указана";
+			TabName = $"Редактирование самовывоза №{Entity.Id} от {orderDate}";
 
+			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.ClosePage));
 			PaymentTypeCommand = new DelegateCommand(() => OnSelectPaymentTypeClicked());
 
 			SetPermissions();
-
-			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 
 			_discountReasons = _canChoosePremiumDiscount
 				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
@@ -99,6 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			orderItem.SetPrice(newPrice);
 		}
+
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
 		{
 			var currentGeoGroupId = Entity?.SelfDeliveryGeoGroup?.Id;
@@ -139,6 +140,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			Entity?.RecalculateItemsPrice();
 		}
+
 		private void OnSelectPaymentTypeClicked()
 		{
 			NavigationManager.OpenViewModel<SelectPaymentTypeViewModel>(null, addingRegistrations: containerBuilder =>
@@ -148,12 +150,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 			_selectPaymentTypeViewModel.PaymentTypeSelected += OnPaymentTypeSelected;
 		}
+
 		private void OnPaymentTypeSelected(object sender, SelectPaymentTypeViewModel.PaymentTypeSelectedEventArgs e)
 		{
 			Entity.UpdatePaymentType(e.PaymentType, _orderContractUpdater);
 
 			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
 		}
+
 		private void SetPermissions()
 		{
 			_canChangeDiscountValue = _currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
