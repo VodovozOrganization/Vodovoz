@@ -5,6 +5,7 @@ using QS.Views.GtkUI;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -32,7 +33,7 @@ namespace Vodovoz.Views.Logistic
 			//Проверку сделать?
 			//entityVMEntryClient1.CanEditReference = !ViewModel.UserHasOnlyAccessToWarehouseAndComplaints;
 
-			ycheckbuttonPaymentAfterShipment.Binding
+			ycheckbuttonPayAfterShipment.Binding
 				.AddBinding(ViewModel.Entity, e => e.PayAfterShipment, w => w.Active)
 				.InitializeFromSource();
 
@@ -47,9 +48,13 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			buttonSelectPaymentType.BindCommand(ViewModel.PaymentTypeCommand);
-			/*buttonSelectPaymentType.Sensitive = true;
-			buttonSelectPaymentType.Clicked += (sender, e) =>
-				ViewModel.PaymentTypeCommand.Execute(new object[] { sender, e });*/
+
+			yentryPaymentNumber.Binding
+				.AddBinding(ViewModel.Entity,
+				e => e.OnlinePaymentNumber,
+				w => w.Text,
+				new NullableIntToStringConverter())
+				.InitializeFromSource();
 
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
@@ -130,15 +135,6 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
-
-            // Переделать под yEntryPaymentNumber
-            /*yEntryPaymentNumber.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
-			yEntryPaymentNumber.Binding.AddBinding(ViewModel.Entity,
-				e => e.OnlinePaymentNumber,
-				w => w.Text,
-				new NullableIntToStringConverter()).InitializeFromSource();*/
-            //ylabelPaymentNumber.Binding.AddBinding(ViewModel, vm => vm.Entity.OnlinePaymentNumber, w => w.Text)
-            //	.InitializeFromSource();
-        }
+		}
 	}
 }

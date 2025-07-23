@@ -77,18 +77,6 @@ namespace Vodovoz.ViewModels.Logistic
 				() => BeforeSave());
 			CloseCommand = new DelegateCommand(() => Console.WriteLine());
 
-			/*PaymentTypeCommand = new DelegateCommand<object>(param =>
-			{
-				if(param is object[] arr && arr.Length == 2 && arr[1] is EventArgs)
-				{
-					OnSelectPaymentTypeClicked(arr[0], (EventArgs)arr[1]);
-				}
-				else
-				{
-					OnSelectPaymentTypeClicked(null, EventArgs.Empty);
-				}
-			});*/
-
 			PaymentTypeCommand = new DelegateCommand(() => OnSelectPaymentTypeClicked());
 
 			SetPermissions();
@@ -150,10 +138,6 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			Entity?.RecalculateItemsPrice();
-		}
-		protected override bool BeforeSave()
-		{
-			return base.BeforeSave();
 		}
 		private void OnSelectPaymentTypeClicked()
 		{
