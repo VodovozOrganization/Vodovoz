@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient1;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPaymentAfterShipment;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPayAfterShipment;
 
 		private global::Gtk.HBox hbox3;
 
@@ -120,15 +120,15 @@ namespace Vodovoz.Views.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.ycheckbuttonPaymentAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonPaymentAfterShipment.CanFocus = true;
-			this.ycheckbuttonPaymentAfterShipment.Name = "ycheckbuttonPaymentAfterShipment";
-			this.ycheckbuttonPaymentAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
-			this.ycheckbuttonPaymentAfterShipment.Active = true;
-			this.ycheckbuttonPaymentAfterShipment.DrawIndicator = true;
-			this.ycheckbuttonPaymentAfterShipment.UseUnderline = true;
-			this.vbox1.Add(this.ycheckbuttonPaymentAfterShipment);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPaymentAfterShipment]));
+			this.ycheckbuttonPayAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonPayAfterShipment.CanFocus = true;
+			this.ycheckbuttonPayAfterShipment.Name = "ycheckbuttonPayAfterShipment";
+			this.ycheckbuttonPayAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
+			this.ycheckbuttonPayAfterShipment.Active = true;
+			this.ycheckbuttonPayAfterShipment.DrawIndicator = true;
+			this.ycheckbuttonPayAfterShipment.UseUnderline = true;
+			this.vbox1.Add(this.ycheckbuttonPayAfterShipment);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPayAfterShipment]));
 			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
