@@ -1,4 +1,7 @@
-﻿using Gamma.Utilities;
+﻿using DocumentFormat.OpenXml.Presentation;
+using FluentNHibernate.Data;
+using Gamma.GtkWidgets.Cells;
+using Gamma.Utilities;
 using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -6,6 +9,7 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
 
@@ -26,36 +30,41 @@ namespace Vodovoz.Views.Logistic
 
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
-			
+
 			entityVMEntryClient1.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
 			entityVMEntryClient1.Binding
 				.AddBinding(ViewModel.Entity, s => s.Client, w => w.Subject)
 				.InitializeFromSource();
-			//Проверку сделать?
-			//entityVMEntryClient1.CanEditReference = !ViewModel.UserHasOnlyAccessToWarehouseAndComplaints;
+			entityVMEntryClient1.Sensitive = false;
 
 			ycheckbuttonPayAfterShipment.Binding
 				.AddBinding(ViewModel.Entity, e => e.PayAfterShipment, w => w.Active)
 				.InitializeFromSource();
+			ycheckbuttonPayAfterShipment.Sensitive = false;
 
 			specialListCmbSelfDeliveryGeoGroup.ItemsList = ViewModel.GetSelfDeliveryGeoGroups();
 			specialListCmbSelfDeliveryGeoGroup.Binding
 				.AddBinding(ViewModel.Entity, e => e.SelfDeliveryGeoGroup, w => w.SelectedItem)
 				.AddBinding(e => e.SelfDelivery, w => w.Visible)
 				.InitializeFromSource();
+			specialListCmbSelfDeliveryGeoGroup.Sensitive = false;
 
 			yentryPaymentType.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.PaymentType.GetEnumTitle(), w => w.Text)
 				.InitializeFromSource();
+			yentryPaymentType.Sensitive = false;
 
 			buttonSelectPaymentType.BindCommand(ViewModel.PaymentTypeCommand);
+			buttonSelectPaymentType.Sensitive = false;
 
+			// FIXME Возникают нюансы с перехода с PaymentType.Terminal на любой другой вид оплаты, нужно смотреть
 			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
 			yenumcomboboxTerminalSubtype.Binding
 				.AddSource(ViewModel.Entity)
 				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
 				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
+			yenumcomboboxTerminalSubtype.Sensitive = false;
 
 			yentryPaymentNumber.Binding
 				.AddBinding(ViewModel.Entity,
@@ -63,6 +72,19 @@ namespace Vodovoz.Views.Logistic
 				w => w.Text,
 				new NullableIntToStringConverter())
 				.InitializeFromSource();
+			yentryPaymentNumber.Sensitive = false;
+
+			ConfigureTrees();
+			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
+		}
+		private void ConfigureTrees()
+		{
+			var colorPrimaryText = GdkColors.PrimaryText;
+			var colorBlue = GdkColors.InfoText;
+			var colorGreen = GdkColors.SuccessText;
+			var colorPrimaryBase = GdkColors.PrimaryBase;
+			var colorLightYellow = GdkColors.WarningBase;
+			var colorLightRed = GdkColors.DangerBase;
 
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
@@ -72,15 +94,30 @@ namespace Vodovoz.Views.Logistic
 					.SetTag(nameof(Nomenclature))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
+					.AddSetter((c, n) => { c.Sensitive = false; })
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
 					.EditedEvent(ViewModel.OnSpinPriceEdited)
+					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
+					{
+						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
+						{
+							c.ForegroundGdk = colorPrimaryText;
+							var fixedPrice = new Order().GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
+							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null)
+							{
+								c.ForegroundGdk = colorGreen;
+							}
+							else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
+							{
+								c.ForegroundGdk = colorBlue;
+							}
+						}
+					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Альтерн.\nцена")
-					.AddToggleRenderer(x => x.IsAlternativePrice).Editing(false)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
@@ -126,10 +163,11 @@ namespace Vodovoz.Views.Logistic
 					})
 					.EditedEvent(ViewModel.OnDiscountReasonComboEdited)
 					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
-					//.AddSetter(
-					//	(c, n) =>
-					//		c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorPrimaryBase
-					//)
+					.AddSetter((c, n) => { c.Sensitive = false; })
+					.AddSetter(
+						(c, n) =>
+							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorPrimaryBase
+					)
 					.AddSetter((c, n) =>
 					{
 						if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
@@ -144,7 +182,6 @@ namespace Vodovoz.Views.Logistic
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
-			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
 		}
 	}
 }
