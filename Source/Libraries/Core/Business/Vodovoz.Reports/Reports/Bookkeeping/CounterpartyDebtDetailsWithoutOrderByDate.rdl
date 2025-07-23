@@ -982,8 +982,7 @@
 FROM orders o
          INNER JOIN payment_items pi ON o.id = pi.order_id
          INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
-         INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-         INNER JOIN organizations org ON cc.organization_id = org.id
+         INNER JOIN organizations org ON p.organization_id = org.id
 
 WHERE
         o.client_id = @counterparty_id
@@ -1023,11 +1022,8 @@ SELECT
     2 AS sorting_rank_by_entities,
     1 AS sorting_rank_payment_docs
 FROM payments_from_bank_client p
-LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
-INNER JOIN payment_items pi ON pi.payment_id = p.id
-INNER JOIN orders o ON o.id = pi.order_id
-INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-INNER JOIN organizations org ON cc.organization_id = org.id
+  LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  INNER JOIN organizations org ON p.organization_id = org.id
 WHERE
         p.counterparty_id = @counterparty_id
   AND p.status != 'Cancelled'
