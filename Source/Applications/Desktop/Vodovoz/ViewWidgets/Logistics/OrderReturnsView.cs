@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -728,6 +728,7 @@ namespace Vodovoz
 
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
 			DeliveryPoint = null;
+			BaseOrder.ContactPhone = null;
 
 			if(clientEntry.ViewModel.Entity != null)
 			{
