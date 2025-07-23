@@ -15,5 +15,16 @@
 					return ConvertToYesOrNo(value.Value);
 			}
 		}
+
+		public static string ConvertToNullOrYesOrNo(this bool? value)
+		{
+			switch(value)
+			{
+				case null:
+					return null;
+				default:
+					return ConvertToYesOrNo(value.Value);
+			}
+		}
 	}
 }
