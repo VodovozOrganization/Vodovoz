@@ -18,7 +18,7 @@ namespace SecureCodeSender.Contracts.Requests
 		/// </summary>
 		public string Target { get; set; }
 		/// <summary>
-		/// Телефон пользователя
+		/// Телефон пользователя 7XXXXXXXXXX
 		/// </summary>
 		public string UserPhone { get; set; }
 		/// <summary>

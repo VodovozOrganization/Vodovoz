@@ -17,7 +17,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 		/// Конструктор
 		/// </summary>
 		/// <param name="logger"></param>
-		public VersionedController(ILogger<ApiControllerBase> logger) : base(logger)
+		public VersionedController(ILogger<VersionedController> logger) : base(logger)
 		{
 		}
 	}

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SecureCodeSenderApi.Services;
-using Vodovoz.Presentation.WebApi.Common;
 
 namespace SecureCodeSenderApi.Controllers.V1
 {
@@ -17,22 +16,25 @@ namespace SecureCodeSenderApi.Controllers.V1
 	/// </summary>
 	public class SecureCodeController : VersionedController
 	{
+		private readonly ISecureCodeServiceValidator _codeServiceValidator;
 		private readonly ISecureCodeHandler _secureCodeHandler;
 
 		public SecureCodeController(
-			ILogger<ApiControllerBase> logger,
+			ILogger<SecureCodeController> logger,
+			ISecureCodeServiceValidator codeServiceValidator,
 			ISecureCodeHandler secureCodeHandler)
 			: base(logger)
 		{
+			_codeServiceValidator = codeServiceValidator ?? throw new ArgumentNullException(nameof(codeServiceValidator));
 			_secureCodeHandler = secureCodeHandler ?? throw new ArgumentNullException(nameof(secureCodeHandler));
 		}
 
 		/// <summary>
-		/// Генерация и отправка коа авторизации
+		/// Генерация и отправка кода авторизации
 		/// </summary>
 		/// <param name="sendSecureCodeDto">Информация для отправки</param>
 		/// <returns>
-		/// 200 - в случае успеха с временем до следующего запроса
+		/// 200 - в случае успеха с временем до следующего запроса <see cref="SecureCodeSent"/>
 		/// 404 - неверный код доступа
 		/// 408 - истекший код
 		/// 500 - ошибка
@@ -46,8 +48,16 @@ namespace SecureCodeSenderApi.Controllers.V1
 			try
 			{
 				var source = sendSecureCodeDto.Source;
+				_logger.LogInformation(
+					"Пришел запрос на отправку кода от {Source}: {@SendSecureCode}",
+					source,
+					sendSecureCodeDto);
 
-				_logger.LogInformation("Пришел запрос на отправку кода от {Source}: {@SendSecureCode}", source, sendSecureCodeDto);
+				var validationResult = _codeServiceValidator.Validate(sendSecureCodeDto);
+				if(validationResult != null)
+				{
+					return ValidationProblem(validationResult);
+				}
 
 				var result = await _secureCodeHandler.GenerateAndSendSecureCode(sendSecureCodeDto);
 
@@ -87,7 +97,16 @@ namespace SecureCodeSenderApi.Controllers.V1
 			try
 			{
 				var source = checkSecureCodeDto.Source;
-				_logger.LogInformation("Пришел запрос на проверку кода от {Source}: {@CheckSecureCode}", source, checkSecureCodeDto);
+				_logger.LogInformation(
+					"Пришел запрос на проверку кода от {Source}: {@CheckSecureCode}",
+					source,
+					checkSecureCodeDto);
+
+				var validationResult = _codeServiceValidator.Validate(checkSecureCodeDto);
+				if(validationResult != null)
+				{
+					return ValidationProblem(validationResult);
+				}
 
 				var result = _secureCodeHandler.CheckSecureCode(checkSecureCodeDto);
 
