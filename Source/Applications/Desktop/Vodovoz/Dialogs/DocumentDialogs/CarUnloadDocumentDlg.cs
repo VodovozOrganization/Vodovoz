@@ -615,6 +615,15 @@ namespace Vodovoz
 
 				if(!exist)
 				{
+					var freeBalanceOperation = item.DeliveryFreeBalanceOperation;
+
+					//т.к. при удалении строки разгрузки, пытается удалиться связанная строка свободных остатков,
+					//то ее нужно убрать из всех связанных коллекций, чтобы она по каскаду не стала вновь сохраняться
+					if(freeBalanceOperation != null)
+					{
+						Entity.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(freeBalanceOperation);
+					}
+					
 					UoW.Delete(item.GoodsAccountingOperation);
 					Entity.ObservableItems.Remove(item);
 				}
