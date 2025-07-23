@@ -388,7 +388,7 @@ namespace WarehouseApi.Library.Errors
 				var edoAccount = _counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
 					order.Client, order.Contract.Organization.Id);
 
-				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				if(edoAccount is null || edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
 					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отправки документов по ЭДО, сканирование не требуется", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);

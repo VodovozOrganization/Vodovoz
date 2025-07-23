@@ -130,7 +130,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			{
 				var edoAccount = 
 					edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Order.Client, Order.Contract.Organization.Id);
-				hasAgreeForEdo = edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+				hasAgreeForEdo = edoAccount?.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 			}
 
 			if( Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)

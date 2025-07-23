@@ -754,7 +754,7 @@ namespace Vodovoz.Core.Domain.Orders
 			
 			return PaymentType == PaymentType.Cashless
 				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
-				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+				&& edoAccount?.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
 
 		public override string ToString()

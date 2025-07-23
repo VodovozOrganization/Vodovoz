@@ -2677,7 +2677,7 @@ namespace Vodovoz
 
 			if(_emailAddressForBill == null
 			   && _emailService.NeedSendBillToEmail(UoW, Entity)
-			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount()?.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
 				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
@@ -4280,7 +4280,7 @@ namespace Vodovoz
 
 			if(_emailAddressForBill == null
 			   && _emailService.NeedSendBillToEmail(UoW, Entity)
-			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount()?.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
 				return;

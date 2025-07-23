@@ -64,7 +64,7 @@ namespace Edo.Scheduler.Service
 			var edoAccount = _edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
 				edoRequest.Order.Client, edoRequest.Order.Contract.Organization.Id);
 
-			if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			if(edoAccount?.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
 				// Если есть согласие на ЭДО
 				// создаем задачу формирования документа ЭДО

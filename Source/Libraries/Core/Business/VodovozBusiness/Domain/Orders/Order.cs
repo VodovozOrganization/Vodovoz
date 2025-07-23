@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -1764,7 +1764,7 @@ namespace Vodovoz.Domain.Orders
 			
 			return PaymentType == PaymentType.Cashless
 				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
-				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+				&& edoAccount?.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
 
 		public virtual void AddDeliveryPointCommentToOrder()

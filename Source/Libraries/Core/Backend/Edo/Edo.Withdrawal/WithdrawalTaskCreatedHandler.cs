@@ -98,7 +98,7 @@ namespace Edo.Withdrawal
 				var edoAccount =
 					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, order.Contract.Organization.Id);
 
-				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+				if(edoAccount?.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
 					throw new InvalidOperationException(

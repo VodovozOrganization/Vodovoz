@@ -639,8 +639,9 @@ namespace EdoDocumentsPreparer
 			var edoAccount =
 				_edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(edoContainer.Counterparty, organizationId);
 
-			if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
-				|| edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			if(edoAccount is null
+			   || string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
+			   || edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			{
 				await TrySaveContainerByErrorState(
 					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО", task);
