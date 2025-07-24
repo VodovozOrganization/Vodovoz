@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace Vodovoz
+namespace Vodovoz.Tools
 {
 	public interface IXmlConvertable
 	{
