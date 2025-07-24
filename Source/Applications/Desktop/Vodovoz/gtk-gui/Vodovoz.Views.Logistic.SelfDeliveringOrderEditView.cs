@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelClient;
 
-		private global::QS.Views.Control.EntityEntry entityentryClient;
+		private global::QS.Views.Control.EntityEntry entityentryCounterparty;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPayAfterShipment;
 
@@ -107,14 +107,13 @@ namespace Vodovoz.Views.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entityentryClient = new global::QS.Views.Control.EntityEntry();
-			this.entityentryClient.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryClient.Name = "entityentryClient";
-			this.hbox2.Add(this.entityentryClient);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryClient]));
+			this.entityentryCounterparty = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCounterparty.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCounterparty.Name = "entityentryCounterparty";
+			this.hbox2.Add(this.entityentryCounterparty);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryCounterparty]));
 			w5.Position = 1;
 			w5.Expand = false;
-			w5.Fill = false;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w6.Position = 1;
@@ -125,6 +124,7 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonPayAfterShipment.CanFocus = true;
 			this.ycheckbuttonPayAfterShipment.Name = "ycheckbuttonPayAfterShipment";
 			this.ycheckbuttonPayAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
+			this.ycheckbuttonPayAfterShipment.Active = true;
 			this.ycheckbuttonPayAfterShipment.DrawIndicator = true;
 			this.ycheckbuttonPayAfterShipment.UseUnderline = true;
 			this.vbox1.Add(this.ycheckbuttonPayAfterShipment);

@@ -48,8 +48,8 @@ namespace Vodovoz.Views.Logistic
 				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
-			entityentryClient.ViewModel = counterpartyViewModel;
-			entityentryClient.Sensitive = false;
+			entityentryCounterparty.ViewModel = counterpartyViewModel;
+			entityentryCounterparty.Sensitive = false;
 
 			ycheckbuttonPayAfterShipment.Binding
 				.AddBinding(ViewModel.Entity, e => e.PayAfterShipment, w => w.Active)
