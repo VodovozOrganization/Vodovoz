@@ -1,9 +1,12 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
 using QS.Utilities;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using System;
 using System.Globalization;
 using System.Linq;
 using Vodovoz.Domain.Client;
@@ -11,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -18,8 +22,12 @@ namespace Vodovoz.Views.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SelfDeliveringOrderEditView : TabViewBase<SelfDeliveringOrderEditViewModel>
 	{
-		public SelfDeliveringOrderEditView(SelfDeliveringOrderEditViewModel viewModel) : base(viewModel)
+		private readonly ILifetimeScope _lifetimeScope;
+		public SelfDeliveringOrderEditView(
+			SelfDeliveringOrderEditViewModel viewModel,
+			ILifetimeScope lifetimeScope) : base(viewModel)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			this.Build();
 			Configure();
 		}
@@ -29,7 +37,18 @@ namespace Vodovoz.Views.Logistic
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
 
-			entityentryClient.ViewModel = ViewModel.CounterpartyViewModel;
+			var counterpartyViewModel = new LegacyEEVMBuilderFactory<Order>(
+				ViewModel,
+				ViewModel,
+				ViewModel.Entity,
+				ViewModel.UoW,
+				ViewModel.NavigationManager,
+				_lifetimeScope)
+				.ForProperty(x => x.Client)
+				.UseTdiDialog<CounterpartyDlg>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryClient.ViewModel = counterpartyViewModel;
 			entityentryClient.Sensitive = false;
 
 			ycheckbuttonPayAfterShipment.Binding
