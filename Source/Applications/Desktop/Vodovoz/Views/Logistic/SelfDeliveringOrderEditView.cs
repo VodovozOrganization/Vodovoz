@@ -3,8 +3,10 @@ using FluentNHibernate.Data;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog;
 using QS.Utilities;
 using QS.Views.GtkUI;
+using System.Globalization;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -26,8 +28,6 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			ViewModel.TreeItems = treeItems;
-
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
 
@@ -100,7 +100,7 @@ namespace Vodovoz.Views.Logistic
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
-					.EditedEvent(ViewModel.OnSpinPriceEdited)
+					.EditedEvent((o, args) => ViewModel.OnSpinPriceEdited(o, args, treeItems))
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
 					{
 						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
@@ -161,7 +161,7 @@ namespace Vodovoz.Views.Logistic
 								dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
 						return list;
 					})
-					.EditedEvent(ViewModel.OnDiscountReasonComboEdited)
+					.EditedEvent((o, args) => ViewModel.OnDiscountReasonComboEdited(o, args, treeItems))
 					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
 					.AddSetter((c, n) => { c.Sensitive = false; })
 					.AddSetter(

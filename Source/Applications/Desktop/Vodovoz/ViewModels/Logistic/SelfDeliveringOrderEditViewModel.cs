@@ -39,7 +39,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 		private readonly IList<DiscountReason> _discountReasons;
 
-		public yTreeView TreeItems { get; set; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CloseCommand { get; }
 		public DelegateCommand PaymentTypeCommand { get; }
@@ -88,10 +87,10 @@ namespace Vodovoz.ViewModels.Logistic
 			SetPermissions();
 		}
 
-		public void OnSpinPriceEdited(object o, EditedArgs args)
+		public void OnSpinPriceEdited(object o, EditedArgs args, yTreeView treeItems)
 		{
 			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
-			var node = TreeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 			if(!(node is OrderItem orderItem))
 			{
 				return;
@@ -109,10 +108,10 @@ namespace Vodovoz.ViewModels.Logistic
 			return geoGroups;
 		}
 
-		public void OnDiscountReasonComboEdited(object o, EditedArgs args)
+		public void OnDiscountReasonComboEdited(object o, EditedArgs args, yTreeView treeItems)
 		{
 			var index = int.Parse(args.Path);
-			var node = TreeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 			if(!(node is OrderItem orderItem))
 			{
 				return;
@@ -160,8 +159,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void SetPermissions()
 		{
-			_canChangeDiscountValue = _currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
-			_canChoosePremiumDiscount = _currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
+			_canChangeDiscountValue = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
+			_canChoosePremiumDiscount = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
 		}
 	}
 }

@@ -471,21 +471,20 @@ namespace Vodovoz.Representations
 							{
 								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
 
-								var income = _incomeRepository.Get(uow, x => x.Order.Id == order.Id)
-									.Take(1)
-									.SingleOrDefault();
+								var incomes = _incomeRepository.Get(uow, x => x.Order.Id == order.Id).ToList();
 
 								var edoUpd = _orderRepository
 									.GetEdoContainersByOrderId(uow, order.Id)
 									.Where(x => x.Type == DocumentContainerType.Upd)
 									.FirstOrDefault();
 
-								if(income != null || edoUpd != null)
+								if(incomes.Any() || edoUpd != null)
 								{
 									var message = "Для изменения самовывоза необходимо сперва ";
-									if(income != null)
+									if(incomes.Any())
 									{
-										message += $"удалить ПКО №{income.Id}";
+										var incomeNumbers = string.Join(", ", incomes.Select(i => $"№{i.Id}"));
+										message += $"удалить ПКО {incomeNumbers}";
 										if(edoUpd != null)
 										{
 											message += " или аннулировать УПД по ЭДО";
@@ -499,12 +498,12 @@ namespace Vodovoz.Representations
 									_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 									return;
 								}
-
 								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
 									this,
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
 									OpenPageOptions.AsSlave);
 							}
+
 						}
 					}
 				)

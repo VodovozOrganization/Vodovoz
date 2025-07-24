@@ -1365,6 +1365,10 @@
       <Project>{5EF2A7DA-3886-4809-95DF-880BD783A211}</Project>
       <Name>QS.Project.Desktop</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Gtk\QS.Project.Gtk.csproj">
+      <Project>{3C0F3944-CBD5-4BD6-83D4-CF33AD6FC68C}</Project>
+      <Name>QS.Project.Gtk</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
@@ -1423,7 +1427,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Services\RouteOptimization\README.md" />
