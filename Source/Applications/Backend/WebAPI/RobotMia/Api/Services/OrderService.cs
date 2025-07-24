@@ -385,8 +385,14 @@ namespace Vodovoz.RobotMia.Api.Services
 			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
-			order.Comment = createOrderRequest.DriverAppComment;
+			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);			
+
+			if(!string.IsNullOrWhiteSpace(createOrderRequest.DriverAppComment))
+			{
+				order.Comment = createOrderRequest.DriverAppComment;
+				order.HasCommentForDriver = true;
+			}
+			
 			order.CallBeforeArrivalMinutes = createOrderRequest.CallBeforeArrivalMinutes;
 
 			if(createOrderRequest.PaymentType == PaymentType.Cash)
