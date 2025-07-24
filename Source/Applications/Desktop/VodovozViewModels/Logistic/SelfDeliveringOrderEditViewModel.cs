@@ -1,22 +1,17 @@
 ﻿using Autofac;
-using Gamma.GtkWidgets;
-using Gtk;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -34,8 +29,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 
-		private bool _canChangeDiscountValue;
-		private bool _canChoosePremiumDiscount;
+		private bool _canEditPriceDiscountFromRouteListAndSelfDelivery;
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 		private readonly IList<DiscountReason> _discountReasons;
 
@@ -44,7 +38,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand PaymentTypeCommand { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		public IOrderDiscountsController DiscountsController => _discountsController;
-		public bool CanChangeDiscountValue => _canChangeDiscountValue;
+		public bool CanChangeDiscountValue => _canEditPriceDiscountFromRouteListAndSelfDelivery;
 		public IList<DiscountReason> DiscountReasons => _discountReasons;
 		public SelfDeliveringOrderEditViewModel(
 
@@ -71,7 +65,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 
-			_discountReasons = _canChoosePremiumDiscount
+			_discountReasons = _canEditPriceDiscountFromRouteListAndSelfDelivery
 				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
 				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 
@@ -87,18 +81,6 @@ namespace Vodovoz.ViewModels.Logistic
 			SetPermissions();
 		}
 
-		public void OnSpinPriceEdited(object o, EditedArgs args, yTreeView treeItems)
-		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			orderItem.SetPrice(newPrice);
-		}
-
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
 		{
 			var currentGeoGroupId = Entity?.SelfDeliveryGeoGroup?.Id;
@@ -108,15 +90,8 @@ namespace Vodovoz.ViewModels.Logistic
 			return geoGroups;
 		}
 
-		public void OnDiscountReasonComboEdited(object o, EditedArgs args, yTreeView treeItems)
+		public void ApplyDiscountReasonToOrderItem(OrderItem orderItem, int positionIndex)
 		{
-			var index = int.Parse(args.Path);
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
 			var previousDiscountReason = orderItem.DiscountReason;
 
 			//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
@@ -124,7 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(orderItem.DiscountReason != null)
 			{
 				if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-					orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message))
+					orderItem.DiscountReason, orderItem, _canEditPriceDiscountFromRouteListAndSelfDelivery, out string message))
 				{
 					orderItem.DiscountReason = previousDiscountReason;
 				}
@@ -132,7 +107,7 @@ namespace Vodovoz.ViewModels.Logistic
 				if(message != null)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning,
-						$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
+						$"На позицию:\n№{positionIndex + 1} {message}нельзя применить скидку," +
 						" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
 				}
 			}
@@ -159,8 +134,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void SetPermissions()
 		{
-			_canChangeDiscountValue = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
-			_canChoosePremiumDiscount = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
+			_canEditPriceDiscountFromRouteListAndSelfDelivery = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
 		}
 	}
 }

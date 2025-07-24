@@ -1,9 +1,7 @@
-﻿using DocumentFormat.OpenXml.Presentation;
-using FluentNHibernate.Data;
+﻿using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using System.Globalization;
@@ -100,7 +98,7 @@ namespace Vodovoz.Views.Logistic
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
-					.EditedEvent((o, args) => ViewModel.OnSpinPriceEdited(o, args, treeItems))
+					.EditedEvent((o, args) => OnSpinPriceEdited(o, args, treeItems))
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
 					{
 						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
@@ -161,7 +159,7 @@ namespace Vodovoz.Views.Logistic
 								dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
 						return list;
 					})
-					.EditedEvent((o, args) => ViewModel.OnDiscountReasonComboEdited(o, args, treeItems))
+					.EditedEvent((o, args) => OnDiscountReasonComboEdited(o, args, treeItems))
 					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
 					.AddSetter((c, n) => { c.Sensitive = false; })
 					.AddSetter(
@@ -182,6 +180,29 @@ namespace Vodovoz.Views.Logistic
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
+		}
+		private void OnSpinPriceEdited(object o, EditedArgs args, yTreeView treeItems)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			orderItem.SetPrice(newPrice);
+		}
+
+		private void OnDiscountReasonComboEdited(object o, EditedArgs args, yTreeView treeItems)
+		{
+			var index = int.Parse(args.Path);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+
+			ViewModel.ApplyDiscountReasonToOrderItem(orderItem, index);
 		}
 	}
 }

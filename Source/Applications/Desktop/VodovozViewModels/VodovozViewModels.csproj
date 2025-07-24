@@ -104,6 +104,7 @@
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
     <Compile Include="Services\RouteOptimization\CalculatedOrder.cs" />
