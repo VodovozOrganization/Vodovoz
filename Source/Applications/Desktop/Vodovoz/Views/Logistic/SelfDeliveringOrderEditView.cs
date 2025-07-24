@@ -22,12 +22,8 @@ namespace Vodovoz.Views.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SelfDeliveringOrderEditView : TabViewBase<SelfDeliveringOrderEditViewModel>
 	{
-		private readonly ILifetimeScope _lifetimeScope;
-		public SelfDeliveringOrderEditView(
-			SelfDeliveringOrderEditViewModel viewModel,
-			ILifetimeScope lifetimeScope) : base(viewModel)
+		public SelfDeliveringOrderEditView(SelfDeliveringOrderEditViewModel viewModel) : base(viewModel)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			this.Build();
 			Configure();
 		}
@@ -43,7 +39,7 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.Entity,
 				ViewModel.UoW,
 				ViewModel.NavigationManager,
-				_lifetimeScope)
+				ViewModel.LifetimeScope)
 				.ForProperty(x => x.Client)
 				.UseTdiDialog<CounterpartyDlg>()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
