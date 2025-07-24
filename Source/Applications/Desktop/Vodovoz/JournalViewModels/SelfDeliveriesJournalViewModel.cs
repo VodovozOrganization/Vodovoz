@@ -469,7 +469,9 @@ namespace Vodovoz.Representations
 							{
 								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
 
-								var incomes = _incomeRepository.Get(uow, x => x.Order.Id == order.Id).ToList();
+								var incomes = _incomeRepository
+									.Get(uow, x => x.Order.Id == order.Id)
+									.ToList();
 
 								var edoUpd = _orderRepository
 									.GetEdoContainersByOrderId(uow, order.Id)

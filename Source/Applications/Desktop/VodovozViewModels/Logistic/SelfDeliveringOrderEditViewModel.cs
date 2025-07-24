@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand CloseCommand { get; }
 		public DelegateCommand PaymentTypeCommand { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
 		public IOrderDiscountsController DiscountsController => _discountsController;
 		public bool CanChangeDiscountValue => _canEditPriceDiscountFromRouteListAndSelfDelivery;
 		public IList<DiscountReason> DiscountReasons => _discountReasons;

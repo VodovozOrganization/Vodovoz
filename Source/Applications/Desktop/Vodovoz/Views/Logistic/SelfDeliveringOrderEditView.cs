@@ -29,11 +29,8 @@ namespace Vodovoz.Views.Logistic
 			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
 
-			entityVMEntryClient1.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-			entityVMEntryClient1.Binding
-				.AddBinding(ViewModel.Entity, s => s.Client, w => w.Subject)
-				.InitializeFromSource();
-			entityVMEntryClient1.Sensitive = false;
+			entityentryClient.ViewModel = ViewModel.CounterpartyViewModel;
+			entityentryClient.Sensitive = false;
 
 			ycheckbuttonPayAfterShipment.Binding
 				.AddBinding(ViewModel.Entity, e => e.PayAfterShipment, w => w.Active)
