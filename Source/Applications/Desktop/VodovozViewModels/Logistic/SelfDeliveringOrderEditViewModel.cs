@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -22,15 +23,12 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class SelfDeliveringOrderEditViewModel : EntityTabViewModelBase<Order>
 	{
-		private readonly IOrderDiscountsController _discountsController;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
-		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
-
 		private bool _canEditPriceDiscountFromRouteListAndSelfDelivery;
-		private readonly IList<DiscountReason> _discountReasons;
 
 		public SelfDeliveringOrderEditViewModel(
 
@@ -43,19 +41,23 @@ namespace Vodovoz.ViewModels.Logistic
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			IDiscountReasonRepository discountReasonRepository,
+			IOrderContractUpdater orderContractUpdater,
 			SelectPaymentTypeViewModel selectPaymentTypeViewModel,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_selectPaymentTypeViewModel = selectPaymentTypeViewModel ?? throw new ArgumentNullException(nameof(selectPaymentTypeViewModel));;
+			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 
-			_discountReasons = _canEditPriceDiscountFromRouteListAndSelfDelivery
+			DiscountReasons = _canEditPriceDiscountFromRouteListAndSelfDelivery
 				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
 				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+
+			CanChangeDiscountValue = _canEditPriceDiscountFromRouteListAndSelfDelivery;
+			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			var orderDate = Entity.DeliveryDate.HasValue
 				? Entity.DeliveryDate.Value.ToString("dd.MM.yyyy")
@@ -65,11 +67,6 @@ namespace Vodovoz.ViewModels.Logistic
 			SaveCommand = new DelegateCommand(() => SaveAndClose());
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.ClosePage));
 			PaymentTypeCommand = new DelegateCommand(() => OnSelectPaymentTypeClicked());
-
-			DiscountsController = _discountsController;
-			CanChangeDiscountValue = _canEditPriceDiscountFromRouteListAndSelfDelivery;
-			DiscountReasons = _discountReasons;
-			LifetimeScope = _lifetimeScope;
 
 			SetPermissions();
 		}
@@ -100,7 +97,7 @@ namespace Vodovoz.ViewModels.Logistic
 			//комбо-бокс не откроется, но событие сработает и прилетит null
 			if(orderItem.DiscountReason != null)
 			{
-				if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+				if(!DiscountsController.SetDiscountFromDiscountReasonForOrderItem(
 					orderItem.DiscountReason, orderItem, _canEditPriceDiscountFromRouteListAndSelfDelivery, out string message))
 				{
 					orderItem.DiscountReason = previousDiscountReason;
@@ -123,6 +120,15 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				containerBuilder.Register((cb) => _selectPaymentTypeViewModel);
 			});
+
+			_selectPaymentTypeViewModel.PaymentTypeSelected += OnPaymentTypeSelected;
+		}
+
+		private void OnPaymentTypeSelected(object sender, SelectPaymentTypeViewModel.PaymentTypeSelectedEventArgs e)
+		{
+			Entity.UpdatePaymentType(e.PaymentType, _orderContractUpdater);
+
+			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
 		}
 
 		private void SetPermissions()
