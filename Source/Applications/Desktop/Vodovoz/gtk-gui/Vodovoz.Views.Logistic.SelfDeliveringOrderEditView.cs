@@ -16,9 +16,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelClient;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryClient1;
+		private global::QS.Views.Control.EntityEntry entityentryClient;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPayAfterShipment;
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonPaymentAfterShipment;
 
 		private global::Gtk.HBox hbox3;
 
@@ -38,15 +38,9 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton buttonSelectPaymentType;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxTerminalSubtype;
-
 		private global::Gtk.HBox hbox8;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPaymentNumber;
-
-		private global::Gamma.GtkWidgets.yEntry yentryPaymentNumber;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelGoods;
 
 		private global::Gtk.Frame frameOrderItems;
 
@@ -109,30 +103,29 @@ namespace Vodovoz.Views.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entityVMEntryClient1 = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityVMEntryClient1.Events = ((global::Gdk.EventMask)(256));
-			this.entityVMEntryClient1.Name = "entityVMEntryClient1";
-			this.entityVMEntryClient1.CanEditReference = false;
-			this.entityVMEntryClient1.CanDisposeEntitySelectorFactory = false;
-			this.entityVMEntryClient1.CanOpenWithoutTabParent = false;
-			this.hbox2.Add(this.entityVMEntryClient1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityVMEntryClient1]));
+			this.entityentryClient = new global::QS.Views.Control.EntityEntry();
+			this.entityentryClient.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryClient.Name = "entityentryClient";
+			this.hbox2.Add(this.entityentryClient);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryClient]));
 			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.ycheckbuttonPayAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonPayAfterShipment.CanFocus = true;
-			this.ycheckbuttonPayAfterShipment.Name = "ycheckbuttonPayAfterShipment";
-			this.ycheckbuttonPayAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
-			this.ycheckbuttonPayAfterShipment.Active = true;
-			this.ycheckbuttonPayAfterShipment.DrawIndicator = true;
-			this.ycheckbuttonPayAfterShipment.UseUnderline = true;
-			this.vbox1.Add(this.ycheckbuttonPayAfterShipment);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPayAfterShipment]));
+			this.ycheckbuttonPaymentAfterShipment = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonPaymentAfterShipment.CanFocus = true;
+			this.ycheckbuttonPaymentAfterShipment.Name = "ycheckbuttonPaymentAfterShipment";
+			this.ycheckbuttonPaymentAfterShipment.Label = global::Mono.Unix.Catalog.GetString("Оплата после отгрузки");
+			this.ycheckbuttonPaymentAfterShipment.Active = true;
+			this.ycheckbuttonPaymentAfterShipment.DrawIndicator = true;
+			this.ycheckbuttonPaymentAfterShipment.UseUnderline = true;
+			this.vbox1.Add(this.ycheckbuttonPaymentAfterShipment);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ycheckbuttonPaymentAfterShipment]));
 			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
@@ -217,28 +210,16 @@ namespace Vodovoz.Views.Logistic
 			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
-			// Container child hbox7.Gtk.Box+BoxChild
-			this.yenumcomboboxTerminalSubtype = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcomboboxTerminalSubtype.Name = "yenumcomboboxTerminalSubtype";
-			this.yenumcomboboxTerminalSubtype.ShowSpecialStateAll = false;
-			this.yenumcomboboxTerminalSubtype.ShowSpecialStateNot = false;
-			this.yenumcomboboxTerminalSubtype.UseShortTitle = false;
-			this.yenumcomboboxTerminalSubtype.DefaultFirst = false;
-			this.hbox7.Add(this.yenumcomboboxTerminalSubtype);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yenumcomboboxTerminalSubtype]));
-			w16.Position = 2;
+			this.hbox3.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox7]));
+			w16.Position = 1;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.hbox3.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.hbox7]));
-			w17.Position = 1;
+			this.vbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			w17.Position = 3;
 			w17.Expand = false;
 			w17.Fill = false;
-			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
-			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -248,36 +229,15 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelPaymentNumber.Name = "ylabelPaymentNumber";
 			this.ylabelPaymentNumber.LabelProp = global::Mono.Unix.Catalog.GetString("Номер оплаты:");
 			this.hbox8.Add(this.ylabelPaymentNumber);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ylabelPaymentNumber]));
-			w19.Position = 0;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ylabelPaymentNumber]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			this.vbox1.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
+			w19.Position = 4;
 			w19.Expand = false;
 			w19.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.yentryPaymentNumber = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryPaymentNumber.CanFocus = true;
-			this.yentryPaymentNumber.Name = "yentryPaymentNumber";
-			this.yentryPaymentNumber.IsEditable = true;
-			this.yentryPaymentNumber.InvisibleChar = '•';
-			this.hbox8.Add(this.yentryPaymentNumber);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryPaymentNumber]));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
-			w21.Position = 4;
-			w21.Expand = false;
-			w21.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.ylabelGoods = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelGoods.Name = "ylabelGoods";
-			this.ylabelGoods.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Товары</b>");
-			this.ylabelGoods.UseMarkup = true;
-			this.vbox1.Add(this.ylabelGoods);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelGoods]));
-			w22.Position = 5;
-			w22.Expand = false;
-			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frameOrderItems = new global::Gtk.Frame();
 			this.frameOrderItems.Name = "frameOrderItems";
@@ -293,10 +253,10 @@ namespace Vodovoz.Views.Logistic
 			this.GtkAlignment43.Add(this.treeItems);
 			this.frameOrderItems.Add(this.GtkAlignment43);
 			this.vbox1.Add(this.frameOrderItems);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
-			w25.Position = 6;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
+			w22.Position = 5;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
