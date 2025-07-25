@@ -870,6 +870,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			foreach(var instanceData in instancesOnStorageBalance)
 			{
+				if(_instancesDiscrepancies.ContainsKey(instanceData.Id))
+				{
+					continue;
+				}
+				
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
 					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
