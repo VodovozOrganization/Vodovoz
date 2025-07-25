@@ -109,7 +109,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.EditedEvent((o, args) => OnSpinPriceEdited(o, args, treeItems))
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
 					{
@@ -172,7 +172,7 @@ namespace Vodovoz.Views.Logistic
 						return list;
 					})
 					.EditedEvent((o, args) => OnDiscountReasonComboEdited(o, args, treeItems))
-					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.AddSetter((c, n) => { c.Sensitive = false; })
 					.AddSetter(
 						(c, n) =>

@@ -51,6 +51,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_selectPaymentTypeViewModel = selectPaymentTypeViewModel ?? throw new ArgumentNullException(nameof(selectPaymentTypeViewModel));;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 
+			SetPermissions();
+
 			DiscountReasons = _canEditPriceDiscountFromRouteListAndSelfDelivery
 				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
 				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
@@ -67,8 +69,6 @@ namespace Vodovoz.ViewModels.Logistic
 			SaveCommand = new DelegateCommand(() => SaveAndClose());
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.ClosePage));
 			PaymentTypeCommand = new DelegateCommand(() => OnSelectPaymentTypeClicked());
-
-			SetPermissions();
 		}
 
 		public DelegateCommand SaveCommand { get; }
