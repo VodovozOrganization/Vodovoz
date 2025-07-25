@@ -391,7 +391,7 @@ namespace Vodovoz
 
 		private void InitializeEdoAccountsWidget()
 		{
-			_counterpartyEdoAccountController.AddDefaultEdoAccountsToNewCounterparty(Entity);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(Entity);
 			
 			_counterpartyEdoAccountsViewModel = _lifetimeScope.Resolve<CounterpartyEdoAccountsViewModel>(
 				new TypedParameter(typeof(IUnitOfWork), UoW),

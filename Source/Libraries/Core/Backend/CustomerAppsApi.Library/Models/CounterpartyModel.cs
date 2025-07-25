@@ -223,7 +223,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			//Создаем нового контрагента и валидируем полученную сущность
 			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
-			_counterpartyEdoAccountController.AddDefaultEdoAccountsToNewCounterparty(counterparty);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(counterparty);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента
