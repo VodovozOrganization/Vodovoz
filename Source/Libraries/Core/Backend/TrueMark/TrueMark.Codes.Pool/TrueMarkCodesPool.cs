@@ -11,17 +11,16 @@ namespace TrueMark.Codes.Pool
 	/// <summary>
 	/// Предоставляет возможность добавлять и забирать коды из пула кодов 
 	/// </summary>
-	public class TrueMarkCodesPool
+	public class TrueMarkCodesPool : ITrueMarkCodesPool
 	{
-		private const string _poolTableName = "true_mark_codes_pool_new";
-
-		private readonly IUnitOfWork _uow;
+		protected const string _poolTableName = "true_mark_codes_pool_new";
+		protected readonly IUnitOfWork UoW;
 
 		public TrueMarkCodesPool(IUnitOfWork uow)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			SetSessionTimeout(_uow);
-			_uow.OpenTransaction();
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			SetSessionTimeout(UoW);
+			UoW.OpenTransaction();
 		}
 
 		public virtual void PutCode(int codeId)
@@ -63,7 +62,7 @@ namespace TrueMark.Codes.Pool
 		private IQuery GetPutCodeQuery(int codeId)
 		{
 			var sql = $@"INSERT INTO {_poolTableName} (code_id) VALUES(:code_id)";
-			var query = _uow.Session.CreateSQLQuery(sql)
+			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
 			return query;
 		}
@@ -106,7 +105,7 @@ namespace TrueMark.Codes.Pool
 			)
 			RETURNING code_id";
 
-			var query = _uow.Session.CreateSQLQuery(sql)
+			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
 			return query;
 		}

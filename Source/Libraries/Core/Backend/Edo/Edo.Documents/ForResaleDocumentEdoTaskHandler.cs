@@ -26,7 +26,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
@@ -35,7 +35,7 @@ namespace Edo.Documents
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
