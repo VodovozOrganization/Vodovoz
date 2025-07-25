@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -25,7 +26,7 @@ namespace Vodovoz.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
 		{
 			#region перенести всё это в OrderStateKey
 
@@ -42,15 +43,31 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(isDeliveryForFree)
 			{
-				return default;
+				return Result.Success(0m);
 			}
 
 			#endregion
 
-			var district = order.DeliveryPoint != null
+			if(order.DeliveryPoint is null)
+			{
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint, 
+					new Error(typeof(OnlineOrder), nameof(order.DeliveryPoint), $"Нет точки дооставки в заказе №{order.Id}")
+				]);
+			}
+			
+			var district = order.DeliveryPoint?.District != null
 				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
 				: null;
 
+			if(district is null)
+			{
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint,
+					new Error(typeof(OnlineOrder), nameof(order.DeliveryPoint.District), $"Нет привязанного района к точке доставки №{order.DeliveryPoint.Id}")
+				]);
+			}
+			
 			_orderStateKey.InitializeFields(order);
 
 			var price =
@@ -58,7 +75,7 @@ namespace Vodovoz.Application.Orders.Services
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 
-			return price;
+			return Result.Success(price);
 		}
 	}
 }
