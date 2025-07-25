@@ -12,11 +12,11 @@ namespace Edo.Common
 	public class SaveCodesService : ISaveCodesService
 	{
 		private readonly ILogger<SaveCodesService> _logger;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 
 		public SaveCodesService(
 			ILogger<SaveCodesService> logger,
-			TrueMarkCodesPool trueMarkCodesPool)
+			ITrueMarkCodesPool trueMarkCodesPool)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));

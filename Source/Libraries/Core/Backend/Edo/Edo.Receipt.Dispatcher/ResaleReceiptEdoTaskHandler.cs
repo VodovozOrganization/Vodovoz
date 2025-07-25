@@ -467,24 +467,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask, 
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return false;
-			}
-
 			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(
 				_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return false;
-			}
 
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
@@ -498,6 +482,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+				
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask, 
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return false;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return false;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(

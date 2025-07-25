@@ -173,7 +173,7 @@ namespace Vodovoz
 				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
 
 			_canEditPrices = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteList);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteListAndSelfDelivery);
 
 			_canEditOrderAfterRecieptCreated = currentPermissionService
 				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanChangeOrderAfterRecieptCreated);
@@ -728,6 +728,7 @@ namespace Vodovoz
 
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
 			DeliveryPoint = null;
+			BaseOrder.ContactPhone = null;
 
 			if(clientEntry.ViewModel.Entity != null)
 			{

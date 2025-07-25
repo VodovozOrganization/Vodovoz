@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -916,12 +916,18 @@
     '' AS payment_description
 FROM orders o
     INNER JOIN order_items oi on o.id = oi.order_id
+    INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+    INNER JOIN organizations org ON cc.organization_id = org.id
 WHERE
     o.client_id = @counterparty_id
   AND (
              ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
 				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
          )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
   AND o.payment_type = 'Cashless'
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
@@ -948,12 +954,17 @@ SELECT
     END AS doc_status,
     p.payment_purpose AS payment_description
 FROM payments_from_bank_client p
-    LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  INNER JOIN organizations org ON p.organization_id = org.id
 WHERE
     p.counterparty_id = @counterparty_id
   AND p.status != 'Cancelled'
   AND (@start_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &gt;= @start_date)
   AND (@end_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &lt;= @end_date)
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
 ORDER BY date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -970,6 +981,12 @@ ORDER BY date DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="OrderStatus_exclude">
             <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="is_closing_documents">
             <Value>={?is_closing_documents}</Value>
@@ -1049,6 +1066,10 @@ INNER JOIN cashless_movement_operations cmo ON cmo.id = pwo.cashless_movement_op
 INNER JOIN organizations o ON o.id = pwo.organization_id 
 INNER JOIN financial_categories_groups fcg ON pwo.financial_expense_category_id = fcg.id
 WHERE pwo.counterparty_id = @counterparty_id
+  AND (
+                (0 IN (@Organization_include) OR (o.id IN (@Organization_include)))
+          AND (NOT (o.id IN (@Organization_exclude)) OR o.id IS NULL)
+            )
   AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
   AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
 ORDER BY `date` DESC;</CommandText>
@@ -1061,6 +1082,12 @@ ORDER BY `date` DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1152,6 +1179,20 @@ ORDER BY `date` DESC;</CommandText>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>

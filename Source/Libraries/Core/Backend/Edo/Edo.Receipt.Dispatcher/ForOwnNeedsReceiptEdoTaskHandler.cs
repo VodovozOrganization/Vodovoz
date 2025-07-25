@@ -38,7 +38,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly ITrueMarkCodesValidator _localCodesValidator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
@@ -63,7 +63,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoRepository edoRepository,
 			IEdoReceiptSettings edoReceiptSettings,
 			ITrueMarkCodesValidator localCodesValidator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ReceiptTrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
@@ -1059,7 +1059,7 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(NomenclatureEntity nomenclature, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			foreach(var gtin in nomenclature.Gtins.Reverse())
@@ -1071,10 +1071,13 @@ namespace Edo.Receipt.Dispatcher
 				catch(EdoCodePoolMissingCodeException ex) 
 				{
 					exception = ex;
-					problemGtins.Add(new EdoProblemGtinItem
+					if(!problemGtins.Any(x => x.Gtin == gtin))
 					{
-						Gtin = gtin
-					});
+						problemGtins.Add(new EdoProblemGtinItem
+						{
+							Gtin = gtin
+						});
+					}
 				}
 			}
 
@@ -1089,7 +1092,7 @@ namespace Edo.Receipt.Dispatcher
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			try
@@ -1099,10 +1102,13 @@ namespace Edo.Receipt.Dispatcher
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				problemGtins.Add(new EdoProblemGtinItem
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
-					Gtin = gtin
-				});
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
+				}
 			}
 
 			if(codeId == 0)
@@ -1124,23 +1130,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask,
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return IndustryRequisitePrepareResult.Problem;
-			}
-
-			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return IndustryRequisitePrepareResult.Problem;
-			}
+			var regulatoryDocument =
+				_uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
 
 			bool isValid = true;
 
@@ -1161,6 +1152,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask,
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return IndustryRequisitePrepareResult.Problem;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return IndustryRequisitePrepareResult.Problem;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
@@ -1214,10 +1222,8 @@ namespace Edo.Receipt.Dispatcher
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
 				return IndustryRequisitePrepareResult.Succeeded;
 			}
-			else
-			{
-				return IndustryRequisitePrepareResult.NeedToChange;
-			}
+
+			return IndustryRequisitePrepareResult.NeedToChange;
 		}
 
 		private EdoFiscalDocument PrepareFiscalDocument(ReceiptEdoTask receiptEdoTask, int documentIndex)
