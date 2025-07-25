@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using ExportTo1c.Library;
 using Gtk;
 using NHibernate.Util;
 using QSProjectsLib;
-using Vodovoz.ServiceDialogs.ExportTo1c;
 
 namespace Vodovoz.ServiceDialogs
 {

@@ -75,6 +75,9 @@ namespace DatabaseServiceWorker
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
 
+						// .AddHostedService<ExportTo1cWorker>()
+						// .ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cWorker))
+
 						// Пока отключаем воркер экпорта в PowerBi
 						// .AddHostedService<PowerBiExportWorker>()
 						// .ConfigurePowerBiExportWorker(hostContext)
