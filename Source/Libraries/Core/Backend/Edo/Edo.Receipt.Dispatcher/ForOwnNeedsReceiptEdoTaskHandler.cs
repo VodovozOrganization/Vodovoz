@@ -38,7 +38,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly ITrueMarkCodesValidator _localCodesValidator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
@@ -63,7 +63,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoRepository edoRepository,
 			IEdoReceiptSettings edoReceiptSettings,
 			ITrueMarkCodesValidator localCodesValidator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ReceiptTrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
