@@ -3,12 +3,15 @@ using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog;
+using QS.Project.Services;
 using QS.Utilities;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
 using System.Globalization;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -171,7 +174,7 @@ namespace Vodovoz.Views.Logistic
 								dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
 						return list;
 					})
-					.EditedEvent((o, args) => OnDiscountReasonComboEdited(o, args, treeItems))
+					.EditedEvent(OnDiscountReasonComboEdited)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.AddSetter((c, n) => { c.Sensitive = false; })
 					.AddSetter(
@@ -194,7 +197,7 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 		}
 		private void OnSpinPriceEdited(object o, EditedArgs args, yTreeView treeItems)
-		{
+		{ 
 			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
 			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 			if(!(node is OrderItem orderItem))
@@ -204,8 +207,7 @@ namespace Vodovoz.Views.Logistic
 
 			orderItem.SetPrice(newPrice);
 		}
-
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args, yTreeView treeItems)
+		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
 		{
 			var index = int.Parse(args.Path);
 			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
@@ -214,7 +216,12 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
-			ViewModel.ApplyDiscountReasonToOrderItem(orderItem, index);
+			var previousDiscountReason = orderItem.DiscountReason;
+
+			Gtk.Application.Invoke((sender, eventArgs) =>
+			{
+				ViewModel.ApplyDiscountReasonToOrderItem(orderItem, index);
+			});
 		}
 	}
 }

@@ -13,6 +13,7 @@ using System.Linq.Dynamic.Core;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
@@ -79,7 +80,6 @@ namespace Vodovoz.ViewModels.Logistic
 		public IList<DiscountReason> DiscountReasons { get; }
 		public ILifetimeScope LifetimeScope { get; }
 
-
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
 		{
 			var currentGeoGroupId = Entity?.SelfDeliveryGeoGroup?.Id;
@@ -129,11 +129,12 @@ namespace Vodovoz.ViewModels.Logistic
 			Entity.UpdatePaymentType(e.PaymentType, _orderContractUpdater);
 
 			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
-		}
+		} 
 
 		private void SetPermissions()
 		{
-			_canEditPriceDiscountFromRouteListAndSelfDelivery = _currentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list_and_self_delivery");
+			_canEditPriceDiscountFromRouteListAndSelfDelivery = _currentPermissionService.
+				ValidatePresetPermission(Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteListAndSelfDelivery);
 		}
 	}
 }
