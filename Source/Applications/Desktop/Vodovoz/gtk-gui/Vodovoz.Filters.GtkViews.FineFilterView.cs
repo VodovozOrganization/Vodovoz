@@ -68,7 +68,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelSubdivision = new global::Gtk.Label();
 			this.labelSubdivision.Name = "labelSubdivision";
 			this.labelSubdivision.Xalign = 1F;
-			this.labelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подраздление:");
+			this.labelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.table1.Add(this.labelSubdivision);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSubdivision]));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
