@@ -1464,6 +1464,7 @@ SELECT
     o.id AS order_id,
     oi.id AS order_item_id,
     n.id AS nomenclature_id,
+    cm.car_type_of_use AS car_type_of_use,
     n.official_name AS nomenclature_name,
     CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
          WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
@@ -1624,9 +1625,9 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
-    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN cars car ON rl.car_id = car.id 
-		LEFT JOIN car_models cm ON car.model_id = cm.id 
+    INNER JOIN route_lists rl ON rl.id = rla.route_list_id
+		INNER JOIN cars car ON rl.car_id = car.id 
+		INNER JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     warehouses w ON w.id = scld.warehouse_id
     LEFT JOIN
@@ -1724,7 +1725,7 @@ WHERE
          )
        AND (
              (0 IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include)))
-				AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude))
+				AND (NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude)) OR cm.id IS NULL)
          )
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
@@ -1874,6 +1875,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="Organization_exclude">
             <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_include">
+            <Value>={?CarTypeOfUse_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_exclude">
+            <Value>={?CarTypeOfUse_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="Counterparty_include">
             <Value>={?Counterparty_include}</Value>
