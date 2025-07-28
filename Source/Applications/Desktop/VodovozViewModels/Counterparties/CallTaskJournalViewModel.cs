@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -14,11 +15,14 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Orders;
 using static Vodovoz.ViewModels.Counterparties.CallTaskFilterViewModel;
 using static Vodovoz.ViewModels.Counterparties.CallTaskJournalViewModel;
 
@@ -464,6 +468,63 @@ namespace Vodovoz.ViewModels.Counterparties
 						selectedNode.ImportanceDegree = ImportanceDegreeType.Important;
 					}
 				}));
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть акт сверки взаиморасчётов",
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
+						return selectedNodes.Count() == 1;
+					},
+					selectedItems => true,
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						/*if(selectedNode != null)
+						{
+							using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+							{
+								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
+
+								var incomes = _incomeRepository
+									.Get(uow, x => x.Order.Id == order.Id)
+									.ToList();
+
+								var edoUpd = _orderRepository
+									.GetEdoContainersByOrderId(uow, order.Id)
+									.Where(x => x.Type == DocumentContainerType.Upd)
+									.FirstOrDefault();
+
+								if(incomes.Any() || edoUpd != null)
+								{
+									var message = "Для изменения самовывоза необходимо сперва ";
+									if(incomes.Any())
+									{
+										var incomeNumbers = string.Join(", ", incomes.Select(i => $"№{i.Id}"));
+										message += $"удалить ПКО {incomeNumbers}";
+										if(edoUpd != null)
+										{
+											message += " или аннулировать УПД по ЭДО";
+										}
+									}
+									else
+									{
+										message += $"аннулировать УПД по ЭДО №{edoUpd.Id}";
+									}
+
+									_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+									return;
+								}
+								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
+									this,
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									OpenPageOptions.AsSlave);
+							}
+						}*/
+					}
+				)
+			);
 		}
 
 		public void ChangeEnitity(Action<CallTask> action, CallTaskJournalNode[] taskNodes)

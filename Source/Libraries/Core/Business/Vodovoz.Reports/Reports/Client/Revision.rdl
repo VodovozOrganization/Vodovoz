@@ -624,7 +624,7 @@ Fields!debt.Value - Fields!deposit.Value
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!money.Value</Value>
+                      <Value>=Iif(Fields!money.Value=0, "", Fields!money.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
