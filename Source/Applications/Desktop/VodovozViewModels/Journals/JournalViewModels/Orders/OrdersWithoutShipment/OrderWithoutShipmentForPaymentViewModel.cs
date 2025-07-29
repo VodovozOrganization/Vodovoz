@@ -15,6 +15,8 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -23,6 +25,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.NHibernateProjections.Orders;
@@ -31,6 +34,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
+using Vodovoz.ViewModels.Organizations;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -47,10 +51,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IEdoService _edoService;
 		private DateTime? _startDate = DateTime.Now.AddMonths(-1);
 		private DateTime? _endDate = DateTime.Now;
-
+		private Organization _organization;
+		
 		public Action<string> OpenCounterpartyJournal;
 
 		private bool _userHavePermissionToResendEdoDocuments;
+		private bool _canSetOrganization = true;
 
 		public OrderWithoutShipmentForPaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -65,7 +71,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
-			IEdoService edoService)
+			IEdoService edoService,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
@@ -83,6 +90,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			
+			OrganizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
 			
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
@@ -166,10 +181,27 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
-
 		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableAvailableOrders { get; }
 		
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+
+		public IEntityEntryViewModel OrganizationViewModel { get; }
+		
+		public Organization Organization
+		{
+			get => _organization;
+			set
+			{
+				SetField(ref _organization, value);
+				UpdateAvailableOrders();
+			}
+		}
+
+		public bool CanSetOrganization
+		{
+			get => _canSetOrganization;
+			set => SetField(ref _canSetOrganization, value);
+		}
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -216,6 +248,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.Where(x => x.OrderStatus == OrderStatus.Closed)
 				.Where(x => x.PaymentType == PaymentType.Cashless);
 
+			if(Organization != null)
+			{
+				cashlessOrdersQuery = cashlessOrdersQuery.Where(x => x.OurOrganization == Organization || x.OurOrganization == null);
+			}
+			
 			if(Entity.Client != null)
 			{
 				cashlessOrdersQuery.Where(x => x.Client == Entity.Client);
@@ -230,7 +267,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				cashlessOrdersQuery.Where(x => x.DeliveryDate <= EndDate);
 			}
-
+			
 			var bottleCountSubQuery = QueryOver.Of(() => orderItemAlias)
 				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -288,6 +325,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				Entity.RemoveItem(order);
 			}
+
+			CanSetOrganization = Entity.ObservableOrderWithoutDeliveryForPaymentItems.Count == 0;
 		}
 
 		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
