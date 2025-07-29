@@ -472,10 +472,12 @@ namespace Vodovoz.Representations
 								var incomes = _incomeRepository
 									.Get(uow, x => x.Order.Id == order.Id)
 									.ToList();
+								//var edoUpd = _orderRepository.GetUPDByOrderId(uow, order.Id);
+								var isSentEdoUpd = _orderRepository.OrderHasSentUPD(uow, order.Id);
 
-								
 
-								if(incomes.Any() || order.DocumentType != null)
+
+								if(incomes.Any() || isSentEdoUpd)
 								{
 									var message = "Для изменения самовывоза необходимо сперва ";
 									if(incomes.Any())
@@ -484,7 +486,7 @@ namespace Vodovoz.Representations
 										message += $"удалить ПКО {incomeNumbers}";
 										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 									}
-									else if (order.DocumentType == DefaultDocumentType.upd)
+									else if (isSentEdoUpd)
 									{
 										message += $"аннулировать УПД по ЭДО по заказу №{order.Id}";
 										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);

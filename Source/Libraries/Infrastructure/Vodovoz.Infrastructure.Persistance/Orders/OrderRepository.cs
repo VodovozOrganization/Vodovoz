@@ -966,6 +966,25 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return true;
 		}
 
+		public bool OrderHasSentUPD(IUnitOfWork uow, int orderId)
+		{
+			var query =
+			from et in uow.Session.Query<EdoTask>()
+			join oer in uow.Session.Query<OrderEdoRequest>() on et.Id equals oer.Task.Id into ecrJoin
+			from oer in ecrJoin.DefaultIfEmpty()
+			join o in uow.Session.Query<Order>() on oer.Order.Id equals o.Id into oJoin
+			from o in oJoin.DefaultIfEmpty()
+			where et.Status != EdoTaskStatus.Cancelled && o.Id == orderId && oer.DocumentType == EdoDocumentType.UPD
+			select new
+			{
+				EdoTask = et,
+				EdoCustomerRequest = oer,
+				Order = o
+			};
+
+			return query.Any();
+		}
+
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
 			if(IsReceiptSentOldDocflow(uow, orderId))
