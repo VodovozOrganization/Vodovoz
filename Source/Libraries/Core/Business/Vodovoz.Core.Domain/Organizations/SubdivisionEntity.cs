@@ -2,8 +2,10 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
@@ -20,6 +22,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		private bool _pacsTimeManagementEnabled;
 		private int? _financialResponsibilityCenterId;
 		private int? _chiefId;
+		
+		private IObservableList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings = new ObservableList<CashSubdivisionSortingSettings>();
 
 		/// <summary>
 		/// Идентификатор
@@ -72,6 +76,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _financialResponsibilityCenterId;
 			set => SetField(ref _financialResponsibilityCenterId, value);
+		}
+		
+		/// <summary>
+		/// Настройки сортировки касс
+		/// </summary>
+		[Display(Name = "Настройки сортировки касс")]
+		public virtual IObservableList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
+		{
+			get => _cashSubdivisionSortingSettings;
+			set => SetField(ref _cashSubdivisionSortingSettings, value);
 		}
 	}
 }

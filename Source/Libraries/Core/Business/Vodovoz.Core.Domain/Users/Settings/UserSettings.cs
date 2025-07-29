@@ -495,23 +495,23 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		/// </summary>
 		/// <param name="availableSubdivisions"></param>
 		/// <returns></returns>
-		public virtual bool UpdateCashSortingSettings(IEnumerable<int> availableSubdivisionsIds)
+		public virtual bool UpdateCashSortingSettings(IEnumerable<SubdivisionEntity> availableSubdivisions)
 		{
-			var availableSubdvisionsIdsArray = availableSubdivisionsIds.ToArray();
+			var availableSubdvisionsArray = availableSubdivisions.ToArray();
 
 			if(!CashSubdivisionSortingSettings.Any())
 			{
-				for(int i = 0; i < availableSubdivisionsIds.Count(); i++)
+				for(int i = 0; i < availableSubdivisions.Count(); i++)
 				{
-					CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(i + 1, Id, availableSubdvisionsIdsArray[i]));
+					CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(i + 1, this,  availableSubdvisionsArray[i]));
 				}
 
-				return availableSubdvisionsIdsArray.Any();
+				return availableSubdvisionsArray.Any();
 			}
 
 			var notAvailableAnymore = CashSubdivisionSortingSettings
 				.Where(x => x.CashSubdivisionId != null
-					&& availableSubdvisionsIdsArray.Contains(x.CashSubdivisionId.Value))
+					&& availableSubdvisionsArray.Any(sub => sub.Id == x.CashSubdivisionId.Value))
 				.ToList();
 
 			// убираем кассы, к которым больше нет доступа
@@ -526,8 +526,8 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			}
 
 			var listedIds = CashSubdivisionSortingSettings.Select(x => x.CashSubdivisionId).ToList();
-			var notListedAsAvailable = availableSubdvisionsIdsArray.Where(x => listedIds.IndexOf(x) == -1).ToList();
-			int lastIndex = -1;
+			var notListedAsAvailable = availableSubdvisionsArray.Where(x => listedIds.IndexOf(x.Id) == -1).ToList();
+			var lastIndex = -1;
 
 			if(CashSubdivisionSortingSettings.Any())
 			{
@@ -537,7 +537,7 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			// добавляем кассы, к которым появился доступ
 			foreach(var item in notListedAsAvailable)
 			{
-				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, Id, item));
+				CashSubdivisionSortingSettings.Add(new CashSubdivisionSortingSettings(++lastIndex, this,  item));
 			}
 
 			return notListedAsAvailable.Any() || notAvailableAnymore.Any();
