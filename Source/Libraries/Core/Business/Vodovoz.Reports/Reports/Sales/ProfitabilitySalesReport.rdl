@@ -1625,9 +1625,9 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
-    INNER JOIN route_lists rl ON rl.id = rla.route_list_id
-		INNER JOIN cars car ON rl.car_id = car.id 
-		INNER JOIN car_models cm ON car.model_id = cm.id 
+    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+		LEFT JOIN cars car ON rl.car_id = car.id 
+		LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     warehouses w ON w.id = scld.warehouse_id
     LEFT JOIN
