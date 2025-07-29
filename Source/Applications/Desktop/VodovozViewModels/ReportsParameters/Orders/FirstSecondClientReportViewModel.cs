@@ -44,11 +44,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 
-			Title = "Отчёт по первичным/вторичным заказам";
+			Title = "Отчёт по первичным и вторичным заказам";
 			Identifier = "Bottles.FirstSecondClients";
 
-			_startDate = DateTime.Now.AddDays(-7);
-			_endDate = DateTime.Now.AddDays(1);
+			_startDate = DateTime.Today.AddDays(-7);
+			_endDate = DateTime.Today;
 
 			AuthorSelectorFactory = employeesFactory.CreateEmployeeAutocompleteSelectorFactory();
 
