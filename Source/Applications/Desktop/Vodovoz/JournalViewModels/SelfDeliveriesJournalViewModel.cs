@@ -472,10 +472,8 @@ namespace Vodovoz.Representations
 								var incomes = _incomeRepository
 									.Get(uow, x => x.Order.Id == order.Id)
 									.ToList();
-								//var edoUpd = _orderRepository.GetUPDByOrderId(uow, order.Id);
+
 								var isSentEdoUpd = _orderRepository.OrderHasSentUPD(uow, order.Id);
-
-
 
 								if(incomes.Any() || isSentEdoUpd)
 								{
