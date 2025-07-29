@@ -3877,7 +3877,16 @@ FROM
                      (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
                      0
              ) AS excluded_org,
-
+         IF(
+                     '' NOT IN (@CarTypeOfUse_include),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
+                     0
+             ) AS included_car_models,
+         IF(
+                     '' NOT IN (@CarTypeOfUse_exclude),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
+                     0
+             ) AS excluded_car_models,
          IF(
                      0 NOT IN (@Subdivision_include),
                      (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
@@ -3972,16 +3981,6 @@ FROM
                      (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
                      0
              ) AS excluded_product_groups,
-         IF(
-              0 NOT IN (@CarTypeOfUse_include),
-              (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
-              0
-            ) AS included_car_models,
-         IF(
-              0 NOT IN (@CarTypeOfUse_exclude),
-              (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
-              0
-            ) AS excluded_car_models,
         IF(
 			'0' NOT IN (@OrderStatus_include),
 			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_include) GROUP BY orders.order_status) AS q),

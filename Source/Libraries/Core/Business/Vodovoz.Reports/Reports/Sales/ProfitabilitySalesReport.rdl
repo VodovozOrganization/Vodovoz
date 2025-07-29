@@ -2363,12 +2363,12 @@ FROM
                      0
              ) AS excluded_org,
          IF(
-                     0 NOT IN (@CarTypeOfUse_include),
+                     '' NOT IN (@CarTypeOfUse_include),
                      (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
                      0
              ) AS included_car_models,
          IF(
-                     0 NOT IN (@CarTypeOfUse_exclude),
+                     '' NOT IN (@CarTypeOfUse_exclude),
                      (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
                      0
              ) AS excluded_car_models,
