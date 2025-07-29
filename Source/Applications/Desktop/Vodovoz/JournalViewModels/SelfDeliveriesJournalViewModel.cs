@@ -473,29 +473,22 @@ namespace Vodovoz.Representations
 									.Get(uow, x => x.Order.Id == order.Id)
 									.ToList();
 
-								var edoUpd = _orderRepository
-									.GetEdoContainersByOrderId(uow, order.Id)
-									.Where(x => x.Type == DocumentContainerType.Upd)
-									.FirstOrDefault();
+								
 
-								if(incomes.Any() || edoUpd != null)
+								if(incomes.Any() || order.DocumentType != null)
 								{
 									var message = "Для изменения самовывоза необходимо сперва ";
 									if(incomes.Any())
 									{
 										var incomeNumbers = string.Join(", ", incomes.Select(i => $"№{i.Id}"));
 										message += $"удалить ПКО {incomeNumbers}";
-										if(edoUpd != null)
-										{
-											message += " или аннулировать УПД по ЭДО";
-										}
+										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 									}
-									else
+									else if (order.DocumentType == DefaultDocumentType.upd)
 									{
-										message += $"аннулировать УПД по ЭДО №{edoUpd.Id}";
+										message += $"аннулировать УПД по ЭДО по заказу №{order.Id}";
+										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 									}
-
-									_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 									return;
 								}
 								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
