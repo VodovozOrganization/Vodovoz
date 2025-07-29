@@ -383,9 +383,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.WebApi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogisticsEventsApi.Contracts", "Libraries\Core\Backend\LogisticsEventsApi.Contracts\LogisticsEventsApi.Contracts.csproj", "{3BCE8BC3-31BD-4F97-9A9B-57720F2926CB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerOnlineOrdersRegistrar", "Applications\Backend\Workers\Docker\CustomerOnlineOrdersRegistrar\CustomerOnlineOrdersRegistrar.csproj", "{36CC0151-1F57-4CAB-B8CD-AB0E29EBC4B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerOnlineOrdersRegistrar", "Applications\Backend\Workers\Docker\OnlineOrders\CustomerOnlineOrdersRegistrar\CustomerOnlineOrdersRegistrar.csproj", "{36CC0151-1F57-4CAB-B8CD-AB0E29EBC4B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerOnlineOrdersStatusUpdateNotifier", "Applications\Backend\Workers\Docker\CustomerOnlineOrdersStatusUpdateNotifier\CustomerOnlineOrdersStatusUpdateNotifier.csproj", "{003A06A2-CE6C-4FA9-96A2-D8E6F21B0E92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerOnlineOrdersStatusUpdateNotifier", "Applications\Backend\Workers\Docker\OnlineOrders\CustomerOnlineOrdersStatusUpdateNotifier\CustomerOnlineOrdersStatusUpdateNotifier.csproj", "{003A06A2-CE6C-4FA9-96A2-D8E6F21B0E92}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.FirebaseCloudMessaging", "Libraries\Core\Backend\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj", "{19A3EB37-A3F2-4521-94C1-C5DE2241EDB9}"
 EndProject
@@ -582,6 +582,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Admin", "Libraries\Core\Backend\Edo\Edo.Admin\Edo.Admin.csproj", "{86CC5608-4BE8-493D-B9B5-C90EC65002BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Admin.Worker", "Applications\Backend\Workers\Docker\Edo\Edo.Admin.Worker\Edo.Admin.Worker.csproj", "{7BAEB1CB-927E-4DCC-8324-4DC5A8451708}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OnlineOrders", "OnlineOrders", "{B813852E-1227-44E1-BB50-F862A67C60C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8298,8 +8300,6 @@ Global
 		{58AD462D-7F52-4BC6-9728-D6D673298FD9} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{11DDB231-147F-41E6-9B4B-878FE2FD98B7} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{3BCE8BC3-31BD-4F97-9A9B-57720F2926CB} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
-		{36CC0151-1F57-4CAB-B8CD-AB0E29EBC4B5} = {75B30F60-775F-48C6-BF82-7F5FB3093C49}
-		{003A06A2-CE6C-4FA9-96A2-D8E6F21B0E92} = {75B30F60-775F-48C6-BF82-7F5FB3093C49}
 		{19A3EB37-A3F2-4521-94C1-C5DE2241EDB9} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{EE817654-A5B1-4D94-828F-7001262CAED4} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 		{891B1F1F-9785-48A0-89A8-2E57D2D0C558} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
@@ -8397,6 +8397,9 @@ Global
 		{8C5154E6-AB27-5C60-D4B5-151EB66371E7} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
 		{86CC5608-4BE8-493D-B9B5-C90EC65002BC} = {23BCCF8C-B42C-46C7-92BA-78F7D0C57FFD}
 		{7BAEB1CB-927E-4DCC-8324-4DC5A8451708} = {A84E7F20-B342-4745-8833-1CCB1ECA702C}
+		{B813852E-1227-44E1-BB50-F862A67C60C3} = {75B30F60-775F-48C6-BF82-7F5FB3093C49}
+		{36CC0151-1F57-4CAB-B8CD-AB0E29EBC4B5} = {B813852E-1227-44E1-BB50-F862A67C60C3}
+		{003A06A2-CE6C-4FA9-96A2-D8E6F21B0E92} = {B813852E-1227-44E1-BB50-F862A67C60C3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

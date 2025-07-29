@@ -2,6 +2,7 @@
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.V4;
+using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,6 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using DriverApi.Notifications.Client;
 
 namespace CustomerOnlineOrdersRegistrar
 {
