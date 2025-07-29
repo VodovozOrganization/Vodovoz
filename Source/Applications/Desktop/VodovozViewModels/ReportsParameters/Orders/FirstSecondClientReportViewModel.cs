@@ -47,8 +47,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			Title = "Отчёт по первичным и вторичным заказам";
 			Identifier = "Bottles.FirstSecondClients";
 
-			_startDate = DateTime.Now.AddDays(-7);
-			_endDate = DateTime.Now.AddDays(1);
+			_startDate = DateTime.Today.AddDays(-7);
+			_endDate = DateTime.Today;
 
 			AuthorSelectorFactory = employeesFactory.CreateEmployeeAutocompleteSelectorFactory();
 
