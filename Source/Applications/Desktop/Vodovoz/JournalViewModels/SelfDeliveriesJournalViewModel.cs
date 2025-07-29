@@ -473,7 +473,17 @@ namespace Vodovoz.Representations
 									.Get(uow, x => x.Order.Id == order.Id)
 									.ToList();
 
-								var isSentEdoUpd = _orderRepository.OrderHasSentUPD(uow, order.Id);
+								bool isSentEdoUpd = _orderRepository.OrderHasSentUPD(uow, order.Id);
+								bool isSentReceipt = _orderRepository.OrderHasSentReceipt(uow, order.Id);
+
+								if(isSentReceipt)
+								{
+									_commonServices.InteractiveService.ShowMessage(
+										ImportanceLevel.Warning, 
+										$"Невозможно изменить самовывоз, т.к. имеется чек по заказу №{order.Id}");
+
+									return;
+								}
 
 								if(incomes.Any() || isSentEdoUpd)
 								{

@@ -968,21 +968,27 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentUPD(IUnitOfWork uow, int orderId)
 		{
-			var query =
-			from et in uow.Session.Query<EdoTask>()
-			join oer in uow.Session.Query<OrderEdoRequest>() on et.Id equals oer.Task.Id into ecrJoin
-			from oer in ecrJoin.DefaultIfEmpty()
-			join o in uow.Session.Query<Order>() on oer.Order.Id equals o.Id into oJoin
-			from o in oJoin.DefaultIfEmpty()
-			where et.Status != EdoTaskStatus.Cancelled && o.Id == orderId && oer.DocumentType == EdoDocumentType.UPD
-			select new
-			{
-				EdoTask = et,
-				EdoCustomerRequest = oer,
-				Order = o
-			};
+			var upds =
+			(from edoTask in uow.Session.Query<EdoTask>()
+			 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+			 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
+			 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
+			 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
+			 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
+			 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
+			 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
+			 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
+			 where
+				 edoRequest.Order.Id == orderId
+				 && (transferEdoDocument != null)
+				 && edoTask.Status != EdoTaskStatus.Cancelled
+				 && edoRequest.DocumentType == EdoDocumentType.UPD
+			 select
+			 edoTask.Id)
+				.ToList();
 
-			return query.Any();
+			return upds.Any();
 		}
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
