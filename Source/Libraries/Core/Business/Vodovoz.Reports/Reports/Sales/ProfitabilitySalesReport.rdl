@@ -1724,13 +1724,8 @@ WHERE
 				AND NOT (cc.organization_id IN (@Organization_exclude))
          )
        AND (
-          0 IN (@CarTypeOfUse_include)
-          OR (
-            cm.car_type_of_use IN (@CarTypeOfUse_include)
-            AND cm.car_type_of_use IS NOT NULL
-            AND rl.id IS NOT NULL
-          )
-        )
+          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL)))
+        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude))
         AND (NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude)) OR cm.id IS NOT NULL)
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
@@ -2363,12 +2358,12 @@ FROM
                      0
              ) AS excluded_org,
          IF(
-                     '' NOT IN (@CarTypeOfUse_include),
+                     '0' NOT IN (@CarTypeOfUse_include),
                      (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
                      0
              ) AS included_car_models,
          IF(
-                     '' NOT IN (@CarTypeOfUse_exclude),
+                     '0' NOT IN (@CarTypeOfUse_exclude),
                      (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
                      0
              ) AS excluded_car_models,
