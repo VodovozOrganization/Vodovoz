@@ -56,7 +56,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
-		
+
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
 			return QueryOver.Of<VodovozOrder>()
@@ -969,23 +969,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public bool OrderHasSentUPD(IUnitOfWork uow, int orderId)
 		{
 			var upds =
-			(from edoTask in uow.Session.Query<EdoTask>()
-			 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
-			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+			(from et in uow.Session.Query<EdoTask>()
+			 join er in uow.Session.Query<OrderEdoRequest>() on et.Id equals er.Task.Id
+			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on et.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
 			 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
 			 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
 			 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
 			 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
 			 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
-			 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
-			 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
+			 join oed in uow.Session.Query<OrderEdoDocument>() on et.Id equals oed.DocumentTaskId into edoDocuments
+			 from edoDocument in edoDocuments.DefaultIfEmpty()
 			 where
-				 edoRequest.Order.Id == orderId
-				 && (transferEdoDocument != null)
-				 && edoTask.Status != EdoTaskStatus.Cancelled
-				 && edoRequest.DocumentType == EdoDocumentType.UPD
+				 er.Order.Id == orderId
+				 && (edoDocument != null)
+				 && (edoDocument.Status != EdoDocumentStatus.Cancelled
+				 || edoDocument.Status != EdoDocumentStatus.Warning)
+				 && er.DocumentType == EdoDocumentType.UPD
 			 select
-			 edoTask.Id)
+			 et.Id)
 				.ToList();
 
 			return upds.Any();
