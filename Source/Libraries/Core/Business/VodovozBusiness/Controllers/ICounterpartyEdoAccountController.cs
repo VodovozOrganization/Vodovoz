@@ -16,9 +16,9 @@ namespace VodovozBusiness.Controllers
 		/// <returns>Основной ЭДО аккаунт клиента</returns>
 		CounterpartyEdoAccount GetDefaultCounterpartyEdoAccountByOrganizationId(Counterparty client, int? organizationId);
 		/// <summary>
-		/// Добавление ЭДО аккаунтов по умолчанию для нового клиента
+		/// Добавление ЭДО аккаунтов по умолчанию для клиента
 		/// </summary>
 		/// <param name="client">Клиент</param>
-		void AddDefaultEdoAccountsToNewCounterparty(Counterparty client);
+		void AddDefaultEdoAccountsToCounterparty(Counterparty client);
 	}
 }
