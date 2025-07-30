@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOnlineOrdersUpdater.Config;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 
 namespace CustomerOnlineOrdersUpdater
@@ -26,14 +28,15 @@ namespace CustomerOnlineOrdersUpdater
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-				await Task.Delay(1000, stoppingToken);
-				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders();
+				using var scope = _scopeFactory.CreateScope();
+				var options = scope.ServiceProvider.GetService<IOptionsMonitor<CustomerOnlineOrdersUpdaterOptions>>().CurrentValue;
+				await Task.Delay(options.DelayInSeconds, stoppingToken);
+				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope);
 			}
 		}
 
-		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders()
+		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IServiceScope scope)
 		{
-			using var scope = _scopeFactory.CreateScope();
 			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
 			await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders();
 		}

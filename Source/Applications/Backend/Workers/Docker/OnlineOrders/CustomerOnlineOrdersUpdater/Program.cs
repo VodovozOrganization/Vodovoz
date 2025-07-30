@@ -44,6 +44,7 @@ namespace CustomerOnlineOrdersUpdater
 						.AddTrackedUoW()
 						.AddBusiness(hostContext.Configuration)
 						.AddInfrastructure()
+						.AddConfig(hostContext.Configuration)
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
 
