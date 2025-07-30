@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -162,6 +163,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
 			{
+				filter.HideElements.Add(CarTypeOfUse.Loader);
 				filter.GetReportParametersFunc = f =>
 				{
 					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
