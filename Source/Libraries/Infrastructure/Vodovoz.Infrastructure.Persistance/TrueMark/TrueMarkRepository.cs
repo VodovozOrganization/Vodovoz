@@ -89,7 +89,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			string checkCode)
 		{
 			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
+				.Where(x => x.Gtin == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
 			return query.ToList();
 		}

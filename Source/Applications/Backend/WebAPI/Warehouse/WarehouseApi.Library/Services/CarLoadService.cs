@@ -956,7 +956,7 @@ namespace WarehouseApi.Library.Services
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
 				.Where(x =>
-					x.SourceCode.GTIN == oldTrueMarkWaterCode.GTIN
+					x.SourceCode.Gtin == oldTrueMarkWaterCode.Gtin
 					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
 					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
 				.FirstOrDefault();
