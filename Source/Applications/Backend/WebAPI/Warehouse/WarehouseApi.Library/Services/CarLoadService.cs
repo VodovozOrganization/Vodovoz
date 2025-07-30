@@ -469,13 +469,14 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			checkResult = _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
 				orderId,
 				nomenclatureId,
 				waterCode,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
-				documentItemToEdit);
+				documentItemToEdit,
+				cancellationToken);
 
 			if(checkResult.IsFailure)
 			{

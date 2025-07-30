@@ -14,12 +14,10 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
-using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.TrueMark;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -211,13 +209,15 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public Result IsTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsTrueMarkCodeCanBeAdded(
 			int orderId,
 			int nomenclatureId,
 			TrueMarkWaterIdentificationCode trueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItemEntity documentItemToEdit)
+			CarLoadDocumentItemEntity documentItemToEdit,
+			CancellationToken cancellationToken
+			)
 		{
 			var result = IsOrderNeedIndividualSetOnLoad(orderId);
 
@@ -275,7 +275,7 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return Result.Success();
+			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(trueMarkWaterCode, cancellationToken);
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
@@ -358,7 +358,7 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(newTrueMarkWaterCode, cancellationToken);
+			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(newTrueMarkWaterCode, cancellationToken);
 		}
 
 		public Result IsOrderNeedIndividualSetOnLoad(int orderId)
@@ -459,7 +459,7 @@ namespace WarehouseApi.Library.Errors
 		{
 			if(!carLoadDocumentItem
 				.TrueMarkCodes.Select(x => x.SourceCode)
-				.Any(x => x.GTIN == trueMarkWaterCode.GTIN && x.SerialNumber == trueMarkWaterCode.SerialNumber && x.CheckCode == trueMarkWaterCode.CheckCode))
+				.Any(x => x.Gtin == trueMarkWaterCode.Gtin && x.SerialNumber == trueMarkWaterCode.SerialNumber && x.CheckCode == trueMarkWaterCode.CheckCode))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkWaterCode.RawCode);
 				LogError(error);
@@ -497,7 +497,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, IEnumerable<string> nomenclatureGtins)
 		{
-			if(!nomenclatureGtins.Contains(trueMarkWaterCode.GTIN))
+			if(!nomenclatureGtins.Contains(trueMarkWaterCode.Gtin))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterCode.RawCode);
 				LogError(error);
@@ -509,7 +509,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodesHasEqualGtins(TrueMarkWaterIdentificationCode trueMarkWaterCode1, TrueMarkWaterIdentificationCode trueMarkWaterCode2)
 		{
-			if(trueMarkWaterCode1.GTIN != trueMarkWaterCode2.GTIN)
+			if(trueMarkWaterCode1.Gtin != trueMarkWaterCode2.Gtin)
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(trueMarkWaterCode1.RawCode, trueMarkWaterCode2.RawCode);
 				LogError(error);
@@ -522,13 +522,6 @@ namespace WarehouseApi.Library.Errors
 		private Result IsTrueMarkCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
 			return _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterCode);
-		}
-
-		private async Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(
-			TrueMarkWaterIdentificationCode trueMarkWaterCode,
-			CancellationToken cancellationToken)
-		{
-			return await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 		}
 
 		private void LogError(Error error)
