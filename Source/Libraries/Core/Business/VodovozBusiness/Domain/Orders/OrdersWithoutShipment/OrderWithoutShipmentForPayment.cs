@@ -28,6 +28,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	[HistoryTrace]
 	public class OrderWithoutShipmentForPayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
+		private int _organizationId;
+		
 		public virtual int Id { get; set; }
 		
 		IList<OrderWithoutShipmentForPaymentItem> orderWithoutDeliveryForPaymentItems = new List<OrderWithoutShipmentForPaymentItem>();
@@ -108,7 +110,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_payment_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "organization_id", _organizationId },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
@@ -120,7 +122,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
-
+		
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.GetSpecialContractString() : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
@@ -205,5 +207,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(OrderWithoutDeliveryForPaymentItems)}
 				);
 		}
-	}
+		
+		public virtual void SetOrganizationId(int id) => _organizationId = id;
+	} 
 }
