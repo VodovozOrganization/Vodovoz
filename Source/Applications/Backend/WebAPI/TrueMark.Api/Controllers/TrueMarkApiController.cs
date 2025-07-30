@@ -241,7 +241,9 @@ public class TrueMarkApiController : ControllerBase
 					Childs = cisesInformation.CisInfo.Childs ?? Enumerable.Empty<string>(),
 					ParentId = cisesInformation.CisInfo.Parent,
 					OwnerInn = cisesInformation.CisInfo.OwnerInn,
-					OwnerName = cisesInformation.CisInfo.OwnerName
+					OwnerName = cisesInformation.CisInfo.OwnerName,
+					ProducedDate = DateTime.TryParse(cisesInformation.CisInfo.ProducedDate, out var producedDate) ? producedDate : null,
+					ExpirationDate = DateTime.TryParse(cisesInformation.CisInfo.ExpirationDate, out var expirationDate) ? expirationDate : null
 				}
 			);
 

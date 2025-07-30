@@ -38,7 +38,10 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
-    <PackageReference Include="TrueMark.Contracts" Version="1.0.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
   </ItemGroup>
 
 
