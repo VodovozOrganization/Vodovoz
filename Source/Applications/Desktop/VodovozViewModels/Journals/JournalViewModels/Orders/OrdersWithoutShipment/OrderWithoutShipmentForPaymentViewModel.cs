@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 					if (Organization != null)
 					{
-						Entity.SetOrganizationId(Organization.Id);
+						Entity.OrganizationId = Organization.Id;
 					}
 
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
