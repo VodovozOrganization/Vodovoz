@@ -1,4 +1,4 @@
-﻿using Edo.Transport;
+using Edo.Transport;
 using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -151,7 +151,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var codesToRemove = codesData
 				.GroupBy(x => x.Key.RawCode)
 				.Where(g => g.Count() > 1)
-				.Select(g => g.Last())
+				.SelectMany(g => g.Skip(1))
 				.ToList();
 
 			foreach(var codeData in codesToRemove)
