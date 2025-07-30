@@ -791,6 +791,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>180</Timeout>
         <CommandText>WITH first_orders_data as(
 SELECT
     c.id AS client_id,
