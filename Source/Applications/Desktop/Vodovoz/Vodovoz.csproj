@@ -2109,15 +2109,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
+    <Compile Include="Views\Logistic\SelfDeliveringOrderEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Cash\Payments\" />
-    <Folder Include="Dialogs\Cash\Payments\" />
-    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
