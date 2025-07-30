@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -19,6 +19,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
+using static OneOf.Types.TrueFalseOrNull;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IInteractiveService _interactiveService;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -39,7 +41,8 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOrderContractUpdater contractUpdater,
-			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IEmployeeService employeeService,
+			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
 			{
@@ -57,9 +60,10 @@ namespace Vodovoz.ViewModels.Cash
 
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
-			_currentEmployee = 
+			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForCurrentUser(UoW);
+			_interactiveService = interactiveService;
 
 			TabName = "Онлайн оплата";
 
@@ -93,6 +97,27 @@ namespace Vodovoz.ViewModels.Cash
 		public DelegateCommand CloseCommand { get; }
 
 		public bool CanSave => Entity.OnlinePaymentNumber != null;
+
+		protected override bool BeforeSave()
+		{
+			bool isUnshippedSelfDeliveryWithPayAfterShipment = Entity.PayAfterShipment
+				&& Entity.SelfDelivery
+				&& Entity.OrderStatus != OrderStatus.OnLoading;
+
+			if(!isUnshippedSelfDeliveryWithPayAfterShipment)
+			{
+				return true;
+			}
+
+			if(!_interactiveService.Question(
+				"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+				"Внимание"))
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 		private void SaveHandler()
 		{
