@@ -116,7 +116,7 @@ namespace Vodovoz.Application.Orders.Services
 				return;
 			}
 
-			setsPartsOrders.Add(short.MaxValue, new PartOrderWithGoods(organization, processingProducts));
+			setsPartsOrders.Add(short.MaxValue, new PartOrderWithGoods(organization, processingProducts, processingEquipments));
 		}
 
 		private bool ContainsSubdivision(Subdivision authorSubdivision, IEnumerable<Subdivision> setSubdivisions) => 

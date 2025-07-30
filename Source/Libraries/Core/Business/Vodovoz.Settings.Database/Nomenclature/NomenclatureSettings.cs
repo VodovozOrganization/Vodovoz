@@ -55,6 +55,7 @@ namespace Vodovoz.Settings.Database.Nomenclature
 		public int NomenclatureToAddWithMasterId => _settingsController.GetIntValue("номенклатура_для_выезда_с_мастером");
 		public int ForfeitId => _settingsController.GetIntValue("forfeit_nomenclature_id");
 		public int MasterCallNomenclatureId => _settingsController.GetIntValue(nameof(MasterCallNomenclatureId));
+		public int DocumentsNomenclatureId => _settingsController.GetIntValue(nameof(DocumentsNomenclatureId));
 		
 		public int IdentifierOfOnlineShopGroup
 		{
