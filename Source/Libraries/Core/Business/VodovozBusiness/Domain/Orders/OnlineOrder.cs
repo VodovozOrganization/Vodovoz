@@ -48,6 +48,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _isFastDelivery;
 		private string _contactPhone;
 		private string _onlineOrderComment;
+		private string _unPaidReason;
 		private int? _trifle;
 		private int? _bottlesReturn;
 		private decimal _onlineOrderSum;
@@ -230,6 +231,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _contactPhone, value);
 		}
 		
+		[Display(Name = "Причина неоплаты(если заказ не был оплачен онлайн)")]
+		public virtual string UnPaidReason
+		{
+			get => _unPaidReason;
+			set => SetField(ref _unPaidReason, value);
+		}
+		
 		[Display(Name = "Комментарий к заказу")]
 		public virtual string OnlineOrderComment
 		{
@@ -320,12 +328,42 @@ namespace Vodovoz.Domain.Orders
 
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
-		
+
+		public virtual void UpdateOnlineOrder(
+			OnlineOrderPaymentType paymentType,
+			OnlinePaymentSource paymentSource,
+			OnlineOrderPaymentStatus paymentStatus,
+			DeliverySchedule deliverySchedule,
+			int? deliveryScheduleId,
+			DateTime deliveryDate,
+			bool isFastDelivery
+			)
+		{
+			OnlineOrderPaymentType = paymentType;
+			OnlinePaymentSource = paymentSource;
+			OnlineOrderPaymentStatus = paymentStatus;
+			UpdateDeliverySchedule(deliverySchedule, deliveryScheduleId);
+			DeliveryDate = deliveryDate;
+			IsFastDelivery = isFastDelivery;
+		}
+
+		public virtual void MoveToManualProcessing(string message)
+		{
+			OnlineOrderStatus = OnlineOrderStatus.New;
+			UnPaidReason = string.IsNullOrWhiteSpace(_unPaidReason) ? $"\n{message}" : $"\n{message}. Причина : {_unPaidReason}";
+		}
+
 		public virtual void SetDeliveryPointNotBelongCounterparty(bool value) => IsDeliveryPointNotBelongCounterparty = value;
 
 		public override string ToString()
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
+		}
+		
+		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
+		{
+			DeliveryScheduleId = deliveryScheduleId;
+			DeliverySchedule = deliverySchedule;
 		}
 	}
 }

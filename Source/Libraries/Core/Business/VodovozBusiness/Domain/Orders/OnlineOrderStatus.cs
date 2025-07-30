@@ -9,6 +9,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Заказ(ы) оформлен(ы)")]
 		OrderPerformed,
 		[Display(Name = "Отменен")]
-		Canceled
+		Canceled,
+		[Display(Name = "Ожидает оплату")]
+		WaitingForPayment
 	}
 }
