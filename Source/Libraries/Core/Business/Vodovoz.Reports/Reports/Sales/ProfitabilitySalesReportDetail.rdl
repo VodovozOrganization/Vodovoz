@@ -3148,9 +3148,6 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
-    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN cars car ON rl.car_id = car.id 
-		LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     warehouses w ON w.id = scld.warehouse_id
     LEFT JOIN
@@ -3207,6 +3204,9 @@ FROM
 			LIMIT 1)
 	LEFT JOIN
 	promotional_sets ps ON ps.id = oi.promotional_set_id
+  LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+	LEFT JOIN cars car ON rl.car_id = car.id 
+	LEFT JOIN car_models cm ON car.model_id = cm.id 
 WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
@@ -3247,8 +3247,9 @@ WHERE
 				AND NOT (cc.organization_id IN (@Organization_exclude))
          )
        AND (
-          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL)))
-        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude))
+          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL))
+        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude) AND cm.car_type_of_use IS NOT NULL)
+         )
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
 				AND (oi.discount_reason_id IS NULL OR NOT (oi.discount_reason_id IN (@DiscountReason_exclude)))

@@ -1724,9 +1724,9 @@ WHERE
 				AND NOT (cc.organization_id IN (@Organization_exclude))
          )
        AND (
-          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL)))
-        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude))
-        AND (NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude)) OR cm.id IS NOT NULL)
+          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL))
+        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude) AND cm.car_type_of_use IS NOT NULL)
+         )
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
 				AND (oi.discount_reason_id IS NULL OR NOT (oi.discount_reason_id IN (@DiscountReason_exclude)))
