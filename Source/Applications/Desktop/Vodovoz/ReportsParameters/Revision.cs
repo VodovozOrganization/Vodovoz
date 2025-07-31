@@ -35,6 +35,7 @@ namespace Vodovoz.Reports
 			speciallistcomboboxEmail.SetRenderTextFunc<Email>(s => s.Address);
 			speciallistcomboboxEmail.Binding
 				.AddBinding(ViewModel, vm => vm.Emails, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.SelectedEmail, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CounterpartySelected, w => w.Sensitive)
 				.InitializeFromSource();
 

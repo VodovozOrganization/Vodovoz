@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Report;
@@ -25,22 +26,26 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private bool _canRunReport;
 		private Counterparty _counterparty;
 		private IList<Email> _emails;
+		private Email _selectedEmail;
+
+		private readonly IInteractiveService _interactiveService;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			RdlViewerViewModel rdlViewerViewModel,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IInteractiveService interactiveService
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			RdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			SendByEmailCommand = new DelegateCommand(() => Console.WriteLine()
-			);
+			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
 			{
 				this.LoadReport();
@@ -51,6 +56,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			Identifier = "Client.Revision";
 		}
 
+		#region Properties
 		public DateTime? StartDate
 		{
 			get => _startDate;
@@ -59,6 +65,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				if(SetField(ref _startDate, value, () => StartDate))
 				{
 					CanRunReport = CounterpartySelected && value.HasValue && EndDate.HasValue;
+					ReportIsLoaded = false;
 				}
 			}
 		}
@@ -70,6 +77,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				if(SetField(ref _endDate, value, () => EndDate))
 				{
 					CanRunReport = CounterpartySelected && StartDate.HasValue && value.HasValue;
+					ReportIsLoaded = false;
 				}
 			}
 		}
@@ -107,6 +115,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{
 					CounterpartySelected = value != null;
 					Emails = value?.Emails ?? new List<Email>();
+					ReportIsLoaded = false;
 				}
 			}
 		}
@@ -137,6 +146,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			get => _emails;
 			set => SetField(ref _emails, value, () => Emails);
 		}
+		public Email SelectedEmail
+		{
+			get => _selectedEmail;
+			set => SetField(ref _selectedEmail, value, () => SelectedEmail);
+		}
 
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -144,7 +158,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public RdlViewerViewModel RdlViewerViewModel { get; }
 		public DelegateCommand SendByEmailCommand { get; }
 		public DelegateCommand RunCommand { get; }
-
+		#endregion
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
 			{ "StartDate", StartDate },
@@ -158,6 +172,29 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			LifetimeScope = null;
 			UnitOfWork?.Dispose();
 			UnitOfWork = null;
+		}
+		private void SendByEmail()
+		{
+			if(Emails.Count == 0 || Emails == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
+				return;
+			}
+
+			if(SelectedEmail == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана почта для отправки.");
+				return;
+			}
+
+
+			if(!SendRevision && !SendBillsForNotPaidOrder && !SendGeneralBill)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
+				return;
+			}
+
+			//Console.WriteLine("Отправка письма на " + SelectedEmail.Address);
 		}
 	}
 }
