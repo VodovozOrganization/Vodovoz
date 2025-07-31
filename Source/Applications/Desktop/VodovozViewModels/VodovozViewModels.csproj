@@ -1381,6 +1381,10 @@
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
+      <Name>QSOrmProject</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.Reports\Vodovoz.Presentation.Reports.csproj">
       <Project>{79eb219a-5dda-4153-be77-1770663dd0c3}</Project>
       <Name>Vodovoz.Presentation.Reports</Name>
@@ -1427,7 +1431,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Services\RouteOptimization\README.md" />

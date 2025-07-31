@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 
 		public Counterparty Counterparty { get; set; }
-
+		public int CounterpartyId { get; set; }
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public INavigationManager NavigationManager { get; }
 		public ILifetimeScope LifetimeScope { get; private set; }

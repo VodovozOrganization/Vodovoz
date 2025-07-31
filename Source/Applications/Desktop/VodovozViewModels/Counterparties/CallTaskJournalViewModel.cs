@@ -1,4 +1,5 @@
-﻿using ClosedXML.Excel;
+﻿using Autofac;
+using ClosedXML.Excel;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -7,22 +8,24 @@ using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QS.Report.ViewModels;
 using QS.Services;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.ViewModels.ReportsParameters;
+using VodovozBusiness.Domain.Client.Specifications;
 using static Vodovoz.ViewModels.Counterparties.CallTaskFilterViewModel;
 using static Vodovoz.ViewModels.Counterparties.CallTaskJournalViewModel;
 
@@ -32,14 +35,18 @@ namespace Vodovoz.ViewModels.Counterparties
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly CallTaskFilterViewModel _filterViewModel;
-
+		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IUnitOfWork _unitOfWork;
 		public CallTaskJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
+			IGenericRepository<Counterparty> counterpartyRepository,
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
 			ICurrentPermissionService currentPermissionService,
 			IFileDialogService fileDialogService,
+			ILifetimeScope lifetimeScope,
 			CallTaskFilterViewModel filterViewModel,
 			Action<CallTaskFilterViewModel> filterConfigurationAction = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
@@ -48,6 +55,12 @@ namespace Vodovoz.ViewModels.Counterparties
 				?? throw new ArgumentNullException(nameof(fileDialogService));
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
+			_lifetimeScope = lifetimeScope
+				?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_counterpartyRepository = counterpartyRepository
+				?? throw new ArgumentNullException(nameof(counterpartyRepository));
+
+			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
 			if(filterConfigurationAction != null)
 			{
@@ -481,47 +494,13 @@ namespace Vodovoz.ViewModels.Counterparties
 					{
 						var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						/*if(selectedNode != null)
+						if(selectedNode != null)
 						{
-							using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-							{
-								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
-
-								var incomes = _incomeRepository
-									.Get(uow, x => x.Order.Id == order.Id)
-									.ToList();
-
-								var edoUpd = _orderRepository
-									.GetEdoContainersByOrderId(uow, order.Id)
-									.Where(x => x.Type == DocumentContainerType.Upd)
-									.FirstOrDefault();
-
-								if(incomes.Any() || edoUpd != null)
-								{
-									var message = "Для изменения самовывоза необходимо сперва ";
-									if(incomes.Any())
-									{
-										var incomeNumbers = string.Join(", ", incomes.Select(i => $"№{i.Id}"));
-										message += $"удалить ПКО {incomeNumbers}";
-										if(edoUpd != null)
-										{
-											message += " или аннулировать УПД по ЭДО";
-										}
-									}
-									else
-									{
-										message += $"аннулировать УПД по ЭДО №{edoUpd.Id}";
-									}
-
-									_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
-									return;
-								}
-								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
-									this,
-									EntityUoWBuilder.ForOpen(selectedNode.Id),
-									OpenPageOptions.AsSlave);
-							}
-						}*/
+							NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(
+								this,
+								typeof(RevisionReportViewModel),
+								OpenPageOptions.AsSlave);
+						}
 					}
 				)
 			);
