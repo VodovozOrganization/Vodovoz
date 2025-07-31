@@ -5,7 +5,7 @@ namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 	/// <summary>
 	/// Позиция онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto
+	public class OnlineOrderItemDto : IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
@@ -41,5 +41,12 @@ namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; set; }
+		
+		public void ClearDiscount()
+		{
+			Discount = 0;
+			IsDiscountInMoney = false;
+			DiscountReasonId = null;
+		}
 	}
 }
