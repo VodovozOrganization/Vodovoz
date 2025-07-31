@@ -75,6 +75,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()

@@ -1,4 +1,6 @@
-﻿namespace CustomerOrdersApi.Library.Dto.Orders
+using VodovozBusiness.Domain.Orders;
+
+namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 {
 	/// <summary>
 	/// Позиция онлайн заказа

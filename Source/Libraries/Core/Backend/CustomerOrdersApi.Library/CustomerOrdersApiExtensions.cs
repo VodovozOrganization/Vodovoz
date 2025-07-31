@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -28,10 +28,14 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>();
 			
 			return services;
 		}
