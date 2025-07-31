@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsDiscountInMoney).Column("is_discount_money");
 			Map(x => x.PercentDiscount).Column("percent_discount");
 			Map(x => x.MoneyDiscount).Column("money_discount");
+			Map(x => x.IsFixedPrice).Column("is_fixed_price");
 			Map(x => x.CountFromPromoSet).Column("count_from_promo_set");
 			Map(x => x.NomenclaturePrice).Column("nomenclature_price");
 			Map(x => x.DiscountFromPromoSet).Column("discount_from_promo_set");

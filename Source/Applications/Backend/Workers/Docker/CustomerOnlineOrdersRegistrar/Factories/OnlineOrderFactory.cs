@@ -116,6 +116,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
+					onlineOrderItemDto.IsFixedPrice,
 					applicableDiscountReason,
 					nomenclature,
 					promoSet,

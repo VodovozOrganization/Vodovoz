@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal _percentDiscount;
 		private decimal _moneyDiscount;
 		private int? _promoSetId;
+		private bool _isFixedPrice;
 		private OnlineOrder _onlineOrder;
 		private decimal _count = -1;
 		private DiscountReason _discountReason;
@@ -107,6 +108,13 @@ namespace Vodovoz.Domain.Orders
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);
 		}
+		
+		[Display(Name = "Фикса")]
+		public virtual bool IsFixedPrice
+		{
+			get => _isFixedPrice;
+			set => SetField(ref _isFixedPrice, value);
+		}
 
 		[Display(Name = "Количество из промонабора")]
 		public virtual decimal CountFromPromoSet { get; set; }
@@ -135,6 +143,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			decimal price,
 			int? promoSetId,
+			bool isFixedPrice,
 			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
@@ -148,6 +157,7 @@ namespace Vodovoz.Domain.Orders
 				IsDiscountInMoney = isDiscountInMoney,
 				Price = price,
 				PromoSetId = promoSetId,
+				IsFixedPrice = isFixedPrice,
 				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,

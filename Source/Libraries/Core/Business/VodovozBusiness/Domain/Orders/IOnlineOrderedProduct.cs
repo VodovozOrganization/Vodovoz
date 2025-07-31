@@ -27,6 +27,10 @@
 		/// </summary>
 		int? PromoSetId { get; }
 		/// <summary>
+		/// Фикса
+		/// </summary>
+		bool IsFixedPrice { get; set; }
+		/// <summary>
 		/// Id скидки/промокода
 		/// </summary>
 		int? DiscountReasonId { get; set; }

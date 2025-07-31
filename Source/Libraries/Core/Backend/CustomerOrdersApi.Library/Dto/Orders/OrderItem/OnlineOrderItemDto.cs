@@ -42,6 +42,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 		/// </summary>
 		public int? PromoSetId { get; set; }
 		
+		/// <summary>
+		/// Фикса
+		/// </summary>
+		public bool IsFixedPrice { get; set; }
+		
 		public void ClearDiscount()
 		{
 			Discount = 0;
