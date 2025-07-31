@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,7 +14,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
@@ -34,6 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<CarModel> _carModelsRepository;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
@@ -50,6 +55,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
+			IGenericRepository<CarModel> carModelsRepository,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
@@ -79,6 +85,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_carModelsRepository = carModelsRepository ?? throw new ArgumentNullException(nameof(carModelsRepository));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -153,6 +160,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			};
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
+			{
+				filter.HideElements.Add(CarTypeOfUse.Loader);
+				filter.GetReportParametersFunc = f =>
+				{
+					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
+					var excludedTypes = filter.GetExcluded().Select(x => x.ToString()).ToArray();
+
+					return new Dictionary<string, object>
+					{
+						{ "CarTypeOfUse_include", includedTypes.Length > 0 ? includedTypes : new[] { "0" } },
+						{ "CarTypeOfUse_exclude", excludedTypes.Length > 0 ? excludedTypes : new[] { "0" } }
+					};
+				};
+			});
 		}
 
 		private void SetupGroupings()
@@ -292,7 +315,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				var modifier = new ProfitabilityDetailReportModifier();
 				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
 				result = modifier;
-				
+
 			}
 			else
 			{
