@@ -1,6 +1,7 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views;
 using QSReport;
+using ReactiveUI;
 using System;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ReportsParameters;
@@ -13,35 +14,55 @@ namespace Vodovoz.Reports
 			: base(viewModel)
 		{
 			Build();
+			Configure();
 
+			if(ViewModel.Counterparty != null)
+			{
+				OnReferenceCounterpartyChanged(ViewModel, EventArgs.Empty);
+			}
+		}
+
+		private void Configure()
+		{
 			dateperiodpicker1.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-		}
-
-		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.TdiTab))
-			{
-				entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
 					.ForProperty(x => x.Counterparty)
 					.UseTdiEntityDialog()
 					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 					.Finish();
 
-				entryCounterparty.ViewModel.PropertyChanged += OnReferenceCounterpartyChanged;
-			}
+			entryCounterparty.ViewModel.PropertyChanged += (s, e) =>
+			{
+				if(e.PropertyName == nameof(entryCounterparty.ViewModel.Entity))
+				{
+					OnReferenceCounterpartyChanged(s, EventArgs.Empty);
+				}
+			};
+
+			entityentryEmail.Sensitive = false;
+			ybuttonSendByEmail.Sensitive = false;
+
+			ycheckbuttonRevision.Binding
+				.AddBinding(ViewModel, vm => vm.SendRevision, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonBillsForNotPaidOrders.Binding
+				.AddBinding(ViewModel, vm => vm.SendBillsForNotPaidOrder, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonGeneralBill.Binding
+				.AddBinding(ViewModel, vm => vm.SendGeneralBill, w => w.Active)
+				.InitializeFromSource();
+
+			ybuttonSendByEmail.BindCommand(ViewModel.SendByEmailCommand);
+			buttonRun.BindCommand(ViewModel.RunCommand);
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			ViewModel.LoadReport();
-		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
 		{
@@ -58,6 +79,21 @@ namespace Vodovoz.Reports
 		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
 		{
 			ValidateParameters();
+
+			bool hasCounterparty = ViewModel.Counterparty != null;
+			bool hasEmails = hasCounterparty && ViewModel.Counterparty.Emails != null && ViewModel.Counterparty.Emails.Count > 0;
+
+			entityentryEmail.Sensitive = hasCounterparty;
+
+			if(hasCounterparty && hasEmails)
+			{
+				entityentryEmail.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+					.ForProperty(x => x.Email)
+					.UseTdiEntityDialog()
+					.UseOrmReferenceJournalAndAutocompleter()
+					.Finish();
+				//ViewModel.Email = ViewModel.Counterparty.Emails
+			}
 		}
 
 		public override void Destroy()
