@@ -12,34 +12,30 @@ namespace Vodovoz.Application.Orders.Services
 		public decimal CalculateItemPrice(
 			IEnumerable<IProduct> products,
 			DeliveryPoint deliveryPoint,
-			CounterpartyContract contract,
-			Nomenclature nomenclature,
-			PromotionalSet promoSet,
-			decimal bottlesCount,
+			Counterparty counterparty,
+			IProduct currentProduct,
 			bool hasPermissionsForAlternativePrice)
 		{
 			var fixedPrice = GetFixedPriceOrNull(
 				products,
 				deliveryPoint,
-				contract,
-				nomenclature,
-				promoSet,
-				bottlesCount);
+				counterparty,
+				currentProduct);
 
 			if(fixedPrice != null)
 			{
 				return fixedPrice.Price;
 			}
 
-			var count = promoSet == null
+			var count = currentProduct.PromoSet == null
 				? GetTotalWater19LCount(products, true)
-				: bottlesCount;
+				: currentProduct.Count;
 
 			var canApplyAlternativePrice =
 				hasPermissionsForAlternativePrice
-				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+				&& currentProduct.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-			return nomenclature.GetPrice(count, canApplyAlternativePrice);
+			return currentProduct.Nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
 		private decimal GetTotalWater19LCount(IEnumerable<IProduct> products, bool doNotCalculateWaterFromPromoSets = false)
@@ -54,43 +50,56 @@ namespace Vodovoz.Application.Orders.Services
 		private NomenclatureFixedPrice GetFixedPriceOrNull(
 			IEnumerable<IProduct> products,
 			DeliveryPoint deliveryPoint,
-			CounterpartyContract contract,
-			Nomenclature nomenclature,
-			PromotionalSet promoSet,
-			decimal bottlesCount)
+			Counterparty counterparty,
+			IProduct currentProduct)
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 
-			if(promoSet != null)
+			if(currentProduct.PromoSet != null)
+			{
+				return null;
+			}
+
+			if(!currentProduct.IsFixedPrice)
 			{
 				return null;
 			}
 			
-			if(deliveryPoint == null)
+			if(deliveryPoint is null)
 			{
-				if(contract == null)
+				if(counterparty is null)
 				{
 					return null;
 				}
 
-				fixedPrices = contract.Counterparty.NomenclatureFixedPrices;
+				fixedPrices = counterparty.NomenclatureFixedPrices;
 			}
 			else
 			{
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 
-			var influentialNomenclature = nomenclature.DependsOnNomenclature;
-			bottlesCount += GetTotalWater19LCount(products);
+			var influentialNomenclature = currentProduct.Nomenclature.DependsOnNomenclature;
+			var bottlesCount = GetTotalWater19LCount(products);
 
-			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount && influentialNomenclature == null)) 
+			if(influentialNomenclature is null
+				&& fixedPrices.Any(x =>
+					x.Nomenclature.Id == currentProduct.Nomenclature.Id
+					&& bottlesCount >= x.MinCount))
 			{
-				return fixedPrices.OrderBy(x=> x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
+				return fixedPrices
+					.OrderBy(x=> x.MinCount)
+					.Last(x => x.Nomenclature.Id == currentProduct.Nomenclature.Id && bottlesCount >= x.MinCount);
 			}
 
-			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount)) 
+			if(influentialNomenclature != null
+				&& fixedPrices.Any(x =>
+					x.Nomenclature.Id == influentialNomenclature.Id
+					&& bottlesCount >= x.MinCount))
 			{
-				return fixedPrices.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == influentialNomenclature?.Id && bottlesCount >= x.MinCount);
+				return fixedPrices
+					.OrderBy(x => x.MinCount)
+					.Last(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount);
 			}
 
 			return null;

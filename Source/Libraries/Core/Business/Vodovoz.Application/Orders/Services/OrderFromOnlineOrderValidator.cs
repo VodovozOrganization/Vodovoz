@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -289,10 +289,8 @@ namespace Vodovoz.Application.Orders.Services
 			var price = _priceCalculator.CalculateItemPrice(
 				_onlineOrder.OnlineOrderItems,
 				_onlineOrder.DeliveryPoint,
-				null,
-				onlineOrderItem.Nomenclature,
-				onlineOrderItem.PromoSet,
-				onlineOrderItem.Count,
+				_onlineOrder.Counterparty,
+				onlineOrderItem,
 				false);
 
 			onlineOrderItem.NomenclaturePrice = price;
