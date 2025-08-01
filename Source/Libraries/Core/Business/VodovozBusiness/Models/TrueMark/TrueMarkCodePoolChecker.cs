@@ -85,7 +85,7 @@ namespace Vodovoz.Models.TrueMark
 				var isIntroduced = checkResult.Value.Status == ProductInstanceStatusEnum.Introduced;
 				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.Value.OwnerInn);
 				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Value.Gtin);
-				var notExpired = checkResult.Value.ExpirationDate > DateTime.Today;
+				var notExpired = checkResult.Value.ExpirationDate >= DateTime.Today;
 
 				if(isIntroduced && isOurOrganizationOwner && isOurGtin && notExpired)
 				{
