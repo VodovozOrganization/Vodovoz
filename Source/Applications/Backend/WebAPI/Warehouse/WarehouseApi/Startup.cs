@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using QS.Project.Core;
 using QS.Services;
@@ -41,7 +40,7 @@ namespace WarehouseApi
 			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(AssemblyFinder).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
@@ -67,6 +66,8 @@ namespace WarehouseApi
 
 			services.AddSecurity(Configuration)
 				.AddOnlyOneSessionRestriction();
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
