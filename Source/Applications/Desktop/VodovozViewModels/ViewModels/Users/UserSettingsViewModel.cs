@@ -339,7 +339,7 @@ namespace Vodovoz.ViewModels.Users
 		{
 			var availableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser).ToList();
 
-			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions.Select(x => x.Id));
+			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions.Select(x => x));
 		}
 
 		private async Task FuelControlApiLogin()

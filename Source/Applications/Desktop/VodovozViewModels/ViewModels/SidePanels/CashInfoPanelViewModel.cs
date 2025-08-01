@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
 				.GetCurrentUserSettings(_unitOfWork);
 
-			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions.Select(x => x.Id));
+			var needSave = settings.UpdateCashSortingSettings(availableSubdivisions.Select(x => x));
 			if(needSave)
 			{
 				_unitOfWork.Save(settings);

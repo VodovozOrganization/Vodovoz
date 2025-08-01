@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Users.Settings
 {
@@ -22,12 +23,15 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		private int _sortingIndex;
 		private int? _userSettingsId;
 		private int? _cashSubdivisionId;
+		private UserSettings _userSettings;
+		private SubdivisionEntity _cashSubdivision;
 
 		/// <summary>
 		/// Конструктор по умолчанию для NHibernate
 		/// </summary>
 		protected CashSubdivisionSortingSettings()
 		{
+			
 		}
 
 		/// <summary>
@@ -41,6 +45,13 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			_sortingIndex = sortingIndex;
 			_userSettingsId = userSettingsId;
 			_cashSubdivisionId = cashSubdivisionId;
+		}
+
+		public CashSubdivisionSortingSettings(int sortingIndex, UserSettings userSettings, SubdivisionEntity cashSubdivision)
+		{
+			_sortingIndex = sortingIndex;
+			_userSettings = userSettings;
+			_cashSubdivision = cashSubdivision;
 		}
 
 		/// <summary>
@@ -61,25 +72,28 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			get => _sortingIndex;
 			set => SetField(ref _sortingIndex, value);
 		}
-
+		
+		public virtual int? UserSettingsId => UserSettings?.Id;
+		public virtual int? CashSubdivisionId => CashSubdivision?.Id;
+		
 		/// <summary>
-		/// Настройки пользователя
+		/// Настройки пользователя сущность
 		/// </summary>
 		[Display(Name = "Настройки пользователя")]
-		public virtual int? UserSettingsId
+		public virtual UserSettings UserSettings
 		{
-			get => _userSettingsId;
-			set => SetField(ref _userSettingsId, value);
+			get => _userSettings;
+			set => SetField(ref _userSettings, value);
 		}
 
 		/// <summary>
-		/// Подразделение кассы
+		/// Подразделение кассы сущность
 		/// </summary>
 		[Display(Name = "Подразделение кассы")]
-		public virtual int? CashSubdivisionId
+		public virtual SubdivisionEntity CashSubdivision
 		{
-			get => _cashSubdivisionId;
-			set => SetField(ref _cashSubdivisionId, value);
+			get => _cashSubdivision;
+			set => SetField(ref _cashSubdivision, value);
 		}
 	}
 }
