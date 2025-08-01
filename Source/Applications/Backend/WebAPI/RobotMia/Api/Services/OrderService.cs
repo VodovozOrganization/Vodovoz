@@ -29,6 +29,7 @@ using Vodovoz.RobotMia.Contracts.Responses.V1;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Exceptions;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Specifications.Orders;
@@ -264,11 +265,12 @@ namespace Vodovoz.RobotMia.Api.Services
 				using var unitOfWork = _unitOfWorkFactory.CreateWithNewRoot<Order>("Сервис заказов: подсчет стоимости заказа");
 
 				var counterparty = unitOfWork.GetById<Counterparty>(calculatePriceRequest.CounterpartyId)
-					?? throw new InvalidOperationException($"Не найден контрагент #{calculatePriceRequest.CounterpartyId}");
+				                   ?? throw new InvalidOperationException($"Не найден контрагент #{calculatePriceRequest.CounterpartyId}");
 				var deliveryPoint = unitOfWork.GetById<DeliveryPoint>(calculatePriceRequest.DeliveryPointId)
-					?? throw new InvalidOperationException($"Не найдена точка доставки #{calculatePriceRequest.DeliveryPointId}");
+				                    ?? throw new InvalidOperationException(
+					                    $"Не найдена точка доставки #{calculatePriceRequest.DeliveryPointId}");
 
-				var deliverySchedule =  unitOfWork.GetById<DeliverySchedule>(calculatePriceRequest.DeliveryIntervalId);
+				var deliverySchedule = unitOfWork.GetById<DeliverySchedule>(calculatePriceRequest.DeliveryIntervalId);
 
 				Order order = unitOfWork.Root;
 				order.Author = _robotMiaEmployee;
@@ -288,7 +290,7 @@ namespace Vodovoz.RobotMia.Api.Services
 				foreach(var saleItem in calculatePriceRequest.OrderSaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(saleItem.NomenclatureId)
-						?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
+					                   ?? throw new InvalidOperationException($"Не найдена номенклатура #{saleItem.NomenclatureId}");
 
 					if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 					{
@@ -301,7 +303,7 @@ namespace Vodovoz.RobotMia.Api.Services
 						order.AddWaterForSale(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
 					}
 					else if(!nomenclaturesParameters.ContainsKey(nomenclature.Id)
-						|| nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
+					        || nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
 					{
 						throw new InvalidOperationException(
 							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
@@ -313,12 +315,18 @@ namespace Vodovoz.RobotMia.Api.Services
 				}
 
 				order.RecalculateItemsPrice();
-				_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+				if(deliveryCostResult.IsFailure)
+				{
+					_logger.LogError($"При расчете стоимости заказа {order.Id} произошла ошибка:\n" + string.Join(\"\n", deliveryCostResult.Errors.Select(e => e.Message));
+					throw new DeliveryPointDistrictNotFoundException($"При расчете стоимости заказа {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				}
 
 				return new CalculatePriceResponse
 				{
 					OrderPrice = order.OrderSum,
-					DeliveryPrice = order.OrderItems.Where(oi => oi.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId).FirstOrDefault()?.ActualSum ?? 0m,
+					DeliveryPrice = order.OrderItems.Where(oi => oi.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId)
+						.FirstOrDefault()?.ActualSum ?? 0m,
 					ForfeitPrice = order.OrderItems.Where(oi => oi.Nomenclature.Id == _nomenclatureSettings.ForfeitId).Sum(x => x.ActualSum)
 				};
 			}
@@ -490,7 +498,13 @@ namespace Vodovoz.RobotMia.Api.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+			if(deliveryCostResult.IsFailure)
+			{
+				_logger.LogError($"При расчете стоимости заказа {order.Id} произошла ошибка:\n" + string.Join(\"\n", deliveryCostResult.Errors.Select(e => e.Message));
+				throw new DeliveryPointDistrictNotFoundException($"При расчете стоимости заказа {order.Id} произошла ошибка:\n" + string.Join(\"\n", deliveryCostResult.Errors.Select(e => e.Message));
+			}
+			
 			_vodovozOrderService.AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
