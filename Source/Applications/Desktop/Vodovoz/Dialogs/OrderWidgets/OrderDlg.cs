@@ -3518,7 +3518,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason);
+			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason: discountReason);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
