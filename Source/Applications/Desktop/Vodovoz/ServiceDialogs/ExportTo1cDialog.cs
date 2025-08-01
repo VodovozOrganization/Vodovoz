@@ -1,15 +1,18 @@
-﻿using Autofac;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using Autofac;
+using ExportTo1c.Library;
+using ExportTo1c.Library.ExportNodes;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Xml;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.ExportTo1c;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ServiceDialogs.ExportTo1c;
@@ -18,13 +21,17 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz
 {
-	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
+	public partial class ExportTo1cDialog : TdiTabBase
     {
         bool exportInProgress;
+		private ExportData exportData;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-        public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
+		public ExportTo1cDialog(IUnitOfWorkFactory unitOfWorkFactory)
         {
-            Build();
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
+			Build();
             TabName = "Выгрузка в 1с 8.3";
 
             comboOrganization.ItemsList = unitOfWorkFactory.CreateWithoutRoot().GetAll<Organization>();
@@ -43,11 +50,11 @@ namespace Vodovoz
             };
             
             UpdateExportSensitivity();
-        }
+		}
 
-        private ExportData exportData;
 
-        private void Export(Export1cMode mode)
+
+		private void Export(Export1cMode mode)
         {
 			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
             var dateStart = dateperiodpicker1.StartDate;
@@ -64,7 +71,9 @@ namespace Vodovoz
             using(var exportOperation = new ExportOperation(
                 mode,
 				ScopeProvider.Scope.Resolve<IOrderSettings>(),
-                dateStart,
+				ScopeProvider.Scope.Resolve<IOrderRepository>(),
+				_unitOfWorkFactory,
+				dateStart,
                 dateEnd,
                 organizationId
                 ))
@@ -124,12 +133,12 @@ namespace Vodovoz
             var settings = new XmlWriterSettings {
                 OmitXmlDeclaration = true,
                 Indent = true,
-                Encoding = System.Text.Encoding.UTF8,
+                Encoding = Encoding.UTF8,
                 NewLineChars = "\r\n"
             };
-            var fileChooser = new Gtk.FileChooserDialog("Выберите файл для сохранения выгрузки",
+            var fileChooser = new FileChooserDialog("Выберите файл для сохранения выгрузки",
                 (Window)this.Toplevel,
-                Gtk.FileChooserAction.Save,
+                FileChooserAction.Save,
                 "Отмена", ResponseType.Cancel,
                 "Сохранить", ResponseType.Accept
             );
