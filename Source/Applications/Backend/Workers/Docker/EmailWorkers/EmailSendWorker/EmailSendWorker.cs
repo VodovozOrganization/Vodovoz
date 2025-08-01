@@ -1,20 +1,19 @@
-﻿using Mailjet.Api.Abstractions;
-using Mailjet.Api.Abstractions.Endpoints;
+﻿using CustomerAppsApi.Library.Configs;
+using Mailganer.Api.Client;
+using Mailganer.Api.Client.Dto;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.Configs;
-using Mailjet.Api.Abstractions.Configs;
-using Mailjet.Api.Abstractions.Events;
-using Microsoft.Extensions.Options;
 
 namespace EmailSendWorker
 {
@@ -25,23 +24,21 @@ namespace EmailSendWorker
 
 		private readonly ILogger<EmailSendWorker> _logger;
 		private readonly IModel _channel;
+		private readonly MailganerClientV2 _mailganerClient;
 		private readonly RabbitOptions _rabbitOptions;
-		private readonly MailjetOptions _mailjetOptions;
-		private readonly SendEndpoint _sendEndpoint;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
 		public EmailSendWorker(
 			ILogger<EmailSendWorker> logger,
 			IModel channel,
-			IOptions<MailjetOptions> mailjetOptions,
 			IOptions<RabbitOptions> rabbitOptions,
-			SendEndpoint sendEndpoint)
+			MailganerClientV2 mailganerClient
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
-			_mailjetOptions = (mailjetOptions ?? throw new ArgumentNullException(nameof(mailjetOptions))).Value;
+			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
 			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
-			_sendEndpoint = sendEndpoint ?? throw new ArgumentNullException(nameof(sendEndpoint));
 			_channel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
 			_consumer = new AsyncEventingBasicConsumer(_channel);
 			_consumer.Received += MessageRecieved;
@@ -91,46 +88,44 @@ namespace EmailSendWorker
 					message.Payload = new EmailPayload();
 				}
 
-				var payload = new SendPayload
+				var emails = CreateEmailMessages(message);
+
+				foreach(var email in emails)
 				{
-					Messages = new[] { message },
-					SandboxMode = _mailjetOptions.Sandbox
-				};
-
-				for(var i = 0; i < _retriesCount; i++)
-				{
-					_logger.LogInformation($"Sending email { message.Payload.Id } { i + 1 }/{ _retriesCount }");
-
-					try
+					for(var i = 0; i < _retriesCount; i++)
 					{
-						var response = await _sendEndpoint.Send(payload);
-						_logger.LogInformation("Response:\n" + JsonSerializer.Serialize(response));
-						break;
-					}
-					catch(Exception exc)
-					{
-						_logger.LogError(exc, exc.Message);
-						await Task.Delay(_retryDelay);
+						_logger.LogInformation($"Sending email {message.Payload.Id} {i + 1}/{_retriesCount}");
 
-						if(i >= _retriesCount - 1)
+						try
 						{
-							var statusUpdateMessage = new UpdateStoredEmailStatusMessage
-							{
-								ErrorInfo = "SendWorker unable to send message to MailJet",
-								EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
-								Status = MailEventType.bounce,
-								RecievedAt = DateTime.Now
-							};
-
-							_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
-							var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
-							var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
-							var properties = _channel.CreateBasicProperties();
-							properties.Persistent = true;
-							_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+							await _mailganerClient.Send(email);
+							break;
 						}
+						catch(Exception exc)
+						{
+							_logger.LogError(exc, exc.Message);
+							await Task.Delay(_retryDelay);
 
-						continue;
+							if(i >= _retriesCount - 1)
+							{
+								var statusUpdateMessage = new UpdateStoredEmailStatusMessage
+								{
+									ErrorInfo = "SendWorker unable to send message to MailJet",
+									EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
+									Status = Mailjet.Api.Abstractions.Events.MailEventType.bounce,
+									RecievedAt = DateTime.Now
+								};
+
+								_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
+								var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
+								var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
+								var properties = _channel.CreateBasicProperties();
+								properties.Persistent = true;
+								_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+							}
+
+							continue;
+						}
 					}
 				}
 			}
@@ -139,6 +134,36 @@ namespace EmailSendWorker
 				_logger.LogInformation("Free message from queue");
 				_channel.BasicAck(e.DeliveryTag, false);
 			}
+		}
+
+		private IEnumerable<EmailMessage> CreateEmailMessages(SendEmailMessage message)
+		{
+			var emailMessages = new List<EmailMessage>();
+			foreach(var to in message.To)
+			{
+				var email = new EmailMessage
+				{
+					From = $"{message.From.Name} <{message.From.Email}>",
+					To = to.Email,
+					Subject = message.Subject,
+					MessageText = message.HTMLPart,
+					TrackOpen = true,
+					TrackClick = true,
+					TrackId = $"{message.Payload.InstanceId}-{message.Payload.Id}",
+				};
+
+				if(message.Attachments != null && message.Attachments.Any())
+				{
+					email.Attachments = message.Attachments.Select(x => new EmailAttachment
+					{
+						Filename = x.Filename,
+						Base64Content = x.Base64Content,
+					}).ToList();
+				}
+
+				emailMessages.Add(email);
+			}
+			return emailMessages;
 		}
 	}
 }

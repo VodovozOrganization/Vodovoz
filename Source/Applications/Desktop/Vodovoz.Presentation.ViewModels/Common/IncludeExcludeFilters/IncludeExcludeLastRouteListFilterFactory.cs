@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
@@ -10,12 +11,14 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 	public partial class IncludeExcludeLastRouteListFilterFactory : IIncludeExcludeLastRouteListFilterFactory
 	{
 		private LastRouteListInitIncludeFilter _initIncludeFilter;
-		private IInteractiveService _interactiveService;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 
 		public IncludeExcludeLastRouteListFilterFactory(
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService, IGenericRepository<Subdivision> subdivisionRepository)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 		}
 
 		public IncludeExludeFiltersViewModel CreateLastReportIncludeExcludeFilter(IUnitOfWork unitOfWork, LastRouteListInitIncludeFilter initIncludeFilter)
@@ -28,6 +31,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			AddCarTypeOfUseFilter(includeExludeFiltersViewModel);
 			AddCarOwnTypeFilter(includeExludeFiltersViewModel);
 			AddEmployeeCategoryFilter(includeExludeFiltersViewModel);
+			AddSubdivisionFilter(includeExludeFiltersViewModel, unitOfWork);
 
 			return includeExludeFiltersViewModel;
 		}
@@ -104,6 +108,11 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			});
 		}
 
+		private void AddSubdivisionFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel, IUnitOfWork unitOfWork)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _subdivisionRepository);
+		}
+		
 		private IncludeExludeFiltersViewModel CreateDefaultIncludeExludeFiltersViewModel()
 		{
 			return new IncludeExludeFiltersViewModel(_interactiveService);

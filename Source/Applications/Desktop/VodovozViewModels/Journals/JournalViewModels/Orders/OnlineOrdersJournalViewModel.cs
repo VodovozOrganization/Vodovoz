@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Timers;
+using Core.Infrastructure;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -8,6 +9,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -106,7 +108,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(o => o.EmployeeWorkWith, () => employeeWorkWithAlias)
-				.Left.JoinAlias(o => o.Order, () => orderAlias)
+				.Left.JoinAlias(o => o.Orders, () => orderAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
 				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
@@ -118,6 +120,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => employeeWorkWithAlias.Name),
 				Projections.Property(() => employeeWorkWithAlias.Patronymic)
 			);
+
+			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
 
 			var orderByStatusProjection =
 				Projections.Conditional(
@@ -246,7 +250,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			if(_filterViewModel.OrderId.HasValue)
 			{
-				query.Where(o => o.Order.Id == _filterViewModel.OrderId.Value);
+				query.Where(() => orderAlias.Id == _filterViewModel.OrderId.Value);
 			}
 
 			if(_filterViewModel.OnlineOrderId.HasValue)
@@ -312,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.OnlinePayment).WithAlias(() => resultAlias.OnlinePayment)
 					.Select(o => o.OnlineOrderPaymentType).WithAlias(() => resultAlias.OnlineOrderPaymentType)
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(o => o.OnlineOrderStatus).Asc()
 				.ThenBy(o => o.Created).Desc()
@@ -358,6 +362,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					},
 					Projections.Constant(int.MaxValue)
 				);
+			
+			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
 
 			#region Фильтрация
 			
@@ -468,7 +474,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(r => r.RequestForCallStatus).Asc()
 				.ThenBy(r => r.Created).Desc()
@@ -483,16 +489,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			PopupActionsList.Add(
 				new JournalAction(
-					"Перейти в оформленный заказ",
-					selectedItems => selectedItems.All(x => (x as OnlineOrdersJournalNode).OrderId.HasValue),
-					selectedItems => true,
-					(selectedItems) =>
+					"Перейти в оформленный заказ(ы)",
+					sensitiveSelected =>
+						sensitiveSelected.All(x => !string.IsNullOrWhiteSpace((x as OnlineOrdersJournalNode).OrdersIds)),
+					visibleSelected => true,
+					selectedItems =>
 					{
 						var selectedNodes = selectedItems.Cast<OnlineOrdersJournalNode>();
 
 						foreach(var selectedNode in selectedNodes)
 						{
-							_gtkTabsOpener.OpenOrderDlgFromViewModelByNavigator(this, selectedNode.OrderId.Value);
+							var ordersIds = selectedNode.OrdersIds.ParseNumbers();
+
+							foreach(var orderId in ordersIds)
+							{
+								_gtkTabsOpener.OpenOrderDlgFromViewModelByNavigator(this, orderId);
+							}
 						}
 					}
 				)

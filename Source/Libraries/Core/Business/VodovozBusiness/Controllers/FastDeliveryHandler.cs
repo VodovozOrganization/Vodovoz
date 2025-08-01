@@ -2,11 +2,11 @@
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Errors;
 using Vodovoz.Models;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Database.Logistics;
@@ -16,7 +16,7 @@ using Vodovoz.Validation;
 
 namespace Vodovoz.Controllers
 {
-	public class FastDeliveryHandler
+	public class FastDeliveryHandler : IFastDeliveryHandler
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDeliveryRepository _deliveryRepository;

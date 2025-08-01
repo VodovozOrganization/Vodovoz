@@ -1,24 +1,28 @@
-﻿using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Core.Infrastructure;
+using Edo.Transport;
+using NHibernate;
 using NHibernate.Type;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Edo.Transport;
 using QS.Services;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
+using Vodovoz.ViewModels.ViewModels.Edo;
 using Core.Infrastructure;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -33,6 +37,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly bool _userCanSentReceiptWasSaveCodes;
 
 		public EdoProcessJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -43,9 +48,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			MessageService messageService,
 			IUserService userService,
 			IClipboard clipboard,
-			IGtkTabsOpener gtkTabsOpener, INavigationManager navigation = null
+			IGtkTabsOpener gtkTabsOpener,
+			ICurrentPermissionService currentPermissionService,
+			INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+			
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
@@ -67,6 +79,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			CreateNodeActions();
 			CreatePopupActions();
+			
+			_userCanSentReceiptWasSaveCodes =
+				_userService.GetCurrentUser().IsAdmin
+				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CashReceipt.CanResendDuplicateReceipts);
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
@@ -87,14 +103,42 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			PopupActionsList.Clear();
 			CreateCopyOrderIdToClipboardAction();
 			CreateOpenOrderAction();
+			CreateCopyTaskIdToClipboardAction();
+			CreateOpenTenderPopupAction();
+			CreateOpenOrderCodesAction();
 		}
+
+		private void CreateOpenTenderPopupAction()
+		{
+			var action = new JournalAction(
+				"Открыть задачу по госзаказу",
+				selectedItems => true,
+				selectedItems => selectedItems.FirstOrDefault() is EdoProcessJournalNode selectedNode && selectedNode.OrderTaskType == EdoTaskType.Tender,
+				selectedItems =>
+				{
+					if(selectedItems.FirstOrDefault() is EdoProcessJournalNode selectedNode
+					   && selectedNode.OrderTaskId != null)
+					{
+						NavigationManager.OpenViewModel<TenderEdoViewModel, IEntityUoWBuilder>(this,
+							EntityUoWBuilder.ForOpen(selectedNode.OrderTaskId.Value));
+					}
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
 
 		private void CreateResendReceiptFromSaveCodesTaskAction()
 		{
 			var action = new JournalAction(
 				"Отправить чек, ушедший в сохранение кодов",
-				sensitive => sensitive.Any(),
-				visible => _userService.GetCurrentUser().IsAdmin,
+				sensitive => sensitive.Any() && sensitive.All(x =>
+					x is EdoProcessJournalNode edoTask
+					&& edoTask.OrderTaskType == EdoTaskType.Receipt
+					&& edoTask.OrderTaskReceiptStage == EdoReceiptStatus.SavedToPool
+					&& edoTask.OrderTaskStatus == EdoTaskStatus.Completed),
+				visible => _userCanSentReceiptWasSaveCodes,
 				async selected =>
 				{
 					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
@@ -251,8 +295,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				{
 					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
 
-					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderId));
+					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderTaskId));
 					_clipboard.SetText(orderIds);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateOpenOrderCodesAction()
+		{
+			var action = new JournalAction(
+				"Просмотр кодов по заказу",
+				selected => selected.Count() == 1,
+				selected => true,
+				selected =>
+				{
+					var selectedNode = selected.FirstOrDefault() as EdoProcessJournalNode;
+					if(selectedNode == null)
+					{
+						return;
+					}
+					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 

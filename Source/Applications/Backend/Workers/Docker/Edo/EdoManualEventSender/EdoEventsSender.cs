@@ -34,6 +34,9 @@ namespace EdoManualEventSender
 			Console.WriteLine("12. SaveCodesTaskCreatedEvent:");
 			Console.WriteLine("13. ReceiptTaskCreatedEvent:");
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
+			Console.WriteLine("15. TransferCompleteEvent (Tender):");
+			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
+			Console.WriteLine("99. RequestTaskCancellationEvent:");
 			Console.WriteLine();
 
 			Console.Write("Выберите тип сообщения: ");
@@ -82,6 +85,17 @@ namespace EdoManualEventSender
 					break;
 				case 14:
 					SendReceiptReadyToSendEvent();
+					break;
+				case 15:
+					SendTransferCompleteTenderEvent();
+					break;
+				case 16:
+					SendWithdrawalTaskCreatedEvent();
+					break;
+
+
+				case 99:
+					SendRequestTaskCancellationEvent();
 					break;
 				default:
 					break;
@@ -213,6 +227,25 @@ namespace EdoManualEventSender
 				TransferInitiator = TransferInitiator.Document
 			}).Wait();
 		}
+		
+		private void SendTransferCompleteTenderEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Завершение трансфера для Тендера");
+			Console.WriteLine("Необходимо ввести Id итерации трансфера (edo_transfer_request_iterations)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new TransferCompleteEvent
+			{
+				TransferIterationId = id,
+				TransferInitiator = TransferInitiator.Tender
+			}).Wait();
+		}
 
 		private void SendTransferCompleteReceiptEvent()
 		{
@@ -301,6 +334,47 @@ namespace EdoManualEventSender
 				return;
 			}
 			_messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = id }).Wait();
+		}
+
+		private void SendWithdrawalTaskCreatedEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом Withdrawal (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = id });
+		}
+
+		private void SendRequestTaskCancellationEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Внимание! Этот ивент может запустить аннулирование документа Taxcom");
+			Console.WriteLine("Необходимо ввести Id ЭДО задачи (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			Console.Write("Введите основание для аннулирования (комментарий): ");
+			var reason = Console.ReadLine();
+			if(string.IsNullOrWhiteSpace(reason))
+			{
+				Console.WriteLine("Основание обязательно");
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new RequestTaskCancellationEvent { 
+				TaskId = id,
+				Reason = reason
+			});
 		}
 	}
 }

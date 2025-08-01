@@ -7,6 +7,7 @@ using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
 using System.Text;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -188,6 +189,14 @@ namespace Vodovoz.Views.Complaints
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
+			orderRatingEntry.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+
+			lblOrderRating.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 
 			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))

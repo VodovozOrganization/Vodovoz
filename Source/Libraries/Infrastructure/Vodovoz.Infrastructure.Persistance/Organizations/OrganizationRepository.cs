@@ -54,17 +54,6 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 				.SingleOrDefault();
 		}
 
-		public Organization GetPaymentFromOrganizationById(IUnitOfWork uow, int paymentFromId)
-		{
-			Organization organizationAlias = null;
-
-			return uow.Session.QueryOver<PaymentFrom>()
-				.Left.JoinAlias(pf => pf.OrganizationForOnlinePayments, () => organizationAlias)
-				.Where(pf => pf.Id == paymentFromId)
-				.Select(Projections.Entity(() => organizationAlias))
-				.SingleOrDefault<Organization>();
-		}
-
 		public Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId)
 		{
 			return uow.Session.QueryOver<Organization>()

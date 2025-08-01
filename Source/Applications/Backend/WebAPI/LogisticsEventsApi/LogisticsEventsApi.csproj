@@ -31,10 +31,10 @@
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.14" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
         <PackageReference Include="MySqlConnector" Version="2.2.6" />
+        <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
-		<PackageReference Include="Google.OrTools" Version="6.4.4495" />
     </ItemGroup>
 
     <ItemGroup>

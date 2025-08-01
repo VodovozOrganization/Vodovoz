@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz

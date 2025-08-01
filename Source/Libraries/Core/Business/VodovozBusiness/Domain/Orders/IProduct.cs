@@ -5,6 +5,10 @@ namespace Vodovoz.Domain.Orders
 	public interface IProduct
 	{
 		/// <summary>
+		/// Id сущности
+		/// </summary>
+		int Id { get; }
+		/// <summary>
 		/// Количество
 		/// </summary>
 		decimal Count { get; }

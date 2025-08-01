@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Contacts
 {
+	/// <summary>
+	/// Тип телефона
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы телефонов",
 		Nominative = "тип телефона")]
@@ -14,6 +17,18 @@ namespace Vodovoz.Core.Domain.Contacts
 		private string _name;
 		private PhonePurpose _phonePurpose;
 
+		/// <summary>
+		/// Конструктор по умолчанию
+		/// </summary>
+		public PhoneTypeEntity()
+		{
+			Name = string.Empty;
+		}
+
+		/// <summary>
+		/// Идентификатор
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -21,23 +36,24 @@ namespace Vodovoz.Core.Domain.Contacts
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Тип телефона
+		/// </summary>
 		[Display(Name = "Тип телефона")]
 		public virtual string Name
 		{
 			get => _name;
-			set => SetField(ref _name, value, () => Name);
+			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Назначение типа телефона
+		/// </summary>
 		[Display(Name = "Назначение типа телефона")]
 		public virtual PhonePurpose PhonePurpose
 		{
 			get => _phonePurpose;
-			set => SetField(ref _phonePurpose, value, () => PhonePurpose);
-		}
-
-		public PhoneTypeEntity()
-		{
-			Name = string.Empty;
+			set => SetField(ref _phonePurpose, value);
 		}
 	}
 }

@@ -10,13 +10,14 @@ namespace Vodovoz.Core.Domain.Documents
 	public class TaxcomDocflow : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _creationTime;
+		private DateTime? _acceptingIngoingDocflowTime;
 		private string _mainDocumentId;
 		private Guid? _docflowId;
 		private int _edoDocumentId;
 		private bool _isReceived;
 
 		/// <summary>
-		/// Id
+		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
 
@@ -28,9 +29,18 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _creationTime;
 			set => SetField(ref _creationTime, value);
 		}
+		
+		/// <summary>
+		/// Время отправки запроса на принятие входящего документооборота
+		/// </summary>
+		public virtual DateTime? AcceptingIngoingDocflowTime
+		{
+			get => _acceptingIngoingDocflowTime;
+			set => SetField(ref _acceptingIngoingDocflowTime, value);
+		}
 
 		/// <summary>
-		/// Внутренний Id главного документа
+		/// Внутренний идентификатор главного документа
 		/// </summary>
 		public virtual string MainDocumentId
 		{
@@ -39,7 +49,7 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Id документооборота на сервере Такском
+		/// Идентификатор документооборота на сервере Такском
 		/// </summary>
 		public virtual Guid? DocflowId
 		{
@@ -48,7 +58,7 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Id документа ЭДО
+		/// Идентификатор документа ЭДО
 		/// </summary>
 		public virtual int EdoDocumentId
 		{

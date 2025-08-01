@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -145,21 +146,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
-
-			var imageId = "email_ad";
-			var image = new EmailAttachment();
-			image.MIMEType = "image/png";
-			image.FileName = "email_ad.png";
-			using(Stream stream = typeof(OrderWithoutShipmentForPayment).Assembly.GetManifestResourceStream("VodovozBusiness.Resources.email_ad.png")) {
-				byte[] buffer = new byte[stream.Length];
-				stream.Read(buffer, 0, buffer.Length);
-				image.Base64Content = Convert.ToBase64String(buffer);
-			}
-
-			template.Attachments.Add(imageId, image);
 
 			template.Title = "ООО \"Веселый водовоз\"";
 			template.Text =
@@ -197,7 +186,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +
 						"<p>Мы в Instagram: @vodovoz_lifestyle</p>\n" +
 						"<p>Наш официальный сайт: <a href=\"http://www.vodovoz-spb.ru/\" target=\"_blank\">www.vodovoz-spb.ru</a></p>\n" +
-						string.Format("<img src=\"cid:{0}\">", imageId);
+						"<img src=\"https://cloud1.vod.qsolution.ru/email-attachments/email_ad.png\">";
 
 			return template;
 		}

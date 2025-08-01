@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		private readonly ILifetimeScope _scope;
 		private readonly ISubdivisionPermissionsService _subdivisionPermissionsService;
 		private readonly IGenericRepository<Subdivision> _subdivisionGenericRepository;
+		private readonly ICashRepository _cashRepository;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
 		private bool _canEnablePacs;
@@ -53,7 +55,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			ISubdivisionPermissionsService subdivisionPermissionsService,
-			IGenericRepository<Subdivision> _subdivisionGenericRepository,
+			IGenericRepository<Subdivision> subdivisionGenericRepository,
+			ICashRepository cashRepository,
 			SubdivisionsJournalViewModel subdivisionsJournalViewModel,
 			ViewModelEEVMBuilder<FinancialResponsibilityCenter> financialResponsibilityCenterViewModelEEVMBuilder)
 			: base(uoWBuilder, unitOfWorkFactory, commonServices)
@@ -67,8 +70,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_subdivisionPermissionsService = subdivisionPermissionsService ?? throw new ArgumentNullException(nameof(subdivisionPermissionsService));
-			this._subdivisionGenericRepository = _subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(_subdivisionGenericRepository));
-
+			_subdivisionGenericRepository = subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(subdivisionGenericRepository));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
 			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
 			SubdivisionsJournalViewModel.Refresh();
@@ -121,8 +124,18 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ReplaceSubdivisionPermissionsCommand = new DelegateCommand(ReplaceSubdivisionPermissions);
 
 			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Permissions.Pacs.CanEnablePacs,
+				Vodovoz.Core.Domain.Permissions.Pacs.CanEnablePacs,
 				CommonServices.UserService.CurrentUserId);
+
+			if(Entity.Id != 0)
+			{
+				CanArchive = 
+					_cashRepository.CurrentCashForGivenSubdivisions(UoW, new int[] { Entity.Id }).Sum(x => x.Balance) == 0 || Entity.IsArchive;
+			}
+			else
+			{
+				CanArchive = true;
+			}
 		}
 
 		public event Action UpdateWarehousePermissionsAction;
@@ -172,6 +185,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanEnablePacs => _canEnablePacs;
+
+		public bool CanArchive { get; }
 
 		public bool CanAddOrReplacePermissions =>
 			CommonServices.UserService.GetCurrentUser().IsAdmin

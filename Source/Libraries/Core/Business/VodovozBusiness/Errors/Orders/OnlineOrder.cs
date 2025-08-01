@@ -1,4 +1,5 @@
-﻿using VodovozInfrastructure.Extensions;
+﻿using Vodovoz.Core.Domain.Results;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.Errors.Orders
 {
@@ -182,5 +183,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrder),
 				nameof(InvalidPhone),
 				$"Невалидный телефон {phone}");
+
+		public static Error OnlineOrderContainsGoodsSoldFromSeveralOrganizations() =>
+			new Error(
+				typeof(OnlineOrder),
+				nameof(OnlineOrderContainsGoodsSoldFromSeveralOrganizations),
+				"Данный заказ содержит товары, продаваемые от нескольких организаций");
 	}
 }

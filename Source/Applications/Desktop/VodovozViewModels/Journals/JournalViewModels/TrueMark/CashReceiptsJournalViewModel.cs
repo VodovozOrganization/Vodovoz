@@ -19,18 +19,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
-using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
+using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly bool _canResendDuplicateReceipts;
 
 		private CashReceiptJournalFilterViewModel _filter;
@@ -56,6 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			ICashReceiptRepository cashReceiptRepository,
 			ReceiptManualController receiptManualController,
 			IFileDialogService fileDialogService,
+			IOrganizationSettings organizationSettings,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -68,6 +71,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
@@ -693,7 +697,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
+				report = await ProductCodesScanningReport.GenerateAsync(
+					unitOfWork, _organizationSettings, Filter.StartDate.Value, Filter.EndDate.Value);
 			}
 
 			await report?.ExportReportToExcelAsync(result.Path);

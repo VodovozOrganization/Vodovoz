@@ -73,6 +73,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz
 {
@@ -109,9 +110,10 @@ namespace Vodovoz
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
+		private IOrderContractUpdater _contractUpdater;
 
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.PresetPermissionsRoles.Cashier);
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -210,6 +212,7 @@ namespace Vodovoz
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
+			_contractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
 		}
 
 		private void ConfigureDlg()
@@ -614,7 +617,7 @@ namespace Vodovoz
 
 		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
 			?? (_canEditFuelCardNumber =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber)).Value;
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber)).Value;
 
 		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
@@ -769,7 +772,8 @@ namespace Vodovoz
 				_deliveryRulesSettings,
 				_flyerRepository,
 				NavigationManager,
-				_lifetimeScope);
+				_lifetimeScope,
+				_contractUpdater);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;

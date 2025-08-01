@@ -289,5 +289,21 @@ namespace Vodovoz.Core.Domain.Payments
 		}
 
 		public virtual string NumOrders { get; set; }
+
+		public virtual PaymentEntity GetFirstParentRefundedPaymentOrCurrent()
+		{
+			if(RefundedPayment is null)
+			{
+				return this;
+			}
+
+			var payment = RefundedPayment;
+			while(payment.RefundedPayment != null)
+			{
+				payment = payment.RefundedPayment;
+			}
+			
+			return payment;
+		}
 	}
 }

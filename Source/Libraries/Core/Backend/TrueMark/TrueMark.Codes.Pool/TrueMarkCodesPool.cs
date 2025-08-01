@@ -1,4 +1,4 @@
-﻿using MySqlConnector;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
@@ -11,16 +11,16 @@ namespace TrueMark.Codes.Pool
 	/// <summary>
 	/// Предоставляет возможность добавлять и забирать коды из пула кодов 
 	/// </summary>
-	public class TrueMarkCodesPool
+	public class TrueMarkCodesPool : ITrueMarkCodesPool
 	{
-		private const string _poolTableName = "true_mark_codes_pool_new";
-
-		private readonly IUnitOfWork _uow;
+		protected const string _poolTableName = "true_mark_codes_pool_new";
+		protected readonly IUnitOfWork UoW;
 
 		public TrueMarkCodesPool(IUnitOfWork uow)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_uow.OpenTransaction();
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			SetSessionTimeout(UoW);
+			UoW.OpenTransaction();
 		}
 
 		public virtual void PutCode(int codeId)
@@ -62,42 +62,38 @@ namespace TrueMark.Codes.Pool
 		private IQuery GetPutCodeQuery(int codeId)
 		{
 			var sql = $@"INSERT INTO {_poolTableName} (code_id) VALUES(:code_id)";
-			var query = _uow.Session.CreateSQLQuery(sql)
+			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
 			return query;
 		}
 
 		public virtual int TakeCode(string gtin)
 		{
-			var findCodeQuery = GetFindCodeQuery(gtin);
-			var id = findCodeQuery.UniqueResult<uint>();
-			if(id == 0)
+			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var codeId = findCodeQuery.UniqueResult<uint>();
+			if(codeId == 0)
 			{
 				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
-
-			var takeCodeQuery = GetTakeCodeQuery((int)id);
-			var codeId = takeCodeQuery.UniqueResult<uint>();
 			return (int)codeId;
 		}
 
 		public virtual async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
 		{
-			var findCodeQuery = GetFindCodeQuery(gtin);
-			var id = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
-			if(id == 0)
+			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var codeId = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
+			if(codeId == 0)
 			{
 				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
 			}
-
-			var takeCodeQuery = GetTakeCodeQuery((int)id);
-			var codeId = await takeCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			return (int)codeId;
 		}
 
-		private IQuery GetFindCodeQuery(string gtin)
+		private IQuery GetTakeCodeQuery(string gtin)
 		{
 			var sql = $@"
+			DELETE FROM {_poolTableName}
+			WHERE id = (
 				SELECT pool.id
 				FROM {_poolTableName} pool
 					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
@@ -105,23 +101,18 @@ namespace TrueMark.Codes.Pool
 					AND code.gtin = :gtin
 				ORDER BY pool.adding_time DESC 
 				LIMIT 1
-				FOR UPDATE SKIP LOCKED";
+				FOR UPDATE SKIP LOCKED
+			)
+			RETURNING code_id";
 
-			var query = _uow.Session.CreateSQLQuery(sql)
+			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
 			return query;
 		}
 
-		private IQuery GetTakeCodeQuery(int id)
+		private void SetSessionTimeout(IUnitOfWork uow)
 		{
-			var sql = $@"
-				DELETE FROM {_poolTableName}
-				WHERE id = :id
-				RETURNING code_id";
-
-			var query = _uow.Session.CreateSQLQuery(sql)
-				.SetParameter("id", id);
-			return query;
+			uow.Session.CreateSQLQuery("SET SESSION wait_timeout = 30;").ExecuteUpdate();
 		}
 	}
 }

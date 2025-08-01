@@ -2,11 +2,11 @@
 using QS.Validation;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 
 namespace Vodovoz.Services.Logistics
 {
@@ -56,17 +56,6 @@ namespace Vodovoz.Services.Logistics
 		Result TryChangeStatusToNew(
 			IUnitOfWork unitOfWork,
 			RouteList routeList);
-
-		Result<IEnumerable<string>> TryChangeStatusToAccepted(
-			IUnitOfWork unitOfWork,
-			RouteList routeList,
-			Action<bool> disableItemsUpdate,
-			IValidator validationService,
-			IOrderRepository orderRepository,
-			bool skipOverfillValidation = false,
-			bool confirmRecalculateRoute = false,
-			bool confirmSendOnClosing = false,
-			bool confirmSenEnRoute = false);
 
 		Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 

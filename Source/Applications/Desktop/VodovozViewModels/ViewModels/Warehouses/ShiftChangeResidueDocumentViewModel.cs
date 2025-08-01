@@ -20,12 +20,11 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Goods;
@@ -470,7 +469,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _currentEmployee;
+			Entity.LastEditorId = _currentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			UpdateInstanceDiscrepancies();
 
@@ -504,7 +503,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _currentEmployee;
+				Entity.AuthorId = _currentEmployee?.Id;
 				Entity.Warehouse = _documentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			}
 			else
@@ -871,6 +870,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			foreach(var instanceData in instancesOnStorageBalance)
 			{
+				if(_instancesDiscrepancies.ContainsKey(instanceData.Id))
+				{
+					continue;
+				}
+				
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
 					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");

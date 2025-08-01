@@ -9,17 +9,26 @@ namespace Vodovoz.Core.Domain.Documents
 	public class TaxcomEdoDocflowLastProcessTime : IDomainObject
 	{
 		/// <summary>
-		/// Id
+		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
+
 		/// <summary>
 		/// Отметка последнего обработанного события исходящих документов(сохраняется дата изменения статуса из Такском)
 		/// </summary>
 		public virtual DateTime LastProcessedEventOutgoingDocuments { get; set; }
+
 		/// <summary>
 		/// Отметка последнего обработанного события входящих документов(сохраняется дата изменения статуса из Такском)
 		/// </summary>
 		public virtual DateTime LastProcessedEventIngoingDocuments { get; set; }
+
+		/// <summary>
+		/// Отметка последнего обработанного события документов
+		/// ожидающих аннулирования(сохраняется дата изменения статуса из Такском)
+		/// </summary>
+		public virtual DateTime LastProcessedEventWaitingForCancellationDocuments { get; set; }
+
 		/// <summary>
 		/// Id организации
 		/// </summary>

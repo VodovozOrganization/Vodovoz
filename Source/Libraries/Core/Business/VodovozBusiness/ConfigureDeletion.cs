@@ -51,6 +51,9 @@ using VodovozBusiness.Domain.Documents;
 using Vodovoz.Core.Domain.StoredResources;
 using VodovozBusiness.Domain.Contacts;
 using VodovozBusiness.Domain.Operations;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz
 {
@@ -321,24 +324,6 @@ namespace Vodovoz
 				.AddClearDependence<WriteOffDocument>(item => item.ResponsibleEmployee)
 				.AddClearDependence<Income>(item => item.Employee)
 				.AddClearDependence<Expense>(item => item.Employee)
-				.AddClearDependence<CarLoadDocument>(item => item.Author)
-				.AddClearDependence<CarLoadDocument>(item => item.LastEditor)
-				.AddClearDependence<CarUnloadDocument>(x => x.Author)
-				.AddClearDependence<CarUnloadDocument>(x => x.LastEditor)
-				.AddClearDependence<IncomingInvoice>(x => x.Author)
-				.AddClearDependence<IncomingInvoice>(x => x.LastEditor)
-				.AddClearDependence<IncomingWater>(x => x.Author)
-				.AddClearDependence<IncomingWater>(x => x.LastEditor)
-				.AddClearDependence<MovementDocument>(x => x.Author)
-				.AddClearDependence<MovementDocument>(x => x.LastEditor)
-				.AddClearDependence<WriteOffDocument>(x => x.Author)
-				.AddClearDependence<WriteOffDocument>(x => x.LastEditor)
-				.AddClearDependence<InventoryDocument>(x => x.Author)
-				.AddClearDependence<InventoryDocument>(x => x.LastEditor)
-				.AddClearDependence<RegradingOfGoodsDocument>(x => x.Author)
-				.AddClearDependence<RegradingOfGoodsDocument>(x => x.LastEditor)
-				.AddClearDependence<SelfDeliveryDocument>(x => x.Author)
-				.AddClearDependence<SelfDeliveryDocument>(x => x.LastEditor)
 				.AddClearDependence<RouteList>(x => x.Cashier)
 				.AddClearDependence<RouteList>(x => x.ClosedBy)
 				.AddClearDependence<Residue>(x => x.Author)
@@ -409,7 +394,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
-						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
+						.AddClearDependence<Warehouse>(item => item.OwningSubdivisionId)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
 						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)

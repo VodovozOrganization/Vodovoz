@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Settings.Roboats;
+using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -36,6 +37,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
+		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -50,7 +52,8 @@ namespace CustomerAppsApi.Library.Models
 			ICounterpartyModelFactory counterpartyModelFactory,
 			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
-			ICounterpartyFactory counterpartyFactory)
+			ICounterpartyFactory counterpartyFactory,
+			ICounterpartyEdoAccountController counterpartyEdoAccountController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -68,6 +71,8 @@ namespace CustomerAppsApi.Library.Models
 			_contactManagerForExternalCounterparty =
 				contactManagerForExternalCounterparty ?? throw new ArgumentNullException(nameof(contactManagerForExternalCounterparty));
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
+			_counterpartyEdoAccountController =
+				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
@@ -218,6 +223,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			//Создаем нового контрагента и валидируем полученную сущность
 			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(counterparty);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента

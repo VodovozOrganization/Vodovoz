@@ -190,19 +190,23 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForInvoice(OrderStateKey key)
 		{
-			var accepted = key.OrderStatus >= OrderStatus.Accepted;
-			var waitForPayment = key.OrderStatus >= OrderStatus.WaitForPayment;
+			var acceptedOrAfter = key.OrderStatus >= OrderStatus.Accepted;
+			var waitForPaymentOrAfter = key.OrderStatus >= OrderStatus.WaitForPayment;
 
-			var cashless = (key.PaymentType == PaymentType.Cashless && key.IsPriceOfAllOrderItemsZero)
-				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
+			var notNeedToRefundDepositOrNeedToReturnBottles = !key.NeedToRefundDepositToClient || key.NeedToReturnBottles;
+
+			var cashless = key.PaymentType == PaymentType.Cashless;
 			var paidOnline = (key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.Terminal) && key.HasOrderItems;
 			var cash = key.PaymentType == PaymentType.Cash;
 			var fastPaymentQr = (key.PaymentType == PaymentType.DriverApplicationQR || key.PaymentType == PaymentType.SmsQR) && key.HasOrderItems;
 
-			if(key.IsSelfDelivery) {
-				return (cashless || paidOnline || cash || fastPaymentQr) && waitForPayment;
-			} else {
-				return (cashless || paidOnline || cash || fastPaymentQr) && accepted;
+			if(key.IsSelfDelivery)
+			{
+				return (cashless || paidOnline || cash || fastPaymentQr) && waitForPaymentOrAfter;
+			}
+			else
+			{
+				return ((cashless && key.IsPriceOfAllOrderItemsZero && notNeedToRefundDepositOrNeedToReturnBottles) || paidOnline || cash || fastPaymentQr) && acceptedOrAfter;
 			}
 		}
 

@@ -17,6 +17,7 @@ using QS.Tdi;
 using System;
 using System.Collections;
 using System.Linq;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -151,7 +152,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			FilterViewModel.EmployeeService = employeeService;
 
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
-			var defaultSubdivision = currentUserSettings.DefaultSubdivision;
+			var defaultSubdivision = currentUserSettings.DefaultSubdivisionId.HasValue ? UoW.GetById<Subdivision>(currentUserSettings.DefaultSubdivisionId.Value) : null;
 			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
 			if(FilterViewModel.CurrentUserSubdivision == null)

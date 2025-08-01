@@ -18,7 +18,6 @@
 		int PromotionalNomenclatureGroupId { get; }
 		int DailyCoolerRentNomenclatureId { get; }
 		int[] PaidDeliveriesNomenclaturesIds { get; }
-		int[] SanitisationNomenclatureIds { get; }
 		int IdentifierOfOnlineShopGroup { get; }
 
 
@@ -33,5 +32,6 @@
 		int ForfeitId { get; }
 		int FastDeliveryNomenclatureId { get; }
 		int MasterCallNomenclatureId { get; }
+		int DocumentsNomenclatureId { get; }
 	}
 }

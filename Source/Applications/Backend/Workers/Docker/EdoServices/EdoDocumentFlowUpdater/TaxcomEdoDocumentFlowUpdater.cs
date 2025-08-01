@@ -25,7 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
-using Type = Vodovoz.Core.Domain.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -110,6 +110,7 @@ namespace EdoDocumentFlowUpdater
 					await ProcessOutgoingDocuments(cancellationToken);
 					await CancellationDocFlows(cancellationToken);
 					await ProcessIngoingDocuments(cancellationToken);
+					await ProcessWaitingForCancellationDocuments(cancellationToken);
 
 					await _zabbixSender.SendIsHealthyAsync(cancellationToken);
 				}
@@ -303,6 +304,64 @@ namespace EdoDocumentFlowUpdater
 			}
 		}
 
+		private async Task ProcessWaitingForCancellationDocuments(CancellationToken cancellationToken)
+		{
+			try
+			{
+				EdoDocFlowUpdates docFlowUpdates;
+
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки документов ожидающих аннулирования"))
+				{
+					do
+					{
+						_logger.LogInformation("Получаем документы ожидающие аннулирования");
+
+						using var scope = _serviceScopeFactory.CreateScope();
+						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+						var lastProcessTime = _lastEventsProcessTime
+							.LastProcessedEventWaitingForCancellationDocuments
+							.ToBinary();
+
+						docFlowUpdates =
+							await taxcomApiClient.GetDocFlowsUpdates(
+								new GetDocFlowsUpdatesParameters
+								{
+									DocFlowStatus = "WaitingForCancellation",
+									LastEventTimeStamp = lastProcessTime,
+									DocFlowDirection = "Ingoing",
+									DepartmentId = null,
+									IncludeTransportInfo = true
+								},
+								cancellationToken);
+
+						if(docFlowUpdates.Updates is null)
+						{
+							return;
+						}
+
+						_logger.LogInformation(
+							"Обрабатываем документообороты ожидающие аннулирования: {DocFlowUpdatesCount}",
+							docFlowUpdates.Updates.Count()
+						);
+						
+						foreach(var item in docFlowUpdates.Updates)
+						{
+							await SendAcceptingWaitingForCancellationDocflowEvent(item, cancellationToken);
+							_lastEventsProcessTime.LastProcessedEventWaitingForCancellationDocuments = item.StatusChangeDateTime;
+						}
+					} while(!docFlowUpdates.IsLast);
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе обработки документов ожидающих аннулирования");
+			}
+			finally
+			{
+				await SaveLastEventProcessTime();
+			}
+		}
+
 		private async Task SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
 			EdoDocFlow docflow, string organization, CancellationToken cancellationToken)
 		{
@@ -314,6 +373,18 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 			
+			await _publishEndpoint.Publish(@event, cancellationToken);
+		}
+
+		private async Task SendAcceptingWaitingForCancellationDocflowEvent(
+			EdoDocFlow docflow, CancellationToken cancellationToken)
+		{
+			var @event = new AcceptingWaitingForCancellationDocflowEvent
+			{
+				DocFlowId = docflow.Id.Value.ToString(),
+				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
+			};
+
 			await _publishEndpoint.Publish(@event, cancellationToken);
 		}
 
@@ -428,7 +499,7 @@ namespace EdoDocumentFlowUpdater
 				
 					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-							&& ec.Type == Type.Bill
+							&& ec.Type == DocumentContainerType.Bill
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error
 							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation

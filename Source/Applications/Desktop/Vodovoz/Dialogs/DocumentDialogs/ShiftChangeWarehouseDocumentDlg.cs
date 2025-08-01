@@ -1,44 +1,42 @@
-using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Validation;
-using Vodovoz.Domain.Documents;
-using Vodovoz.PermissionExtensions;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using Vodovoz.Domain.Goods;
-using System.Linq;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+﻿using Autofac;
+using Gamma.GtkWidgets;
+using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using NHibernate;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.ReportsParameters;
-using Gamma.GtkWidgets;
-using QS.Project.Services;
-using QSProjectsLib;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Tools.Store;
-using Vodovoz.Infrastructure;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
 using QS.Project.Journal;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using Autofac;
+using QS.Project.Services;
 using QS.Report;
+using QSOrmProject;
+using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.ReportsParameters;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<ShiftChangeWarehouseDocumentDlg> _logger;
 
 		private IEmployeeRepository _employeeRepository;
 		private IStockRepository _stockRepository;
@@ -50,8 +48,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			ResolveDependencies();
 			this.Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
@@ -254,16 +252,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null) {
+			if(Entity.LastEditorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info("Сохраняем акт списания...");
+			_logger.LogInformation("Сохраняем акт списания...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 

@@ -296,7 +296,84 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-		
+
+		[HttpGet]
+		public IActionResult SendOfferCancellation(string docflowId, string comment)
+		{
+			_logger.LogInformation("Аннулирование документооборота {DocFlowId} по причине {Reason}",
+				docflowId, 
+				comment
+			);
+
+			try
+			{
+				var document = _taxcomEdoService.CreateOfferCancellation(docflowId, comment);
+
+				_logger.LogInformation("Сформировали файл действие для отправки предложения об " +
+					"аннулировании для документооборота {DocFlowId}", docflowId);
+
+				_taxcomApi.OfferCancellationWithRawData(document.ToXmlString());
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при отправке предложения об аннулировании документооборота " +
+					"{DocFlowId}", docflowId);
+				return Problem();
+			}
+		}
+
+		[HttpGet]
+		public IActionResult AcceptOfferCancellation(string docflowId)
+		{
+			_logger.LogInformation("Принятие аннулирования документооборот {DocFlowId}",
+				docflowId
+			);
+
+			try
+			{
+				var document = _taxcomEdoService.AcceptOfferCancellation(docflowId);
+
+				_logger.LogInformation("Сформировали файл действие для отправки принятия предложения об " +
+					"аннулировании документооборота {DocFlowId}", docflowId);
+
+				_taxcomApi.AcceptCancellationOfferWithRawData(document.ToXmlString());
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при отправке принятия предложения об аннулировании документооборота " +
+					"{DocFlowId}", docflowId);
+				return Problem();
+			}
+		}
+
+		[HttpGet]
+		public IActionResult RejectOfferCancellation(string docflowId, string comment)
+		{
+			_logger.LogInformation("Отказ в аннулировании документооборота {DocFlowId} по причине {Reason}",
+				docflowId,
+				comment
+			);
+
+			try
+			{
+				var document = _taxcomEdoService.RejectOfferCancellation(docflowId, comment);
+
+				_logger.LogInformation("Сформировали файл действие для отправки отказа в " +
+					"аннулировании документооборота {DocFlowId}", docflowId);
+
+				_taxcomApi.RejectCancellationOfferWithRawData(document.ToXmlString());
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при отправке отказа в аннулировании документооборота " +
+					"{DocFlowId}", docflowId);
+				return Problem();
+			}
+		}
+
 		[HttpGet]
 		public IActionResult GetDocFlowStatus(string docFlowId)
 		{

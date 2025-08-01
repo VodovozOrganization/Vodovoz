@@ -1,6 +1,8 @@
-﻿using QS.Extensions.Observable.Collections.List;
+﻿using System;
+using QS.Extensions.Observable.Collections.List;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Client;
 
@@ -8,8 +10,20 @@ namespace Edo.Scheduler.Service
 {
 	public class OrderTaskScheduler
 	{
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
+
+		public OrderTaskScheduler(ICounterpartyEdoAccountEntityController edoAccountEntityController)
+		{
+			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
+		}
+		
 		public EdoTask CreateTask(OrderEdoRequest edoRequest)
 		{
+			if(edoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
+			{
+				return CreateTenderEdoTask(edoRequest);
+			}
+			
 			switch(edoRequest.Order.PaymentType)
 			{
 				case PaymentType.Cashless:
@@ -47,7 +61,10 @@ namespace Edo.Scheduler.Service
 		
 		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
 		{
-			if(edoRequest.Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			var edoAccount = _edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+				edoRequest.Order.Client, edoRequest.Order.Contract.Organization.Id);
+
+			if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 			{
 				// Если есть согласие на ЭДО
 				// создаем задачу формирования документа ЭДО
@@ -153,6 +170,27 @@ namespace Edo.Scheduler.Service
 
 			task.Items = new ObservableList<EdoTaskItem>(
 				edoRequest.ProductCodes.Select(x =>
+					new EdoTaskItem
+					{
+						ProductCode = x,
+						CustomerEdoTask = task
+					})
+			);
+
+			edoRequest.Task = task;
+
+			return task;
+		}
+		
+		private EdoTask CreateTenderEdoTask(OrderEdoRequest edoRequest)
+		{
+			var task = new TenderEdoTask
+			{
+				Status = EdoTaskStatus.New
+			};
+
+			task.Items = new ObservableList<EdoTaskItem>(
+				edoRequest.ProductCodes.Select(x => 
 					new EdoTaskItem
 					{
 						ProductCode = x,

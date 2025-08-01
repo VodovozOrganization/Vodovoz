@@ -13,7 +13,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUserRoleRepository _userRoleRepository;
+		private readonly IUserRoleService _userRoleService;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserPermissionsController _userPermissionsController;
 		private readonly UserRole _oldCurrentUserRole;
@@ -52,10 +53,12 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			IUserRoleRepository userRoleRepository,
+			IUserRoleService userRoleService,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
+			_userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_userPermissionsController = _scope.Resolve<IUserPermissionsController>();
 
@@ -257,7 +260,7 @@ namespace Vodovoz.ViewModels
 			_addUserRoleToUserCommand ?? (_addUserRoleToUserCommand = new DelegateCommand(
 				() =>
 				{
-					Entity.ObservableUserRoles.Add(SelectedAvailableUserRole);
+					Entity.UserRoles.Add(SelectedAvailableUserRole);
 					_rolesToGrant.Add(SelectedAvailableUserRole);
 					_rolesToRevoke.Remove(SelectedAvailableUserRole);
 					AvailableUserRoles.Remove(SelectedAvailableUserRole);
@@ -274,7 +277,7 @@ namespace Vodovoz.ViewModels
 					AvailableUserRoles.Add(SelectedUserRole);
 					_rolesToRevoke.Add(SelectedUserRole);
 					_rolesToGrant.Remove(SelectedUserRole);
-					Entity.ObservableUserRoles.Remove(SelectedUserRole);
+					Entity.UserRoles.Remove(SelectedUserRole);
 					UpdateUserRolesForCurrentRoleAction?.Invoke();
 					OnPropertyChanged(nameof(CanRemoveUserRole));
 				},
@@ -356,7 +359,7 @@ namespace Vodovoz.ViewModels
 		{
 			foreach(var userGrant in _userGrants)
 			{
-				var matches = Regex.Matches(userGrant, UserRole.SearchingPatternFromUserGrants(Entity.Login));
+				var matches = Regex.Matches(userGrant, _userRoleService.SearchingPatternFromUserGrants(Entity.Login));
 
 				if(matches.Count <= 0)
 				{
@@ -397,15 +400,15 @@ namespace Vodovoz.ViewModels
 					return;
 				}
 
-				if(Entity.CurrentUserRole.Name != UserRole.UserRoleName
-					&& Entity.CurrentUserRole.Name != UserRole.UserFinancierRoleName)
+				if(Entity.CurrentUserRole.Name != UserRoles.User
+					&& Entity.CurrentUserRole.Name != UserRoles.Financier)
 				{
-					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login, true);
+					_userRoleRepository.GrantRoleToUser(UoW, UserRoles.User, Entity.Login, true);
 				}
 				else
 				{
-					_userRoleRepository.RevokeRoleFromUser(UoW, UserRole.UserRoleName, Entity.Login);
-					_userRoleRepository.GrantRoleToUser(UoW, UserRole.UserRoleName, Entity.Login);
+					_userRoleRepository.RevokeRoleFromUser(UoW, UserRoles.User, Entity.Login);
+					_userRoleRepository.GrantRoleToUser(UoW, UserRoles.User, Entity.Login);
 				}
 				_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
 			}
@@ -420,7 +423,7 @@ namespace Vodovoz.ViewModels
 		{
 			Entity.PropertyChanged += UpdateChanges;
 			AvailableUserRoles.ListContentChanged += UpdateChanges;
-			Entity.ObservableUserRoles.ListContentChanged += UpdateChanges;
+			Entity.UserRoles.CollectionChanged += UpdateChanges;
 			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged += UpdateChanges;
 			
 			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)
@@ -433,7 +436,7 @@ namespace Vodovoz.ViewModels
 		{
 			Entity.PropertyChanged -= UpdateChanges;
 			AvailableUserRoles.ListContentChanged -= UpdateChanges;
-			Entity.ObservableUserRoles.ListContentChanged -= UpdateChanges;
+			Entity.UserRoles.CollectionChanged -= UpdateChanges;
 			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
 			
 			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)

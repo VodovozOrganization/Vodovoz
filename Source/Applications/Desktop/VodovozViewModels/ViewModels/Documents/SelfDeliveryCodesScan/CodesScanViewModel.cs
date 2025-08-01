@@ -16,11 +16,11 @@ using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodesRepository;
 		private readonly ILogger<CodesScanViewModel> _logger;
 		private string _organizationInn;
 		private List<GtinFromNomenclatureDto> _allGtins;
@@ -62,8 +63,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			ITrueMarkCodesValidator trueMarkValidator,
 			IBus messageBus,
 			IGuiDispatcher guiDispatcher,
-			IInteractiveService interactiveService
-		)
+			IInteractiveService interactiveService,
+			IGenericRepository<TrueMarkProductCode> trueMarkProductCodesRepository)
 			: base(navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -77,6 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_trueMarkProductCodesRepository = trueMarkProductCodesRepository ?? throw new ArgumentNullException(nameof(trueMarkProductCodesRepository));
 
 			WindowPosition = WindowGravity.None;
 
@@ -398,6 +400,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				result = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken);
 
+				if(IsСodeAlreadyBeenUsedInDb(result))
+				{
+					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: new List<string>{"Содержится дубликат кода"});
+					
+					return;
+				}
+
 				_logger.LogInformation(
 					"Получили результат обработки кода {RawCode} в {TrueMarkWaterCodeParser}",
 					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
@@ -432,6 +441,32 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				AddOldCodeToRecheck(codeToCheck.RawCode, ex.Message);
 			}
+		}
+
+		private bool IsСodeAlreadyBeenUsedInDb(Result<TrueMarkAnyCode> result)
+		{
+			var allUnitCodes =
+				result.Value
+					.Match(
+						transportCode =>
+							transportCode.GetAllCodes()
+								.Where(x => x.IsTrueMarkWaterIdentificationCode)
+								.Select(x => x.TrueMarkWaterIdentificationCode.Id)
+								.ToList()
+						,
+						groupCode =>
+							groupCode.GetAllCodes()
+								.Where(x => x.IsTrueMarkWaterIdentificationCode)
+								.Select(x => x.TrueMarkWaterIdentificationCode.Id)
+								.ToList()
+						,
+						waterCode => new List<int> { waterCode.Id });
+
+			var isUsedCodeInDb = _trueMarkProductCodesRepository
+				.Get(_unitOfWork, c => allUnitCodes.Contains(c.ResultCode.Id), limit: 1)
+				.Any();
+
+			return isUsedCodeInDb;
 		}
 
 		private void AddNewCodeToCheck(string rawCode, string error = null)
@@ -519,7 +554,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_allGtins.FirstOrDefault(x => x.GtinNumber == gtin)?.NomenclatureName
 			?? _allGroupGtins.FirstOrDefault(x => x.GtinNumber == gtin)?.NomenclatureName;
 
-		private void UpdateCodeScanRows(string code, string gtin, bool? isValid = null, List<string> additionalInformation = null)
+		private void UpdateCodeScanRows(string code, string gtin, bool? isValid = null, List<string> additionalInformation = null, bool isDuplicate = false)
 		{
 			if(additionalInformation is null)
 			{
@@ -528,7 +563,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			var hasInOrder = IsOrderContainsGtin(gtin);
 			var nomenclatureName = GetNomenclatureNameByGtin(gtin);
-
 
 			lock(CodeScanRows)
 			{
@@ -551,6 +585,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						HasInOrder = hasInOrder,
 						NomenclatureName = nomenclatureName,
 						AdditionalInformation = string.Join(", ", additionalInformation),
+						IsDuplicate = isDuplicate
 					};
 
 					CodeScanRows.Add(codeScanRow);
@@ -561,6 +596,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					existsCodeScanRow.IsTrueMarkValid = isValid;
 					existsCodeScanRow.HasInOrder = hasInOrder;
 					existsCodeScanRow.AdditionalInformation = string.Join(", ", additionalInformation);
+					existsCodeScanRow.IsDuplicate = isDuplicate;
 				}
 			}
 

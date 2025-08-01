@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -14,8 +14,8 @@ using System.Text;
 using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -153,8 +153,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		
-
 		[Display(Name = "Предполагаемые координаты доставки")]
 		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
 		{
@@ -188,7 +186,7 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion Свойства
+		#endregion Временные поля для хранения фиксированных цен из 1с
 
 		#region Расчетные
 

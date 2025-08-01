@@ -10,7 +10,7 @@ using QS.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;

@@ -11,8 +11,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.ComponentModel;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
@@ -63,7 +62,7 @@ namespace Vodovoz.ViewModels.Store
 
 			if(uowBuilder.IsNewEntity)
 			{
-				Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW)
+				Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id
 					?? throw new AbortCreatingPageException(
 						"Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.",
 						"Ошибка");
@@ -82,7 +81,7 @@ namespace Vodovoz.ViewModels.Store
 			CanEditItems = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.RegradingOfGoodsEdit, Entity.Warehouse);
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			var availableWarehousesIds =
@@ -165,10 +164,10 @@ namespace Vodovoz.ViewModels.Store
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				CommonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Error,

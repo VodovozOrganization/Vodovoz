@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Errors;
 using Vodovoz.Presentation.ViewModels.Errors;
 using Vodovoz.Presentation.ViewModels.Reports;
 
@@ -288,7 +288,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				&& !(from order in unitOfWork.Session.Query<Order>()
 					 where (order.PaymentByCardFrom == null
 							|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
-						&& payment.PaymentNr == order.OnlineOrder
+						&& payment.PaymentNr == order.OnlinePaymentNumber
 						&& payment.PaymentByCardFrom != PaymentByCardOnlineFrom.FromSMS
 					 select order.Id).Any()
 				&& !(from order in unitOfWork.Session.Query<Order>()
@@ -361,7 +361,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 			join counterparty in unitOfWork.Session.Query<Counterparty>()
 			on order.Client.Id equals counterparty.Id
 			where order.PaymentType == PaymentType.PaidOnline
-				&& order.OnlineOrder != null
+				&& order.OnlinePaymentNumber != null
 				&& (order.PaymentByCardFrom == null
 					|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
 				&& order.DeliveryDate >= startDate
@@ -382,7 +382,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				OrderId = order.Id,
 				CcounterpartyFullName = counterparty.FullName,
 				Address = address,
-				OnlineOrderId = order.OnlineOrder,
+				OnlineOrderId = order.OnlinePaymentNumber,
 				TotalSumFromBank = 0,
 				OrderTotalSum = orderTotalSum,
 				OrderStatus = order.OrderStatus,
@@ -392,7 +392,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 				ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.Missing,
 				OrderPaymentType = order.PaymentType,
 				IsFutureOrder = order.DeliveryDate > endDate,
-				NumberAndShop = order.OnlineOrder.ToString()
+				NumberAndShop = order.OnlinePaymentNumber.ToString()
 			};
 
 		#endregion Generation

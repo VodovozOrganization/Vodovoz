@@ -1,8 +1,7 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Tools.Store
 {

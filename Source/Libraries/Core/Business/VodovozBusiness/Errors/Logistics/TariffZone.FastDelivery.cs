@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Errors.Logistics
 {

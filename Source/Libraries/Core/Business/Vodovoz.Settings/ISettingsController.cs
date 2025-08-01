@@ -15,7 +15,7 @@ namespace Vodovoz.Settings
 		DateTime GetDateTimeValue(string settingName, CultureInfo cultureInfo = null);
 		T GetValue<T>(string settingName);
 
-		void CreateOrUpdateSetting(string name, string value);
+		void CreateOrUpdateSetting(string name, string value, TimeSpan? cacheTimeOut = null);
 		void RefreshSettings();
 	}
 }

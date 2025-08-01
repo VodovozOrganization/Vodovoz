@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Validation

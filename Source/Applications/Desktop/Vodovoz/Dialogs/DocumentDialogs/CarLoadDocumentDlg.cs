@@ -9,10 +9,9 @@ using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -30,6 +29,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Print;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
@@ -45,6 +45,7 @@ namespace Vodovoz
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private IEventsQrPlacer _eventsQrPlacer;
+		private ICounterpartyEdoAccountController _edoAccountController;
 
 		public INavigationManager NavigationManager { get; private set; }
 
@@ -94,13 +95,14 @@ namespace Vodovoz
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
+			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 		}
 
 		private void ConfigureNewDoc()
 		{
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null)
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -226,9 +228,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
@@ -236,7 +238,7 @@ namespace Vodovoz
 
 			if(!IsAllItemsInRouteListLoaded())
 			{
-				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые заказы. Частичная погрузка запрещена!");
+				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые, либо госзаказы. Частичная погрузка запрещена!");
 				return false;
 			}
 
@@ -282,7 +284,9 @@ namespace Vodovoz
 			var isNewEntity = Entity.Id == 0;
 
 			var isAllItemsMustBeLoaded =
-				(isNewEntity && Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+				(isNewEntity && Entity.RouteList.Addresses
+					.Select(a => a.Order)
+					.Any(o => o.IsNeedIndividualSetOnLoad(_edoAccountController) || o.IsNeedIndividualSetOnLoadForTender))
 				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
 
 			if(!isAllItemsMustBeLoaded)

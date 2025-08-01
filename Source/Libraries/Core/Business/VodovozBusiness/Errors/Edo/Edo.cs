@@ -1,4 +1,5 @@
 ﻿using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Extensions;
 
@@ -11,7 +12,7 @@ namespace Vodovoz.Errors.Edo
 				nameof(AlreadyPaidUpd),
 				"Маршрутный лист не найден");
 
-		public static Error CreateAlreadyPaidUpd(int orderId, Type type) =>
+		public static Error CreateAlreadyPaidUpd(int orderId, DocumentContainerType type) =>
 			 new Error(
 				typeof(Edo),
 				nameof(AlreadyPaidUpd),

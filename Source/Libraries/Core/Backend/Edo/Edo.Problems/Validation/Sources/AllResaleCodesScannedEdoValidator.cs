@@ -7,6 +7,7 @@ using Edo.Common;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
@@ -17,6 +18,14 @@ namespace Edo.Problems.Validation.Sources
 {
 	public partial class AllResaleCodesScannedEdoValidator : OrderEdoValidatorBase, IEdoTaskValidator
 	{
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
+
+		public AllResaleCodesScannedEdoValidator(ICounterpartyEdoAccountEntityController edoAccountEntityController)
+		{
+			_edoAccountEntityController =
+				edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
+		}
+		
 		public override string Name
 		{
 			get => "Order.AllResaleCodesScanned";
@@ -56,7 +65,8 @@ namespace Edo.Problems.Validation.Sources
 			
 			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
 
-			return orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad;
+			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad(_edoAccountEntityController))
+				|| orderEdoRequest.Order.IsOrderForTender;
 		}
 
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider,
@@ -172,9 +182,10 @@ namespace Edo.Problems.Validation.Sources
 			}
 
 			// Валидны ли коды в ЧЗ?
-			var trueMarkValidationResult = await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
-
-			return trueMarkValidationResult.ReadyToSell;
+			var trueMarkValidationResult =
+				await trueMarkTaskCodesValidator.ValidateAsync(orderEdoRequest.Task, trueMarkCodesChecker, cancellationToken);
+			
+			return trueMarkValidationResult.IsAllValid;
 		}
 	}
 }

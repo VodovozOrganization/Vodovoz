@@ -208,6 +208,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool HasAccessToSitesAndAppsTab { get; private set; }
 		public bool OldHasConditionAccounting { get; private set; }
+		public bool CanEditNeedSanitisation { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
@@ -776,16 +777,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+					Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+
+			CanEditNeedSanitisation = !Entity.IsNeedSanitisation || !_nomenclatureRepository.CheckAnyOrderWithNomenclature(UoW, Entity.Id);
 		}
 
 		private void SetProperties()
@@ -1085,7 +1088,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			DeleteAttachedFilesIfNeeded();
 			AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 			RobotMiaParameters.NomenclatureId = Entity.Id;
-			UoW.Save(RobotMiaParameters);
+			UoW.Session.Save(RobotMiaParameters);
 
 			return base.Save(close);
 		}

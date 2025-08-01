@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.EntityRepositories.TrueMark
 {
@@ -39,5 +41,53 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Словарь. Ключ - gtin, значение - количество кодов с данным gtin, необходимых для документов</returns>
 		Task<IDictionary<string, int>> GetMissingCodesCount(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, сохранён ли уже код TrueMark в базе
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
+		/// <returns>Результат проверки</returns>
+		bool IsTrueMarkAnyCodeAlreadySaved(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
+
+		/// <summary>
+		/// Возвращает транспортные коды маркировки
+		/// </summary>
+		IEnumerable<TrueMarkTransportCode> GetTransportCodes(IUnitOfWork uow, IEnumerable<int> transportCodeIds);
+
+		/// <summary>
+		/// Возвращает групповые коды маркировки
+		/// </summary>
+		IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены складом в документе погрузки автомобиля.
+		/// </summary>
+		IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из маршрутного листа водителем.
+		/// </summary>
+		IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа,
+		/// которые были добавлены из самовывоза.
+		/// </summary>
+		IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды маркировки для заказа, 
+		/// которые были добавлены из пула в виду отсутствия 
+		/// кодов из других источников (склад, водитель, самовывоз).
+		/// </summary>
+		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает кол-во кодов маркировки требуемое в заказе
+		/// </summary>
+		int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId);
 	}
 }

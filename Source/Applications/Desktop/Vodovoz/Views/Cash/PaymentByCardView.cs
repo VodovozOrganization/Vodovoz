@@ -1,5 +1,3 @@
-﻿using FluentNHibernate.Data;
-using QS.Navigation;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
@@ -10,22 +8,20 @@ namespace Vodovoz.Views.Cash
 {
 	public partial class PaymentByCardView : TabViewBase<PaymentByCardViewModel>
 	{
-		public PaymentByCardView(PaymentByCardViewModel viewModel) : base(viewModel) {
-			this.Build();
+		public PaymentByCardView(PaymentByCardViewModel viewModel) : base(viewModel)
+		{
+			Build();
 			Configure();
 		}
 
-		private void Configure() {
-			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.OnlineOrder.HasValue,
-				w => w.Sensitive).InitializeFromSource();
-			
-			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
-			ybuttonCancel.Clicked += (s, ea) => ViewModel.Close(true,CloseSource.Cancel);
-			
+		private void Configure()
+		{
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
+			ybuttonCancel.BindCommand(ViewModel.CloseCommand);
+
 			entryOnlineOrder.ValidationMode = (QS.Widgets.ValidationType)ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity,
-				e => e.OnlineOrder,
+				e => e.OnlinePaymentNumber,
 				w => w.Text,
 				new NullableIntToStringConverter()).InitializeFromSource();
 

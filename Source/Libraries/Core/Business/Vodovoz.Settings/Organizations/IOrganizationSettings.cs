@@ -13,6 +13,7 @@ namespace Vodovoz.Settings.Organizations
 		int VodovozNorthOrganizationId { get; }
 		int VodovozEastOrganizationId { get; }
 		int VodovozDeshitsOrganizationId { get; }
+		int KulerServiceOrganizationId { get; }
 
 		/// <summary>
 		/// Id орагнизации МБН

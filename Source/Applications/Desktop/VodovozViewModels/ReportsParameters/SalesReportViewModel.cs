@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
@@ -70,7 +71,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanAccessSalesReports);
+			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports);
+			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -86,10 +88,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
 
 			SetupFilter();
 
@@ -165,12 +167,87 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{ "Самовывоз", "is_self_delivery" },
 			};
 
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
+
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+		}
+
+		private void CheckAndRefreshSelectedGroupsForCashReceiptOnly()
+		{
+			if(!(_filterViewModel.ActiveFilter is IncludeExcludeBoolParamsFilter))
+			{
+				return;
+			}
+
+			var parameters = FilterViewModel.GetReportParametersSet();
+
+			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
+			{
+				return;
+			}
+
+			if(!(value is bool included) || !included)
+			{
+				return;
+			}
+
+			try
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+
+				_leftRightListViewModelFactory.SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(GroupingSelectViewModel);
+
+				var leftGroupingItems = GroupingSelectViewModel.LeftItems;
+
+				var organizationGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Organization);
+
+				var nomenclatureGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != organizationGroup && item != nomenclatureGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+			}
+			finally
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
+			}
+		}
+
+		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
 		}
 
 		private void SetupGroupings()
 		{
 			_groupViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
+
+			_groupViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		private void ShowInfoWindow()
