@@ -88,6 +88,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
@@ -406,7 +407,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				var matchEdoTaskItem = resultCodes
-					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.ResultCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{

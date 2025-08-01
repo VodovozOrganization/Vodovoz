@@ -136,6 +136,7 @@ namespace Edo.Receipt.Dispatcher
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
@@ -331,7 +332,7 @@ namespace Edo.Receipt.Dispatcher
 						{
 							var gtin = (
 									from gtinEntity in _uow.Session.Query<GtinEntity>()
-									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.Gtin
 									select gtinEntity
 								)
 								.FirstOrDefault();
@@ -931,7 +932,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = resultCodes
-					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.ResultCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -952,7 +953,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = sourceCodes
-					.Where(x => x.ProductCode.SourceCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.SourceCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -979,7 +980,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = ddCodes
-					.Where(x => x.ProductCode.SourceCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.SourceCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{

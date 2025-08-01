@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
+using TrueMark.Contracts;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Models.TrueMark;
@@ -20,7 +20,6 @@ namespace Vodovoz.Models.TrueMark
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 		private readonly OurCodesChecker _ourCodesChecker;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public TrueMarkCodePoolChecker(
 			ILogger<TrueMarkCodePoolChecker> logger,
@@ -28,8 +27,7 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings,
-			OurCodesChecker ourCodesChecker,
-			IUnitOfWorkFactory unitOfWorkFactory
+			OurCodesChecker ourCodesChecker
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -38,7 +36,6 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings;
 			_ourCodesChecker = ourCodesChecker ?? throw new ArgumentNullException(nameof(ourCodesChecker));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task StartCheck(CancellationToken cancellationToken)
@@ -81,20 +78,22 @@ namespace Vodovoz.Models.TrueMark
 			var codesToCheck = await _trueMarkRepository.LoadWaterCodes(codeIdsToCheck, cancellationToken);
 
 			_logger.LogInformation("Отправка на проверку {codesToCheckCount} кодов.", codesToCheck.Count());
-			var checkResults = await _trueMarkCodesChecker.Check(codesToCheck, cancellationToken);
+			var checkResults = await _trueMarkCodesChecker.CheckCodes(codesToCheck, cancellationToken);
 
 			foreach(var checkResult in checkResults)
 			{
-				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.OwnerInn);
-				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Code.GTIN);
+				var isIntroduced = checkResult.Value.Status == ProductInstanceStatusEnum.Introduced;
+				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.Value.OwnerInn);
+				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Value.Gtin);
+				var notExpired = checkResult.Value.ExpirationDate >= DateTime.Today;
 
-				if(checkResult.Introduced && isOurOrganizationOwner && isOurGtin)
+				if(isIntroduced && isOurOrganizationOwner && isOurGtin && notExpired)
 				{
-					codeIdsToPromote.Add(checkResult.Code.Id);
+					codeIdsToPromote.Add(checkResult.Key.Id);
 				}
 				else
 				{
-					codeIdsToDelete.Add(checkResult.Code.Id);
+					codeIdsToDelete.Add(checkResult.Key.Id);
 				}
 			}
 
