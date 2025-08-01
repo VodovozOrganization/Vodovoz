@@ -56,7 +56,7 @@ namespace Edo.Common
 			}
 
 			// проверка на то что продукт не просрочен
-			if(productInstanceStatus.ExpirationDate > DateTime.Today)
+			if(productInstanceStatus.ExpirationDate < DateTime.Today)
 			{
 				codeValidationResult.IsExpired = true;
 				codeValidationResult.IsValid = false;

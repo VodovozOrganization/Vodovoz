@@ -28,7 +28,6 @@ namespace Edo.Common
 		public void ClearCache()
 		{
 			_codeItems = GetCodeItems();
-			_codesStatuses.Clear();
 
 			_codesStatuses = _codeItems.SelectMany(AggregateAllTaskItemCodes)
 				.GroupBy(x => x.Key)

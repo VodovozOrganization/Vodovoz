@@ -266,7 +266,7 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
 				}
 
-				if(checkResult.Value.ExpirationDate <= DateTime.Today)
+				if(checkResult.Value.ExpirationDate >= DateTime.Today)
 				{
 					continue;
 				}
