@@ -366,7 +366,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel6;
 
-		private global::Gamma.GtkWidgets.yButton ybutton2;
+		private global::Gamma.GtkWidgets.yButton buttonCalculateDebt;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox2;
 
@@ -376,7 +376,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel8;
 
-		private global::Gamma.GtkWidgets.yButton ybutton1;
+		private global::Gamma.GtkWidgets.yButton buttonSaveDefaultDebt;
 
 		private global::Gtk.Label GtkLabel86;
 
@@ -2191,7 +2191,6 @@ namespace Vodovoz.Views.Settings
 			// Container child yvboxOrdersGeneralSettings.Gtk.Box+BoxChild
 			this.frame8 = new global::Gtk.Frame();
 			this.frame8.Name = "frame8";
-			this.frame8.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frame8.Gtk.Container+ContainerChild
 			this.GtkAlignment31 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment31.Name = "GtkAlignment31";
@@ -2272,13 +2271,13 @@ namespace Vodovoz.Views.Settings
 			w155.Expand = false;
 			w155.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.ybutton2 = new global::Gamma.GtkWidgets.yButton();
-			this.ybutton2.CanFocus = true;
-			this.ybutton2.Name = "ybutton2";
-			this.ybutton2.UseUnderline = true;
-			this.ybutton2.Label = global::Mono.Unix.Catalog.GetString("Произвести пересчет");
-			this.hbox8.Add(this.ybutton2);
-			global::Gtk.Box.BoxChild w156 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ybutton2]));
+			this.buttonCalculateDebt = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCalculateDebt.CanFocus = true;
+			this.buttonCalculateDebt.Name = "buttonCalculateDebt";
+			this.buttonCalculateDebt.UseUnderline = true;
+			this.buttonCalculateDebt.Label = global::Mono.Unix.Catalog.GetString("Произвести пересчет");
+			this.hbox8.Add(this.buttonCalculateDebt);
+			global::Gtk.Box.BoxChild w156 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonCalculateDebt]));
 			w156.Position = 3;
 			w156.Expand = false;
 			w156.Fill = false;
@@ -2321,13 +2320,13 @@ namespace Vodovoz.Views.Settings
 			w160.Expand = false;
 			w160.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.ybutton1 = new global::Gamma.GtkWidgets.yButton();
-			this.ybutton1.CanFocus = true;
-			this.ybutton1.Name = "ybutton1";
-			this.ybutton1.UseUnderline = true;
-			this.ybutton1.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.yhbox2.Add(this.ybutton1);
-			global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ybutton1]));
+			this.buttonSaveDefaultDebt = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSaveDefaultDebt.CanFocus = true;
+			this.buttonSaveDefaultDebt.Name = "buttonSaveDefaultDebt";
+			this.buttonSaveDefaultDebt.UseUnderline = true;
+			this.buttonSaveDefaultDebt.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.yhbox2.Add(this.buttonSaveDefaultDebt);
+			global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonSaveDefaultDebt]));
 			w161.Position = 3;
 			w161.Expand = false;
 			w161.Fill = false;
