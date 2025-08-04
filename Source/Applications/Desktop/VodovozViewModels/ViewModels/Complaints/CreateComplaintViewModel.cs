@@ -141,7 +141,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				SetOrder(orderRating.Order);
 			}
-			else
+			else if(orderRating.OnlineOrder != null)
 			{
 				Entity.Counterparty = orderRating.OnlineOrder.Counterparty;
 			}

@@ -47,7 +47,13 @@ namespace CustomerOrdersApi.Controllers
 				{
 					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
 				}
-				
+
+				if(!orderRatingInfo.OrderId.HasValue && !orderRatingInfo.OnlineOrderId.HasValue)
+				{
+					Logger.LogWarning("Пришла оценка неизвестного заказа с {Source}", sourceName);
+					return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
+				}
+
 				_customerOrdersService.CreateOrderRating(orderRatingInfo);
 				return Ok();
 			}
