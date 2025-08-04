@@ -10,6 +10,7 @@ namespace Vodovoz.Core.Domain.Documents
 	public class TaxcomDocflow : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _creationTime;
+		private DateTime? _acceptingIngoingDocflowTime;
 		private string _mainDocumentId;
 		private Guid? _docflowId;
 		private int _edoDocumentId;
@@ -27,6 +28,15 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _creationTime;
 			set => SetField(ref _creationTime, value);
+		}
+		
+		/// <summary>
+		/// Время отправки запроса на принятие входящего документооборота
+		/// </summary>
+		public virtual DateTime? AcceptingIngoingDocflowTime
+		{
+			get => _acceptingIngoingDocflowTime;
+			set => SetField(ref _acceptingIngoingDocflowTime, value);
 		}
 
 		/// <summary>

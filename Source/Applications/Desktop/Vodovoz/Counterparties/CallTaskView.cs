@@ -140,9 +140,9 @@ namespace Vodovoz.Counterparties
 						OpenPageOptions.None,
 						orderDlg =>
 						{
-							orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(ViewModel.Entity.Counterparty.Id);
+							orderDlg.Counterparty = orderDlg.UoW.GetById<Counterparty>(ViewModel.Entity.Counterparty.Id);
 							orderDlg.UpdateClientDefaultParam();
-							orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(ViewModel.Entity.DeliveryPoint.Id);
+							orderDlg.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(ViewModel.Entity.DeliveryPoint.Id);
 
 							orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
 						});

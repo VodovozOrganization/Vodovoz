@@ -177,6 +177,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
+		public virtual string Title => $"{NameString} {DirectionString}";
+
 		#endregion
 
 		#region Функции
@@ -220,6 +222,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		public static OrderEquipment Clone(OrderEquipment orderEquipment)
+		{
+			return new OrderEquipment
+			{
+				Order = orderEquipment.Order,
+				Direction = orderEquipment.Direction,
+				Equipment = orderEquipment.Equipment,
+				OrderItem = orderEquipment.OrderItem,
+				OrderRentDepositItem = orderEquipment.OrderRentDepositItem,
+				OrderRentServiceItem = orderEquipment.OrderRentServiceItem,
+				OwnType = orderEquipment.OwnType,
+				DirectionReason = orderEquipment.DirectionReason,
+				Reason = orderEquipment.Reason,
+				Confirmed = orderEquipment.Confirmed,
+				Nomenclature = orderEquipment.Nomenclature,
+				ActualCount = orderEquipment.ActualCount,
+				Count = orderEquipment.Count
+			};
+		}
 	}
 
 	public enum Direction

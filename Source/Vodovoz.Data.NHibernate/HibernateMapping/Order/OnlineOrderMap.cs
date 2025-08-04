@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -42,9 +43,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
 			References(x => x.SelfDeliveryGeoGroup).Column("self_delivery_geo_group_id");
-			References(x => x.Order).Column("order_id");
 			References(x => x.EmployeeWorkWith).Column("employee_work_with_id");
 			References(x => x.OnlineOrderCancellationReason).Column("online_order_cancellation_reason_id");
+
+			HasMany(x => x.Orders)
+				.KeyColumn("online_order_id")
+				.Cascade.AllDeleteOrphan();
 
 			HasMany(x => x.OnlineOrderItems)
 				.KeyColumn("online_order_id")

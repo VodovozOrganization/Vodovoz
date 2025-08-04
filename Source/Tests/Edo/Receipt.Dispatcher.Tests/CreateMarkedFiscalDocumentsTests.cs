@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests
@@ -512,7 +513,6 @@ namespace Receipt.Dispatcher.Tests
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<TrueMarkApiClient>());
-			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var saveCodesService = Substitute.For<ISaveCodesService>();
@@ -528,12 +528,13 @@ namespace Receipt.Dispatcher.Tests
 				edoRepository,
 				edoReceiptSettings,
 				localCodesValidator,
-				trueMarkCodesPool,
+				Substitute.For<ITrueMarkCodesPool>() as ReceiptTrueMarkCodesPool, 
 				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
 				Substitute.For<IEdoOrderContactProvider>(),
 				saveCodesService,
+				Substitute.For<IOrganizationSettings>(),
 				bus);
 		}
 

@@ -3,6 +3,7 @@ using System;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
 {
@@ -10,11 +11,16 @@ namespace Vodovoz.Models.Orders
 	{
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
+		private readonly IOrderContractUpdater _contractUpdater;
 
-		public OrderCopyModel(INomenclatureSettings nomenclatureSettings, IFlyerRepository flyerRepository)
+		public OrderCopyModel(
+			INomenclatureSettings nomenclatureSettings,
+			IFlyerRepository flyerRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
 
 		public CopyingOrder StartCopyOrder(IUnitOfWork uow, int copiedOrderId, Order toOrder = null)
@@ -24,19 +30,20 @@ namespace Vodovoz.Models.Orders
 				throw new ArgumentNullException(nameof(uow));
 			}
 
-			Order copiedOrder = uow.GetById<Order>(copiedOrderId);
+			var copiedOrder = uow.GetById<Order>(copiedOrderId);
 			if(copiedOrder == null)
 			{
 				throw new ArgumentException($"Не удалось получить копируемый заказ с id ({copiedOrderId})");
 			}
 
-			Order resultOrder = toOrder;
+			var resultOrder = toOrder;
 			if(resultOrder == null)
 			{
 				resultOrder = new Order();
 			}	
 		
-			CopyingOrder copyingOrder = new CopyingOrder(uow, copiedOrder, resultOrder, _nomenclatureSettings, _flyerRepository);
+			var copyingOrder = new CopyingOrder(
+				uow, copiedOrder, resultOrder, _nomenclatureSettings, _flyerRepository, _contractUpdater);
 
 			return copyingOrder;
 		}

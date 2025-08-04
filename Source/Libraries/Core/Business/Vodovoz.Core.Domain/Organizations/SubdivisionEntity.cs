@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		GenitivePlural = "подразделений")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SubdivisionEntity : PropertyChangedBase, IDomainObject
+	public class SubdivisionEntity : PropertyChangedBase, INamedDomainObject
 	{
 		private int _id;
 		private string _name;

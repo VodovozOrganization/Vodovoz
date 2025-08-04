@@ -100,11 +100,17 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						
 						try
 						{
-							_logger.LogInformation("Отправляем данные в ИПЗ по онлайн заказу {OnlineOrderId}", onlineOrderId);
-							httpCode = await notificationService.NotifyOfOnlineOrderStatusUpdatedAsync(
-								GetOnlineOrderStatusUpdatedDto(notification), notification.OnlineOrder.Source);
+							var dto = GetOnlineOrderStatusUpdatedDto(notification);
+
+							_logger.LogInformation("Отправляем данные в ИПЗ по онлайн заказу {OnlineOrderId}: {@Notification}",
+								onlineOrderId,
+								dto);
+
+							httpCode = await notificationService.NotifyOfOnlineOrderStatusUpdatedAsync(dto, notification.OnlineOrder.Source);
 							
-							_logger.LogInformation("Данные отправлены");
+							_logger.LogInformation("Ответ по отправке уведомления по заказу {OnlineOrderId}: {HttpCode}",
+								onlineOrderId,
+								httpCode);
 						}
 						catch(Exception e)
 						{
@@ -128,7 +134,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			{
 				ExternalOrderId = onlineOrder.ExternalOrderId,
 				OnlineOrderId = onlineOrder.Id,
-				OrderId = onlineOrder.Order?.Id,
 				DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : null,
 				DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
 				OrderStatus = _externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder)

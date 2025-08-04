@@ -15,8 +15,10 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -29,6 +31,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	[HistoryTrace]
 	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
+		private Organization _organization;
+
 		public virtual int Id { get; set; }
 		
 		IList<OrderWithoutShipmentForAdvancePaymentItem> orderWithoutDeliveryForAdvancePaymentItems = new List<OrderWithoutShipmentForAdvancePaymentItem>();
@@ -116,11 +120,16 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				}
 			}
 		}
+		
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
 			var reportInfo = reportInfoFactory.Create();
 			reportInfo.Identifier = "Documents.BillWithoutShipmentForAdvancePayment";
@@ -128,7 +137,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_advance_payment_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "organization_id", _organization?.Id },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
@@ -166,7 +175,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
 
