@@ -15,34 +15,30 @@
     <DataSet Name="Operations">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    COALESCE(orders.id,account_income.number) as num,
-    CASE
-		WHEN doc_residue.id IS NOT NULL
-		THEN
-			CONCAT ('Ввод остатков №', doc_residue.id)
-		WHEN orders.id IS NOT NULL
-		THEN
-			CONCAT ('П №', orders.id)
-		WHEN account_income.number IS NOT NULL
-		THEN
-			CONCAT ('Оплата №', account_income.number)
-	END AS document,
-    IFNULL(debt, 0) as debt,
-    IFNULL(deposit, 0) as deposit,
-    IFNULL(money, 0) as money,
-    money_movement_operations.operation_time as date
-FROM
-    money_movement_operations
-    LEFT JOIN orders 		 ON order_id = orders.id AND money_movement_operations.debt is not null
-    LEFT JOIN account_income ON account_income.money_movement_operation_id = money_movement_operations.id
-    LEFT JOIN doc_residue 	 ON money_movement_operations.id = doc_residue.money_movement_operation_id
-WHERE 
-	money_movement_operations.counterparty_id=@counterparty_id
-	AND money_movement_operations.payment_type='Cashless'
-	AND	@date_start &lt;= operation_time
-	AND operation_time &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
-ORDER BY date ASC</CommandText>
+        <CommandText>
+          SELECT * 
+          FROM
+          (SELECT 0 as num, CONCAT('Продажа (', mmo.order_id , ' от ', mmo.operation_time, ')' ) as document, 
+            IFNULL(mmo.debt, 0) as debt,
+              0 as deposit,
+              IFNULL(mmo.money, 0) as money, mmo.operation_time as date
+          FROM
+              money_movement_operations mmo
+          WHERE mmo.counterparty_id = @counterparty_id
+          UNION ALL
+          SELECT p.payment_num as num, 
+            CONCAT('Оплата (', p.payment_num , ' от ', cmo.operation_time, ')') as document, 
+            0 as debt, 
+            pi.sum as deposit, 
+            0 as money,
+            cmo.operation_time as date
+          FROM cashless_movement_operations cmo 
+          INNER JOIN payments_from_bank_client p ON p.cashless_movement_operation_id = cmo.id
+          LEFT JOIN payment_items pi ON p.id = pi.payment_id 
+          WHERE cmo.counterparty_id = @counterparty_id) as t
+          WHERE t.`date` &gt;= @date_start AND t.`date`  &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
+          ORDER BY t.date DESC
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
             <Value>=Parameters!CounterpartyID</Value>
@@ -599,12 +595,9 @@ First(Fields!total.Value,'Initial')&lt;0,
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>=Iif(
-Fields!debt.Value - Fields!deposit.Value=0
-,
-""
-,
-Fields!debt.Value - Fields!deposit.Value
-)</Value>
+                        Fields!debt.Value=0, "", Fields!debt.Value
+                        )
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -624,7 +617,7 @@ Fields!debt.Value - Fields!deposit.Value
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!money.Value</Value>
+                      <Value>=Iif(Fields!deposit.Value=0, "", Fields!deposit.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
