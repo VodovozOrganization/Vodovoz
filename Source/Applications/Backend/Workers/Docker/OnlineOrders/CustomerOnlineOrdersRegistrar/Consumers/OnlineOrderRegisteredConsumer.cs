@@ -27,22 +27,21 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
 			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				var createdOnlineOrderData = TryRegisterOnlineOrder(message);
+				await context.RespondAsync(createdOnlineOrderData);
 			}
 			catch(Exception e)
 			{
+				//TODO: проверить работу вброса ошибки
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
-				message.FaultedMessage = true;
-				_bus.Publish<OnlineOrderInfoDto>(message);
-				return Task.CompletedTask;
+				throw;
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Data.Orders;
+﻿using Vodovoz.Core.Data.Orders.V4;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
@@ -8,7 +8,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class OrdersDto
 	{
 		/// <summary>
-		/// Количество страниц с заказами
+		/// Количество заказов клиента
 		/// </summary>
 		public int OrdersCount { get; set; }
 		

@@ -3,9 +3,6 @@ using FastPaymentsApi.Contracts;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
@@ -16,29 +13,18 @@ namespace FastPaymentsAPI.Library.Managers
 	{
 		private readonly IFastPaymentSettings _fastPaymentSettings;
 		private readonly IOrderSettings _orderSettings;
-		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
-		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
-		private readonly ICashRepository _cashRepository;
-		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderOnlinePaymentAcceptanceHandler _onlinePaymentAcceptanceHandler;
 
 		public FastPaymentManager(
 			IFastPaymentSettings fastPaymentSettings,
 			IOrderSettings orderSettings,
-			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
-			IRouteListItemRepository routeListItemRepository,
-			ISelfDeliveryRepository selfDeliveryRepository,
-			ICashRepository cashRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderOnlinePaymentAcceptanceHandler onlinePaymentAcceptanceHandler)
 		{
 			_fastPaymentSettings =
 				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
-			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_onlinePaymentAcceptanceHandler =
+				onlinePaymentAcceptanceHandler ?? throw new ArgumentNullException(nameof(onlinePaymentAcceptanceHandler));
 		}
 
 		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQRNotFromOnline, bool fastPaymentFromOnline)
@@ -86,19 +72,12 @@ namespace FastPaymentsAPI.Library.Managers
 							SetPaymentByCardFrom(uow, fastPayment);
 						}
 
-						fastPayment.SetPerformedStatusForOrder(
-							uow,
-							statusDate,
-							_nomenclatureSettings,
-							_routeListItemRepository,
-							_selfDeliveryRepository,
-							_cashRepository,
-							_contractUpdater);
+						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
+							uow, fastPayment.Order, fastPayment.ExternalId, fastPayment.PaymentType, fastPayment.PaymentByCardFrom);
 					}
-					else
-					{
-						fastPayment.SetPerformedStatusForOnlineOrder(statusDate);
-					}
+
+					fastPayment.SetPerformedStatusForOnlineOrder(statusDate);
+
 					break;
 				case FastPaymentDTOStatus.Rejected:
 					fastPayment.SetRejectedStatus();

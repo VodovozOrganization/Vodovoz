@@ -1,4 +1,6 @@
+using System;
 using CustomerOrdersApi.Library.V4;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -12,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -54,6 +57,7 @@ namespace CustomerOrdersApi
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
+				.AddApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup();
@@ -63,7 +67,11 @@ namespace CustomerOrdersApi
 			services
 				.AddMemoryCache()
 				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMassTransit(busConf =>
+				{
+					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{OnlineOrderInfoDto.ExchangeName}"));
+					busConf.ConfigureRabbitMq();
+				})
 				.AddHttpClient();
 		}
 

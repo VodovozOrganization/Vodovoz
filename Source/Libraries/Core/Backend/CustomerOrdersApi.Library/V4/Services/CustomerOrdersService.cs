@@ -6,14 +6,16 @@ using CustomerOrdersApi.Library.V4.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V4.Services
@@ -28,6 +30,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
+		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
 		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersService(
@@ -39,6 +42,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			IOrderRepository orderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
+			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
 			IConfiguration configuration)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -49,6 +53,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
+			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
 
 			_signaturesSection = configuration.GetSection("Signatures");
 		}
@@ -192,10 +197,10 @@ namespace CustomerOrdersApi.Library.V4.Services
 			
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			var ordersWithoutOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
 			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
 			var allOrders = 
 				ordersWithoutOnlineOrders
@@ -205,7 +210,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			var res = allOrders
 					.OrderByDescending(x => x.DeliveryDate)
-					.ThenByDescending(x => x.CreationDate)
+					.ThenByDescending(x => x.CreatedDateTimeUtc)
 					.Skip(skipElements)
 					.Take(getOrdersDto.OrdersCountOnPage)
 					.ToArray();
@@ -221,7 +226,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			var onlineOrdersInfo = new List<OrderDto>();
 			var ordersFromOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersFromOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
 					.ToLookup(x => x.OnlineOrderId);
 
 			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)
@@ -234,12 +239,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 					{
 						OnlineOrderId = orderDto.OnlineOrderId,
 						DeliveryDate = orderDto.DeliveryDate,
-						CreationDate = orderDto.CreationDate,
+						CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,
 						DeliveryAddress = orderDto.DeliveryAddress,
 						DeliverySchedule = orderDto.DeliverySchedule,
 						RatingValue = orderDto.RatingValue,
 						IsRatingAvailable = orderDto.IsRatingAvailable,
-						IsNeedPayment = false,
+						IsNeedPay = false,
 						DeliveryPointId = orderDto.DeliveryPointId,
 						OrderSum = orderDto.OrderSum,
 						OrderStatus = orderDto.OrderStatus
@@ -255,12 +260,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 						{
 							OrderId = orderDto.OrderId,
 							DeliveryDate = orderDto.DeliveryDate,
-							CreationDate = orderDto.CreationDate,
+							CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,
 							DeliveryAddress = orderDto.DeliveryAddress,
 							DeliverySchedule = orderDto.DeliverySchedule,
 							RatingValue = orderDto.RatingValue,
 							IsRatingAvailable = orderDto.IsRatingAvailable,
-							IsNeedPayment = false,
+							IsNeedPay = false,
 							DeliveryPointId = orderDto.DeliveryPointId,
 							OrderSum = orderDto.OrderSum,
 							OrderStatus = orderDto.OrderStatus
@@ -343,6 +348,47 @@ namespace CustomerOrdersApi.Library.V4.Services
 			
 			uow.Save(requestForCall);
 			uow.Commit();
+		}
+
+		public (int HttpCode, string Message, AvailablePaymentMethods AvailablePayments) GetAvailablePaymentMethods(
+			GetAvailablePaymentMethodsDto getAvailablePaymentMethods)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Получение доступных способов оплат");
+			var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getAvailablePaymentMethods.OnlineOrderId);
+			
+			var result = _unPaidOnlineOrderHandler.CanChangePaymentType(onlineOrder);
+			
+			if(result.IsFailure)
+			{
+				var firstError = result.Errors.First();
+				return (int.Parse(firstError.Code), firstError.Message, null);
+			}
+			
+			var availablePayments = AvailablePaymentMethods.Create(getAvailablePaymentMethods.Source, onlineOrder.OnlineOrderPaymentType);
+			
+			return (200, null, availablePayments);
+		}
+
+		public Result<ChangedOrderDto> UpdateOrder(ChangingOrderDto changingOrderDto)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Изменение заказа");
+			
+			var order = uow.GetAll<Order>().FirstOrDefault(x => x.Id == changingOrderDto.OrderId);
+			var onlineOrder = uow.GetAll<OnlineOrder>().FirstOrDefault(x => x.Id == changingOrderDto.OnlineOrderId);
+			var deliverySchedule = uow.GetAll<Vodovoz.Domain.Logistic.DeliverySchedule>()
+				.FirstOrDefault(x => x.Id == changingOrderDto.DeliveryScheduleId);
+
+			var result = _unPaidOnlineOrderHandler.TryUpdateOrder(
+				uow, order, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
+			
+			if(result.IsFailure)
+			{
+				return Result.Failure<ChangedOrderDto>(result.Errors);
+			}
+			
+			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OrderId, changingOrderDto.OnlineOrderId);
+			
+			return Result.Success(changedOrderDto);
 		}
 
 		private string GetSourceSign(Source source)

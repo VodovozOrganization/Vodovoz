@@ -329,22 +329,36 @@ namespace Vodovoz.Domain.Orders
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
 
+		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
+		{
+			UpdateOnlineOrder(data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.OnlinePayment.Value);
+			UpdateDeliverySchedule(deliverySchedule, data.DeliveryScheduleId);
+			DeliveryDate = data.DeliveryDate;
+			IsFastDelivery = data.IsFastDelivery;
+			UnPaidReason = data.UnPaidReason;
+		}
+		
 		public virtual void UpdateOnlineOrder(
 			OnlineOrderPaymentType paymentType,
 			OnlinePaymentSource paymentSource,
 			OnlineOrderPaymentStatus paymentStatus,
-			DeliverySchedule deliverySchedule,
-			int? deliveryScheduleId,
-			DateTime deliveryDate,
-			bool isFastDelivery
-			)
+			int onlinePayment
+		)
 		{
 			OnlineOrderPaymentType = paymentType;
 			OnlinePaymentSource = paymentSource;
 			OnlineOrderPaymentStatus = paymentStatus;
+			OnlinePayment = onlinePayment;
+		}
+		
+		public virtual void UpdateOnlineOrder(
+			DeliverySchedule deliverySchedule,
+			int? deliveryScheduleId,
+			DateTime deliveryDate
+		)
+		{
 			UpdateDeliverySchedule(deliverySchedule, deliveryScheduleId);
 			DeliveryDate = deliveryDate;
-			IsFastDelivery = isFastDelivery;
 		}
 
 		public virtual void MoveToManualProcessing(string message)

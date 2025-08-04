@@ -610,6 +610,11 @@ namespace Vodovoz.Application.Orders.Services
 				return 0;
 			}
 
+			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+			{
+				return 0;
+			}
+
 			Employee employee = null;
 			switch(onlineOrder.Source)
 			{

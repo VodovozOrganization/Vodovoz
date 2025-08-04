@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
@@ -11,6 +12,16 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	/// </summary>
 	public class DetailedOrderInfoDto : OrderDto
 	{
+		/// <summary>
+		/// Значение таймера для оплаты заказа
+		/// </summary>
+		public int TimerForPaySeconds { get; set; }
+		
+		/// <summary>
+		/// Доступность повторения заказа
+		/// </summary>
+		public bool AvailableRepeatOrder { get; set; }
+		
 		/// <summary>
 		/// Быстрая доставка
 		/// </summary>
@@ -41,7 +52,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 			if(orderRating is null)
 			{
 				IsRatingAvailable =
-					CreationDate >= ratingAvailableFrom
+					CreatedDateTimeUtc >= ratingAvailableFrom.ToUniversalTime()
 					&& (OrderStatus == ExternalOrderStatus.OrderCompleted
 						|| OrderStatus == ExternalOrderStatus.Canceled
 						|| OrderStatus == ExternalOrderStatus.OrderDelivering);

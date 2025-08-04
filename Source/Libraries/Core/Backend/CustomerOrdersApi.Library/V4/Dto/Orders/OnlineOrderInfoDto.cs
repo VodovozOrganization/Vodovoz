@@ -11,6 +11,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto
 	{
+		public const string ExchangeName = "online-order-received";
 		/// <summary>
 		/// Заказ не прошел сохранение
 		/// </summary>

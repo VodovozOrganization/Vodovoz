@@ -10,6 +10,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
@@ -64,14 +65,14 @@ namespace CustomerOrdersApi.Library.V4
 					});
 								
 				configurator.Send<OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<OnlineOrderInfoDto>(x => x.SetEntityName("online-order-received"));
+				configurator.Message<OnlineOrderInfoDto>(x => x.SetEntityName(OnlineOrderInfoDto.ExchangeName));
 				configurator.Publish<OnlineOrderInfoDto>(x =>
 				{
 					x.ExchangeType = ExchangeType.Direct;
 					x.Durable = true;
 					x.AutoDelete = false;
 					x.BindQueue(
-						"online-order-received",
+						OnlineOrderInfoDto.ExchangeName,
 						"online-orders",
 						conf =>
 						{
@@ -79,7 +80,7 @@ namespace CustomerOrdersApi.Library.V4
 							conf.RoutingKey = "False";
 						});
 					x.BindQueue(
-						"online-order-received",
+						OnlineOrderInfoDto.ExchangeName,
 						"online-orders-fault",
 						conf =>
 						{
@@ -92,6 +93,26 @@ namespace CustomerOrdersApi.Library.V4
 			});
 			
 			return busConf;
+		}
+
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OrderId = source.OrderId,
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				CounterpartyErpId = source.CounterpartyErpId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId
+			};
 		}
 	}
 }

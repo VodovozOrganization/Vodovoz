@@ -36,52 +36,52 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 		
-		protected virtual void TryRegisterOnlineOrder(OnlineOrderInfoDto message)
+		protected virtual CreatedOnlineOrder TryRegisterOnlineOrder(OnlineOrderInfoDto message)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}"))
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
+			var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
+				uow,
+				message,
+				_deliveryRulesSettings.FastDeliveryScheduleId,
+				_discountReasonSettings.GetSelfDeliveryDiscountReasonId);
+
+			uow.Save(onlineOrder);
+			uow.Commit();
+				
+			var externalOrderId = message.ExternalOrderId;
+
+			Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
+			var orderId = 0;
+				
+			try
 			{
-				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
-					uow,
-					message,
-					_deliveryRulesSettings.FastDeliveryScheduleId,
-					_discountReasonSettings.GetSelfDeliveryDiscountReasonId);
-
-				uow.Save(onlineOrder);
-				uow.Commit();
-				
-				var externalOrderId = message.ExternalOrderId;
-
-				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
-				var orderId = 0;
-				
-				try
+				orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(
+					e,
+					"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
+					externalOrderId);
+			}
+			finally
+			{
+				if(orderId == default)
 				{
-					orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
-				}
-				catch(Exception e)
-				{
-					Logger.LogError(
-						e,
-						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
+					Logger.LogInformation(
+						"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
 						externalOrderId);
 				}
-				finally
+				else
 				{
-					if(orderId == default)
-					{
-						Logger.LogInformation(
-							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
-							externalOrderId);
-					}
-					else
-					{
-						Logger.LogInformation(
-							"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
-							externalOrderId,
-							orderId);
-					}
+					Logger.LogInformation(
+						"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
+						externalOrderId,
+						orderId);
 				}
 			}
+				
+			return CreatedOnlineOrder.Create(onlineOrder.Id);
 		}
 	}
 }

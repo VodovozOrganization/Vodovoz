@@ -28,7 +28,6 @@ using VodovozBusiness.Services.TrueMark;
 using TrueMarkApi.Client;
 using Vodovoz.Application.Clients;
 using Vodovoz.Application.Receipts;
-using Vodovoz.Core.Domain.Interfaces.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Receipts;
 
@@ -93,6 +92,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
+			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

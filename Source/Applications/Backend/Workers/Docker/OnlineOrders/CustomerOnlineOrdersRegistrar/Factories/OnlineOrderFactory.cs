@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -45,7 +46,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				ContactPhone = orderInfoDto.ContactPhone,
 				OnlineOrderComment = orderInfoDto.OnlineOrderComment,
 				OnlineOrderPaymentType = orderInfoDto.OnlineOrderPaymentType,
-				OnlineOrderStatus = OnlineOrderStatus.New,
 				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
 				OnlinePaymentSource = orderInfoDto.OnlinePaymentSource,
 				OnlinePayment = orderInfoDto.OnlinePayment,
@@ -58,6 +58,16 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 			if(!onlineOrder.IsFastDelivery && onlineOrder.DeliveryScheduleId == fastDeliveryScheduleId)
 			{
 				onlineOrder.IsFastDelivery = true;
+			}
+
+			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+				&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline)
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
+			}
+			else
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
 			}
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);

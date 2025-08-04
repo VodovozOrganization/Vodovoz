@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -172,6 +173,10 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
+			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
+			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);

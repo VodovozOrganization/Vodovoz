@@ -1,27 +1,30 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
-		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IRequestClient<CreatedOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
-			IPublishEndpoint publishEndpoint
+			IRequestClient<CreatedOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
 		[HttpPost]
@@ -43,9 +46,8 @@ namespace CustomerOrdersApi.Controllers.V4
 				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
-				await _publishEndpoint.Publish(onlineOrderInfoDto);
-				
-				return Accepted();
+				var response = await _requestClient.GetResponse<CreatedOnlineOrder>(onlineOrderInfoDto);
+				return response.Message.OnlineOrderId > 0 ? Ok(response.Message) : Problem(Messages.ErrorMessage);
 			}
 			catch(Exception e)
 			{
@@ -54,7 +56,7 @@ namespace CustomerOrdersApi.Controllers.V4
 					onlineOrderInfoDto.ExternalOrderId,
 					sourceName);
 
-				return Problem();
+				return Problem(Messages.ErrorMessage);
 			}
 		}
 
@@ -131,42 +133,66 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 		}
 		
-		/*[HttpPost]
-		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
+		[HttpGet]
+		public IActionResult GetAvailablePaymentMethods([FromBody] GetAvailablePaymentMethodsDto getAvailablePaymentMethods)
 		{
-			var sourceName = paymentStatusUpdatedDto.Source.GetEnumTitle();
-
+			var sourceName = getAvailablePaymentMethods.Source.GetEnumTitle();
+			
 			try
 			{
-				Logger.LogInformation(
-					"Поступил запрос от {Source} на обновление статуса оплаты онлайн заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
-					sourceName,
-					paymentStatusUpdatedDto.ExternalOrderId,
-					paymentStatusUpdatedDto.Signature);
+				_logger.LogInformation(
+					"Поступил запрос на получение доступных типов оплат {@AvailablePaymentMethods}", getAvailablePaymentMethods);
 				
-				if(!_customerOrdersService.ValidateOnlineOrderPaymentStatusUpdatedSignature(
-					paymentStatusUpdatedDto, out var generatedSignature))
-				{
-					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
-				}
+				var result = _customerOrdersService.GetAvailablePaymentMethods(getAvailablePaymentMethods);
 
-				if(!_customerOrdersService.TryUpdateOnlineOrderPaymentStatus(paymentStatusUpdatedDto))
+				return result.HttpCode switch
 				{
-					//возвращаем код не найденного заказа
-					//return 
-				}
-				
-				return Ok();
+					400 => Problem(result.Message),
+					408 => Problem(result.Message),
+					500 => Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater),
+					_ => Ok(result.AvailablePayments)
+				};
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(
-					e,
-					"Ошибка при попытке обновить статус оплаты онлайн заказа {ExternalOrderId} от {Source}",
-					paymentStatusUpdatedDto.ExternalOrderId,
+				_logger.LogError(e,
+					"Ошибка при получении доступных типов оплат {ExternalCounterpartyId} от {Source}",
+					getAvailablePaymentMethods.ExternalCounterpartyId,
 					sourceName);
-				return Problem();
+
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
-		}*/
+		}
+		
+		[HttpPost]
+		public IActionResult ChangeOrder(ChangingOrderDto changingOrderDto)
+		{
+			var sourceName = changingOrderDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation("Поступил запрос на изменение заказа {@ChangeOrderRequest}", changingOrderDto);
+
+				var result = _customerOrdersService.UpdateOrder(changingOrderDto);
+
+				if(result.IsSuccess)
+				{
+					return Ok(result);
+				}
+
+				var firstError = result.Errors.First();
+				return Problem(firstError.Message, statusCode: int.Parse(firstError.Code));
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при попытке обновить заказ {OnlineOrderId} от {Source}",
+					changingOrderDto.OnlineOrderId,
+					sourceName);
+				
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
 	}
 }

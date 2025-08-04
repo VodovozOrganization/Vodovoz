@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CustomerOnlineOrdersUpdater.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Vodovoz.Core.Domain.Interfaces.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersUpdater
 {

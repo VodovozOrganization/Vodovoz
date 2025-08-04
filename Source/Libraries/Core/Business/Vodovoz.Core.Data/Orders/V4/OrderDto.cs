@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Core.Data.Orders
+namespace Vodovoz.Core.Data.Orders.V4
 {
 	/// <summary>
 	/// Информация о заказе
@@ -41,7 +43,7 @@ namespace Vodovoz.Core.Data.Orders
 		/// <summary>
 		/// Дата создания
 		/// </summary>
-		public DateTime CreationDate { get; set; }
+		public DateTime CreatedDateTimeUtc { get; set; }
 		
 		/// <summary>
 		/// Интервал доставки
@@ -71,11 +73,16 @@ namespace Vodovoz.Core.Data.Orders
 		/// <summary>
 		/// Нужна ли оплата заказа
 		/// </summary>
-		public bool IsNeedPayment { get; set; }
+		public bool IsNeedPay { get; set; }
 		
 		/// <summary>
 		/// Id точки доставки
 		/// </summary>
 		public int? DeliveryPointId { get; set; }
+		
+		/// <summary>
+		/// Сообщения для размещения в UI
+		/// </summary>
+		public IEnumerable<InfoMessage> InfoMessages { get; set; }
 	}
 }
