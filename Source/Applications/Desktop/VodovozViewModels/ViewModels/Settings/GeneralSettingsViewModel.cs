@@ -196,6 +196,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
+			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;
+			
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}

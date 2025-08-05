@@ -204,19 +204,19 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureEmployeesFixedPrices();
 			
-			yentryTargetPaymentDeferent.Binding
+			yspinbuttonTargetPaymentDeferent.Binding
 				.AddSource(ViewModel)
-				//.AddBinding(vm => vm.TargetPaymentDeferment, w => w.Text)
+				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			yentryNewPaymentDeferent.Binding
+			yspinbuttonNewPaymentDeferent.Binding
 				.AddSource(ViewModel)
-				//.AddBinding(vm => vm.NewPaymentDeferment, w => w.Text)
+				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			buttonCalculatePaymentDeferent.Clicked += (s, e)  => ViewModel.CalculatePaymentDefermentCommand.Execute();
 			
-			yentryDefaultPaymentDeferent.Binding
+			yspinbuttonDefaultPaymentDeferent.Binding
 				.AddSource(ViewModel)
-				//.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.Text)
+				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			buttonSaveDefaultPaymentDeferent.Clicked += (s, e) => ViewModel.SaveDefaultPaymentDefermentCommand.Execute();
 		}
