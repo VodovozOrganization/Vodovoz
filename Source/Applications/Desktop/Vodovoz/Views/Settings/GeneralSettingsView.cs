@@ -134,6 +134,7 @@ namespace Vodovoz.Views.Settings
 			ConfigureOrdersSettings();
 
 			#region Вкладка Склад
+			
 			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
 
 			yentryCarLoadDocumentInfoString.Binding
@@ -144,6 +145,7 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
+			
 			#endregion Вкладка Склад
 
 			#region Вкладка Бухгалтерия
@@ -201,6 +203,22 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
+			
+			yentryTargetPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				//.AddBinding(vm => vm.TargetPaymentDeferment, w => w.Text)
+				.InitializeFromSource();
+			yentryNewPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				//.AddBinding(vm => vm.NewPaymentDeferment, w => w.Text)
+				.InitializeFromSource();
+			buttonCalculatePaymentDeferent.Clicked += (s, e)  => ViewModel.CalculatePaymentDefermentCommand.Execute();
+			
+			yentryDefaultPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				//.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.Text)
+				.InitializeFromSource();
+			buttonSaveDefaultPaymentDeferent.Clicked += (s, e) => ViewModel.SaveDefaultPaymentDefermentCommand.Execute();
 		}
 		
 		private void ConfigureEmployeesFixedPrices()

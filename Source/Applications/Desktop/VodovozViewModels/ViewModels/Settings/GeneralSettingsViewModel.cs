@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -549,6 +550,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
+		
 		#endregion
 
 		#region FastDeliveryLates
@@ -736,6 +738,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public IUnitOfWork UowOrderOrganizationSettings { get; private set; }
 		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
+		private int _targetPaymentDeferment;
+		private int _newPaymentDeferment;
+		private int _defaultPaymentDeferment;
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
@@ -752,6 +757,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void InitializeOrderOrganizationsSettingsCommands()
 		{
 			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
+			CalculatePaymentDefermentCommand = new DelegateCommand(CalculatePaymentDefermentCommandHandler);
+			SaveDefaultPaymentDefermentCommand = new DelegateCommand(SaveDefaultPaymentDefermentCommandHandler);
 		}
 
 		private void SaveOrderOrganizationsSettings()
@@ -920,7 +927,55 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion
+
+		#region Массовое изменение отсрочки платежа задолженности
+
+		public int TargetPaymentDeferment
+		{
+			get => _targetPaymentDeferment;
+			set => SetField(ref _targetPaymentDeferment, value);
+		}
+
+		public int NewPaymentDeferment
+		{
+			get => _newPaymentDeferment;
+			set => SetField(ref _newPaymentDeferment, value);
+		}
+
+		public int DefaultPaymentDeferment
+		{
+			get => _defaultPaymentDeferment;
+			set => SetField(ref _defaultPaymentDeferment, value);
+		}
+
+		public DelegateCommand CalculatePaymentDefermentCommand { get; set; }
+
+		private void CalculatePaymentDefermentCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				uow.Session
+					.CreateSQLQuery(@"UPDATE counterparty SET delay_days_for_buyers = :newValue WHERE delay_days_for_buyers = :oldValue")
+					.SetParameter("oldValue", TargetPaymentDeferment)
+					.SetParameter("newValue", NewPaymentDeferment)
+					.ExecuteUpdate();
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
 		
+		public DelegateCommand SaveDefaultPaymentDefermentCommand { get; set; }
+
+		private void SaveDefaultPaymentDefermentCommandHandler()
+		{
+			_generalSettings.SaveDefaultPaymentDeferment(DefaultPaymentDeferment);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+		
+
+		#endregion
 		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()
