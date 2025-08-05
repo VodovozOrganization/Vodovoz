@@ -354,7 +354,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::Gamma.GtkWidgets.yEntry yentry5;
+		private global::Gamma.GtkWidgets.yEntry yentryTargetPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
@@ -362,21 +362,21 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel5;
 
-		private global::Gamma.GtkWidgets.yEntry yentry4;
+		private global::Gamma.GtkWidgets.yEntry yentryNewPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel6;
 
-		private global::Gamma.GtkWidgets.yButton buttonCalculateDebt;
+		private global::Gamma.GtkWidgets.yButton buttonCalculatePaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox2;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel7;
 
-		private global::Gamma.GtkWidgets.yEntry yentry3;
+		private global::Gamma.GtkWidgets.yEntry yentryDefaultPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel8;
 
-		private global::Gamma.GtkWidgets.yButton buttonSaveDefaultDebt;
+		private global::Gamma.GtkWidgets.yButton buttonSaveDefaultPaymentDeferent;
 
 		private global::Gtk.Label GtkLabel86;
 
@@ -2213,13 +2213,13 @@ namespace Vodovoz.Views.Settings
 			w149.Expand = false;
 			w149.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.yentry5 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry5.CanFocus = true;
-			this.yentry5.Name = "yentry5";
-			this.yentry5.IsEditable = true;
-			this.yentry5.InvisibleChar = '•';
-			this.hbox7.Add(this.yentry5);
-			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yentry5]));
+			this.yentryTargetPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryTargetPaymentDeferent.CanFocus = true;
+			this.yentryTargetPaymentDeferent.Name = "yentryTargetPaymentDeferent";
+			this.yentryTargetPaymentDeferent.IsEditable = true;
+			this.yentryTargetPaymentDeferent.InvisibleChar = '•';
+			this.hbox7.Add(this.yentryTargetPaymentDeferent);
+			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yentryTargetPaymentDeferent]));
 			w150.Position = 1;
 			w150.Expand = false;
 			w150.Fill = false;
@@ -2251,13 +2251,13 @@ namespace Vodovoz.Views.Settings
 			w153.Expand = false;
 			w153.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.yentry4 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry4.CanFocus = true;
-			this.yentry4.Name = "yentry4";
-			this.yentry4.IsEditable = true;
-			this.yentry4.InvisibleChar = '•';
-			this.hbox8.Add(this.yentry4);
-			global::Gtk.Box.BoxChild w154 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentry4]));
+			this.yentryNewPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryNewPaymentDeferent.CanFocus = true;
+			this.yentryNewPaymentDeferent.Name = "yentryNewPaymentDeferent";
+			this.yentryNewPaymentDeferent.IsEditable = true;
+			this.yentryNewPaymentDeferent.InvisibleChar = '•';
+			this.hbox8.Add(this.yentryNewPaymentDeferent);
+			global::Gtk.Box.BoxChild w154 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryNewPaymentDeferent]));
 			w154.Position = 1;
 			w154.Expand = false;
 			w154.Fill = false;
@@ -2271,13 +2271,13 @@ namespace Vodovoz.Views.Settings
 			w155.Expand = false;
 			w155.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonCalculateDebt = new global::Gamma.GtkWidgets.yButton();
-			this.buttonCalculateDebt.CanFocus = true;
-			this.buttonCalculateDebt.Name = "buttonCalculateDebt";
-			this.buttonCalculateDebt.UseUnderline = true;
-			this.buttonCalculateDebt.Label = global::Mono.Unix.Catalog.GetString("Произвести пересчет");
-			this.hbox8.Add(this.buttonCalculateDebt);
-			global::Gtk.Box.BoxChild w156 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonCalculateDebt]));
+			this.buttonCalculatePaymentDeferent = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCalculatePaymentDeferent.CanFocus = true;
+			this.buttonCalculatePaymentDeferent.Name = "buttonCalculatePaymentDeferent";
+			this.buttonCalculatePaymentDeferent.UseUnderline = true;
+			this.buttonCalculatePaymentDeferent.Label = global::Mono.Unix.Catalog.GetString("Произвести пересчет");
+			this.hbox8.Add(this.buttonCalculatePaymentDeferent);
+			global::Gtk.Box.BoxChild w156 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonCalculatePaymentDeferent]));
 			w156.Position = 3;
 			w156.Expand = false;
 			w156.Fill = false;
@@ -2300,13 +2300,13 @@ namespace Vodovoz.Views.Settings
 			w158.Expand = false;
 			w158.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.yentry3 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry3.CanFocus = true;
-			this.yentry3.Name = "yentry3";
-			this.yentry3.IsEditable = true;
-			this.yentry3.InvisibleChar = '•';
-			this.yhbox2.Add(this.yentry3);
-			global::Gtk.Box.BoxChild w159 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yentry3]));
+			this.yentryDefaultPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryDefaultPaymentDeferent.CanFocus = true;
+			this.yentryDefaultPaymentDeferent.Name = "yentryDefaultPaymentDeferent";
+			this.yentryDefaultPaymentDeferent.IsEditable = true;
+			this.yentryDefaultPaymentDeferent.InvisibleChar = '•';
+			this.yhbox2.Add(this.yentryDefaultPaymentDeferent);
+			global::Gtk.Box.BoxChild w159 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yentryDefaultPaymentDeferent]));
 			w159.Position = 1;
 			w159.Expand = false;
 			w159.Fill = false;
@@ -2320,13 +2320,13 @@ namespace Vodovoz.Views.Settings
 			w160.Expand = false;
 			w160.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.buttonSaveDefaultDebt = new global::Gamma.GtkWidgets.yButton();
-			this.buttonSaveDefaultDebt.CanFocus = true;
-			this.buttonSaveDefaultDebt.Name = "buttonSaveDefaultDebt";
-			this.buttonSaveDefaultDebt.UseUnderline = true;
-			this.buttonSaveDefaultDebt.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.yhbox2.Add(this.buttonSaveDefaultDebt);
-			global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonSaveDefaultDebt]));
+			this.buttonSaveDefaultPaymentDeferent = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSaveDefaultPaymentDeferent.CanFocus = true;
+			this.buttonSaveDefaultPaymentDeferent.Name = "buttonSaveDefaultPaymentDeferent";
+			this.buttonSaveDefaultPaymentDeferent.UseUnderline = true;
+			this.buttonSaveDefaultPaymentDeferent.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.yhbox2.Add(this.buttonSaveDefaultPaymentDeferent);
+			global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonSaveDefaultPaymentDeferent]));
 			w161.Position = 3;
 			w161.Expand = false;
 			w161.Fill = false;
