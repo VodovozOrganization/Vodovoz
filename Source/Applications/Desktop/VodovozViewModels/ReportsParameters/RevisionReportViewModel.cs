@@ -2,6 +2,7 @@
 using Mailganer.Api.Client;
 using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions;
+using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -9,12 +10,14 @@ using QS.Navigation;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Tdi;
+using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using EmailAttachment = Mailganer.Api.Client.Dto.EmailAttachment;
-using EmailMessage = Mailganer.Api.Client.Dto.EmailMessage;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -35,6 +38,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private readonly IInteractiveService _interactiveService;
 		private readonly MailganerClientV2 _mailganerClient;
+		private readonly IEmailSettings _emailSettings;
+		private readonly IRequestClient<SendEmailMessage> _client;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -43,7 +48,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IInteractiveService interactiveService,
-			MailganerClientV2 mailganerClient
+			MailganerClientV2 mailganerClient,
+			IEmailSettings emailSettings,
+			IRequestClient<SendEmailMessage> client
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -52,6 +59,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_client = client ?? throw new ArgumentNullException(nameof(client));
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
@@ -237,6 +246,54 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
 			}
+		}
+		public async Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode)
+		{
+			var instanceId = Convert.ToInt32(uow.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
+
+			Counterparty client = null;
+
+			if(secureCode.CounterpartyId.HasValue)
+			{
+				client = uow.GetById<Counterparty>(secureCode.CounterpartyId.Value);
+			}
+
+			var sendEmailMessage = new SendEmailMessage
+			{
+				From = new EmailContact
+				{
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
+				},
+
+				To = new List<EmailContact>
+		{
+			new EmailContact
+			{
+				Name = client != null ? client.FullName : "Уважаемый пользователь",
+				Email = secureCode.Target
+			}
+		},
+
+				Subject = "Код авторизации",
+				HTMLPart = null,
+				//HTMLPart = SecureCodeEmailHtmlTemplate.GetTemplate(
+				//	secureCode.Code, secureCode.Target, _secureCodeSettings.CodeLifetimeSeconds / 60),
+				Payload = new EmailPayload
+				{
+					Id = 0,
+					Trackable = false,
+					InstanceId = instanceId
+				},
+
+				Attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>()
+			};
+
+			var response = await _client.GetResponse<SentEmailResponse>(sendEmailMessage);
+			return response.Message.Sent;
 		}
 	}
 }
