@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210.058mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Operations">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
           SELECT * 
@@ -51,7 +49,7 @@
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="num">
           <DataField>num</DataField>
           <TypeName>System.String</TypeName>
@@ -134,7 +132,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Initial">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.total,
@@ -175,7 +173,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="total">
           <DataField>total</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -505,8 +503,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -523,8 +520,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -538,8 +534,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -593,10 +588,10 @@ First(Fields!total.Value,'Initial')&lt;0,
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
+                    <Textbox Name="TextboxDebtValue">
                       <Value>=Iif(
-                        Fields!debt.Value=0, "", Fields!debt.Value
-                        )
+Fields!debt.Value=0, "", Fields!debt.Value
+)
                       </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -608,15 +603,14 @@ First(Fields!total.Value,'Initial')&lt;0,
                         <TextAlign>Right</TextAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>
-                        </Hidden>
+                        <Hidden></Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13">
+                    <Textbox Name="TextboxDepositValue">
                       <Value>=Iif(Fields!deposit.Value=0, "", Fields!deposit.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -632,8 +626,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -646,8 +639,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -659,8 +651,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -672,8 +663,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -759,8 +749,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -772,8 +761,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -785,8 +773,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -798,8 +785,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -839,7 +825,7 @@ Fields!deposit.Value&lt;0
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox17">
+                    <Textbox Name="TextboxSumOfDebts">
                       <Value>=Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -855,8 +841,8 @@ Fields!deposit.Value&lt;0
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>=Sum(Fields!money)</Value>
+                    <Textbox Name="TextboxSumOfDeposits">
+                      <Value>=Sum(Fields!deposit)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -889,8 +875,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -902,8 +887,7 @@ Fields!deposit.Value&lt;0
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -915,7 +899,7 @@ Fields!deposit.Value&lt;0
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>11.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -964,7 +948,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox38">
+                    <Textbox Name="TextboxBalance">
                       <Value>=Iif(
 First(Fields!total.Value, 'Initial')
 +
@@ -1010,8 +994,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1023,8 +1006,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1243,8 +1225,7 @@ First({total_string}, 'Initial')
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
@@ -1256,16 +1237,14 @@ First({total_string}, 'Initial')
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyID">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

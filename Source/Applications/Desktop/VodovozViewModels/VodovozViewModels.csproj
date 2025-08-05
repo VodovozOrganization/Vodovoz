@@ -1210,6 +1210,10 @@
       <Project>{86958f1a-2863-488f-bdc6-ad2d0df59654}</Project>
       <Name>Edo.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj">
+      <Project>{0FC402FC-CAD1-48FA-981E-C91967CCCC79}</Project>
+      <Name>Mailganer.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
       <Name>Mailjet.Api.Abstractions</Name>

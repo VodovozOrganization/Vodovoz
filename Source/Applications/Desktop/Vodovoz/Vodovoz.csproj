@@ -2432,6 +2432,10 @@
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
       <Name>Edo.Transport</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj">
+      <Project>{0fc402fc-cad1-48fa-981e-c91967cccc79}</Project>
+      <Name>Mailganer.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
       <Name>Mailjet.Api.Abstractions</Name>

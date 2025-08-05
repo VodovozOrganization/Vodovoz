@@ -36,6 +36,7 @@ using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
 using System;
+using Mailganer.Api.Client;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -217,7 +218,9 @@ namespace Vodovoz
 				.AddPacs()
 				.AddScoped<MessageService>()
 				.AddSingleton<EntityToJournalMappings>()
-				.AddScoped<EntityJournalOpener>();
+				.AddScoped<EntityJournalOpener>()
+
+				.AddMailganerApiClient();
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();

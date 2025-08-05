@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using Mailganer.Api.Client;
+using Mailganer.Api.Client.Dto;
+using Mailjet.Api.Abstractions;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using EmailAttachment = Mailganer.Api.Client.Dto.EmailAttachment;
+using EmailMessage = Mailganer.Api.Client.Dto.EmailMessage;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -29,6 +34,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private Email _selectedEmail;
 
 		private readonly IInteractiveService _interactiveService;
+		private readonly MailganerClientV2 _mailganerClient;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -36,7 +42,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			ILifetimeScope lifetimeScope,
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
-			IInteractiveService interactiveService
+			IInteractiveService interactiveService,
+			MailganerClientV2 mailganerClient
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -44,6 +51,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			RdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
@@ -173,7 +181,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			UnitOfWork?.Dispose();
 			UnitOfWork = null;
 		}
-		private void SendByEmail()
+		private async void SendByEmail()
 		{
 			if(Emails.Count == 0 || Emails == null)
 			{
@@ -195,6 +203,40 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			//Console.WriteLine("Отправка письма на " + SelectedEmail.Address);
+			try
+			{
+				// 1. Генерация документа (пример для PDF)
+				//var reportInfo = ReportInfoFactory.CreateReportInfo(Parameters);
+				//var documentBytes = ReportExporter.ExportToPdf(reportInfo); // Реализуйте этот метод согласно вашей логике
+				// 2. Формирование EmailMessage
+				var emailMessage = new EmailMessage
+				{
+					//To = SelectedEmail.Address,
+					From = "Vodovoz",
+					To = "work.semen.sd@gmail.com",
+					Subject = "Акт сверки",
+
+					Attachments = new[]
+					{
+						new EmailAttachment
+						{
+							Filename = "АктСверки.pdf",
+							//Base64Content = Convert.ToBase64String(documentBytes)
+							Base64Content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("PDF STUB"))
+						}
+					}
+				};
+
+				// 3. Отправка через MailganerClientV2
+
+				await _mailganerClient.Send(emailMessage);
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
+			}
+			catch(Exception ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
+			}
 		}
 	}
 }
