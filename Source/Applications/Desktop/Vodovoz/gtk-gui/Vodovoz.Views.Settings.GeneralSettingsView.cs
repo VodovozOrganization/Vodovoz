@@ -354,7 +354,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::Gamma.GtkWidgets.yEntry yentryTargetPaymentDeferent;
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonTargetPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
@@ -362,7 +362,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel5;
 
-		private global::Gamma.GtkWidgets.yEntry yentryNewPaymentDeferent;
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonNewPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel6;
 
@@ -372,7 +372,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel7;
 
-		private global::Gamma.GtkWidgets.yEntry yentryDefaultPaymentDeferent;
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonDefaultPaymentDeferent;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel8;
 
@@ -2213,13 +2213,16 @@ namespace Vodovoz.Views.Settings
 			w149.Expand = false;
 			w149.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.yentryTargetPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryTargetPaymentDeferent.CanFocus = true;
-			this.yentryTargetPaymentDeferent.Name = "yentryTargetPaymentDeferent";
-			this.yentryTargetPaymentDeferent.IsEditable = true;
-			this.yentryTargetPaymentDeferent.InvisibleChar = '•';
-			this.hbox7.Add(this.yentryTargetPaymentDeferent);
-			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yentryTargetPaymentDeferent]));
+			this.yspinbuttonTargetPaymentDeferent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinbuttonTargetPaymentDeferent.CanFocus = true;
+			this.yspinbuttonTargetPaymentDeferent.Name = "yspinbuttonTargetPaymentDeferent";
+			this.yspinbuttonTargetPaymentDeferent.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonTargetPaymentDeferent.ClimbRate = 1D;
+			this.yspinbuttonTargetPaymentDeferent.Numeric = true;
+			this.yspinbuttonTargetPaymentDeferent.ValueAsDecimal = 0m;
+			this.yspinbuttonTargetPaymentDeferent.ValueAsInt = 0;
+			this.hbox7.Add(this.yspinbuttonTargetPaymentDeferent);
+			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yspinbuttonTargetPaymentDeferent]));
 			w150.Position = 1;
 			w150.Expand = false;
 			w150.Fill = false;
@@ -2251,13 +2254,16 @@ namespace Vodovoz.Views.Settings
 			w153.Expand = false;
 			w153.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.yentryNewPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryNewPaymentDeferent.CanFocus = true;
-			this.yentryNewPaymentDeferent.Name = "yentryNewPaymentDeferent";
-			this.yentryNewPaymentDeferent.IsEditable = true;
-			this.yentryNewPaymentDeferent.InvisibleChar = '•';
-			this.hbox8.Add(this.yentryNewPaymentDeferent);
-			global::Gtk.Box.BoxChild w154 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yentryNewPaymentDeferent]));
+			this.yspinbuttonNewPaymentDeferent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinbuttonNewPaymentDeferent.CanFocus = true;
+			this.yspinbuttonNewPaymentDeferent.Name = "yspinbuttonNewPaymentDeferent";
+			this.yspinbuttonNewPaymentDeferent.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonNewPaymentDeferent.ClimbRate = 1D;
+			this.yspinbuttonNewPaymentDeferent.Numeric = true;
+			this.yspinbuttonNewPaymentDeferent.ValueAsDecimal = 0m;
+			this.yspinbuttonNewPaymentDeferent.ValueAsInt = 0;
+			this.hbox8.Add(this.yspinbuttonNewPaymentDeferent);
+			global::Gtk.Box.BoxChild w154 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yspinbuttonNewPaymentDeferent]));
 			w154.Position = 1;
 			w154.Expand = false;
 			w154.Fill = false;
@@ -2300,13 +2306,16 @@ namespace Vodovoz.Views.Settings
 			w158.Expand = false;
 			w158.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.yentryDefaultPaymentDeferent = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryDefaultPaymentDeferent.CanFocus = true;
-			this.yentryDefaultPaymentDeferent.Name = "yentryDefaultPaymentDeferent";
-			this.yentryDefaultPaymentDeferent.IsEditable = true;
-			this.yentryDefaultPaymentDeferent.InvisibleChar = '•';
-			this.yhbox2.Add(this.yentryDefaultPaymentDeferent);
-			global::Gtk.Box.BoxChild w159 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yentryDefaultPaymentDeferent]));
+			this.yspinbuttonDefaultPaymentDeferent = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
+			this.yspinbuttonDefaultPaymentDeferent.CanFocus = true;
+			this.yspinbuttonDefaultPaymentDeferent.Name = "yspinbuttonDefaultPaymentDeferent";
+			this.yspinbuttonDefaultPaymentDeferent.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonDefaultPaymentDeferent.ClimbRate = 1D;
+			this.yspinbuttonDefaultPaymentDeferent.Numeric = true;
+			this.yspinbuttonDefaultPaymentDeferent.ValueAsDecimal = 0m;
+			this.yspinbuttonDefaultPaymentDeferent.ValueAsInt = 0;
+			this.yhbox2.Add(this.yspinbuttonDefaultPaymentDeferent);
+			global::Gtk.Box.BoxChild w159 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yspinbuttonDefaultPaymentDeferent]));
 			w159.Position = 1;
 			w159.Expand = false;
 			w159.Fill = false;
