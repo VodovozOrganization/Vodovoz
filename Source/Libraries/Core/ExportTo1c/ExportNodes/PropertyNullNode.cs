@@ -3,6 +3,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Пустое значение
+	/// </summary>
 	public class PropertyNullNode : IXmlConvertable
 	{
 		public PropertyNullNode()

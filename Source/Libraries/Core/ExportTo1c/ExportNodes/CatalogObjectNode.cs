@@ -3,6 +3,9 @@ using System.Xml.Linq;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Узел объекта
+	/// </summary>
 	public class CatalogObjectNode : ObjectNode
 	{
 		public override string Type

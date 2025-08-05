@@ -4,6 +4,9 @@ using Vodovoz.Domain.Goods;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Группа номенклатур
+	/// </summary>
 	public class NomenclatureGroupCatalog : GenericCatalog<Folder1c>
 	{
 		public NomenclatureGroupCatalog(ExportData exportData)

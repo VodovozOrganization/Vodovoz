@@ -8,6 +8,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Основной банковский счёт
+	/// </summary>
 	public class AccountCatalog : GenericCatalog<Account>
 	{
 		public AccountCatalog(ExportData exportData)

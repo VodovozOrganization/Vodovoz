@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Таблица
+	/// </summary>
 	public class TableNode : IXmlConvertable
 	{
 		public string Name { get; set; }

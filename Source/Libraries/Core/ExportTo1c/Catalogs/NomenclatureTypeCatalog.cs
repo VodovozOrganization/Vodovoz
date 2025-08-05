@@ -5,6 +5,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Группа товаров
+	/// </summary>
 	public class NomenclatureType1cTypeCatalog : GenericCatalog<NomenclatureType1c>
 	{
 		public NomenclatureType1cTypeCatalog(ExportData exportData)

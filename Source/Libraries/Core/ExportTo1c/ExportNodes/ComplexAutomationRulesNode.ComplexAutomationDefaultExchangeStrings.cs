@@ -1,5 +1,8 @@
 ﻿namespace ExportTo1c.ExportNodes
 {
+	/// <summary>
+	/// Правило обмена 1С КА
+	/// </summary>
 	public partial class ComplexAutomationRulesNode
 	{
 		public static class ComplexAutomationDefaultExchangeStrings

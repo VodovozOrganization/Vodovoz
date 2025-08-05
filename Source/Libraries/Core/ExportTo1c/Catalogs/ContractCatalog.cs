@@ -8,6 +8,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Договор контрагента
+	/// </summary>
 	public class ContractCatalog : GenericCatalog<CounterpartyContract>
 	{
 		public ContractCatalog(ExportData exportData)

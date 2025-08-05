@@ -9,6 +9,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Номенклатура
+	/// </summary>
 	public class NomenclatureCatalog : GenericCatalog<Nomenclature>
 	{
 		public NomenclatureCatalog(ExportData exportData)

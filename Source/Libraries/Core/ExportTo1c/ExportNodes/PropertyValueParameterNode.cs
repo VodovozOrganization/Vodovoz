@@ -2,6 +2,9 @@
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Значение параметра
+	/// </summary>
 	public class PropertyValueParameterNode : PropertyNode
 	{
 		public PropertyValueParameterNode(string name, string type, string value)

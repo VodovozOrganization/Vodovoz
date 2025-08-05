@@ -3,6 +3,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Объект
+	/// </summary>
 	public abstract class ObjectNode : IXmlConvertable
 	{
 		public int Id { get; set; }

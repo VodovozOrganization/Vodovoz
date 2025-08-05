@@ -6,6 +6,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Склад
+	/// </summary>
 	public class WarehouseCatalog : GenericCatalog<Warehouse1c>
 	{
 		public WarehouseCatalog(ExportData exportData)

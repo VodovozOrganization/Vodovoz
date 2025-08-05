@@ -3,6 +3,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.ExportDefaults
 {
+	/// <summary>
+	/// Тип номенклатуры
+	/// </summary>
 	public class NomenclatureType1c : IDomainObject
 	{
 		public int Id { get; set; }

@@ -4,6 +4,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Комиссия
+	/// </summary>
 	public class ComissionNode : IXmlConvertable
 	{
 		public List<int> Comissions { get; private set; }

@@ -6,6 +6,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Контрагент
+	/// </summary>
 	public class CounterpartyCatalog : GenericCatalog<Counterparty>
 	{
 		public CounterpartyCatalog(ExportData exportData)

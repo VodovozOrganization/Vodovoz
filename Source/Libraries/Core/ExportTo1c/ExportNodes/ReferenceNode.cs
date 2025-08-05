@@ -4,6 +4,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Ссылка
+	/// </summary>
 	public class ReferenceNode : IXmlConvertable
 	{
 		public int Id { get; set; }

@@ -5,6 +5,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Организация
+	/// </summary>
 	public class OrganizationCatalog : GenericCatalog<Organization>
 	{
 		public OrganizationCatalog(ExportData exportData)

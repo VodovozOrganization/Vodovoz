@@ -3,6 +3,9 @@ using System.Xml.Linq;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Счёт-фактура
+	/// </summary>
 	public class InvoiceDocumentNode : ObjectNode
 	{
 		public override string Type

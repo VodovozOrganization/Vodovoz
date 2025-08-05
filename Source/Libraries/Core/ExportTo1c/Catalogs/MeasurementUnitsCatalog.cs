@@ -5,6 +5,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Единицы измерения
+	/// </summary>
 	public class MeasurementUnitsCatalog : GenericCatalog<MeasurementUnits>
 	{
 		public MeasurementUnitsCatalog(ExportData exportData)

@@ -9,6 +9,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library
 {
+	/// <summary>
+	/// Данные контрагента
+	/// </summary>
 	public class ExportCounterpariesData : IXmlConvertable
 	{
 		public string Version { get; set; }

@@ -19,6 +19,9 @@ using RulesNode = ExportTo1c.Library.ExportNodes.RulesNode;
 
 namespace ExportTo1c.Library
 {
+	/// <summary>
+	/// Экспорт
+	/// </summary>
 	public class ExportData : IXmlConvertable
 	{
 		public string Version { get; set; }

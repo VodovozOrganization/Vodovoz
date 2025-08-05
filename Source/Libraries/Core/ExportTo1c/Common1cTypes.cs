@@ -2,6 +2,9 @@
 
 namespace ExportTo1c.Library
 {
+	/// <summary>
+	/// Типы 1С
+	/// </summary>
 	public static class Common1cTypes
 	{
 		public static readonly string String = "Строка";

@@ -3,6 +3,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Правило обмена 1С Бухгалтерия
+	/// </summary>
 	public partial class RulesNode : IXmlConvertable, IRulesNode
 	{
 		#region IXmlConvertable implementation

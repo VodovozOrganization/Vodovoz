@@ -4,6 +4,9 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Реализация товаров
+	/// </summary>
 	public class SalesDocumentNode : ObjectNode
 	{
 		public override string Type

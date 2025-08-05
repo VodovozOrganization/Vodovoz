@@ -2,6 +2,9 @@
 
 namespace ExportTo1c.Library.ExportDefaults
 {
+	/// <summary>
+	/// Валюта
+	/// </summary>
 	public class Currency : IDomainObject
 	{
 		public int Id { get; set; }

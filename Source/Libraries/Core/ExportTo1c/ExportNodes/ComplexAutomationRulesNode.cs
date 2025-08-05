@@ -3,6 +3,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Правило обмена 1С КА
+	/// </summary>
 	public partial class ComplexAutomationRulesNode : IXmlConvertable, IRulesNode
 	{
 		#region IXmlConvertable implementation

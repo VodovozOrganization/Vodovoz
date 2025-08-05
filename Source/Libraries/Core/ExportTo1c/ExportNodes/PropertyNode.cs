@@ -5,6 +5,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Свойство
+	/// </summary>
 	public class PropertyNode : IXmlConvertable
 	{
 		public string Name { get; set; }

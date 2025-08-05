@@ -4,6 +4,9 @@ using ExportTo1c.Library.ExportNodes;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Валюта
+	/// </summary>
 	public class CurrencyCatalog : GenericCatalog<Currency>
 	{
 		public CurrencyCatalog(ExportData exportData)

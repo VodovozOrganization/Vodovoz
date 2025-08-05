@@ -2,6 +2,9 @@
 
 namespace ExportTo1c.Library.ExportDefaults
 {
+	/// <summary>
+	/// Склад по умолчанию
+	/// </summary>
 	public class Warehouse1c : IDomainObject
 	{
 		public int Id { get; set; }

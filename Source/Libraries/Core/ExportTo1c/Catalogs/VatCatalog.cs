@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Ставка НДС
+	/// </summary>
 	public class VatCatalog : GenericCatalog<VatCatalog>, IDomainObject
 	{
 		public VatCatalog(ExportData exportData)

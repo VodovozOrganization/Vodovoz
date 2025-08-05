@@ -4,6 +4,10 @@ using QS.DomainModel.Entity;
 
 namespace ExportTo1c.Library.Catalogs
 {
+	/// <summary>
+	/// Элемент эскпорта в XML
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	public abstract class GenericCatalog<T> where T : IDomainObject
 	{
 		protected Dictionary<T, int> items;

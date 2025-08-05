@@ -4,6 +4,9 @@ using Vodovoz.Tools;
 
 namespace ExportTo1c.Library.ExportNodes
 {
+	/// <summary>
+	/// Строка таблицы
+	/// </summary>
 	public class TableRecordNode : IXmlConvertable
 	{
 		public List<PropertyNode> Properties { get; set; }
