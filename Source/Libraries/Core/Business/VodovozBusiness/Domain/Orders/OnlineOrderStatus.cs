@@ -18,14 +18,14 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Заказ(ы) оформлен(ы)")]
 		OrderPerformed,
 		/// <summary>
-		/// Отменен
-		/// </summary>
-		[Display(Name = "Отменен")]
-		Canceled,
-		/// <summary>
 		/// Ожидает оплату
 		/// </summary>
 		[Display(Name = "Ожидает оплату")]
-		WaitingForPayment
+		WaitingForPayment,
+		/// <summary>
+		/// Отменен
+		/// </summary>
+		[Display(Name = "Отменен")]
+		Canceled
 	}
 }

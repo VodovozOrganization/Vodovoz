@@ -1719,6 +1719,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var orders =
 				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				from timer in uow.Session.Query<OnlineOrderTimers>()
 				join order in uow.Session.Query<VodovozOrder>()
 					on onlineOrder.Id equals order.OnlineOrder.Id
 				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
@@ -1767,6 +1768,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						? deliverySchedule.DeliveryTime
 						: null
 
+				let isNeedPay =
+					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+					|| (order.IsFastDelivery
+						? (DateTime.Now - onlineOrder.Created).TotalSeconds >= timer.PayTimeWithFastDelivery.TotalSeconds
+						: (DateTime.Now - onlineOrder.Created).TotalSeconds >= timer.PayTimeWithoutFastDelivery.TotalSeconds)
+
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
 					OrderId = order.Id,
@@ -1779,8 +1786,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					DeliverySchedule = deliveryScheduleString,
 					RatingValue = orderRating.Rating,
 					IsRatingAvailable = ratingAvailable,
-					//TODO: установка необходимости оплаты
-					IsNeedPay = false,
+					IsNeedPay = isNeedPay,
 					DeliveryPointId = deliveryPointId
 				};
 
@@ -1851,7 +1857,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					DeliverySchedule = deliveryScheduleString,
 					RatingValue = orderRating.Rating,
 					IsRatingAvailable = ratingAvailable,
-					//TODO: установка необходимости оплаты
 					IsNeedPay = false,
 					DeliveryPointId = deliveryPointId
 				};

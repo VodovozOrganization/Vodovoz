@@ -17,6 +17,7 @@ namespace CustomerOnlineOrdersUpdater
 		{
 			services
 				.AddSingleton(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot("Обработка онлайн заказов, ожидающих оплату"))
+				.AddHostedService<CustomerOnlineOrdersUpdateWorker>()
 				;
 
 			return services;

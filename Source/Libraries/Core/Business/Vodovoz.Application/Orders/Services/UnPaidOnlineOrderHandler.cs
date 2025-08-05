@@ -191,13 +191,22 @@ namespace Vodovoz.Application.Orders.Services
 						&& !order.OnlinePaymentNumber.HasValue)
 					{
 						onlineOrder.UpdateOnlineOrder(
-							data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.OnlinePayment.Value);
-						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
-							uow,
-							order,
-							data.OnlinePayment.Value,
-							data.OnlineOrderPaymentType.ToOrderPaymentType(),
-							uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
+							data.OnlineOrderPaymentType,
+							data.OnlinePaymentSource,
+							data.PaymentStatus,
+							data.UnPaidReason,
+							data.OnlinePayment);
+
+						if(data.OnlinePayment.HasValue && data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+						{
+							_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
+								uow,
+								order,
+								data.OnlinePayment.Value,
+								data.OnlineOrderPaymentType.ToOrderPaymentType(),
+								uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
+						}
+
 						SaveOrders(uow, onlineOrder);
 						return Result.Success();
 					}
@@ -214,7 +223,12 @@ namespace Vodovoz.Application.Orders.Services
 					&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
 				{
 					onlineOrder.UpdateOnlineOrder(
-						data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.OnlinePayment.Value);
+						data.OnlineOrderPaymentType,
+						data.OnlinePaymentSource,
+						data.PaymentStatus,
+						data.UnPaidReason,
+						data.OnlinePayment);
+					
 					SaveOrders(uow, onlineOrder);
 					return Result.Success();
 				}
@@ -235,10 +249,10 @@ namespace Vodovoz.Application.Orders.Services
 			OnlineOrder onlineOrder,
 			TimeSpan timeForTransfer)
 		{
-			if((DateTime.Now - onlineOrder.Created).TotalSeconds >= timeForTransfer.TotalSeconds)
+			if(onlineOrder.TryMoveToManualProcessingWithoutPaymentByUnPaidReason(
+				timeForTransfer.TotalSeconds, "Заказ не был оплачен в отведенный срок"))
 			{
 				_logger.LogInformation("Переводим на ручное онлайн заказ №{WaitingForPaymentOrderId}", onlineOrder.Id);
-				onlineOrder.MoveToManualProcessing("Заказ не был оплачен в отведенный срок");
 			}
 		}
 		

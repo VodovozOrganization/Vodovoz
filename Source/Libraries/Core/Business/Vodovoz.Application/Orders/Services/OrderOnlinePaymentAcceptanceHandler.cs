@@ -40,6 +40,11 @@ namespace Vodovoz.Application.Orders.Services
 			PaymentType paymentType,
 			PaymentFrom paymentFrom)
 		{
+			if(paymentNumber == 0)
+			{
+				return;
+			}
+			
 			var selfDeliveryOrderPaymentTypes = new[] { PaymentType.Cash, PaymentType.SmsQR };
 
 			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)

@@ -331,24 +331,45 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
 		{
-			UpdateOnlineOrder(data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.OnlinePayment.Value);
+			UpdateOnlineOrder(
+				data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment.Value);
 			UpdateDeliverySchedule(deliverySchedule, data.DeliveryScheduleId);
 			DeliveryDate = data.DeliveryDate;
 			IsFastDelivery = data.IsFastDelivery;
-			UnPaidReason = data.UnPaidReason;
 		}
 		
 		public virtual void UpdateOnlineOrder(
 			OnlineOrderPaymentType paymentType,
 			OnlinePaymentSource paymentSource,
 			OnlineOrderPaymentStatus paymentStatus,
-			int onlinePayment
+			string unPaidReason,
+			int? onlinePayment
 		)
 		{
 			OnlineOrderPaymentType = paymentType;
 			OnlinePaymentSource = paymentSource;
 			OnlineOrderPaymentStatus = paymentStatus;
 			OnlinePayment = onlinePayment;
+
+			if(OnlineOrderPaymentType != OnlineOrderPaymentType.PaidOnline && OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+			{
+				OnlineOrderStatus = OnlineOrderStatus.New;
+				UnPaidReason = null;
+				return;
+			}
+			
+			if(paymentStatus == OnlineOrderPaymentStatus.Paid)
+			{
+				if(OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+				{
+					OnlineOrderStatus = OnlineOrderStatus.New;
+				}
+				UnPaidReason = null;
+			}
+			else
+			{
+				UnPaidReason = unPaidReason;
+			}
 		}
 		
 		public virtual void UpdateOnlineOrder(
@@ -361,10 +382,18 @@ namespace Vodovoz.Domain.Orders
 			DeliveryDate = deliveryDate;
 		}
 
-		public virtual void MoveToManualProcessing(string message)
+		public virtual bool TryMoveToManualProcessingWithoutPaymentByUnPaidReason(
+			double timeToTransferInSeconds,
+			string message)
 		{
-			OnlineOrderStatus = OnlineOrderStatus.New;
-			UnPaidReason = string.IsNullOrWhiteSpace(_unPaidReason) ? $"\n{message}" : $"\n{message}. Причина : {_unPaidReason}";
+			if((DateTime.Now - Created).TotalSeconds >= timeToTransferInSeconds)
+			{
+				OnlineOrderStatus = OnlineOrderStatus.New;
+				UnPaidReason = string.IsNullOrWhiteSpace(_unPaidReason) ? $"\n{message}" : $"\n{message}. Причина : {_unPaidReason}";
+				return true;
+			}
+			
+			return false;
 		}
 
 		public virtual void SetDeliveryPointNotBelongCounterparty(bool value) => IsDeliveryPointNotBelongCounterparty = value;

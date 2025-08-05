@@ -67,6 +67,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom)
 		{
 			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
+				from timer in uow.Session.Query<OnlineOrderTimers>()
 				join orderRating in uow.Session.Query<OrderRating>()
 					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
 				from onlineOrderRating in orderRatings.DefaultIfEmpty()
@@ -96,6 +97,12 @@ namespace Vodovoz.EntityRepositories.Orders
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
 
+				let isNeedPay =
+					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+					|| (onlineOrder.IsFastDelivery
+						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
+						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
+
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
 					OnlineOrderId = onlineOrder.Id,
@@ -107,8 +114,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					DeliverySchedule = deliverySchedule,
 					RatingValue = onlineOrderRating.Rating,
 					IsRatingAvailable = ratingAvailable,
-					//TODO: установка необходимости оплаты
-					IsNeedPay = false,
+					IsNeedPay = isNeedPay,
 					DeliveryPointId = onlineOrder.DeliveryPointId
 				};
 
