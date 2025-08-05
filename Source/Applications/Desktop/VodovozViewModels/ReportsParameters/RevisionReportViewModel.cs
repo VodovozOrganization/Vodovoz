@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using fyiReporting.RDL;
 using Mailganer.Api.Client;
 using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions;
@@ -13,7 +14,9 @@ using QS.Tdi;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -40,6 +43,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly MailganerClientV2 _mailganerClient;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IRequestClient<SendEmailMessage> _client;
+		private readonly EmailDirectSender _emailDirectSender;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -50,7 +54,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IInteractiveService interactiveService,
 			MailganerClientV2 mailganerClient,
 			IEmailSettings emailSettings,
-			IRequestClient<SendEmailMessage> client
+			IRequestClient<SendEmailMessage> client,
+			EmailDirectSender emailDirectSender
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -61,6 +66,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_client = client ?? throw new ArgumentNullException(nameof(client));
+			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
@@ -71,6 +77,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
+
+			// Убрать
+			ReportIsLoaded = true;
 		}
 
 		#region Properties
@@ -192,7 +201,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 		private async void SendByEmail()
 		{
-			if(Emails.Count == 0 || Emails == null)
+			/*if(Emails.Count == 0 || Emails == null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
 				return;
@@ -209,25 +218,51 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
 				return;
-			}
+			}*/
+			var t = ReportInfo.Source;
+			var z = GenerateReport();
+			var g = z;
 
-			//Console.WriteLine("Отправка письма на " + SelectedEmail.Address);
 			try
 			{
 				// 1. Генерация документа (пример для PDF)
 				//var reportInfo = ReportInfoFactory.CreateReportInfo(Parameters);
 				//var documentBytes = ReportExporter.ExportToPdf(reportInfo); // Реализуйте этот метод согласно вашей логике
 				// 2. Формирование EmailMessage
-				var emailMessage = new EmailMessage
+				var instanceId = Convert.ToInt32(UnitOfWork.Session
+					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+					.List<object>()
+					.FirstOrDefault());
+				string messageText = "Test message text for email with attachment.";
+				var emailMessage = new SendEmailMessage
 				{
 					//To = SelectedEmail.Address,
-					From = "Vodovoz",
-					To = "work.semen.sd@gmail.com",
+					From = new EmailContact
+					{
+						Name = _emailSettings.DefaultEmailSenderName,
+						Email = _emailSettings.DefaultEmailSenderAddress
+					},
+					To = new List<EmailContact>
+					{
+						new EmailContact
+						{
+							//Name = client != null ? client.FullName : "Уважаемый пользователь",
+							Name = "Уважаемый пользователь",
+							Email = "work.semen.sd@gmail.com"
+						}
+					},
 					Subject = "Акт сверки",
-
+					TextPart = messageText,
+					HTMLPart = messageText,
+					Payload = new EmailPayload
+					{
+						Id = 0,
+						Trackable = false,
+						InstanceId = instanceId
+					},
 					Attachments = new[]
 					{
-						new EmailAttachment
+						new Mailjet.Api.Abstractions.EmailAttachment
 						{
 							Filename = "АктСверки.pdf",
 							//Base64Content = Convert.ToBase64String(documentBytes)
@@ -237,8 +272,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				};
 
 				// 3. Отправка через MailganerClientV2
-
-				await _mailganerClient.Send(emailMessage);
+				await _emailDirectSender.SendAsync(emailMessage);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -247,7 +281,36 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
 			}
 		}
-		public async Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode)
+
+		private byte[] GenerateReport()
+		{
+			// Получаем XML отчёта из памяти
+			string reportXml = ReportInfo.Source;
+
+			if(string.IsNullOrWhiteSpace(reportXml))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Отсутствует XML отчёта для генерации.");
+				return null;
+			}
+
+			// Создаём объект Report
+			var rdlParser = new RDLParser(reportXml);
+			var report = rdlParser.Parse();
+
+			// Устанавливаем параметры (если нужно)
+			report.RunGetData(Parameters); // Parameters — ваш словарь параметров
+
+			// Генерируем PDF в память
+			using(var msGen = new MemoryStreamGen())
+			{
+				report.RunRender(msGen, OutputPresentationType.PDF);
+				msGen.CloseMainStream();
+				var pdfBytes = (msGen.GetStream() as MemoryStream)?.ToArray();
+
+				return pdfBytes;
+			}
+		}
+		/*public async Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode)
 		{
 			var instanceId = Convert.ToInt32(uow.Session
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -270,13 +333,13 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				},
 
 				To = new List<EmailContact>
-		{
-			new EmailContact
-			{
-				Name = client != null ? client.FullName : "Уважаемый пользователь",
-				Email = secureCode.Target
-			}
-		},
+				{
+					new EmailContact
+					{
+						Name = client != null ? client.FullName : "Уважаемый пользователь",
+						Email = secureCode.Target
+					}
+				},
 
 				Subject = "Код авторизации",
 				HTMLPart = null,
@@ -294,6 +357,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			var response = await _client.GetResponse<SentEmailResponse>(sendEmailMessage);
 			return response.Message.Sent;
-		}
+		}*/
 	}
 }

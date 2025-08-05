@@ -220,7 +220,8 @@ namespace Vodovoz
 				.AddSingleton<EntityToJournalMappings>()
 				.AddScoped<EntityJournalOpener>()
 
-				.AddMailganerApiClient();
+				.AddMailganerApiClient()
+				.AddScoped<EmailDirectSender>();
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
