@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -239,5 +240,13 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="cancellationToken"></param>
 		/// <returns>True, если все коды были обработаны, иначе False</returns>
 		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает сущность заказа по его номеру
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Сущность заказа</returns>
+		OrderEntity GetOrderEntity(IUnitOfWork uow, int orderId);
 	}
 }

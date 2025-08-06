@@ -1106,6 +1106,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return unitOfWork.GetById<VodovozOrder>(orderId);
 		}
 
+		public OrderEntity GetOrderEntity(IUnitOfWork uow, int orderId)
+		{
+			return uow.GetById<OrderEntity>(orderId);
+		}
+
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
 		{
 			int? dailyNumber;
