@@ -43,7 +43,7 @@ namespace Vodovoz.Core.Data.Orders.V4
 		/// <summary>
 		/// Дата создания
 		/// </summary>
-		public DateTime CreatedDateTimeUtc { get; set; }
+		public DateTimeOffset CreatedDateTimeUtc { get; set; }
 		
 		/// <summary>
 		/// Интервал доставки

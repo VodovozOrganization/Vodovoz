@@ -5,6 +5,7 @@
 	/// </summary>
 	public class CreatedOnlineOrder
 	{
+		public CreatedOnlineOrder() { }
 		private CreatedOnlineOrder(int onlineOrderId) => OnlineOrderId = onlineOrderId;
 		
 		/// <summary>

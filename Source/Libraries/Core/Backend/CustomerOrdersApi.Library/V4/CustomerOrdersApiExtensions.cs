@@ -31,6 +31,7 @@ namespace CustomerOrdersApi.Library.V4
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
+				.AddScoped<IInfoMassageFactory, InfoMassageFactory>()
 				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
 			
 			return services;
@@ -99,7 +100,6 @@ namespace CustomerOrdersApi.Library.V4
 		{
 			return new UpdateOnlineOrderFromChangeRequest
 			{
-				OrderId = source.OrderId,
 				OnlineOrderId = source.OnlineOrderId,
 				OnlinePayment = source.OnlinePayment,
 				IsFastDelivery = source.IsFastDelivery,

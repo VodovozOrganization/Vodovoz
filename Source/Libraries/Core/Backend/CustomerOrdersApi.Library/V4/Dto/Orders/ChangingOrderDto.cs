@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 
@@ -14,10 +15,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public Source Source { get; set; }
 		/// <summary>
-		/// Номер заказа
-		/// </summary>
-		public int? OrderId { get; set; }
-		/// <summary>
 		/// Номер онлайн заказа
 		/// </summary>
 		public int? OnlineOrderId { get; set; }
@@ -32,14 +29,16 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Id пользователя в ИПЗ
 		/// </summary>
-		public int ExternalCounterpartyId { get; set; }
+		public Guid ExternalCounterpartyId { get; set; }
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlinePaymentSource OnlinePaymentSource { get; set; }
 		/// <summary>
 		/// Статус оплаты онлайн заказа

@@ -314,6 +314,31 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
+		/// <summary>
+		/// Заказ не оплачен онлайн и время на оплату не истекло
+		/// </summary>
+		/// <param name="timeToPayInSeconds">Общее время на оплату в секундах</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePayment(double timeToPayInSeconds) =>
+			OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& (DateTime.Now - Created).TotalSeconds < timeToPayInSeconds;
+		
+		/// <summary>
+		/// Заказ не оплачен онлайн и время на оплату истекло, но он еще не переведен на ручную обработку
+		/// </summary>
+		/// <param name="timeToPayInSeconds">Общее время на оплату в секундах</param>
+		/// <param name="timeToTransferToManualProcessing">Общее время на перевод на ручную обработку</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePaymentButTimeIsUp(double timeToPayInSeconds, double timeToTransferToManualProcessing)
+		{
+			var createdSeconds = (DateTime.Now - Created).TotalSeconds;
+			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& createdSeconds >= timeToPayInSeconds
+				&& createdSeconds < timeToTransferToManualProcessing;
+		}
+
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
 		{
 			if(employee != null)
@@ -332,7 +357,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
 		{
 			UpdateOnlineOrder(
-				data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment.Value);
+				data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment);
 			UpdateDeliverySchedule(deliverySchedule, data.DeliveryScheduleId);
 			DeliveryDate = data.DeliveryDate;
 			IsFastDelivery = data.IsFastDelivery;

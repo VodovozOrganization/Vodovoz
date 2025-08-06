@@ -147,9 +147,8 @@ namespace CustomerOrdersApi.Controllers.V4
 
 				return result.HttpCode switch
 				{
-					400 => Problem(result.Message),
-					408 => Problem(result.Message),
-					500 => Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater),
+					400 or 408 => Problem(result.Message, statusCode: result.HttpCode),
+					500 => Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater, statusCode: result.HttpCode),
 					_ => Ok(result.AvailablePayments)
 				};
 			}
@@ -177,7 +176,7 @@ namespace CustomerOrdersApi.Controllers.V4
 
 				if(result.IsSuccess)
 				{
-					return Ok(result);
+					return Ok(result.Value);
 				}
 
 				var firstError = result.Errors.First();

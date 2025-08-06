@@ -13,10 +13,6 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public Source Source { get; set; }
 		/// <summary>
-		/// Номер заказа
-		/// </summary>
-		public int? OrderId { get; set; }
-		/// <summary>
 		/// Номер онлайн заказа
 		/// </summary>
 		public int? OnlineOrderId { get; set; }
@@ -31,7 +27,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Id пользователя в ИПЗ
 		/// </summary>
-		public int ExternalCounterpartyId { get; set; }
+		public Guid ExternalCounterpartyId { get; set; }
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>

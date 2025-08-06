@@ -177,6 +177,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);

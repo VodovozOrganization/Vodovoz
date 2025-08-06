@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CustomerOnlineOrdersUpdater.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersUpdater
@@ -30,15 +31,16 @@ namespace CustomerOnlineOrdersUpdater
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				using var scope = _scopeFactory.CreateScope();
 				var options = scope.ServiceProvider.GetService<IOptionsMonitor<CustomerOnlineOrdersUpdaterOptions>>().CurrentValue;
-				await Task.Delay(options.DelayInSeconds, stoppingToken);
+				await Task.Delay(TimeSpan.FromSeconds(options.DelayInSeconds), stoppingToken);
 				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope);
 			}
 		}
 
 		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IServiceScope scope)
 		{
+			using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
 			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
-			await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders();
+			await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow);
 		}
 	}
 }

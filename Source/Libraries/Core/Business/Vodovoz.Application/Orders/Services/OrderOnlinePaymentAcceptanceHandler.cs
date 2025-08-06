@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -35,7 +36,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void AcceptOnlinePayment(
 			IUnitOfWork uow,
-			Order order,
+			IEnumerable<Order> orders,
 			int paymentNumber,
 			PaymentType paymentType,
 			PaymentFrom paymentFrom)
@@ -47,40 +48,43 @@ namespace Vodovoz.Application.Orders.Services
 			
 			var selfDeliveryOrderPaymentTypes = new[] { PaymentType.Cash, PaymentType.SmsQR };
 
-			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
-				&& order.SelfDelivery
-				&& order.OrderStatus == OrderStatus.WaitForPayment
-				&& order.PayAfterShipment)
+			foreach(var order in orders)
 			{
-				order.TryCloseSelfDeliveryPayAfterShipmentOrder(
-					uow,
-					_nomenclatureSettings,
-					_routeListItemRepository,
-					_selfDeliveryRepository,
-					_cashRepository);
-				order.IsSelfDeliveryPaid = true;
-			}
-
-			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
-				&& order.SelfDelivery
-				&& order.OrderStatus == OrderStatus.WaitForPayment
-				&& !order.PayAfterShipment)
-			{
-				order.ChangeStatus(OrderStatus.OnLoading);
-				order.IsSelfDeliveryPaid = true;
-			}
+				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
+					&& order.SelfDelivery
+					&& order.OrderStatus == OrderStatus.WaitForPayment
+					&& order.PayAfterShipment)
+				{
+					order.TryCloseSelfDeliveryPayAfterShipmentOrder(
+						uow,
+						_nomenclatureSettings,
+						_routeListItemRepository,
+						_selfDeliveryRepository,
+						_cashRepository);
+					order.IsSelfDeliveryPaid = true;
+				}
+				
+				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
+					&& order.SelfDelivery
+					&& order.OrderStatus == OrderStatus.WaitForPayment
+					&& !order.PayAfterShipment)
+				{
+					order.ChangeStatus(OrderStatus.OnLoading);
+					order.IsSelfDeliveryPaid = true;
+				}
 			
-			order.OnlinePaymentNumber = paymentNumber;
-			order.UpdatePaymentType(paymentType, _contractUpdater);
-			order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
+				order.OnlinePaymentNumber = paymentNumber;
+				order.UpdatePaymentType(paymentType, _contractUpdater);
+				order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
 
-			foreach(var routeListItem in _routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id))
-			{
-				routeListItem.RecalculateTotalCash();
-				uow.Save(routeListItem);
-			}
+				foreach(var routeListItem in _routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id))
+				{
+					routeListItem.RecalculateTotalCash();
+					uow.Save(routeListItem);
+				}
 			
-			uow.Save(order);
+				uow.Save(order);
+			}
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace CustomerOnlineOrdersUpdater
 		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
 		{
 			services
-				.AddSingleton(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot("Обработка онлайн заказов, ожидающих оплату"))
+				.AddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot("Обработка онлайн заказов, ожидающих оплату"))
 				.AddHostedService<CustomerOnlineOrdersUpdateWorker>()
 				;
 

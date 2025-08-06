@@ -659,6 +659,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			};
 		}
 
+		public IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId)
+		{
+			var orders = from order in uow.Session.Query<Order>()
+				where order.OnlineOrder.Id == onlineOrderId
+				select order;
+			
+			return orders.ToList();
+		}
+
 		public OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList()
 		{
 			return new OrderStatus[] {
@@ -1770,9 +1779,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				let isNeedPay =
 					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
-					|| (order.IsFastDelivery
-						? (DateTime.Now - onlineOrder.Created).TotalSeconds >= timer.PayTimeWithFastDelivery.TotalSeconds
-						: (DateTime.Now - onlineOrder.Created).TotalSeconds >= timer.PayTimeWithoutFastDelivery.TotalSeconds)
+					&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+					&& onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+					&& (order.IsFastDelivery
+						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
+						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
 
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
@@ -1780,7 +1791,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OnlineOrderId = onlineOrder.Id,
 					OrderStatus = orderStatus,
 					DeliveryDate = order.DeliveryDate.Value,
-					CreatedDateTimeUtc = order.CreateDate.Value.ToUniversalTime(),
+					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
 					OrderSum = order.OrderSum,
 					DeliveryAddress = address,
 					DeliverySchedule = deliveryScheduleString,
@@ -1851,7 +1862,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OnlineOrderId = null,
 					OrderStatus = orderStatus,
 					DeliveryDate = order.DeliveryDate.Value,
-					CreatedDateTimeUtc = order.CreateDate.Value.ToUniversalTime(),
+					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
 					OrderSum = order.OrderSum,
 					DeliveryAddress = address,
 					DeliverySchedule = deliveryScheduleString,

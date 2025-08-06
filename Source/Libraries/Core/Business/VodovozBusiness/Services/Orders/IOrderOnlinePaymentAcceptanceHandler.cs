@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -8,7 +9,7 @@ namespace VodovozBusiness.Services.Orders
 	{
 		void AcceptOnlinePayment(
 			IUnitOfWork uow,
-			Order order,
+			IEnumerable<Order> orders,
 			int paymentNumber,
 			PaymentType paymentType,
 			PaymentFrom paymentFrom);

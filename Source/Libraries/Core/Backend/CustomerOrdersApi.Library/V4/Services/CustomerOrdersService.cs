@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -167,17 +168,19 @@ namespace CustomerOrdersApi.Library.V4.Services
 			
 			var ratingAvailableFrom = _orderSettings.GetDateAvailabilityRatingOrder;
 			OrderRating orderRating = null;
+			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
 
 			if(getDetailedOrderInfoDto.OrderId.HasValue)
 			{
 				var order = uow.GetById<Order>(getDetailedOrderInfoDto.OrderId.Value);
+				
 				orderRating = _genericRatingRepository.Get(
 						uow,
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 			
 				return _customerOrderFactory.CreateDetailedOrderInfo(
-					order, orderRating, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom);
+					order, orderRating, timers, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom);
 			}
 			
 			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
@@ -187,7 +190,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				.FirstOrDefault();
 			
 			return _customerOrderFactory.CreateDetailedOrderInfo(
-				onlineOrder, orderRating, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
+				onlineOrder, orderRating, timers, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
 		}
 
 		public OrdersDto GetOrders(GetOrdersDto getOrdersDto)
@@ -356,7 +359,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Получение доступных способов оплат");
 			var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getAvailablePaymentMethods.OnlineOrderId);
 			
-			var result = _unPaidOnlineOrderHandler.CanChangePaymentType(onlineOrder);
+			var result = _unPaidOnlineOrderHandler.CanChangePaymentType(uow, onlineOrder);
 			
 			if(result.IsFailure)
 			{
@@ -373,20 +376,20 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Изменение заказа");
 			
-			var order = uow.GetAll<Order>().FirstOrDefault(x => x.Id == changingOrderDto.OrderId);
+			var orders = _orderRepository.GetOrdersFromOnlineOrder(uow, changingOrderDto.OnlineOrderId ?? 0);
 			var onlineOrder = uow.GetAll<OnlineOrder>().FirstOrDefault(x => x.Id == changingOrderDto.OnlineOrderId);
 			var deliverySchedule = uow.GetAll<Vodovoz.Domain.Logistic.DeliverySchedule>()
 				.FirstOrDefault(x => x.Id == changingOrderDto.DeliveryScheduleId);
 
 			var result = _unPaidOnlineOrderHandler.TryUpdateOrder(
-				uow, order, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
+				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
 			
 			if(result.IsFailure)
 			{
 				return Result.Failure<ChangedOrderDto>(result.Errors);
 			}
 			
-			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OrderId, changingOrderDto.OnlineOrderId);
+			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
 			
 			return Result.Success(changedOrderDto);
 		}

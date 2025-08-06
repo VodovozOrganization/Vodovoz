@@ -67,7 +67,7 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _timeForTransferToManualProcessingWithFastDelivery, value);
 		}
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(TimeForTransferToManualProcessingWithoutFastDelivery <= PayTimeWithoutFastDelivery)
 			{

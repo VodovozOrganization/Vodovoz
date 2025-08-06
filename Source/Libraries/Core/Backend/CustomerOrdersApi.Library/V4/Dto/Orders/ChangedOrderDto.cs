@@ -8,18 +8,13 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class ChangedOrderDto
 	{
 		/// <summary>
-		/// Номер заказа
-		/// </summary>
-		public int? OrderId { get; set; }
-		/// <summary>
 		/// Номер онлайн заказа
 		/// </summary>
 		public int? OnlineOrderId { get; set; }
 
-		public static ChangedOrderDto Create(int? orderId, int? onlineOrderId) =>
+		public static ChangedOrderDto Create(int? onlineOrderId) =>
 			new ChangedOrderDto
 			{
-				OrderId = orderId,
 				OnlineOrderId = onlineOrderId
 			};
 	}

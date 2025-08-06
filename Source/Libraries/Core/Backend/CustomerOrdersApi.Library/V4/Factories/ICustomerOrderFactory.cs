@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Factories
@@ -8,9 +9,9 @@ namespace CustomerOrdersApi.Library.V4.Factories
 	public interface ICustomerOrderFactory
 	{
 		DetailedOrderInfoDto CreateDetailedOrderInfo(
-			Order order, OrderRating orderRating, int? onlineOrderId, DateTime ratingAvailableFrom);
+			Order order, OrderRating orderRating, OnlineOrderTimers timers, int? onlineOrderId, DateTime ratingAvailableFrom);
 		DetailedOrderInfoDto CreateDetailedOrderInfo(
-			OnlineOrder onlineOrder, OrderRating orderRating, int? orderId, DateTime ratingAvailableFrom);
+			OnlineOrder onlineOrder, OrderRating orderRating, OnlineOrderTimers timers, int? orderId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons);
 	}
 }

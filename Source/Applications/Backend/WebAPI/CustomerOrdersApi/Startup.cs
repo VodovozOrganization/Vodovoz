@@ -18,6 +18,7 @@ using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Presentation.WebApi;
 
 namespace CustomerOrdersApi
 {
@@ -60,7 +61,8 @@ namespace CustomerOrdersApi
 				.AddApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
-				.AddDependenciesGroup();
+				.AddDependenciesGroup()
+				.AddVersioning();
 
 			services.AddStaticScopeForEntity();
 

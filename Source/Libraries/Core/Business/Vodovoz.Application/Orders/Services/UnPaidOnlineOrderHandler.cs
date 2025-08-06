@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
@@ -17,7 +18,6 @@ namespace Vodovoz.Application.Orders.Services
 	public class UnPaidOnlineOrderHandler : IUnPaidOnlineOrderHandler
 	{
 		private readonly ILogger<UnPaidOnlineOrderHandler> _logger;
-		private readonly IUnitOfWork _uow;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -25,7 +25,6 @@ namespace Vodovoz.Application.Orders.Services
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
-			IUnitOfWork uow,
 			IOrderSettings orderSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOrderRepository orderRepository,
@@ -33,7 +32,6 @@ namespace Vodovoz.Application.Orders.Services
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -41,13 +39,13 @@ namespace Vodovoz.Application.Orders.Services
 				onlinePaymentAcceptanceHandler ?? throw new ArgumentNullException(nameof(onlinePaymentAcceptanceHandler));
 		}
 
-		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders()
+		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow)
 		{
 			_logger.LogInformation("Проверяем онлайн заказы, ожидающих оплаты...");
 
 			try
 			{
-				var waitingForPaymentOnlineOrders = _onlineOrderRepository.GetWaitingForPaymentOnlineOrders(_uow);
+				var waitingForPaymentOnlineOrders = _onlineOrderRepository.GetWaitingForPaymentOnlineOrders(uow);
 				_logger.LogInformation("Найдено {WaitingForPaymentCount} онлайн заказов", waitingForPaymentOnlineOrders.Count());
 
 				if(!waitingForPaymentOnlineOrders.Any())
@@ -55,7 +53,7 @@ namespace Vodovoz.Application.Orders.Services
 					return;
 				}
 
-				var onlineOrderTimers = _uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+				var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
 
 				if(onlineOrderTimers is null)
 				{
@@ -70,11 +68,11 @@ namespace Vodovoz.Application.Orders.Services
 							? onlineOrderTimers.TimeForTransferToManualProcessingWithFastDelivery
 							: onlineOrderTimers.TimeForTransferToManualProcessingWithoutFastDelivery);
 
-					await _uow.SaveAsync(onlineOrder);
+					await uow.SaveAsync(onlineOrder);
 				}
 
 				_logger.LogInformation("Сохраняем обработанные заказы");
-				await _uow.CommitAsync();
+				await uow.CommitAsync();
 			}
 			catch(Exception ex)
 			{
@@ -82,7 +80,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 
-		public Result CanChangePaymentType(OnlineOrder onlineOrder)
+		public Result CanChangePaymentType(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
 			if(onlineOrder is null)
 			{
@@ -94,7 +92,7 @@ namespace Vodovoz.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOnlineOrderNotWaitForPayment);
 			}
 
-			var onlineOrderTimers = _uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+			var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
 
 			if(onlineOrderTimers is null)
 			{
@@ -126,7 +124,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public Result TryUpdateOrder(
 			IUnitOfWork uow,
-			Order order,
+			IEnumerable<Order> orders,
 			OnlineOrder onlineOrder,
 			Domain.Logistic.DeliverySchedule deliverySchedule,
 			UpdateOnlineOrderFromChangeRequest data)
@@ -151,21 +149,9 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				_logger.LogWarning("Пришел запрос на изменение оплаченного онлайна {OnlineOrderId}", onlineOrder.Id);
 				
-				if(order != null)
+				if(orders.Any())
 				{
-					_logger.LogWarning(
-						"Оплаченный онлайн {OnlineOrderId} с уже выставленным заказом {OrderId}, обрабатываем",
-						onlineOrder.Id,
-						order.Id);
-					
-					if(order.OrderStatus == OrderStatus.NewOrder || order.OrderStatus == OrderStatus.Accepted)
-					{
-						onlineOrder.UpdateOnlineOrder(deliverySchedule, data.DeliveryScheduleId, data.DeliveryDate);
-						//обновление заказа
-						SaveOrders(uow, onlineOrder, order);
-						return Result.Success();
-					}
-					
+					_logger.LogWarning("Оплаченный онлайн {OnlineOrderId} с уже выставленными заказом(ми), бракуем", onlineOrder.Id);
 					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 
@@ -180,43 +166,56 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			else
 			{
-				if(order != null)
+				if(orders.Any())
 				{
-					if(_orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus)
-						&& (order.PaymentType == PaymentType.Cash
-							|| order.PaymentType == PaymentType.DriverApplicationQR
-							|| order.PaymentType == PaymentType.SmsQR
-							|| order.PaymentType == PaymentType.PaidOnline
-							|| order.PaymentType == PaymentType.Terminal)
-						&& !order.OnlinePaymentNumber.HasValue)
+					var needUpdate = true;
+
+					foreach(var order in orders)
 					{
-						onlineOrder.UpdateOnlineOrder(
-							data.OnlineOrderPaymentType,
-							data.OnlinePaymentSource,
-							data.PaymentStatus,
-							data.UnPaidReason,
-							data.OnlinePayment);
-
-						if(data.OnlinePayment.HasValue && data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+						if(_orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus)
+							&& (order.PaymentType == PaymentType.Cash
+								|| order.PaymentType == PaymentType.DriverApplicationQR
+								|| order.PaymentType == PaymentType.SmsQR
+								|| order.PaymentType == PaymentType.PaidOnline
+								|| order.PaymentType == PaymentType.Terminal)
+							&& !order.OnlinePaymentNumber.HasValue)
 						{
-							_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
-								uow,
-								order,
-								data.OnlinePayment.Value,
-								data.OnlineOrderPaymentType.ToOrderPaymentType(),
-								uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
+							needUpdate &= true;
 						}
-
-						SaveOrders(uow, onlineOrder);
-						return Result.Success();
+						else
+						{
+							needUpdate = false;
+						}
 					}
+
+					if(!needUpdate)
+					{
+						_logger.LogWarning(
+							"Пришел запрос на изменение неоплаченного онлайна {OnlineOrderId} с уже выставленным заказом(ми), бракуем",
+							onlineOrder.Id);
 					
-					_logger.LogWarning(
-						"Пришел запрос на изменение неоплаченного онлайна {OnlineOrderId} с уже выставленным заказом {OrderId}, бракуем",
-						onlineOrder.Id,
-						order.Id);
-					
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+						return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+					}
+
+					onlineOrder.UpdateOnlineOrder(
+						data.OnlineOrderPaymentType,
+						data.OnlinePaymentSource,
+						data.PaymentStatus,
+						data.UnPaidReason,
+						data.OnlinePayment);
+
+					if(data.OnlinePayment.HasValue && data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+					{
+						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
+							uow,
+							orders,
+							data.OnlinePayment.Value,
+							data.OnlineOrderPaymentType.ToOrderPaymentType(),
+							uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
+					}
+
+					SaveOrders(uow, onlineOrder);
+					return Result.Success();
 				}
 				
 				if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
