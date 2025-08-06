@@ -1224,7 +1224,7 @@
                     0
                 ) AS debtor_debt,
         c.delay_days_for_buyers,
-        MAX(DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact,
+        DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Краткосрочный"

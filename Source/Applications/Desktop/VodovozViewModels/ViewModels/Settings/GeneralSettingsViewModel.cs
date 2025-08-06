@@ -965,7 +965,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				uow.Commit();
 			}
 			
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет произведен!");
 		}
 		
 		public DelegateCommand SaveDefaultPaymentDefermentCommand { get; set; }
