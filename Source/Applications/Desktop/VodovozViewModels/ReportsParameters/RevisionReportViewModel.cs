@@ -286,6 +286,27 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
+		private string GetRevisionReportSource()
+		{
+			var root = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+			var fileName = "Revision.rdl";
+			var path = Path.Combine(root, "Reports", "Client", fileName);
+
+			using(var reportController = new ReportController(path))
+			using(var reportStream = new MemoryStream())
+			{
+				// Если есть модификаторы, добавьте их:
+				// reportController.AddModifier(new RevisionReportModifier(...));
+				reportController.Modify();
+				reportController.Save(reportStream);
+
+				reportStream.Position = 0;
+				using(var reader = new StreamReader(reportStream))
+				{
+					return reader.ReadToEnd();
+				}
+			}
+		}
 		private void GenerateReport()
 		{
 			if(StartDate == null || StartDate == default(DateTime))
@@ -330,6 +351,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 		}
+
+		/*private ReportModifierBase GetReportModifier()
+		{
+			ReportModifierBase result;
+			var groupParameters = GetGroupingParameters();
+			var modifier = new ProfitabilityDetailReportModifier();
+			modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
+			result = modifier;
+
+			return result;
+		}*/
 
 		private byte[] GenerateReport(string reportXml)
 		{
