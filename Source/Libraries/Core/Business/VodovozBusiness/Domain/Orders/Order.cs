@@ -3786,9 +3786,13 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			//Создаем отсутствующие
-			foreach(var type in needCreate) {
+			foreach(var type in needCreate) 
+			{
 				if(ObservableOrderDocuments.Any(x => x.Order?.Id == Id && x.Type == type))
+				{
 					continue;
+				}
+
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 			CheckDocumentCount(this);
