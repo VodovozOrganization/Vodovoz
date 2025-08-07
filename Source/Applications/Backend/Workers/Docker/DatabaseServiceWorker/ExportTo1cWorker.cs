@@ -1,4 +1,4 @@
-﻿using DatabaseServiceWorker.Options;
+using DatabaseServiceWorker.Options;
 using ExportTo1c.Library;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -112,7 +112,7 @@ namespace DatabaseServiceWorker
 			var yesterday = today.AddDays(-1);
 			var auth = new NtlmPasswordAuthentication("", _options.Value.Login, _options.Value.Password);
 			var smbPath = $"smb://{_options.Value.ExportPath}/";
-			var fileName = $"{_leftPartNameOfExportFile}-{yesterday.ToShortDateString()}.xml";
+			var fileName = $"{_leftPartNameOfExportFile}-{yesterday:yyyy-MM-dd}.xml";
 
 			await DeleteFilesOlderThanOneMonth(smbPath, auth, cancellationToken);
 
