@@ -10,6 +10,7 @@ using QS.ViewModels.Dialog;
 using QSOrmProject;
 using System;
 using System.Linq;
+using QSProjectsLib;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Dialogs.DocumentDialogs;
@@ -264,6 +265,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 
 			dlg.SetDlgToReadOnly();
 			tab.TabParent.AddSlaveTab(tab, dlg);
+		}
+		
+		public void RunLongOperation(Action<IWorker> doWork, string name, int steps, bool modal = false)
+		{
+			LongOperationDlg.StartOperation(doWork, name, steps, modal);
 		}
 	}
 }

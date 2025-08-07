@@ -80,17 +80,17 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label label6;
 
-		private global::Gtk.Label labelExportedSum;
+		private global::Gamma.GtkWidgets.yLabel labelExportedSum;
 
-		private global::Gtk.Label labelTotalCounterparty;
+		private global::Gamma.GtkWidgets.yLabel labelTotalCounterparty;
 
-		private global::Gtk.Label labelTotalInvoices;
+		private global::Gamma.GtkWidgets.yLabel labelTotalInvoices;
 
-		private global::Gtk.Label labelTotalNomenclature;
+		private global::Gamma.GtkWidgets.yLabel labelTotalNomenclature;
 
-		private global::Gtk.Label labelTotalSales;
+		private global::Gamma.GtkWidgets.yLabel labelTotalSales;
 
-		private global::Gtk.Label labelTotalSum;
+		private global::Gamma.GtkWidgets.yLabel labelTotalSum;
 
 		private global::Gtk.HBox hbox3;
 
@@ -465,7 +465,7 @@ namespace Vodovoz.Views.Logistic
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelExportedSum = new global::Gtk.Label();
+			this.labelExportedSum = new global::Gamma.GtkWidgets.yLabel();
 			this.labelExportedSum.Name = "labelExportedSum";
 			this.labelExportedSum.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelExportedSum);
@@ -477,7 +477,7 @@ namespace Vodovoz.Views.Logistic
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelTotalCounterparty = new global::Gtk.Label();
+			this.labelTotalCounterparty = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTotalCounterparty.Name = "labelTotalCounterparty";
 			this.labelTotalCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelTotalCounterparty);
@@ -489,7 +489,7 @@ namespace Vodovoz.Views.Logistic
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelTotalInvoices = new global::Gtk.Label();
+			this.labelTotalInvoices = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTotalInvoices.Name = "labelTotalInvoices";
 			this.labelTotalInvoices.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelTotalInvoices);
@@ -501,7 +501,7 @@ namespace Vodovoz.Views.Logistic
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelTotalNomenclature = new global::Gtk.Label();
+			this.labelTotalNomenclature = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTotalNomenclature.Name = "labelTotalNomenclature";
 			this.labelTotalNomenclature.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelTotalNomenclature);
@@ -513,7 +513,7 @@ namespace Vodovoz.Views.Logistic
 			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelTotalSales = new global::Gtk.Label();
+			this.labelTotalSales = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTotalSales.Name = "labelTotalSales";
 			this.labelTotalSales.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelTotalSales);
@@ -522,7 +522,7 @@ namespace Vodovoz.Views.Logistic
 			w38.RightAttach = ((uint)(2));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.labelTotalSum = new global::Gtk.Label();
+			this.labelTotalSum = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTotalSum.Name = "labelTotalSum";
 			this.labelTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("0");
 			this.table3.Add(this.labelTotalSum);

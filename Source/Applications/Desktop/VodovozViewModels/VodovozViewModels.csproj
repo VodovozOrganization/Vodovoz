@@ -1012,6 +1012,7 @@
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Service\ExportTo1cOperation.cs" />
     <Compile Include="ViewModels\Service\ExportTo1CViewModel.cs" />
     <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
@@ -1297,6 +1298,10 @@
       <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
       <Name>EdoService.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ExportTo1c\ExportTo1c.Library.csproj">
+      <Project>{d805bccb-7158-4e50-837f-5cd12706713b}</Project>
+      <Name>ExportTo1c.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
       <Name>FuelControl.Library</Name>
@@ -1432,6 +1437,7 @@
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>1.7.4</Version>
     </PackageReference>
+    <PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />

@@ -7,23 +7,20 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
 
-namespace Vodovoz.ServiceDialogs.ExportTo1c
+namespace Vodovoz.ViewModels.ViewModels.Service
 {
-	public class ExportOperation : IDisposable
+	public class ExportTo1cOperation : IDisposable
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly DateTime start;
-		private readonly DateTime end;
-		private readonly Export1cMode mode;
-		private readonly IOrderSettings orderSettings;
-		private readonly int? organizationId;
-		private IList<Order> orders;
+		private readonly DateTime _start;
+		private readonly DateTime _end;
+		private readonly Export1cMode _mode;
+		private readonly IOrderSettings _orderSettings;
+		private readonly int? _organizationId;
+		private IList<Order> _orders;
 
-		public int Steps => orders.Count;
-		public ExportData Result { get; private set; }
-
-		public ExportOperation(
+		public ExportTo1cOperation(
 			Export1cMode mode,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
@@ -36,30 +33,35 @@ namespace Vodovoz.ServiceDialogs.ExportTo1c
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
-
-			this.orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Экспорт в 1с");
-			this.start = start;
-			this.end = end;
-			this.mode = mode;
-			this.organizationId = organizationId;
+			_start = start;
+			_end = end;
+			_mode = mode;
+			_organizationId = organizationId;
 		}
+		
+		public int Steps => _orders.Count;
+		
+		public ExportData Result { get; private set; }
 
 		public void Run(IWorker worker)
 		{
 			worker.OperationName = "Подготовка данных";
 			worker.ReportProgress(0, "Загрузка заказов");
-			orders = _orderRepository.GetOrdersToExport1c8(_unitOfWork, orderSettings, mode, start, end, organizationId);
+			_orders = _orderRepository.GetOrdersToExport1c8(_unitOfWork, _orderSettings, _mode, _start, _end, _organizationId);
 			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
-			worker.StepsCount = orders.Count;
-			Result = new ExportData(_unitOfWork, mode, start, end);
+			worker.StepsCount = _orders.Count;
+			Result = new ExportData(_unitOfWork, _mode, _start, _end);
+			
 			int i = 0;
 
-			while(!worker.IsCancelled && i < orders.Count)
+			while(!worker.IsCancelled && i < _orders.Count)
 			{
 				worker.ReportProgress(i, "Заказ");
-				Result.AddOrder(orders[i]);
+				Result.AddOrder(_orders[i]);
 				i++;
 			}
 
