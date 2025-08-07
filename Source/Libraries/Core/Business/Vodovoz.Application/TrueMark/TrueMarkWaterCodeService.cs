@@ -901,18 +901,19 @@ namespace Vodovoz.Application.TrueMark
 			{
 				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
 
+				if((productInstancesInfo.InstanceStatuses is null
+					|| !productInstancesInfo.InstanceStatuses.Any())
+					&& productInstancesInfo.NoCodesFound)
+				{
+					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
+					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
+				}
+
 				if(productInstancesInfo is null
 					|| !string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
 				{
 					_logger.LogError("Ошибка при запросе к Api TrueMark, ошибка в ответе от Api");
 					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.ErrorResponse);
-				}
-
-				if(productInstancesInfo.InstanceStatuses is null
-					|| !productInstancesInfo.InstanceStatuses.Any())
-				{
-					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
-					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
 				}
 
 				instancesStatuses = productInstancesInfo.InstanceStatuses;
