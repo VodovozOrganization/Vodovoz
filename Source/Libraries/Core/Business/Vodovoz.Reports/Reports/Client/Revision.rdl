@@ -14,28 +14,38 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-          SELECT * 
-          FROM
-          (SELECT 0 as num, CONCAT('Продажа (', mmo.order_id , ' от ', mmo.operation_time, ')' ) as document, 
-            IFNULL(mmo.debt, 0) as debt,
-              0 as deposit,
-              IFNULL(mmo.money, 0) as money, mmo.operation_time as date
-          FROM
-              money_movement_operations mmo
-          WHERE mmo.counterparty_id = @counterparty_id
-          UNION ALL
-          SELECT p.payment_num as num, 
-            CONCAT('Оплата (', p.payment_num , ' от ', cmo.operation_time, ')') as document, 
-            0 as debt, 
-            pi.sum as deposit, 
-            0 as money,
-            cmo.operation_time as date
-          FROM cashless_movement_operations cmo 
-          INNER JOIN payments_from_bank_client p ON p.cashless_movement_operation_id = cmo.id
-          LEFT JOIN payment_items pi ON p.id = pi.payment_id 
-          WHERE cmo.counterparty_id = @counterparty_id) as t
-          WHERE t.`date` &gt;= @date_start AND t.`date`  &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
-          ORDER BY t.date DESC
+          SELECT
+            * 
+          FROM (
+            SELECT 
+              0 as num, CONCAT('Продажа (', mmo.order_id , ' от ', mmo.operation_time, ')' ) as document, 
+                  IFNULL(mmo.debt, 0) as debt,
+                  0 as deposit,
+                  IFNULL(mmo.money, 0) as money, 
+                  mmo.operation_time as date
+            FROM
+                money_movement_operations mmo
+            WHERE mmo.counterparty_id = @counterparty_id
+              UNION ALL
+              SELECT 
+                p.payment_num as num, 
+                  CONCAT('Оплата (', p.payment_num , ' от ', cmo.operation_time, ')') as document, 
+                  0 as debt, 
+                  pi.sum as deposit, 
+                  0 as money,
+                  cmo.operation_time as date
+            FROM 
+                cashless_movement_operations cmo 
+              INNER JOIN 
+                payments_from_bank_client p ON p.cashless_movement_operation_id = cmo.id
+              LEFT JOIN 
+                payment_items pi ON p.id = pi.payment_id 
+              WHERE 
+                cmo.counterparty_id = @counterparty_id) as t
+          WHERE 
+            t.`date` &gt;= @date_start AND t.`date` &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+          ORDER BY 
+            t.`date`
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -134,33 +144,16 @@ WHERE
     <DataSet Name="Initial">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    T.total,
-    NUMBER_TO_STRING_DESCRIPTION(T.total + T.total_by_period) as total_string
-FROM
-(
-    SELECT
-        IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0) as total,
-        (
-            SELECT IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0)
-            FROM
-                money_movement_operations
-            WHERE
-                money_movement_operations.counterparty_id=@counterparty_id
-              and
-                money_movement_operations.payment_type='Cashless'
-              and
-                operation_time BETWEEN @date_start and DATE_ADD(@date_end, INTERVAL 1 DAY)
-        ) as total_by_period
-    FROM
-        money_movement_operations
-    where
-        money_movement_operations.counterparty_id=@counterparty_id
-      and
-        money_movement_operations.payment_type='Cashless'
-      and operation_time &lt; @date_start
-) as T
-;</CommandText>
+        <CommandText>
+        SELECT T.total, NUMBER_TO_STRING_DESCRIPTION(T.total) as total_string
+        FROM (
+          SELECT
+              IFNULL(SUM(IFNULL(cmo.income, 0)) - SUM(IFNULL(cmo.expense, 0)), 0) as total
+          FROM 
+              cashless_movement_operations cmo 
+          WHERE
+              cmo.counterparty_id = @counterparty_id) as T
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
             <Value>=Parameters!CounterpartyID</Value>
@@ -674,131 +667,6 @@ Fields!debt.Value=0, "", Fields!debt.Value
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox64">
-                      <Value>=Fields!date.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>dd.MM.yyyy</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox65">
-                      <Value>=Iif(Fields!deposit.Value&gt;0, "Залог", "Возврат залогов") +"№"+ Fields!num.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value>=Iif(
-Fields!deposit.Value&gt;0
-,
-Fields!deposit.Value
-,
-""
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox67">
-                      <Value>=Iif(
-Fields!deposit.Value&lt;0
-,
--Fields!deposit.Value
-,
-""
-)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox69">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox70">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox71">
-                      <Value></Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-              <Visibility>
-                <Hidden>=Fields!deposit.Value =0 or Fields!deposit.IsMissing</Hidden>
-              </Visibility>
-            </TableRow>
           </TableRows>
         </Details>
         <Footer>
@@ -919,22 +787,22 @@ Fields!deposit.Value&lt;0
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
+                    <Textbox Name="TextboxDebtBalance">
                       <Value>=Iif(
-First(Fields!total.Value, 'Initial')
-+
-Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
--
-Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&gt;0
-,
-First(Fields!total.Value, 'Initial')
-+
-Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
--
-Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
-,
-""
-)</Value>
+                        First(Fields!total.Value, 'Initial')
+                        +
+                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        -
+                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
+                        ,
+                        First(Fields!total.Value, 'Initial')
+                        +
+                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        -
+                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
+                        ,
+                        "")
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -948,22 +816,22 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="TextboxBalance">
+                    <Textbox Name="TextboxCreditBalance">
                       <Value>=Iif(
-First(Fields!total.Value, 'Initial')
-+
-Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
--
-Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&lt;0
-,
--First(Fields!total.Value, 'Initial')
--
-Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
-+
-Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
-,
-""
-)</Value>
+                        First(Fields!total.Value, 'Initial')
+                        +
+                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        -
+                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&lt;0
+                        ,
+                        -First(Fields!total.Value, 'Initial')
+                        +
+                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
+                        -
+                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        ,
+                        "")
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1052,9 +920,7 @@ Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0
 +" руб." + "\n"+
 "( "+
 First({total_string}, 'Initial')
-+" )"
-+ "\n" +
-"в том числе "+ Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit),'Operations') + " руб. залогов."</Value>
++" )"</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>267.20pt</Top>

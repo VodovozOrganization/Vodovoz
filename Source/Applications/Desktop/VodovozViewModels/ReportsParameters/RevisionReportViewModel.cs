@@ -18,7 +18,6 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 
@@ -38,9 +37,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private Counterparty _counterparty;
 		private IList<Email> _emails;
 		private Email _selectedEmail;
-		private Dictionary<string, object> _parameters;
 		private string _source;
-		private IncludeExludeFiltersViewModel _filterViewModel;
 
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmailSettings _emailSettings;
@@ -66,7 +63,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
-			_parameters = new Dictionary<string, object>();
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
@@ -191,7 +187,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "EndDate", EndDate },
 			{ "CounterpartyID", Counterparty?.Id }
 		};
-		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 		public override ReportInfo ReportInfo
 		{
 			get
@@ -232,7 +227,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 			try
 			{
-				//var reportPdf = GenerateReport(GetReportSource());
 				var reportPdf = GenerateReport(ReportInfo.Source);
 
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
@@ -242,7 +236,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				string messageText = "Test message text for email with attachment.";
 				var emailMessage = new SendEmailMessage
 				{
-					//To = SelectedEmail.Address,
 					From = new EmailContact
 					{
 						Name = _emailSettings.DefaultEmailSenderName,
@@ -253,6 +246,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						new EmailContact
 						{
 							//Name = client != null ? client.FullName : "Уважаемый пользователь",
+							// Email = SelectedEmail.Address;
 							Name = "Уважаемый пользователь",
 							Email = "work.semen.sd@gmail.com"
 						}
@@ -286,39 +280,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		private string GetRevisionReportSource()
-		{
-			var root = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-			var fileName = "Revision.rdl";
-			var path = Path.Combine(root, "Reports", "Client", fileName);
-
-			using(var reportController = new ReportController(path))
-			using(var reportStream = new MemoryStream())
-			{
-				// Если есть модификаторы, добавьте их:
-				// reportController.AddModifier(new RevisionReportModifier(...));
-				reportController.Modify();
-				reportController.Save(reportStream);
-
-				reportStream.Position = 0;
-				using(var reader = new StreamReader(reportStream))
-				{
-					return reader.ReadToEnd();
-				}
-			}
-		}
 		private void GenerateReport()
 		{
 			if(StartDate == null || StartDate == default(DateTime))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
 			}
-
-			//_parameters = FilterViewModel.GetReportParametersSet();
-			_parameters.Add("StartDate", StartDate);
-			_parameters.Add("EndDate", EndDate);
-			_parameters.Add("creation_date", DateTime.Now);
-			_parameters.Add("CounterpartyID", Counterparty?.Id);
 
 			_source = GetReportSource();
 
@@ -352,17 +319,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		/*private ReportModifierBase GetReportModifier()
-		{
-			ReportModifierBase result;
-			var groupParameters = GetGroupingParameters();
-			var modifier = new ProfitabilityDetailReportModifier();
-			modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
-			result = modifier;
-
-			return result;
-		}*/
-
 		private byte[] GenerateReport(string reportXml)
 		{
 			if(string.IsNullOrWhiteSpace(reportXml))
@@ -371,10 +327,13 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return null;
 			}
 
-			var rdlParser = new RDLParser(reportXml);
-			var report = rdlParser.Parse();
+			var rdlParser = new RDLParser(reportXml)
+			{
+				OverwriteConnectionString = ReportInfo.ConnectionString,
+				OverwriteInSubreport = true
+			};
 
-			// Устанавливаем параметры (если нужно)
+			var report = rdlParser.Parse();
 			var preparedParameters = PrepareReportParameters(Parameters);
 			report.RunGetData(preparedParameters);
 
@@ -387,6 +346,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return pdfBytes;
 			}
 		}
+
 		private Dictionary<string, object> PrepareReportParameters(Dictionary<string, object> parameters)
 		{
 			var result = new Dictionary<string, object>();
@@ -394,12 +354,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(kvp.Value is DateTime dt)
 				{
-					// Преобразуем дату в нужный формат
 					result[kvp.Key] = dt.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
-				}
-				else if(kvp.Value is DateTime ndt)
-				{
-					result[kvp.Key] = ndt.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
 				}
 				else
 				{
