@@ -3,6 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Core.Domain.Clients
 {
@@ -150,6 +151,31 @@ namespace Vodovoz.Core.Domain.Clients
 		/// <summary>
 		/// Заголовок в 1С
 		/// </summary>
-		public virtual string TitleIn1c => $"{Number} от {IssueDate:d}";
+		public virtual string TitleIn1c => $"{Number} от {IssueDate:dd.MM.yyyy}";
+		
+		public static ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)
+		{
+			switch(paymentType)
+			{
+				case PaymentType.Cash:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+				case PaymentType.PaidOnline:
+				case PaymentType.Terminal:
+					if(clientType == PersonType.legal)
+					{
+						return ContractType.CashUL;
+					}
+
+					return ContractType.CashFL;
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
+					return ContractType.Cashless;
+				case PaymentType.Barter:
+					return ContractType.Barter;
+				default:
+					return ContractType.Cashless;
+			}
+		}
 	}
 }

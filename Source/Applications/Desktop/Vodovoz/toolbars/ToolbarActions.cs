@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -66,6 +66,7 @@ using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Service;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 
@@ -735,16 +736,7 @@ public partial class MainWindow : Window
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
-		/*var dialogSettingsFactory = _autofacScope.Resolve<IDialogSettingsFactory>();
-		var fileDialogService = _autofacScope.Resolve<IFileDialogService>();
-		var orderRepository = _autofacScope.Resolve<IOrderRepository>();
-		var orderSettings = _autofacScope.Resolve<IOrderSettings>();
-		var commonServises = _autofacScope.Resolve<ICommonServices>();
-		
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory, orderRepository, dialogSettingsFactory, fileDialogService, orderSettings, commonServises)
-		);*/
+		NavigationManager.OpenViewModel<ExportTo1CViewModel>(null);
 	}
 
 	void ActionExportCounterpartiesTo1c_Activated(object sender, System.EventArgs e)

@@ -29,6 +29,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
+		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
 		private readonly MessageService _messageService;
 
 		public ScannedCodesDelayedProcessingService(
@@ -39,6 +40,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
+			IGenericRepository<RouteListItemEntity> routeListItemRepository,
 			MessageService messageService)
 		{
 			_logger =
@@ -55,28 +57,68 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_productCodeRepository =
 				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
+			_routeListItemRepository =
+				routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_messageService =
 				messageService ?? throw new ArgumentNullException(nameof(messageService));
 		}
 
 		public async Task ProcessScannedCodesAsync(CancellationToken cancellationToken)
 		{
+			var notProcessedCodesRouteListAddressIds = await GetNotProcessedDriversScannedCodesRouteListAddressIds(cancellationToken);
+
+			if(!notProcessedCodesRouteListAddressIds.Any())
+			{
+				_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки. Ожидаем следующего запуска.");
+				return;
+			}
+
+			foreach(var routeListAddressId in notProcessedCodesRouteListAddressIds)
+			{
+				try
+				{
+					await ProcessDriverScannedCodesByRouteListAddressId(routeListAddressId, cancellationToken);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(
+						ex,
+						"Ошибка при обработке отсканированных кодов ЧЗ для адреса МЛ {RouteListAddressId}. Exception: {ExceptionMessage}",
+						routeListAddressId,
+						ex.Message);
+				}
+			}
+		}
+
+		private async Task ProcessDriverScannedCodesByRouteListAddressId(int routeListAddressId, CancellationToken cancellationToken)
+		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
 			{
 				var scannedCodesData = await _edoDocflowRepository
-					.GetAllNotProcessedDriversScannedCodesData(uow, cancellationToken);
+					.GetNotProcessedDriversScannedCodesDataByRouteListItemId(uow, routeListAddressId, cancellationToken);
 
 				if(!scannedCodesData.Any())
 				{
-					_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки");
+					_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки для адреса МЛ {RouteListItemId}", routeListAddressId);
 					return;
 				}
 
-				_logger.LogInformation("Обработка отсканированных кодов ЧЗ, количество: {Count}", scannedCodesData.Count());
+				_logger.LogInformation("Обработка отсканированных кодов ЧЗ адреса МЛ {RouteListItemId} количество: {Count}",
+					routeListAddressId,
+					scannedCodesData.Count());
 
-				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, cancellationToken);
+				var routeListAddress = _routeListItemRepository.GetFirstOrDefault(uow, x => x.Id == routeListAddressId);
 
-				var newEdoRequests = await CreateEdoRequests(uow, scannedCodesData, cancellationToken);
+				if(routeListAddress is null)
+				{
+					_logger.LogWarning("Не найден адрес МЛ с идентификатором {RouteListItemId}", routeListAddressId);
+					return;
+				}
+
+				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, routeListAddress, cancellationToken);
+
+				var newEdoRequests =
+					await CreateEdoRequests(uow, routeListAddress, scannedCodesData.Select(x => x.DriversScannedCode), cancellationToken);
 
 				if(uow.HasChanges)
 				{
@@ -92,13 +134,22 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
+		private async Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(CancellationToken cancellationToken)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
+			{
+				return await _edoDocflowRepository.GetNotProcessedDriversScannedCodesRouteListAddressIds(uow, cancellationToken);
+			}
+		}
+
 		private async Task CheckScannedCodesAndAddToRouteListItems(
 			IUnitOfWork uow,
 			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
+			RouteListItemEntity routeListAddress,
 			CancellationToken cancellationToken)
 		{
 			var routeListItemScannedCodes = scannedCodesData
-				.GroupBy(x => new { x.RouteListAddress, x.OrderItem })
+				.GroupBy(x => x.OrderItem)
 				.ToDictionary(x => x.Key, x => x.Select(c => c.DriversScannedCode).ToList());
 
 			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
@@ -137,8 +188,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				await AddCodesToRouteListItem(
 					uow,
 					scannedTrueMarkAnyCodesData,
-					routeListItemScannedCode.Key.RouteListAddress,
-					routeListItemScannedCode.Key.OrderItem.Id,
+					routeListAddress,
+					routeListItemScannedCode.Key.Id,
 					cancellationToken);
 			}
 		}
@@ -151,7 +202,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var codesToRemove = codesData
 				.GroupBy(x => x.Key.RawCode)
 				.Where(g => g.Count() > 1)
-				.Select(g => g.Last())
+				.SelectMany(g => g.Skip(1))
 				.ToList();
 
 			foreach(var codeData in codesToRemove)
@@ -419,31 +470,6 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			.Get(uow, x => resultCodeId == x.ResultCode.Id)
 			.Distinct()
 			.ToList();
-
-		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow,
-			IEnumerable<DriversScannedCodeDataNode> scannedCodesData,
-			CancellationToken cancellationToken)
-		{
-			var routeListAddresses = scannedCodesData
-				.Select(x => x.RouteListAddress)
-				.Distinct()
-				.ToList();
-
-			var newEdoRequests = new List<OrderEdoRequest>();
-
-			foreach(var routeListAddress in routeListAddresses)
-			{
-				var orderScannedCodes = scannedCodesData
-					.Where(x => x.Order.Id == routeListAddress.Order.Id)
-					.Select(x => x.DriversScannedCode)
-					.ToList();
-
-				newEdoRequests.AddRange(
-					await CreateEdoRequests(uow, routeListAddress, orderScannedCodes, cancellationToken));
-			}
-
-			return newEdoRequests;
-		}
 
 		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(
 			IUnitOfWork uow,

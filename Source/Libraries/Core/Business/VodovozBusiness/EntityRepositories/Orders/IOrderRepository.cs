@@ -138,6 +138,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
+		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
@@ -170,7 +171,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
-		IEnumerable<OrderDto> GetCounterpartyOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);

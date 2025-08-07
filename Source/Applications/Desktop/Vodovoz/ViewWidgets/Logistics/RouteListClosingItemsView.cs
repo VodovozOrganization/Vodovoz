@@ -227,7 +227,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ExtraCash).Editing()
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("№ оплаты")
-					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
+					.AddTextRenderer(node => node.Order.OnlinePaymentNumber.ToString())
 						.AddSetter((cell, node) => cell.Editable = 
 							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.PaidOnline) &&
 							node.Status != RouteListItemStatus.Transfered &&
@@ -322,7 +322,7 @@ namespace Vodovoz
 			var isNumber = int.TryParse(args.NewText, out var res);
 
 			if (node != null && isNumber && res > 0) {
-				node.Order.OnlineOrder = res;
+				node.Order.OnlinePaymentNumber = res;
 			}
 		}
 

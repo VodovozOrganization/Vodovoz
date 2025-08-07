@@ -1,4 +1,4 @@
-﻿using QS.Views.GtkUI;
+using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using System.ComponentModel;
@@ -66,6 +66,10 @@ namespace Vodovoz.Organizations
 
 			dataentryOKVED.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKVED, w => w.Text)
+				.InitializeFromSource();
+
+			chkWithoutVat.Binding
+				.AddBinding(ViewModel.Entity, e => e.WithoutVAT, w => w.Active)
 				.InitializeFromSource();
 
 			yentrySuffix.Binding

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using Vodovoz.ServiceDialogs.ExportTo1c;
 using System;
 using Vodovoz.EntityRepositories.Counterparties;
 using QS.Project.Services;
 using Autofac;
+using ExportTo1c.Library;
 
 namespace Vodovoz.ServiceDialogs
 {

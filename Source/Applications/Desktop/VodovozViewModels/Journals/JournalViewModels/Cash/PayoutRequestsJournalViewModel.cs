@@ -617,7 +617,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => authorProjection,
 				() => accauntableProjection,
 				() => accountableEmployeeAlias.Id,
-				() => cashRequestAlias.Basis
+				() => cashRequestAlias.Basis,
+				() => financialExpenseCategoryAlias.Title
 			));
 
 			result.SelectList(list => list
@@ -783,7 +784,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => cashlessRequestAlias.Id,
 				() => authorAlias.Id,
 				() => authorProjection,
-				() => cashlessRequestAlias.Basis
+				() => cashlessRequestAlias.Basis,
+				() => financialExpenseCategoryAlias.Title
 			));
 
 			result.SelectList(list => list

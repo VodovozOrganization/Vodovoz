@@ -52,12 +52,12 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanChangeOrderAfterRecieptCreated => nameof(CanChangeOrderAfterRecieptCreated);
 
 		/// <summary>
-		/// Изменение цены и скидки в закрытии МЛ - Возможность изменять цену и скидку в заказе из закрытия МЛ
+		/// Изменение цены и скидки в закрытии МЛ и самовывозов - Возможность изменять цену и скидку в заказе из закрытия МЛ и в редактировании самовывоза
 		/// </summary>
 		[Display(
-			Name = "Изменение цены и скидки в закрытии МЛ",
-			Description = "Возможность изменять цену и скидку в заказе из закрытия МЛ")]
-		public static string CanEditPriceDiscountFromRouteList => "can_edit_price_discount_from_route_list";
+			Name = "Изменение цены и скидки в закрытии МЛ и самовывозов",
+			Description = "Возможность изменять цену и скидку в заказе из закрытия МЛ и в редактировании самовывоза")]
+		public static string CanEditPriceDiscountFromRouteListAndSelfDelivery => "can_edit_price_discount_from_route_list_and_self_delivery";
 
 		/// <summary>
 		/// Изменение товаров на вкладке "Товары" в заказе, который уже добавлен в МЛ

@@ -27,7 +27,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
@@ -36,7 +36,7 @@ namespace Edo.Documents
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -470,7 +470,7 @@ namespace Edo.Documents
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			try
@@ -480,10 +480,13 @@ namespace Edo.Documents
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				problemGtins.Add(new EdoProblemGtinItem
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
-					Gtin = gtin
-				});
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
+				}
 			}
 
 			if(codeId == 0)

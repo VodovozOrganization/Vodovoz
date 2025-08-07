@@ -11,6 +11,7 @@
       <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
       <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />

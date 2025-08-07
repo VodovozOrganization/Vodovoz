@@ -31,6 +31,7 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\My-FyiReporting\RdlCri\RdlCri.csproj" />

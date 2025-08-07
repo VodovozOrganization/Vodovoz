@@ -1,17 +1,16 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Controllers;
 
 namespace TrueMarkWorker
 {
@@ -53,6 +52,7 @@ namespace TrueMarkWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddStaticHistoryTracker()
+						.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 						;
 
 					services

@@ -1,15 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Models;
-using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -321,7 +316,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		private bool CanUseVAT()
 		{
 			bool canUseVAT = true;
-			var organization = GetOrganization();
+			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
 			if(organization != null) {
 				canUseVAT = !organization.WithoutVAT;
 			}
@@ -329,27 +324,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return canUseVAT;
 		}
 		
-		private IOrderOrganizationProviderFactory orderOrganizationProviderFactory;
-		private IOrganizationProvider orderOrganizationProvider;
-
-		private Organization GetOrganization()
-		{
-			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
-				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
-			}
-			
-			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory(ScopeProvider.Scope);
-				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			}
-
-			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-			using(var uow = uowFactory.CreateWithoutRoot()) {
-				return orderOrganizationProvider.GetOrganizationForOrderWithoutShipment(uow,
-					OrderWithoutDeliveryForAdvancePayment);
-			}
-		}
-
 		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;

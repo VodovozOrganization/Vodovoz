@@ -16,9 +16,12 @@ using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Domain.Client;
 
 namespace EdoContactsUpdater
 {
@@ -32,6 +35,7 @@ namespace EdoContactsUpdater
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IEdoContactStateCodeConverter _edoContactStateCodeConverter;
 		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 
 		public TaxcomEdoContactsUpdaterService(
 			ILogger<TaxcomEdoContactsUpdaterService> logger,
@@ -42,7 +46,8 @@ namespace EdoContactsUpdater
 			ISettingsController settingsController,
 			IServiceScopeFactory serviceScopeFactory,
 			IEdoContactStateCodeConverter edoContactStateCodeConverter,
-			ICounterpartyRepository counterpartyRepository)
+			ICounterpartyRepository counterpartyRepository,
+			IOrganizationRepository organizationRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -53,6 +58,7 @@ namespace EdoContactsUpdater
 			_edoContactStateCodeConverter =
 				edoContactStateCodeConverter ?? throw new ArgumentNullException(nameof(edoContactStateCodeConverter));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -75,6 +81,17 @@ namespace EdoContactsUpdater
 					using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки контактов ЭДО"))
 					{
 						var contactUpdates = new EdoContactList();
+						var organization =
+							_organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, _contactsUpdaterOptions.EdoAccount);
+
+						if(organization is null)
+						{
+							_logger.LogError(
+								"Не найдена организация с аккаунтом {EdoAccount} в Такском",
+								_contactsUpdaterOptions.EdoAccount);
+							
+							continue;
+						}
 
 						do
 						{
@@ -108,7 +125,7 @@ namespace EdoContactsUpdater
 								switch(contact.State.Code)
 								{
 									case EdoContactStateCode.Incoming:
-										await TryAcceptIncomingInvite(contact, uow, taxcomApiClient, cancellationToken);
+										await TryAcceptIncomingInvite(contact, organization, uow, taxcomApiClient, cancellationToken);
 										break;
 									case EdoContactStateCode.Sent:
 									case EdoContactStateCode.Accepted:
@@ -124,45 +141,88 @@ namespace EdoContactsUpdater
 
 										var consentForEdoStatus =
 											_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.State.Code);
+
+										if(string.IsNullOrWhiteSpace(contact.EdxClientId))
+										{
+											_logger.LogWarning("Пришел контакт с пустым аккаунтом");
+											continue;
+										}
 										
 										foreach(var counterparty in counterparties)
 										{
-											if(counterparty.ConsentForEdoStatus == consentForEdoStatus)
+											var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
+											var edoOperator = _counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
+											
+											if(edoAccount != null)
 											{
+												_logger.LogInformation(
+													"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
+													" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
+													counterparty.Id,
+													edoAccount.ConsentForEdoStatus,
+													consentForEdoStatus);
+												
+												edoAccount.EdoOperator = edoOperator;
+												edoAccount.ConsentForEdoStatus = consentForEdoStatus;
+					
+												await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+												await uow.CommitAsync(cancellationToken);
 												continue;
 											}
+				
+											var defaultEdoAccount = counterparty.DefaultEdoAccount(organization.Id);
+											edoAccount = defaultEdoAccount;
 
-											_logger.LogInformation(
-												"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
-												" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
-												counterparty.Id,
-												counterparty.ConsentForEdoStatus,
-												consentForEdoStatus);
-											
-											if(consentForEdoStatus == ConsentForEdoStatus.Rejected)
+											if(edoAccount is null)
 											{
-												if(counterparty.PersonalAccountIdInEdo != contact.EdxClientId)
+												_logger.LogWarning(
+													"Не нашли основной аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
+													contact.EdxClientId,
+													counterparty.Name,
+													organization.Name,
+													consentForEdoStatus
+												);
+												
+												edoAccount = CreateEdoAccount(
+													contact, organization, counterparty, edoOperator, true, consentForEdoStatus);
+											}
+											else
+											{
+												if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
 												{
 													_logger.LogInformation(
-														"Пришел отказ на ЭДО у клиента Id {CounterpartyId}" +
-														" по кабинету {EdoAccountId}," +
-														" хотя у клиента {CounterpartyPersonalAccountIdInEdo} пропускаем...",
+														"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
+														" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
 														counterparty.Id,
+														edoAccount.ConsentForEdoStatus,
+														consentForEdoStatus);
+													
+													edoAccount.PersonalAccountIdInEdo = contact.EdxClientId;
+													edoAccount.EdoOperator = edoOperator;
+													edoAccount.ConsentForEdoStatus = consentForEdoStatus;
+												}
+												else
+												{
+													_logger.LogWarning(
+														"Не нашли аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
 														contact.EdxClientId,
-														counterparty.PersonalAccountIdInEdo);
-													continue;
+														counterparty.Name,
+														organization.Name,
+														consentForEdoStatus
+													);
+													
+													edoAccount = CreateEdoAccount(
+														contact,
+														organization,
+														counterparty,
+														edoOperator,
+														defaultEdoAccount is null,
+														consentForEdoStatus);
 												}
 											}
-											else if(consentForEdoStatus == ConsentForEdoStatus.Agree)
-											{
-												counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
-												counterparty.EdoOperator =
-													_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
-											}
 											
-											counterparty.ConsentForEdoStatus = consentForEdoStatus;
-											await uow.SaveAsync(counterparty);
-											await uow.CommitAsync();
+											await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+											await uow.CommitAsync(cancellationToken);
 										}
 
 										break;
@@ -187,6 +247,7 @@ namespace EdoContactsUpdater
 
 		private async Task TryAcceptIncomingInvite(
 			EdoContactInfo contact,
+			Organization organization,
 			IUnitOfWork uow,
 			ITaxcomApiClient taxcomApiClient,
 			CancellationToken cancellationToken)
@@ -227,13 +288,42 @@ namespace EdoContactsUpdater
 			foreach(var counterparty in counterparties)
 			{
 				_logger.LogInformation("Обновляем данные у клиента Id {CounterpartyId}", counterparty.Id);
-				counterparty.EdoOperator =
-					_counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
-				counterparty.PersonalAccountIdInEdo = contact.EdxClientId;
-				counterparty.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
 
-				await uow.SaveAsync(counterparty);
-				await uow.CommitAsync();
+				var edoOperator = _counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
+				var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
+
+				if(edoAccount != null)
+				{
+					edoAccount.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+					
+					await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+					return;
+				}
+				
+				var defaultEdoAccount = counterparty.DefaultEdoAccount(organization.Id);
+				edoAccount = defaultEdoAccount;
+
+				if(edoAccount is null)
+				{
+					edoAccount = CreateEdoAccount(contact, organization, counterparty, edoOperator, true);
+				}
+				else
+				{
+					if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
+					{
+						edoAccount.PersonalAccountIdInEdo = contact.EdxClientId;
+						edoAccount.EdoOperator = edoOperator;
+						edoAccount.ConsentForEdoStatus = ConsentForEdoStatus.Agree;
+					}
+					else
+					{
+						edoAccount = CreateEdoAccount(contact, organization, counterparty, edoOperator, defaultEdoAccount is null);
+					}
+				}
+
+				await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 			}
 		}
 
@@ -243,6 +333,24 @@ namespace EdoContactsUpdater
 			
 			_logger.LogInformation("Ждем {Delay}сек", delay);
 			await Task.Delay(delay * 1000, cancellationToken);
+		}
+		
+		private CounterpartyEdoAccount CreateEdoAccount(
+			EdoContactInfo contact,
+			Organization organization,
+			Counterparty counterparty,
+			EdoOperator edoOperator,
+			bool isDefault,
+			ConsentForEdoStatus consentForEdoStatus = ConsentForEdoStatus.Agree)
+		{
+			return CounterpartyEdoAccount.Create(
+				counterparty,
+				edoOperator,
+				contact.EdxClientId,
+				organization.Id,
+				isDefault,
+				consentForEdoStatus
+			);
 		}
 	}
 }
