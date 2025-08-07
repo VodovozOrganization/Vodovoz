@@ -322,7 +322,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DebtorDebtHeader">
-                      <Value>Дебеторская задолженность</Value>
+                      <Value>Дебиторская задолженность</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -340,7 +340,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="OverdueDebtorDebtHeader">
-                      <Value>Просроченная дебеторская задолженность</Value>
+                      <Value>Просроченная дебиторская задолженность</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1171,7 +1171,7 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
-        -- Просроченная дебеторская задолженность (сумма долгов с превышением отсрочки)
+        -- Просроченная дебиторская задолженность (сумма долгов с превышением отсрочки)
                 IFNULL(
                     ROUND(
                         SUM(
@@ -1183,7 +1183,7 @@
                         2),
                     0
                 ) AS overdue_debtor_debt,
-                -- Дебеторская задолженность (непросроченная, т.е. общий долг минус просроченная)
+                -- Дебиторская задолженность (непросроченная, т.е. общий долг минус просроченная)
                 (IFNULL(
                     ROUND(
                            SUM(

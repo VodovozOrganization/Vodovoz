@@ -63,7 +63,6 @@ namespace Vodovoz.Settings.Common
 		void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName);
 		
 		int DefaultPaymentDeferment { get; }
-		void CalculatePaymentDeferment(int targetPaymentDeferment, int newPaymentDeferment);
 		void SaveDefaultPaymentDeferment(int defaultPaymentDeferment);
 		
 	}

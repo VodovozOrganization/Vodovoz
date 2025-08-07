@@ -212,13 +212,13 @@ namespace Vodovoz.Views.Settings
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			buttonCalculatePaymentDeferent.Clicked += (s, e)  => ViewModel.CalculatePaymentDefermentCommand.Execute();
+			buttonCalculatePaymentDeferent.Clicked += OnButtonCalculatePaymentDeferentClicked;
 			
 			yspinbuttonDefaultPaymentDeferent.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			buttonSaveDefaultPaymentDeferent.Clicked += (s, e) => ViewModel.SaveDefaultPaymentDefermentCommand.Execute();
+			buttonSaveDefaultPaymentDeferent.Clicked += OnButtonSaveDefaultPaymentDefermentClicked;
 		}
 		
 		private void ConfigureEmployeesFixedPrices()
@@ -636,8 +636,21 @@ namespace Vodovoz.Views.Settings
 			}
 		}
 
+		private void OnButtonCalculatePaymentDeferentClicked(object sender, EventArgs e)
+		{
+			ViewModel.CalculatePaymentDefermentCommand.Execute();
+		}
+
+		private void OnButtonSaveDefaultPaymentDefermentClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveDefaultPaymentDefermentCommand.Execute();
+		}
+		
 		public override void Destroy()
 		{
+			buttonCalculatePaymentDeferent.Clicked -= OnButtonCalculatePaymentDeferentClicked;
+			buttonSaveDefaultPaymentDeferent.Clicked -= OnButtonSaveDefaultPaymentDefermentClicked;
+			
 			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
 			base.Destroy();
 		}

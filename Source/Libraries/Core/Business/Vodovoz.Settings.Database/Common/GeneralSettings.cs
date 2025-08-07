@@ -206,12 +206,7 @@ namespace Vodovoz.Settings.Database.Common
 		}
 		
 		public int DefaultPaymentDeferment => _settingsController.GetValue<int>(_defaultPaymentDeferment);
-
-		public void CalculatePaymentDeferment(int targetPaymentDeferment, int newPaymentDeferment)
-		{
-			throw new NotImplementedException();
-		}
-
+		
 		public void SaveDefaultPaymentDeferment(int defaultPaymentDeferment)
 		{
 			_settingsController.CreateOrUpdateSetting(_defaultPaymentDeferment, defaultPaymentDeferment.ToString());
