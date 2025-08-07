@@ -61,17 +61,17 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 		#region ValidateSignature
 
-		public bool ValidateOrderSignature(OnlineOrderInfoDto onlineOrderInfoDto, out string generatedSignature)
+		public bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(onlineOrderInfoDto.Source);
+			var sourceSign = GetSourceSign(creatingOnlineOrder.Source);
 			
 			return _signatureManager.Validate(
-				onlineOrderInfoDto.Signature,
+				creatingOnlineOrder.Signature,
 				new OrderSignatureParams
 				{
-					OrderId = onlineOrderInfoDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)(onlineOrderInfoDto.OrderSum * 100),
-					ShopId = (int)onlineOrderInfoDto.Source,
+					OrderId = creatingOnlineOrder.ExternalOrderId.ToString(),
+					OrderSumInKopecks = (int)(creatingOnlineOrder.OrderSum * 100),
+					ShopId = (int)creatingOnlineOrder.Source,
 					Sign = sourceSign
 				},
 				out generatedSignature);

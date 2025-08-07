@@ -11,7 +11,7 @@
 		/// <summary>
 		/// Id онлайн заказа
 		/// </summary>
-		public int OnlineOrderId { get; }
+		public int OnlineOrderId { get; set; }
 		
 		public static CreatedOnlineOrder Create(int onlineOrderId) => new CreatedOnlineOrder(onlineOrderId);
 	}

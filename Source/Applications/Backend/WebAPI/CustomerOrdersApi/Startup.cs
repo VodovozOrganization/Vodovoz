@@ -71,7 +71,7 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{OnlineOrderInfoDto.ExchangeName}"));
+					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();
 				})
 				.AddHttpClient();

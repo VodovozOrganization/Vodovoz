@@ -6,16 +6,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
-	/// <summary>
-	/// Онлайн заказ
-	/// </summary>
-	public class OnlineOrderInfoDto : ICreatingOnlineOrder
+	public class CreatingOnlineOrder : ICreatingOnlineOrder
 	{
-		public const string ExchangeName = "online-order-received";
-		/// <summary>
-		/// Заказ не прошел сохранение
-		/// </summary>
-		public bool FaultedMessage { get; set; }
+		public const string ExchangeAndQueueName = "creating-online-orders";
 		/// <summary>
 		/// Источник заказа
 		/// </summary>

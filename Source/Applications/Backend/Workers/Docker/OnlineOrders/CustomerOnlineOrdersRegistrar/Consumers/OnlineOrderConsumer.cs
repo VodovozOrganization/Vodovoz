@@ -36,7 +36,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 		
-		protected virtual CreatedOnlineOrder TryRegisterOnlineOrder(OnlineOrderInfoDto message)
+		protected virtual int TryRegisterOnlineOrder(ICreatingOnlineOrder message)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
 			var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
@@ -80,8 +80,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 						orderId);
 				}
 			}
-				
-			return CreatedOnlineOrder.Create(onlineOrder.Id);
+
+			return onlineOrder.Id;
 		}
 	}
 }

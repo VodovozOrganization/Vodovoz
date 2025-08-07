@@ -9,10 +9,10 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <summary>
 		/// Проверка контрольной суммы запроса создания заказа
 		/// </summary>
-		/// <param name="onlineOrderInfoDto">Информация об онлайн заказе с ИПЗ</param>
+		/// <param name="creatingOnlineOrder">Информация об онлайн заказе с ИПЗ</param>
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
-		bool ValidateOrderSignature(OnlineOrderInfoDto onlineOrderInfoDto, out string generatedSignature);
+		bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature);
 		/// <summary>
 		/// Проверка контрольной суммы запроса оценки заказа
 		/// </summary>

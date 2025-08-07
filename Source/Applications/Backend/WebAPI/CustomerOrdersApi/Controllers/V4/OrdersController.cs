@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
@@ -15,12 +15,12 @@ namespace CustomerOrdersApi.Controllers.V4
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
-		private readonly IRequestClient<CreatedOnlineOrder> _requestClient;
+		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
-			IRequestClient<CreatedOnlineOrder> requestClient
+			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
@@ -28,32 +28,32 @@ namespace CustomerOrdersApi.Controllers.V4
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateOrderAsync(OnlineOrderInfoDto onlineOrderInfoDto)
+		public async Task<IActionResult> CreateOrderAsync(CreatingOnlineOrder creatingOnlineOrder)
 		{
-			var sourceName = onlineOrderInfoDto.Source.GetEnumTitle();
+			var sourceName = creatingOnlineOrder.Source.GetEnumTitle();
 			
 			try
 			{
 				_logger.LogInformation(
 					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
 					sourceName,
-					onlineOrderInfoDto.ExternalOrderId,
-					onlineOrderInfoDto.Signature);
+					creatingOnlineOrder.ExternalOrderId,
+					creatingOnlineOrder.Signature);
 				
-				if(!_customerOrdersService.ValidateOrderSignature(onlineOrderInfoDto, out var generatedSignature))
+				if(!_customerOrdersService.ValidateOrderSignature(creatingOnlineOrder, out var generatedSignature))
 				{
-					return InvalidSignature(onlineOrderInfoDto.Signature, generatedSignature);
+					return InvalidSignature(creatingOnlineOrder.Signature, generatedSignature);
 				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
-				var response = await _requestClient.GetResponse<CreatedOnlineOrder>(onlineOrderInfoDto);
+				var response = await _requestClient.GetResponse<CreatedOnlineOrder>(creatingOnlineOrder);
 				return response.Message.OnlineOrderId > 0 ? Ok(response.Message) : Problem(Messages.ErrorMessage);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e,
 					"Ошибка при регистрации заказа {ExternalOrderId} от {Source}",
-					onlineOrderInfoDto.ExternalOrderId,
+					creatingOnlineOrder.ExternalOrderId,
 					sourceName);
 
 				return Problem(Messages.ErrorMessage);

@@ -89,6 +89,14 @@ namespace CustomerOrdersApi.Library.V4
 							conf.RoutingKey = "True";
 						});
 				});
+				
+				configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
+				configurator.Publish<CreatingOnlineOrder>(x =>
+				{
+					x.ExchangeType = ExchangeType.Fanout;
+					x.Durable = true;
+					x.AutoDelete = false;
+				});
 								
 				configurator.ConfigureEndpoints(context);
 			});

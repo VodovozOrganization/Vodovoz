@@ -61,6 +61,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddMassTransit(busConf =>
 						{
 							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
+							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
 
