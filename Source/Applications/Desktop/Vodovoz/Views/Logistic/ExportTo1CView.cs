@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 			comboRetailOrganization.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RetailOrganizations, w => w.ItemsList)
 				.AddBinding(vm => vm.SelectedRetailOrganization, w => w.SelectedItem)
-				.AddBinding(vm => vm.CanExport, w => w.Sensitive)
+				.AddBinding(vm => vm.CanSaveRetailReport, w => w.Sensitive)
 				.InitializeFromSource();
 
 			dateperiodpicker1.Binding.AddSource(ViewModel)
@@ -42,6 +42,7 @@ namespace Vodovoz.Views.Logistic
 			buttonExportIPTinkoff.BindCommand(ViewModel.ExportIPTinkoffCommand);
 			ybuttonExportBookkeepingNew.BindCommand(ViewModel.ExportBookkeepingNewCommand);
 			buttonSave.BindCommand(ViewModel.SaveFileCommand);
+			ybuttonRetailReport.BindCommand(ViewModel.RetailReportCommand);
 
 			labelTotalCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.TotalCounterparty, w => w.Text)

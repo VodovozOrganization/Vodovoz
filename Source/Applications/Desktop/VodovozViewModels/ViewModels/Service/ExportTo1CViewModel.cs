@@ -18,9 +18,11 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C;
 
 namespace Vodovoz.ViewModels.ViewModels.Service
 {
@@ -31,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private Organization _selectedCashlessOrganization;
 		private Organization _selectedRetailOrganization;
 		private DateTime? _endDate;
@@ -41,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private string _totalSum;
 		private string _totalInvoices;
 		private bool _exportInProgress;
-		
+
 		public ExportTo1CViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -49,7 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			IFileDialogService fileDialogService,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IDialogSettingsFactory dialogSettingsFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -57,6 +61,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 
 			TabName = "Выгрузка в 1с 8.3";
 
@@ -77,6 +82,53 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 			SaveFileCommand = new DelegateCommand(SaveFile, () => CanSave);
 			SaveFileCommand.CanExecuteChangedWith(this, x => CanSave);
+
+			RetailReportCommand = new DelegateCommand(CreateRetailReport, () => CanSaveRetailReport);
+			RetailReportCommand.CanExecuteChangedWith(this, x => CanSaveRetailReport);
+		}
+
+		public bool CanSaveRetailReport => true;
+
+		private void CreateRetailReport()
+		{
+			var organization = SelectedRetailOrganization;
+
+			if(organization is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не выбрана организация");
+
+				return;
+			}
+
+			if(StartDate != EndDate)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Нельзя сформировать отчёт за диапазон дат. Выберите одну дату.");
+
+				return;
+			}
+
+			var retailSalesReport = new RetailSalesReportFor1C
+			{
+				Organization = organization,
+				OrganizationVersionStartDate = StartDate.Value,
+				SaleDate = StartDate.Value,
+				Suffix = organization.Suffix
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
+			{
+				var orders = _orderRepository.GetOrdersToExport1c8(
+					unitOfWork,
+					_orderSettings,
+					Export1cMode.RetailReport,
+					StartDate.Value,
+					EndDate.Value,
+					organization.Id);
+
+				retailSalesReport.Generate(orders);
+			}
+
+			retailSalesReport.SaveReport(_dialogSettingsFactory, _fileDialogService);
 		}
 
 		private void ExportIPTinkoff()
@@ -110,8 +162,8 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		{
 			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 			int? organizationId = null;
-			
-			switch (mode)
+
+			switch(mode)
 			{
 				case Export1cMode.BuhgalteriaOOONew:
 					organizationId = (SelectedCashlessOrganization)?.Id;
@@ -135,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 				ExportInProgress = true;
 
 				_gtkTabsOpener.RunLongOperation(exportOperation.Run, "", 1, false);
-				
+
 				ExportData = exportOperation.Result;
 
 				ExportInProgress = false;
@@ -183,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			get => _selectedRetailOrganization;
 			set => SetField(ref _selectedRetailOrganization, value);
 		}
-		
+
 		[PropertyChangedAlso(nameof(CanExport))]
 		public bool ExportInProgress
 		{
@@ -196,6 +248,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		public DelegateCommand ExportIPTinkoffCommand { get; set; }
 		public DelegateCommand ExportBookkeepingNewCommand { get; set; }
 		public DelegateCommand SaveFileCommand { get; set; }
+		public DelegateCommand RetailReportCommand { get; set; }
 
 		public bool CanExport =>
 			!ExportInProgress
