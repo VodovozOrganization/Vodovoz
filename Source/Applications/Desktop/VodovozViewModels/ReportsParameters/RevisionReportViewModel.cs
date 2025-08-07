@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using fyiReporting.RDL;
 using Mailganer.Api.Client;
-using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using QS.Commands;
@@ -16,10 +15,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
-using System.Threading.Tasks;
+using System.Reflection;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ReportsParameters
@@ -38,11 +38,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private Counterparty _counterparty;
 		private IList<Email> _emails;
 		private Email _selectedEmail;
+		private Dictionary<string, object> _parameters;
+		private string _source;
+		private IncludeExludeFiltersViewModel _filterViewModel;
 
 		private readonly IInteractiveService _interactiveService;
-		private readonly MailganerClientV2 _mailganerClient;
 		private readonly IEmailSettings _emailSettings;
-		private readonly IRequestClient<SendEmailMessage> _client;
 		private readonly EmailDirectSender _emailDirectSender;
 
 		public RevisionReportViewModel(
@@ -63,15 +64,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			RdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_client = client ?? throw new ArgumentNullException(nameof(client));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
+			_parameters = new Dictionary<string, object>();
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
 			{
-				this.LoadReport();
+				GenerateReport();
 				ReportIsLoaded = true;
 			});
 
@@ -191,6 +191,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "EndDate", EndDate },
 			{ "CounterpartyID", Counterparty?.Id }
 		};
+		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
+		public override ReportInfo ReportInfo
+		{
+			get
+			{
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
+				return reportInfo;
+			}
+		}
 
 		public void Dispose()
 		{
@@ -201,7 +212,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 		private async void SendByEmail()
 		{
-			/*if(Emails.Count == 0 || Emails == null)
+			if(Emails.Count == 0 || Emails == null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
 				return;
@@ -218,17 +229,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
 				return;
-			}*/
-			var t = ReportInfo.Source;
-			var z = GenerateReport();
-			var g = z;
-
+			}
 			try
 			{
-				// 1. Генерация документа (пример для PDF)
-				//var reportInfo = ReportInfoFactory.CreateReportInfo(Parameters);
-				//var documentBytes = ReportExporter.ExportToPdf(reportInfo); // Реализуйте этот метод согласно вашей логике
-				// 2. Формирование EmailMessage
+				//var reportPdf = GenerateReport(GetReportSource());
+				var reportPdf = GenerateReport(ReportInfo.Source);
+
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 					.List<object>()
@@ -265,14 +271,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						new Mailjet.Api.Abstractions.EmailAttachment
 						{
 							Filename = "АктСверки.pdf",
-							//Base64Content = Convert.ToBase64String(documentBytes)
-							Base64Content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("PDF STUB"))
+							Base64Content = Convert.ToBase64String(reportPdf)
 						}
 					}
 				};
 
-				// 3. Отправка через MailganerClientV2
-				await _emailDirectSender.SendAsync(emailMessage);
+				_emailDirectSender.SendAsync(emailMessage);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -282,25 +286,66 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		private byte[] GenerateReport()
+		private void GenerateReport()
 		{
-			// Получаем XML отчёта из памяти
-			string reportXml = ReportInfo.Source;
+			if(StartDate == null || StartDate == default(DateTime))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+			}
 
+			//_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters.Add("StartDate", StartDate);
+			_parameters.Add("EndDate", EndDate);
+			_parameters.Add("creation_date", DateTime.Now);
+			_parameters.Add("CounterpartyID", Counterparty?.Id);
+
+			_source = GetReportSource();
+
+			LoadReport();
+		}
+
+		private string GetReportSource()
+		{
+			var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var fileName = "Revision.rdl";
+			var path = Path.Combine(root, "Reports", "Client", fileName);
+
+			return ModifyReport(path);
+		}
+
+		private string ModifyReport(string path)
+		{
+
+			using(ReportController reportController = new ReportController(path))
+			using(var reportStream = new MemoryStream())
+			{
+				reportController.Modify();
+				reportController.Save(reportStream);
+
+				using(var reader = new StreamReader(reportStream))
+				{
+					reportStream.Position = 0;
+					var outputSource = reader.ReadToEnd();
+					return outputSource;
+				}
+			}
+		}
+
+		private byte[] GenerateReport(string reportXml)
+		{
 			if(string.IsNullOrWhiteSpace(reportXml))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, "Отсутствует XML отчёта для генерации.");
 				return null;
 			}
 
-			// Создаём объект Report
 			var rdlParser = new RDLParser(reportXml);
 			var report = rdlParser.Parse();
 
 			// Устанавливаем параметры (если нужно)
-			report.RunGetData(Parameters); // Parameters — ваш словарь параметров
+			var preparedParameters = PrepareReportParameters(Parameters);
+			report.RunGetData(preparedParameters);
 
-			// Генерируем PDF в память
 			using(var msGen = new MemoryStreamGen())
 			{
 				report.RunRender(msGen, OutputPresentationType.PDF);
@@ -310,53 +355,26 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return pdfBytes;
 			}
 		}
-		/*public async Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode)
+		private Dictionary<string, object> PrepareReportParameters(Dictionary<string, object> parameters)
 		{
-			var instanceId = Convert.ToInt32(uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
-			Counterparty client = null;
-
-			if(secureCode.CounterpartyId.HasValue)
+			var result = new Dictionary<string, object>();
+			foreach(var kvp in parameters)
 			{
-				client = uow.GetById<Counterparty>(secureCode.CounterpartyId.Value);
+				if(kvp.Value is DateTime dt)
+				{
+					// Преобразуем дату в нужный формат
+					result[kvp.Key] = dt.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
+				}
+				else if(kvp.Value is DateTime ndt)
+				{
+					result[kvp.Key] = ndt.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
+				}
+				else
+				{
+					result[kvp.Key] = kvp.Value;
+				}
 			}
-
-			var sendEmailMessage = new SendEmailMessage
-			{
-				From = new EmailContact
-				{
-					Name = _emailSettings.DocumentEmailSenderName,
-					Email = _emailSettings.DocumentEmailSenderAddress
-				},
-
-				To = new List<EmailContact>
-				{
-					new EmailContact
-					{
-						Name = client != null ? client.FullName : "Уважаемый пользователь",
-						Email = secureCode.Target
-					}
-				},
-
-				Subject = "Код авторизации",
-				HTMLPart = null,
-				//HTMLPart = SecureCodeEmailHtmlTemplate.GetTemplate(
-				//	secureCode.Code, secureCode.Target, _secureCodeSettings.CodeLifetimeSeconds / 60),
-				Payload = new EmailPayload
-				{
-					Id = 0,
-					Trackable = false,
-					InstanceId = instanceId
-				},
-
-				Attachments = new List<Mailjet.Api.Abstractions.EmailAttachment>()
-			};
-
-			var response = await _client.GetResponse<SentEmailResponse>(sendEmailMessage);
-			return response.Message.Sent;
-		}*/
+			return result;
+		}
 	}
 }
