@@ -2257,7 +2257,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var addedTrueMarkCodes = GetAddedRouteListItemTrueMarkProductCodesByOrderId(uow, orderId)
 				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted)
 				.Select(x => x.ResultCode)
-				.GroupBy(x => x.GTIN)
+				.GroupBy(x => x.Gtin)
 				.ToDictionary(x => x.Key, x => x);
 
 			foreach(var gtinsItemCount in accountableInTrueMarkGtinItemsCount)

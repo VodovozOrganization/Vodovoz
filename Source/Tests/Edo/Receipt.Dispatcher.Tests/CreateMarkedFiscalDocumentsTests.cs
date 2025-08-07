@@ -255,10 +255,10 @@ namespace Receipt.Dispatcher.Tests
 			Assert.All(
 				receiptEdoTask.Items
 					.Where(x => x.ProductCode.SourceCode != null)
-					.Select(x => x.ProductCode.SourceCode.GTIN),
+					.Select(x => x.ProductCode.SourceCode.Gtin),
 				x => Assert
 					.DoesNotContain(x, receiptEdoTask.FiscalDocuments
-					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.GTIN))));
+					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.Gtin))));
 		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
@@ -365,7 +365,7 @@ namespace Receipt.Dispatcher.Tests
 
 					if(groupCode.GTIN == null)
 					{
-						groupCode.GTIN = currentWaterIdentificationCode.GTIN;
+						groupCode.GTIN = currentWaterIdentificationCode.Gtin;
 					}
 
 					groupCode.RawCode ??= $"{groupCode.GTIN}Raw{groupCodesCounter++}";
@@ -428,7 +428,7 @@ namespace Receipt.Dispatcher.Tests
 			return new TrueMarkWaterIdentificationCode
 			{
 				Id = id,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = CreateNewGtinSerial(id),
 				CheckCode = CreateNewGtinCheckCode(id),
 				IsInvalid = isInvalid
