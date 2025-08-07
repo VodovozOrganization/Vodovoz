@@ -73,48 +73,64 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				return;
 			}
 
-			foreach(var routeListItemId in notProcessedCodesRouteListAddressIds)
+			foreach(var routeListAddressId in notProcessedCodesRouteListAddressIds)
 			{
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
+				try
 				{
-					var scannedCodesData = await _edoDocflowRepository
-						.GetNotProcessedDriversScannedCodesDataByRouteListItemId(uow, routeListItemId, cancellationToken);
-
-					if(!scannedCodesData.Any())
-					{
-						_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки для адреса МЛ {RouteListItemId}", routeListItemId);
-						return;
-					}
-
-					_logger.LogInformation("Обработка отсканированных кодов ЧЗ адреса МЛ {RouteListItemId} количество: {Count}",
-						routeListItemId,
-						scannedCodesData.Count());
-
-					var routeListAddress = _routeListItemRepository.GetFirstOrDefault(uow, x => x.Id == routeListItemId);
-
-					if(routeListAddress is null)
-					{
-						_logger.LogWarning("Не найден адрес МЛ с идентификатором {RouteListItemId}", routeListItemId);
-						continue;
-					}
-
-					await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, routeListAddress, cancellationToken);
-
-					var newEdoRequests =
-						await CreateEdoRequests(uow, routeListAddress, scannedCodesData.Select(x => x.DriversScannedCode), cancellationToken);
-
-					if(uow.HasChanges)
-					{
-						await uow.CommitAsync(cancellationToken);
-					}
-
-					foreach(var newEdoRequest in newEdoRequests)
-					{
-						await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
-					}
-
-					_logger.LogInformation("Обработка отсканированных кодов ЧЗ завершена");
+					await ProcessDriverScannedCodesByRouteListAddressId(routeListAddressId, cancellationToken);
 				}
+				catch(Exception ex)
+				{
+					_logger.LogError(
+						ex,
+						"Ошибка при обработке отсканированных кодов ЧЗ для адреса МЛ {RouteListAddressId}. Exception: {ExceptionMessage}",
+						routeListAddressId,
+						ex.Message);
+				}
+			}
+		}
+
+		private async Task ProcessDriverScannedCodesByRouteListAddressId(int routeListAddressId, CancellationToken cancellationToken)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
+			{
+				var scannedCodesData = await _edoDocflowRepository
+					.GetNotProcessedDriversScannedCodesDataByRouteListItemId(uow, routeListAddressId, cancellationToken);
+
+				if(!scannedCodesData.Any())
+				{
+					_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки для адреса МЛ {RouteListItemId}", routeListAddressId);
+					return;
+				}
+
+				_logger.LogInformation("Обработка отсканированных кодов ЧЗ адреса МЛ {RouteListItemId} количество: {Count}",
+					routeListAddressId,
+					scannedCodesData.Count());
+
+				var routeListAddress = _routeListItemRepository.GetFirstOrDefault(uow, x => x.Id == routeListAddressId);
+
+				if(routeListAddress is null)
+				{
+					_logger.LogWarning("Не найден адрес МЛ с идентификатором {RouteListItemId}", routeListAddressId);
+					return;
+				}
+
+				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, routeListAddress, cancellationToken);
+
+				var newEdoRequests =
+					await CreateEdoRequests(uow, routeListAddress, scannedCodesData.Select(x => x.DriversScannedCode), cancellationToken);
+
+				if(uow.HasChanges)
+				{
+					await uow.CommitAsync(cancellationToken);
+				}
+
+				foreach(var newEdoRequest in newEdoRequests)
+				{
+					await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
+				}
+
+				_logger.LogInformation("Обработка отсканированных кодов ЧЗ завершена");
 			}
 		}
 
