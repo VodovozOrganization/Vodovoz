@@ -65,15 +65,15 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 		public async Task ProcessScannedCodesAsync(CancellationToken cancellationToken)
 		{
-			var notProcessedCodesRouteListItemIds = await GetNotProcessedDriversScannedCodesRouteListItemIds(cancellationToken);
+			var notProcessedCodesRouteListAddressIds = await GetNotProcessedDriversScannedCodesRouteListAddressIds(cancellationToken);
 
-			if(!notProcessedCodesRouteListItemIds.Any())
+			if(!notProcessedCodesRouteListAddressIds.Any())
 			{
 				_logger.LogInformation("Нет отсканированных кодов ЧЗ для обработки. Ожидаем следующего запуска.");
 				return;
 			}
 
-			foreach(var routeListItemId in notProcessedCodesRouteListItemIds)
+			foreach(var routeListItemId in notProcessedCodesRouteListAddressIds)
 			{
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
 				{
@@ -98,16 +98,6 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						continue;
 					}
 
-					var order = _orderRepository.GetOrderEntity(uow, routeListAddress.Order.Id);
-
-					if(order is null)
-					{
-						_logger.LogWarning("Не найден заказ с идентификатором {OrderId} для адреса МЛ {RouteListItemId}",
-							routeListAddress.Order.Id,
-							routeListItemId);
-						continue;
-					}
-
 					await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, routeListAddress, cancellationToken);
 
 					var newEdoRequests =
@@ -128,11 +118,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 		}
 
-		private async Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListItemIds(CancellationToken cancellationToken)
+		private async Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(CancellationToken cancellationToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ScannedCodesDelayedProcessingService)))
 			{
-				return await _edoDocflowRepository.GetNotProcessedDriversScannedCodesRouteListItemIds(uow, cancellationToken);
+				return await _edoDocflowRepository.GetNotProcessedDriversScannedCodesRouteListAddressIds(uow, cancellationToken);
 			}
 		}
 

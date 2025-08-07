@@ -49,6 +49,6 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список адресов МЛ</returns>
-		Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListItemIds(IUnitOfWork uow, CancellationToken cancellationToken);
+		Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(IUnitOfWork uow, CancellationToken cancellationToken);
 	}
 }
