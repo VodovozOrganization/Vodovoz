@@ -90,7 +90,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						routeListItemId,
 						scannedCodesData.Count());
 
-					var routeListAddress = _routeListItemRepository.Get(uow, x => x.Id == routeListItemId).FirstOrDefault();
+					var routeListAddress = _routeListItemRepository.GetFirstOrDefault(uow, x => x.Id == routeListItemId);
 
 					if(routeListAddress is null)
 					{
