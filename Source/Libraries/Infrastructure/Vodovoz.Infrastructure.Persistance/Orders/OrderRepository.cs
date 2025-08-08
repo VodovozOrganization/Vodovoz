@@ -165,6 +165,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				orderSettings.PaymentByCardFromMobileAppId
 			};
 
+			var notRetailPadeTypes = new[]
+			{
+				PaymentType.Barter,
+				PaymentType.Cashless,
+				PaymentType.ContractDocumentation
+			};
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
@@ -206,6 +213,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				case Export1cMode.RetailReport:
+					AddWithCashReceipOnlyRestrictionsToOrderQuery(query, orderAlias);
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.WhereRestrictionOn(() => orderAlias.PaymentType).Not.IsIn(notRetailPadeTypes);
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					CashReceipt cashReceiptAlias = null;
@@ -262,6 +275,28 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			query.TransformUsing(Transformers.DistinctRootEntity);
 
 			return query.List();
+		}
+
+		private void AddWithCashReceipOnlyRestrictionsToOrderQuery(IQueryOver<VodovozOrder, VodovozOrder> query, VodovozOrder orderAlias)
+		{
+			var sendedCashReceiptStatuses = new[]
+			{
+				FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed, FiscalDocumentStatus.Completed
+			};
+			
+			EdoFiscalDocument edoFiscalDocumentAlias = null;
+			EdoTask edoTaskAlias = null;
+			OrderEdoRequest edoRequestAlias = null;
+					
+			var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+				.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+				.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+				.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+				.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+				.IsIn(sendedCashReceiptStatuses)
+				.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+			
+				query.WithSubquery.WhereExists(subQueryWithCashReceipts);
 		}
 
 		public IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

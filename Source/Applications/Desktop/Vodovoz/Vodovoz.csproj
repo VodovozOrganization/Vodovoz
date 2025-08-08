@@ -667,7 +667,6 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -826,8 +825,6 @@
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\CounterpartyContractDlg.cs" />
@@ -2073,6 +2070,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
     <Compile Include="Views\Logistic\SelfDeliveringOrderEditView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
+    <Compile Include="Views\Logistic\ExportTo1CView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
