@@ -1832,5 +1832,19 @@ FROM
 				.Select(Projections.Sum<RouteList>(routeList => routeList.ConfirmedDistance))
 				.SingleOrDefault<decimal>();
 		}
+
+		public IEnumerable<int> GetCompletedOrdersInTodayRouteListsByCarId(IUnitOfWork uow, int carId)
+		{
+			var query =
+				from routeList in uow.Session.Query<RouteList>()
+				join routeListAddress in uow.Session.Query<RouteListItem>() on routeList.Id equals routeListAddress.RouteList.Id
+				where
+					routeList.Date == DateTime.Today
+					&& routeList.Car.Id == carId
+					&& routeListAddress.Status == RouteListItemStatus.Completed
+				select routeListAddress.Order.Id;
+
+			return query.ToList();
+		}
 	}
 }
