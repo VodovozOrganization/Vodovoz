@@ -3840,7 +3840,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13pt</Height>
         <Width>13pt</Width>
-        <Value>=Iif(First(Fields!vat.Value, "Goods")&gt;1, 1, 2)</Value>
+        <Value>1</Value>
         <ZIndex>0</ZIndex>
         <Left>42.1pt</Left>
         <Top>62.7pt</Top>
