@@ -338,7 +338,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				var generalBillParameters = new Dictionary<string, object>
 				{
-					{ "order_id", countOfOrders }
+					{ "order_id", string.Join(",", countOfOrders) }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);
