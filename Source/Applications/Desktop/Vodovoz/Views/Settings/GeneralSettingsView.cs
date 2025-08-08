@@ -10,6 +10,7 @@ using Gtk;
 using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.Control;
+using ReactiveUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -212,13 +213,13 @@ namespace Vodovoz.Views.Settings
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			buttonCalculatePaymentDeferent.Clicked += OnButtonCalculatePaymentDeferentClicked;
+			buttonCalculatePaymentDeferent.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
 			
 			yspinbuttonDefaultPaymentDeferent.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			buttonSaveDefaultPaymentDeferent.Clicked += OnButtonSaveDefaultPaymentDefermentClicked;
+			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
 		}
 		
 		private void ConfigureEmployeesFixedPrices()
@@ -635,22 +636,8 @@ namespace Vodovoz.Views.Settings
 				return;
 			}
 		}
-
-		private void OnButtonCalculatePaymentDeferentClicked(object sender, EventArgs e)
-		{
-			ViewModel.CalculatePaymentDefermentCommand.Execute();
-		}
-
-		private void OnButtonSaveDefaultPaymentDefermentClicked(object sender, EventArgs e)
-		{
-			ViewModel.SaveDefaultPaymentDefermentCommand.Execute();
-		}
-		
 		public override void Destroy()
 		{
-			buttonCalculatePaymentDeferent.Clicked -= OnButtonCalculatePaymentDeferentClicked;
-			buttonSaveDefaultPaymentDeferent.Clicked -= OnButtonSaveDefaultPaymentDefermentClicked;
-			
 			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
 			base.Destroy();
 		}
