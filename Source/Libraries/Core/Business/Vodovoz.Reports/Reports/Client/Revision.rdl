@@ -14,37 +14,70 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-          SELECT
-            * 
+          SELECT *
           FROM (
-            SELECT 
-              0 as num, CONCAT('Продажа (', mmo.order_id , ' от ', mmo.operation_time, ')' ) as document, 
-                  IFNULL(mmo.debt, 0) as debt,
-                  0 as deposit,
-                  IFNULL(mmo.money, 0) as money, 
-                  mmo.operation_time as date
-            FROM
-                money_movement_operations mmo
-            WHERE mmo.counterparty_id = @counterparty_id
-              UNION ALL
-              SELECT 
-                p.payment_num as num, 
-                  CONCAT('Оплата (', p.payment_num , ' от ', cmo.operation_time, ')') as document, 
-                  0 as debt, 
-                  pi.sum as deposit, 
-                  0 as money,
-                  cmo.operation_time as date
-            FROM 
-                cashless_movement_operations cmo 
-              INNER JOIN 
-                payments_from_bank_client p ON p.cashless_movement_operation_id = cmo.id
-              LEFT JOIN 
-                payment_items pi ON p.id = pi.payment_id 
-              WHERE 
-                cmo.counterparty_id = @counterparty_id) as t
+          SELECT # Не оплаченные и частично оплаченные заказы
+            0 as num,
+            CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
+              (
+                  (
+                    SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
+                      FROM order_items oi
+                      WHERE oi.order_id = o.id
+                  )
+                  -
+                  (
+                      SELECT IFNULL(sum(cmo.expense), 0)
+                      FROM payment_items pi
+                          INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                      WHERE pi.order_id = o.id
+                        AND cmo.cashless_movement_operation_status != 'Cancelled')
+                  ) as debt,
+            0 as deposit,
+              0 as money,
+              o.delivery_date AS date
+          FROM orders o
+          WHERE
+            o.client_id = @counterparty_id
+              AND o.order_payment_status != 'Paid'
+              AND o.payment_type = 'Cashless'
+          HAVING
+            debt &gt; 0
+          UNION ALL
+          SELECT # OK. Оплаченные заказы
+              p.payment_num as num,
+            CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
+            pi.sum as debt,
+              0 as deposit,
+              0 as money,
+              o.delivery_date as date
+          FROM 
+            orders o
+          INNER JOIN 
+            payment_items pi ON o.id = pi.order_id
+          INNER JOIN 
+            payments_from_bank_client p ON pi.payment_id = p.id
+          WHERE
+            o.client_id = @counterparty_id
+            AND pi.payment_item_status != 'Cancelled'
+          UNION ALL
+          SELECT # Депозит, кредит
+            p.payment_num as num,
+            CONCAT('Оплата (', p.payment_num , ' от ', IFNULL(cmo.operation_time, p.payment_date) , ')') as document, 
+            0 as debt,
+            cmo.income as deposit,
+            0 as money,
+            IFNULL(cmo.operation_time, p.payment_date) as date
+          FROM payments_from_bank_client p
+            LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+            INNER JOIN organizations org ON p.organization_id = org.id
+          WHERE
+                  p.counterparty_id = @counterparty_id) as t
           WHERE 
-            t.`date` &gt;= @date_start AND t.`date` &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
-          ORDER BY 
+            t.`date` &gt;= @date_start
+          AND 
+            t.`date`  &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+          ORDER BY
             t.`date`
         </CommandText>
         <QueryParameters>
@@ -909,14 +942,14 @@ Fields!debt.Value=0, "", Fields!debt.Value
         <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
 + " "+
 Iif(
-First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')&gt;0
+First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
 ,
 First(Fields!org_name,'Organization')
 ,
 First(Fields!counterparty_name,'Counterparty')
 )
 + " " +
-Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations'))
+Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations'))
 +" руб." + "\n"+
 "( "+
 First({total_string}, 'Initial')
