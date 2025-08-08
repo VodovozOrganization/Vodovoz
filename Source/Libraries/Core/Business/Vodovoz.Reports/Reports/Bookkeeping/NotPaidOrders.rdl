@@ -38,10 +38,10 @@
             <Width>52.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.6pt</Width>
+            <Width>50.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>164.8pt</Width>
+            <Width>134.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>53.5pt</Width>
@@ -50,7 +50,7 @@
             <Width>120pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.6pt</Width>
+            <Width>57.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>51.0pt</Width>
@@ -66,6 +66,9 @@
           </TableColumn>
           <TableColumn>
             <Width>42.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+              <Width>42.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -116,7 +119,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>12</ColSpan>
+                  <ColSpan>13</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -190,7 +193,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -429,6 +432,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                                  <ReportItems>
+                                    <Textbox Name="Textbox_DaysWithoutPayment_Header">
+                                      <Value>Дней без оплаты</Value>
+                                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                                        <TextAlign>Center</TextAlign>
+                                        <BorderStyle>
+                                          <Default>Solid</Default>
+                                        </BorderStyle>
+                                        <FontWeight>Bold</FontWeight>
+                                        <BorderColor />
+                                        <BorderWidth />
+                                        <VerticalAlign>Middle</VerticalAlign>
+                                      </Style>
+                                    </Textbox>
+                                  </ReportItems>
+                                </TableCell>
               </TableCells>
             </TableRow>
             <TableRow>
@@ -702,6 +722,28 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
+                        <PaddingRight>1pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                    
+                  </ReportItems>
+                </TableCell>
+                
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox_Total">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>0</Format>
                         <PaddingRight>1pt</PaddingRight>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -1009,6 +1051,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                    <ReportItems>
+                        <Textbox Name="Textbox_DaysWithoutPayment_Data">
+                            <Value>=Fields!days_without_payment.Value</Value>
+                            <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                                <BorderStyle>
+                                    <Default>Solid</Default>
+                                </BorderStyle>
+                                <BorderColor />
+                                <BorderWidth />
+                                <TextAlign>Right</TextAlign>
+                                <VerticalAlign>Middle</VerticalAlign>
+                                <PaddingTop>0pt</PaddingTop>
+                                <PaddingBottom>0pt</PaddingBottom>
+                                <FontSize>8pt</FontSize>
+                                <PaddingRight>1pt</PaddingRight>
+                                <Format>0</Format>
+                                <PaddingLeft>0pt</PaddingLeft>
+                            </Style>
+                        </Textbox>
+                    </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -1082,7 +1146,8 @@
         0
     ) AS partial_order_sum,
     c.delay_days_for_buyers,
-    DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact
+    DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact,
+    DATEDIFF(NOW(), o.delivery_date) AS days_without_payment
 FROM orders o
 INNER JOIN counterparty c ON o.client_id = c.id
 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
@@ -1250,6 +1315,10 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
         </Field>
         <Field Name="delay_days_fact">
           <DataField>delay_days_fact</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="days_without_payment">
+          <DataField>days_without_payment</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>

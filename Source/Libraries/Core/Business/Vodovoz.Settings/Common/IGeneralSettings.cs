@@ -61,5 +61,9 @@ namespace Vodovoz.Settings.Common
 		int FastDeliveryMaximumPermissibleLateMinutes { get; }
 		void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value);
 		void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName);
+		
+		int DefaultPaymentDeferment { get; }
+		void SaveDefaultPaymentDeferment(int defaultPaymentDeferment);
+		
 	}
 }

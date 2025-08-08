@@ -29,44 +29,51 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>28.1pt</Width>
+            <Width>20.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.1pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>99.6pt</Width>
+            <Width>80.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.3pt</Width>
+            <Width>80.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.3pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.6pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.4pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.5pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.1pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.7pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.3pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.9pt</Width>
+            <Width>35.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.5pt</Width>
+            <Width>35.3pt</Width>
           </TableColumn>
+          <TableColumn>
+            <Width>40.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>20.5pt</Width>
+          </TableColumn>
+          
         </TableColumns>
         <Header>
           <TableRows>
@@ -94,7 +101,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>13</ColSpan>
+                  <ColSpan>15</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -146,7 +153,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>9</ColSpan>
+                  <ColSpan>11</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -314,6 +321,42 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="DebtorDebtHeader">
+                      <Value>Дебиторская задолженность</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="OverdueDebtorDebtHeader">
+                      <Value>Просроченная дебиторская задолженность</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>Отсрочка контра-гента</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -391,7 +434,7 @@
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>15pt</Height>
+              <Height>30pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -566,6 +609,50 @@
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>=Sum({not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TotalDebtorDebt">
+                      <Value>=Sum({debtor_debt})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TotalOverdueDebtorDebt">
+                      <Value>=Sum({overdue_debtor_debt})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -873,6 +960,50 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="DebtorDebtValue">
+                      <Value>={debtor_debt}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="OverdueDebtorDebtValue">
+                      <Value>={overdue_debtor_debt}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>={delay_days_for_buyers}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1040,8 +1171,60 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
+        -- Просроченная дебиторская задолженность (сумма долгов с превышением отсрочки)
+                IFNULL(
+                    ROUND(
+                        SUM(
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
+                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                 FROM order_items oi
+                                 WHERE oi.order_id = o.id)
+                            ELSE 0 END),
+                        2),
+                    0
+                ) AS overdue_debtor_debt,
+                -- Дебиторская задолженность (непросроченная, т.е. общий долг минус просроченная)
+                (IFNULL(
+                    ROUND(
+                           SUM(
+                               (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                   FROM order_items oi
+                                   WHERE oi.order_id = o.id)),
+                           2),
+                    0
+                ) - (
+                    (SELECT IFNULL(SUM(cmo.income), 0)
+                        FROM cashless_movement_operations cmo
+                        WHERE cmo.counterparty_id = c.id
+                          AND cmo.cashless_movement_operation_status != 'Cancelled')
+                    -
+                    (SELECT IFNULL(SUM(pi.sum), 0)
+                        FROM payment_items pi
+                        INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
+                        WHERE pfbc.counterparty_id = c.id
+                          AND pi.payment_item_status != 'Cancelled')
+                ) - IFNULL(
+                    SUM(
+                    (SELECT SUM(cmo.expense)
+                        FROM payment_items pi
+                        INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                        WHERE pi.order_id = o.id
+                          AND cmo.cashless_movement_operation_status != 'Cancelled')),
+                    0
+                )) - 
+                IFNULL(
+                    ROUND(
+                        SUM(
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
+                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                 FROM order_items oi
+                                 WHERE oi.order_id = o.id)
+                            ELSE 0 END),
+                        2),
+                    0
+                ) AS debtor_debt,
         c.delay_days_for_buyers,
-        MAX(DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact,
+        DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Краткосрочный"
@@ -1212,6 +1395,14 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
         </Field>
         <Field Name="writeoffs_sum">
           <DataField>writeoffs_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="debtor_debt">
+          <DataField>debtor_debt</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="overdue_debtor_debt">
+          <DataField>overdue_debtor_debt</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
