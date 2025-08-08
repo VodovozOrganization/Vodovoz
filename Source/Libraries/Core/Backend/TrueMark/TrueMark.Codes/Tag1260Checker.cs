@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Grpc.Core.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -42,8 +43,6 @@ namespace TrueMark.Library
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			_httpClient.DefaultRequestHeaders.Add("X-API-KEY", headerApiKey.ToString());
-			//_httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-			//_httpClient.DefaultRequestHeaders.Add("Keep-Alive", "180");
 		}
 
 		private async Task<string> GetCdnAsync(CancellationToken cancellationToken)

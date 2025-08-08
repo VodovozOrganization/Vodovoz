@@ -379,7 +379,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_logger.LogInformation("Обработка кода {RawCode}", codeToCheck.RawCode);
 
 			var code = ParseRawCode(codeToCheck.RawCode, out var parsedCode);
-			var gtin = parsedCode?.GTIN;
+			var gtin = parsedCode?.Gtin;
 
 			CurrentCodeInProcess = code;
 
@@ -640,11 +640,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						},
 						waterCode => (
 							null,
-							waterCode.GTIN,
+							waterCode.Gtin,
 							ReplaceCodeSpecSymbols(waterCode.FullCode),
 							waterCode.IdentificationCode,
-							GetNomenclatureNameByGtin(waterCode.GTIN),
-							IsOrderContainsGtin(waterCode.GTIN)));
+							GetNomenclatureNameByGtin(waterCode.Gtin),
+							IsOrderContainsGtin(waterCode.Gtin)));
 
 			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeInfo;
 
@@ -704,14 +704,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					var rowNumber = 0;
 					foreach(var trueMarkWaterIdentificationCode in childrenUnitCodeList)
 					{
-						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.GTIN);
+						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.Gtin);
 
 						var childNode = CodeScanRows.FirstOrDefault(x =>
 							                x.RawCode.Contains(trueMarkWaterIdentificationCode.RawCode) || trueMarkWaterIdentificationCode.RawCode.Contains(x.RawCode))
 						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
 						childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
-						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.GTIN);
+						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.Gtin);
 						childNode.Parent = rootNode;
 						childNode.HasInOrder = hasInOrder;
 						childNode.IsTrueMarkValid = isValid;
@@ -848,7 +848,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			var documentItem = _selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
 				.FirstOrDefault(s =>
-					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.GTIN)
+					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.Gtin)
 					&& s.TrueMarkProductCodes.Count < s.Amount
 					&& s.TrueMarkProductCodes.All(c =>
 						!c.SourceCode.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(c.SourceCode.RawCode)));
@@ -864,7 +864,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 
 			var code = ParseRawCode(rawCode, out var parsedCode);
-			var gtin = parsedCode?.GTIN;
+			var gtin = parsedCode?.Gtin;
 
 			CodeScanRow alreadyScannedNode;
 
@@ -897,7 +897,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				_logger.LogInformation("Код {RawCode} успешно распарсен", rawCode);
 
-				gtin = parsedCode.GTIN;
+				gtin = parsedCode.Gtin;
 
 				var isGtinInOrder = _gtinsInOrder.Contains(gtin);
 

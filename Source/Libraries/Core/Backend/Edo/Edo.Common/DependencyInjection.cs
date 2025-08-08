@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TrueMark.Codes.Pool;
+using TrueMark.Library;
 using TrueMarkApi.Client;
 
 namespace Edo.Common
