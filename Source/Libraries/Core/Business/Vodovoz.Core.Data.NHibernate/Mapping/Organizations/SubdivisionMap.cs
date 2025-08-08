@@ -14,6 +14,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.FinancialResponsibilityCenterId).Column("financial_responsibility_center_id");
 			Map(x => x.ChiefId).Column("chief_id");
 			Map(x => x.PacsTimeManagementEnabled).Column("pacs_time_management_enabled");
+			
+			HasMany(x => x.CashSubdivisionSortingSettings)
+				.KeyColumn("cash_subdivision_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 		}
 	}
 }
