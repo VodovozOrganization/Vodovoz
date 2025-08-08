@@ -247,7 +247,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					});
 				}
 			}
-
 			// 1. Получать список неоплаченных счетов
 			if(SendBillsForNotPaidOrder)
 			{
@@ -261,6 +260,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					{ "special_contract_number", "" },
 					{ "hide_delivery_point", "false" }
 				};
+
 				var billPdf = GenerateReport("", billParameters);
 				if(billPdf != null)
 				{
@@ -307,14 +307,15 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Trackable = false,
 						InstanceId = instanceId
 					},
-					Attachments = new[]
+					/*Attachments = new[]
 					{
 						new EmailAttachment
 						{
 							Filename = "АктСверки.pdf",
 							Base64Content = Convert.ToBase64String(revisionReportPdf)
 						}
-					}
+					}*/
+					Attachments = attachments
 				};
 
 				_emailDirectSender.SendAsync(emailMessage);
