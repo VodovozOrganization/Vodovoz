@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Project.Services.FileDialog;
 using QSProjectsLib;
+using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Extensions;
@@ -18,6 +19,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 	[Appellative(Nominative = "Отчёт о розничных продажах для 1С")]
 	public class RetailSalesReportFor1C : IClosedXmlReport
 	{
+		/// <summary>
+		/// Итоговая сумма
+		/// </summary>
 		private decimal TotalSum => Rows.Sum(x => x.Sum);
 		/// <summary>
 		/// Номер продажи
@@ -33,16 +37,26 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// Дата продажи
 		/// </summary>
 		public DateTime SaleDate { get; set; }
-		
+
 		/// <summary>
 		/// Суффикс организации
 		/// </summary>
-		public string Suffix { get; set; }
+		public string Suffix => OrganizationVersionForTitle.Organization.Suffix;
 		
 		/// <summary>
-		/// Организации
+		/// Версия организации
 		/// </summary>
-		public Organization Organization { get; set; }
+		public OrganizationVersion OrganizationVersionForTitle { get; set; }
+		
+		/// <summary>
+		/// Организация
+		/// </summary>
+		public Organization OrganizationForTitle { get; set; }
+		
+		/// <summary>
+		/// Телефон
+		/// </summary>
+		public string Phone { get; set; }
 
 		/// <summary>
 		/// Итоговая информация
@@ -54,25 +68,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// </summary>
 		public string TotalSumInWords =>  RusCurrency.Str(TotalSum);
 		
-		
 		/// <summary>
-		/// Дата начала
+		/// Поставщик
 		/// </summary>
-		public DateTime OrganizationVersionStartDate { get; set; }
-
-		public string OrganizationDetails
-		{
-			get
-			{
-				var organizationVersion = Organization.OrganizationVersions
-					.Where(x => x.StartDate < OrganizationVersionStartDate)
-					.OrderByDescending(x => x.StartDate)
-					.FirstOrDefault();
-
-				return $"{Organization.Name}, ИНН {Organization.INN},  {organizationVersion?.JurAddress}, тел.: {Organization.Phones.FirstOrDefault()?.Number}";
-			}
-		}
-
+		public string Supplier => $"{OrganizationForTitle.Name}, ИНН {OrganizationForTitle.INN}, " +
+			$"{OrganizationVersionForTitle.JurAddress}, тел.: {Phone}";
+		
 		/// <summary>
 		/// Строки отчёта
 		/// </summary>
@@ -104,16 +105,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 			}
 			
 			Rows = rowItems;
-			
-			// Rows = rowItems.GroupBy(x=>x.Nomenclature).Select(g=> new RetailSalesReportFor1CRow
-			// {
-			// 	Nomenclature = g.Key,
-			// 	Amount = g.Sum(n => n.Amount),
-			// 	Code1c = g.First(n => n.Code1c),
-			// 	Price = g.Sum(n => n.Price),
-			// 	Sum = g.Sum(n => n.Sum),
-			// 	
-			// }).ToList()
 		}
 		
 		public void SaveReport(IDialogSettingsFactory dialogSettingsFactory, IFileDialogService fileDialogService)
@@ -127,5 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 				this.RenderTemplate().Export(saveDialogResult.Path);
 			}
 		}
+		
+		
 	}
 }

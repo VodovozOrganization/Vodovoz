@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		public decimal Amount { get; set; }
 		
 		/// <summary>
-		/// Количество
+		/// Единица измерения
 		/// </summary>
 		public string Mesure { get; set; }
 

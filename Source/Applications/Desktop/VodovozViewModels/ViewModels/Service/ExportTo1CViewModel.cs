@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using Autofac;
 using ExportTo1c.Library;
 using ExportTo1c.Library.ExportNodes;
@@ -16,6 +16,9 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Logistic.Organizations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Presentation.ViewModels.Factories;
@@ -23,6 +26,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Service
 {
@@ -34,6 +38,8 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
+		private readonly IGenericRepository<Organization> _organizationRepository;
+		private readonly IGenericRepository<CashPaymentTypeOrganizationSettings> _cashPaymentTypeOrganizationSettingsRepository;
 		private Organization _selectedCashlessOrganization;
 		private Organization _selectedRetailOrganization;
 		private DateTime? _endDate;
@@ -44,6 +50,9 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private string _totalSum;
 		private string _totalInvoices;
 		private bool _exportInProgress;
+		private IList<OrganizationVersion> _cashPaymentTypeOrganizationVersions;
+		private Organization _cashPaymentTypeOrganization;
+		private string _cashPaymentTypeOrganizationPhone;
 
 		public ExportTo1CViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -53,7 +62,9 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IDialogSettingsFactory dialogSettingsFactory)
+			IDialogSettingsFactory dialogSettingsFactory,
+			IGenericRepository<Organization> organizationRepository,
+			IGenericRepository<CashPaymentTypeOrganizationSettings> cashPaymentTypeOrganizationSettingsRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -62,167 +73,37 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_cashPaymentTypeOrganizationSettingsRepository = cashPaymentTypeOrganizationSettingsRepository ??
+			                                                 throw new ArgumentNullException(nameof(cashPaymentTypeOrganizationSettingsRepository));
 
 			TabName = "Выгрузка в 1с 8.3";
 
-			CashlessOrganizations = UoW.GetAll<Organization>().ToList();
-			RetailOrganizations = UoW.GetAll<Organization>().ToList();
+			CreateCommands();
 
-			ExportComplexAutomationCommand = new DelegateCommand(ExportComplexAutomation, () => CanExport);
-			ExportComplexAutomationCommand.CanExecuteChangedWith(this, x => CanExport);
-
-			ExportBookkeepingCommand = new DelegateCommand(ExportBookkeeping, () => CanExport);
-			ExportBookkeepingCommand.CanExecuteChangedWith(this, x => CanExport);
-
-			ExportBookkeepingNewCommand = new DelegateCommand(ExportBookkeepingNew, () => CanExport);
-			ExportBookkeepingNewCommand.CanExecuteChangedWith(this, x => CanExport);
-
-			ExportIPTinkoffCommand = new DelegateCommand(ExportIPTinkoff, () => CanExport);
-			ExportIPTinkoffCommand.CanExecuteChangedWith(this, x => CanExport);
-
-			SaveFileCommand = new DelegateCommand(SaveFile, () => CanSave);
-			SaveFileCommand.CanExecuteChangedWith(this, x => CanSave);
-
-			RetailReportCommand = new DelegateCommand(CreateRetailReport, () => CanSaveRetailReport);
-			RetailReportCommand.CanExecuteChangedWith(this, x => CanSaveRetailReport);
+			LoadEntities();
 		}
 
-		public bool CanSaveRetailReport => true;
-
-		private void CreateRetailReport()
+		private void LoadEntities()
 		{
-			var organization = SelectedRetailOrganization;
-
-			if(organization is null)
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация формы эскпорта в 1С"))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не выбрана организация");
+				CashlessOrganizations = _organizationRepository.Get(unitOfWork).ToList();
+				RetailOrganizations = _organizationRepository.Get(unitOfWork).ToList();
 
-				return;
+				_cashPaymentTypeOrganizationVersions =
+					_cashPaymentTypeOrganizationSettingsRepository.Get(unitOfWork).FirstOrDefault()
+						?.Organizations
+						?.FirstOrDefault()
+						?.OrganizationVersions;
+
+				_cashPaymentTypeOrganization = _cashPaymentTypeOrganizationVersions
+					.Select(o => o.Organization)
+					.FirstOrDefault();
+
+				_cashPaymentTypeOrganizationPhone = _cashPaymentTypeOrganization.Phones.FirstOrDefault().ToString();
 			}
-
-			if(StartDate != EndDate)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Нельзя сформировать отчёт за диапазон дат. Выберите одну дату.");
-
-				return;
-			}
-
-			var retailSalesReport = new RetailSalesReportFor1C
-			{
-				Organization = organization,
-				OrganizationVersionStartDate = StartDate.Value,
-				SaleDate = StartDate.Value,
-				Suffix = organization.Suffix
-			};
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
-			{
-				var orders = _orderRepository.GetOrdersToExport1c8(
-					unitOfWork,
-					_orderSettings,
-					Export1cMode.RetailReport,
-					StartDate.Value,
-					EndDate.Value,
-					organization.Id);
-
-				retailSalesReport.Generate(orders);
-			}
-
-			retailSalesReport.SaveReport(_dialogSettingsFactory, _fileDialogService);
 		}
-
-		private void ExportIPTinkoff()
-		{
-			Export(Export1cMode.IPForTinkoff);
-		}
-
-		private void ExportBookkeepingNew()
-		{
-			if(SelectedCashlessOrganization == null)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Для этой выгрузки необходимо выбрать организацию");
-
-				return;
-			}
-
-			Export(Export1cMode.BuhgalteriaOOONew);
-		}
-
-		private void ExportBookkeeping()
-		{
-			Export(Export1cMode.BuhgalteriaOOO);
-		}
-
-		private void ExportComplexAutomation()
-		{
-			Export(Export1cMode.ComplexAutomation);
-		}
-
-		private void Export(Export1cMode mode)
-		{
-			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
-			int? organizationId = null;
-
-			switch(mode)
-			{
-				case Export1cMode.BuhgalteriaOOONew:
-					organizationId = (SelectedCashlessOrganization)?.Id;
-					break;
-				case Export1cMode.BuhgalteriaOOO:
-				case Export1cMode.ComplexAutomation:
-					organizationId = organizationSettings.VodovozOrganizationId;
-					break;
-			}
-
-			using(var exportOperation = new ExportTo1cOperation(
-				      mode,
-				      _orderSettings,
-				      _orderRepository,
-				      UnitOfWorkFactory,
-				      StartDate.Value,
-				      EndDate.Value,
-				      organizationId
-			      ))
-			{
-				ExportInProgress = true;
-
-				_gtkTabsOpener.RunLongOperation(exportOperation.Run, "", 1, false);
-
-				ExportData = exportOperation.Result;
-
-				ExportInProgress = false;
-
-				OnPropertyChanged(nameof(CanSave));
-			}
-
-			TotalCounterparty = ExportData.Objects
-				.OfType<CatalogObjectNode>()
-				.Count(node => node.Type == Common1cTypes.ReferenceCounterparty)
-				.ToString();
-
-			TotalNomenclature = ExportData.Objects
-				.OfType<CatalogObjectNode>()
-				.Count(node => node.Type == Common1cTypes.ReferenceNomenclature)
-				.ToString();
-
-			TotalSales = (ExportData.Objects
-				              .OfType<SalesDocumentNode>()
-				              .Count()
-			              + ExportData.Objects.OfType<RetailDocumentNode>().Count())
-				.ToString();
-
-			TotalSum = ExportData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
-
-			TotalInvoices = ExportData.Objects
-				.OfType<InvoiceDocumentNode>()
-				.Count()
-				.ToString();
-
-			ExportCompleteAction.Invoke();
-		}
-
-		public List<Organization> RetailOrganizations { get; }
-		public IList<Organization> CashlessOrganizations { get; }
 
 		public Organization SelectedCashlessOrganization
 		{
@@ -243,20 +124,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			set => SetField(ref _exportInProgress, value);
 		}
 
-		public DelegateCommand ExportBookkeepingCommand { get; set; }
-		public DelegateCommand ExportComplexAutomationCommand { get; set; }
-		public DelegateCommand ExportIPTinkoffCommand { get; set; }
-		public DelegateCommand ExportBookkeepingNewCommand { get; set; }
-		public DelegateCommand SaveFileCommand { get; set; }
-		public DelegateCommand RetailReportCommand { get; set; }
-
-		public bool CanExport =>
-			!ExportInProgress
-			&& EndDate != null
-			&& StartDate != null
-			&& StartDate <= EndDate;
-
-		public bool CanSave => ExportData?.Errors?.Count == 0;
 
 		[PropertyChangedAlso(nameof(CanExport))]
 		public DateTime? StartDate
@@ -302,13 +169,260 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			set => SetField(ref _totalInvoices, value);
 		}
 
+		public bool CanSaveCashless => ExportCashlessData?.Errors?.Count == 0;
+
+		public bool CanExport =>
+			!ExportInProgress
+			&& EndDate != null
+			&& StartDate != null
+			&& StartDate <= EndDate;
+
+		public List<Organization> RetailOrganizations { get; set; }
+
+		public IList<Organization> CashlessOrganizations { get; set; }
+
 		public Action ExportCompleteAction { get; set; }
 
-		public ExportData ExportData { get; set; }
+		public ExportData ExportCashlessData { get; set; }
 
-		private void SaveFile()
+		#region Commands
+		
+		public DelegateCommand ExportCashlessBookkeepingCommand { get; private set; }
+		public DelegateCommand ExportCashlessComplexAutomationCommand { get; private set; }
+		public DelegateCommand ExportCashlessIPTinkoffCommand { get; private set; }
+		public DelegateCommand ExportCashlessBookkeepingNewCommand { get; private set; }
+		public DelegateCommand SaveExportCashlessDataCommand { get; private set; }
+		public DelegateCommand RetailReportCommand { get; private set; }
+		public DelegateCommand ExportRetailCommand { get; set; }
+		
+		private void CreateCommands()
 		{
-			var dialogSettings = CreateDialogSettings();
+			ExportCashlessComplexAutomationCommand = new DelegateCommand(ExportCashlessComplexAutomation, () => CanExport);
+			ExportCashlessComplexAutomationCommand.CanExecuteChangedWith(this, x => CanExport);
+
+			ExportCashlessBookkeepingCommand = new DelegateCommand(ExportCashlessBookkeeping, () => CanExport);
+			ExportCashlessBookkeepingCommand.CanExecuteChangedWith(this, x => CanExport);
+
+			ExportCashlessBookkeepingNewCommand = new DelegateCommand(ExportCashlessBookkeepingNew, () => CanExport);
+			ExportCashlessBookkeepingNewCommand.CanExecuteChangedWith(this, x => CanExport);
+
+			ExportCashlessIPTinkoffCommand = new DelegateCommand(ExportCashlessIPTinkoff, () => CanExport);
+			ExportCashlessIPTinkoffCommand.CanExecuteChangedWith(this, x => CanExport);
+
+			SaveExportCashlessDataCommand = new DelegateCommand(SaveExportCashlessData, () => CanSaveCashless);
+			SaveExportCashlessDataCommand.CanExecuteChangedWith(this, x => CanSaveCashless);
+
+			RetailReportCommand = new DelegateCommand(CreateAndSaveRetailReport, () => CanExport);
+			RetailReportCommand.CanExecuteChangedWith(this, x => CanExport);
+
+			ExportRetailCommand = new DelegateCommand(ExportRetail, () => CanExport);
+			ExportRetailCommand.CanExecuteChangedWith(this, x => CanExport);
+		}
+
+		#endregion Commands
+
+		#region Cashless
+
+		private void ExportCashlessIPTinkoff()
+		{
+			ExportCashless(Export1cMode.IPForTinkoff);
+		}
+
+		private void SaveExportCashlessData()
+		{
+			var dateText = EndDate.Value.ToString("yyyy-MM-dd");
+			var fileName = $"Выгрузка 1с на {dateText} (безнал).xml";
+
+			SaveXmlToFile(ExportCashlessData.ToXml(), fileName);
+		}
+
+		private void ExportCashlessBookkeepingNew()
+		{
+			if(SelectedCashlessOrganization == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Для этой выгрузки необходимо выбрать организацию");
+
+				return;
+			}
+
+			ExportCashless(Export1cMode.BuhgalteriaOOONew);
+		}
+
+		private void ExportCashlessBookkeeping()
+		{
+			ExportCashless(Export1cMode.BuhgalteriaOOO);
+		}
+
+		private void ExportCashlessComplexAutomation()
+		{
+			ExportCashless(Export1cMode.ComplexAutomation);
+		}
+
+		private void ExportCashless(Export1cMode mode)
+		{
+			var organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+			int? organizationId = null;
+
+			switch(mode)
+			{
+				case Export1cMode.BuhgalteriaOOONew:
+					organizationId = (SelectedCashlessOrganization)?.Id;
+					break;
+				case Export1cMode.BuhgalteriaOOO:
+				case Export1cMode.ComplexAutomation:
+					organizationId = organizationSettings.VodovozOrganizationId;
+					break;
+			}
+
+			using(var exportOperation = new ExportTo1cOperation(
+				      mode,
+				      _orderSettings,
+				      _orderRepository,
+				      UnitOfWorkFactory,
+				      StartDate.Value,
+				      EndDate.Value,
+				      organizationId
+			      ))
+			{
+				ExportInProgress = true;
+
+				_gtkTabsOpener.RunLongOperation(exportOperation.Run, "", 1, false);
+
+				ExportCashlessData = exportOperation.Result;
+
+				ExportInProgress = false;
+
+				OnPropertyChanged(nameof(CanSaveCashless));
+			}
+
+			TotalCounterparty = ExportCashlessData.Objects
+				.OfType<CatalogObjectNode>()
+				.Count(node => node.Type == Common1cTypes.ReferenceCounterparty)
+				.ToString();
+
+			TotalNomenclature = ExportCashlessData.Objects
+				.OfType<CatalogObjectNode>()
+				.Count(node => node.Type == Common1cTypes.ReferenceNomenclature)
+				.ToString();
+
+			TotalSales = (ExportCashlessData.Objects
+				              .OfType<SalesDocumentNode>()
+				              .Count()
+			              + ExportCashlessData.Objects.OfType<RetailDocumentNode>().Count())
+				.ToString();
+
+			TotalSum = ExportCashlessData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
+
+			TotalInvoices = ExportCashlessData.Objects
+				.OfType<InvoiceDocumentNode>()
+				.Count()
+				.ToString();
+
+			ExportCompleteAction.Invoke();
+		}
+
+		#endregion Cashless
+
+		#region Retail
+
+		private RetailSalesReportFor1C CreateRetailReport(
+			Organization filterOrganization,
+			OrganizationVersion supplierOrganizationVersionOnDate,
+			Organization supplierOrganizationOnDate)
+		{
+			var retailSalesReport = new RetailSalesReportFor1C
+			{
+				OrganizationVersionForTitle = supplierOrganizationVersionOnDate,
+				OrganizationForTitle = supplierOrganizationOnDate,
+				Phone = _cashPaymentTypeOrganizationPhone,
+				SaleDate = StartDate.Value
+			};
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для отчёта"))
+			{
+				var orders = GetRetailOrders(unitOfWork, filterOrganization);
+				retailSalesReport.Generate(orders);
+			}
+
+			return retailSalesReport;
+		}
+
+		private void ExportRetail()
+		{
+			if(SelectedRetailOrganization == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Необходимо выбрать организацию для розницы");
+
+				return;
+			}
+
+			ExportInProgress = true;
+
+			XElement xml;
+
+			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
+			{
+				var orders = GetRetailOrders(unitOfWork, SelectedRetailOrganization);
+				var orderItems = orders.SelectMany(x => x.OrderItems);
+
+				xml = Retail1cDataExporter.CreateRetailXml(orderItems, StartDate.Value, EndDate.Value);
+			}
+
+			var dateText = EndDate.Value.ToString("yyyy-MM-dd");
+			var fileName = $"Выгрузка 1с на {dateText} (розница).xml";
+
+			SaveXmlToFile(xml, fileName);
+
+			ExportInProgress = false;
+		}
+
+		private IList<Order> GetRetailOrders(IUnitOfWork unitOfWork, Organization organization)
+		{
+			return _orderRepository.GetOrdersToExport1c8(
+				unitOfWork,
+				_orderSettings,
+				Export1cMode.RetailReport,
+				StartDate.Value,
+				EndDate.Value,
+				organization.Id);
+		}
+
+		private void CreateAndSaveRetailReport()
+		{
+			if(SelectedRetailOrganization is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Необходимо выбрать организацию для розницы");
+
+				return;
+			}
+
+			var supplierOrganizationVersionOnDate = _cashPaymentTypeOrganizationVersions
+				.Where(x => x.StartDate <= StartDate)
+				.OrderByDescending(x => x.StartDate)
+				.FirstOrDefault();
+
+			if(supplierOrganizationVersionOnDate == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, $"Отсутствует версия организации на дату {StartDate}, настроенная на нал");
+
+				return;
+			}
+
+			ExportInProgress = true;
+
+			var report = CreateRetailReport(SelectedRetailOrganization, supplierOrganizationVersionOnDate, _cashPaymentTypeOrganization);
+			report.SaveReport(_dialogSettingsFactory, _fileDialogService);
+
+			ExportInProgress = false;
+		}
+
+		#endregion Retail
+
+		#region Save xml to file
+
+		private void SaveXmlToFile(XElement xml, string fileName)
+		{
+			var dialogSettings = CreateDialogSettings(fileName);
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
@@ -329,22 +443,20 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 			using(var writer = XmlWriter.Create(filename, settings))
 			{
-				ExportData.ToXml().WriteTo(writer);
+				xml.WriteTo(writer);
 			}
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, "Выгрузка завершена");
 		}
 
-		private DialogSettings CreateDialogSettings()
+		private DialogSettings CreateDialogSettings(string fileName)
 		{
-			var dateText = ExportData.EndPeriodDate.ToShortDateString().Replace(Path.DirectorySeparatorChar, '-');
-
 			var settings = new DialogSettings
 			{
 				Title = "Выберите файл для сохранения выгрузки",
 				DefaultFileExtention = "*.xml",
 				InitialDirectory = SpecialDirectories.Desktop,
-				FileName = $"Выгрузка 1с на {dateText}.xml"
+				FileName = fileName
 			};
 
 			settings.FileFilters.Clear();
@@ -352,5 +464,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 			return settings;
 		}
+
+		#endregion Save xml to file
 	}
 }

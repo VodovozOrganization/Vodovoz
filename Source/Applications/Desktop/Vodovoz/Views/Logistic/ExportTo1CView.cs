@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Logistic
 			comboRetailOrganization.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.RetailOrganizations, w => w.ItemsList)
 				.AddBinding(vm => vm.SelectedRetailOrganization, w => w.SelectedItem)
-				.AddBinding(vm => vm.CanSaveRetailReport, w => w.Sensitive)
+				.AddBinding(vm => vm.CanExport, w => w.Sensitive)
 				.InitializeFromSource();
 
 			dateperiodpicker1.Binding.AddSource(ViewModel)
@@ -37,12 +37,14 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			buttonExportBookkeeping.BindCommand(ViewModel.ExportBookkeepingCommand);
-			ybuttonComplexAutomation1CExport.BindCommand(ViewModel.ExportComplexAutomationCommand);
-			buttonExportIPTinkoff.BindCommand(ViewModel.ExportIPTinkoffCommand);
-			ybuttonExportBookkeepingNew.BindCommand(ViewModel.ExportBookkeepingNewCommand);
-			buttonSave.BindCommand(ViewModel.SaveFileCommand);
+			buttonExportBookkeeping.BindCommand(ViewModel.ExportCashlessBookkeepingCommand);
+			ybuttonComplexAutomation1CExport.BindCommand(ViewModel.ExportCashlessComplexAutomationCommand);
+			buttonExportIPTinkoff.BindCommand(ViewModel.ExportCashlessIPTinkoffCommand);
+			ybuttonExportBookkeepingNew.BindCommand(ViewModel.ExportCashlessBookkeepingNewCommand);
+			buttonSave.BindCommand(ViewModel.SaveExportCashlessDataCommand);
 			ybuttonRetailReport.BindCommand(ViewModel.RetailReportCommand);
+			ybuttonRetailComplexAutomation.BindCommand(ViewModel.ExportRetailCommand);
+			ybuttonRetailBuh.Visible = false; // Пока не нужна
 
 			labelTotalCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.TotalCounterparty, w => w.Text)
@@ -70,11 +72,11 @@ namespace Vodovoz.Views.Logistic
 		private void OnExportComplete()
 		{
 			labelExportedSum.Markup =
-				$"<span foreground=\"{(ViewModel.ExportData.ExportedTotalSum == ViewModel.ExportData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">" +
-				$"{ViewModel.ExportData.ExportedTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"))}</span>";
+				$"<span foreground=\"{(ViewModel.ExportCashlessData.ExportedTotalSum == ViewModel.ExportCashlessData.OrdersTotalSum ? GdkColors.SuccessText.ToHtmlColor() : GdkColors.DangerText.ToHtmlColor())}\">" +
+				$"{ViewModel.ExportCashlessData.ExportedTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"))}</span>";
 
-			GtkScrolledWindowErrors.Visible = ViewModel.ExportData.Errors.Count > 0;
-			if(ViewModel.ExportData.Errors.Count > 0)
+			GtkScrolledWindowErrors.Visible = ViewModel.ExportCashlessData.Errors.Count > 0;
+			if(ViewModel.ExportCashlessData.Errors.Count > 0)
 			{
 				TextTagTable textTags = new TextTagTable();
 				var tag = new TextTag("Red");
@@ -82,7 +84,7 @@ namespace Vodovoz.Views.Logistic
 				textTags.Add(tag);
 				TextBuffer tempBuffer = new TextBuffer(textTags);
 				TextIter iter = tempBuffer.EndIter;
-				tempBuffer.InsertWithTags(ref iter, String.Join("\n", ViewModel.ExportData.Errors), tag);
+				tempBuffer.InsertWithTags(ref iter, String.Join("\n", ViewModel.ExportCashlessData.Errors), tag);
 				textviewErrors.Buffer = tempBuffer;
 			}
 		}
