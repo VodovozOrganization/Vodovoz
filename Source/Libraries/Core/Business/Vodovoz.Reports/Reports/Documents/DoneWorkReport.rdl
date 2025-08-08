@@ -2166,7 +2166,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox8" >
         <Height>12.75pt</Height>
         <Width>385.04pt</Width>
-        <Value>Гарантия на сервисное обслуживание - 2 недели с момента проведения.</Value>
+        <Value>Гарантия на сервисное обслуживание(санитарная обработка) - 2 недели с момента проведения.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>622.0pt</Top>
