@@ -16,8 +16,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 
@@ -42,6 +45,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly EmailDirectSender _emailDirectSender;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -53,7 +57,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			MailganerClientV2 mailganerClient,
 			IEmailSettings emailSettings,
 			IRequestClient<SendEmailMessage> client,
-			EmailDirectSender emailDirectSender
+			EmailDirectSender emailDirectSender,
+			IGenericRepository<OrderEntity> orderRepository
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -63,6 +68,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
 			RunCommand = new DelegateCommand(() =>
@@ -73,9 +79,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
-
-			// Убрать
-			ReportIsLoaded = true;
 		}
 
 		#region Properties
@@ -119,13 +122,31 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public bool SendBillsForNotPaidOrder
 		{
 			get => _sendBillsForNotPaidOrder;
-			set => SetField(ref _sendBillsForNotPaidOrder, value, () => SendBillsForNotPaidOrder);
+			set
+			{
+				if(SetField(ref _sendBillsForNotPaidOrder, value, () => SendBillsForNotPaidOrder))
+				{
+					if(value)
+					{
+						SendGeneralBill = false;
+					}
+				}
+			}
 		}
 
 		public bool SendGeneralBill
 		{
 			get => _sendGeneralBill;
-			set => SetField(ref _sendGeneralBill, value, () => SendGeneralBill);
+			set
+			{
+				if(SetField(ref _sendGeneralBill, value, () => SendGeneralBill))
+				{
+					if(value)
+					{
+						SendBillsForNotPaidOrder = false;
+					}
+				}
+			}
 		}
 
 		public Counterparty Counterparty
@@ -207,75 +228,15 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 		private async void SendByEmail()
 		{
-			if(Emails.Count == 0 || Emails == null)
+			if(!IsEmailDataValid())
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
 				return;
 			}
 
-			if(SelectedEmail == null)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана почта для отправки.");
-				return;
-			}
-
-			if(!SendRevision && !SendBillsForNotPaidOrder && !SendGeneralBill)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
-				return;
-			}
-
-			var attachments = new List<EmailAttachment>();
-
-			if(SendRevision)
-			{
-				attachments.Add(new EmailAttachment
-				{
-					Filename = "АктСверки.pdf",
-					Base64Content = Convert.ToBase64String(reportPdf)
-				});
-			}
-			if(SendGeneralBill)
-			{
-				var generalBillPdf = GenerateReport("", new Dictionary<object, string> { });
-				if(generalBillPdf != null)
-				{
-					attachments.Add(new EmailAttachment
-					{
-						Filename = "ОбщийСчет.pdf",
-						Base64Content = Convert.ToBase64String(generalBillPdf)
-					});
-				}
-			}
-			// 1. Получать список неоплаченных счетов
-			if(SendBillsForNotPaidOrder)
-			{
-				// Параметры для Bill.rdl
-				var billParameters = new Dictionary<object, string>
-				{
-					{ "order_id", ""/* id нужного заказа */ },
-					{ "hide_signature", "false" },
-					{ "special", "false" },
-					{ "without_vat", "false" },
-					{ "special_contract_number", "" },
-					{ "hide_delivery_point", "false" }
-				};
-
-				var billPdf = GenerateReport("", billParameters);
-				if(billPdf != null)
-				{
-					attachments.Add(new EmailAttachment
-					{
-						Filename = $"Счет {1}.pdf",
-						Base64Content = Convert.ToBase64String(billPdf)
-					});
-				}
-			}
+			var attachments = GetSelectedAttachments();
 
 			try
 			{
-				var revisionReportPdf = GenerateReport(ReportInfo.Source);
-
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 					.List<object>()
@@ -307,18 +268,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Trackable = false,
 						InstanceId = instanceId
 					},
-					/*Attachments = new[]
-					{
-						new EmailAttachment
-						{
-							Filename = "АктСверки.pdf",
-							Base64Content = Convert.ToBase64String(revisionReportPdf)
-						}
-					}*/
 					Attachments = attachments
 				};
 
-				_emailDirectSender.SendAsync(emailMessage);
+				await _emailDirectSender.SendAsync(emailMessage);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -326,6 +279,102 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
 			}
+		}
+
+		private ICollection<EmailAttachment> GetSelectedAttachments()
+		{
+			var attachments = new List<EmailAttachment>();
+
+			if(SendRevision)
+			{
+				var reportPdf = GenerateReport(ReportInfo.Source, PrepareReportParameters(Parameters));
+				if(reportPdf != null)
+				{
+					attachments.Add(new EmailAttachment
+					{
+						Filename = "АктСверки.pdf",
+						Base64Content = Convert.ToBase64String(reportPdf)
+					});
+				}
+			}
+
+			if(SendBillsForNotPaidOrder)
+			{
+				var countOfUnpaidOrders = _orderRepository.Get(UnitOfWork,
+					o => o.Client.Id == Counterparty.Id 
+					&& o.DeliveryDate >= StartDate 
+					&& o.DeliveryDate <= EndDate 
+					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
+					.Select(o => o.Id)
+					.ToArray();
+
+				foreach(var orderId in countOfUnpaidOrders)
+				{
+					var billParameters = new Dictionary<string, object>
+					{
+						{ "order_id", orderId}
+					};
+					var billReportSource = GetReportFromDocumentsSource("Bill.rdl");
+					var billPdf = GenerateReport(billReportSource, billParameters);
+					if(billPdf != null)
+					{
+						attachments.Add(new EmailAttachment
+						{
+							Filename = $"Счет {orderId}.pdf",
+							Base64Content = Convert.ToBase64String(billPdf)
+						});
+					}
+				}
+			}
+
+			if(SendGeneralBill)
+			{
+				var countOfOrders = _orderRepository.Get(UnitOfWork,
+					o => o.Client.Id == Counterparty.Id
+					&& o.DeliveryDate >= StartDate
+					&& o.DeliveryDate <= EndDate)
+					.Select(o => o.Id)
+					.ToArray();
+
+				var generalBillParameters = new Dictionary<string, object>
+				{
+					{ "order_id", countOfOrders }
+				};
+				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
+				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);
+				if(generalBillPdf != null)
+				{
+					attachments.Add(new EmailAttachment
+					{
+						Filename = "ОбщийСчет.pdf",
+						Base64Content = Convert.ToBase64String(generalBillPdf)
+					});
+				}
+			}
+
+			return attachments;
+		}
+
+		private bool IsEmailDataValid()
+		{
+			if(Emails.Count == 0 || Emails == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
+				return false;
+			}
+
+			if(SelectedEmail == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана почта для отправки.");
+				return false;
+			}
+
+			if(!SendRevision && !SendBillsForNotPaidOrder && !SendGeneralBill)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
+				return false;
+			}
+			return true;
 		}
 
 		private void GenerateReport()
@@ -349,6 +398,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			return ModifyReport(path);
 		}
 
+		private string GetReportFromDocumentsSource(string reportFileName)
+		{
+			var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			var path = Path.Combine(root, "Reports", "Documents", reportFileName);
+
+			return ModifyReport(path);
+		}
+
 		private string ModifyReport(string path)
 		{
 			using(ReportController reportController = new ReportController(path))
@@ -366,35 +423,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		private byte[] GenerateReport(string reportXml)
-		{
-			if(string.IsNullOrWhiteSpace(reportXml))
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Отсутствует XML отчёта для генерации.");
-				return null;
-			}
-
-			var rdlParser = new RDLParser(reportXml)
-			{
-				OverwriteConnectionString = ReportInfo.ConnectionString,
-				OverwriteInSubreport = true
-			};
-
-			var report = rdlParser.Parse();
-			var preparedParameters = PrepareReportParameters(Parameters);
-			report.RunGetData(preparedParameters);
-
-			using(var msGen = new MemoryStreamGen())
-			{
-				report.RunRender(msGen, OutputPresentationType.PDF);
-				msGen.CloseMainStream();
-				var pdfBytes = (msGen.GetStream() as MemoryStream)?.ToArray();
-
-				return pdfBytes;
-			}
-		}
-
-		private byte[] GenerateReport(string reportXml, Dictionary<object, string> parms)
+		private byte[] GenerateReport(string reportXml, Dictionary<string, object> parms)
 		{
 			if(string.IsNullOrWhiteSpace(reportXml))
 			{
