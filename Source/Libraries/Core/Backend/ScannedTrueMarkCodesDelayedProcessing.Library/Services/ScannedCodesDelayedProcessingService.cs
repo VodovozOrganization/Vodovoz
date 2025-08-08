@@ -174,7 +174,10 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					foreach(var driversScannedCode in routeListItemScannedCode.Value)
 					{
 						driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
-						driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.TrueMarkApiRequestError;
+						driversScannedCode.DriversScannedTrueMarkCodeError =
+							scannedTrueMarkAnyCodesDataResult.Errors.FirstOrDefault() == Vodovoz.Application.Errors.TrueMarkApi.UnknownCode
+							? DriversScannedTrueMarkCodeError.NotTrueMarkCode
+							: DriversScannedTrueMarkCodeError.TrueMarkApiRequestError;
 
 						await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
 					}
