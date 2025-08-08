@@ -27,7 +27,7 @@ namespace WarehouseApi.Library.Converters
 		public OrderDto ConvertToApiOrder(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
 		{
 			var waterCarLoadDocumentItems = carLoadDocumentItems
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(item => item.Nomenclature != null && item.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();
 
 			var firstDocumentItem = waterCarLoadDocumentItems.FirstOrDefault();
