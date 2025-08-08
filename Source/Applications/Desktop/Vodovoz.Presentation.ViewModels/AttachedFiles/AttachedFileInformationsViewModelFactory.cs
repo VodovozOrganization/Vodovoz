@@ -110,6 +110,8 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 					using var ms = new MemoryStream();
 
 					fileResult.Value.CopyTo(ms);
+					
+					//не использовать GetBuffer() для получения массива байтов, может быть получен мусор
 					var fileContent = ms.ToArray();
 
 					loadedFiles.Add(fileInformation.FileName, fileContent);
