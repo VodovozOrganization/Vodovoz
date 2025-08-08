@@ -219,15 +219,62 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-
 			if(!SendRevision && !SendBillsForNotPaidOrder && !SendGeneralBill)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
 				return;
 			}
+
+			var attachments = new List<EmailAttachment>();
+
+			if(SendRevision)
+			{
+				attachments.Add(new EmailAttachment
+				{
+					Filename = "АктСверки.pdf",
+					Base64Content = Convert.ToBase64String(reportPdf)
+				});
+			}
+			if(SendGeneralBill)
+			{
+				var generalBillPdf = GenerateReport("", new Dictionary<object, string> { });
+				if(generalBillPdf != null)
+				{
+					attachments.Add(new EmailAttachment
+					{
+						Filename = "ОбщийСчет.pdf",
+						Base64Content = Convert.ToBase64String(generalBillPdf)
+					});
+				}
+			}
+
+			// 1. Получать список неоплаченных счетов
+			if(SendBillsForNotPaidOrder)
+			{
+				// Параметры для Bill.rdl
+				var billParameters = new Dictionary<object, string>
+				{
+					{ "order_id", ""/* id нужного заказа */ },
+					{ "hide_signature", "false" },
+					{ "special", "false" },
+					{ "without_vat", "false" },
+					{ "special_contract_number", "" },
+					{ "hide_delivery_point", "false" }
+				};
+				var billPdf = GenerateReport("", billParameters);
+				if(billPdf != null)
+				{
+					attachments.Add(new EmailAttachment
+					{
+						Filename = $"Счет {1}.pdf",
+						Base64Content = Convert.ToBase64String(billPdf)
+					});
+				}
+			}
+
 			try
 			{
-				var reportPdf = GenerateReport(ReportInfo.Source);
+				var revisionReportPdf = GenerateReport(ReportInfo.Source);
 
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -262,10 +309,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					},
 					Attachments = new[]
 					{
-						new Mailjet.Api.Abstractions.EmailAttachment
+						new EmailAttachment
 						{
 							Filename = "АктСверки.pdf",
-							Base64Content = Convert.ToBase64String(reportPdf)
+							Base64Content = Convert.ToBase64String(revisionReportPdf)
 						}
 					}
 				};
@@ -303,7 +350,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private string ModifyReport(string path)
 		{
-
 			using(ReportController reportController = new ReportController(path))
 			using(var reportStream = new MemoryStream())
 			{
@@ -336,6 +382,33 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			var report = rdlParser.Parse();
 			var preparedParameters = PrepareReportParameters(Parameters);
 			report.RunGetData(preparedParameters);
+
+			using(var msGen = new MemoryStreamGen())
+			{
+				report.RunRender(msGen, OutputPresentationType.PDF);
+				msGen.CloseMainStream();
+				var pdfBytes = (msGen.GetStream() as MemoryStream)?.ToArray();
+
+				return pdfBytes;
+			}
+		}
+
+		private byte[] GenerateReport(string reportXml, Dictionary<object, string> parms)
+		{
+			if(string.IsNullOrWhiteSpace(reportXml))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Отсутствует XML отчёта для генерации.");
+				return null;
+			}
+
+			var rdlParser = new RDLParser(reportXml)
+			{
+				OverwriteConnectionString = ReportInfo.ConnectionString,
+				OverwriteInSubreport = true
+			};
+
+			var report = rdlParser.Parse();
+			report.RunGetData(parms);
 
 			using(var msGen = new MemoryStreamGen())
 			{
