@@ -65,11 +65,11 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result<IDictionary<string, TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Получает сохраненные коды ЧЗ по отсканированным кодам
+		/// Получает сохраненный код ЧЗ по коду
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="scannedCode">Отсканированный код</param>
-		/// <returns>Результат</returns>
-		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
+		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
+		/// <returns>Результат поиска сохраненного кода ЧЗ</returns>
+		Result<TrueMarkAnyCode> TryGetSavedTrueMarkAnyCode(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
 	}
 }

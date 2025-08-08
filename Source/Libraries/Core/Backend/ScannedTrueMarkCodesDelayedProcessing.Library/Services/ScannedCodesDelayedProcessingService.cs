@@ -2,10 +2,12 @@
 using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -114,6 +116,15 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					_logger.LogWarning("Не найден адрес МЛ с идентификатором {RouteListItemId}", routeListAddressId);
 					return;
 				}
+
+				// В ситуациях, когда водитель сканирует транспортный код в заказе для собственных нужд,
+				// экземплярные коды, входящие в его состав пересылаются нам, причем коды поступают обрезанные (без чек-кода) 
+				// и со спецсимволами \u001d в начале и конце
+				// Это поведение неправильно, но пока решено оставить так
+				// Но чтобы коды обрабатывались в дальнейшем корректно (в TrueMarkWaterIdentificationCodeFactory в начало и конец добавляются спецсимволы),
+				// нужно удалить спецсимволы, которые уже есть в начале и конце обрезанного кода
+				scannedCodesData
+					.ForEach(x => x.DriversScannedCode.RawCode = RemoveSpecialSymbolsIfNeed(x.DriversScannedCode.RawCode));
 
 				await CheckScannedCodesAndAddToRouteListItems(uow, scannedCodesData, routeListAddress, cancellationToken);
 
@@ -265,7 +276,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var trueMarkAnyCode = codeData.Value;
 
 				var getSavedTrueMarkCodeResult =
-					_trueMarkWaterCodeService.GetSavedTrueMarkAnyCodesByScannedCodes(uow, driversScannedCode.RawCode);
+					_trueMarkWaterCodeService.TryGetSavedTrueMarkAnyCode(uow, trueMarkAnyCode);
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
@@ -526,6 +537,18 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			uow.Save(edoRequest);
 
 			return edoRequest;
+		}
+
+		private string RemoveSpecialSymbolsIfNeed(string code)
+		{
+			var innerGroupOrIdentificationCodePattern = @"^\u001d01[0-9]{14}21.{13}\u001d$";
+
+			if(Regex.IsMatch(code, innerGroupOrIdentificationCodePattern))
+			{
+				code = code.Substring(1, code.Length - 2);
+			}
+
+			return code;
 		}
 	}
 }
