@@ -1,4 +1,4 @@
-using DatabaseServiceWorker.Options;
+﻿using DatabaseServiceWorker.Options;
 using ExportTo1c.Library;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -6,17 +6,12 @@ using QS.DomainModel.UoW;
 using SharpCifs.Smb;
 using SharpCifs.Util.Sharpen;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using Gamma.Utilities;
-using Vodovoz.Core.Domain.Attributes;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
@@ -153,9 +148,7 @@ namespace DatabaseServiceWorker
 				startOfYesterday,
 				endOfYesterday);
 
-			var orderItems = orders.SelectMany(x => x.OrderItems);
-
-			var xml = Retail1cDataExporter.CreateRetailXml(orderItems, startOfYesterday, endOfYesterday);
+			var xml = Retail1cDataExporter.CreateRetailXml(orders, startOfYesterday, endOfYesterday, cancellationToken);
 
 			await ExportToFile(smbFile, xml, cancellationToken);
 		}

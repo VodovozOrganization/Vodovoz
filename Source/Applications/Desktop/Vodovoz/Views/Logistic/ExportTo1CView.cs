@@ -1,7 +1,8 @@
-﻿using System;
-using System.Globalization;
-using Gtk;
+﻿using Gtk;
 using QS.Views.GtkUI;
+using QS.Widgets;
+using System;
+using System.Globalization;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Service;
@@ -65,7 +66,23 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.TotalInvoices, w => w.Text)
 				.InitializeFromSource();
 
+			progresswidget.Visible = false;
+			ViewModel.ProgressBarDisplayable = progresswidget;
+
 			ViewModel.ExportCompleteAction = OnExportComplete;
+
+			ViewModel.StartProgressAction = OnStartProgress;
+			ViewModel.EndProgressAction = OnEndProgress;			
+		}
+
+		private void OnEndProgress()
+		{
+			progresswidget.Visible = false;
+		}
+
+		private void OnStartProgress()
+		{
+			progresswidget.Visible = true;
 		}
 
 		private void OnExportComplete()
@@ -86,6 +103,7 @@ namespace Vodovoz.Views.Logistic
 				tempBuffer.InsertWithTags(ref iter, String.Join("\n", ViewModel.ExportCashlessData.Errors), tag);
 				textviewErrors.Buffer = tempBuffer;
 			}
+
 		}
 	}
 }

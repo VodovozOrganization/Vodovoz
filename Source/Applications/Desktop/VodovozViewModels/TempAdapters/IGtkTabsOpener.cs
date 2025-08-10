@@ -3,7 +3,6 @@ using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
 using QS.ViewModels.Dialog;
-using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -41,6 +40,5 @@ namespace Vodovoz.TempAdapters
 		void SwitchOnTab(ITdiTab tab);
 		ITdiTab FindPageByHash<T>(int id) where T : IDomainObject;
 		bool FindAndSwitchOnTab<T>(int id) where T : IDomainObject;
-		void RunLongOperation(Action<IWorker> doWork, string name, int steps, bool modal = false);
 	}
 }

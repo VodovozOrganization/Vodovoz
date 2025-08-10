@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Project.Services.FileDialog;
-using QSProjectsLib;
+using QS.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -32,7 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// Заголовок отчёта
 		/// </summary>
 		public string Title => $"Отчёт о розничных продажах {Number} от {DateTime.Today:dd MMMM yyyy} г.";
-		
+
 		/// <summary>
 		/// Дата продажи
 		/// </summary>
@@ -42,17 +44,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// Суффикс организации
 		/// </summary>
 		public string Suffix => OrganizationVersionForTitle.Organization.Suffix;
-		
+
 		/// <summary>
 		/// Версия организации
 		/// </summary>
 		public OrganizationVersion OrganizationVersionForTitle { get; set; }
-		
+
 		/// <summary>
 		/// Организация
 		/// </summary>
 		public Organization OrganizationForTitle { get; set; }
-		
+
 		/// <summary>
 		/// Телефон
 		/// </summary>
@@ -66,14 +68,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// <summary>
 		/// Сумма прописью
 		/// </summary>
-		public string TotalSumInWords =>  RusCurrency.Str(TotalSum);
-		
+		public string TotalSumInWords => NumberToTextRus.Str((int)TotalSum, true, "рубль", "рубля", "рублей");
+
 		/// <summary>
 		/// Поставщик
 		/// </summary>
 		public string Supplier => $"{OrganizationForTitle.Name}, ИНН {OrganizationForTitle.INN}, " +
 			$"{OrganizationVersionForTitle.JurAddress}, тел.: {Phone}";
-		
+
 		/// <summary>
 		/// Строки отчёта
 		/// </summary>
@@ -81,32 +83,46 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 
 		public string TemplatePath => @".\Reports\Sales\RetailSalesReportFor1C.xlsx";
 
-		public void Generate(IList<Order> orders)
+		public void Generate(IList<Order> orders, IProgressBarDisplayable progressBarDisplayable, CancellationToken token)
 		{
-			var rowItems = new List<RetailSalesReportFor1CRow>();
-			
-			foreach(var order in orders)
+			var ordersCount = orders.Count;
+
+			progressBarDisplayable.Start(ordersCount, 0, "Выгрузка розницы");
+
+			var xElements = new List<RetailSalesReportFor1CRow>();
+
+			int i = 0;
+
+			while(i < ordersCount)
 			{
-				foreach(var item in order.OrderItems)
+				foreach(var item in orders[i].OrderItems)
 				{
 					var rowItem = new RetailSalesReportFor1CRow
 					{
 						Amount = item.CurrentCount,
 						Mesure = item.Nomenclature.Unit.Name,
 						Code1c = item.Nomenclature.Code1c,
-						Nomenclature =  item.Nomenclature.Name,
-						Price =  item.Price,
-						Sum =  item.Sum,
+						Nomenclature = item.Nomenclature.Name,
+						Price = item.Price,
+						Sum = item.Sum,
 						Nds = item.CurrentNDS
 					};
-					
-					rowItems.Add(rowItem);
+
+					xElements.Add(rowItem);
+
+					token.ThrowIfCancellationRequested();
 				}
+
+				i++;
+
+				progressBarDisplayable.Add(1, $"Заказ {i}/{ordersCount}");
 			}
-			
-			Rows = rowItems;
+
+			progressBarDisplayable.Update("Выгрузка отчёта по рознице завершена. Сохранение в файл...");
+
+			Rows = xElements;
 		}
-		
+
 		public void SaveReport(IDialogSettingsFactory dialogSettingsFactory, IFileDialogService fileDialogService)
 		{
 			var dialogSettings = dialogSettingsFactory.CreateForClosedXmlReport(this);
@@ -118,7 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 				this.RenderTemplate().Export(saveDialogResult.Path);
 			}
 		}
-		
-		
+
+
 	}
 }
