@@ -43,8 +43,7 @@ namespace Vodovoz.Views.Logistic
 			ybuttonExportBookkeepingNew.BindCommand(ViewModel.ExportCashlessBookkeepingNewCommand);
 			buttonSave.BindCommand(ViewModel.SaveExportCashlessDataCommand);
 			ybuttonRetailReport.BindCommand(ViewModel.RetailReportCommand);
-			ybuttonRetailComplexAutomation.BindCommand(ViewModel.ExportRetailCommand);
-			ybuttonRetailBuh.Visible = false; // Пока не нужна
+			ybuttonRetailExport.BindCommand(ViewModel.ExportRetailCommand);
 
 			labelTotalCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.TotalCounterparty, w => w.Text)

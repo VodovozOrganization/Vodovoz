@@ -8,6 +8,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.VBox vbox2;
 
+		private global::QS.Widgets.ProgressWidget progresswidget;
+
 		private global::Gtk.Frame frame1;
 
 		private global::Gtk.Alignment GtkAlignment1;
@@ -50,9 +52,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label label8;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonRetailBuh;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonRetailComplexAutomation;
+		private global::Gamma.GtkWidgets.yButton ybuttonRetailExport;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonRetailReport;
 
@@ -111,6 +111,14 @@ namespace Vodovoz.Views.Logistic
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.progresswidget = new global::QS.Widgets.ProgressWidget();
+			this.progresswidget.Name = "progresswidget";
+			this.vbox2.Add(this.progresswidget);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.progresswidget]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
 			this.frame1.ShadowType = ((global::Gtk.ShadowType)(2));
@@ -133,13 +141,13 @@ namespace Vodovoz.Views.Logistic
 			this.comboOrganization.ShowSpecialStateAll = false;
 			this.comboOrganization.ShowSpecialStateNot = true;
 			this.table2.Add(this.comboOrganization);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table2[this.comboOrganization]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
-			w1.LeftAttach = ((uint)(1));
-			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2[this.comboOrganization]));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.dateperiodpicker1 = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateperiodpicker1.Events = ((global::Gdk.EventMask)(256));
@@ -147,11 +155,11 @@ namespace Vodovoz.Views.Logistic
 			this.dateperiodpicker1.StartDate = new global::System.DateTime(0);
 			this.dateperiodpicker1.EndDate = new global::System.DateTime(0);
 			this.table2.Add(this.dateperiodpicker1);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2[this.dateperiodpicker1]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table2[this.dateperiodpicker1]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -164,10 +172,10 @@ namespace Vodovoz.Views.Logistic
 			this.buttonExportIPTinkoff.UseUnderline = true;
 			this.buttonExportIPTinkoff.Label = global::Mono.Unix.Catalog.GetString("В ИП для оплаты по Тинькофф");
 			this.hbox4.Add(this.buttonExportIPTinkoff);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonExportIPTinkoff]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.buttonExportIPTinkoff]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ybuttonExportBookkeepingNew = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonExportBookkeepingNew.Sensitive = false;
@@ -176,49 +184,49 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonExportBookkeepingNew.UseUnderline = true;
 			this.ybuttonExportBookkeepingNew.Label = global::Mono.Unix.Catalog.GetString("ТЕСТ УСН");
 			this.hbox4.Add(this.ybuttonExportBookkeepingNew);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybuttonExportBookkeepingNew]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybuttonExportBookkeepingNew]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.table2.Add(this.hbox4);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox4]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(2));
-			w5.RightAttach = ((uint)(3));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox4]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label();
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.table2.Add(this.label10);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.label10]));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.label10]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Сформировать выгрузку:");
 			this.table2.Add(this.label7);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.label7]));
-			w7.TopAttach = ((uint)(1));
-			w7.BottomAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.label7]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelOrg = new global::Gtk.Label();
 			this.labelOrg.Name = "labelOrg";
 			this.labelOrg.Xalign = 1F;
 			this.labelOrg.LabelProp = global::Mono.Unix.Catalog.GetString("Организация (для Теста УСН):");
 			this.table2.Add(this.labelOrg);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelOrg]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.labelOrg]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox1.Name = "yhbox1";
@@ -231,8 +239,8 @@ namespace Vodovoz.Views.Logistic
 			this.buttonExportBookkeeping.UseUnderline = true;
 			this.buttonExportBookkeeping.Label = global::Mono.Unix.Catalog.GetString("В бухгалтерию ООО");
 			this.yhbox1.Add(this.buttonExportBookkeeping);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.buttonExportBookkeeping]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.buttonExportBookkeeping]));
+			w10.Position = 0;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.ybuttonComplexAutomation1CExport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonComplexAutomation1CExport.CanFocus = true;
@@ -240,18 +248,18 @@ namespace Vodovoz.Views.Logistic
 			this.ybuttonComplexAutomation1CExport.UseUnderline = true;
 			this.ybuttonComplexAutomation1CExport.Label = global::Mono.Unix.Catalog.GetString("1С:Комплексная автоматизация");
 			this.yhbox1.Add(this.ybuttonComplexAutomation1CExport);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonComplexAutomation1CExport]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonComplexAutomation1CExport]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.table2.Add(this.yhbox1);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.yhbox1]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table2[this.yhbox1]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.GtkAlignment1.Add(this.table2);
 			this.frame1.Add(this.GtkAlignment1);
 			this.GtkLabel6 = new global::Gtk.Label();
@@ -260,10 +268,10 @@ namespace Vodovoz.Views.Logistic
 			this.GtkLabel6.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel6;
 			this.vbox2.Add(this.frame1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.frame1]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.frame1]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
@@ -287,53 +295,39 @@ namespace Vodovoz.Views.Logistic
 			this.comboRetailOrganization.ShowSpecialStateAll = false;
 			this.comboRetailOrganization.ShowSpecialStateNot = true;
 			this.table4.Add(this.comboRetailOrganization);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table4[this.comboRetailOrganization]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.comboRetailOrganization]));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.label11 = new global::Gtk.Label();
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
 			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString("Организация (розница):");
 			this.table4.Add(this.label11);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.label11]));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table4[this.label11]));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.label8 = new global::Gtk.Label();
 			this.label8.Name = "label8";
 			this.label8.Xalign = 1F;
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("Сформировать выгрузку:");
 			this.table4.Add(this.label8);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table4[this.label8]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table4.Gtk.Table+TableChild
-			this.ybuttonRetailBuh = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonRetailBuh.CanFocus = true;
-			this.ybuttonRetailBuh.Name = "ybuttonRetailBuh";
-			this.ybuttonRetailBuh.UseUnderline = true;
-			this.ybuttonRetailBuh.Label = global::Mono.Unix.Catalog.GetString("Розница (заказы с чеками) 1С Бух");
-			this.table4.Add(this.ybuttonRetailBuh);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table4[this.ybuttonRetailBuh]));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table4[this.label8]));
 			w18.TopAttach = ((uint)(1));
 			w18.BottomAttach = ((uint)(2));
-			w18.LeftAttach = ((uint)(2));
-			w18.RightAttach = ((uint)(3));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.ybuttonRetailComplexAutomation = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonRetailComplexAutomation.CanFocus = true;
-			this.ybuttonRetailComplexAutomation.Name = "ybuttonRetailComplexAutomation";
-			this.ybuttonRetailComplexAutomation.UseUnderline = true;
-			this.ybuttonRetailComplexAutomation.Label = global::Mono.Unix.Catalog.GetString("Розница (заказы с чеками) 1С КА");
-			this.table4.Add(this.ybuttonRetailComplexAutomation);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table4[this.ybuttonRetailComplexAutomation]));
+			this.ybuttonRetailExport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonRetailExport.CanFocus = true;
+			this.ybuttonRetailExport.Name = "ybuttonRetailExport";
+			this.ybuttonRetailExport.UseUnderline = true;
+			this.ybuttonRetailExport.Label = global::Mono.Unix.Catalog.GetString("Розница (заказы с чеками)");
+			this.table4.Add(this.ybuttonRetailExport);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table4[this.ybuttonRetailExport]));
 			w19.TopAttach = ((uint)(1));
 			w19.BottomAttach = ((uint)(2));
 			w19.LeftAttach = ((uint)(1));
@@ -361,7 +355,7 @@ namespace Vodovoz.Views.Logistic
 			this.frame2.LabelWidget = this.GtkLabel10;
 			this.vbox2.Add(this.frame2);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.frame2]));
-			w23.Position = 1;
+			w23.Position = 2;
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -376,7 +370,7 @@ namespace Vodovoz.Views.Logistic
 			this.GtkScrolledWindowErrors.Add(this.textviewErrors);
 			this.vbox2.Add(this.GtkScrolledWindowErrors);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindowErrors]));
-			w25.Position = 2;
+			w25.Position = 3;
 			this.hbox1.Add(this.vbox2);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox2]));
 			w26.Position = 0;
