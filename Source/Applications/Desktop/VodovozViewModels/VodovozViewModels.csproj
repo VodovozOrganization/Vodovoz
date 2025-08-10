@@ -44,6 +44,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="mscorlib" />
+	<Reference Include="System.Xml.Linq" />
     <Reference Include="TISystems.TTC.CRM.BE">
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
@@ -1437,7 +1438,6 @@
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>1.7.4</Version>
     </PackageReference>
-    <PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
