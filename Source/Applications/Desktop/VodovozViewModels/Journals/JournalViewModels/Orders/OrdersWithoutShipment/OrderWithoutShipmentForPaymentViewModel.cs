@@ -246,16 +246,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
 
 			var cashlessOrdersQuery = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Where(x => x.OrderStatus == OrderStatus.Closed)
 				.Where(x => x.PaymentType == PaymentType.Cashless);
 
 			if(Organization != null)
 			{
-				cashlessOrdersQuery = cashlessOrdersQuery.Where(x => x.OurOrganization == Organization || x.OurOrganization == null);
+				cashlessOrdersQuery = cashlessOrdersQuery.Where(x => x.Contract.Organization == Organization);
 			}
 			
 			if(Entity.Client != null)
