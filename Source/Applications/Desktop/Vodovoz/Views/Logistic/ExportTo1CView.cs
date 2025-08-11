@@ -3,13 +3,14 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using System.Globalization;
+using QS.Views.Dialog;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Service;
 
 namespace Vodovoz.Views.Logistic
 {
-	public partial class ExportTo1CView : TabViewBase<ExportTo1CViewModel>
+	public partial class ExportTo1CView : DialogViewBase<ExportTo1CViewModel>
 	{
 		public ExportTo1CView(ExportTo1CViewModel viewModel)
 			: base(viewModel)
@@ -103,7 +104,6 @@ namespace Vodovoz.Views.Logistic
 				tempBuffer.InsertWithTags(ref iter, String.Join("\n", ViewModel.ExportCashlessData.Errors), tag);
 				textviewErrors.Buffer = tempBuffer;
 			}
-
 		}
 	}
 }

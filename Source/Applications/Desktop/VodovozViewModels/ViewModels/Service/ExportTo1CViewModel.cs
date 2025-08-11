@@ -1,4 +1,11 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Xml;
+using System.Xml.Linq;
 using ExportTo1c.Library;
 using ExportTo1c.Library.ExportNodes;
 using Microsoft.VisualBasic.FileIO;
@@ -8,38 +15,27 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
-using QS.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Xml;
-using System.Xml.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C;
-using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Service
 {
-	public class ExportTo1CViewModel : DialogTabViewModelBase
+	public class ExportTo1CViewModel : DialogViewModelBase, IDisposable
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IGenericRepository<Organization> _organizationRepository;
-		private readonly IGenericRepository<CashPaymentTypeOrganizationSettings> _cashPaymentTypeOrganizationSettingsRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private Organization _selectedCashlessOrganization;
 		private Organization _selectedRetailOrganization;
@@ -51,10 +47,10 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private string _totalSum;
 		private string _totalInvoices;
 		private bool _exportInProgress;
-		private IList<OrganizationVersion> _cashPaymentTypeOrganizationVersions;
-		private Organization _cashPaymentTypeOrganization;
-		private string _cashPaymentTypeOrganizationPhone;
-		private CancellationTokenSource _cancellationTokenSource;
+		private readonly CancellationTokenSource _cancellationTokenSource;
+
+		private readonly List<RetailSalesReportFor1cOrganizationSettings> _retailSalesReportFor1cOrganizationSettings =
+			new List<RetailSalesReportFor1cOrganizationSettings>();
 
 		public ExportTo1CViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -63,50 +59,39 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			IFileDialogService fileDialogService,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IGtkTabsOpener gtkTabsOpener,
 			IDialogSettingsFactory dialogSettingsFactory,
 			IGenericRepository<Organization> organizationRepository,
-			IGenericRepository<CashPaymentTypeOrganizationSettings> cashPaymentTypeOrganizationSettingsRepository,
 			IOrganizationSettings organizationSettings)
-			: base(unitOfWorkFactory, interactiveService, navigation)
+			: base(navigation)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_cashPaymentTypeOrganizationSettingsRepository = cashPaymentTypeOrganizationSettingsRepository ??
-															 throw new ArgumentNullException(nameof(cashPaymentTypeOrganizationSettingsRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
-			TabName = "Выгрузка в 1с 8.3";
+			Title = "Выгрузка в 1с 8.3";
 
 			CreateCommands();
 
 			LoadEntities();
 
 			_cancellationTokenSource = new CancellationTokenSource();
-
 		}
 
 		private void LoadEntities()
 		{
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация формы эскпорта в 1С"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Инициализация формы эскпорта в 1С"))
 			{
 				CashlessOrganizations = _organizationRepository.Get(unitOfWork).ToList();
 				RetailOrganizations = _organizationRepository.Get(unitOfWork).ToList();
 
-				_cashPaymentTypeOrganizationVersions =
-					_cashPaymentTypeOrganizationSettingsRepository.Get(unitOfWork).FirstOrDefault()
-						?.Organizations
-						?.FirstOrDefault()
-						?.OrganizationVersions;
-
-				_cashPaymentTypeOrganization = _cashPaymentTypeOrganizationVersions
-					.Select(o => o.Organization)
-					.FirstOrDefault();
-
-				_cashPaymentTypeOrganizationPhone = _cashPaymentTypeOrganization.Phones.FirstOrDefault().ToString();
+				foreach(var organization in RetailOrganizations)
+				{
+					_retailSalesReportFor1cOrganizationSettings.Add(new RetailSalesReportFor1cOrganizationSettings(organization));
+				}
 			}
 		}
 
@@ -287,14 +272,14 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			}
 
 			var exportOperation = new ExportCashlessTo1cOperation(
-					  mode,
-					  _orderSettings,
-					  _orderRepository,
-					  UnitOfWorkFactory,
-					  StartDate.Value,
-					  EndDate.Value,
-					  organizationId
-				  );
+				mode,
+				_orderSettings,
+				_orderRepository,
+				_unitOfWorkFactory,
+				StartDate.Value,
+				EndDate.Value,
+				organizationId
+			);
 
 			ExportInProgress = true;
 
@@ -317,9 +302,9 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 				.ToString();
 
 			TotalSales = (ExportCashlessData.Objects
-							  .OfType<SalesDocumentNode>()
-							  .Count()
-						  + ExportCashlessData.Objects.OfType<RetailDocumentNode>().Count())
+				              .OfType<SalesDocumentNode>()
+				              .Count()
+			              + ExportCashlessData.Objects.OfType<RetailDocumentNode>().Count())
 				.ToString();
 
 			TotalSum = ExportCashlessData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
@@ -339,24 +324,55 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		#region Retail
 
-		private RetailSalesReportFor1C CreateRetailReport(
-			Organization filterOrganization,
-			OrganizationVersion supplierOrganizationVersionOnDate,
-			Organization supplierOrganizationOnDate,
-			CancellationToken token)
+		private IEnumerable<RetailSalesReportFor1C> CreateRetailReports(CancellationToken cancellationToken)
 		{
+			var reports = new List<RetailSalesReportFor1C>();
+
+			if(SelectedRetailOrganization is null)
+			{
+				reports.AddRange(RetailOrganizations.Select(organization => CreateRetailReportForOrganization(organization, cancellationToken)));
+			}
+			else
+			{
+				reports.Add(CreateRetailReportForOrganization(SelectedRetailOrganization, cancellationToken));
+			}
+
+			return reports;
+		}
+
+		private RetailSalesReportFor1C CreateRetailReportForOrganization(Organization organization, CancellationToken cancellationToken)
+		{
+			var export1CRetailOrganization = _retailSalesReportFor1cOrganizationSettings
+				.FirstOrDefault(x => x.Organization.Id == organization.Id);
+
+			var organizationVersion =
+				export1CRetailOrganization
+					?.OrganizationVersions
+					?.OrderByDescending(x => x.StartDate)
+					.FirstOrDefault(x => x.StartDate <= StartDate);
+
+			if(organizationVersion is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не найдена версия организации на выбранные даты");
+
+				return new RetailSalesReportFor1C();
+			}
+
+			var phone = export1CRetailOrganization.Phone;
+
 			var retailSalesReport = new RetailSalesReportFor1C
 			{
-				OrganizationVersionForTitle = supplierOrganizationVersionOnDate,
-				OrganizationForTitle = supplierOrganizationOnDate,
-				Phone = _cashPaymentTypeOrganizationPhone,
+				OrganizationVersionForTitle = organizationVersion,
+				OrganizationForTitle = organization,
+				Phone = phone,
 				SaleDate = StartDate.Value
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для отчёта"))
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для отчёта"))
 			{
-				var orders = GetRetailOrders(unitOfWork, filterOrganization);
-				retailSalesReport.Generate(orders, ProgressBarDisplayable, token);
+				var orders = GetRetailOrders(unitOfWork, organization);
+
+				retailSalesReport.Generate(orders, ProgressBarDisplayable, cancellationToken);
 			}
 
 			return retailSalesReport;
@@ -364,32 +380,46 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		private void ExportRetail()
 		{
-			if(SelectedRetailOrganization == null)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Необходимо выбрать организацию для розницы");
-
-				return;
-			}
-
 			ExportInProgress = true;
 
-			XElement xml;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
+			if(SelectedRetailOrganization is null)
 			{
-				var orders = GetRetailOrders(unitOfWork, SelectedRetailOrganization);
-
-				xml = Retail1cDataExporter.CreateRetailXmlAsync(orders, StartDate.Value, EndDate.Value, _cancellationTokenSource.Token, ProgressBarDisplayable);
+				foreach(var organization in RetailOrganizations)
+				{
+					ExportRetailForOrganization(organization);
+				}
 			}
-
-			var dateText = EndDate.Value.ToString("yyyy-MM-dd");
-			var fileName = $"Выгрузка 1с на {dateText} (розница).xml";
-
-			SaveXmlToFile(xml, fileName);
+			else
+			{
+				ExportRetailForOrganization(SelectedRetailOrganization);
+			}
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт розницы завершен");
 
 			ExportInProgress = false;
+		}
+
+		private void ExportRetailForOrganization(Organization organization)
+		{
+			XElement xml;
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
+			{
+				var orders = GetRetailOrders(unitOfWork, organization);
+
+				xml = Retail1cDataExporter.CreateRetailXml(
+					orders,
+					StartDate.Value,
+					EndDate.Value,
+					organization.INN,
+					_cancellationTokenSource.Token,
+					ProgressBarDisplayable);
+			}
+
+			var dateText = EndDate.Value.ToString("yyyy-MM-dd");
+			var fileName = $"Выгрузка 1с на {dateText} ИНН {organization.INN} (розница).xml";
+
+			SaveXmlToFile(xml, fileName);
 		}
 
 		private IList<Order> GetRetailOrders(IUnitOfWork unitOfWork, Organization organization)
@@ -407,33 +437,19 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		{
 			StartProgressAction?.Invoke();
 
-			if(SelectedRetailOrganization is null)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Необходимо выбрать организацию для розницы");
-
-				return;
-			}
-
-			var supplierOrganizationVersionOnDate = _cashPaymentTypeOrganizationVersions
-				.Where(x => x.StartDate <= StartDate)
-				.OrderByDescending(x => x.StartDate)
-				.FirstOrDefault();
-
-			if(supplierOrganizationVersionOnDate == null)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, $"Отсутствует версия организации на дату {StartDate}, настроенная на нал");
-
-				return;
-			}
-
 			ExportInProgress = true;
 
-			var report = CreateRetailReport(SelectedRetailOrganization, supplierOrganizationVersionOnDate, _cashPaymentTypeOrganization, _cancellationTokenSource.Token);
-			report.SaveReport(_dialogSettingsFactory, _fileDialogService);
+			var reports = CreateRetailReports(_cancellationTokenSource.Token);
+
+			foreach(var report in reports)
+			{
+				report.SaveReport(_dialogSettingsFactory, _fileDialogService, report.OrganizationForTitle.INN);
+			}
 
 			ExportInProgress = false;
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, "Отчёт сохранён");
+
 			EndProgressAction?.Invoke();
 		}
 
@@ -486,11 +502,10 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		#endregion Save xml to file
 
-		public override void Dispose()
+		public void Dispose()
 		{
-			_cancellationTokenSource.Cancel();
-
-			base.Dispose();
+			_cancellationTokenSource?.Cancel();
+			_cancellationTokenSource?.Dispose();
 		}
 	}
 }

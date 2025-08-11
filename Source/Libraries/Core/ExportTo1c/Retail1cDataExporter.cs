@@ -13,10 +13,11 @@ namespace ExportTo1c.Library
 {
 	public static class Retail1cDataExporter
 	{
-		public static XElement CreateRetailXmlAsync(
+		public static XElement CreateRetailXml(
 			IList<Order> orders,
 			DateTime startOfYesterday,
 			DateTime endOfYesterday,
+			string organizationInn,
 			CancellationToken cancellationToken,
 			IProgressBarDisplayable progressBarDisplayable = null)
 		{
@@ -24,7 +25,7 @@ namespace ExportTo1c.Library
 				new XAttribute("НачалоПериодаВыгрузки", startOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
 				new XAttribute("ОкончаниеПериодаВыгрузки", endOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
 				new XElement("Организация",
-					new XAttribute("ИНН", ""),
+					new XAttribute("ИНН", organizationInn),
 					new XElement("Продажи",
 						CreateExportRetailRows(orders, cancellationToken, progressBarDisplayable)
 					)

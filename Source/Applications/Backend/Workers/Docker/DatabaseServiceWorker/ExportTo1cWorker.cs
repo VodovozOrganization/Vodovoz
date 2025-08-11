@@ -1,17 +1,17 @@
-﻿using DatabaseServiceWorker.Options;
-using ExportTo1c.Library;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
-using SharpCifs.Smb;
-using SharpCifs.Util.Sharpen;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using DatabaseServiceWorker.Options;
+using ExportTo1c.Library;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using SharpCifs.Smb;
+using SharpCifs.Util.Sharpen;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
@@ -117,26 +117,17 @@ namespace DatabaseServiceWorker
 			var smbPath = $"smb://{_options.Value.ExportPath}/";
 
 			await DeleteFilesOlderThanOneMonth(smbPath, auth, cancellationToken);
-			
-			await ExportCashless(yesterday,smbPath, auth, cancellationToken);
-			
-			await ExportRetail(yesterday,smbPath, auth, cancellationToken);
+
+			await ExportCashless(yesterday, smbPath, auth, cancellationToken);
+
+			await ExportRetail(yesterday, smbPath, auth, cancellationToken);
 		}
 
 		private async Task ExportRetail(DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
 		{
-			var retailFileName = $"{_leftPartNameOfExportFile}{_retail}-{yesterday:yyyy-MM-dd}.xml";
-			
-			var smbFile = new SmbFile($"{smbPath}{retailFileName}", auth);
-
-			if(smbFile.Exists())
-			{
-				return;
-			}
-
 			var startOfYesterday = yesterday;
 			var endOfYesterday = yesterday.AddDays(1).AddTicks(-1);
-			
+
 			var exportMode = Export1cMode.RetailReport;
 
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт данных в 1С");
@@ -148,15 +139,35 @@ namespace DatabaseServiceWorker
 				startOfYesterday,
 				endOfYesterday);
 
-			var xml = Retail1cDataExporter.CreateRetailXml(orders, startOfYesterday, endOfYesterday, cancellationToken);
+			foreach(var groupedOrder in orders.GroupBy(x => x.Contract.Organization))
+			{
+				var retailFileName = $"{_leftPartNameOfExportFile}{_retail}-{groupedOrder.Key.INN}-{yesterday:yyyyMMdd}.xml";
 
-			await ExportToFile(smbFile, xml, cancellationToken);
+				var smbFile = new SmbFile($"{smbPath}{retailFileName}", auth);
+
+				if(smbFile.Exists())
+				{
+					continue;
+				}
+
+				var organizaionOrders = groupedOrder.ToList();
+				var organizationInn = groupedOrder.Key.INN;
+
+				var xml = Retail1cDataExporter.CreateRetailXml(
+					organizaionOrders,
+					startOfYesterday,
+					endOfYesterday,
+					organizationInn,
+					cancellationToken);
+
+				await ExportToFile(smbFile, xml, cancellationToken);
+			}
 		}
 
 		private async Task ExportCashless(DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
 		{
-			var cashlessFileName = $"{_leftPartNameOfExportFile}{_cashless}-{yesterday:yyyy-MM-dd}.xml";
-			
+			var cashlessFileName = $"{_leftPartNameOfExportFile}{_cashless}-{yesterday:yyyyMMdd}.xml";
+
 			var smbFile = new SmbFile($"{smbPath}{cashlessFileName}", auth);
 
 			if(smbFile.Exists())
@@ -195,7 +206,7 @@ namespace DatabaseServiceWorker
 
 			await ExportToFile(smbFile, exportData.ToXml(), cancellationToken);
 		}
-		
+
 
 		private async Task ExportToFile(SmbFile smbFile, XElement xml, CancellationToken cancellationToken)
 		{
@@ -210,7 +221,7 @@ namespace DatabaseServiceWorker
 
 			using var smbStream = new SmbFileOutputStream(smbFile);
 
-			using var writer = XmlWriter.Create(smbStream, settings);
+			await using var writer = XmlWriter.Create(smbStream, settings);
 
 			await xml.WriteToAsync(writer, cancellationToken);
 		}

@@ -1,17 +1,18 @@
-﻿using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.Project.Services.FileDialog;
-using QS.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using QS.Dialog;
+using QS.DomainModel.Entity;
+using QS.Project.Services.FileDialog;
+using RestSharp.Extensions;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Presentation.ViewModels.Extensions;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Reports;
+using VodovozInfrastructure.Utils;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 {
@@ -68,7 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 		/// <summary>
 		/// Сумма прописью
 		/// </summary>
-		public string TotalSumInWords => NumberToTextRus.Str((int)TotalSum, true, "рубль", "рубля", "рублей");
+		public string TotalSumInWords => RusCurrency.Str(TotalSum);
 
 		/// <summary>
 		/// Поставщик
@@ -123,9 +124,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 			Rows = xElements;
 		}
 
-		public void SaveReport(IDialogSettingsFactory dialogSettingsFactory, IFileDialogService fileDialogService)
+		public void SaveReport(IDialogSettingsFactory dialogSettingsFactory, IFileDialogService fileDialogService, string organizationINN)
 		{
-			var dialogSettings = dialogSettingsFactory.CreateForClosedXmlReport(this);
+			var fileName = $"{GetType().GetAttribute<AppellativeAttribute>().Nominative} ИНН {organizationINN}";
+			
+			var dialogSettings = dialogSettingsFactory.CreateForClosedXmlReport(this, fileName);
 
 			var saveDialogResult = fileDialogService.RunSaveFileDialog(dialogSettings);
 

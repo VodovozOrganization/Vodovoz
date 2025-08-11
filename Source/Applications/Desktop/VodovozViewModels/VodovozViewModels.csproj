@@ -975,6 +975,7 @@
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCars.cs" />
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCarsRow.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1cOrganizationSettings.cs" />
     <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1CRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1C.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
