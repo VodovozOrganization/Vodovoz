@@ -667,12 +667,7 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\VatCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.ComplexAutomationDefaultExchangeStrings.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComplexAutomationRulesNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\IRulesNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyValueParameterNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RulesNode.DefaultExchangeStrings.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -833,34 +828,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
     <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\AccountCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\BankCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\ContractCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\CounterpartyCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\CurrencyCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\GenericCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\MeasurementUnitsCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\OrganizationCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\WarehouseCatalog.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Common1cTypes.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\DomainObjectEqualityComparer.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportData.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Currency.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Warehouse1c.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\CatalogObjectNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ComissionNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\InvoiceDocumentNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ObjectNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyNullNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\PropertyValueNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\ReferenceNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RulesNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\RetailDocumentNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableRecordNode.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\CounterpartyContractDlg.cs" />
@@ -1058,7 +1025,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.OrderEquipmentItemsView.cs" />
     <Compile Include="Dialogs\Goods\Folder1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.Folder1cDlg.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
     <Compile Include="ReportsParameters\OrderRegistryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderRegistryReport.cs" />
     <Compile Include="ReportsParameters\Store\EquipmentBalance.cs" />
@@ -1081,7 +1047,6 @@
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1cDlg.cs" />
     <Compile Include="ServiceDialogs\ExportCounterpartiesTo1C.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ExportCounterpartiesTo1cDlg.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportCounterpariesData.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.DefectiveItemsReport.cs" />
     <Compile Include="ReportsParameters\Store\DefectiveItemsReport.cs" />
     <Compile Include="Dialogs\Logistic\RouresAtDayInfoWnd.cs" />
@@ -1361,8 +1326,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Permissions.PresetPermissionsView.cs" />
     <Compile Include="Views\UndeliveryProblemSourceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.UndeliveryProblemSourceView.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\NomenclatureType1c.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureTypeCatalog.cs" />
     <Compile Include="ReportsParameters\SelectableParameterReportFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelectableParameterReportFilterView.cs" />
     <Compile Include="ReportsParameters\OrdersCreationTimeReport.cs" />
@@ -1388,7 +1351,6 @@
     <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
     <Compile Include="Views\Comments\DocumentCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="Cores\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
@@ -2109,15 +2071,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.EdoAccountView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsByOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
+    <Compile Include="Views\Logistic\SelfDeliveringOrderEditView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Cash\Payments\" />
-    <Folder Include="Dialogs\Cash\Payments\" />
-    <Folder Include="Views\Edo\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2532,6 +2493,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{eb928475-6d2b-4fef-a314-d75bccef3ad0}</Project>
       <Name>EdoService.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ExportTo1c\ExportTo1c.Library.csproj">
+      <Project>{d805bccb-7158-4e50-837f-5cd12706713b}</Project>
+      <Name>ExportTo1c.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
