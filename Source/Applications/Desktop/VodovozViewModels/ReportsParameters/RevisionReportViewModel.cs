@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using fyiReporting.RDL;
+using iTextSharp.text.pdf;
 using Mailganer.Api.Client;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -302,7 +303,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(SendBillsForNotPaidOrder)
 			{
-				var countOfUnpaidOrders = _orderRepository.Get(UnitOfWork,
+				var UnpaidOrdersId = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id 
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
@@ -310,7 +311,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					.Select(o => o.Id)
 					.ToArray();
 
-				foreach(var orderId in countOfUnpaidOrders)
+				/*foreach(var orderId in countOfUnpaidOrders)
 				{
 					var billParameters = new Dictionary<string, object>
 					{
@@ -326,7 +327,27 @@ namespace Vodovoz.ViewModels.ReportsParameters
 							Base64Content = Convert.ToBase64String(billPdf)
 						});
 					}
+				}*/
+
+				var pdfArray = new byte[UnpaidOrdersId.Length][];
+				for(int i = 0; i < UnpaidOrdersId.Length; i++)
+				{
+					var billParameters = new Dictionary<string, object>
+					{
+						{ "order_id", UnpaidOrdersId[i] }
+					};
+					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
+					byte[] billPdf = GenerateReport(billReportSource, billParameters);
+					pdfArray[i] = billPdf;
 				}
+
+				byte[] mergedPdf = MergePdfs(pdfArray);
+
+				attachments.Add(new EmailAttachment
+				{
+					Filename = "Неоплаченные_счета.pdf",
+					Base64Content = Convert.ToBase64String(mergedPdf)
+				});
 			}
 
 			if(SendGeneralBill)
@@ -348,7 +369,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{
 					attachments.Add(new EmailAttachment
 					{
-						Filename = "ОбщийСчет.pdf",
+						Filename = "Общий_счет.pdf",
 						Base64Content = Convert.ToBase64String(generalBillPdf)
 					});
 				}
@@ -449,6 +470,32 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				var pdfBytes = (msGen.GetStream() as MemoryStream)?.ToArray();
 
 				return pdfBytes;
+			}
+		}
+
+		public byte[] MergePdfs(IEnumerable<byte[]> pdfs)
+		{
+			using(var mergedPdf = new MemoryStream())
+			{
+				using(var document = new iTextSharp.text.Document())
+				{
+					using(var copy = new PdfSmartCopy(document, mergedPdf))
+					{
+						document.Open();
+
+						foreach(var pdfBytes in pdfs)
+						{
+							using(var reader = new PdfReader(pdfBytes))
+							{
+								for(int i = 1; i <= reader.NumberOfPages; i++)
+								{
+									copy.AddPage(copy.GetImportedPage(reader, i));
+								}
+							}
+						}
+					}
+				}
+				return mergedPdf.ToArray();
 			}
 		}
 
