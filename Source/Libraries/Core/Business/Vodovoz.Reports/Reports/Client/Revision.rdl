@@ -35,7 +35,17 @@
                   ) as debt,
             0 as deposit,
               0 as money,
-              o.delivery_date AS date
+              o.delivery_date AS date,
+            CASE
+              WHEN (
+                SELECT IFNULL(sum(cmo.expense), 0)
+                FROM payment_items pi
+                  INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                WHERE pi.order_id = o.id
+                  AND cmo.cashless_movement_operation_status != 'Cancelled'
+              ) = 0 THEN 'NotPaid'
+              ELSE 'PartiallyPaid'
+            END as payment_status
           FROM orders o
           WHERE
             o.client_id = @counterparty_id
@@ -44,13 +54,14 @@
           HAVING
             debt &gt; 0
           UNION ALL
-          SELECT # OK. Оплаченные заказы
+          SELECT # Оплаченные заказы
               p.payment_num as num,
             CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
             pi.sum as debt,
               0 as deposit,
               0 as money,
-              o.delivery_date as date
+              o.delivery_date as date,
+              'Paid' as payment_status
           FROM 
             orders o
           INNER JOIN 
@@ -67,7 +78,8 @@
             0 as debt,
             cmo.income as deposit,
             0 as money,
-            IFNULL(cmo.operation_time, p.payment_date) as date
+            IFNULL(cmo.operation_time, p.payment_date) as date,
+            '' as payment_status
           FROM payments_from_bank_client p
             LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
             INNER JOIN organizations org ON p.organization_id = org.id
@@ -78,7 +90,7 @@
           AND 
             t.`date`  &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
           ORDER BY
-            t.`date`
+            t.`date` DESC
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -112,6 +124,10 @@
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="payment_status">
+          <DataField>payment_status</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="document">
           <DataField>document</DataField>
@@ -608,6 +624,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                            <BackgroundColor>=Iif(Fields!payment_status.Value = "NotPaid", "Orange", Iif(Fields!payment_status.Value = "PartiallyPaid", "Yellow", "White"))</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
