@@ -63,6 +63,9 @@ namespace Vodovoz.Reports
 			buttonRun.Binding
 				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
 				.InitializeFromSource();
+			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
+			buttonInfo.Binding
+				.InitializeFromSource();
 		}
 
 		public override void Destroy()

@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
+			ShowInfoCommand = new DelegateCommand(() => ShowInfo());
 			RunCommand = new DelegateCommand(() =>
 			{
 				GenerateReport();
@@ -200,6 +201,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public INavigationManager NavigationManager { get; }
 		public RdlViewerViewModel RdlViewerViewModel { get; }
 		public DelegateCommand SendByEmailCommand { get; }
+		public DelegateCommand ShowInfoCommand { get; }
 		public DelegateCommand RunCommand { get; }
 		#endregion
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
@@ -465,6 +467,13 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 			return result;
+		}
+		private void ShowInfo()
+		{
+			var info = "В акте сверки заказы выделяются следующими цветами:"
+				+ "\n\t- Желтым цветом — заказы с частичной оплатой;"
+				+ "\n\t- Оранжевым цветом — сделзаказыки без оплаты.";
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчётом");
 		}
 	}
 }
