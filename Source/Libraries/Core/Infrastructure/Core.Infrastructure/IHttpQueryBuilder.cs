@@ -1,4 +1,4 @@
-namespace TaxcomEdo.Client
+namespace Core.Infrastructure
 {
 	/// <summary>
 	/// Формирование строки запроса с параметрами
