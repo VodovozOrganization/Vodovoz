@@ -253,10 +253,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					{
 						new EmailContact
 						{
-							//Name = client != null ? client.FullName : "Уважаемый пользователь",
-							// Email = SelectedEmail.Address;
-							Name = "Уважаемый пользователь",
-							Email = "work.semen.sd@gmail.com"
+							Name = SelectedEmail != null ? SelectedEmail.Counterparty.FullName : "Уважаемый пользователь",
+							Email = SelectedEmail.Address
 						}
 					},
 					Subject = "Акт сверки",
