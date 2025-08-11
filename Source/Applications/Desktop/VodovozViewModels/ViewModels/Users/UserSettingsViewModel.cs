@@ -289,7 +289,7 @@ namespace Vodovoz.ViewModels.Users
 			{
 				return false;
 			}
-
+			
 			return base.Save(close);
 		}
 

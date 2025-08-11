@@ -21,8 +21,6 @@ namespace Vodovoz.Core.Domain.Users.Settings
 	{
 		private int _id;
 		private int _sortingIndex;
-		private int? _userSettingsId;
-		private int? _cashSubdivisionId;
 		private UserSettings _userSettings;
 		private SubdivisionEntity _cashSubdivision;
 
@@ -34,19 +32,7 @@ namespace Vodovoz.Core.Domain.Users.Settings
 			
 		}
 
-		/// <summary>
-		/// Конструктор
-		/// </summary>
-		/// <param name="sortingIndex"></param>
-		/// <param name="userSettingsId"></param>
-		/// <param name="cashSubdivisionId"></param>
-		public CashSubdivisionSortingSettings(int sortingIndex, int userSettingsId, int cashSubdivisionId)
-		{
-			_sortingIndex = sortingIndex;
-			_userSettingsId = userSettingsId;
-			_cashSubdivisionId = cashSubdivisionId;
-		}
-
+		
 		public CashSubdivisionSortingSettings(int sortingIndex, UserSettings userSettings, SubdivisionEntity cashSubdivision)
 		{
 			_sortingIndex = sortingIndex;
