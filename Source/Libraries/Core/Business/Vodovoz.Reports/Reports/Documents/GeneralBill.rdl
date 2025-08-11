@@ -1155,7 +1155,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>=First(Fields!order_id.Value, "Goods")</Value>
+                      <Value>=Fields!order_id.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
