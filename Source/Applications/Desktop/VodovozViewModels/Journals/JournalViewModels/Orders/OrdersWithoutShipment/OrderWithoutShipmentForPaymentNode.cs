@@ -16,7 +16,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public decimal Bottles { get; set; }
 		public decimal OrderSum { get; set; }
 		public string DeliveryAddress { get; set; }
-		
 		public string OrganizationName { get; set; }
 	}
 }
