@@ -271,7 +271,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					Attachments = attachments
 				};
 
-				await _emailDirectSender.SendAsync(emailMessage);
+				_emailDirectSender.SendAsync(emailMessage);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -338,7 +338,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				var generalBillParameters = new Dictionary<string, object>
 				{
-					{ "order_id", string.Join(",", countOfOrders) }
+					{ "order_id", countOfOrders }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);

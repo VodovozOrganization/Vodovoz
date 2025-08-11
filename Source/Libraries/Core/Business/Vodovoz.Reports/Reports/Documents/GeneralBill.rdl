@@ -85,7 +85,8 @@ FROM
     	LEFT JOIN
     phones p ON o.contact_phone_id = p.id
 WHERE
-        o.id IN (@order_id);</CommandText>
+        o.id IN (@order_id)
+        LIMIT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -179,7 +180,9 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT
+        <CommandText>
+SELECT
+	  order_items.order_id as order_id,
     nomenclature.id AS id,
     nomenclature.official_name AS name,
     '--' AS unit_code,
@@ -200,10 +203,11 @@ FROM
     nomenclature ON order_items.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON nomenclature.unit_id = measurement_units.id
-        LEFT JOIN
-    orders ON orders.id = order_items.order_id
 WHERE
-        order_items.order_id IN (@order_id);</CommandText>
+	order_items.order_id IN (@order_id)
+ORDER BY 
+	order_items.order_id;
+      </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -211,6 +215,10 @@ WHERE
         </QueryParameters>
       </Query>
       <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -315,7 +323,8 @@ FROM
         LEFT JOIN
     phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE
-    orders.id IN (@order_id);</CommandText>
+    orders.id IN (@order_id)
+    LIMIT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
@@ -458,6 +467,7 @@ LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
 LEFT JOIN organizations org ON cc.organization_id = org.id 
 LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
 WHERE o.id IN (@order_id)
+LIMIT 1
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -494,7 +504,7 @@ WHERE o.id IN (@order_id)
 		        AND
 		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
 		    WHERE
-		    	orders.id IN (@order_id))) as chief,
+		    	orders.id IN (@order_id) LIMIT 1)) as chief,
 	(SELECT binary_file FROM stored_resource WHERE id = 
 		(SELECT 
 			 ov.signature_accountant_id
@@ -513,7 +523,7 @@ WHERE o.id IN (@order_id)
 		        AND
 		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
 		    WHERE
-		    	orders.id IN (@order_id))) as bookkeeper
+		    	orders.id IN (@order_id) LIMIT 1)) as bookkeeper
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -913,6 +923,9 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           <TableColumn>
             <Width>28.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>38.3pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>196.9pt</Width>
           </TableColumn>
@@ -956,6 +969,24 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>Номер заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1118,6 +1149,24 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>=First(Fields!order_id.Value, "Goods")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1290,7 +1339,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                       <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1343,7 +1392,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                       <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1394,7 +1443,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                       <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1444,7 +1493,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                       <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>9</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1474,7 +1523,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
                       <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>8</ColSpan>
+                  <ColSpan>9</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -2153,14 +2202,6 @@ Iif(
       <MultiValue>true</MultiValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
-      <DefaultValue>
-        <Values>
-          <Value>269991</Value>
-        </Values>
-      </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
