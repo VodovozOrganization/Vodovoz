@@ -3,7 +3,6 @@ using fyiReporting.RDL;
 using iTextSharp.text.pdf;
 using Mailganer.Api.Client;
 using Mailjet.Api.Abstractions;
-using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -55,9 +54,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IInteractiveService interactiveService,
-			MailganerClientV2 mailganerClient,
 			IEmailSettings emailSettings,
-			IRequestClient<SendEmailMessage> client,
 			EmailDirectSender emailDirectSender,
 			IGenericRepository<OrderEntity> orderRepository
 			) : base(rdlViewerViewModel, reportInfoFactory)
@@ -196,6 +193,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			get => _selectedEmail;
 			set => SetField(ref _selectedEmail, value, () => SelectedEmail);
 		}
+		public override ReportInfo ReportInfo
+		{
+			get
+			{
+				var reportInfo = base.ReportInfo;
+				reportInfo.Source = _source;
+				reportInfo.UseUserVariables = true;
+				return reportInfo;
+			}
+		}
 
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -211,16 +218,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "EndDate", EndDate },
 			{ "CounterpartyID", Counterparty?.Id }
 		};
-		public override ReportInfo ReportInfo
-		{
-			get
-			{
-				var reportInfo = base.ReportInfo;
-				reportInfo.Source = _source;
-				reportInfo.UseUserVariables = true;
-				return reportInfo;
-			}
-		}
 
 		public void Dispose()
 		{
@@ -229,7 +226,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			UnitOfWork?.Dispose();
 			UnitOfWork = null;
 		}
-		private async void SendByEmail()
+		private void SendByEmail()
 		{
 			if(!IsEmailDataValid())
 			{
@@ -310,24 +307,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
 					.Select(o => o.Id)
 					.ToArray();
-
-				/*foreach(var orderId in countOfUnpaidOrders)
-				{
-					var billParameters = new Dictionary<string, object>
-					{
-						{ "order_id", orderId}
-					};
-					var billReportSource = GetReportFromDocumentsSource("Bill.rdl");
-					var billPdf = GenerateReport(billReportSource, billParameters);
-					if(billPdf != null)
-					{
-						attachments.Add(new EmailAttachment
-						{
-							Filename = $"Счет {orderId}.pdf",
-							Base64Content = Convert.ToBase64String(billPdf)
-						});
-					}
-				}*/
 
 				var pdfArray = new byte[UnpaidOrdersId.Length][];
 				for(int i = 0; i < UnpaidOrdersId.Length; i++)

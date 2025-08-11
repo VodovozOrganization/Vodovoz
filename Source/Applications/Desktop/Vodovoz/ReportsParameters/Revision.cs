@@ -1,9 +1,5 @@
-﻿using NHibernate.Criterion;
-using QS.ViewModels.Control.EEVM;
+﻿using QS.ViewModels.Control.EEVM;
 using QS.Views;
-using QSReport;
-using ReactiveUI;
-using System;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ReportsParameters;
