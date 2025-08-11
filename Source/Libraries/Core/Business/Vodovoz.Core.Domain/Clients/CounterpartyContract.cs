@@ -151,7 +151,7 @@ namespace Vodovoz.Core.Domain.Clients
 		/// <summary>
 		/// Заголовок в 1С
 		/// </summary>
-		public virtual string TitleIn1c => $"{Number} от {IssueDate:d}";
+		public virtual string TitleIn1c => $"{Number} от {IssueDate:dd.MM.yyyy}";
 		
 		public static ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)
 		{
