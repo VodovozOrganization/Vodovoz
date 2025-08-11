@@ -104,8 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand ProcessCommand { get; private set; }
 		public DelegateCommand CreateComplaintCommand { get; private set; }
 		public IEnumerable<INamedDomainObject> OrderRatingReasons { get; }
-		
-		private bool OnlineOrderIsNotNull => Entity.OnlineOrder != null;
+
+		public bool OnlineOrderIsNotNull => Entity.OnlineOrder != null;
 		private bool IsNewOrderRatingStatus => Entity.OrderRatingStatus == OrderRatingStatus.New;
 		
 		private void UpdateComplaintInformation()

@@ -120,31 +120,15 @@ namespace Vodovoz.Application.Orders.Services
 					new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
 				};
 			}
-			
-			if(paidDelivery is null)
+
+			if(TryProcessPaidDelivery(
+				uow, requestTime, organizationChoice, paidDelivery, goodsAndEquipmentsBySets, out var splitOrderByPaidDelivery))
 			{
-				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
-				{
-					return new[]
-					{
-						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
-					};
-				}
+				return splitOrderByPaidDelivery;
 			}
-			else
-			{
-				var setGoodsAndEquipments = goodsAndEquipmentsBySets.First().Value;
-				setGoodsAndEquipments.Goods.Add(paidDelivery);
-				
-				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
-				{
-					return new[]
-					{
-						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
-					};
-				}
-			}
-			
+
+			ProcessDocumentsNomenclatureFromEquipments(processingEquipments, goodsAndEquipmentsBySets);
+
 			foreach(var keyPairValue in goodsAndEquipmentsBySets)
 			{
 				var organization =
@@ -206,7 +190,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			return setsOrganizations.Values;
 		}
-		
+
 		public bool OrderHasGoodsFromSeveralOrganizations(
 			IUnitOfWork uow,
 			IList<int> nomenclatureIds)
@@ -344,6 +328,71 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				return false;
+			}
+		}
+		
+		private bool TryProcessPaidDelivery(
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			OrderOrganizationChoice organizationChoice,
+			IProduct paidDelivery,
+			Dictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets,
+			out IEnumerable<PartOrderWithGoods> splitOrderByOrganizations)
+		{
+			splitOrderByOrganizations = Enumerable.Empty<PartOrderWithGoods>();
+			
+			if(paidDelivery is null)
+			{
+				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
+				{
+					splitOrderByOrganizations = new[]
+					{
+						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
+					};
+					return true;
+				}
+			}
+			else
+			{
+				var setGoodsAndEquipments = goodsAndEquipmentsBySets.First().Value;
+				setGoodsAndEquipments.Goods.Add(paidDelivery);
+				
+				if(goodsAndEquipmentsBySets.Keys.All(x => x.OrderContentSet != 1))
+				{
+					splitOrderByOrganizations = new[]
+					{
+						new PartOrderWithGoods(_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice))
+					};
+					return true;
+				}
+			}
+
+			return false;
+		}
+		
+		private void ProcessDocumentsNomenclatureFromEquipments(
+			IList<OrderEquipment> processingEquipments,
+			Dictionary<OrganizationBasedOrderContentSettings, (IList<IProduct> Goods, IList<OrderEquipment> Equipments)> goodsAndEquipmentsBySets)
+		{
+			if(!processingEquipments.Any())
+			{
+				return;
+			}
+			
+			var setGoodsAndEquipments = goodsAndEquipmentsBySets.First().Value;
+			var i = 0;
+
+			while(i < processingEquipments.Count)
+			{
+				if(processingEquipments[i].Nomenclature != null
+					&& processingEquipments[i].Nomenclature.Id == _nomenclatureSettings.DocumentsNomenclatureId)
+				{
+					setGoodsAndEquipments.Equipments.Add(processingEquipments[i]);
+					processingEquipments.RemoveAt(i);
+					continue;
+				}
+
+				i++;
 			}
 		}
 	}

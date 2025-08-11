@@ -119,6 +119,18 @@ namespace Vodovoz
 			private set => BaseOrder.UpdateDeliveryPoint(value, _contractUpdater);
 		}
 		
+		public PaymentType PaymentType
+		{
+			get => BaseOrder.PaymentType;
+			private set => BaseOrder.UpdatePaymentType(value, _contractUpdater);
+		}
+		
+		public PaymentFrom PaymentByCardFrom
+		{
+			get => BaseOrder.PaymentByCardFrom;
+			private set => BaseOrder.UpdatePaymentByCardFrom(value, _contractUpdater);
+		}
+		
 		public ChangedType CompletedChange
 		{
 			get
@@ -408,15 +420,18 @@ namespace Vodovoz
 				.Finish();
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
-			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboOrderPayment.Binding
+				.AddBinding(this, o => o.PaymentType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ySpecPaymentFrom.ItemsList =
-				_routeListItem.Order.PaymentType == PaymentType.PaidOnline
-					? GetActivePaymentFromWithSelected(_routeListItem.Order.PaymentByCardFrom)
+				PaymentType == PaymentType.PaidOnline
+					? GetActivePaymentFromWithSelected(PaymentByCardFrom)
 					: UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 
-			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+			ySpecPaymentFrom.Binding
+				.AddFuncBinding(this, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+				.AddBinding(this, e => e.PaymentByCardFrom, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);

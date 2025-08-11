@@ -101,23 +101,39 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<DriversScannedCodeDataNode>> GetAllNotProcessedDriversScannedCodesData(IUnitOfWork uow, CancellationToken cancellationToken)
+		public async Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
 		{
 			var query =
 				from driversScannedCode in uow.Session.Query<DriversScannedTrueMarkCode>()
-				join routeListItem in uow.Session.Query<RouteListItemEntity>() on driversScannedCode.RouteListAddressId equals routeListItem.Id
-				join orderItem in uow.Session.Query<OrderItemEntity>() on driversScannedCode.OrderItemId equals orderItem.Id
-				join order in uow.Session.Query<OrderEntity>() on orderItem.Order.Id equals order.Id
 				where
 					driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.None
 					|| (driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.Error
 						&& driversScannedCode.DriversScannedTrueMarkCodeError == DriversScannedTrueMarkCodeError.TrueMarkApiRequestError)
+				select driversScannedCode.RouteListAddressId;
+
+			return await query.Distinct().ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IEnumerable<DriversScannedCodeDataNode>> GetNotProcessedDriversScannedCodesDataByRouteListItemId(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from driversScannedCode in uow.Session.Query<DriversScannedTrueMarkCode>()
+				join orderItem in uow.Session.Query<OrderItemEntity>() on driversScannedCode.OrderItemId equals orderItem.Id
+				where
+					(driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.None
+					|| (driversScannedCode.DriversScannedTrueMarkCodeStatus == DriversScannedTrueMarkCodeStatus.Error
+						&& driversScannedCode.DriversScannedTrueMarkCodeError == DriversScannedTrueMarkCodeError.TrueMarkApiRequestError))
+					&& driversScannedCode.RouteListAddressId == routeListItemId
 				select new DriversScannedCodeDataNode
 				{
 					DriversScannedCode = driversScannedCode,
-					Order = order,
-					OrderItem = orderItem,
-					RouteListAddress = routeListItem
+					OrderItem = orderItem
 				};
 
 			return await query.ToListAsync(cancellationToken);

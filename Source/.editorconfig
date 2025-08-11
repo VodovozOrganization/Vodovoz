@@ -24,7 +24,7 @@ indent_size = 2
 
 #### .NET Coding Conventions ####
 
-max_line_length = 140
+max_line_length = 150
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true
