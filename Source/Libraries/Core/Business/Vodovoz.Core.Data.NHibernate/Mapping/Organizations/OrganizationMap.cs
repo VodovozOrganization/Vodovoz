@@ -49,9 +49,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.AvangardShopId)
 				.Column("avangard_shop_id");
 
-			Map(x => x.TaxcomEdoAccountId)
-				.Column("taxcom_edo_account_id");
-
 			Map(x => x.OrganizationEdoType)
 				.Column("edo_type");
 
@@ -64,6 +61,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			References(x => x.DefaultAccount)
 				.Column("default_account_id")
 				.Access.CamelCaseField(Prefix.None);
+
+			HasOne(x => x.TaxcomEdoSettings)
+				.PropertyRef(x => x.OrganizationId);
 
 			HasMany(x => x.Accounts)
 				.Cascade.AllDeleteOrphan()

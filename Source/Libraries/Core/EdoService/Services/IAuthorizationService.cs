@@ -4,6 +4,6 @@ namespace EdoService.Library.Services
 {
 	public interface IAuthorizationService
 	{
-		Task<string> Login();
+		Task<string> Login(string login, string password);
 	}
 }
