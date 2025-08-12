@@ -545,9 +545,9 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value></Value>
+                      <Value>Сальдо начальное</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -624,7 +624,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                            <BackgroundColor>=Iif(Fields!payment_status.Value = "NotPaid", "Orange", Iif(Fields!payment_status.Value = "PartiallyPaid", "Yellow", "White"))</BackgroundColor>
+                            <BackgroundColor>=Iif(Fields!payment_status.Value = "NotPaid", "Red", Iif(Fields!payment_status.Value = "PartiallyPaid", "Yellow", "White"))</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>

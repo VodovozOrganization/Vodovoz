@@ -3,9 +3,11 @@ using DriverApi.Notifications.Client;
 using Edo.Transport;
 using Fias.Client;
 using FuelControl.Library;
+using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MySqlConnector;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -36,7 +38,6 @@ using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
 using System;
-using Mailganer.Api.Client;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -66,6 +67,7 @@ using Vodovoz.Presentation.Views;
 using Vodovoz.Reports;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Counterparty;
@@ -226,6 +228,33 @@ namespace Vodovoz
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();
+
+			return services;
+		}
+		public static IServiceCollection AddMailganerApiClient(this IServiceCollection services)
+		{
+			services.AddOptions<MailganerSettings>().Configure<IConfiguration>((options, config) =>
+			{
+				config.GetSection("MailganerSettings").Bind(options);
+			});
+
+			services.AddTransient<MailganerClientV1>();
+			services.AddTransient<MailganerClientV2>();
+
+			services.AddHttpClient<MailganerClientV2>((sp, httpClient) =>
+			{
+				var settingsController = sp.GetRequiredService<ISettingsController>();
+				var apiKey = settingsController.GetStringValue("MailganerSettings");
+
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v2/");
+				httpClient.DefaultRequestHeaders.Clear();
+				httpClient.DefaultRequestHeaders.Add("Authorization", $"{apiKey}");
+			});
+
+			services.AddHttpClient<MailganerClientV1>((sp, httpClient) =>
+			{
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v1/");
+			});
 
 			return services;
 		}

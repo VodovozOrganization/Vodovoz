@@ -16,11 +16,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 
@@ -45,7 +47,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly EmailDirectSender _emailDirectSender;
-		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -56,7 +58,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IInteractiveService interactiveService,
 			IEmailSettings emailSettings,
 			EmailDirectSender emailDirectSender,
-			IGenericRepository<OrderEntity> orderRepository
+			IGenericRepository<Order> orderRepository
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -240,11 +242,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			try
 			{
+				if (attachments.Count == 0)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет документов для отправки.");
+					return;
+				}
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 					.List<object>()
 					.FirstOrDefault());
-				string messageText = "";
+				string messageText = "Акт сверки";
 				var emailMessage = new SendEmailMessage
 				{
 					From = new EmailContact
@@ -272,7 +279,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					Attachments = attachments
 				};
 
-				_emailDirectSender.SendAsync(emailMessage).GetAwaiter().GetResult();
+				_emailDirectSender.SendAsync(emailMessage);
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -305,16 +312,26 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					o => o.Client.Id == Counterparty.Id 
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
-					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
+					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
+					&& (o.OurOrganization.Id == 1
+					|| o.OurOrganization == null))
 					.Select(o => o.Id)
 					.ToArray();
 
 				var pdfArray = new byte[UnpaidOrdersId.Length][];
+
+				if(pdfArray.Length == 0)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет неоплаченных заказов для формирования счетов.");
+					return attachments;
+				}
+
 				for(int i = 0; i < UnpaidOrdersId.Length; i++)
 				{
 					var billParameters = new Dictionary<string, object>
 					{
-						{ "order_id", UnpaidOrdersId[i] }
+						{ "order_id", UnpaidOrdersId[i] },
+						{ "hide_signature", false }
 					};
 					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
 					byte[] billPdf = GenerateReport(billReportSource, billParameters);
@@ -335,13 +352,23 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				var countOfOrders = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id
 					&& o.DeliveryDate >= StartDate
-					&& o.DeliveryDate <= EndDate)
+					&& o.DeliveryDate <= EndDate
+					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
+					&& (o.OurOrganization.Id == 1
+					|| o.OurOrganization == null))
 					.Select(o => o.Id)
 					.ToArray();
 
+				if (countOfOrders.Length == 0)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов для формирования общего счета.");
+					return attachments;
+				}
+
 				var generalBillParameters = new Dictionary<string, object>
 				{
-					{ "order_id", countOfOrders }
+					{ "order_id", countOfOrders },
+					{ "hide_signature", false }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);
