@@ -68,13 +68,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
-			SendByEmailCommand = new DelegateCommand(() => SendByEmail());
+			SendByEmailCommand = new DelegateCommand(SendByEmail, () => ReportIsLoaded);
+			SendByEmailCommand.CanExecuteChangedWith(this, vm => vm.ReportIsLoaded);
 			ShowInfoCommand = new DelegateCommand(() => ShowInfo());
 			RunCommand = new DelegateCommand(() =>
 			{
 				GenerateReport();
 				ReportIsLoaded = true;
-			});
+			},
+			() => CanRunReport);
+			RunCommand.CanExecuteChangedWith(this, vm => vm.CanRunReport);
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
@@ -86,9 +89,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			get => _startDate;
 			set
 			{
-				if(SetField(ref _startDate, value, () => StartDate))
+				if(SetField(ref _startDate, value))
 				{
-					CanRunReport = CounterpartySelected && value.HasValue && EndDate.HasValue;
+					CanRunReport = CounterpartyIsSelected && value.HasValue && EndDate.HasValue;
 					ReportIsLoaded = false;
 				}
 			}
@@ -98,9 +101,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			get => _endDate;
 			set
 			{
-				if(SetField(ref _endDate, value, () => EndDate))
+				if(SetField(ref _endDate, value))
 				{
-					CanRunReport = CounterpartySelected && StartDate.HasValue && value.HasValue;
+					CanRunReport = CounterpartyIsSelected && StartDate.HasValue && value.HasValue;
 					ReportIsLoaded = false;
 				}
 			}
@@ -112,37 +115,37 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			set => SetField(ref _tdiTab, value);
 		}
 
-		public bool SendRevision
+		public bool IsSendRevision
 		{
 			get => _sendRevision;
-			set => SetField(ref _sendRevision, value, () => SendRevision);
+			set => SetField(ref _sendRevision, value);
 		}
 
-		public bool SendBillsForNotPaidOrder
+		public bool IsSendBillsForNotPaidOrder
 		{
 			get => _sendBillsForNotPaidOrder;
 			set
 			{
-				if(SetField(ref _sendBillsForNotPaidOrder, value, () => SendBillsForNotPaidOrder))
+				if(SetField(ref _sendBillsForNotPaidOrder, value))
 				{
 					if(value)
 					{
-						SendGeneralBill = false;
+						IsSendGeneralBill = false;
 					}
 				}
 			}
 		}
 
-		public bool SendGeneralBill
+		public bool IsSendGeneralBill
 		{
 			get => _sendGeneralBill;
 			set
 			{
-				if(SetField(ref _sendGeneralBill, value, () => SendGeneralBill))
+				if(SetField(ref _sendGeneralBill, value))
 				{
 					if(value)
 					{
-						SendBillsForNotPaidOrder = false;
+						IsSendBillsForNotPaidOrder = false;
 					}
 				}
 			}
@@ -153,9 +156,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			get => _counterparty;
 			set
 			{
-				if(SetField(ref _counterparty, value, () => Counterparty))
+				if(SetField(ref _counterparty, value))
 				{
-					CounterpartySelected = value != null;
+					CounterpartyIsSelected = value != null;
 					Emails = value?.Emails ?? new List<Email>();
 					ReportIsLoaded = false;
 				}
@@ -164,14 +167,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public bool ReportIsLoaded
 		{
 			get => _reportIsLoaded;
-			set => SetField(ref _reportIsLoaded, value, () => ReportIsLoaded);
+			set => SetField(ref _reportIsLoaded, value);
 		}
-		public bool CounterpartySelected
+		public bool CounterpartyIsSelected
 		{
 			get => _counterpartySelected;
 			set
 			{
-				if(SetField(ref _counterpartySelected, value, () => CounterpartySelected))
+				if(SetField(ref _counterpartySelected, value))
 				{
 					CanRunReport = value && StartDate.HasValue && EndDate.HasValue;
 				}
@@ -180,18 +183,18 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public bool CanRunReport
 		{
 			get => _canRunReport;
-			set => SetField(ref _canRunReport, value, () => CanRunReport);
+			set => SetField(ref _canRunReport, value);
 		}
 
 		public IList<Email> Emails
 		{
 			get => _emails;
-			set => SetField(ref _emails, value, () => Emails);
+			set => SetField(ref _emails, value);
 		}
 		public Email SelectedEmail
 		{
 			get => _selectedEmail;
-			set => SetField(ref _selectedEmail, value, () => SelectedEmail);
+			set => SetField(ref _selectedEmail, value);
 		}
 		public override ReportInfo ReportInfo
 		{
@@ -241,7 +244,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 					.List<object>()
 					.FirstOrDefault());
-				string messageText = "Test message text for email with attachment.";
+				string messageText = "";
 				var emailMessage = new SendEmailMessage
 				{
 					From = new EmailContact
@@ -269,7 +272,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					Attachments = attachments
 				};
 
-				_emailDirectSender.SendAsync(emailMessage);
+				_emailDirectSender.SendAsync(emailMessage).GetAwaiter().GetResult();
 
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
@@ -283,7 +286,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			var attachments = new List<EmailAttachment>();
 
-			if(SendRevision)
+			if(IsSendRevision)
 			{
 				var reportPdf = GenerateReport(ReportInfo.Source, PrepareReportParameters(Parameters));
 				if(reportPdf != null)
@@ -296,7 +299,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 
-			if(SendBillsForNotPaidOrder)
+			if(IsSendBillsForNotPaidOrder)
 			{
 				var UnpaidOrdersId = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id 
@@ -327,7 +330,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				});
 			}
 
-			if(SendGeneralBill)
+			if(IsSendGeneralBill)
 			{
 				var countOfOrders = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id
@@ -369,7 +372,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return false;
 			}
 
-			if(!SendRevision && !SendBillsForNotPaidOrder && !SendGeneralBill)
+			if(!IsSendRevision && !IsSendBillsForNotPaidOrder && !IsSendGeneralBill)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран ни один документ для отправки.");
 				return false;
@@ -496,7 +499,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			var info = "В акте сверки заказы выделяются следующими цветами:"
 				+ "\n\t- Желтым цветом — заказы с частичной оплатой;"
-				+ "\n\t- Оранжевым цветом — сделзаказыки без оплаты.";
+				+ "\n\t- Оранжевым цветом — заказы без оплаты.";
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчётом");
 		}
 	}

@@ -475,7 +475,7 @@ namespace Vodovoz.ViewModels.Counterparties
 				{
 					var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
 
-					var callTaskId = selectedNodes.FirstOrDefault().Id;
+					var callTaskId = selectedNodes.SingleOrDefault().Id;
 
 					NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(
 							this,
@@ -485,12 +485,12 @@ namespace Vodovoz.ViewModels.Counterparties
 							{
 								if(vm.ReportParametersViewModel is RevisionReportViewModel reportVm)
 								{
-									var counterparty = reportVm
-										.UnitOfWork
-										.GetById<CallTask>(callTaskId)
-										.Counterparty;
 									if(reportVm.Counterparty == null)
 									{
+										var counterparty = reportVm
+											.UnitOfWork
+											.GetById<CallTask>(callTaskId)
+											.Counterparty;
 										reportVm.Counterparty = counterparty;
 									}
 								}

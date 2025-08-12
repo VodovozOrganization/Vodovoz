@@ -32,36 +32,27 @@ namespace Vodovoz.Reports
 			speciallistcomboboxEmail.Binding
 				.AddBinding(ViewModel, vm => vm.Emails, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.SelectedEmail, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.CounterpartySelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CounterpartyIsSelected, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonRevision.Binding
-				.AddBinding(ViewModel, vm => vm.SendRevision, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CounterpartySelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsSendRevision, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CounterpartyIsSelected, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonBillsForNotPaidOrders.Binding
-				.AddBinding(ViewModel, vm => vm.SendBillsForNotPaidOrder, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CounterpartySelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsSendBillsForNotPaidOrder, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CounterpartyIsSelected, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonGeneralBill.Binding
-				.AddBinding(ViewModel, vm => vm.SendGeneralBill, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CounterpartySelected, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsSendGeneralBill, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CounterpartyIsSelected, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonSendByEmail.BindCommand(ViewModel.SendByEmailCommand);
-			ybuttonSendByEmail.Binding
-				.AddBinding(ViewModel, vm => vm.ReportIsLoaded, w => w.Sensitive)
-				.InitializeFromSource();
-
-			buttonRun.BindCommand(ViewModel.RunCommand);
-			buttonRun.Binding
-				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
-				.InitializeFromSource();
 			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
-			buttonInfo.Binding
-				.InitializeFromSource();
+			ybuttonSendByEmail.BindCommand(ViewModel.SendByEmailCommand);
+			buttonRun.BindCommand(ViewModel.RunCommand);
 		}
 
 		public override void Destroy()
