@@ -190,8 +190,10 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(!skipCodeIntroducedAndHasCorrectInnCheck)
 			{
-				codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterIdentificationCode, cancellationToken);
+				codeCheckingProcessResult = await _trueMarkWaterCodeService.IsTrueMarkCodeValid(
+					trueMarkWaterIdentificationCode, 
+					cancellationToken
+				);
 
 				if(codeCheckingProcessResult.IsFailure)
 				{
@@ -223,7 +225,7 @@ namespace VodovozBusiness.Services.TrueMark
 				{
 					var isCodeAlreadyAddedToRouteListItem =
 						routeListAddress.TrueMarkCodes.Any(x =>
-						x.SourceCode.GTIN == code.TrueMarkWaterIdentificationCode.GTIN
+						x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
 						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
 
 					if(!isCodeAlreadyAddedToRouteListItem)
@@ -312,7 +314,7 @@ namespace VodovozBusiness.Services.TrueMark
 				.Select(x => x.GtinNumber)
 				.ToList();
 
-			if(!nomenclatureGtins.Contains(trueMarkWaterIdentificationCode.GTIN))
+			if(!nomenclatureGtins.Contains(trueMarkWaterIdentificationCode.Gtin))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterIdentificationCode.RawCode);
 				return Result.Failure(error);

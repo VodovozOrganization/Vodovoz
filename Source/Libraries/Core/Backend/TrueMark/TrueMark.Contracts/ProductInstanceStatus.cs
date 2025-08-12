@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -62,5 +63,17 @@ namespace TrueMark.Contracts
 		/// </summary>
 		[JsonPropertyName("gtin")]
 		public string Gtin { get; set; }
+
+		/// <summary>
+		/// Дата производства
+		/// </summary>
+		[JsonPropertyName("producedDate")]
+		public DateTime? ProducedDate { get; set; }
+
+		/// <summary>
+		/// Дата истечения срока годности
+		/// </summary>
+		[JsonPropertyName("expirationDate")]
+		public DateTime? ExpirationDate { get; set; }
 	}
 }
