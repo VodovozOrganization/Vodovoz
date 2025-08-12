@@ -313,6 +313,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
 					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
+					&& (o.OrderStatus == OrderStatus.Shipped
+					|| o.OrderStatus == OrderStatus.UnloadingOnStock
+					|| o.OrderStatus == OrderStatus.Closed
+					|| o.OrderStatus == OrderStatus.NotDelivered)
 					&& (o.OurOrganization.Id == 1
 					|| o.OurOrganization == null))
 					.Select(o => o.Id)
@@ -524,9 +528,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 		private void ShowInfo()
 		{
-			var info = "В акте сверки заказы выделяются следующими цветами:"
+			var info = "В акте сверки заказы, в статусах после \"доставлен\"( включительно), выделяются следующими цветами:"
 				+ "\n\t- Желтым цветом — заказы с частичной оплатой;"
-				+ "\n\t- Оранжевым цветом — заказы без оплаты.";
+				+ "\n\t- Красным цветом — заказы без оплаты.";
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчётом");
 		}
 	}

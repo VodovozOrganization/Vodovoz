@@ -45,7 +45,8 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled'
               ) = 0 THEN 'NotPaid'
               ELSE 'PartiallyPaid'
-            END as payment_status
+            END as payment_status,
+            o.order_status as order_status
           FROM orders o
           WHERE
             o.client_id = @counterparty_id
@@ -61,7 +62,8 @@
               0 as deposit,
               0 as money,
               o.delivery_date as date,
-              'Paid' as payment_status
+              'Paid' as payment_status,
+              o.order_status as order_status
           FROM 
             orders o
           INNER JOIN 
@@ -79,7 +81,8 @@
             cmo.income as deposit,
             0 as money,
             IFNULL(cmo.operation_time, p.payment_date) as date,
-            '' as payment_status
+            '' as payment_status,
+            '' as order_status
           FROM payments_from_bank_client p
             LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
             INNER JOIN organizations org ON p.organization_id = org.id
@@ -127,6 +130,10 @@
         </Field>
         <Field Name="payment_status">
           <DataField>payment_status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_status">
+          <DataField>order_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="document">
@@ -624,7 +631,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                            <BackgroundColor>=Iif(Fields!payment_status.Value = "NotPaid", "Red", Iif(Fields!payment_status.Value = "PartiallyPaid", "Yellow", "White"))</BackgroundColor>
+                            <BackgroundColor>=Iif(Fields!payment_status.Value = "NotPaid" And (Fields!order_status.Value = "Shipped" Or Fields!order_status.Value = "UnloadingOnStock" Or Fields!order_status.Value = "Closed" Or Fields!order_status.Value = "NotDelivered"), "Red", Iif(Fields!payment_status.Value = "PartiallyPaid" And (Fields!order_status.Value = "Shipped" Or Fields!order_status.Value = "UnloadingOnStock" Or Fields!order_status.Value = "Closed" Or Fields!order_status.Value = "NotDelivered"), "Yellow", "White"))</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -632,10 +639,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxDebtValue">
-                      <Value>=Iif(
-Fields!debt.Value=0, "", Fields!debt.Value
-)
-                      </Value>
+                      <Value>=Iif(Fields!debt.Value=0, "", Fields!debt.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
