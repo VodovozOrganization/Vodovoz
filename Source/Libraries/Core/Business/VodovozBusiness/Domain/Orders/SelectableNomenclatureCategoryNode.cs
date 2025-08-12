@@ -13,5 +13,13 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		public DiscountReasonNomenclatureCategory DiscountReasonNomenclatureCategory { get; set; }
+		
+		public static SelectableNomenclatureCategoryNode Create(
+			DiscountReasonNomenclatureCategory discountNomenclatureCategory, bool isSelected)
+			=> new SelectableNomenclatureCategoryNode
+			{
+				DiscountReasonNomenclatureCategory = discountNomenclatureCategory,
+				IsSelected = isSelected
+			};
 	}
 }
