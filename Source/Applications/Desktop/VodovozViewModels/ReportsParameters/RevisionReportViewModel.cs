@@ -313,10 +313,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
 					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OrderStatus == OrderStatus.Shipped
-					|| o.OrderStatus == OrderStatus.UnloadingOnStock
-					|| o.OrderStatus == OrderStatus.Closed
-					|| o.OrderStatus == OrderStatus.NotDelivered)
 					&& (o.OurOrganization.Id == 1
 					|| o.OurOrganization == null))
 					.Select(o => o.Id)
