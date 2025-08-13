@@ -264,7 +264,7 @@ namespace VodovozBusiness.Services.TrueMark
 				.ToList();
 
 			var trueMarkAnyCodesResult =
-				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromRootStagingCodes(
+				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
 					rootStagingCodes,
 					cancellationToken);

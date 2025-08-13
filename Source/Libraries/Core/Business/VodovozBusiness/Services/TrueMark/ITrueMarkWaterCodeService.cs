@@ -122,7 +122,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="rootStagingCodes">Коды промежуточного хранения верхнего уровня</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат создания кодов</returns>
-		Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromRootStagingCodes(IUnitOfWork uow, IEnumerable<StagingTrueMarkCode> rootStagingCodes, CancellationToken cancellationToken = default);
+		Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromStagingCodes(IUnitOfWork uow, IEnumerable<StagingTrueMarkCode> rootStagingCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Удаляет все коды Честного Знака для промежуточного хранения, связанные с указанным документом

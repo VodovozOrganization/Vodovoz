@@ -1250,67 +1250,95 @@ namespace Vodovoz.Application.TrueMark
 			return Result.Success();
 		}
 
-		public async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromRootStagingCodes(
+		public async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromStagingCodes(
 			IUnitOfWork uow,
-			IEnumerable<StagingTrueMarkCode> rootStagingCodes,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken = default)
 		{
-			if(!rootStagingCodes.All(x => x.ParentCodeId == null))
-			{
-				throw new ArgumentException(
-					"Поддерживается обработка кодов промежуточного хранения верхнего уровня. Коды, имеющие родителя не могут быть обработаны",
-					nameof(rootStagingCodes));
-			}
+			var codesData = await GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(uow, stagingCodes, cancellationToken);
 
 			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
 
-			foreach(var rootStagingCode in rootStagingCodes)
+			foreach(var stagingCode in stagingCodes)
 			{
-				trueMarkAnyCodes.Add(await CreateTrueMarkAnyCodeFromStagingCode(uow, rootStagingCode, cancellationToken));
+				if(!codesData.TryGetValue(stagingCode.Id, out var trueMarkAnyCode))
+				{
+					throw new InvalidOperationException($"Код ЧЗ с Id {stagingCode.Id} не найден в сохраненных или созданных кодах.");
+				}
+
+				if(stagingCode.InnerCodes.Any())
+				{
+					foreach(var innerCode in stagingCode.InnerCodes)
+					{
+						if(!codesData.TryGetValue(innerCode.Id, out var innerTrueMarkAnyCode))
+						{
+							throw new InvalidOperationException($"Внутренний код ЧЗ с Id {innerCode.Id} не найден в сохраненных или созданных кодах.");
+						}
+						trueMarkAnyCode.AddInnerTrueMarkAnyCode(innerTrueMarkAnyCode);
+					}
+				}
+
+				trueMarkAnyCodes.Add(trueMarkAnyCode);
 			}
 
 			return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);
+
+			//if(!stagingCodes.All(x => x.ParentCodeId == null))
+			//{
+			//	throw new ArgumentException(
+			//		"Поддерживается обработка кодов промежуточного хранения верхнего уровня. Коды, имеющие родителя не могут быть обработаны",
+			//		nameof(stagingCodes));
+			//}
+
+			//var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			//foreach(var rootStagingCode in stagingCodes)
+			//{
+			//	trueMarkAnyCodes.Add(await CreateTrueMarkAnyCodeFromStagingCode(uow, rootStagingCode, cancellationToken));
+			//}
+
+			//return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);
 		}
 
-		private async Task<TrueMarkAnyCode> CreateTrueMarkAnyCodeFromStagingCode(
-			IUnitOfWork uow,
-			StagingTrueMarkCode stagingCode,
-			CancellationToken cancellationToken)
-		{
-			var trueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, stagingCode, cancellationToken);
-			var innerCodes = await GetInnerCodes(uow, stagingCode, cancellationToken);
+		//private async Task<TrueMarkAnyCode> CreateTrueMarkAnyCodeFromStagingCode(
+		//	IUnitOfWork uow,
+		//	StagingTrueMarkCode stagingCode,
+		//	CancellationToken cancellationToken)
+		//{
+		//	var trueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, stagingCode, cancellationToken);
+		//	var innerCodes = await GetInnerCodes(uow, stagingCode, cancellationToken);
 
-			foreach(var innerCode in innerCodes)
-			{
-				trueMarkAnyCode.AddInnerTrueMarkAnyCode(innerCode);
-			}
+		//	foreach(var innerCode in innerCodes)
+		//	{
+		//		trueMarkAnyCode.AddInnerTrueMarkAnyCode(innerCode);
+		//	}
 
-			return trueMarkAnyCode;
-		}
+		//	return trueMarkAnyCode;
+		//}
 
-		private async Task<IEnumerable<TrueMarkAnyCode>> GetInnerCodes(
-			IUnitOfWork uow,
-			StagingTrueMarkCode parentStagingCode,
-			CancellationToken cancellationToken)
-		{
-			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+		//private async Task<IEnumerable<TrueMarkAnyCode>> GetInnerCodes(
+		//	IUnitOfWork uow,
+		//	StagingTrueMarkCode parentStagingCode,
+		//	CancellationToken cancellationToken)
+		//{
+		//	var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
 
-			foreach(var innerStagingCode in parentStagingCode.InnerCodes)
-			{
-				var innerTrueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, innerStagingCode, cancellationToken);
+		//	foreach(var innerStagingCode in parentStagingCode.InnerCodes)
+		//	{
+		//		var innerTrueMarkAnyCode = await GetSavedOrCreateTrueMarkAnyCodeByStagingCode(uow, innerStagingCode, cancellationToken);
 
-				if(innerStagingCode.InnerCodes.Any())
-				{
-					innerTrueMarkAnyCode.AddInnerTrueMarkAnyCodes(await GetInnerCodes(uow, innerStagingCode, cancellationToken));
-				}
+		//		if(innerStagingCode.InnerCodes.Any())
+		//		{
+		//			innerTrueMarkAnyCode.AddInnerTrueMarkAnyCodes(await GetInnerCodes(uow, innerStagingCode, cancellationToken));
+		//		}
 
-				trueMarkAnyCodes.Add(innerTrueMarkAnyCode);
-			}
+		//		trueMarkAnyCodes.Add(innerTrueMarkAnyCode);
+		//	}
 
-			return trueMarkAnyCodes;
-		}
+		//	return trueMarkAnyCodes;
+		//}
 
-		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
+		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1327,30 +1355,57 @@ namespace Vodovoz.Application.TrueMark
 				.Where(x => x.CodeType == StagingTrueMarkCodeType.Identification)
 				.ToList();
 
-			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+			var codesData = new Dictionary<int, TrueMarkAnyCode>();
 
 			if(transportSagingCodes.Any())
 			{
-				trueMarkAnyCodes.AddRange(
-					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken));
+				var transportCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken);
+				
+				foreach(var transportCodeData in transportCodesData)
+				{
+					if(codesData.ContainsKey(transportCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(transportCodeData.Key, transportCodeData.Value);
+				}
 			}
 
 			if(groupStagingCodes.Any())
 			{
-				trueMarkAnyCodes.AddRange(
-					await GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(uow, groupStagingCodes, cancellationToken));
+				var groupCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(uow, groupStagingCodes, cancellationToken);
+
+				foreach(var groupCodeData in groupCodesData)
+				{
+					if(codesData.ContainsKey(groupCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(groupCodeData.Key, groupCodeData.Value);
+				}
 			}
 
 			if(identificationStagingCodes.Any())
 			{
-				trueMarkAnyCodes.AddRange(
-					await GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(uow, identificationStagingCodes, cancellationToken));
+				var identificationCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(uow, identificationStagingCodes, cancellationToken);
+
+				foreach(var identificationCodeData in identificationCodesData)
+				{
+					if(codesData.ContainsKey(identificationCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(identificationCodeData.Key, identificationCodeData.Value);
+				}
 			}
 
-			return trueMarkAnyCodes;
+			return codesData;
 		}
 
-		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
+		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1376,26 +1431,26 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+			var codesData = new Dictionary<int, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.RawCode == stagingCode.RawCode);
 				if(savedCode != null)
 				{
-					trueMarkAnyCodes.Add(savedCode);
+					codesData.Add(stagingCode.Id, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
-					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
 				}
 			}
 
-			return trueMarkAnyCodes;
+			return codesData;
 		}
 
-		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
+		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1421,26 +1476,26 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+			var codesData = new Dictionary<int, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
 				if(savedCode != null)
 				{
-					trueMarkAnyCodes.Add(savedCode);
+					codesData.Add(stagingCode.Id, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
-					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
 				}
 			}
 
-			return trueMarkAnyCodes;
+			return codesData;
 		}
 
-		private async Task<IEnumerable<TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
+		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1466,61 +1521,61 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+			var codesData = new Dictionary<int, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
 				if(savedCode != null)
 				{
-					trueMarkAnyCodes.Add(savedCode);
+					codesData.Add(stagingCode.Id, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
-					trueMarkAnyCodes.Add(newTrueMarkAnyCode);
+					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
 				}
 			}
 
-			return trueMarkAnyCodes;
+			return codesData;
 		}
 
-		private async Task<TrueMarkAnyCode> GetSavedOrCreateTrueMarkAnyCodeByStagingCode(
-			IUnitOfWork uow,
-			StagingTrueMarkCode stagingCode,
-			CancellationToken cancellationToken)
-		{
-			switch(stagingCode.CodeType)
-			{
-				case StagingTrueMarkCodeType.Identification:
-					return (await _trueMarkWaterIdentificationCodeRepository
-						.GetAsync(
-						uow,
-						TrueMarkWaterIdentificationCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
-						1,
-						cancellationToken)).Value
-						.FirstOrDefault() ?? _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
-				case StagingTrueMarkCodeType.Group:
-					return (await _trueMarkWaterGroupCodeRepository
-						.GetAsync(
-						uow,
-						TrueMarkWaterGroupCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
-						1,
-						cancellationToken)).Value
-						.FirstOrDefault() ?? _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
-				case StagingTrueMarkCodeType.Transport:
-					return (await _trueMarkTransportCodeRepository
-						.GetAsync(
-							uow,
-							TrueMarkTransportCodeSpecification.CreateForRawCode(stagingCode.RawCode),
-							1,
-							cancellationToken)).Value
-						.FirstOrDefault() ?? _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
-				default:
-					throw new ArgumentException(
-						$"Неизвестный тип кода ЧЗ для промежуточного хранения: {stagingCode.CodeType}",
-						nameof(stagingCode));
-			}
-		}
+		//private async Task<TrueMarkAnyCode> GetSavedOrCreateTrueMarkAnyCodeByStagingCode(
+		//	IUnitOfWork uow,
+		//	StagingTrueMarkCode stagingCode,
+		//	CancellationToken cancellationToken)
+		//{
+		//	switch(stagingCode.CodeType)
+		//	{
+		//		case StagingTrueMarkCodeType.Identification:
+		//			return (await _trueMarkWaterIdentificationCodeRepository
+		//				.GetAsync(
+		//				uow,
+		//				TrueMarkWaterIdentificationCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
+		//				1,
+		//				cancellationToken)).Value
+		//				.FirstOrDefault() ?? _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
+		//		case StagingTrueMarkCodeType.Group:
+		//			return (await _trueMarkWaterGroupCodeRepository
+		//				.GetAsync(
+		//				uow,
+		//				TrueMarkWaterGroupCodeSpecification.CreateForValidGtinSerialNumber(stagingCode.Gtin, stagingCode.SerialNumber),
+		//				1,
+		//				cancellationToken)).Value
+		//				.FirstOrDefault() ?? _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
+		//		case StagingTrueMarkCodeType.Transport:
+		//			return (await _trueMarkTransportCodeRepository
+		//				.GetAsync(
+		//					uow,
+		//					TrueMarkTransportCodeSpecification.CreateForRawCode(stagingCode.RawCode),
+		//					1,
+		//					cancellationToken)).Value
+		//				.FirstOrDefault() ?? _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
+		//		default:
+		//			throw new ArgumentException(
+		//				$"Неизвестный тип кода ЧЗ для промежуточного хранения: {stagingCode.CodeType}",
+		//				nameof(stagingCode));
+		//	}
+		//}
 	}
 }
