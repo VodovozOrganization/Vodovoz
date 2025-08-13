@@ -106,6 +106,7 @@
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
     <Compile Include="Services\RouteOptimization\CalculatedOrder.cs" />
     <Compile Include="Services\RouteOptimization\CallbackAddressCount.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Services\RouteOptimization\ProposedRoute.cs" />
     <Compile Include="Services\RouteOptimization\ProposedRoutePoint.cs" />
     <Compile Include="Services\RouteOptimization\RouteOptimizer.cs" />
+    <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />
