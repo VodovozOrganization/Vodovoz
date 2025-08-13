@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz.Core.Domain.Organizations
@@ -35,7 +36,6 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private int? _avangardShopId;
-		private string _taxcomEdoAccountId;
 		private OrganizationEdoType _organizationEdoType;
 		private Guid? _cashBoxTokenFromTrueMark;
 
@@ -187,17 +187,6 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 
 		/// <summary>
-		/// Id кабинета в Такскоме
-		/// </summary>
-		[IgnoreHistoryTrace]
-		[Display(Name = "Id кабинета в Такскоме")]
-		public virtual string TaxcomEdoAccountId
-		{
-			get => _taxcomEdoAccountId;
-			set => SetField(ref _taxcomEdoAccountId, value);
-		}
-
-		/// <summary>
 		/// Телефоны
 		/// </summary>
 		[Display(Name = "Телефоны")]
@@ -224,6 +213,13 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _cashBoxTokenFromTrueMark;
 			set => SetField(ref _cashBoxTokenFromTrueMark, value);
 		}
+		
+		/// <summary>
+		/// Различные параметры для ЭДО Такскома
+		/// </summary>
+		[IgnoreHistoryTrace]
+		[Display(Name = "Конфигурации ЭДО по Такскому")]
+		public virtual TaxcomEdoSettings TaxcomEdoSettings { get; }
 
 		/// <summary>
 		/// Версии

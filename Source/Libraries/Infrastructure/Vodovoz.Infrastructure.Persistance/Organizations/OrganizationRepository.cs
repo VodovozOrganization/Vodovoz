@@ -2,6 +2,9 @@
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
@@ -56,9 +59,13 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 
 		public Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId)
 		{
-			return uow.Session.QueryOver<Organization>()
-				.Where(x => x.TaxcomEdoAccountId == edoAccountId)
-				.SingleOrDefault();
+			return (
+					from organization in uow.Session.Query<Organization>()
+					join taxcomEdoSettings in uow.Session.Query<TaxcomEdoSettings>()
+						on organization.Id equals taxcomEdoSettings.OrganizationId
+					where taxcomEdoSettings.EdoAccount == edoAccountId
+					select organization)
+				.FirstOrDefault();
 		}
 
 		public IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation)
