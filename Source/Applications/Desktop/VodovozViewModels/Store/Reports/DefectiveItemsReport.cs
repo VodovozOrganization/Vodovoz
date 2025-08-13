@@ -67,10 +67,15 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public string TemplatePath { get; set; }
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
+		
 		public int? DriverId { get; }
 		public DefectSource? DefectSource { get; }
 		public DateTime CreatedAt { get; }
 
+		public string StartDateString => StartDate.ToString("dd.MM.yyyy");
+		public string EndDateString => EndDate.ToString("dd.MM.yyyy");
+		public string CreatedAtString => CreatedAt.ToString("dd.MM.yyyy");
+		
 		public IEnumerable<DefectiveItemsReportRow> Rows { get; }
 		public IEnumerable<SummaryByNomenclatureRow> SummaryByNomenclatureRows { get; }
 		public IEnumerable<SummaryByNomenclatureWithTypeDefectRow> SummaryByNomenclatureWithTypeDefectRows { get; }
