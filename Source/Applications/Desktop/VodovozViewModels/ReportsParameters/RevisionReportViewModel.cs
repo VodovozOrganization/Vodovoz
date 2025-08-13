@@ -308,7 +308,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendBillsForNotPaidOrder)
 			{
-				var UnpaidOrdersId = _orderRepository.Get(UnitOfWork,
+				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id 
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
@@ -318,7 +318,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					.Select(o => o.Id)
 					.ToArray();
 
-				var pdfArray = new byte[UnpaidOrdersId.Length][];
+				var pdfArray = new byte[unpaidOrdersId.Length][];
 
 				if(pdfArray.Length == 0)
 				{
@@ -326,11 +326,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					return attachments;
 				}
 
-				for(int i = 0; i < UnpaidOrdersId.Length; i++)
+				for(int i = 0; i < unpaidOrdersId.Length; i++)
 				{
 					var billParameters = new Dictionary<string, object>
 					{
-						{ "order_id", UnpaidOrdersId[i] },
+						{ "order_id", unpaidOrdersId[i] },
 						{ "hide_signature", false }
 					};
 					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
@@ -349,7 +349,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendGeneralBill)
 			{
-				var countOfOrders = _orderRepository.Get(UnitOfWork,
+				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
 					o => o.Client.Id == Counterparty.Id
 					&& o.DeliveryDate >= StartDate
 					&& o.DeliveryDate <= EndDate
@@ -359,7 +359,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					.Select(o => o.Id)
 					.ToArray();
 
-				if (countOfOrders.Length == 0)
+				if (unpaidOrdersId.Length == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов для формирования общего счета.");
 					return attachments;
@@ -367,7 +367,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				var generalBillParameters = new Dictionary<string, object>
 				{
-					{ "order_id", countOfOrders },
+					{ "order_id", unpaidOrdersId },
 					{ "hide_signature", false }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");

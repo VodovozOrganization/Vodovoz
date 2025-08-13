@@ -49,9 +49,11 @@
             o.order_status as order_status
           FROM orders o
           WHERE
-            o.client_id = @counterparty_id
+              o.client_id = @counterparty_id
               AND o.order_payment_status != 'Paid'
               AND o.payment_type = 'Cashless'
+              AND (o.our_organization_id = 1
+	            OR o.our_organization_id IS NULL)
           HAVING
             debt &gt; 0
           UNION ALL
@@ -73,6 +75,8 @@
           WHERE
             o.client_id = @counterparty_id
             AND pi.payment_item_status != 'Cancelled'
+            AND (o.our_organization_id = 1
+	          OR o.our_organization_id IS NULL)
           UNION ALL
           SELECT # Депозит, кредит
             p.payment_num as num,
