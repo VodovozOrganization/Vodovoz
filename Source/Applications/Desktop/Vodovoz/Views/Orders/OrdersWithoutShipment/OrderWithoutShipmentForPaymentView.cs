@@ -69,6 +69,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			daterangepickerOrdersDate.PeriodChangedByUser += UpdateAvailableOrders;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<OrderWithoutShipmentForPaymentNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(node => node.IsSelected).ToggledEvent(UseFine_Toggled)
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
@@ -77,6 +82,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryAddress)
+				.AddColumn("Название организации").AddTextRenderer(node => node.OrganizationName)
 				.Finish();
 
 			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableAvailableOrders;
