@@ -504,7 +504,11 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		public void Dispose()
 		{
-			_cancellationTokenSource?.Cancel();
+			if(_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+			{
+				_cancellationTokenSource.Cancel();
+			}
+
 			_cancellationTokenSource?.Dispose();
 		}
 	}
