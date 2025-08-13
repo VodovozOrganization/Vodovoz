@@ -213,10 +213,30 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				var nomenclatureGroup = leftGroupingItems
 					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+				
+				//Сначала организация, потом номенклатура
 
 				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
 				{
-					if(item != organizationGroup && item != nomenclatureGroup)
+					if(item != organizationGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+				
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != nomenclatureGroup)
 					{
 						continue;
 					}

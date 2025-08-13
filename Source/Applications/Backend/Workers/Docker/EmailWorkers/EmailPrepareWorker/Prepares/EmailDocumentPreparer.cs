@@ -52,7 +52,7 @@ namespace EmailPrepareWorker.Prepares
 			{
 				Filename = fileName,
 				ContentType = "application/pdf",
-				Base64Content = Convert.ToBase64String(stream.GetBuffer())
+				Base64Content = Convert.ToBase64String(stream.ToArray())
 			};
 		}
 

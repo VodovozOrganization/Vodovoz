@@ -17,6 +17,9 @@ namespace DatabaseServiceWorker
 
 		public static IServiceCollection ConfigurePowerBiExportWorker(this IServiceCollection services, HostBuilderContext context) =>
 			services.Configure<PowerBiExportOptions>(context.Configuration.GetSection(nameof(PowerBiExportOptions)));
+		
+		public static IServiceCollection ConfigureExportTo1cWorker(this IServiceCollection services, HostBuilderContext context) =>
+			services.Configure<ExportTo1cOptions>(context.Configuration.GetSection(nameof(ExportTo1cOptions)));
 
 		public static IServiceCollection ConfigureTechInspectWorker(this IServiceCollection services, HostBuilderContext context) =>
 			services.Configure<TechInspectOptions>(context.Configuration.GetSection(nameof(TechInspectOptions)));

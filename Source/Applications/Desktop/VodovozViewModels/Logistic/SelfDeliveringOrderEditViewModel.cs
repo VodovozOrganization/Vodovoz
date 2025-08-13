@@ -10,10 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
@@ -37,7 +35,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IOrderDiscountsController discountsController,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,

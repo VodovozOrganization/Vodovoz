@@ -1,4 +1,5 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
+using FluentNHibernate.Data;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -10,6 +11,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QS.Report.ViewModels;
 using QS.Services;
 using System;
 using System.Collections.Generic;
@@ -19,6 +21,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.ViewModels.ReportsParameters;
 using static Vodovoz.ViewModels.Counterparties.CallTaskFilterViewModel;
 using static Vodovoz.ViewModels.Counterparties.CallTaskJournalViewModel;
 
@@ -463,6 +466,35 @@ namespace Vodovoz.ViewModels.Counterparties
 					{
 						selectedNode.ImportanceDegree = ImportanceDegreeType.Important;
 					}
+				}));
+			PopupActionsList.Add(new JournalAction(
+				"Открыть акт сверки взаиморасчетов",
+				nodes => nodes.Count() == 1,
+				_ => true,
+				selectedItems =>
+				{
+					var selectedNodes = selectedItems.Cast<CallTaskJournalNode>();
+
+					var callTaskId = selectedNodes.SingleOrDefault().Id;
+
+					NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(
+							this,
+							typeof(RevisionReportViewModel),
+							OpenPageOptions.AsSlave,
+							vm =>
+							{
+								if(vm.ReportParametersViewModel is RevisionReportViewModel reportVm)
+								{
+									if(reportVm.Counterparty == null)
+									{
+										var counterparty = reportVm
+											.UnitOfWork
+											.GetById<CallTask>(callTaskId)
+											.Counterparty;
+										reportVm.Counterparty = counterparty;
+									}
+								}
+							});
 				}));
 		}
 
