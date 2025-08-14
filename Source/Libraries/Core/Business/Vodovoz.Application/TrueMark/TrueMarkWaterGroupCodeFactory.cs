@@ -15,7 +15,7 @@ namespace Vodovoz.Application.TrueMark
 			{
 				IsInvalid = false,
 				RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
-				GTIN = parsedCode.GTIN,
+				GTIN = parsedCode.Gtin,
 				SerialNumber = parsedCode.SerialNumber,
 				CheckCode = parsedCode.CheckCode
 			};

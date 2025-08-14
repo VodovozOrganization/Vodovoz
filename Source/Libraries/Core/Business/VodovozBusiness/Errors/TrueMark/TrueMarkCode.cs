@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Errors.TrueMark
 {
@@ -21,6 +21,12 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCode),
 				nameof(TrueMarkCodeStringIsNotValid),
 				"Полученная строка кода ЧЗ невалидна");
+
+		public static Error TrueMarkCodeNotCheckedInTrueMark =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeNotCheckedInTrueMark),
+				"Код не получилось проверить в ЧЗ");
 
 		public static Error CreateTrueMarkCodeStringIsNotValid(string codeString) =>
 			string.IsNullOrEmpty(codeString) ? TrueMarkCodeStringIsNotValid : new Error(
@@ -100,6 +106,12 @@ namespace Vodovoz.Errors.TrueMark
 				nameof(TrueMarkCodeOwnerInnIsNotCorrect),
 				$"По данным ЧЗ владельцем кода является сторонняя организация с ИНН {inn}");
 
+		public static Error TrueMarkCodeIsExpired =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeIsExpired),
+				$"Срок годности истек");
+
 		public static Error TrueMarkApiRequestError =>
 			new Error(
 				typeof(TrueMarkCode),
@@ -161,6 +173,12 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCode),
 				nameof(AggregatedCode),
 				"Код ЧЗ участвует в агрегации");
+
+		public static Error CodeExpired =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(CodeExpired),
+				"Истек срок годности товара");
 
 		/// <summary>
 		/// Код ЧЗ уже был добавлен
