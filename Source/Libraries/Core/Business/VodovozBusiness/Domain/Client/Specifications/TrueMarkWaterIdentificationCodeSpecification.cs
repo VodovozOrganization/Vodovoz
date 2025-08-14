@@ -14,7 +14,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 
 		public static ExpressionSpecification<TrueMarkWaterIdentificationCode> CreateForGtin(string gtin)
 			=> new ExpressionSpecification<TrueMarkWaterIdentificationCode>(
-				c => c.GTIN == gtin);
+				c => c.Gtin == gtin);
 
 		public static ExpressionSpecification<TrueMarkWaterIdentificationCode> CreateForSerialNumber(string serialNumber)
 			=> new ExpressionSpecification<TrueMarkWaterIdentificationCode>(

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -1073,7 +1073,7 @@ namespace Vodovoz.Application.TrueMark
 					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
 						false,
 						parsedCode.SourceCode,
-						parsedCode.GTIN,
+						parsedCode.Gtin,
 						parsedCode.SerialNumber,
 						relatedDocumentType,
 						relatedDocumentId,
@@ -1127,9 +1127,14 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced);
 				}
 
-				if(!_organizationsInns.Contains(instanceStatus.OwnerInn))
+				if(!_ourCodesChecker.IsOurOrganizationOwner(instanceStatus.OwnerInn))
 				{
-					//return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
+					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
+				}
+
+				if(instanceStatus.ExpirationDate < DateTime.Today)
+				{
+					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 				}
 			}
 
@@ -1515,7 +1520,7 @@ namespace Vodovoz.Application.TrueMark
 
 			foreach(var stagingCode in stagingCodes)
 			{
-				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
+				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.Gtin == stagingCode.Gtin);
 				if(savedCode != null)
 				{
 					codesData.Add(stagingCode.Id, savedCode);

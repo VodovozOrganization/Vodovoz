@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
@@ -360,7 +360,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			foreach(var identificationCode in allIdentificationCodes)
 			{
 				var existingTrueMarkProductCode = existingCodesHavingReuqiredSerialNumbers
-					.FirstOrDefault(x => x.SourceCode.GTIN == gtin && x.SourceCode.SerialNumber == identificationCode.SerialNumber);
+					.FirstOrDefault(x => x.SourceCode.Gtin == gtin && x.SourceCode.SerialNumber == identificationCode.SerialNumber);
 
 				if(existingTrueMarkProductCode is null)
 				{

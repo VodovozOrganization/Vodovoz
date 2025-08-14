@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -72,9 +72,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
 		/// <returns>Результат поиска сохраненного кода ЧЗ</returns>
 		Result<TrueMarkAnyCode> TryGetSavedTrueMarkAnyCode(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
-		/// <param name="scannedCode">Отсканированный код</param>
-		/// <returns>Результат</returns>
-		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
 
 		/// <summary>
 		/// Создает код ЧЗ для промежуточного хранения на основе отсканированного кода

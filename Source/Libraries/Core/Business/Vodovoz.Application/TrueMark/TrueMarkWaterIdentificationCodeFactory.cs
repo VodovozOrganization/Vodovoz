@@ -52,7 +52,7 @@ namespace Vodovoz.Application.TrueMark
 			{
 				IsInvalid = false,
 				RawCode = stagingCode.RawCode,
-				GTIN = stagingCode.Gtin,
+				Gtin = stagingCode.Gtin,
 				SerialNumber = stagingCode.SerialNumber
 			};
 		}

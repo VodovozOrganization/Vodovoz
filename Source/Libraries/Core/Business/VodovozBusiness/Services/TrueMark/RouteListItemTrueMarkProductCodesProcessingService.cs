@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,70 +79,6 @@ namespace VodovozBusiness.Services.TrueMark
 				OrderItemId = vodovozOrderItemId
 			};
 			uow.Save(trueMarkCodeOrderItem);
-		}
-
-		public async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
-			IUnitOfWork uow,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			RouteListItem routeListAddress,
-			OrderItem orderItem,
-			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false,
-			bool skipCodeIntroducedAndHasCorrectInnCheck = false)
-		{
-			var codeCheckingProcessResult = IsTrueMarkWaterIdentificationCodeValid(trueMarkWaterIdentificationCode);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(trueMarkWaterIdentificationCode, orderItem.Nomenclature);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			if(!isCheckForCodeChange)
-			{
-				codeCheckingProcessResult = IsNotAllTrueMarkCodesAdded(uow, orderItem);
-
-				if(codeCheckingProcessResult.IsFailure)
-				{
-					return codeCheckingProcessResult;
-				}
-			}
-
-			codeCheckingProcessResult = IsCodeAlreadyAddedToRouteListItem(trueMarkWaterIdentificationCode, routeListAddress);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			codeCheckingProcessResult =
-				_trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			if(!skipCodeIntroducedAndHasCorrectInnCheck)
-			{
-				codeCheckingProcessResult = await _trueMarkWaterCodeService.IsTrueMarkCodeValid(
-					trueMarkWaterIdentificationCode, 
-					cancellationToken
-				);
-
-				if(codeCheckingProcessResult.IsFailure)
-				{
-					return codeCheckingProcessResult;
-				}
-			}
-
-			return Result.Success();
 		}
 
 		/// <inheritdoc/>
