@@ -173,8 +173,10 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 					var paymentValues = _paymentFromRepository.Get(unitOfWork, paymentFrom =>
 						(includeExludeFiltersViewModel.ShowArchived || !paymentFrom.IsArchive)
-						&& string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
-							|| paymentFrom.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
+						&& (
+								string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
+								|| paymentFrom.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
+							));
 
 					// Заполнение начального списка
 

@@ -44,6 +44,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="mscorlib" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TISystems.TTC.CRM.BE">
       <HintPath>..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
@@ -974,6 +975,9 @@
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCars.cs" />
     <Compile Include="ViewModels\Reports\ReportOnTheCostsOfOperatingCarsRow.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1cOrganizationSettings.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1CRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1C\RetailSalesReportFor1C.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.DisplayRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.HeaderRow.cs" />
@@ -1010,6 +1014,8 @@
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
     <Compile Include="ViewModels\BulkEmailViewModel.cs" />
+    <Compile Include="ViewModels\Service\ExportCashlessTo1cOperation.cs" />
+    <Compile Include="ViewModels\Service\ExportTo1CViewModel.cs" />
     <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
@@ -1293,6 +1299,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj">
       <Project>{EB928475-6D2B-4FEF-A314-D75BCCEF3AD0}</Project>
       <Name>EdoService.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ExportTo1c\ExportTo1c.Library.csproj">
+      <Project>{d805bccb-7158-4e50-837f-5cd12706713b}</Project>
+      <Name>ExportTo1c.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
