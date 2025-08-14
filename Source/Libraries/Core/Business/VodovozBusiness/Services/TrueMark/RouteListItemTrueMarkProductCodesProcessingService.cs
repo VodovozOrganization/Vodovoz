@@ -259,10 +259,6 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId,
 			CancellationToken cancellationToken = default)
 		{
-			var rootStagingCodes = stagingCodes
-				.Where(x => x.ParentCodeId == null)
-				.ToList();
-
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
