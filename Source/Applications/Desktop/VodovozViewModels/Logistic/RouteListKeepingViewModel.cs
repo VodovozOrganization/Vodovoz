@@ -565,17 +565,22 @@ namespace Vodovoz
 		{
 			message = null;
 			var order = rli.RouteListItem.Order;
-			
+
 			if(newStatus == RouteListItemStatus.Completed
-			   && order.IsOrderContainsIsAccountableInTrueMarkItems
-			   && !_currentPermissionService.ValidatePresetPermission(
-				   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				&& order.IsOrderContainsIsAccountableInTrueMarkItems
+				&& !_currentPermissionService.ValidatePresetPermission(
+					Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
+				var isAllDriverTrueMarkCodesAddedAndProcessed =
+					_orderRepository.GetTrueMarkCodesAddedByDriverToOrderByOrderId(UoW, order.Id).Count != 0
+					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
+
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
-				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id)
+				   && !isAllDriverTrueMarkCodesAddedAndProcessed)
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
+						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\" и водитель не отсканировал все коды";
 
 					return false;
 				}
@@ -585,18 +590,18 @@ namespace Vodovoz
 				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-					          "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
+							  "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
 
 					return false;
 				}
-				
+
 				if(order.IsOrderForTender
 				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
 				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
 				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-					          "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
+							  "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
 
 					return false;
 				}
