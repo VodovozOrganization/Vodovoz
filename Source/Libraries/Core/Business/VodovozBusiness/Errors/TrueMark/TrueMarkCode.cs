@@ -40,6 +40,12 @@ namespace Vodovoz.Errors.TrueMark
 				nameof(TrueMarkCodeIsAlreadyUsed),
 				$"Код ЧЗ (Id = {waterCodeId}) уже был использован. Добавляемый код является дублем");
 
+		public static Error CreateTrueMarkCodeIsAlreadyUsedInOrder(int orderId) =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(TrueMarkCodeIsAlreadyUsed),
+				$"Код ЧЗ уже был использован в заказе {orderId}");
+
 		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
 			new Error(
 				typeof(TrueMarkCode),

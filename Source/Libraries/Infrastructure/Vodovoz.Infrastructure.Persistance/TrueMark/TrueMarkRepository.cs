@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -332,18 +333,90 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken)
 		{
+			var usedCodes = new List<TrueMarkProductCode>();
+
+			var allIdentificationCodes = stagingTrueMarkCode.AllIdentificationCodes;
+
+			if(allIdentificationCodes is null || !allIdentificationCodes.Any())
+			{
+				return usedCodes;
+			}
+
+			var serialNumbers = allIdentificationCodes.Select(x => x.SerialNumber).Distinct().ToList();
+			var gtin = allIdentificationCodes.First().Gtin;
+
 			var query =
 				from identificationCode in uow.Session.Query<TrueMarkWaterIdentificationCode>()
 				join tmpc in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals tmpc.ResultCode.Id into productCodes
 				from productCode in productCodes.DefaultIfEmpty()
 				where
 				productCode.Id != null
-				&& identificationCode.GTIN == stagingTrueMarkCode.Gtin
-				&& identificationCode.SerialNumber == stagingTrueMarkCode.SerialNumber
-				&& (productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted || productCode.SourceCodeStatus == SourceProductCodeStatus.Changed)
+				&& serialNumbers.Contains(identificationCode.SerialNumber)
 				select productCode;
 
-			return await query.ToListAsync(cancellationToken);
+			var existingCodesHavingReuqiredSerialNumbers = await query.ToListAsync(cancellationToken);
+
+			foreach(var identificationCode in allIdentificationCodes)
+			{
+				var existingTrueMarkProductCode = existingCodesHavingReuqiredSerialNumbers
+					.FirstOrDefault(x => x.SourceCode.GTIN == gtin && x.SourceCode.SerialNumber == identificationCode.SerialNumber);
+
+				if(existingTrueMarkProductCode is null)
+				{
+					continue;
+				}
+
+				usedCodes.Add(existingTrueMarkProductCode);
+			}
+
+			return usedCodes;
+		}
+
+		public async Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken)
+		{
+			switch(trueMarkProductCode)
+			{
+				case CarLoadDocumentItemTrueMarkProductCode carLoadDocumentItemTrueMarkProduct:
+					{
+						var query =
+							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
+							where carLoadDocumentItem.Id == carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItem.Id
+							select carLoadDocumentItem.OrderId;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:
+					{
+						var query =
+							from routeListItem in uow.Session.Query<RouteListItemEntity>()
+							where routeListItem.Id == routeListItemTrueMarkProductCode.RouteListItem.Id
+							select routeListItem.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
+					{
+						var query =
+							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+							join selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocumentEntity>()
+								on selfDeliveryDocumentItem.SelfDeliveryDocument.Id equals selfDeliveryDocument.Id
+							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItem.Id
+							select selfDeliveryDocument.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case AutoTrueMarkProductCode autoTrueMarkProductCode:
+					{
+						var query =
+							from orderEdoReques in uow.Session.Query<OrderEdoRequest>()
+							where orderEdoReques.Id == autoTrueMarkProductCode.CustomerEdoRequest.Id
+							select orderEdoReques.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				default:
+					throw new InvalidOperationException("Неизвестный тип кода ЧЗ товара");
+			}
 		}
 	}
 }

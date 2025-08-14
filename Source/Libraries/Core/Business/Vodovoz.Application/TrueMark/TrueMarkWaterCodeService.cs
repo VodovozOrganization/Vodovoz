@@ -1205,7 +1205,8 @@ namespace Vodovoz.Application.TrueMark
 
 			if(usedProductCodes.Any())
 			{
-				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsAlreadyUsed);
+				var codesUsedOrderId = await _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, usedProductCodes.First(), cancellationToken);
+				return Result.Failure(TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(codesUsedOrderId ?? 0));
 			}
 
 			return Result.Success();
@@ -1278,7 +1279,10 @@ namespace Vodovoz.Application.TrueMark
 					}
 				}
 
-				trueMarkAnyCodes.Add(trueMarkAnyCode);
+				if(stagingCode.ParentCodeId is null)
+				{
+					trueMarkAnyCodes.Add(trueMarkAnyCode);
+				}
 			}
 
 			return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);

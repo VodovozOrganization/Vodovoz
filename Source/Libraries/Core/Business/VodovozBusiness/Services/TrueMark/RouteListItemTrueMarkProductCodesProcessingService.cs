@@ -94,7 +94,8 @@ namespace VodovozBusiness.Services.TrueMark
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
+				waterCode => new TrueMarkAnyCode[] { waterCode })
+				.ToList();
 
 			foreach(var code in trueMarkAnyCodes)
 			{
@@ -168,7 +169,6 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
-			//Проверить, что временные коды были добавлены, старые коды не были добавлены, количество кодов совпадает
 			var order = routeListItem.Order;
 
 			var stagingCodes =
@@ -266,7 +266,7 @@ namespace VodovozBusiness.Services.TrueMark
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
-					rootStagingCodes,
+					stagingCodes,
 					cancellationToken);
 
 			if(trueMarkAnyCodesResult.IsFailure)
