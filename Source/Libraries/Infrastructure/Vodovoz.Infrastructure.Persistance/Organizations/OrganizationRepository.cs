@@ -2,6 +2,9 @@
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
@@ -59,6 +62,13 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 			return uow.Session.QueryOver<Organization>()
 				.Where(x => x.TaxcomEdoAccountId == edoAccountId)
 				.SingleOrDefault();
+		}
+
+		public async Task<IList<Organization>> GetOrganizationsByTaxcomEdoAccountIds(IUnitOfWork uow, string[] edoAccountIds, CancellationToken cancellationToken)
+		{
+			return await uow.Session.QueryOver<Organization>()
+				.WhereRestrictionOn(x => x.TaxcomEdoAccountId).IsIn(edoAccountIds)
+				.ListAsync(cancellationToken);
 		}
 
 		public IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation)
