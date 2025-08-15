@@ -1,10 +1,10 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
-using Vodovoz.Core.Domain.Edo;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
@@ -66,6 +66,13 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 					where taxcomEdoSettings.EdoAccount == edoAccountId
 					select organization)
 				.FirstOrDefault();
+		}
+
+		public async Task<IList<Organization>> GetOrganizationsByTaxcomEdoAccountIds(IUnitOfWork uow, string[] edoAccountIds, CancellationToken cancellationToken)
+		{
+			return await uow.Session.QueryOver<Organization>()
+				.WhereRestrictionOn(x => x.TaxcomEdoAccountId).IsIn(edoAccountIds)
+				.ListAsync(cancellationToken);
 		}
 
 		public IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation)
