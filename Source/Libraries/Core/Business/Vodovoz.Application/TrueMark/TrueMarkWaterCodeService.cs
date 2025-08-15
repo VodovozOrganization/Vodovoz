@@ -189,28 +189,7 @@ namespace Vodovoz.Application.TrueMark
 					trueMarkWaterIdentificationCodes,
 					cancellationToken);
 
-				var result = IsAllCodesIntroduced(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				result = IsAllCodesHasCorrectInn(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				result = IsAllCodesNotExpired(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				return Result.Success();
+				return IsAllCodesValid(checkResults);
 			}
 			catch(TrueMarkException ex)
 			{
@@ -230,7 +209,7 @@ namespace Vodovoz.Application.TrueMark
 			}
 		}
 
-		private Result IsAllCodesIntroduced(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsAllCodesValid(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
 		{
 			foreach(var checkResult in checkResults)
 			{
@@ -239,58 +218,85 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
 				}
 
-				if(checkResult.Value.Status == ProductInstanceStatusEnum.Introduced)
-				{
-					continue;
-				}
+				var isCodeValidResult = IsCodeValid(checkResult.Value);
 
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced;
-				return Result.Failure(error);
+				if(isCodeValidResult.IsFailure)
+				{
+					return isCodeValidResult;
+				}
 			}
 
 			return Result.Success();
 		}
 
-		private Result IsAllCodesHasCorrectInn(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsAllCodesValid(IEnumerable<ProductInstanceStatus> productInstanceStatuses)
 		{
-			foreach(var checkResult in checkResults)
+			foreach(var productInstanceStatus in productInstanceStatuses)
 			{
-				if(checkResult.Value == null)
+				var isCodeValidResult = IsCodeValid(productInstanceStatus);
+				if(isCodeValidResult.IsFailure)
 				{
-					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
+					return isCodeValidResult;
 				}
+			}
+			return Result.Success();
+		}
 
-				if(_ourCodesChecker.IsOurOrganizationOwner(checkResult.Value.OwnerInn))
-				{
-					continue;
-				}
+		private Result IsCodeValid(ProductInstanceStatus productInstanceStatus)
+		{
+			if(productInstanceStatus == null)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
+			}
 
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(checkResult.Value.OwnerInn);
-				return Result.Failure(error);
+			var isIntroducedResult = IsCodeIntroduced(productInstanceStatus);
+			if(isIntroducedResult.IsFailure)
+			{
+				return isIntroducedResult;
+			}
+
+			var isHasCorrectInnResult = IsCodeHasCorrectInn(productInstanceStatus);
+			if(isHasCorrectInnResult.IsFailure)
+			{
+				return isHasCorrectInnResult;
+			}
+
+			var isNotExpiredResult = IsCodeNotExpired(productInstanceStatus);
+			if(isNotExpiredResult.IsFailure)
+			{
+				return isNotExpiredResult;
 			}
 
 			return Result.Success();
 		}
 
-		private Result IsAllCodesNotExpired(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsCodeIntroduced(ProductInstanceStatus productInstanceStatus)
 		{
-			foreach(var checkResult in checkResults)
+			if(productInstanceStatus.Status == ProductInstanceStatusEnum.Introduced)
 			{
-				if(checkResult.Value == null)
-				{
-					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
-				}
+				return Result.Success();
+			}
+			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced);
+		}
 
-				if(checkResult.Value.ExpirationDate >= DateTime.Today)
-				{
-					continue;
-				}
-
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsExpired;
-				return Result.Failure(error);
+		private Result IsCodeHasCorrectInn(ProductInstanceStatus productInstanceStatus)
+		{
+			if(_ourCodesChecker.IsOurOrganizationOwner(productInstanceStatus.OwnerInn))
+			{
+				return Result.Success();
 			}
 
-			return Result.Success();
+			var error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(productInstanceStatus.OwnerInn);
+			return Result.Failure(error);
+		}
+
+		private Result IsCodeNotExpired(ProductInstanceStatus productInstanceStatus)
+		{
+			if(productInstanceStatus.ExpirationDate >= DateTime.Today)
+			{
+				return Result.Success();
+			}
+			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 		}
 
 		public Result IsTrueMarkWaterIdentificationCodeNotUsed(
@@ -937,8 +943,8 @@ namespace Vodovoz.Application.TrueMark
 			{
 				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
 
-				if((productInstancesInfo.InstanceStatuses is null
-					|| !productInstancesInfo.InstanceStatuses.Any())
+				if(productInstancesInfo != null 
+					&& (productInstancesInfo.InstanceStatuses is null || !productInstancesInfo.InstanceStatuses.Any())
 					&& productInstancesInfo.NoCodesFound)
 				{
 					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
@@ -1120,22 +1126,11 @@ namespace Vodovoz.Application.TrueMark
 
 			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
 
-			foreach(var instanceStatus in codesInstanseStatuses)
+			var isAllCodesValidResult = IsAllCodesValid(codesInstanseStatuses);
+
+			if(isAllCodesValidResult.IsFailure)
 			{
-				if(instanceStatus.Status != ProductInstanceStatusEnum.Introduced)
-				{
-					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced);
-				}
-
-				if(!_ourCodesChecker.IsOurOrganizationOwner(instanceStatus.OwnerInn))
-				{
-					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
-				}
-
-				if(instanceStatus.ExpirationDate < DateTime.Today)
-				{
-					return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
-				}
+				return Result.Failure<StagingTrueMarkCode>(isAllCodesValidResult.Errors);
 			}
 
 			foreach(var codeInstanseStatusData in requestCodesInstanseStatusesDataResult.Value)
