@@ -1,5 +1,7 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.EntityRepositories.Organizations
@@ -13,5 +15,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 		IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation);
 		IList<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes(IUnitOfWork uow);
 		Organization GetCommonOrganisation(IUnitOfWork uow);
+		Task<IList<Organization>> GetOrganizationsByTaxcomEdoAccountIds(IUnitOfWork uow, string[] edoAccountIds, CancellationToken cancellationToken);
 	}
 }
