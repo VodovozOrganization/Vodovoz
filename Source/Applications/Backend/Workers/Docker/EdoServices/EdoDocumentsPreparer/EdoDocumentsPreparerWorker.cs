@@ -1,4 +1,4 @@
-﻿using EdoDocumentsPreparer.Factories;
+using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -123,7 +123,7 @@ namespace EdoDocumentsPreparer
 
 					using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 
-					var mainOrganization = GetOrganizations(uow, new[] { _edoOptions.OurMainEdoAccountId }, stoppingToken);
+					var mainOrganization = (await GetOrganizations(uow, new[] { _edoOptions.OurMainEdoAccountId }, stoppingToken)).SingleOrDefault();
 
 					if(mainOrganization != null)
 					{
