@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using QS.DomainModel.Entity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 
@@ -184,5 +184,7 @@ namespace Vodovoz.Core.Domain.Edo
 
 			return sb.ToString();
 		}
+
+		public virtual string Title => $"Код ЧЗ экземпляра: {Id}, сырой код: {RawCode}";
 	}
 }
