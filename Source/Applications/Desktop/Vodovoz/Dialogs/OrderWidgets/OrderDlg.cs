@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -1134,7 +1134,6 @@ namespace Vodovoz
 			Entity.InteractiveService = new CastomInteractiveService();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-			OnContractChanged();
 
 			if(Entity != null && Entity.Id != 0)
 			{
@@ -1289,7 +1288,6 @@ namespace Vodovoz
 					break;
 				case nameof(Order.Contract):
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.Contract));
-					OnContractChanged();
 					break;
 				case nameof(Order.Client):
 					if(Counterparty != null)
@@ -1692,23 +1690,6 @@ namespace Vodovoz
 		{
 			_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 			UpdateOrderItemsPrices();
-		}
-
-		private readonly Label _torg12OnlyLabel = new Label("Торг12 (2шт.)");
-
-		private void OnContractChanged()
-		{
-			if(Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(enumDocumentType))
-			{
-				hboxDocumentType.Remove(enumDocumentType);
-				hboxDocumentType.Add(_torg12OnlyLabel);
-				_torg12OnlyLabel.Show();
-			}
-			else if(!Entity.IsCashlessPaymentTypeAndOrganizationWithoutVAT && hboxDocumentType.Children.Contains(_torg12OnlyLabel))
-			{
-				hboxDocumentType.Remove(_torg12OnlyLabel);
-				hboxDocumentType.Add(enumDocumentType);
-			}
 		}
 
 		private void TryAddFlyers()
@@ -3488,7 +3469,11 @@ namespace Vodovoz
 			TryAddNomenclature(e.Subject as Nomenclature);
 		}
 
-		private void TryAddNomenclature(Nomenclature nomenclature, decimal count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNomenclature(
+			Nomenclature nomenclature,
+			decimal count = 0,
+			decimal discount = 0,
+			DiscountReason discountReason = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -3514,7 +3499,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason);
+			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason: discountReason);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -3551,6 +3536,7 @@ namespace Vodovoz
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 						proSetItem.IsDiscountInMoney,
+						true,
 						null,
 						proSetItem.PromoSet
 					);

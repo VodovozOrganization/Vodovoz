@@ -107,6 +107,7 @@
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
+    <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
     <Compile Include="Services\RouteOptimization\CalculatedOrder.cs" />
     <Compile Include="Services\RouteOptimization\CallbackAddressCount.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Services\RouteOptimization\ProposedRoute.cs" />
     <Compile Include="Services\RouteOptimization\ProposedRoutePoint.cs" />
     <Compile Include="Services\RouteOptimization\RouteOptimizer.cs" />
+    <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />
@@ -1216,6 +1218,10 @@
       <Project>{86958f1a-2863-488f-bdc6-ad2d0df59654}</Project>
       <Name>Edo.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj">
+      <Project>{0FC402FC-CAD1-48FA-981E-C91967CCCC79}</Project>
+      <Name>Mailganer.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
       <Name>Mailjet.Api.Abstractions</Name>
@@ -1327,6 +1333,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{BD514659-1394-4BBA-94C5-1BEE5C72C7D6}</Project>
       <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
       <Project>{EF24C742-AC2C-477A-A632-F9920A0E1CC7}</Project>

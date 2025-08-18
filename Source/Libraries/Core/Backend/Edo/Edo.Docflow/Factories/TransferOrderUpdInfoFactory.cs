@@ -149,7 +149,7 @@ namespace Edo.Docflow.Factories
 				},
 				Inn = organization.INN,
 				Kpp = organization.KPP,
-				EdoAccountId = organization.TaxcomEdoAccountId,
+				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 			};
 
 			return oganizationInfo;
