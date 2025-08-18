@@ -582,8 +582,19 @@ namespace Vodovoz
 					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id)
 					.Select(x => x.SourceCode.Id);
 
+<<<<<<< HEAD
 				var isAllDriverTrueMarkCodesAddedAndProcessed =
 					(driverCodes.Count() == requiredCodesCount)
+=======
+				var warehouseCodes = 
+					_trueMarkRepository.GetCodesFromWarehouseByOrder(UoW, order.Id)
+					.Select(x => x.SourceCode.Id);
+
+				var allScannedCodes = driverCodes.Concat(warehouseCodes).Distinct().ToList();
+
+				var isAllDriverTrueMarkCodesAddedAndProcessed =
+					(allScannedCodes.Count == requiredCodesCount)
+>>>>>>> eed460e905 (Добавил проверку, сканировал ли склад часть заказов, а водитель - другую)
 					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
