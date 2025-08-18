@@ -181,7 +181,7 @@ namespace VodovozBusiness.Models.TrueMark
 			var taskCode = taskCodes
 				.FirstOrDefault(x => x.SourceCode != null
 					&& !string.IsNullOrWhiteSpace(x.SourceCode.CheckCode)
-					&& orderItem.Nomenclature.Gtins.Any(y => y.GtinNumber == x.SourceCode.GTIN));
+					&& orderItem.Nomenclature.Gtins.Any(y => y.GtinNumber == x.SourceCode.Gtin));
 			
 			if(taskCode != null)
 			{

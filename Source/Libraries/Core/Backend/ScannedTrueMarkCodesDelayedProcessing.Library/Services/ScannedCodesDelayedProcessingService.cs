@@ -358,7 +358,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					&& c.TrueMarkWaterGroupCode.GTIN == groupCode.GTIN
 					&& c.TrueMarkWaterGroupCode.SerialNumber == groupCode.SerialNumber,
 				waterCode => c.IsTrueMarkWaterIdentificationCode
-					&& c.TrueMarkWaterIdentificationCode.GTIN == waterCode.GTIN
+					&& c.TrueMarkWaterIdentificationCode.Gtin == waterCode.Gtin
 					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber);
 		}
 

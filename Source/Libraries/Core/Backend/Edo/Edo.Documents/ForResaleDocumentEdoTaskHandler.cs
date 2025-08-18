@@ -205,7 +205,7 @@ namespace Edo.Documents
 						{
 							if(unprocessedCodes[i].ProductCode.SourceCode != null
 								&& unprocessedCodes[i].ProductCode.ResultCode is null
-								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
+								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.Gtin))
 							{
 								_trueMarkCodesPool.PutCode(unprocessedCodes[i].ProductCode.SourceCode.Id);
 								documentEdoTask.Items.Remove(unprocessedCodes[i]);
@@ -276,7 +276,7 @@ namespace Edo.Documents
 					var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
 					foreach(var availableGtin in availableGtins)
 					{
-						var availableCode = unprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin);
+						var availableCode = unprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.Gtin == availableGtin);
 						if(availableCode == null)
 						{
 							continue;
