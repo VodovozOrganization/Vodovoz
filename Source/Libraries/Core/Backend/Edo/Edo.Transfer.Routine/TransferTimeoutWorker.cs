@@ -3,6 +3,7 @@ using NHibernate;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Edo;
 
@@ -12,18 +13,18 @@ namespace Edo.Transfer.Routine
 	{
 		private readonly ILogger<TransferTimeoutWorker> _logger;
 		private readonly IEdoTransferSettings _edoTransferSettings;
-		private readonly StaleTransferSender _staleTransferSender;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TimeSpan _transferTaskTimeoutCheckIntervalSecond;
 
 		public TransferTimeoutWorker(
 			ILogger<TransferTimeoutWorker> logger,
-			IEdoTransferSettings edoTransferSettings, 
-			StaleTransferSender staleTransferSender
+			IEdoTransferSettings edoTransferSettings,
+			IServiceScopeFactory serviceScopeFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
-			_staleTransferSender = staleTransferSender ?? throw new ArgumentNullException(nameof(staleTransferSender));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 
 			_transferTaskTimeoutCheckIntervalSecond = TimeSpan.FromSeconds(_edoTransferSettings.TransferTaskRequestsWaitingTimeoutCheckIntervalSecond);
 		}
@@ -34,7 +35,11 @@ namespace Edo.Transfer.Routine
 		{
 			try
 			{
-				await _staleTransferSender.SendStaleTasksAsync(stoppingToken);
+				using(var scope = _serviceScopeFactory.CreateScope())
+				{
+					var staleTransferSender = scope.ServiceProvider.GetService<StaleTransferSender>();
+					await staleTransferSender.SendStaleTasksAsync(stoppingToken);
+				}
 			}
 			catch(StaleObjectStateException ex)
 			{
