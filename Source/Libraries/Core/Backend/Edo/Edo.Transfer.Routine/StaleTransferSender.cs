@@ -10,13 +10,13 @@ namespace Edo.Transfer.Routine
 {
 	public class StaleTransferSender
 	{
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly IBus _messageBus;
 
-		public StaleTransferSender(IUnitOfWork uow, TransferDispatcher transferDispatcher, IBus messageBus)
+		public StaleTransferSender(IUnitOfWorkFactory unitOfWorkFactory, TransferDispatcher transferDispatcher, IBus messageBus)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
@@ -24,17 +24,20 @@ namespace Edo.Transfer.Routine
 
 		public async Task SendStaleTasksAsync(CancellationToken cancellationToken)
 		{
-			var staleTasks = await _transferDispatcher.SendStaleTasksAsync(cancellationToken);
-			if(!staleTasks.Any())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				return;
+				var staleTasks = await _transferDispatcher.SendStaleTasksAsync(cancellationToken);
+				if(!staleTasks.Any())
+				{
+					return;
+				}
+				
+				await uow.CommitAsync(cancellationToken);
+				
+				var events = staleTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
+				var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
+				await Task.WhenAll(publishTasks);
 			}
-
-			await _uow.CommitAsync(cancellationToken);
-
-			var events = staleTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
-			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
-			await Task.WhenAll(publishTasks);
 		}
 	}
 }
