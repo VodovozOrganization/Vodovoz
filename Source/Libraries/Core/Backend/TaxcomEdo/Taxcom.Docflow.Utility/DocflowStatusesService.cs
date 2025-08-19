@@ -5,9 +5,10 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Taxcom.Docflow.Utility
@@ -38,13 +39,17 @@ namespace Taxcom.Docflow.Utility
 			CancellationToken cancellationToken
 			)
 		{
+			TaxcomEdoSettings taxcomEdoSettingsAlias = null;
+			OrganizationEntity organizationEntityAlias = null;
+			
 			var organization = await _uow.Session.QueryOver<OrganizationEntity>()
-				.Where(x => x.TaxcomEdoAccountId == taxcomSettings.EdoAccount)
+				.JoinEntityAlias(() => taxcomEdoSettingsAlias, () => organizationEntityAlias.Id == taxcomEdoSettingsAlias.OrganizationId)
+				.Where(x => taxcomEdoSettingsAlias.EdoAccount == taxcomSettings.EdoAccount)
 				.SingleOrDefaultAsync(cancellationToken);
 
 			if(organization is null)
 			{
-				throw new InvalidOperationException($"Не найдена организация");
+				throw new InvalidOperationException("Не найдена организация");
 			}
 
 			var taxcomApiClient = _taxcomApiFactory.Create(taxcomSettings.TaxcomApiOptions);
@@ -104,7 +109,7 @@ namespace Taxcom.Docflow.Utility
 				DocFlowId = docflow.Id,
 				Organization = organization.Name,
 				MainDocumentId = docflow.Documents.First().ExternalIdentifier,
-				EdoAccount = organization.TaxcomEdoAccountId,
+				EdoAccount = organization.TaxcomEdoSettings.EdoAccount,
 			};
 
 			await _messageBus.Publish(@event, cancellationToken);

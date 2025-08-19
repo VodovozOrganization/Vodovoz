@@ -1,15 +1,20 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Logistics;
+using VodovozBusiness.Domain.Client.Specifications;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -376,6 +381,33 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Не указана информация о складских запчастях. Пожалуйста, прикрепите акт списания или подтвердите, что запчасти не были списаны по ходу работ.",
 					new[] { nameof(WriteOffDocument) });
+			}
+
+			if(Car != null && CarEventType?.Id == carEventSettings.FuelBalanceCalibrationCarEventTypeId)
+			{
+				var uow = validationContext.GetRequiredService<IUnitOfWork>();
+				var routeListRepository = validationContext.GetRequiredService<IRouteListRepository>();
+				var fuelDocumentRepository = validationContext.GetRequiredService<IGenericRepository<FuelDocument>>();
+
+				var completedOrdersInTodayRouteLists = routeListRepository.GetCompletedOrdersInTodayRouteListsByCarId(uow, Car.Id);
+				var todayGivedFuelRouteListIds = fuelDocumentRepository.Get(uow, FuelDocumentSpecifications.CreateForTodayGivedFuelByCarId(Car.Id))
+					.Select(x => x.RouteList.Id)
+					.Distinct()
+					.ToList();
+
+				if(completedOrdersInTodayRouteLists.Any())
+				{
+					yield return new ValidationResult(
+						$"Невозможно откалибровать топливо, так как в маршрутных листах на сегодня есть завершенные заказы: {string.Join(", ", completedOrdersInTodayRouteLists)}",
+						new[] { nameof(CarEventType) });
+				}
+
+				if(todayGivedFuelRouteListIds.Any())
+				{
+					yield return new ValidationResult(
+						$"Невозможно откалибровать топливо, так как сегодня на автомобиль выдавалось топливо по МЛ: {string.Join(", ", todayGivedFuelRouteListIds)}",
+						new[] { nameof(CarEventType) });
+				}
 			}
 
 			if(CalibrationFuelOperation?.LitersGived > 9999)

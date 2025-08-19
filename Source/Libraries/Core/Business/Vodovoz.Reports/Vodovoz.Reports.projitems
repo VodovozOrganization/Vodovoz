@@ -28,6 +28,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Documents\ForwarderReceipt.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Documents\GeneralBill.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\CarIsNotAtLineReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

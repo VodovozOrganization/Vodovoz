@@ -79,7 +79,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoAccountId,
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo
 			};
@@ -138,7 +138,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = sender.TaxcomEdoAccountId,
+				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo
 			};
@@ -291,7 +291,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowRequestCancellationEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoAccountId,
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
 				DocumentId = document.Id,
 				CancellationReason = reason
 			};
