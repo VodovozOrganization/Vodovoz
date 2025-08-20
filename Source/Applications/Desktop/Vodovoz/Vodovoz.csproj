@@ -667,7 +667,6 @@
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
@@ -826,8 +825,6 @@
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
-    <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
     <Compile Include="Dialogs\Client\CounterpartyContractDlg.cs" />
@@ -2073,6 +2070,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyEdoAccountsByOrganizationView.cs" />
     <Compile Include="Views\Logistic\SelfDeliveringOrderEditView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
+    <Compile Include="Views\Logistic\ExportTo1CView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2393,6 +2392,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
       <Name>Edo.Transport</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj">
+      <Project>{0fc402fc-cad1-48fa-981e-c91967cccc79}</Project>
+      <Name>Mailganer.Api.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>

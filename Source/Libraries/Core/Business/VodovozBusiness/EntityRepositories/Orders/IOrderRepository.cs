@@ -181,7 +181,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
-		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow);
+		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null);
 
 		/// <summary>
 		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой

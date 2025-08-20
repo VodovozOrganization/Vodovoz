@@ -420,7 +420,8 @@ namespace Edo.Documents
 							ResultCode = forNewCode,
 							SourceCode = forNewCode,
 							SourceCodeStatus = SourceProductCodeStatus.Accepted,
-							Problem = ProductCodeProblem.None
+							Problem = ProductCodeProblem.None,
+							CustomerEdoRequest = documentEdoTask.OrderEdoRequest
 						};
 
 						await _uow.SaveAsync(newAutoTrueMarkProductCode, cancellationToken: cancellationToken);

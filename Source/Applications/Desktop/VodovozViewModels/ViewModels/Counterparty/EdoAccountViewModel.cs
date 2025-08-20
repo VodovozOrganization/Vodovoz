@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
 using Autofac;
-using EdoService.Library;
 using EdoService.Library.Dto;
 using EdoService.Library.Services;
 using Microsoft.Extensions.Logging;
@@ -31,7 +30,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	public class EdoAccountViewModel : EntityWidgetViewModelBase<CounterpartyEdoAccount>, IDisposable
 	{
 		private readonly ILogger<EdoAccountViewModel> _logger;
-		private readonly ContactListParser _contactListParser;
 		private readonly IContactListService _contactListService;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IOrganizationSettings _organizationSettings;
@@ -44,7 +42,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			ILifetimeScope scope,
 			Domain.Client.Counterparty counterparty,
 			CounterpartyEdoAccount edoAccount,
-			ContactListParser contactListParser,
 			IContactListService contactListService,
 			ITdiTab parentTab,
 			ICommonServices commonServices,
@@ -55,8 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IValidationContextFactory validationContextFactory) : base(edoAccount, commonServices)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_contactListParser = contactListParser ?? throw new ArgumentNullException(nameof(contactListParser));
 			_contactListService = contactListService ?? throw new ArgumentNullException(nameof(contactListService));
+			_contactListService.SetOrganizationId(Entity.OrganizationId ?? 0);
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -215,7 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
-				contactResult = _contactListService.CheckContragentAsync(Counterparty.INN, Counterparty.KPP).Result;
+				contactResult = _contactListService.CheckContragentAsync(UoW, Counterparty.INN, Counterparty.KPP).Result;
 			}
 			catch(Exception ex)
 			{
@@ -310,8 +307,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
-				contactListItem = _contactListParser
-					.GetLastChangeOnDate(_contactListService, checkDate, Counterparty.INN, Counterparty.KPP)
+				contactListItem = _contactListService
+					.GetLastChangeOnDate(UoW, checkDate, Counterparty.INN, Counterparty.KPP)
 					.Result;
 			}
 			catch(Exception ex)
@@ -380,6 +377,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 					resultMessage = _contactListService
 						.SendContactsForManualInvitationAsync(
+							UoW,
 							Counterparty.INN,
 							Counterparty.KPP,
 							organization.Name,
@@ -392,7 +390,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				else
 				{
 					resultMessage = _contactListService
-						.SendContactsAsync(Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
+						.SendContactsAsync(UoW, Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
 						.Result;
 				}
 			}
