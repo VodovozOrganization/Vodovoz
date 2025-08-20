@@ -389,7 +389,7 @@ namespace Vodovoz
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			ConfigureClientReferEntityEntry();
-			ConfigureFromGeneralSettings();
+			ConfigureDelayDaysFromGeneralSettings();
 		}
 
 		private void InitializeEdoAccountsWidget()
@@ -424,8 +424,13 @@ namespace Vodovoz
 			entityentryClientRefer.ViewModel.DisposeViewModel = false;
 		}
 
-		private void ConfigureFromGeneralSettings()
+		private void ConfigureDelayDaysFromGeneralSettings()
 		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
 			Entity.DelayDaysForBuyers = _generalSettings.DefaultPaymentDeferment;
 		}
 		
