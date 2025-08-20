@@ -583,6 +583,7 @@ namespace Vodovoz
 					.Select(x => x.SourceCode.Id);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 				var isAllDriverTrueMarkCodesAddedAndProcessed =
 					(driverCodes.Count() == requiredCodesCount)
 =======
@@ -595,6 +596,10 @@ namespace Vodovoz
 				var isAllDriverTrueMarkCodesAddedAndProcessed =
 					(allScannedCodes.Count == requiredCodesCount)
 >>>>>>> eed460e905 (Добавил проверку, сканировал ли склад часть заказов, а водитель - другую)
+=======
+				var isAllDriverTrueMarkCodesAddedAndProcessed =
+					(driverCodes.Count() == requiredCodesCount)
+>>>>>>> 0d4c3c124c (Промежуточное)
 					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
