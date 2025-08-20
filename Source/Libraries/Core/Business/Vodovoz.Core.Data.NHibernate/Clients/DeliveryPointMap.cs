@@ -51,6 +51,12 @@ namespace Vodovoz.Core.Data.NHibernate.Clients
 			Map(x => x.KPP).Column("KPP");
 			Map(x => x.Organization).Column("organization");
 			Map(x => x.BuildingFromOnline).Column("building_from_online");
+
+			HasMany(x => x.Phones)
+				.KeyColumn("delivery_point_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 		}
 	}
 }
