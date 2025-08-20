@@ -15,7 +15,6 @@
 		<ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
 		<ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
 		<ProjectReference Include="..\Edo.Receipt\Edo.Receipt.csproj" />
-		<ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 	</ItemGroup>
 
 </Project>
