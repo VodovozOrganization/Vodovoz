@@ -31,6 +31,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+
+			//entrySalesManager.Binding.AddBinding();
 			entryOrderId.ValidationMode = ValidationType.Numeric;
 			entryOrderId.KeyReleaseEvent += OnKeyReleased;
 			entryOrderId.Binding.AddBinding(ViewModel, vm => vm.OrderId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
