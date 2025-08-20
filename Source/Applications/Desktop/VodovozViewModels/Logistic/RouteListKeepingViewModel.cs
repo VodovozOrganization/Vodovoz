@@ -54,7 +54,6 @@ using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 using Vodovoz.ViewModels.TrueMark;
 using VodovozBusiness.Controllers;
-using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz
 {
@@ -70,7 +69,6 @@ namespace Vodovoz
 		private readonly IGeneralSettings _generalSettings;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IOrderRepository _orderRepository;
-		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IPermissionResult _permissionResult;
 
 		private Employee _previousForwarder = null;
@@ -106,7 +104,6 @@ namespace Vodovoz
 			IServiceProvider serviceProvider,
 			ICallTaskWorker callTaskWorker,
 			IOrderRepository orderRepository,
-			ITrueMarkRepository trueMarkRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
@@ -129,7 +126,6 @@ namespace Vodovoz
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
@@ -575,22 +571,16 @@ namespace Vodovoz
 				&& !_currentPermissionService.ValidatePresetPermission(
 					Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				var requiredCodesCount =
-					_trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
-
-				var driverCodes =
-					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id)
-					.Select(x => x.SourceCode.Id);
-
 				var isAllDriverTrueMarkCodesAddedAndProcessed =
-					(driverCodes.Count() == requiredCodesCount)
+					_orderRepository.GetTrueMarkCodesAddedByDriverToOrderByOrderId(UoW, order.Id).Count != 0
 					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
-				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id)
+				   && !isAllDriverTrueMarkCodesAddedAndProcessed)
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
+						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\" и водитель не отсканировал все коды";
 
 					return false;
 				}
