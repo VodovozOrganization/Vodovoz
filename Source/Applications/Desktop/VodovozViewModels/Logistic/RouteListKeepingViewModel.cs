@@ -582,22 +582,15 @@ namespace Vodovoz
 					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id)
 					.Select(x => x.SourceCode.Id);
 
-				var warehouseCodes = 
-					_trueMarkRepository.GetCodesFromWarehouseByOrder(UoW, order.Id)
-					.Select(x => x.SourceCode.Id);
-
-				var allScannedCodes = driverCodes.Concat(warehouseCodes).Distinct().ToList();
-
 				var isAllDriverTrueMarkCodesAddedAndProcessed =
-					(allScannedCodes.Count == requiredCodesCount)
+					(driverCodes.Count() == requiredCodesCount)
 					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
-				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id)
-				   && !isAllDriverTrueMarkCodesAddedAndProcessed)
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\" и водитель не отсканировал все коды";
+						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
 
 					return false;
 				}
