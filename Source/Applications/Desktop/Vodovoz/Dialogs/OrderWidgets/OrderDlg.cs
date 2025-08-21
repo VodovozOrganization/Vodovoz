@@ -1180,6 +1180,8 @@ namespace Vodovoz
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
+
+			RefreshDebtorDebtNotifier();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -3821,6 +3823,7 @@ namespace Vodovoz
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
+			RefreshDebtorDebtNotifier();
 			UpdateContactPhoneFilter();
 
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
@@ -3997,6 +4000,24 @@ namespace Vodovoz
 			else
 			{
 				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+			}
+		}
+		private void RefreshDebtorDebtNotifier()
+		{
+			ylabelDebtorDebt.UseMarkup = true;
+
+			if (Counterparty != null)
+			{
+				var debtorDebt = GetDebtorDebt(Counterparty.Id);
+				if(debtorDebt > 0)
+				{
+					ylabelDebtorDebt.Visible = true;
+					ylabelDebtorDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {debtorDebt} руб.</span>";
+				}
+			}
+			else
+			{
+				ylabelDebtorDebt.Visible = false;
 			}
 		}
 
