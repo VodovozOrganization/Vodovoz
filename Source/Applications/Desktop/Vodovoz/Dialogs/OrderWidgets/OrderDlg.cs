@@ -1306,7 +1306,6 @@ namespace Vodovoz
 						try
 						{
 							var debtorDebt = GetDebtorDebt(Counterparty.Id);
-							var debt = GetDebtorDebt1(Counterparty.Id);
 							if(debtorDebt > 0)
 							{
 								_interactiveService.ShowMessage(
@@ -1443,74 +1442,6 @@ namespace Vodovoz
 				return 0;
 			}
 			return (decimal)result;
-		}
-		private decimal GetDebtorDebt1(int counterpartyId)
-		{
-			var statuses = new[] {
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
-			};
-			var statusNames = statuses.Select(x => x.ToString()).ToArray();
-
-			// Получаем заказы с нужными статусами и условиями
-			var orders = UoW.Session.QueryOver<Order>()
-				.Where(o => o.Client.Id == counterpartyId)
-				.Where(o => o.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Where(o => o.PaymentType == PaymentType.Cashless)
-				.Where(o => o.Client.PersonType == PersonType.legal)
-				.WhereRestrictionOn(o => o.OrderStatus).IsIn(statusNames)
-				.List();
-
-			decimal totalDebt = 0;
-
-			foreach(var order in orders)
-			{
-				// Сумма по позициям заказа
-				var orderItemsSum = order.OrderItems
-					.Sum(oi => (oi.Price * (oi.ActualCount ?? oi.Count)) - oi.DiscountMoney);
-
-				if(orderItemsSum <= 0)
-					continue;
-
-				// Сумма поступлений по безналу
-				var cashlessIncome = order.Client.CashlessMovementOperations
-					.Where(cmo => cmo.CashlessMovementOperationStatus != CashlessMovementOperationStatus.Cancelled)
-					.Sum(cmo => cmo.Income);
-
-				// Сумма поступлений по платежам
-				var paymentIncome = order.Client.PaymentItems
-					.Where(pi => pi.PaymentItemStatus != PaymentItemStatus.Cancelled)
-					.Sum(pi => pi.Sum);
-
-				// Сумма расходов по безналу
-				var cashlessExpense = order.PaymentItems
-					.Where(pi => pi.CashlessMovementOperation != null && pi.CashlessMovementOperation.CashlessMovementOperationStatus != CashlessMovementOperationStatus.Cancelled)
-					.Sum(pi => pi.CashlessMovementOperation.Expense);
-
-				// Просрочка
-				var overdue = 0m;
-				if(order.DeliveryDate.HasValue && (DateTime.Now - order.DeliveryDate.Value).TotalDays > order.Client.DelayDaysForBuyers)
-				{
-					overdue = orderItemsSum;
-				}
-
-				// Итог по заказу
-				var debtorDebt = Math.Round(
-					orderItemsSum
-					- (cashlessIncome - paymentIncome)
-					- cashlessExpense
-					- overdue,
-					2);
-
-				totalDebt += debtorDebt;
-			}
-
-			return totalDebt;
 		}
 		private void UpdateCallBeforeArrival()
 		{
