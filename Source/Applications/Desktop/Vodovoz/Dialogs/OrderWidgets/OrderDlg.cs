@@ -146,6 +146,7 @@ using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConver
 using LogLevel = NLog.LogLevel;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodovozBusiness.NotificationSenders;
+using DocumentFormat.OpenXml.Office.CustomXsn;
 
 namespace Vodovoz
 {
@@ -224,6 +225,7 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
+		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -381,20 +383,20 @@ namespace Vodovoz
 			get => Entity.PaymentType;
 			set => Entity.UpdatePaymentType(value, _orderContractUpdater);
 		}
-		
+
 		public PaymentFrom PaymentByCardFrom
 		{
 			get => Entity.PaymentByCardFrom;
 			set => Entity.UpdatePaymentByCardFrom(value, _orderContractUpdater);
 		}
-		
+
 		public DateTime? DeliveryDate
 		{
 			get => Entity.DeliveryDate;
 			set
 			{
 				Entity.UpdateDeliveryDate(value, _orderContractUpdater, out var message);
-				
+
 				if(!string.IsNullOrWhiteSpace(message))
 				{
 					MessageDialogHelper.RunWarningDialog(message);
@@ -415,7 +417,7 @@ namespace Vodovoz
 				}
 			}
 		}
-		
+
 		public Organization Organization => Contract?.Organization;
 
 		public DeliveryPoint DeliveryPoint
@@ -780,7 +782,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Binding
 				.AddBinding(this, dlg => dlg.DeliveryDate, w => w.DateOrNull)
 				.InitializeFromSource();
-			
+
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
 			pickerDeliveryDate.DateChangedByUser += OnPickerDeliveryDateDateChangedByUser;
 
@@ -1301,6 +1303,23 @@ namespace Vodovoz
 						{
 							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
+						try
+						{
+							var debtorDebt = GetDebtorDebt(Counterparty.Id);
+							var debt = GetDebtorDebt1(Counterparty.Id);
+							if(debtorDebt > 0)
+							{
+								_interactiveService.ShowMessage(
+									ImportanceLevel.Warning,
+									$"У клиента имеется дебиторская задолженность в размере {debtorDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+									"Уведомление о задолженности клиента");
+							}
+						}
+						catch(Exception ex)
+						{
+							_logger.Error(ex, $"Ошибка при получении дебиторской задолженности по клиенту {Counterparty.Id}");
+						}
+
 
 						if(!Entity.IsCopiedFromUndelivery)
 						{
@@ -1322,7 +1341,7 @@ namespace Vodovoz
 					break;
 				case nameof(Order.SelfDelivery):
 					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
-					UpdateCallBeforeArrival();					
+					UpdateCallBeforeArrival();
 					break;
 				case nameof(Order.IsFastDelivery):
 					UpdateCallBeforeArrival();
@@ -1343,6 +1362,156 @@ namespace Vodovoz
 			}
 		}
 
+		private decimal GetDebtorDebt(int counterpartyId)
+		{
+			var sql = @"
+				SELECT
+					(
+						IFNULL(
+							ROUND(
+								SUM(
+									(SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+										FROM order_items oi
+										WHERE oi.order_id = o.id)),
+								2),
+							0
+						) - (
+							(
+								SELECT IFNULL(SUM(cmo.income), 0)
+								FROM cashless_movement_operations cmo
+								WHERE cmo.counterparty_id = c.id
+									AND cmo.cashless_movement_operation_status != 'Cancelled'
+							) -
+							(
+								SELECT IFNULL(SUM(pi.sum), 0)
+								FROM payment_items pi
+								INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
+								WHERE pfbc.counterparty_id = c.id
+									AND pi.payment_item_status != 'Cancelled'
+							)
+						) - IFNULL(
+							SUM(
+								(SELECT SUM(cmo.expense)
+									FROM payment_items pi
+									INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+									WHERE pi.order_id = o.id
+										AND cmo.cashless_movement_operation_status != 'Cancelled')),
+							0
+						)
+					) - 
+					IFNULL(
+						ROUND(
+							SUM(
+								CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
+									(SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+										FROM order_items oi
+										WHERE oi.order_id = o.id)
+								ELSE 0 END),
+							2),
+						0
+					) AS debtor_debt
+				FROM
+					orders o
+				INNER JOIN counterparty c ON o.client_id = c.id
+				LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+				WHERE
+					o.order_payment_status != 'Paid'
+					AND o.payment_type = 'Cashless'
+					AND c.person_type = 'legal'
+					AND (
+						SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+						FROM order_items oi
+						WHERE oi.order_id = o.id
+					) > 0
+					AND o.order_status IN (
+						'Accepted',
+						'InTravelList',
+						'OnLoading',
+						'OnTheWay',
+						'Shipped',
+						'UnloadingOnStock',
+						'Closed'
+					)
+					AND o.client_id = :counterpartyId;";
+
+			var query = UoW.Session.CreateSQLQuery(sql);
+			query.SetInt32("counterpartyId", counterpartyId);
+
+			var result = query.UniqueResult();
+			if(result == null || result == DBNull.Value)
+			{
+				return 0;
+			}
+			return (decimal)result;
+		}
+		private decimal GetDebtorDebt1(int counterpartyId)
+		{
+			var statuses = new[] {
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+			var statusNames = statuses.Select(x => x.ToString()).ToArray();
+
+			// Получаем заказы с нужными статусами и условиями
+			var orders = UoW.Session.QueryOver<Order>()
+				.Where(o => o.Client.Id == counterpartyId)
+				.Where(o => o.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(o => o.PaymentType == PaymentType.Cashless)
+				.Where(o => o.Client.PersonType == PersonType.legal)
+				.WhereRestrictionOn(o => o.OrderStatus).IsIn(statusNames)
+				.List();
+
+			decimal totalDebt = 0;
+
+			foreach(var order in orders)
+			{
+				// Сумма по позициям заказа
+				var orderItemsSum = order.OrderItems
+					.Sum(oi => (oi.Price * (oi.ActualCount ?? oi.Count)) - oi.DiscountMoney);
+
+				if(orderItemsSum <= 0)
+					continue;
+
+				// Сумма поступлений по безналу
+				var cashlessIncome = order.Client.CashlessMovementOperations
+					.Where(cmo => cmo.CashlessMovementOperationStatus != CashlessMovementOperationStatus.Cancelled)
+					.Sum(cmo => cmo.Income);
+
+				// Сумма поступлений по платежам
+				var paymentIncome = order.Client.PaymentItems
+					.Where(pi => pi.PaymentItemStatus != PaymentItemStatus.Cancelled)
+					.Sum(pi => pi.Sum);
+
+				// Сумма расходов по безналу
+				var cashlessExpense = order.PaymentItems
+					.Where(pi => pi.CashlessMovementOperation != null && pi.CashlessMovementOperation.CashlessMovementOperationStatus != CashlessMovementOperationStatus.Cancelled)
+					.Sum(pi => pi.CashlessMovementOperation.Expense);
+
+				// Просрочка
+				var overdue = 0m;
+				if(order.DeliveryDate.HasValue && (DateTime.Now - order.DeliveryDate.Value).TotalDays > order.Client.DelayDaysForBuyers)
+				{
+					overdue = orderItemsSum;
+				}
+
+				// Итог по заказу
+				var debtorDebt = Math.Round(
+					orderItemsSum
+					- (cashlessIncome - paymentIncome)
+					- cashlessExpense
+					- overdue,
+					2);
+
+				totalDebt += debtorDebt;
+			}
+
+			return totalDebt;
+		}
 		private void UpdateCallBeforeArrival()
 		{
 			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
@@ -2618,7 +2787,7 @@ namespace Vodovoz
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
-			
+
 			var phones = new List<string>();
 
 			phones.AddRange(Entity.Client.Phones.Select(x => x.DigitsNumber));
@@ -2721,7 +2890,7 @@ namespace Vodovoz
 					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
-			
+
 			return Result.Success();
 		}
 
@@ -2737,13 +2906,13 @@ namespace Vodovoz
 			var orderPartsByOrganizations =
 				_lifetimeScope.Resolve<IOrderOrganizationManager>()
 					.GetOrderPartsByOrganizations(UoW, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(Entity));
-			
+
 			if(!orderPartsByOrganizations.CanSplitOrderWithDeposits && Entity.ObservableOrderDepositItems.Any())
 			{
 				MessageDialogHelper.RunWarningDialog("Данный заказ содержит возврат залогов." +
 					" И т.к. он содержит позиции, продаваемые от разных организаций," +
 					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
-				
+
 				return (false, Result.Failure(Errors.Orders.Order.UnableToPartitionOrderWithBigDeposit));
 			}
 
@@ -2771,7 +2940,7 @@ namespace Vodovoz
 
 				SplitOrder(orderPartsByOrganizations);
 				OnCloseTab(false);
-				
+
 				return (true, Result.Success());
 			}
 
@@ -2796,12 +2965,12 @@ namespace Vodovoz
 		{
 			var needOpenSavedOrders = false;
 			Result<IEnumerable<int>> result = null;
-			
+
 			result = _partitioningOrderService.CreatePartOrdersAndSave(Entity.Id, Entity.Author, orderPartsByOrganizations);
 
 			if(result.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog($"{ result.Errors.First().Message }. Переоткройте заново заказ и повторите попытку");
+				MessageDialogHelper.RunErrorDialog($"{result.Errors.First().Message}. Переоткройте заново заказ и повторите попытку");
 				return false;
 			}
 
@@ -2812,7 +2981,7 @@ namespace Vodovoz
 					_navigationManager.OpenTdiTabOnTdi<OrderDlg, int>(null, orderId);
 				}
 			}
-			
+
 			return true;
 		}
 
@@ -2965,7 +3134,7 @@ namespace Vodovoz
 		{
 			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
-			
+
 			OrderDocumentsOpener(Entity.OrderDocuments
 				.Where(x => x.Type == OrderDocumentType.Invoice
 					|| x.Type == OrderDocumentType.InvoiceBarter
@@ -3048,7 +3217,7 @@ namespace Vodovoz
 		private void OrderDocumentsOpener(PrintableOrderDocument[] printableOrderDocuments)
 		{
 			_logger.Info("Открытие документа заказа");
-			
+
 			if(!printableOrderDocuments.Any())
 			{
 				return;
@@ -3085,7 +3254,7 @@ namespace Vodovoz
 				printableOrderDocuments
 					.Where(d => d.PrintType == PrinterType.ODT)
 					.ToArray();
-			
+
 			if(odtDocs.Any())
 			{
 				foreach(var doc in odtDocs)
@@ -4997,9 +5166,9 @@ namespace Vodovoz
 			{
 				return;
 			}
-			
+
 			var email = string.Empty;
-			
+
 			var clientEmail =
 				Counterparty.Emails.FirstOrDefault(x => x.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 					?? Counterparty.Emails.FirstOrDefault(x => x.EmailType == null)
@@ -5526,7 +5695,7 @@ namespace Vodovoz
 				Entity.OrderAddressType = OrderAddressType.Delivery;
 				Entity.UpdateDeliveryDate(null, _orderContractUpdater, out var updateDeliveryDateMessage);
 				Entity.DeliverySchedule = null;
-				
+
 				if(!string.IsNullOrWhiteSpace(updateDeliveryDateMessage))
 				{
 					MessageDialogHelper.RunWarningDialog(updateDeliveryDateMessage);
