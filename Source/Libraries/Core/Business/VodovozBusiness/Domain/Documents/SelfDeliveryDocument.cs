@@ -13,6 +13,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -24,6 +25,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Client.Specifications;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -202,6 +204,11 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
+			if(!(validationContext.GetService(typeof(IGenericRepository<OrderEdoRequest>)) is IGenericRepository<OrderEdoRequest> orderEdoRequestRepository))
+			{
+				throw new ArgumentNullException(nameof(orderEdoRequestRepository));
+			}
+
 			foreach(var item in Items)
 			{
 				if(item.Amount > item.AmountInStock)
@@ -242,9 +249,10 @@ namespace Vodovoz.Domain.Documents
 						new[] { nameof(item) });
 				}
 
-				var hasOrderEdoRequest = unitOfWork
-					.GetAll<OrderEdoRequest>()
-					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+				var hasOrderEdoRequest = 
+					orderEdoRequestRepository
+					.Get(unitOfWork, OrderEdoRequestSpecification.CreateForOrderId(Order.Id))
+					.Any();
 
 				if(hasOrderEdoRequest)
 				{

@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -16,8 +12,14 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -43,6 +45,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
+using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz
@@ -59,6 +62,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private IGenericRepository<OrderEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
@@ -127,7 +131,8 @@ namespace Vodovoz
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_trueMarkWaterCodeService = _lifetimeScope.Resolve<ITrueMarkWaterCodeService>
-				(new TypedParameter(typeof(IUnitOfWork), UoW)); 
+				(new TypedParameter(typeof(IUnitOfWork), UoW));
+			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<OrderEdoRequest>>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -305,6 +310,18 @@ namespace Vodovoz
 					$"У контрагента выбрана неподходящая причина выбытия. Допустимы только:" +
 					$"{string.Join(", ", allowedReasonsForLeaving.Select(x => x.GetEnumDisplayName()))}");
 
+				return;
+			}
+
+			var isOrderEdoRequestExists =
+					_orderEdoRequestRepository
+					.Get(UoW, OrderEdoRequestSpecification.CreateForOrderId(Entity.Order.Id))
+					.Any();
+
+			if(isOrderEdoRequestExists)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"Заявка на отправку документов заказа по ЭДО уже создана. Изменение кодов запрещено");
 				return;
 			}
 			
