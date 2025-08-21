@@ -120,6 +120,11 @@ namespace Vodovoz.Store.Reports
 			
 			if(ViewModel.IsWarehouseEnabled && ViewModel.SelectedWarehouse != null)
 			{
+				ytreeviewOldSummaryBySource.Visible = true;
+				ytreeviewOldBySummary.Visible = true;
+				ylabelOldSummary.Visible = true;
+				ylabelOldSummaryBySource.Visible = true;
+				
 				// Разбивка виновных в разрезе номенклатур
 				var dynamicSourceNameColumns = ViewModel.Report.SourceNames;
 				var summaryByNomenclatureConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByNomenclatureRow>()
@@ -157,6 +162,46 @@ namespace Vodovoz.Store.Reports
 				
 				ytreeviewSummary.ColumnsConfig = summaryByNomenclatureWithTypeDefectConfig.Finish();
 				ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryByNomenclatureWithTypeDefectRows;
+				
+				
+				// Разбивка виновных в разрезе старых номенклатур
+				var dynamicSourceOldNameColumns = ViewModel.Report.SourceOldNames;
+				var summaryByOldNomenclatureConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByOldNomenclatureRow>()
+					.AddColumn("Старая номеклатура")
+					.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
+				
+				for(var i = 0; i < dynamicSourceOldNameColumns.Count; i++)
+				{
+					var currentId = i;
+					
+					
+					summaryByOldNomenclatureConfig
+						.AddColumn(dynamicSourceOldNameColumns.ElementAt(currentId))
+						.AddTextRenderer(x => x.DynamicColumnsByOldNomenclatureRow.ElementAt(currentId).ToString());
+				}
+				
+				ytreeviewOldSummaryBySource.ColumnsConfig = summaryByOldNomenclatureConfig.Finish();
+				ytreeviewOldSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryByOldNomenclatureRows;
+				
+				
+				// Разбивка по видам брака в разрезе старых номенклатур
+				var dynamicDefectOldNameColumns = ViewModel.Report.DefectNames;
+				var summaryByOldNomenclatureWithTypeDefectConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow>()
+					.AddColumn("Старая номеклатура")
+					.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
+				
+				for(var i = 0; i < dynamicDefectOldNameColumns.Count; i++)
+				{
+					var currentId = i;
+
+					summaryByOldNomenclatureWithTypeDefectConfig
+						.AddColumn(dynamicDefectOldNameColumns.ElementAt(currentId))
+						.AddTextRenderer(x => x.DynamicColumnsByOldNomenclatureWithTypeDefectRow.ElementAt(currentId).ToString());
+				}
+				
+				
+				ytreeviewOldBySummary.ColumnsConfig = summaryByOldNomenclatureWithTypeDefectConfig.Finish();
+				ytreeviewOldBySummary.ItemsDataSource = ViewModel.Report.SummaryByOldNomenclatureWithTypeDefectRows;
 			}
 			else
 			{
@@ -193,6 +238,11 @@ namespace Vodovoz.Store.Reports
 				{
 					ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryDisplayRows;
 				}
+
+				ytreeviewOldSummaryBySource.Visible = false;
+				ytreeviewOldBySummary.Visible = false;
+				ylabelOldSummary.Visible = false;
+				ylabelOldSummaryBySource.Visible = false;
 			}
 		}
 

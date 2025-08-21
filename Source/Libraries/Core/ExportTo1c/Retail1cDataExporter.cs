@@ -1,11 +1,11 @@
-﻿using Gamma.Utilities;
-using QS.Dialog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using Gamma.Utilities;
+using QS.Dialog;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Domain.Orders;
 
@@ -21,23 +21,43 @@ namespace ExportTo1c.Library
 			CancellationToken cancellationToken,
 			IProgressBarDisplayable progressBarDisplayable = null)
 		{
+			var datesInRange = GetDatesInRange(startOfYesterday, endOfYesterday);
+
+			var ordersByDate = orders
+				.Where(o => o.DeliveryDate >= startOfYesterday && o.DeliveryDate <= endOfYesterday)
+				.GroupBy(o => o.DeliveryDate)
+				.ToDictionary(g => g.Key, g => g.ToList());
+
 			return new XElement("ФайлОбмена",
 				new XAttribute("НачалоПериодаВыгрузки", startOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
 				new XAttribute("ОкончаниеПериодаВыгрузки", endOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
-				new XElement("Организация",
-					new XAttribute("ИНН", organizationInn),
+				new XElement("Организация", new XAttribute("ИНН", organizationInn)),
+				datesInRange.Select(date => new XElement("Дата",
+					new XAttribute("Значение", date.ToString("yyyy-MM-ddTHH:mm:ss")),
 					new XElement("Продажи",
-						CreateExportRetailRows(orders, cancellationToken, progressBarDisplayable)
-					)
-				)
-			);
+						ordersByDate.TryGetValue(date, out var dateOrders)
+							? CreateExportRetailRows(dateOrders, progressBarDisplayable, date, cancellationToken)
+							: Enumerable.Empty<XElement>())
+				)));
 		}
 
-		private static IList<XElement> CreateExportRetailRows(IList<Order> orders, CancellationToken cancellationToken, IProgressBarDisplayable progressBarDisplayable)
+		private static IEnumerable<DateTime> GetDatesInRange(DateTime startDate, DateTime endDate)
+		{
+			for(var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+			{
+				yield return date;
+			}
+		}
+
+		private static IList<XElement> CreateExportRetailRows(
+			IList<Order> orders,
+			IProgressBarDisplayable progressBarDisplayable,
+			DateTime date,
+			CancellationToken cancellationToken)
 		{
 			var ordersCount = orders.Count();
 
-			progressBarDisplayable?.Start(ordersCount, 0, "Выгрузка розницы");
+			progressBarDisplayable?.Start(ordersCount, 0, $"Выгрузка розницы");
 
 			var xElements = new List<XElement>();
 
@@ -51,7 +71,6 @@ namespace ExportTo1c.Library
 
 				foreach(var item in items)
 				{
-
 					var rowItem = new XElement("Строка",
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
@@ -63,13 +82,13 @@ namespace ExportTo1c.Library
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value));
 
 					xElements.Add(rowItem);
-		
-					cancellationToken.ThrowIfCancellationRequested();					
+
+					cancellationToken.ThrowIfCancellationRequested();
 				}
 
 				i++;
 
-				progressBarDisplayable?.Add(1, $"Заказ {i}/{ordersCount}");
+				progressBarDisplayable?.Add(1, $"Выгрузка розницы за {date:yyyy-MM-dd}. Заказ {i}/{ordersCount}");
 			}
 
 			progressBarDisplayable?.Update("Выгрузка розницы завершена. Сохранение в файл...");

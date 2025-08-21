@@ -3204,6 +3204,9 @@ FROM
 			LIMIT 1)
 	LEFT JOIN
 	promotional_sets ps ON ps.id = oi.promotional_set_id
+  LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+	LEFT JOIN cars car ON rl.car_id = car.id 
+	LEFT JOIN car_models cm ON car.model_id = cm.id 
 WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
@@ -3242,6 +3245,10 @@ WHERE
        AND (
              (0 IN (@Organization_include) OR (cc.organization_id IN (@Organization_include)))
 				AND NOT (cc.organization_id IN (@Organization_exclude))
+         )
+       AND (
+          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL))
+        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude) AND cm.car_type_of_use IS NOT NULL)
          )
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
@@ -3391,6 +3398,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="Organization_exclude">
             <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_include">
+            <Value>={?CarTypeOfUse_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_exclude">
+            <Value>={?CarTypeOfUse_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="Counterparty_include">
             <Value>={?Counterparty_include}</Value>
@@ -3772,6 +3785,12 @@ SELECT
             (IF(excluded_product_groups!=0,
                 CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
                 '')),
+            (IF(included_car_models!=0,
+                CONCAT('Вкл. типы авто: ',included_car_models,'\n'),
+                '')),
+            (IF(excluded_car_models!=0,
+                CONCAT('Искл. типы авто: ',excluded_car_models,'\n'),
+                '')),
         (IF(included_order_statuses!=0,
 		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
 		'')),
@@ -3853,7 +3872,16 @@ FROM
                      (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
                      0
              ) AS excluded_org,
-
+         IF(
+                     '0' NOT IN (@CarTypeOfUse_include),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
+                     0
+             ) AS included_car_models,
+         IF(
+                     '0' NOT IN (@CarTypeOfUse_exclude),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
+                     0
+             ) AS excluded_car_models,
          IF(
                      0 NOT IN (@Subdivision_include),
                      (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
@@ -4031,6 +4059,12 @@ FROM
           <QueryParameter Name="Organization_exclude">
             <Value>=Parameters!Organization_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_include">
+            <Value>=Parameters!CarTypeOfUse_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_exclude">
+            <Value>=Parameters!CarTypeOfUse_exclude</Value>
+          </QueryParameter>
           <QueryParameter Name="Counterparty_include">
             <Value>=Parameters!Counterparty_include</Value>
           </QueryParameter>
@@ -4199,6 +4233,20 @@ FROM
     </ReportParameter>
     <ReportParameter Name="Organization_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CarTypeOfUse_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CarTypeOfUse_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>

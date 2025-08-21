@@ -143,7 +143,7 @@ namespace MailganerEventsDistributorApi.Controllers
 				case "unsubscribe":
 					return MailEventType.unsub;
 				default:
-					return MailEventType.sent;
+					return MailEventType.bounce;
 			}
 		}
 	}
