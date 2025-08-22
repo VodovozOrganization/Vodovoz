@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Documents
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
+		public virtual new Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
