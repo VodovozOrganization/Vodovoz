@@ -60,13 +60,11 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		
 		/// <summary>
 		/// Статус оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 
 		/// <summary>
@@ -77,7 +75,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 
 		/// <summary>

@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
-		public OnlinePaymentSource OnlinePaymentSource { get; set; }
+		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 		/// <summary>
 		/// Статус оплаты онлайн заказа
 		/// </summary>

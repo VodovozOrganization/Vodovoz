@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json.Serialization;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 
@@ -33,13 +32,11 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public OnlinePaymentSource OnlinePaymentSource { get; set; }
+		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 		/// <summary>
 		/// Статус оплаты онлайн заказа
 		/// </summary>

@@ -17,7 +17,7 @@ namespace Vodovoz.Extensions
 		/// <returns>Id источника оплаты ДВ или ошибка</returns>
 		/// <exception cref="InvalidOperationException">Ошибка, если пришел неивестный источник оплаты</exception>
 		public static int ConvertToPaymentFromId(
-			this OnlinePaymentSource onlinePaymentSource,
+			this OnlinePaymentSource? onlinePaymentSource,
 			IOrderSettings orderSettings)
 		{
 			switch(onlinePaymentSource)

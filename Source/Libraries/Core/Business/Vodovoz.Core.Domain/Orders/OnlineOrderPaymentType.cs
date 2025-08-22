@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Vodovoz.Core.Domain.Orders
 {
 	/// <summary>
 	/// Формы оплат онлайн заказа
 	/// </summary>
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum OnlineOrderPaymentType
 	{
 		/// <summary>
