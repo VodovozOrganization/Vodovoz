@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -17,6 +18,7 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
 		private SelfDeliveryDocumentEntity _selfDeliveryDocument;
+		private NomenclatureEntity _nomenclature;
 
 		/// <summary>
 		/// Идентификатор
@@ -31,6 +33,17 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _selfDeliveryDocument;
 			set => SetField(ref _selfDeliveryDocument, value);
+		}
+
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
+		{
+			get => _nomenclature;
+			//Нельзя устанавливать, см. логику в SelfDeliveryDocumentItem.cs
+			protected set => SetField(ref _nomenclature, value);
 		}
 
 		/// <summary>
