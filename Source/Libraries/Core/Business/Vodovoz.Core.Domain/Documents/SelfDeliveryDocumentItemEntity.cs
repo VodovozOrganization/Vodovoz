@@ -19,6 +19,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
 		private SelfDeliveryDocumentEntity _selfDeliveryDocument;
 		private NomenclatureEntity _nomenclature;
+		private decimal _amount;
 
 		/// <summary>
 		/// Идентификатор
@@ -44,6 +45,16 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _nomenclature;
 			//Нельзя устанавливать, см. логику в SelfDeliveryDocumentItem.cs
 			protected set => SetField(ref _nomenclature, value);
+		}
+
+		/// <summary>
+		/// Количество
+		/// </summary>
+		[Display(Name = "Количество")]
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set => SetField(ref _amount, value);
 		}
 
 		/// <summary>

@@ -11,6 +11,8 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
+			Map(x => x.Amount).Column("amount");
+
 			References(x => x.SelfDeliveryDocument).Column("store_self_delivery_document_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 

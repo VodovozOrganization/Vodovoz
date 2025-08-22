@@ -45,16 +45,6 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		decimal amount;
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
-			}
-		}
-
 		OrderItem orderItem;
 
 		[Display (Name = "Связанный товар")]
