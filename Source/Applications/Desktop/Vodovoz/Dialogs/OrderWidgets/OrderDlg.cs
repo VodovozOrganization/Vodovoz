@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using Core.Infrastructure;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -6,6 +9,7 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
+using NHibernate;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -14,6 +18,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
@@ -41,9 +46,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using QS.DomainModel.Tracking;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -51,6 +53,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
@@ -68,6 +71,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -135,18 +139,18 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
+using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Models.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using LogLevel = NLog.LogLevel;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
-using VodovozBusiness.NotificationSenders;
-using DocumentFormat.OpenXml.Office.CustomXsn;
 
 namespace Vodovoz
 {
@@ -1307,7 +1311,7 @@ namespace Vodovoz
 						}
 						try
 						{
-							var debtorDebt = GetDebtorDebt(Counterparty.Id);
+							var debtorDebt = GetDebtorDebtOverQuery(Counterparty.Id);
 							if(debtorDebt > 0)
 							{
 								_interactiveService.ShowMessage(
@@ -1362,89 +1366,73 @@ namespace Vodovoz
 					break;
 			}
 		}
-
-		private decimal GetDebtorDebt(int counterpartyId)
+		private decimal GetDebtorDebtOverQuery(int counterpartyId)
 		{
-			var sql = @"
-				SELECT
-					(
-						IFNULL(
-							ROUND(
-								SUM(
-									(SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-										FROM order_items oi
-										WHERE oi.order_id = o.id)),
-								2),
-							0
-						) - (
-							(
-								SELECT IFNULL(SUM(cmo.income), 0)
-								FROM cashless_movement_operations cmo
-								WHERE cmo.counterparty_id = c.id
-									AND cmo.cashless_movement_operation_status != 'Cancelled'
-							) -
-							(
-								SELECT IFNULL(SUM(pi.sum), 0)
-								FROM payment_items pi
-								INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
-								WHERE pfbc.counterparty_id = c.id
-									AND pi.payment_item_status != 'Cancelled'
-							)
-						) - IFNULL(
-							SUM(
-								(SELECT SUM(cmo.expense)
-									FROM payment_items pi
-									INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
-									WHERE pi.order_id = o.id
-										AND cmo.cashless_movement_operation_status != 'Cancelled')),
-							0
-						)
-					) - 
-					IFNULL(
-						ROUND(
-							SUM(
-								CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
-									(SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-										FROM order_items oi
-										WHERE oi.order_id = o.id)
-								ELSE 0 END),
-							2),
-						0
-					) AS debtor_debt
-				FROM
-					orders o
-				INNER JOIN counterparty c ON o.client_id = c.id
-				LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-				WHERE
-					o.order_payment_status != 'Paid'
-					AND o.payment_type = 'Cashless'
-					AND c.person_type = 'legal'
-					AND (
-						SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-						FROM order_items oi
-						WHERE oi.order_id = o.id
-					) > 0
-					AND o.order_status IN (
-						'Accepted',
-						'InTravelList',
-						'OnLoading',
-						'OnTheWay',
-						'Shipped',
-						'UnloadingOnStock',
-						'Closed'
-					)
-					AND o.client_id = :counterpartyId;";
+			Order orderAlias = null;
+			Counterparty clientAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+			PaymentItem paymentItemAlias = null;
+			Payment paymentAlias = null;
 
-			var query = UoW.Session.CreateSQLQuery(sql);
-			query.SetInt32("counterpartyId", counterpartyId);
 
-			var result = query.UniqueResult();
-			if(result == null || result == DBNull.Value)
-			{
-				return 0;
-			}
-			return (decimal)result;
+			var orders = UoW.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => clientAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => clientAlias.PersonType == PersonType.legal)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(new[] {
+					OrderStatus.Accepted,
+					OrderStatus.InTravelList,
+					OrderStatus.OnLoading,
+					OrderStatus.OnTheWay,
+					OrderStatus.Shipped,
+					OrderStatus.UnloadingOnStock,
+					OrderStatus.Closed
+				})
+				.List();
+
+			var orderIds = orders.Select(o => o.Id).ToArray();
+			var clientIds = orders.Select(o => o.Client.Id).Distinct().ToArray();
+
+			var totalOrderSum = UoW.Session.Query<OrderItem>()
+				.Where(oi => orderIds.Contains(oi.Order.Id))
+				.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+
+			var totalLateOrderSum = UoW.Session.Query<OrderItem>()
+				.Where(oi => orderIds.Contains(oi.Order.Id))
+				.ToList()
+				.Where(oi => oi.Order.DeliveryDate.HasValue && oi.Order.Client.DelayDaysForBuyers > 0)
+				.Where(oi => (DateTime.Now - oi.Order.DeliveryDate.Value).TotalDays > oi.Order.Client.DelayDaysForBuyers)
+				.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+
+			var cashlessIncome = UoW.Session.QueryOver(() => cashlessMovementOperationAlias)
+				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(NHibernate.Criterion.Projections.Sum(() => cashlessMovementOperationAlias.Income))
+				.SingleOrDefault<decimal>();
+
+			var paymentItemsSum = UoW.Session.QueryOver(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
+				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(NHibernate.Criterion.Projections.Sum(() => paymentItemAlias.Sum))
+				.SingleOrDefault<decimal>();
+
+			var paymentExpenses = UoW.Session.QueryOver(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.WhereRestrictionOn(() => paymentItemAlias.Order.Id).IsIn(orderIds)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(NHibernate.Criterion.Projections.Sum(() => cashlessMovementOperationAlias.Expense))
+				.SingleOrDefault<decimal>();
+
+			var debtorDebt = Math.Round(
+				(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
+				2);
+
+			return debtorDebt > 0 ? debtorDebt : 0;
 		}
+
 		private void UpdateCallBeforeArrival()
 		{
 			var isNotFastDeliveryOrSelfDelivery = !(Entity.SelfDelivery || Entity.IsFastDelivery);
@@ -4006,9 +3994,9 @@ namespace Vodovoz
 		{
 			ylabelDebtorDebt.UseMarkup = true;
 
-			if (Counterparty != null)
+			if(Counterparty != null)
 			{
-				var debtorDebt = GetDebtorDebt(Counterparty.Id);
+				var debtorDebt = GetDebtorDebtOverQuery(Counterparty.Id);
 				if(debtorDebt > 0)
 				{
 					ylabelDebtorDebt.Visible = true;
