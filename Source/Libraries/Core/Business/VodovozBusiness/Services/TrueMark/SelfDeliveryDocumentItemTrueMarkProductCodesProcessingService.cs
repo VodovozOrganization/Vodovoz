@@ -4,88 +4,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Client.Specifications;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
 
 namespace VodovozBusiness.Services.TrueMark
 {
-	public class RouteListItemTrueMarkProductCodesProcessingService : IRouteListItemTrueMarkProductCodesProcessingService
+	public class SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService : ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService
 	{
-		private readonly IOrderRepository _orderRepository;
-		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
-		public RouteListItemTrueMarkProductCodesProcessingService(
-			IOrderRepository orderRepository,
-			IGenericRepository<RouteListItemEntity> routeListItemRepository,
+		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService;
+			_stagingTrueMarkCodeRepository =
+				stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
+			_trueMarkWaterCodeService =
+				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
-		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
-		{
-			if((trueMarkCodeResult.IsTrueMarkTransportCode
-					&& trueMarkCodeResult.TrueMarkTransportCode?.ParentTransportCodeId != null)
-				|| (trueMarkCodeResult.IsTrueMarkWaterGroupCode
-					&& (trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
-						|| trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null))
-				|| (trueMarkCodeResult.IsTrueMarkWaterIdentificationCode
-					&& (trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
-						|| trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
-			{
-				return Result.Failure(TrueMarkCodeErrors.AggregatedCode);
-			}
-
-			return Result.Success();
-		}
-
-		public void AddTrueMarkCodeToRouteListItem(
+		public async Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
 			IUnitOfWork uow,
-			RouteListItemEntity routeListAddress,
-			int vodovozOrderItemId,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			SourceProductCodeStatus status,
-			ProductCodeProblem problem)
-		{
-			var productCode = CreateRouteListItemTrueMarkProductCode(
-				routeListAddress,
-				trueMarkWaterIdentificationCode,
-				status,
-				problem);
-
-			routeListAddress.TrueMarkCodes.Add(productCode);
-			uow.Save(productCode);
-
-			var trueMarkCodeOrderItem = new TrueMarkProductCodeOrderItem
-			{
-				TrueMarkProductCodeId = productCode.Id,
-				OrderItemId = vodovozOrderItemId
-			};
-			uow.Save(trueMarkCodeOrderItem);
-		}
-
-		/// <inheritdoc/>
-		public async Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
-			IUnitOfWork uow,
-			RouteListItemEntity routeListAddress,
-			int orderSaleItemId,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
@@ -101,17 +50,16 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
-					var isCodeAlreadyAddedToRouteListItem =
-						routeListAddress.TrueMarkCodes.Any(x =>
+					var isCodeAlreadyAdded =
+						selfDeliveryDocumentItem.TrueMarkProductCodes.Any(x =>
 						x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
 						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!isCodeAlreadyAddedToRouteListItem)
+					if(!isCodeAlreadyAdded)
 					{
-						AddTrueMarkCodeToRouteListItem(
+						AddTrueMarkCodeToSelfDeliveryDocumentItem(
 							uow,
-							routeListAddress,
-							orderSaleItemId,
+							selfDeliveryDocumentItem,
 							code.TrueMarkWaterIdentificationCode,
 							status,
 							problem);
@@ -149,89 +97,89 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 		}
 
-		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(
-			RouteListItemEntity routeListAddress,
+		private void AddTrueMarkCodeToSelfDeliveryDocumentItem(
+			IUnitOfWork uow,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
+		{
+			var productCode = CreateSelfDeliveryDocumentItemTrueMarkProductCode(
+				selfDeliveryDocumentItem,
+				trueMarkWaterIdentificationCode,
+				status,
+				problem);
+
+			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
+			uow.Save(productCode);
+		}
+
+		private SelfDeliveryDocumentItemTrueMarkProductCode CreateSelfDeliveryDocumentItemTrueMarkProductCode(
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>
-			new RouteListItemTrueMarkProductCode()
+			new SelfDeliveryDocumentItemTrueMarkProductCode()
 			{
 				CreationTime = DateTime.Now,
 				SourceCodeStatus = status,
 				SourceCode = trueMarkWaterIdentificationCode,
 				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				RouteListItem = routeListAddress,
+				SelfDeliveryDocumentItem = selfDeliveryDocumentItem,
 				Problem = problem
 			};
 
-		public async Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
+		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
-			RouteListItem routeListItem,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
-			var order = routeListItem.Order;
+			if(!selfDeliveryDocumentItem.Nomenclature.IsAccountableInTrueMark)
+			{
+				throw new InvalidOperationException(
+					"Коды ЧЗ можно добавить только к номенклатуре, которая подлежит учету в Честном Знаке");
+			}
 
 			var stagingCodes =
 				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 				uow,
-				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-				routeListItem.Id,
+				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+				selfDeliveryDocumentItem.Id,
 				cancellationToken);
 
-			var orderItemStaginCodes = stagingCodes
-				.GroupBy(x => x.OrderItemId)
-				.ToDictionary(x => x.Key, x => x.ToList());
+			var identificationStagingCodesCount = stagingCodes
+				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
 
-			foreach(var orderItem in order.OrderItems)
+			if(identificationStagingCodesCount < selfDeliveryDocumentItem.Amount)
 			{
-				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
-				{
-					continue;
-				}
+				var error = TrueMarkCodeErrors.NotAllCodesAdded;
+				return Result.Failure(error);
+			}
 
-				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
-				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
-				}
+			if(identificationStagingCodesCount > selfDeliveryDocumentItem.Amount)
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+				return Result.Failure(error);
+			}
 
-				var stagingCodesForOrderItemCount = stagingCodesForOrderItem
-					.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
+			var addProductCodesResult =
+				await AddProductCodesToSelfDeliveryDocumentItemFromStagingCodes(
+					uow,
+					stagingCodes,
+					selfDeliveryDocumentItem,
+					cancellationToken);
 
-				var orderItemCount = orderItem.ActualCount ?? orderItem.Count;
-
-				if(stagingCodesForOrderItemCount < orderItemCount)
-				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
-				}
-
-				if(stagingCodesForOrderItemCount > orderItemCount)
-				{
-					var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
-					return Result.Failure(error);
-				}
-
-				var addProductCodesResult =
-					await AddProductCodesToRouteListItemFromStagingCodes(
-						uow,
-						stagingCodesForOrderItem,
-						routeListItem,
-						orderItem.Id,
-						cancellationToken);
-
-				if(addProductCodesResult.IsFailure)
-				{
-					var error = addProductCodesResult.Errors.FirstOrDefault();
-					return Result.Failure(error);
-				}
+			if(addProductCodesResult.IsFailure)
+			{
+				var error = addProductCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
 			}
 
 			var deleteStagingCodesResult =
 				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
 					uow,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItem.Id,
+					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+					selfDeliveryDocumentItem.Id,
 					cancellationToken);
 
 			if(deleteStagingCodesResult.IsFailure)
@@ -241,7 +189,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var allCodesAddedToOrderResult =
-				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
+				IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(selfDeliveryDocumentItem);
 
 			if(allCodesAddedToOrderResult.IsFailure)
 			{
@@ -252,11 +200,10 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private async Task<Result> AddProductCodesToRouteListItemFromStagingCodes(
+		private async Task<Result> AddProductCodesToSelfDeliveryDocumentItemFromStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
-			RouteListItemEntity routeListItem,
-			int orderItemId,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var trueMarkAnyCodesResult =
@@ -273,10 +220,9 @@ namespace VodovozBusiness.Services.TrueMark
 
 			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
 			{
-				await AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+				await AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
 					uow,
-					routeListItem,
-					orderItemId,
+					selfDeliveryDocumentItem,
 					trueMarkAnyCode,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
@@ -289,17 +235,16 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			int routeListItemId,
-			OrderItem orderItem,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
 				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
 					uow,
 					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItemId,
-					orderItem.Id,
+					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+					selfDeliveryDocumentItem.Id,
+					null,
 					cancellationToken);
 
 			if(createCodeResult.IsFailure)
@@ -313,7 +258,7 @@ namespace VodovozBusiness.Services.TrueMark
 				await IsStagingTrueMarkCodeCanBeAdded(
 					uow,
 					stagingTrueMarkCode,
-					orderItem,
+					selfDeliveryDocumentItem,
 					cancellationToken);
 
 			if(isCodeCanBeAddedResult.IsFailure)
@@ -330,17 +275,16 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result> RemoveStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			int routeListItemId,
-			int orderItemId,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var existingCodeResult =
 				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
 					uow,
 					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItemId,
-					orderItemId);
+					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+					selfDeliveryDocumentItem.Id,
+					null);
 
 			if(existingCodeResult.IsFailure)
 			{
@@ -364,36 +308,36 @@ namespace VodovozBusiness.Services.TrueMark
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			OrderItem orderItem,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			CancellationToken cancellationToken)
 		{
-			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.RouteListItem)
+			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem)
 			{
-				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в водительском приложении, могут быть добавлены");
+				throw new InvalidOperationException("Только коды ЧЗ, отсканированные при отпуске самовывоза, могут быть добавлены");
 			}
-			
-			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(orderItem.Nomenclature);
+
+			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(selfDeliveryDocumentItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, orderItem.Nomenclature);
+			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, selfDeliveryDocumentItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId);
+			codeCheckingProcessResult = IsSelfDeliveryDocumentItemHasNoAddedTrueMarkCodes(selfDeliveryDocumentItem);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsStagingTrueMarkCodesCountCanBeAdded(uow, stagingTrueMarkCode, orderItem);
+			codeCheckingProcessResult = IsStagingTrueMarkCodesCountCanBeAdded(uow, stagingTrueMarkCode, selfDeliveryDocumentItem);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -411,13 +355,9 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsRouteListItemHaveNoAddedCodes(IUnitOfWork uow, int routeListItemid)
+		private Result IsSelfDeliveryDocumentItemHasNoAddedTrueMarkCodes(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemEntity)
 		{
-			var routeListItem = _routeListItemRepository.GetFirstOrDefault(
-				uow,
-				x => x.Id == routeListItemid);
-
-			if(routeListItem?.TrueMarkCodes.Count > 0)
+			if(selfDeliveryDocumentItemEntity.TrueMarkProductCodes.Count > 0)
 			{
 				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
 				return Result.Failure(error);
@@ -429,22 +369,19 @@ namespace VodovozBusiness.Services.TrueMark
 		private Result IsStagingTrueMarkCodesCountCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			OrderItem orderItem)
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
 		{
-			var routeListItemId = stagingTrueMarkCode.RelatedDocumentId;
-			var orderItemId = stagingTrueMarkCode.OrderItemId;
-
 			var addedStagingCodesCount = _stagingTrueMarkCodeRepository.GetCount(
 				uow,
 				StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItemId,
-					orderItem.Id,
+					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+					selfDeliveryDocumentItem.Id,
+					null,
 					stagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id)));
 
 			var newStagingCodesCount = stagingTrueMarkCode.AllIdentificationCodes.Count;
 
-			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount <= (orderItem.ActualCount ?? orderItem.Count);
+			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount <= selfDeliveryDocumentItem.Amount;
 
 			if(!isCodeCanBeAdded)
 			{
@@ -455,7 +392,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsNomeclatureAccountableInTrueMark(Nomenclature nomenclature)
+		private Result IsNomeclatureAccountableInTrueMark(NomenclatureEntity nomenclature)
 		{
 			if(!nomenclature.IsAccountableInTrueMark)
 			{
@@ -466,7 +403,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsNomeclatureGtinContainsCodeGtin(StagingTrueMarkCode stagingTrueMarkCode, Nomenclature nomenclature)
+		private Result IsNomeclatureGtinContainsCodeGtin(StagingTrueMarkCode stagingTrueMarkCode, NomenclatureEntity nomenclature)
 		{
 			var nomenclatureGtins = nomenclature.Gtins
 				.Select(x => x.GtinNumber)
@@ -485,10 +422,9 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
+		private Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
 		{
-			var isAllTrueMarkCodesAdded =
-				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, orderId);
+			var isAllTrueMarkCodesAdded = selfDeliveryDocumentItem.Amount == selfDeliveryDocumentItem.TrueMarkProductCodes.Count();
 
 			if(!isAllTrueMarkCodesAdded)
 			{

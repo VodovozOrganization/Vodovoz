@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -80,10 +79,10 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <param name="relatedDocumentType">Тип связанного документа</param>
 		/// <param name="relatedDocumentId">Id связанного документа</param>
-		/// <param name="orderItem">Строка заказа</param>
+		/// <param name="orderItemId">Номер строки заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат создания кода</returns>
-		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, OrderItemEntity orderItem, CancellationToken cancellationToken = default);
+		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Проверят, что код ЧЗ для промежуточного хранения уже используется в кодах товаров
@@ -113,7 +112,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="relatedDocumentId">Id связанного документа</param>
 		/// <param name="orderItemId">Id строки заказа</param>
 		/// <returns>Результат поиска кода</returns>
-		Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int orderItemId);
+		Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId);
 
 		/// <summary>
 		/// Создает коды ЧЗ (включая дочерние коды всех уровней вложенности) на основе кодов промежуточного хранения верхнего уровня

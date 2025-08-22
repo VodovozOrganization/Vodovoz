@@ -22,9 +22,9 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				c => c.RelatedDocumentType == relatedDocumentType
 					&& c.RelatedDocumentId == relatedDocumentId);
 
-		public static ExpressionSpecification<StagingTrueMarkCode> CreateForOrderItemId(int orderItemId)
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForOrderItemId(int? orderItemId)
 			=> new ExpressionSpecification<StagingTrueMarkCode>(
-				c => c.OrderItemId == orderItemId);
+				c => (c.OrderItemId == null && orderItemId == null) || c.OrderItemId == orderItemId);
 
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForCodeType(StagingTrueMarkCodeType codeType)
 			=> new ExpressionSpecification<StagingTrueMarkCode>(
@@ -45,7 +45,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 			string serialNumber,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			int orderItemid)
+			int? orderItemid)
 			=> CreateForCodeData(isTransportCode, rawCode, gtin, serialNumber)
 				& CreateForRelatedDocument(relatedDocumentType, relatedDocumentId)
 				& CreateForOrderItemId(orderItemid);
@@ -59,7 +59,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderItemIdentificationCodes(
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			int orderItemId)
+			int? orderItemId)
 			=> CreateForRelatedDocument(relatedDocumentType, relatedDocumentId)
 				& CreateForOrderItemId(orderItemId)
 				& CreateForCodeType(StagingTrueMarkCodeType.Identification);
@@ -67,7 +67,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			int orderItemId,
+			int? orderItemId,
 			IEnumerable<int> excludeIds)
 			=> CreateForRelatedDocumentOrderItemIdentificationCodes(relatedDocumentType, relatedDocumentId, orderItemId)
 				& CreateForExcludeCodesIds(excludeIds);

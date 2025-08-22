@@ -1,7 +1,6 @@
 ﻿using System;
 using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.Application.TrueMark
@@ -12,7 +11,7 @@ namespace Vodovoz.Application.TrueMark
 			string rawCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return new StagingTrueMarkCode
 			{
@@ -20,7 +19,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = StagingTrueMarkCodeType.Transport,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItemId = orderItem.Id
+				OrderItemId = orderItemId
 			};
 		}
 
@@ -28,56 +27,56 @@ namespace Vodovoz.Application.TrueMark
 			TrueMarkWaterCode parsedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return CreateFromParsedCode(
 				parsedCode,
 				StagingTrueMarkCodeType.Group,
 				relatedDocumentType,
 				relatedDocumentId,
-				orderItem);
+				orderItemId);
 		}
 
 		public StagingTrueMarkCode CreateGroupCodeFromProductInstanceStatus(
 			ProductInstanceStatus productInstanceStatus,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return CreateFromProductInstanceStatus(
 				productInstanceStatus,
 				StagingTrueMarkCodeType.Group,
 				relatedDocumentType,
 				relatedDocumentId,
-				orderItem);
+				orderItemId);
 		}
 
 		public StagingTrueMarkCode CreateIdentificationCodeFromParsedCode(
 			TrueMarkWaterCode parsedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return CreateFromParsedCode(
 				parsedCode,
 				StagingTrueMarkCodeType.Identification,
 				relatedDocumentType,
 				relatedDocumentId,
-				orderItem);
+				orderItemId);
 		}
 
 		public StagingTrueMarkCode CreateIdentificationCodeFromProductInstanceStatus(
 			ProductInstanceStatus productInstanceStatus,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return CreateFromProductInstanceStatus(
 				productInstanceStatus,
 				StagingTrueMarkCodeType.Identification,
 				relatedDocumentType,
 				relatedDocumentId,
-				orderItem);
+				orderItemId);
 		}
 
 		private StagingTrueMarkCode CreateFromParsedCode(
@@ -85,7 +84,7 @@ namespace Vodovoz.Application.TrueMark
 			StagingTrueMarkCodeType codeType,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			return new StagingTrueMarkCode
 			{
@@ -96,7 +95,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItemId = orderItem.Id
+				OrderItemId = orderItemId
 			};
 		}
 
@@ -105,7 +104,7 @@ namespace Vodovoz.Application.TrueMark
 			StagingTrueMarkCodeType codeType,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem)
+			int? orderItemId = null)
 		{
 			var identificationCode = productInstanceStatus.IdentificationCode;
 
@@ -123,7 +122,7 @@ namespace Vodovoz.Application.TrueMark
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
-				OrderItemId = orderItem.Id
+				OrderItemId = orderItemId
 			};
 		}
 	}

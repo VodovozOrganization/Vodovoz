@@ -32,7 +32,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private StagingTrueMarkCodeType _codeType;
 		private StagingTrueMarkCodeRelatedDocumentType _relatedDocumentType;
 		private int _relatedDocumentId;
-		private int _orderItemId;
+		private int? _orderItemId;
 
 		/// <summary>
 		/// Идентификатор
@@ -127,7 +127,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Id строки заказа
 		/// </summary>
 		[Display(Name = "Id строки заказа")]
-		public virtual int OrderItemId
+		public virtual int? OrderItemId
 		{
 			get => _orderItemId;
 			set => SetField(ref _orderItemId, value);

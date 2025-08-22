@@ -9,7 +9,6 @@ using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -993,7 +992,7 @@ namespace Vodovoz.Application.TrueMark
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem,
+			int? orderItemId,
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
@@ -1001,7 +1000,7 @@ namespace Vodovoz.Application.TrueMark
 					scannedCode,
 					relatedDocumentType,
 					relatedDocumentId,
-					orderItem,
+					orderItemId,
 					cancellationToken);
 
 			if(createCodeResult.IsFailure)
@@ -1068,7 +1067,7 @@ namespace Vodovoz.Application.TrueMark
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			int orderItemId)
+			int? orderItemId)
 		{
 			StagingTrueMarkCode stagingTrueMarkCode = null;
 
@@ -1111,7 +1110,7 @@ namespace Vodovoz.Application.TrueMark
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
-			OrderItemEntity orderItem,
+			int? orderItemId,
 			CancellationToken cancellationToken = default)
 		{
 			var codes = new List<StagingTrueMarkCode>();
@@ -1149,19 +1148,19 @@ namespace Vodovoz.Application.TrueMark
 				switch(instanceStatus.GeneralPackageType)
 				{
 					case GeneralPackageType.Box:
-						code = _stagingTrueMarkCodeFactory.CreateTransportCodeFromRawCode(requestCode, relatedDocumentType, relatedDocumentId, orderItem);
+						code = _stagingTrueMarkCodeFactory.CreateTransportCodeFromRawCode(requestCode, relatedDocumentType, relatedDocumentId, orderItemId);
 						break;
 					case GeneralPackageType.Group:
 						code =
 							parsedCode != null
-							? _stagingTrueMarkCodeFactory.CreateGroupCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItem)
-							: _stagingTrueMarkCodeFactory.CreateGroupCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItem);
+							? _stagingTrueMarkCodeFactory.CreateGroupCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItemId)
+							: _stagingTrueMarkCodeFactory.CreateGroupCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItemId);
 						break;
 					case GeneralPackageType.Unit:
 						code =
 							parsedCode != null
-							? _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItem)
-							: _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItem);
+							? _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItemId)
+							: _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItemId);
 						break;
 					default:
 						throw new NotImplementedException("Указанный в статусе кода тип упаковки не поддерживается");
