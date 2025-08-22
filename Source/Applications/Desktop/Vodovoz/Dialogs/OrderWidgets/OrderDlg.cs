@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -14,6 +16,7 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
@@ -23,6 +26,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Control.EEVM;
@@ -41,9 +45,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using QS.DomainModel.Tracking;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -64,10 +65,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -136,16 +139,16 @@ using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Models.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using LogLevel = NLog.LogLevel;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
-using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz
 {
@@ -224,6 +227,8 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
+		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
+		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -5063,6 +5068,42 @@ namespace Vodovoz
 				$" У клиента по умолчанию установлено &lt;{Counterparty.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
 			{
 				return;
+			}
+
+			if (Entity.OrderItems != null)
+			{
+				/*if (!_currentPermissionService.ValidatePresetPermission(
+					Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
+				{
+					bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+					bool isPaid = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+
+					if(hasDepositForEquipment && !isPaid)
+					{
+						_interactiveService.ShowMessage
+							(ImportanceLevel.Warning,
+							"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+							"Проверка корректности данных");
+						return;
+					}
+				}*/
+				bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+				bool isPaid = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+
+				if(hasDepositForEquipment && !isPaid)
+				{
+					_interactiveService.ShowMessage
+						(ImportanceLevel.Warning,
+						"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+						"Проверка корректности данных");
+					return;
+				}
 			}
 
 			_summaryInfoBuilder.Clear();
