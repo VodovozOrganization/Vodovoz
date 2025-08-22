@@ -571,23 +571,19 @@ namespace Vodovoz
 			var order = rli.RouteListItem.Order;
 
 			if(newStatus == RouteListItemStatus.Completed
-				&& order.IsOrderContainsIsAccountableInTrueMarkItems
-				&& !_currentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				&& order.IsOrderContainsIsAccountableInTrueMarkItems)
 			{
 				var requiredCodesCount =
 					_trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
 
 				var driverCodes =
-					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id)
-					.Select(x => x.SourceCode.Id);
+					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id);
 
-				var isAllDriverTrueMarkCodesAddedAndProcessed =
-					(driverCodes.Count() == requiredCodesCount)
-					&& _orderRepository.IsAllDriversScannedCodesInOrderProcessed(UoW, order.Id).GetAwaiter().GetResult();
+				var isAllDriverTrueMarkCodesAdded = driverCodes.Count() == requiredCodesCount;
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
-				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id) 
+				   && !isAllDriverTrueMarkCodesAdded)
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
