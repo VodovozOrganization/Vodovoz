@@ -228,6 +228,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
+		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private ICounterpartyService _counterpartyService;
@@ -1311,7 +1312,7 @@ namespace Vodovoz
 						}
 						try
 						{
-							var debtorDebt = GetDebtorDebtOverQuery(Counterparty.Id);
+							var debtorDebt = _counterpartyRepository.GetDebtorDebt(UoW, Counterparty.Id);
 							if(debtorDebt > 0)
 							{
 								_interactiveService.ShowMessage(
@@ -1365,72 +1366,6 @@ namespace Vodovoz
 					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DeliveryDate)));
 					break;
 			}
-		}
-		private decimal GetDebtorDebtOverQuery(int counterpartyId)
-		{
-			Order orderAlias = null;
-			Counterparty clientAlias = null;
-			CashlessMovementOperation cashlessMovementOperationAlias = null;
-			PaymentItem paymentItemAlias = null;
-			Payment paymentAlias = null;
-
-
-			var orders = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(() => orderAlias.Client, () => clientAlias)
-				.Where(() => orderAlias.Client.Id == counterpartyId)
-				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.Where(() => clientAlias.PersonType == PersonType.legal)
-				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(new[] {
-					OrderStatus.Accepted,
-					OrderStatus.InTravelList,
-					OrderStatus.OnLoading,
-					OrderStatus.OnTheWay,
-					OrderStatus.Shipped,
-					OrderStatus.UnloadingOnStock,
-					OrderStatus.Closed
-				})
-				.List();
-
-			var orderIds = orders.Select(o => o.Id).ToArray();
-			var clientIds = orders.Select(o => o.Client.Id).Distinct().ToArray();
-
-			var totalOrderSum = UoW.Session.Query<OrderItem>()
-				.Where(oi => orderIds.Contains(oi.Order.Id))
-				.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
-
-			var totalLateOrderSum = UoW.Session.Query<OrderItem>()
-				.Where(oi => orderIds.Contains(oi.Order.Id))
-				.ToList()
-				.Where(oi => oi.Order.DeliveryDate.HasValue && oi.Order.Client.DelayDaysForBuyers > 0)
-				.Where(oi => (DateTime.Now - oi.Order.DeliveryDate.Value).TotalDays > oi.Order.Client.DelayDaysForBuyers)
-				.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
-
-			var cashlessIncome = UoW.Session.QueryOver(() => cashlessMovementOperationAlias)
-				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
-				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.Select(NHibernate.Criterion.Projections.Sum(() => cashlessMovementOperationAlias.Income))
-				.SingleOrDefault<decimal>();
-
-			var paymentItemsSum = UoW.Session.QueryOver(() => paymentItemAlias)
-				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
-				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
-				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
-				.Select(NHibernate.Criterion.Projections.Sum(() => paymentItemAlias.Sum))
-				.SingleOrDefault<decimal>();
-
-			var paymentExpenses = UoW.Session.QueryOver(() => paymentItemAlias)
-				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
-				.WhereRestrictionOn(() => paymentItemAlias.Order.Id).IsIn(orderIds)
-				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.Select(NHibernate.Criterion.Projections.Sum(() => cashlessMovementOperationAlias.Expense))
-				.SingleOrDefault<decimal>();
-
-			var debtorDebt = Math.Round(
-				(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
-				2);
-
-			return debtorDebt > 0 ? debtorDebt : 0;
 		}
 
 		private void UpdateCallBeforeArrival()
@@ -3996,7 +3931,7 @@ namespace Vodovoz
 
 			if(Counterparty != null)
 			{
-				var debtorDebt = GetDebtorDebtOverQuery(Counterparty.Id);
+				var debtorDebt = _counterpartyRepository.GetDebtorDebt(UoW, Counterparty.Id);
 				if(debtorDebt > 0)
 				{
 					ylabelDebtorDebt.Visible = true;

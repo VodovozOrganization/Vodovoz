@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -14,7 +14,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
@@ -501,6 +500,76 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				};
 
 			return query;
+		}
+
+		public decimal GetDebtorDebt(IUnitOfWork unitOfWork, int counterpartyId)
+		{
+			{
+				Domain.Orders.Order orderAlias = null;
+				Counterparty clientAlias = null;
+				CashlessMovementOperation cashlessMovementOperationAlias = null;
+				PaymentItem paymentItemAlias = null;
+				Payment paymentAlias = null;
+
+				var orderStatuses = new[]
+					{
+					OrderStatus.Accepted,
+					OrderStatus.InTravelList,
+					OrderStatus.OnLoading,
+					OrderStatus.OnTheWay,
+					OrderStatus.Shipped,
+					OrderStatus.UnloadingOnStock,
+					OrderStatus.Closed
+				};
+				var orders = unitOfWork.Session.QueryOver(() => orderAlias)
+					.JoinAlias(() => orderAlias.Client, () => clientAlias)
+					.Where(() => orderAlias.Client.Id == counterpartyId)
+					.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+					.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+					.Where(() => clientAlias.PersonType == PersonType.legal)
+					.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+					.List();
+
+				var orderIds = orders.Select(o => o.Id).ToArray();
+				var clientIds = orders.Select(o => o.Client.Id).Distinct().ToArray();
+
+				var totalOrderSum = unitOfWork.Session.Query<OrderItem>()
+					.Where(oi => orderIds.Contains(oi.Order.Id))
+					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+
+				var totalLateOrderSum = unitOfWork.Session.Query<OrderItem>()
+					.Where(oi => orderIds.Contains(oi.Order.Id))
+					.ToList()
+					.Where(oi => oi.Order.DeliveryDate.HasValue && oi.Order.Client.DelayDaysForBuyers > 0)
+					.Where(oi => (DateTime.Now - oi.Order.DeliveryDate.Value).TotalDays > oi.Order.Client.DelayDaysForBuyers)
+					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+
+				var cashlessIncome = unitOfWork.Session.QueryOver(() => cashlessMovementOperationAlias)
+					.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
+					.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+					.Select(Projections.Sum(() => cashlessMovementOperationAlias.Income))
+					.SingleOrDefault<decimal>();
+
+				var paymentItemsSum = unitOfWork.Session.QueryOver(() => paymentItemAlias)
+					.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
+					.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+					.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+					.Select(Projections.Sum(() => paymentItemAlias.Sum))
+					.SingleOrDefault<decimal>();
+
+				var paymentExpenses = unitOfWork.Session.QueryOver(() => paymentItemAlias)
+					.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+					.WhereRestrictionOn(() => paymentItemAlias.Order.Id).IsIn(orderIds)
+					.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+					.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense))
+					.SingleOrDefault<decimal>();
+
+				var debtorDebt = Math.Round(
+					(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
+					2);
+
+				return debtorDebt > 0 ? debtorDebt : 0;
+			}
 		}
 	}
 }
