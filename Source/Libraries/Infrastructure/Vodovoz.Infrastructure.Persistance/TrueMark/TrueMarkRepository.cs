@@ -326,5 +326,19 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			return (int)codesRequired;
 		}
+		public int GetActualCodesRequiredByOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var codesRequired = uow.Session.QueryOver(() => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.ActualCount)))
+				.SingleOrDefault<decimal>();
+
+			return (int)codesRequired;
+		}
 	}
 }

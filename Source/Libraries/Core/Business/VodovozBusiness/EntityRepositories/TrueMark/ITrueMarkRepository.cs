@@ -89,5 +89,10 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// Возвращает кол-во кодов маркировки требуемое в заказе
 		/// </summary>
 		int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает актуальное (фактическое) кол-во кодов маркировки в заказе
+		/// </summary>
+		int GetActualCodesRequiredByOrder(IUnitOfWork uow, int orderId);
 	}
 }

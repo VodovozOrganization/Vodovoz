@@ -575,8 +575,10 @@ namespace Vodovoz
 				&& !_currentPermissionService.ValidatePresetPermission(
 					Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
-				var requiredCodesCount =
-					_trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
+				int requiredCodesCount = _trueMarkRepository.GetActualCodesRequiredByOrder(UoW, order.Id);
+				requiredCodesCount = requiredCodesCount == 0
+					? _trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id)
+					: requiredCodesCount;
 
 				var driverCodes =
 					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id);
