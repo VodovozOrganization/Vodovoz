@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
@@ -12,9 +13,27 @@ namespace VodovozBusiness.Services.TrueMark
 	public interface ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService
 	{
 		/// <summary>
+		/// Возвращает промежуточные коды Честного Знака, привязанные к строке документа самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemId">Номер строки документа самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Промежуточные коды ЧЗ</returns>
+		Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(IUnitOfWork uow, int selfDeliveryDocumentItemId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет, что все промежуточные коды Честного Знака, привязанные к строке документа самовывоза, отсканированы
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns></returns>
+		Task<bool> IsAllSelfDeliveryDocumentItemStagingCodesScanned(IUnitOfWork uow, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Добавляет коды Честного Знака к строке документа самовывоза и удаляет промежуточные коды.
 		/// </summary>
-		/// <param name="uow">Единица работы с базой данных</param>
+		/// <param name="uow">UnitOfWork</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
@@ -23,7 +42,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <summary>
 		/// Добавляет промежуточный код Честного Знака к строке документа самовывоза.
 		/// </summary>
-		/// <param name="uow">Единица работы с базой данных</param>
+		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
@@ -33,7 +52,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <summary>
 		/// Добавляет любой код Честного Знака к строке документа самовывоза без проверки статуса кода.
 		/// </summary>
-		/// <param name="uow">Единица работы с базой данных</param>
+		/// <param name="uow">UnitOfWork</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
 		/// <param name="trueMarkAnyCode">Код Честного Знака</param>
 		/// <param name="status">Статус исходного кода продукта</param>
@@ -44,7 +63,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <summary>
 		/// Удаляет промежуточный код Честного Знака из строки документа самовывоза.
 		/// </summary>
-		/// <param name="uow">Единица работы с базой данных</param>
+		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>

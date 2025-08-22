@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using VodovozBusiness.Domain.Client.Specifications;
 using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -30,6 +31,30 @@ namespace VodovozBusiness.Services.TrueMark
 				stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+		}
+
+		public async Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(
+			IUnitOfWork uow,
+			int selfDeliveryDocumentItemId,
+			CancellationToken cancellationToken = default) =>
+			await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				uow,
+				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+				selfDeliveryDocumentItemId,
+				cancellationToken);
+
+		public async Task<bool> IsAllSelfDeliveryDocumentItemStagingCodesScanned(
+			IUnitOfWork uow,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			CancellationToken cancellationToken = default)
+		{
+			var stagingCodes =
+				await GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(uow, selfDeliveryDocumentItem.Id, cancellationToken);
+
+			var identificationStagingCodesCount = stagingCodes
+				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
+
+			return identificationStagingCodesCount == selfDeliveryDocumentItem.Amount;
 		}
 
 		public async Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
@@ -141,24 +166,17 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var stagingCodes =
-				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
-				uow,
-				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-				selfDeliveryDocumentItem.Id,
-				cancellationToken);
+				await GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(uow, selfDeliveryDocumentItem.Id, cancellationToken);
 
 			var identificationStagingCodesCount = stagingCodes
 				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
 
-			if(identificationStagingCodesCount < selfDeliveryDocumentItem.Amount)
-			{
-				var error = TrueMarkCodeErrors.NotAllCodesAdded;
-				return Result.Failure(error);
-			}
+			var isStagingCodesCountValidResult = 
+				IsSelfDeliveryDocumentItemStagingCodesCountValid(identificationStagingCodesCount, selfDeliveryDocumentItem.Amount);
 
-			if(identificationStagingCodesCount > selfDeliveryDocumentItem.Amount)
+			if(isStagingCodesCountValidResult.IsFailure)
 			{
-				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+				var error = isStagingCodesCountValidResult.Errors.FirstOrDefault();
 				return Result.Failure(error);
 			}
 
@@ -194,6 +212,23 @@ namespace VodovozBusiness.Services.TrueMark
 			if(allCodesAddedToOrderResult.IsFailure)
 			{
 				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsSelfDeliveryDocumentItemStagingCodesCountValid(int stagingCodesCount, decimal selfDeliveryDocumentItemAmount)
+		{
+			if(stagingCodesCount < selfDeliveryDocumentItemAmount)
+			{
+				var error = TrueMarkCodeErrors.NotAllCodesAdded;
+				return Result.Failure(error);
+			}
+
+			if(stagingCodesCount > selfDeliveryDocumentItemAmount)
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
 				return Result.Failure(error);
 			}
 
