@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
 		private readonly ITrueMarkCodesValidator _trueMarkValidator;
@@ -51,6 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private CancellationTokenSource _cancelationTokenSource;
 		private CodeScanRow _selectedRow;
 
+		private bool _isAllCodesScannedCheckInProgress = false;
+		private bool _isAllCodesScanned = false;
+
 		public CodesScanViewModel(
 			ILogger<CodesScanViewModel> logger,
 			INavigationManager navigationManager,
@@ -58,6 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
 			ITrueMarkCodesValidator trueMarkValidator,
@@ -72,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
 			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
@@ -98,14 +104,35 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public string CurrentCodeInProcess { get; private set; }
 
-		public bool IsAllCodesScanned
+		public bool IsAllCodesScanned => _isAllCodesScannedCheckInProgress;
+
+		private async Task UpdateIsAllSelfDeliveryDocumentCodesScanned()
 		{
-			get
+			if(_isAllCodesScannedCheckInProgress)
 			{
-				return _selfDeliveryDocument.Items?
-					.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-					.All(x => x.Amount == x.TrueMarkProductCodes.Count) ?? false;
+				return;
 			}
+
+			_isAllCodesScannedCheckInProgress = true;
+			_isAllCodesScanned = true;
+
+			foreach(var item in _selfDeliveryDocument.Items)
+			{
+				var isAllItemCodesScanned =
+					await _codesProcessingService.IsAllSelfDeliveryDocumentItemStagingCodesScanned(_unitOfWork, item);
+
+				if(!isAllItemCodesScanned)
+				{
+					_isAllCodesScanned = false;
+					break;
+				}
+			}
+
+			await Task.Delay(1000);
+
+			_isAllCodesScannedCheckInProgress = false;
+
+			_guiDispatcher.RunInGuiTread(() => OnPropertyChanged(() => IsAllCodesScanned));
 		}
 
 		public CodeScanRow SelectedRow
@@ -513,7 +540,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 					RefreshScanningNomenclaturesAction?.Invoke();
 
-					OnPropertyChanged(() => IsAllCodesScanned);
+					UpdateIsAllSelfDeliveryDocumentCodesScanned().GetAwaiter().GetResult();
 				}
 			});
 		}
