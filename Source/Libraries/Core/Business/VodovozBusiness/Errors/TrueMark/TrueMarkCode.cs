@@ -1,4 +1,5 @@
-using Vodovoz.Core.Domain.Results;
+﻿using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Errors.TrueMark
 {
@@ -206,5 +207,23 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCode),
 				nameof(TrueMarkCodesCountMoreThenInOrderItem),
 				"Суммарное количество кодов превышает необходимое для строки заказа");
+
+		/// <summary>
+		/// Номенклатура с Gtin полученного кода отсутствует в заказе
+		/// </summary>
+		public static Error GtinNomenclatureNotFoundInOrder =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(GtinNomenclatureNotFoundInOrder),
+				"Номенклатура с Gtin полученного кода отсутствует в заказе");
+
+		/// <summary>
+		/// Номенклатура с Gtin полученного кода отсутствует в заказе
+		/// </summary>
+		public static Error CreateGtinNomenclatureNotFoundInOrder(string nomenclatureName, string gtin) =>
+			new Error(
+				typeof(TrueMarkCode),
+				nameof(GtinNomenclatureNotFoundInOrder),
+				$"Номенклатура {nomenclatureName} с данным Gtin {gtin} отсутствует в заказе.");
 	}
 }

@@ -44,10 +44,10 @@ namespace VodovozBusiness.Services.TrueMark
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
-		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
+		/// <param name="selfDeliveryDocumentItems">Строки документа самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат с добавленным промежуточным кодом</returns>
-		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
+		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, IEnumerable<SelfDeliveryDocumentItemEntity> selfDeliveryDocumentItems, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Добавляет любой код Честного Знака к строке документа самовывоза без проверки статуса кода.

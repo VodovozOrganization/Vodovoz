@@ -104,36 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public string CurrentCodeInProcess { get; private set; }
 
-		public bool IsAllCodesScanned => _isAllCodesScannedCheckInProgress;
-
-		private async Task UpdateIsAllSelfDeliveryDocumentCodesScanned()
-		{
-			if(_isAllCodesScannedCheckInProgress)
-			{
-				return;
-			}
-
-			_isAllCodesScannedCheckInProgress = true;
-			_isAllCodesScanned = true;
-
-			foreach(var item in _selfDeliveryDocument.Items)
-			{
-				var isAllItemCodesScanned =
-					await _codesProcessingService.IsAllSelfDeliveryDocumentItemStagingCodesScanned(_unitOfWork, item);
-
-				if(!isAllItemCodesScanned)
-				{
-					_isAllCodesScanned = false;
-					break;
-				}
-			}
-
-			await Task.Delay(1000);
-
-			_isAllCodesScannedCheckInProgress = false;
-
-			_guiDispatcher.RunInGuiTread(() => OnPropertyChanged(() => IsAllCodesScanned));
-		}
+		public bool IsAllCodesScanned => _isAllCodesScanned;
 
 		public CodeScanRow SelectedRow
 		{
@@ -269,6 +240,35 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
+		private async Task UpdateIsAllSelfDeliveryDocumentCodesScanned()
+		{
+			if(_isAllCodesScannedCheckInProgress)
+			{
+				return;
+			}
+
+			_isAllCodesScannedCheckInProgress = true;
+			_isAllCodesScanned = true;
+
+			foreach(var item in _selfDeliveryDocument.Items)
+			{
+				var isAllItemCodesScanned =
+					await _codesProcessingService.IsAllSelfDeliveryDocumentItemStagingCodesScanned(_unitOfWork, item);
+
+				if(!isAllItemCodesScanned)
+				{
+					_isAllCodesScanned = false;
+					break;
+				}
+			}
+
+			await Task.Delay(1000);
+
+			_isAllCodesScannedCheckInProgress = false;
+
+			_guiDispatcher.RunInGuiTread(() => OnPropertyChanged(() => IsAllCodesScanned));
+		}
+
 		private void StartUpdater()
 		{
 			_cancelationTokenSource = new CancellationTokenSource();
@@ -375,13 +375,17 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			foreach(var selfDeliveryDocumentItem in _selfDeliveryDocument.Items)
 			{
 				var nomenclature = selfDeliveryDocumentItem.Nomenclature.Name;
+				var codes = _codesProcessingService
+					.GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(_unitOfWork, selfDeliveryDocumentItem.Id)
+					.GetAwaiter().GetResult()
+					.ToList();
 
-				foreach(var code in selfDeliveryDocumentItem.TrueMarkProductCodes)
+				foreach(var code in codes)
 				{
 					var codesScanViewModelNode = new CodeScanRow()
 					{
 						RowNumber = CodeScanRows.Count + 1,
-						RawCode = code.SourceCode.RawCode,
+						RawCode = code.RawCode,
 						NomenclatureName = nomenclature,
 						IsTrueMarkValid = true,
 						HasInOrder = true
@@ -424,6 +428,18 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				_logger.LogInformation(
 					"Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
 					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
+
+				try
+				{
+					var addStagingTrueMarkCodeResult = await _codesProcessingService
+						.AddStagingTrueMarkCode(_unitOfWork, code, _selfDeliveryDocument.Items, cancellationToken);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(
+						"Возникло исключение при добавлении кода {RawCode} в промежуточные коды: {Exception}",
+						codeToCheck.RawCode, ex);
+				}
 
 				result = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken);
 

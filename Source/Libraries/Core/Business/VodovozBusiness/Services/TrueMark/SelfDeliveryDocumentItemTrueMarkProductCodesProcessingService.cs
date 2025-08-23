@@ -11,7 +11,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
 using VodovozBusiness.Domain.Client.Specifications;
 using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -21,14 +20,18 @@ namespace VodovozBusiness.Services.TrueMark
 	public class SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService : ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService
 	{
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
+		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
+			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_stagingTrueMarkCodeRepository =
 				stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
+			_nomenclatureRepository =
+				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
@@ -270,7 +273,7 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			IEnumerable<SelfDeliveryDocumentItemEntity> selfDeliveryDocumentItems,
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
@@ -278,7 +281,7 @@ namespace VodovozBusiness.Services.TrueMark
 					uow,
 					scannedCode,
 					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-					selfDeliveryDocumentItem.Id,
+					0,
 					null,
 					cancellationToken);
 
@@ -289,11 +292,40 @@ namespace VodovozBusiness.Services.TrueMark
 
 			var stagingTrueMarkCode = createCodeResult.Value;
 
+			var codeGtin = stagingTrueMarkCode.AllIdentificationCodes
+				.Select(x => x.Gtin)
+				.FirstOrDefault();
+
+			var relatedDocumentItem =
+				selfDeliveryDocumentItems.FirstOrDefault(x => x.Nomenclature.Gtins.Any(g => g.GtinNumber == codeGtin));
+
+			if(relatedDocumentItem is null)
+			{
+				var nomeclatureName = (await _nomenclatureRepository
+					.GetAsync(uow, x => x.Gtins.Any(g => g.GtinNumber == codeGtin), 1, cancellationToken))
+					.Value
+					.Select(x => x.Name)
+					.FirstOrDefault() ?? string.Empty;
+
+				var error = TrueMarkCodeErrors.CreateGtinNomenclatureNotFoundInOrder(nomeclatureName, codeGtin);
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			if(relatedDocumentItem.Id == 0)
+			{
+				await uow.SaveAsync(relatedDocumentItem, cancellationToken: cancellationToken);
+			}
+
+			foreach(var code in stagingTrueMarkCode.AllCodes)
+			{
+				code.RelatedDocumentId = relatedDocumentItem.Id;
+			}
+
 			var isCodeCanBeAddedResult =
 				await IsStagingTrueMarkCodeCanBeAdded(
 					uow,
 					stagingTrueMarkCode,
-					selfDeliveryDocumentItem,
+					relatedDocumentItem,
 					cancellationToken);
 
 			if(isCodeCanBeAddedResult.IsFailure)

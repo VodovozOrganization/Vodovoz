@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 

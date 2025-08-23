@@ -324,7 +324,7 @@ namespace Vodovoz
 					"Заявка на отправку документов заказа по ЭДО уже создана. Изменение кодов запрещено");
 				return;
 			}
-			
+
 			_codesScanViewModel = NavigationManager
 				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, ITrueMarkWaterCodeService>(
 					null, UoW, Entity, _trueMarkWaterCodeService).ViewModel;
