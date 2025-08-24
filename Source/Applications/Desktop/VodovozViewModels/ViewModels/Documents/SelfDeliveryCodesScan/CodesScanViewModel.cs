@@ -429,49 +429,51 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					"Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
 					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
 
-				try
-				{
-					var addStagingTrueMarkCodeResult = await _codesProcessingService
-						.AddStagingTrueMarkCode(_unitOfWork, code, _selfDeliveryDocument.Items, cancellationToken);
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(
-						"Возникло исключение при добавлении кода {RawCode} в промежуточные коды: {Exception}",
-						codeToCheck.RawCode, ex);
-				}
-
-				result = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_unitOfWork, code, cancellationToken);
-
-				if(IsСodeAlreadyBeenUsedInDb(result))
-				{
-					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: new List<string>{"Содержится дубликат кода"});
-					
-					return;
-				}
-
-				_logger.LogInformation(
-					"Получили результат обработки кода {RawCode} в {TrueMarkWaterCodeParser}",
-					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
-
 				var additionalInformation = new List<string>();
 
-				if(result.Errors.Any(x => !string.IsNullOrEmpty(x.Message)))
+				var addStagingTrueMarkCodeResult = await _codesProcessingService
+					.CreateStagingTrueMarkCode(_unitOfWork, code, 0, cancellationToken);
+
+				if(addStagingTrueMarkCodeResult.IsFailure)
 				{
-					additionalInformation.AddRange(result.Errors.Select(x => x.Message));
+					if(addStagingTrueMarkCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
+					{
+						additionalInformation.AddRange(addStagingTrueMarkCodeResult.Errors.Select(x => x.Message));
 
-					UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
+						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
-					_logger.LogInformation(
-						"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-						codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+						_logger.LogInformation(
+							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
+							codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
 
-					AddOldCodeToRecheck(codeToCheck.RawCode, string.Join(", ", additionalInformation));
+						AddOldCodeToRecheck(codeToCheck.RawCode, string.Join(", ", additionalInformation));
 
+						return;
+					}
+
+					var errorMessages = addStagingTrueMarkCodeResult.Errors.Select(x => x.Message).ToList();
+					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: errorMessages);
 					return;
 				}
 
-				await UpdateCodeScanRowsByAnyCode(result.Value, cancellationToken);
+				var stagingCode = addStagingTrueMarkCodeResult.Value;
+
+				_unitOfWork.Save(stagingCode);
+
+				var isCodeCanBeAddedResult = await _codesProcessingService.IsStagingTrueMarkCodeCanBeAdded(
+					_unitOfWork,
+					stagingCode,
+					_selfDeliveryDocument.Items.First().Nomenclature.Id,
+					cancellationToken);
+
+				if(isCodeCanBeAddedResult.IsFailure)
+				{
+					var errorMessages = isCodeCanBeAddedResult.Errors.Select(x => x.Message).ToList();
+					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: errorMessages);
+					return;
+				}
+
+				await UpdateCodeScanRowsByAnyCode(stagingCode, cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -484,32 +486,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				AddOldCodeToRecheck(codeToCheck.RawCode, ex.Message);
 			}
-		}
-
-		private bool IsСodeAlreadyBeenUsedInDb(Result<TrueMarkAnyCode> result)
-		{
-			var allUnitCodes =
-				result.Value
-					.Match(
-						transportCode =>
-							transportCode.GetAllCodes()
-								.Where(x => x.IsTrueMarkWaterIdentificationCode)
-								.Select(x => x.TrueMarkWaterIdentificationCode.Id)
-								.ToList()
-						,
-						groupCode =>
-							groupCode.GetAllCodes()
-								.Where(x => x.IsTrueMarkWaterIdentificationCode)
-								.Select(x => x.TrueMarkWaterIdentificationCode.Id)
-								.ToList()
-						,
-						waterCode => new List<int> { waterCode.Id });
-
-			var isUsedCodeInDb = _trueMarkProductCodesRepository
-				.Get(_unitOfWork, c => allUnitCodes.Contains(c.ResultCode.Id), limit: 1)
-				.Any();
-
-			return isUsedCodeInDb;
 		}
 
 		private void AddNewCodeToCheck(string rawCode, string error = null)
@@ -646,55 +622,30 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			RefreshCodeScanRows();
 		}
 
-		private async Task UpdateCodeScanRowsByAnyCode(TrueMarkAnyCode anyCode, CancellationToken cancellationToken)
+		private async Task UpdateCodeScanRowsByAnyCode(StagingTrueMarkCode stagingCode, CancellationToken cancellationToken)
 		{
-			var codeInfo =
-				anyCode
-					.Match<(List<TrueMarkWaterIdentificationCode> childrenTrueMarkWaterIdentificationCodeList, string gtin, string rawCode,
-						string identificationCode, string nomenclatureName, bool?
-						hasInOrder)>(
-						transportCode =>
-						{
-							return
-								(transportCode.GetAllCodes()
-										.Where(x => x.IsTrueMarkWaterIdentificationCode)
-										.Select(x => x.TrueMarkWaterIdentificationCode)
-										.ToList(),
-									null,
-									ReplaceCodeSpecSymbols(transportCode.RawCode),
-									ReplaceCodeSpecSymbols(transportCode.RawCode),
-									"Транспортный код",
-									null);
-						},
-						groupCode =>
-						{
-							var groupNomenclatureName = GetNomenclatureNameByGtin(groupCode.GTIN);
+			var codeNomenclatureName =
+				stagingCode.IsTransport
+				? "Транспортный код"
+				: stagingCode.IsGroup && string.IsNullOrWhiteSpace(GetNomenclatureNameByGtin(stagingCode.Gtin))
+					? "Групповой код"
+					: GetNomenclatureNameByGtin(stagingCode.Gtin);
 
-							return
-								(groupCode.GetAllCodes()
-										.Where(x => x.IsTrueMarkWaterIdentificationCode)
-										.Select(x => x.TrueMarkWaterIdentificationCode)
-										.ToList(),
-									groupCode.GTIN,
-									ReplaceCodeSpecSymbols(groupCode.RawCode),
-									groupCode.IdentificationCode,
-									string.IsNullOrWhiteSpace(groupNomenclatureName) ? "Групповой код" : groupNomenclatureName,
-									IsOrderContainsGtin(groupCode.GTIN));
-						},
-						waterCode => (
-							null,
-							waterCode.Gtin,
-							ReplaceCodeSpecSymbols(waterCode.FullCode),
-							waterCode.IdentificationCode,
-							GetNomenclatureNameByGtin(waterCode.Gtin),
-							IsOrderContainsGtin(waterCode.Gtin)));
+			(List<StagingTrueMarkCode> childrenCodesList, string gtin, string rawCode,
+						string identificationCode, string nomenclatureName, bool? hasInOrder) codeData =
+						(stagingCode.AllIdentificationCodes.ToList(),
+						stagingCode.Gtin,
+						ReplaceCodeSpecSymbols(stagingCode.RawCode),
+						stagingCode.IsTransport ? ReplaceCodeSpecSymbols(stagingCode.RawCode) : stagingCode.IdentificationCode,
+						codeNomenclatureName,
+						stagingCode.IsTransport ? null : IsOrderContainsGtin(stagingCode.Gtin));
 
-			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeInfo;
+			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeData;
 
 			var validationErrors = await GetValidationErrorsFromTrueMarkAsync(rawCode, identificationCode, gtin, cancellationToken);
 			var isValid = validationErrors is null;
 
-			var codesToDistribute = new List<TrueMarkWaterIdentificationCode>();
+			var codesToDistribute = new List<StagingTrueMarkCode>();
 
 			lock(CodeScanRows)
 			{
@@ -719,7 +670,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 					if(isValid)
 					{
-						codesToDistribute.Add(anyCode.TrueMarkWaterIdentificationCode);
+						codesToDistribute.Add(stagingCode);
 					}
 				}
 				else
@@ -774,15 +725,12 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				}
 			}
 
-			if(!anyCode.IsTrueMarkWaterIdentificationCode)
+			if(!stagingCode.IsIdentification)
 			{
 				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
 			}
-			
-			await anyCode.Match(
-				transportCode => _unitOfWork.SaveAsync(transportCode, cancellationToken: cancellationToken),
-				groupCode => _unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken),
-				uniCode => _unitOfWork.SaveAsync(uniCode, cancellationToken: cancellationToken));
+
+			await _unitOfWork.SaveAsync(stagingCode, cancellationToken: cancellationToken);
 
 			await DistributeCodeOnNextSelfDeliveryItemAsync(codesToDistribute, cancellationToken);
 
@@ -858,7 +806,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return null;
 		}
 
-		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(List<TrueMarkWaterIdentificationCode> codes,
+		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(List<StagingTrueMarkCode> codes,
 			CancellationToken cancellationToken)
 		{
 			foreach(var code in codes)
@@ -867,7 +815,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 		}
 
-		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(TrueMarkWaterIdentificationCode code,
+		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(StagingTrueMarkCode code,
 			CancellationToken cancellationToken)
 		{
 			SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
@@ -879,14 +827,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				return;
 			}
 
-			await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
+			//await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
 
 			var nomenclatureName = nextSelfDeliveryItemToDistributeByGtin.Nomenclature.Name;
 
 			CodesScanProgressRows.First(x => x.NomenclatureName == nomenclatureName && x.LeftToScan > 0).LeftToScan--;
 		}
 
-		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
+		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(StagingTrueMarkCode code)
 		{
 			var documentItem = _selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)

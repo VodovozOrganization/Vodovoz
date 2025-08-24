@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -40,6 +41,16 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(IUnitOfWork uow, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
 
 		/// <summary>
+		/// Создает промежуточный код Честного Знака и привязывает его к строке документа самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <param name="selfDeliveryDocumentItemId">Номер строки документа самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Результат с соданным промежуточным кодом</returns>
+		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int selfDeliveryDocumentItemId, CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Добавляет промежуточный код Честного Знака к строке документа самовывоза.
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
@@ -69,5 +80,15 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
 		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет, можно ли добавить промежуточный код Честного Знака к строке документа самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ промежуточного хранения</param>
+		/// <param name="nomeclatureId">Номенклатура</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Результат выполнения операции</returns>
+		Task<Result> IsStagingTrueMarkCodeCanBeAdded(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, int nomeclatureId, CancellationToken cancellationToken);
 	}
 }

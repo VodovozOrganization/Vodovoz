@@ -21,17 +21,21 @@ namespace VodovozBusiness.Services.TrueMark
 	{
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
+		private readonly IGenericRepository<GtinEntity> _gtinRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
+			IGenericRepository<GtinEntity> gtinRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_stagingTrueMarkCodeRepository =
 				stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_gtinRepository =
+				gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
@@ -270,6 +274,19 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			int selfDeliveryDocumentItemId,
+			CancellationToken cancellationToken = default) =>
+			await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+				uow,
+				scannedCode,
+				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+				selfDeliveryDocumentItemId,
+				null,
+				cancellationToken);
+
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
@@ -277,13 +294,7 @@ namespace VodovozBusiness.Services.TrueMark
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
-				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
-					uow,
-					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-					0,
-					null,
-					cancellationToken);
+				await CreateStagingTrueMarkCode(uow, scannedCode, 0, cancellationToken);
 
 			if(createCodeResult.IsFailure)
 			{
@@ -301,19 +312,10 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(relatedDocumentItem is null)
 			{
-				var nomeclatureName = (await _nomenclatureRepository
-					.GetAsync(uow, x => x.Gtins.Any(g => g.GtinNumber == codeGtin), 1, cancellationToken))
-					.Value
-					.Select(x => x.Name)
-					.FirstOrDefault() ?? string.Empty;
+				var nomeclatureName = await GetNomenclatureNameByGtin(uow, codeGtin, cancellationToken);
 
 				var error = TrueMarkCodeErrors.CreateGtinNomenclatureNotFoundInOrder(nomeclatureName, codeGtin);
 				return Result.Failure<StagingTrueMarkCode>(error);
-			}
-
-			if(relatedDocumentItem.Id == 0)
-			{
-				await uow.SaveAsync(relatedDocumentItem, cancellationToken: cancellationToken);
 			}
 
 			foreach(var code in stagingTrueMarkCode.AllCodes)
@@ -325,7 +327,7 @@ namespace VodovozBusiness.Services.TrueMark
 				await IsStagingTrueMarkCodeCanBeAdded(
 					uow,
 					stagingTrueMarkCode,
-					relatedDocumentItem,
+					relatedDocumentItem.Nomenclature.Id,
 					cancellationToken);
 
 			if(isCodeCanBeAddedResult.IsFailure)
@@ -372,10 +374,10 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			int nomeclatureId,
 			CancellationToken cancellationToken)
 		{
 			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem)
@@ -383,28 +385,16 @@ namespace VodovozBusiness.Services.TrueMark
 				throw new InvalidOperationException("Только коды ЧЗ, отсканированные при отпуске самовывоза, могут быть добавлены");
 			}
 
-			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(selfDeliveryDocumentItem.Nomenclature);
+			var nomeclature = _nomenclatureRepository.GetFirstOrDefault(uow, x => x.Id == nomeclatureId);
+
+			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(nomeclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, selfDeliveryDocumentItem.Nomenclature);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			codeCheckingProcessResult = IsSelfDeliveryDocumentItemHasNoAddedTrueMarkCodes(selfDeliveryDocumentItem);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
-			codeCheckingProcessResult = IsStagingTrueMarkCodesCountCanBeAdded(uow, stagingTrueMarkCode, selfDeliveryDocumentItem);
+			codeCheckingProcessResult = await IsNomeclatureGtinContainsCodeGtin(uow, stagingTrueMarkCode, nomeclatureId, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -470,11 +460,16 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsNomeclatureGtinContainsCodeGtin(StagingTrueMarkCode stagingTrueMarkCode, NomenclatureEntity nomenclature)
+		private async Task<Result> IsNomeclatureGtinContainsCodeGtin(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			int nomenclatureId,
+			CancellationToken cancellationToken = default)
 		{
-			var nomenclatureGtins = nomenclature.Gtins
-				.Select(x => x.GtinNumber)
-				.ToList();
+			var nomenclatureGtins =
+				(await _gtinRepository.GetAsync(uow, x => x.Nomenclature.Id == nomenclatureId, cancellationToken: cancellationToken))
+				.Value
+				.Select(x => x.GtinNumber);
 
 			var codesGtin = stagingTrueMarkCode.AllIdentificationCodes
 				.Select(x => x.Gtin)
@@ -482,8 +477,10 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(!nomenclatureGtins.Contains(codesGtin))
 			{
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(stagingTrueMarkCode.RawCode);
-				return Result.Failure(error);
+				var codeNomeclatureName = await GetNomenclatureNameByGtin(uow, codesGtin, cancellationToken);
+
+				var error = TrueMarkCodeErrors.CreateGtinNomenclatureNotFoundInOrder(codeNomeclatureName, codesGtin);
+				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
 			return Result.Success();
@@ -499,6 +496,16 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			return Result.Success();
+		}
+
+		private async Task<string> GetNomenclatureNameByGtin(IUnitOfWork uow, string gtin, CancellationToken cancellationToken)
+		{
+			var nomenclatureName = (await _nomenclatureRepository
+				.GetAsync(uow, x => x.Gtins.Any(g => g.GtinNumber == gtin), 1, cancellationToken))
+				.Value
+				.Select(x => x.Name)
+				.FirstOrDefault() ?? string.Empty;
+			return nomenclatureName;
 		}
 	}
 }
