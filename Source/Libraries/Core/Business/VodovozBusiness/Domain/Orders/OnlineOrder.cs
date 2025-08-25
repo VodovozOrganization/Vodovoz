@@ -356,24 +356,27 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
 		{
-			UpdateOnlineOrder(
-				data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment);
-			UpdateDeliverySchedule(deliverySchedule, data.DeliveryScheduleId);
-			DeliveryDate = data.DeliveryDate;
-			IsFastDelivery = data.IsFastDelivery;
+			UpdateOnlineOrderPaymentData(
+					data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment);
+			UpdateOnlineOrderDeliveryData(deliverySchedule, data.DeliveryScheduleId, data.DeliveryDate, data.IsFastDelivery);
 		}
 		
-		public virtual void UpdateOnlineOrder(
-			OnlineOrderPaymentType paymentType,
+		public virtual void UpdateOnlineOrderPaymentData(
+			OnlineOrderPaymentType? paymentType,
 			OnlinePaymentSource? paymentSource,
-			OnlineOrderPaymentStatus paymentStatus,
+			OnlineOrderPaymentStatus? paymentStatus,
 			string unPaidReason,
 			int? onlinePayment
 		)
 		{
-			OnlineOrderPaymentType = paymentType;
+			if(paymentType is null || paymentStatus is null)
+			{
+				return;
+			}
+			
+			OnlineOrderPaymentType = paymentType.Value;
 			OnlinePaymentSource = paymentSource;
-			OnlineOrderPaymentStatus = paymentStatus;
+			OnlineOrderPaymentStatus = paymentStatus.Value;
 			OnlinePayment = onlinePayment;
 
 			if(OnlineOrderPaymentType != OnlineOrderPaymentType.PaidOnline && OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
@@ -397,14 +400,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 		
-		public virtual void UpdateOnlineOrder(
+		public virtual void UpdateOnlineOrderDeliveryData(
 			DeliverySchedule deliverySchedule,
 			int? deliveryScheduleId,
-			DateTime deliveryDate
+			DateTime? deliveryDate,
+			bool isFastDelivery
 		)
 		{
+			if(deliverySchedule is null || deliveryDate is null)
+			{
+				return;
+			}
+			
 			UpdateDeliverySchedule(deliverySchedule, deliveryScheduleId);
-			DeliveryDate = deliveryDate;
+			DeliveryDate = deliveryDate.Value;
+			IsFastDelivery = isFastDelivery;
 		}
 
 		public virtual bool TryMoveToManualProcessingWithoutPaymentByUnPaidReason(

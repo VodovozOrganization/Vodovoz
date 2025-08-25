@@ -31,7 +31,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
+		public OnlineOrderPaymentType? OnlineOrderPaymentType { get; set; }
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
@@ -39,7 +39,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Статус оплаты онлайн заказа
 		/// </summary>
-		public OnlineOrderPaymentStatus PaymentStatus { get; set; }
+		public OnlineOrderPaymentStatus? PaymentStatus { get; set; }
 		/// <summary>
 		/// Причина, по которой не прошла оплата
 		/// </summary>
@@ -47,7 +47,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Дата доставки/забора заказа(самовывоз)
 		/// </summary>
-		public DateTime DeliveryDate { get; set; }
+		public DateTime? DeliveryDate { get; set; }
 		/// <summary>
 		/// Id интервала доставки
 		/// </summary>

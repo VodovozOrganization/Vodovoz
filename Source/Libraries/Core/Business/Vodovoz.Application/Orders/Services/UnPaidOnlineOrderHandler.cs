@@ -160,8 +160,13 @@ namespace Vodovoz.Application.Orders.Services
 					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 				
-				onlineOrder.UpdateOnlineOrder(deliverySchedule, data.DeliveryScheduleId, data.DeliveryDate);
-				SaveOrders(uow, onlineOrder);
+				onlineOrder.UpdateOnlineOrderDeliveryData(
+					deliverySchedule,
+					data.DeliveryScheduleId,
+					data.DeliveryDate,
+					data.IsFastDelivery);
+
+				SaveOnlineOrder(uow, onlineOrder);
 				return Result.Success();
 			}
 			else
@@ -197,38 +202,40 @@ namespace Vodovoz.Application.Orders.Services
 						return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
 					}
 
-					onlineOrder.UpdateOnlineOrder(
+					onlineOrder.UpdateOnlineOrderPaymentData(
 						data.OnlineOrderPaymentType,
 						data.OnlinePaymentSource,
 						data.PaymentStatus,
 						data.UnPaidReason,
 						data.OnlinePayment);
 
-					if(data.OnlinePayment.HasValue && data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+					if(data.OnlinePayment.HasValue
+						&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid
+						&& data.OnlineOrderPaymentType.HasValue)
 					{
 						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
 							uow,
 							orders,
 							data.OnlinePayment.Value,
-							data.OnlineOrderPaymentType.ToOrderPaymentType(),
+							data.OnlineOrderPaymentType.Value.ToOrderPaymentType(),
 							uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
 					}
 
-					SaveOrders(uow, onlineOrder);
+					SaveOnlineOrder(uow, onlineOrder);
 					return Result.Success();
 				}
 				
 				if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
 					&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
 				{
-					onlineOrder.UpdateOnlineOrder(
+					onlineOrder.UpdateOnlineOrderPaymentData(
 						data.OnlineOrderPaymentType,
 						data.OnlinePaymentSource,
 						data.PaymentStatus,
 						data.UnPaidReason,
 						data.OnlinePayment);
 					
-					SaveOrders(uow, onlineOrder);
+					SaveOnlineOrder(uow, onlineOrder);
 					return Result.Success();
 				}
 				
@@ -240,7 +247,7 @@ namespace Vodovoz.Application.Orders.Services
 			
 			_logger.LogInformation("Полностью обновляем онлайн {OnlineOrderId}", onlineOrder.Id);
 			onlineOrder.UpdateOnlineOrder(deliverySchedule, data);
-			SaveOrders(uow, onlineOrder);
+			SaveOnlineOrder(uow, onlineOrder);
 			return Result.Success();
 		}
 
@@ -255,13 +262,8 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 		
-		private void SaveOrders(IUnitOfWork uow, OnlineOrder onlineOrder, Order order = null)
+		private void SaveOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
-			if(order != null)
-			{
-				uow.Save(order);
-			}
-			
 			uow.Save(onlineOrder);
 			uow.Commit();
 		}
