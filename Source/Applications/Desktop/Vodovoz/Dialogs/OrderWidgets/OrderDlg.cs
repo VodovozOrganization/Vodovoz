@@ -605,8 +605,7 @@ namespace Vodovoz
 					x => x.DeliveryPoint,
 					x => x.PaymentType,
 					x => x.OrderAddressType,
-					x => x.ContactPhone,
-					x => x.DocumentType)
+					x => x.ContactPhone)
 				.CopyPromotionalSets()
 				.CopyOrderItemsExceptEquipmentReferenced();
 
