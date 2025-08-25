@@ -515,7 +515,6 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				OrderStatus.Closed
 			};
 
-			// orderSumSubquery
 			OrderItem orderItemAlias = null;
 			Domain.Orders.Order orderAlias = null;
 			PaymentItem paymentItemAlias = null;
@@ -540,82 +539,67 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 					)
 				));
 
-			// lateOrderSumSubquery
-			OrderItem orderItemAlias1 = null;
-			Domain.Orders.Order orderAlias1 = null;
-			Counterparty clientAlias1 = null;
-			var lateOrderSumSubquery = QueryOver.Of(() => orderItemAlias1)
-				.JoinAlias(() => orderItemAlias1.Order, () => orderAlias1)
-				.JoinAlias(() => orderAlias1.Client, () => clientAlias1)
-				.Where(() => orderAlias1.Client.Id == counterpartyId)
-				.Where(() => orderAlias1.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Where(() => orderAlias1.PaymentType == PaymentType.Cashless)
-				.Where(() => orderAlias1.OrderStatus.IsIn(orderStatuses))
-				.Where(() => orderAlias1.DeliveryDate != null)
-				.Where(() => clientAlias1.DelayDaysForBuyers > 0)
+			var lateOrderSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => clientAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => clientAlias.DelayDaysForBuyers > 0)
 				.Where(
-					Restrictions.Gt(
+					Restrictions.GtProperty(
 						Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.Int32, "DATEDIFF(NOW(), ?1)"),
 							NHibernateUtil.Int32,
-							Projections.Property(() => orderAlias1.DeliveryDate)
+							Projections.Property(() => orderAlias.DeliveryDate)
 						),
-						Projections.Property(() => clientAlias1.DelayDaysForBuyers)
+						Projections.Property(() => clientAlias.DelayDaysForBuyers)
 					)
 				)
 				.Select(Projections.Sum(
 					Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
 						NHibernateUtil.Decimal,
-						Projections.Property(() => orderItemAlias1.Price),
-						Projections.Property(() => orderItemAlias1.ActualCount),
-						Projections.Property(() => orderItemAlias1.Count),
-						Projections.Property(() => orderItemAlias1.DiscountMoney)
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
 					)
 				));
 
-			// cashlessIncomeSubquery
 			var cashlessIncomeSubquery = QueryOver.Of(() => cashlessMovementOperationAlias)
 				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
 				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Income));
 
-			// paymentItemsSumSubquery
 			var paymentItemsSumSubquery = QueryOver.Of(() => paymentItemAlias)
 				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
 				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
 				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum<PaymentItem>(x => x.Sum));
 
-			// paymentExpensesSubquery
 			var paymentExpensesSubquery = QueryOver.Of(() => paymentItemAlias)
 				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
 				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
-				.Where(() => orderAlias.Client.Id == counterpartyId)
+                .Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+                .Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+                .Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+                .Where(() => orderAlias.Client.Id == counterpartyId)
 				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Expense));
-
-			var result1 = unitOfWork.Session.QueryOver<Counterparty>()
-				.Where(c => c.Id == counterpartyId)
-				.SelectList(list => list
-					//.SelectSubQuery(orderSumSubquery)
-					.SelectSubQuery(lateOrderSumSubquery)
-					/*.SelectSubQuery(cashlessIncomeSubquery)
-					.SelectSubQuery(paymentItemsSumSubquery)
-					.SelectSubQuery(paymentExpensesSubquery)*/
-				)
-				.SingleOrDefault<decimal>();
+				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 
 			var result = unitOfWork.Session.QueryOver<Counterparty>()
 				.Where(c => c.Id == counterpartyId)
 				.SelectList(list => list
-					.SelectSubQuery(orderSumSubquery)/*
-					.SelectSubQuery(lateOrderSumSubquery)
-					.SelectSubQuery(cashlessIncomeSubquery)
-					.SelectSubQuery(paymentItemsSumSubquery)
-					.SelectSubQuery(paymentExpensesSubquery)*/
-				)
-				.SingleOrDefault<decimal[]>();
+					.SelectSubQuery(orderSumSubquery)
+                    .SelectSubQuery(lateOrderSumSubquery)
+                    .SelectSubQuery(cashlessIncomeSubquery)
+                    .SelectSubQuery(paymentItemsSumSubquery)
+                    .SelectSubQuery(paymentExpensesSubquery)
+                )
+				.SingleOrDefault<object[]>();
 
 			decimal totalOrderSum = result?[0] as decimal? ?? 0m;
 			decimal totalLateOrderSum = result?[1] as decimal? ?? 0m;
