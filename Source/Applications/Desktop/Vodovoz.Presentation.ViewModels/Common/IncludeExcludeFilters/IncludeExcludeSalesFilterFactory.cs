@@ -106,9 +106,12 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 			AddOrderStatusFilter(includeExludeFiltersViewModel, statusesToSelect);
 			AddCounterpartyCompositeClassificationFilter(includeExludeFiltersViewModel);
-
+			AddSalesManagerFilter(unitOfWork, includeExludeFiltersViewModel);
+			
 			return includeExludeFiltersViewModel;
 		}
+
+		
 
 		public IncludeExludeFiltersViewModel CreateTurnoverOfWarehouseBalancesReportFilterViewModel(IUnitOfWork unitOfWork)
 		{
@@ -133,7 +136,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				config.RefreshFilteredElements();
 			});
 		}
-
+		
 		private static void AddOrderStatusFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel, OrderStatus[] statusesToSelect)
 		{
 			includeExludeFiltersViewModel.AddFilter<OrderStatus>(config =>
@@ -345,6 +348,8 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _geographicalGroupRepository);
 		}
 
+		
+		
 		private void AddEmployeeFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
@@ -392,6 +397,53 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			});
 		}
 
+		private void AddSalesManagerFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
+			{
+				config.Title = "Менеджеры КА";
+				config.DefaultName = "SalesManager";
+				config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>
+				{
+					Expression<Func<Employee, bool>> specificationExpression = null;
+
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
+
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					}
+
+					var elementsToAdd = _employeeRepository.Get(
+							unitOfWork,
+							specificationExpression,
+							limit: IncludeExludeFiltersViewModel.DefaultLimit)
+						.Select(x => new IncludeExcludeElement<int, Employee>
+						{
+							Id = x.Id,
+							Title = $"{x.LastName} {x.Name} {x.Patronymic}",
+						});
+
+					filter.FilteredElements.Clear();
+
+					foreach(var element in elementsToAdd)
+					{
+						filter.FilteredElements.Add(element);
+					}
+				};
+			});
+		}
+		
 		private void AddSubdivisionFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _subdivisionRepository);
