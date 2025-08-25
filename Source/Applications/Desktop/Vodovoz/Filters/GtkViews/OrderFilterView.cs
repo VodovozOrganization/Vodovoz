@@ -31,8 +31,6 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-
-			//entrySalesManager.Binding.AddBinding();
 			entryOrderId.ValidationMode = ValidationType.Numeric;
 			entryOrderId.KeyReleaseEvent += OnKeyReleased;
 			entryOrderId.Binding.AddBinding(ViewModel, vm => vm.OrderId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
@@ -48,7 +46,7 @@ namespace Vodovoz.Filters.GtkViews
 			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
 			entryDeliveryPointPhone.KeyReleaseEvent += OnKeyReleased;
 			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
-
+			
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			enumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
@@ -73,6 +71,12 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
+			entrySalesManager.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManagerSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(vm => vm.CanChangeSalesManager, w => w.Sensitive)
+				.AddBinding(vm => vm.SalesManager, w => w.Subject)
+				.InitializeFromSource();
+			
 			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
 
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
