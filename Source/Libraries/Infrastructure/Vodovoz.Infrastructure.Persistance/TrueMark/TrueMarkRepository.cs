@@ -321,7 +321,6 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
-				//.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.ActualCount == 0 ? x.ActualCount : x.Count)))
 				.Select(Projections.Sum(
 					Projections.Conditional(
 							Restrictions.IsNull(
