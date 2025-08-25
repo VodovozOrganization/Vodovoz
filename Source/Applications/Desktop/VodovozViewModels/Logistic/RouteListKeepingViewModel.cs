@@ -571,14 +571,15 @@ namespace Vodovoz
 			var order = rli.RouteListItem.Order;
 
 			if(newStatus == RouteListItemStatus.Completed
-				&& order.IsOrderContainsIsAccountableInTrueMarkItems)
+				&& order.IsOrderContainsIsAccountableInTrueMarkItems
+				&& !_currentPermissionService.ValidatePresetPermission(
+				   Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
 				int requiredCodesCount = _trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
 
-				var driverCodes =
-					_trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id);
+				var driverCodes = _trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id);
 
-				var isAllDriverTrueMarkCodesAdded = driverCodes.Count() == requiredCodesCount;
+				bool isAllDriverTrueMarkCodesAdded = driverCodes.Count() == requiredCodesCount;
 
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
 				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id)
