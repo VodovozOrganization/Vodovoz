@@ -287,14 +287,12 @@ namespace Vodovoz.Tools.Orders
 		(	
 			ConditionForUPD(key)
 			&& !key.HaveSpecialFields
-			&& key.DefaultDocumentType == DefaultDocumentType.upd
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
 		(
 			ConditionForUPD(key)
 			&& key.HaveSpecialFields
-			&& key.DefaultDocumentType == DefaultDocumentType.upd
 		);
 
 		static bool GetConditionForBill(OrderStateKey key) =>
