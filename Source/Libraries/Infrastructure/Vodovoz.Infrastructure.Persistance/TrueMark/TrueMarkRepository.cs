@@ -321,21 +321,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.Count)))
-				.SingleOrDefault<decimal>();
-
-			return (int)codesRequired;
-		}
-		public int GetActualCodesRequiredByOrder(IUnitOfWork uow, int orderId)
-		{
-			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-
-			var codesRequired = uow.Session.QueryOver(() => orderItemAlias)
-				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderItemAlias.Order.Id == orderId)
-				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.ActualCount)))
+				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.CurrentCount)))
 				.SingleOrDefault<decimal>();
 
 			return (int)codesRequired;
