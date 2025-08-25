@@ -504,72 +504,114 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 		public decimal GetDebtorDebt(IUnitOfWork unitOfWork, int counterpartyId)
 		{
+			var orderStatuses = new[]
 			{
-				Domain.Orders.Order orderAlias = null;
-				Counterparty clientAlias = null;
-				CashlessMovementOperation cashlessMovementOperationAlias = null;
-				PaymentItem paymentItemAlias = null;
-				Payment paymentAlias = null;
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
 
-				var orderStatuses = new[]
-					{
-					OrderStatus.Accepted,
-					OrderStatus.InTravelList,
-					OrderStatus.OnLoading,
-					OrderStatus.OnTheWay,
-					OrderStatus.Shipped,
-					OrderStatus.UnloadingOnStock,
-					OrderStatus.Closed
-				};
-				var orders = unitOfWork.Session.QueryOver(() => orderAlias)
-					.JoinAlias(() => orderAlias.Client, () => clientAlias)
-					.Where(() => orderAlias.Client.Id == counterpartyId)
-					.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-					.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
-					.Where(() => clientAlias.PersonType == PersonType.legal)
-					.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
-					.List();
+			// orderSumSubquery
+			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			PaymentItem paymentItemAlias = null;
+			Counterparty clientAlias = null;
+			Payment paymentAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+			var orderSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
 
-				var orderIds = orders.Select(o => o.Id).ToArray();
-				var clientIds = orders.Select(o => o.Client.Id).Distinct().ToArray();
+			// lateOrderSumSubquery
+			var lateOrderSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => clientAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Where(() => orderAlias.DeliveryDate != null && clientAlias.DelayDaysForBuyers > 0)
+				.Where(
+					Restrictions.Gt(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Int32, "DATEDIFF(NOW(), ?1)"),
+							NHibernateUtil.Int32,
+							Projections.Property(() => orderAlias.DeliveryDate)
+						),
+						Projections.Property(() => clientAlias.DelayDaysForBuyers)
+					)
+				)
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
 
-				var totalOrderSum = unitOfWork.Session.Query<OrderItem>()
-					.Where(oi => orderIds.Contains(oi.Order.Id))
-					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+			// cashlessIncomeSubquery
+			var cashlessIncomeSubquery = QueryOver.Of(() => cashlessMovementOperationAlias)
+				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Income));
 
-				var totalLateOrderSum = unitOfWork.Session.Query<OrderItem>()
-					.Where(oi => orderIds.Contains(oi.Order.Id))
-					.ToList()
-					.Where(oi => oi.Order.DeliveryDate.HasValue && oi.Order.Client.DelayDaysForBuyers > 0)
-					.Where(oi => (DateTime.Now - oi.Order.DeliveryDate.Value).TotalDays > oi.Order.Client.DelayDaysForBuyers)
-					.Sum(oi => oi.Price * (oi.ActualCount ?? oi.Count) - oi.DiscountMoney);
+			// paymentItemsSumSubquery
+			var paymentItemsSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
+				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(x => x.Sum));
 
-				var cashlessIncome = unitOfWork.Session.QueryOver(() => cashlessMovementOperationAlias)
-					.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
-					.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-					.Select(Projections.Sum(() => cashlessMovementOperationAlias.Income))
-					.SingleOrDefault<decimal>();
+			// paymentExpensesSubquery
+			var paymentExpensesSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Expense));
 
-				var paymentItemsSum = unitOfWork.Session.QueryOver(() => paymentItemAlias)
-					.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
-					.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
-					.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
-					.Select(Projections.Sum(() => paymentItemAlias.Sum))
-					.SingleOrDefault<decimal>();
+			var result = unitOfWork.Session.QueryOver<Counterparty>()
+				.Where(c => c.Id == counterpartyId)
+				.SelectList(list => list
+					.SelectSubQuery(orderSumSubquery)
+					.SelectSubQuery(lateOrderSumSubquery)
+					.SelectSubQuery(cashlessIncomeSubquery)
+					.SelectSubQuery(paymentItemsSumSubquery)
+					.SelectSubQuery(paymentExpensesSubquery)
+				)
+				.SingleOrDefault<object[]>();
 
-				var paymentExpenses = unitOfWork.Session.QueryOver(() => paymentItemAlias)
-					.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
-					.WhereRestrictionOn(() => paymentItemAlias.Order.Id).IsIn(orderIds)
-					.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-					.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense))
-					.SingleOrDefault<decimal>();
+			decimal totalOrderSum = result?[0] as decimal? ?? 0m;
+			decimal totalLateOrderSum = result?[1] as decimal? ?? 0m;
+			decimal cashlessIncome = result?[2] as decimal? ?? 0m;
+			decimal paymentItemsSum = result?[3] as decimal? ?? 0m;
+			decimal paymentExpenses = result?[4] as decimal? ?? 0m;
 
-				var debtorDebt = Math.Round(
-					(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
-					2);
+			var debtorDebt = Math.Round(
+				(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
+				2);
 
-				return debtorDebt > 0 ? debtorDebt : 0;
-			}
+			return debtorDebt > 0 ? debtorDebt : 0;
 		}
 	}
 }
