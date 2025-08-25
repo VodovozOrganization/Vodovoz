@@ -5093,10 +5093,10 @@ namespace Vodovoz
 				bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
 						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
 						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
-
+				bool isCashless = Entity.PaymentType == PaymentType.Cashless;
 				bool isPaid = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
 
-				if(hasDepositForEquipment && !isPaid)
+				if(hasDepositForEquipment && !isPaid && isCashless)
 				{
 					_interactiveService.ShowMessage
 						(ImportanceLevel.Warning,
