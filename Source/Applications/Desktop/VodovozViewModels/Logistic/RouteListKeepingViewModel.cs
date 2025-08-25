@@ -571,9 +571,7 @@ namespace Vodovoz
 			var order = rli.RouteListItem.Order;
 
 			if(newStatus == RouteListItemStatus.Completed
-				&& order.IsOrderContainsIsAccountableInTrueMarkItems
-				&& !_currentPermissionService.ValidatePresetPermission(
-					Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				&& order.IsOrderContainsIsAccountableInTrueMarkItems)
 			{
 				int requiredCodesCount = _trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
 
