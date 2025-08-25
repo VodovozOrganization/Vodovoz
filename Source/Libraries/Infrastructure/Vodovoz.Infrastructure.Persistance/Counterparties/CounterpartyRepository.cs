@@ -608,7 +608,10 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			decimal paymentExpenses = result?[4] as decimal? ?? 0m;
 
 			var debtorDebt = Math.Round(
-				(totalOrderSum - (cashlessIncome - paymentItemsSum) - paymentExpenses) - totalLateOrderSum,
+				(totalOrderSum 
+                - (cashlessIncome - paymentItemsSum)
+                - paymentExpenses)
+                - totalLateOrderSum,
 				2);
 
 			return debtorDebt > 0 ? debtorDebt : 0;
