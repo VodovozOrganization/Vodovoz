@@ -48,6 +48,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, x => x.Address, x => x.Subject)
 				.InitializeFromSource();
 
+			entrySalesManager.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManagerSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(vm => vm.SalesManager, w => w.Subject)
+				.InitializeFromSource();
+			
 			yvalidatedentryDebtTo.Binding
 				.AddBinding(ViewModel, x => x.DebtBottlesTo, x => x.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();

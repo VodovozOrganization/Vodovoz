@@ -47,6 +47,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public Type Type { get; set; }
 
 		public EventHandler SelectionChanged;
+		private string _defaultName;
 
 		public Func<IncludeExcludeFilter, IDictionary<string, object>> GetReportParametersFunc
 		{
@@ -58,6 +59,12 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			get => _title;
 			set => SetField(ref _title, value);
+		}
+
+		public string DefaultName
+		{
+			get => _defaultName;
+			set => SetField(ref _defaultName, value);
 		}
 
 		protected virtual void ClearExcludes()
@@ -284,7 +291,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			var result = new Dictionary<string, object>();
 
-			var includeParameterName = filter.Type.Name + defaultIncludePrefix;
+			var includeParameterName = string.IsNullOrEmpty(filter.DefaultName) 
+				? filter.Type.Name + defaultIncludePrefix 
+				: filter.DefaultName + defaultIncludePrefix ;
 
 			if(filter.IncludedCount > 0)
 			{
@@ -295,7 +304,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				result.Add(includeParameterName, new object[] { "0" });
 			}
 
-			var excludeParameterName = filter.Type.Name + defaultExcludePrefix;
+			var excludeParameterName = string.IsNullOrEmpty(filter.DefaultName) 
+				? filter.Type.Name + defaultExcludePrefix
+				: filter.DefaultName + defaultExcludePrefix;
 
 			if(filter.ExcludedCount > 0)
 			{

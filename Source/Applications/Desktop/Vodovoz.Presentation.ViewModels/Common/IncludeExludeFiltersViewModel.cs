@@ -380,6 +380,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var filter = Filters.FirstOrDefault(x => x.GetType() == typeof(TFilter));
 			return (TFilter)filter;
 		}
+		
+		public TFilter GetFilter<TFilter>(string defaultName)
+			where TFilter : IncludeExcludeFilter
+		{
+			var filter = Filters.FirstOrDefault(x => x.GetType() == typeof(TFilter) && x.DefaultName == defaultName);
+			return (TFilter)filter;
+		}
 
 		private void ClearSearchString()
 		{
