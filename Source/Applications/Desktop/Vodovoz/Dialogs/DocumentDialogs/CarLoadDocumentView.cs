@@ -42,7 +42,7 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
-				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount, new ValueToLeadingDigitsConverter()).Editing()
+				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount, new RoundedDecimalToStringConverter()).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) =>

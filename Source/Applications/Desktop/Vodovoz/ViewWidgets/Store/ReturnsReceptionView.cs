@@ -60,7 +60,7 @@ namespace Vodovoz
 				.AddColumn("№ Кулера").AddTextRenderer(node => node.Redhead)
 					.AddSetter((cell, node) => cell.Editable = node.NomenclatureCategory == NomenclatureCategory.additional)
 				.AddColumn("Кол-во")
-					.AddNumericRenderer(node => node.Amount, new ValueToLeadingDigitsConverter(), false)
+					.AddNumericRenderer(node => node.Amount, new RoundedDecimalToStringConverter(), false)
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
 					.AddSetter((cell, node) => CalculateAmount(node))
