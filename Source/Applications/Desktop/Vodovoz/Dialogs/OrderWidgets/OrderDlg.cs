@@ -1310,22 +1310,25 @@ namespace Vodovoz
 						{
 							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС. {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
 						}
-						try
+
+						if (Counterparty.PersonType == PersonType.legal)
 						{
-							var debtorDebt = _counterpartyRepository.GetDebtorDebt(UoW, Counterparty.Id);
-							if(debtorDebt > 0)
+							try
 							{
-								_interactiveService.ShowMessage(
-									ImportanceLevel.Warning,
-									$"У клиента имеется дебиторская задолженность в размере {debtorDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
-									"Уведомление о задолженности клиента");
+								var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+								if(totalDebt > 0)
+								{
+									_interactiveService.ShowMessage(
+										ImportanceLevel.Warning,
+										$"У клиента имеется задолженность в размере {totalDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+										"Уведомление о задолженности клиента");
+								}
+							}
+							catch(Exception ex)
+							{
+								_logger.Error(ex, $"Ошибка при получении задолженности по клиенту {Counterparty.Id}");
 							}
 						}
-						catch(Exception ex)
-						{
-							_logger.Error(ex, $"Ошибка при получении дебиторской задолженности по клиенту {Counterparty.Id}");
-						}
-
 
 						if(!Entity.IsCopiedFromUndelivery)
 						{
@@ -3927,20 +3930,27 @@ namespace Vodovoz
 		}
 		private void RefreshDebtorDebtNotifier()
 		{
-			ylabelDebtorDebt.UseMarkup = true;
+			ylabelTotalDebt.UseMarkup = true;
 
-			if(Counterparty != null)
+			if(Counterparty != null && Counterparty.PersonType == PersonType.legal)
 			{
-				var debtorDebt = _counterpartyRepository.GetDebtorDebt(UoW, Counterparty.Id);
-				if(debtorDebt > 0)
+				try
 				{
-					ylabelDebtorDebt.Visible = true;
-					ylabelDebtorDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {debtorDebt} руб.</span>";
+					var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+					if(totalDebt > 0)
+					{
+						ylabelTotalDebt.Visible = true;
+						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {totalDebt} руб.</span>";
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex, $"Ошибка при получении задолженности по клиенту {Counterparty.Id}");
 				}
 			}
 			else
 			{
-				ylabelDebtorDebt.Visible = false;
+				ylabelTotalDebt.Visible = false;
 			}
 		}
 

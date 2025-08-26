@@ -29,7 +29,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		PaymentType[] GetPaymentTypesForCashless();
 		bool IsCashPayment(PaymentType payment);
 		bool IsCashlessPayment(PaymentType payment);
-		decimal GetDebtorDebt(IUnitOfWork unitOfWork, int counterpartyId);
+		decimal GetTotalDebt(IUnitOfWork unitOfWork, int counterpartyId);
 		IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow);
 		IList<Counterparty> GetDealers();
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);

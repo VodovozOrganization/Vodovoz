@@ -348,7 +348,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabelBottlesDebtAtDeliveryPoint;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelDebtorDebt;
+		private global::Gamma.GtkWidgets.yLabel ylabelTotalDebt;
 
 		private global::Vodovoz.ViewWidgets.OrderEquipmentItemsView orderEquipmentItemsView;
 
@@ -2426,13 +2426,13 @@ namespace Vodovoz
 			w175.Expand = false;
 			w175.Fill = false;
 			// Container child vbox8.Gtk.Box+BoxChild
-			this.ylabelDebtorDebt = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelDebtorDebt.Name = "ylabelDebtorDebt";
-			this.ylabelDebtorDebt.Xalign = 0F;
-			this.ylabelDebtorDebt.LabelProp = global::Mono.Unix.Catalog.GetString("Долг по безналу: 0 руб.");
-			this.ylabelDebtorDebt.UseMarkup = true;
-			this.vbox8.Add(this.ylabelDebtorDebt);
-			global::Gtk.Box.BoxChild w176 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.ylabelDebtorDebt]));
+			this.ylabelTotalDebt = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTotalDebt.Name = "ylabelDebtorDebt";
+			this.ylabelTotalDebt.Xalign = 0F;
+			this.ylabelTotalDebt.LabelProp = global::Mono.Unix.Catalog.GetString("Долг по безналу: 0 руб.");
+			this.ylabelTotalDebt.UseMarkup = true;
+			this.vbox8.Add(this.ylabelTotalDebt);
+			global::Gtk.Box.BoxChild w176 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.ylabelTotalDebt]));
 			w176.Position = 6;
 			w176.Expand = false;
 			w176.Fill = false;
