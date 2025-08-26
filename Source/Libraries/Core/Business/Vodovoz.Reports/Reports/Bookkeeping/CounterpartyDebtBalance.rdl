@@ -1250,6 +1250,10 @@
             (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
             AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
           )
+      AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+             AND NOT (c.sales_manager_id IN (@SalesManager_exclude))
+         )
       AND
         (
             (
@@ -1319,6 +1323,12 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
           <QueryParameter Name="CounterpartyType_exclude">
             <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="CounterpartySubtype_include">
             <Value>={?CounterpartySubtype_include}</Value>
@@ -1463,6 +1473,20 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
