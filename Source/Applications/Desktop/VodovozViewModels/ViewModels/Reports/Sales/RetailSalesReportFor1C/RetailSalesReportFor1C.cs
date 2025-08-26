@@ -36,34 +36,41 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 
 			var rows = new List<RetailSalesReportFor1cRow>();
 
-			int i = 0;
+			var groupedRowsDict = new Dictionary<(string Code1c, decimal Price), RetailSalesReportFor1cRow>();
 
-			while(i < ordersCount)
+			for(int i = 0; i < ordersCount; i++)
 			{
+				token.ThrowIfCancellationRequested();
+
 				foreach(var item in orders[i].OrderItems)
 				{
-					var rowItem = new RetailSalesReportFor1cRow
+					var key = (item.Nomenclature.Code1c, item.Price);
+
+					if(groupedRowsDict.TryGetValue(key, out var existingRow))
 					{
-						Amount = item.CurrentCount,
-						Mesure = item.Nomenclature.Unit.Name,
-						Code1c = item.Nomenclature.Code1c,
-						Nomenclature = item.Nomenclature.Name,
-						Price = item.Price,
-						Sum = item.Sum,
-						Nds = item.CurrentNDS
-					};
-
-					rows.Add(rowItem);
-
-					token.ThrowIfCancellationRequested();
+						existingRow.Amount += item.CurrentCount;
+						existingRow.Sum += item.Sum;
+						existingRow.Nds += item.CurrentNDS;
+					}
+					else
+					{
+						groupedRowsDict[key] = new RetailSalesReportFor1cRow
+						{
+							Amount = item.CurrentCount,
+							Mesure = item.Nomenclature.Unit.Name,
+							Code1c = item.Nomenclature.Code1c,
+							Nomenclature = item.Nomenclature.Name,
+							Price = item.Price,
+							Sum = item.Sum,
+							Nds = item.CurrentNDS
+						};
+					}
 				}
 
-				i++;
+				progressBarDisplayable.Add(1, $"Обработка заказа {i + 1}/{ordersCount}");
+			}
 
-				progressBarDisplayable.Add(1, $"Заказ {i}/{ordersCount}");
-			}			
-
-			Rows = rows;
+			Rows = groupedRowsDict.Values.OrderBy(x => x.Nomenclature).ToList();
 
 			progressBarDisplayable.Update("Выгрузка отчёта по рознице завершена. Сохранение в файл...");
 		}
@@ -352,7 +359,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
 
 			mergeCells.Append(new MergeCell() { Reference = new StringValue("A1:I1") });
 			mergeCells.Append(new MergeCell() { Reference = new StringValue("A3:A4") });
-			mergeCells.Append(new MergeCell() { Reference = new StringValue("B3:I4") });			
+			mergeCells.Append(new MergeCell() { Reference = new StringValue("B3:I4") });
 			mergeCells.Append(new MergeCell() { Reference = new StringValue("C6:D6") });
 			mergeCells.Append(new MergeCell() { Reference = new StringValue("E6:F6") });
 
