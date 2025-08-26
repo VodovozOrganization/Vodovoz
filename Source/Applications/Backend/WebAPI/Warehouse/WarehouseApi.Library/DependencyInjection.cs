@@ -1,4 +1,4 @@
-﻿using Edo.Transport;
+using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +15,8 @@ using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
@@ -47,6 +49,10 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
+				.AddScoped<ISelfDeliveryService, SelfDeliveryService>()
+				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddScoped<ICallTaskFactory, CallTaskSingletonFactory>()
+				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
 				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
