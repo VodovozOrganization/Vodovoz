@@ -590,31 +590,25 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 
+			var debtorDebtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Decimal,
+					"((?1 - (?2 - ?3) - ?4) - ?5)"
+				),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(orderSumSubquery),
+				Projections.SubQuery(cashlessIncomeSubquery),
+				Projections.SubQuery(paymentItemsSumSubquery),
+				Projections.SubQuery(paymentExpensesSubquery),
+				Projections.SubQuery(lateOrderSumSubquery)
+			);
+
 			var result = unitOfWork.Session.QueryOver<Counterparty>()
 				.Where(c => c.Id == counterpartyId)
-				.SelectList(list => list
-					.SelectSubQuery(orderSumSubquery)
-                    .SelectSubQuery(lateOrderSumSubquery)
-                    .SelectSubQuery(cashlessIncomeSubquery)
-                    .SelectSubQuery(paymentItemsSumSubquery)
-                    .SelectSubQuery(paymentExpensesSubquery)
-                )
-				.SingleOrDefault<object[]>();
+				.Select(debtorDebtProjection)
+				.SingleOrDefault<decimal?>();
 
-			decimal totalOrderSum = result?[0] as decimal? ?? 0m;
-			decimal totalLateOrderSum = result?[1] as decimal? ?? 0m;
-			decimal cashlessIncome = result?[2] as decimal? ?? 0m;
-			decimal paymentItemsSum = result?[3] as decimal? ?? 0m;
-			decimal paymentExpenses = result?[4] as decimal? ?? 0m;
-
-			var debtorDebt = Math.Round(
-				(totalOrderSum 
-                - (cashlessIncome - paymentItemsSum)
-                - paymentExpenses)
-                - totalLateOrderSum,
-				2);
-
-			return debtorDebt > 0 ? debtorDebt : 0;
+			return Math.Round(result ?? 0m, 2);
 		}
 	}
 }
