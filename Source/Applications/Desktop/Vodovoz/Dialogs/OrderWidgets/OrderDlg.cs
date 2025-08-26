@@ -5059,7 +5059,7 @@ namespace Vodovoz
 		{
 			if(Counterparty is null)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
 
@@ -5070,31 +5070,23 @@ namespace Vodovoz
 				return;
 			}
 
-			if (Entity.OrderItems != null)
+			if (Entity.OrderItems != null 
+				&& !_currentPermissionService.ValidatePresetPermission(
+					Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
 			{
-				/*if (!_currentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
-				{
-					bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
-						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
-						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
-
-					bool isPaid = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
-
-					if(hasDepositForEquipment && !isPaid)
-					{
-						_interactiveService.ShowMessage
-							(ImportanceLevel.Warning,
-							"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
-							"Проверка корректности данных");
-						return;
-					}
-				}*/
 				bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
 						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
 						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
 				bool isCashless = Entity.PaymentType == PaymentType.Cashless;
-				bool isPaid = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+				bool isPaid = false;
+
+				if(Order.Id != 0)
+				{
+					var orderItemsCount = _orderRepository.GetOrderItems(UoW, Order.Id).Count;
+					isPaid = orderItemsCount == Entity.OrderItems.Count
+						&& Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+				}
 
 				if(hasDepositForEquipment && !isPaid && isCashless)
 				{
