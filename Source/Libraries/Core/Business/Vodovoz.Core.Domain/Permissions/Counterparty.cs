@@ -16,13 +16,5 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Редактирование рефера клиента",
 			Description = "Дает возможность редактировать рефера клиента")]
 		public static string CanEditClientRefer => nameof(CanEditClientRefer);
-		
-		/// <summary>
-		/// Редактирование менеджера клиента
-		/// </summary>
-		[Display(
-			Name = "Редактирование менеджера клиента",
-			Description = "Дает возможность редактировать менеджера клиента")]
-		public static string CanSetSalesManager => "can_set_sales_manager";
 	}
 }
