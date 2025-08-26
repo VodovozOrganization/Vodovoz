@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Results;
@@ -37,8 +38,7 @@ namespace VodovozBusiness.Services.TrueMark
 			string scannedCode,
 			SourceProductCodeStatus status,
 			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false,
-			bool skipCodeIntroducedAndHasCorrectInnCheck = false)
+			bool isCheckForCodeChange = false)
 		{
 			var trueMarkCodeResult =
 				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
@@ -76,8 +76,7 @@ namespace VodovozBusiness.Services.TrueMark
 					routeListAddress,
 					vodovozOrderItem,
 					cancellationToken,
-					isCheckForCodeChange,
-					skipCodeIntroducedAndHasCorrectInnCheck);
+					isCheckForCodeChange);
 
 				if(codeCheckingResult.IsFailure)
 				{
@@ -146,8 +145,7 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListAddress,
 			OrderItem orderItem,
 			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false,
-			bool skipCodeIntroducedAndHasCorrectInnCheck = false)
+			bool isCheckForCodeChange = false)
 		{
 			var codeCheckingProcessResult = IsTrueMarkWaterIdentificationCodeValid(trueMarkWaterIdentificationCode);
 
@@ -188,17 +186,14 @@ namespace VodovozBusiness.Services.TrueMark
 				return codeCheckingProcessResult;
 			}
 
-			if(!skipCodeIntroducedAndHasCorrectInnCheck)
-			{
-				codeCheckingProcessResult = await _trueMarkWaterCodeService.IsTrueMarkCodeValid(
-					trueMarkWaterIdentificationCode, 
-					cancellationToken
-				);
+			codeCheckingProcessResult = await _trueMarkWaterCodeService.IsTrueMarkCodeValid(
+				trueMarkWaterIdentificationCode, 
+				cancellationToken
+			);
 
-				if(codeCheckingProcessResult.IsFailure)
-				{
-					return codeCheckingProcessResult;
-				}
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
 			}
 
 			return Result.Success();

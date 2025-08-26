@@ -1296,8 +1296,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListAddress,
 					vodovozOrderItem,
 					cancellationToken,
-					isCheckForCodeChange,
-					true);
+					isCheckForCodeChange);
 
 				if(codeCheckingResult.IsFailure)
 				{
