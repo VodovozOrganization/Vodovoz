@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.Settings.Nomenclature;
@@ -336,7 +337,7 @@ namespace Vodovoz
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
-				.AddColumn("Количество").AddTextRenderer(x => ((int)returns[x.Id]).ToString())
+				.AddColumn("Количество").AddNumericRenderer(x => returns[x.Id], new RoundedDecimalToStringConverter())
 				.Finish();
 
 			Nomenclature nomenclatureAlias = null;
