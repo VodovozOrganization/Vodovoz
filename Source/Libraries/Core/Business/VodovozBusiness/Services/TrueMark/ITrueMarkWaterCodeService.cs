@@ -27,7 +27,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCodes">Код ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsAllTrueMarkCodesIntroducedAndHasCorrectInns(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
+		Task<Result> IsAllTrueMarkCodesValid(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ в обороте и содержит корректный ИНН владельца
@@ -35,7 +35,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCode">Коды ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
+		Task<Result> IsTrueMarkCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ не использован
