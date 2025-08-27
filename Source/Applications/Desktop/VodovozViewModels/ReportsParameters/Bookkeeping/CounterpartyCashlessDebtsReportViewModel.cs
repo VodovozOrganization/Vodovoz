@@ -10,13 +10,16 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Delivery;
 
@@ -32,6 +35,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
+		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
@@ -47,9 +51,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IGenericRepository<Organization> organizationRepository,
-		IDeliveryScheduleSettings deliveryScheduleSettings,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			RdlViewerViewModel rdlViewerViewModel,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IGenericRepository<Employee> employeeRepository
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -57,6 +62,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			if(deliveryScheduleSettings is null)
 			{
@@ -131,7 +137,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			if(!IsSelectedOneCounterpartyCheck())
 			{
 				_commonServices.InteractiveService.ShowMessage(
-					QS.Dialog.ImportanceLevel.Error,
+					ImportanceLevel.Error,
 					"Чтобы сформировать отчет необходимо выбрать только одного контрагента");
 
 				return;
@@ -252,6 +258,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						break;
 					case "is_liquidated":
 						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Ликвидирован" : "Исключить Ликвидирован");
+						break;
+					case "is_tender":
+							filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Тендер" : "Исключить Тендер");
 						break;
 					case "Counterparty_include":
 						if(parameter.Value is string[] includedCounterparties && !isReportBySingleCounterpartyDebt)
@@ -479,11 +488,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 					}
 
 					return result;
+
 				};
 			});
 
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _counterpartyRepository);
-
+				
+			AddSalesManagerFilter(unitOfWork, includeExludeFiltersViewModel);
+			
 			var statusesToSelect = new[]
 			{
 				OrderStatus.Accepted,
@@ -520,6 +532,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				{ "Сети", "is_chain_stores" },
 				{ "Просроченные", "is_expired" },
 				{ "Ликвидирован", "is_liquidated" },
+				{ "Тендер", "is_tender" },
 			};
 
 			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
@@ -529,6 +542,53 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			return includeExludeFiltersViewModel;
 		}
 
+		private void AddSalesManagerFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
+			{
+				config.Title = "Менеджеры КА";
+				config.DefaultName = "SalesManager";
+				config.RefreshFunc = filter =>
+				{
+					Expression<Func<Employee, bool>> specificationExpression = null;
+
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
+
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					}
+
+					var elementsToAdd = _employeeRepository.Get(
+							unitOfWork,
+							specificationExpression,
+							limit: IncludeExludeFiltersViewModel.DefaultLimit)
+						.Select(x => new IncludeExcludeElement<int, Employee>
+						{
+							Id = x.Id,
+							Title = $"{x.LastName} {x.Name} {x.Patronymic}",
+						});
+
+					filter.FilteredElements.Clear();
+
+					foreach(var element in elementsToAdd)
+					{
+						filter.FilteredElements.Add(element);
+					}
+				};
+			});
+		}
+		
 		public void Dispose()
 		{
 			_unitOfWork?.Dispose();
