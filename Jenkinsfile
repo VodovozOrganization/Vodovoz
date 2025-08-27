@@ -268,8 +268,6 @@ stage('Web'){
 				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
 				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
-				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
-				PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
 
 				// Docker
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
@@ -295,6 +293,15 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ScannedTrueMarkCodesDelayedProcessingWorker/ScannedTrueMarkCodesDelayedProcessingWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Admin.Service/Pacs.Admin.Service.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Calls.Service/Pacs.Calls.Service.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Operator.Service/Pacs.Operator.Service.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RobotMia/Api/Api.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/EarchiveApi/EarchiveApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Api.Service/Mango.Api.Service.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Service/Mango.Service.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -326,9 +333,7 @@ stage('Compress'){
 		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
 		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
 		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
+		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") }
 	)
 }
 
@@ -349,9 +354,7 @@ stage('Delivery'){
 		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
 		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
 		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") }
+		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") }
 	)
 }
 
@@ -376,9 +379,7 @@ stage('Publish'){
 		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
 		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
 		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") }
+		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") }
 	)
 }
 
@@ -398,9 +399,7 @@ stage('CleanUp'){
 		"UnsubscribePage" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "UnsubscribePage") },
 		"DeliveryRulesService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "DeliveryRulesService") },
 		"RoboatsService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "RoboatsService") },
-		"CustomerAppsApi" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CustomerAppsApi") },
-		"CashReceiptPrepareWorker" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CashReceiptPrepareWorker") },
-		"CashReceiptSendWorker" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CashReceiptSendWorker") }
+		"CustomerAppsApi" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CustomerAppsApi") }
 	)
 }
 
