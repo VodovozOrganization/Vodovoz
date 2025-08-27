@@ -2376,10 +2376,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IList<OrderItem> GetOrderItems(IUnitOfWork uow, int orderId)
 		{
 			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
 
 			return uow.Session.QueryOver(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.List();
 		}

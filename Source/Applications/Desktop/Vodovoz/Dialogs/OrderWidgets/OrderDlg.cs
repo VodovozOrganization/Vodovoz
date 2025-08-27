@@ -5070,32 +5070,9 @@ namespace Vodovoz
 				return;
 			}
 
-			if (Entity.OrderItems != null 
-				&& !_currentPermissionService.ValidatePresetPermission(
-					Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
+			if(!CheckDepositOrderCanBeFormed())
 			{
-				bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
-						oi.Nomenclature.Category == NomenclatureCategory.deposit &&
-						oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
-
-				bool isCashless = Entity.PaymentType == PaymentType.Cashless;
-				bool isPaid = false;
-
-				if(Order.Id != 0)
-				{
-					var orderItemsCount = _orderRepository.GetOrderItems(UoW, Order.Id).Count;
-					isPaid = orderItemsCount == Entity.OrderItems.Count
-						&& Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
-				}
-
-				if(hasDepositForEquipment && !isPaid && isCashless)
-				{
-					_interactiveService.ShowMessage
-						(ImportanceLevel.Warning,
-						"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
-						"Проверка корректности данных");
-					return;
-				}
+				return;
 			}
 
 			_summaryInfoBuilder.Clear();
@@ -5260,6 +5237,41 @@ namespace Vodovoz
 			ntbOrder.GetNthPage(1).Show();
 
 			ntbOrder.CurrentPage = 1;
+		}
+
+		private bool CheckDepositOrderCanBeFormed()
+		{
+			if(Entity.OrderItems == null ||
+				_currentPermissionService.ValidatePresetPermission(
+					Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
+			{
+				return true;
+			}
+
+			bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+				oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+				oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+			bool isCashless = Entity.PaymentType == PaymentType.Cashless;
+			bool isPaid = false;
+
+			if(Order.Id != 0)
+			{
+				var orderItemsCount = _orderRepository.GetOrderItems(UoW, Order.Id).Count;
+				isPaid = orderItemsCount == Entity.OrderItems.Count
+					&& Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+			}
+
+			if(hasDepositForEquipment && !isPaid && isCashless)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+					"Проверка корректности данных");
+				return false;
+			}
+
+			return true;
 		}
 
 		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()
