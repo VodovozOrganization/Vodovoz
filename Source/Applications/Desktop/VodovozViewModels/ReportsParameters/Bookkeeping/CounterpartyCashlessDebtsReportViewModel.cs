@@ -19,7 +19,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Delivery;
 
@@ -137,7 +136,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			if(!IsSelectedOneCounterpartyCheck())
 			{
 				_commonServices.InteractiveService.ShowMessage(
-					QS.Dialog.ImportanceLevel.Error,
+					ImportanceLevel.Error,
 					"Чтобы сформировать отчет необходимо выбрать только одного контрагента");
 
 				return;
@@ -258,6 +257,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						break;
 					case "is_liquidated":
 						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Ликвидирован" : "Исключить Ликвидирован");
+						break;
+					case "is_tender":
+							filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Тендер" : "Исключить Тендер");
 						break;
 					case "Counterparty_include":
 						if(parameter.Value is string[] includedCounterparties && !isReportBySingleCounterpartyDebt)
@@ -529,6 +531,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				{ "Сети", "is_chain_stores" },
 				{ "Просроченные", "is_expired" },
 				{ "Ликвидирован", "is_liquidated" },
+				{ "Тендер", "is_tender" },
 			};
 
 			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);

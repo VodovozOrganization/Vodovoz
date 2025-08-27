@@ -1,11 +1,8 @@
 ﻿using Edo.Common;
 using Edo.Problems;
-using Edo.Transport;
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using ModulKassa;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using ModulKassa;
 using QS.DomainModel.UoW;
 
 namespace Edo.Receipt.Sender
@@ -30,11 +27,6 @@ namespace Edo.Receipt.Sender
 		public static IServiceCollection AddEdoReceiptSender(this IServiceCollection services)
 		{
 			services.AddEdoReceiptSenderServices();
-
-			services.AddEdoMassTransit(configureBus: cfg =>
-			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
-			});
 
 			return services;
 		}

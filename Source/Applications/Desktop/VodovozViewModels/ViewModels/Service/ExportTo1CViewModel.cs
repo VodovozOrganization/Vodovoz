@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private Organization _selectedCashlessOrganization;
@@ -49,8 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private bool _exportInProgress;
 		private readonly CancellationTokenSource _cancellationTokenSource;
 
-		private readonly List<RetailSalesReportFor1cOrganizationSettings> _retailSalesReportFor1cOrganizationSettings =
-			new List<RetailSalesReportFor1cOrganizationSettings>();
+		private readonly List<RetailSalesReportFor1c.OrganizationSettings> _retailSalesReportFor1cOrganizationSettings =
+			new List<RetailSalesReportFor1c.OrganizationSettings>();
 
 		public ExportTo1CViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -59,7 +58,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			IFileDialogService fileDialogService,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IDialogSettingsFactory dialogSettingsFactory,
 			IGenericRepository<Organization> organizationRepository,
 			IOrganizationSettings organizationSettings)
 			: base(navigation)
@@ -69,7 +67,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_dialogSettingsFactory = dialogSettingsFactory ?? throw new ArgumentNullException(nameof(dialogSettingsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			Title = "Выгрузка в 1с 8.3";
@@ -90,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 				foreach(var organization in RetailOrganizations)
 				{
-					_retailSalesReportFor1cOrganizationSettings.Add(new RetailSalesReportFor1cOrganizationSettings(organization));
+					_retailSalesReportFor1cOrganizationSettings.Add(new RetailSalesReportFor1c.OrganizationSettings(organization));
 				}
 			}
 		}
@@ -324,9 +321,9 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		#region Retail
 
-		private IEnumerable<RetailSalesReportFor1C> CreateRetailReports(CancellationToken cancellationToken)
+		private IEnumerable<RetailSalesReportFor1c> CreateRetailReports(CancellationToken cancellationToken)
 		{
-			var reports = new List<RetailSalesReportFor1C>();
+			var reports = new List<RetailSalesReportFor1c>();
 
 			if(SelectedRetailOrganization is null)
 			{
@@ -340,7 +337,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			return reports;
 		}
 
-		private RetailSalesReportFor1C CreateRetailReportForOrganization(Organization organization, CancellationToken cancellationToken)
+		private RetailSalesReportFor1c CreateRetailReportForOrganization(Organization organization, CancellationToken cancellationToken)
 		{
 			var export1CRetailOrganization = _retailSalesReportFor1cOrganizationSettings
 				.FirstOrDefault(x => x.Organization.Id == organization.Id);
@@ -355,12 +352,12 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не найдена версия организации на выбранные даты");
 
-				return new RetailSalesReportFor1C();
+				return new RetailSalesReportFor1c();
 			}
 
 			var phone = export1CRetailOrganization.Phone;
 
-			var retailSalesReport = new RetailSalesReportFor1C
+			var retailSalesReport = new RetailSalesReportFor1c
 			{
 				OrganizationVersionForTitle = organizationVersion,
 				OrganizationForTitle = organization,
@@ -443,7 +440,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 			foreach(var report in reports)
 			{
-				report.SaveReport(_dialogSettingsFactory, _fileDialogService, report.OrganizationForTitle.INN);
+				report.SaveReport(_fileDialogService, report.OrganizationForTitle.INN);
 			}
 
 			ExportInProgress = false;
