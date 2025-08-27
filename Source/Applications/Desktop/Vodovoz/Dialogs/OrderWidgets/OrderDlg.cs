@@ -65,12 +65,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -229,6 +227,7 @@ namespace Vodovoz
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -5253,16 +5252,33 @@ namespace Vodovoz
 				oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
 
 			bool isCashless = Entity.PaymentType == PaymentType.Cashless;
-			bool isPaid = false;
+			bool isPaidAndOrderItemsMatch = false;
 
 			if(Order.Id != 0)
 			{
-				var orderItemsCount = _orderRepository.GetOrderItems(UoW, Order.Id).Count;
-				isPaid = orderItemsCount == Entity.OrderItems.Count
-					&& Entity.OrderPaymentStatus == OrderPaymentStatus.Paid;
+				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
+				var uow = _unitOfWorkFactory.CreateWithoutRoot();
+
+				var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+				var entityOrderItems = Entity.OrderItems
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+				var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
+				var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
+
+				isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
+					&& (!dbOrderItems.Except(entityOrderItems).Any()
+					&& !entityOrderItems.Except(dbOrderItems).Any()
+					|| entityOrderSum <= dbOrderSum);
 			}
 
-			if(hasDepositForEquipment && !isPaid && isCashless)
+			if(hasDepositForEquipment 
+				&& !isPaidAndOrderItemsMatch 
+				&& isCashless)
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
