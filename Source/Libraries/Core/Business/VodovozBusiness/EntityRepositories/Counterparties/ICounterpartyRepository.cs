@@ -29,6 +29,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		PaymentType[] GetPaymentTypesForCashless();
 		bool IsCashPayment(PaymentType payment);
 		bool IsCashlessPayment(PaymentType payment);
+		decimal GetTotalDebt(IUnitOfWork unitOfWork, int counterpartyId);
 		IList<CounterpartyTo1CNode> GetCounterpartiesWithInnAndAnyContact(IUnitOfWork uow);
 		IList<Counterparty> GetDealers();
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
@@ -40,5 +41,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<decimal> GetCounterpartyOrdersActuaSums(IUnitOfWork unitOfWork, int counterpartyId, OrderStatus[] orderStatuses, bool isExcludePaidOrders = false, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(IUnitOfWork unitOfWork, OrderStatus[] orderStatuses, int counterpartyId = default, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns);
+
 	}
 }

@@ -1175,7 +1175,7 @@
                 IFNULL(
                     ROUND(
                         SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
                                 (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
                                  FROM order_items oi
                                  WHERE oi.order_id = o.id)
@@ -1215,7 +1215,7 @@
                 IFNULL(
                     ROUND(
                         SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) > c.delay_days_for_buyers THEN
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
                                 (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
                                  FROM order_items oi
                                  WHERE oi.order_id = o.id)
