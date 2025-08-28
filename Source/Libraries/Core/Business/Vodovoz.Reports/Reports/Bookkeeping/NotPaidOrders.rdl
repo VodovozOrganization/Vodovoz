@@ -1195,8 +1195,8 @@ WHERE
       )
       AND (
              (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
-             AND NOT (c.sales_manager_id IN (@SalesManager_exclude))
-         )
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      )  
       AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
