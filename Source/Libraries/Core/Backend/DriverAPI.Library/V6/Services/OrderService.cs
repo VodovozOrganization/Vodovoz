@@ -1274,6 +1274,35 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
+			var instanceCodes = trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode);
+
+			var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
+				uow,
+				instanceCodes,
+				routeListAddress,
+				vodovozOrderItem,
+				cancellationToken,
+				isCheckForCodeChange
+			);
+
+			if(codeCheckingResult.IsFailure)
+			{
+				uow.Session?.GetCurrentTransaction()?.Rollback();
+
+				var error = codeCheckingResult.Errors.FirstOrDefault();
+
+				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
+				{
+					Nomenclature = null,
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message
+				});
+			}
+
 			NomenclatureTrueMarkCodesDto nomenclatureDto = null;
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
@@ -1288,30 +1317,6 @@ namespace DriverAPI.Library.V6.Services
 				if(!trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
-				}
-
-				var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
-					uow,
-					trueMarkAnyCode.TrueMarkWaterIdentificationCode,
-					routeListAddress,
-					vodovozOrderItem,
-					cancellationToken,
-					isCheckForCodeChange);
-
-				if(codeCheckingResult.IsFailure)
-				{
-					uow.Session?.GetCurrentTransaction()?.Rollback();
-
-					var error = codeCheckingResult.Errors.FirstOrDefault();
-
-					var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-					return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-					{
-						Nomenclature = null,
-						Result = RequestProcessingResultTypeDto.Error,
-						Error = error.Message
-					});
 				}
 
 				_routeListItemTrueMarkProductCodesProcessingService

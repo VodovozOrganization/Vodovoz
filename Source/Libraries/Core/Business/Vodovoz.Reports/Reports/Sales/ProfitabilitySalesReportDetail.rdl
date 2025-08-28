@@ -3263,6 +3263,10 @@ WHERE
 				AND NOT (o.author_employee_id IN (@Employee_exclude))
          )
        AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+             AND NOT (c.sales_manager_id IN (@SalesManager_exclude))
+         )
+       AND (
              (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
 				AND (o.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
          )
@@ -3416,6 +3420,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="Employee_exclude">
             <Value>={?Employee_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="Subdivision_include">
             <Value>={?Subdivision_include}</Value>
@@ -3785,6 +3795,12 @@ SELECT
             (IF(excluded_product_groups!=0,
                 CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
                 '')),
+            (IF(included_salesmanager!=0,
+                CONCAT('Вкл.менеджеров: ',included_salesmanager,'\n'),
+                '')),
+            (IF(excluded_salesmanager!=0,
+                CONCAT('Искл.менеджеров: ',excluded_salesmanager,'\n'),
+                '')),
             (IF(included_car_models!=0,
                 CONCAT('Вкл. типы авто: ',included_car_models,'\n'),
                 '')),
@@ -3903,7 +3919,16 @@ FROM
                      (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
                      0
              ) AS excluded_orderauthor,
-
+         IF(
+                     0 NOT IN (@SalesManager_include),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_include)),
+                     0
+             ) AS included_salesmanager,
+         IF(
+                     0 NOT IN (@SalesManager_exclude),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_exclude)),
+                     0
+             ) AS excluded_salesmanager,
          IF(
                      0 NOT IN (@DiscountReason_include),
                      (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
@@ -4076,6 +4101,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="Employee_exclude">
             <Value>=Parameters!Employee_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="Subdivision_include">
             <Value>=Parameters!Subdivision_include</Value>
@@ -4280,6 +4311,20 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>  
     <ReportParameter Name="Subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
