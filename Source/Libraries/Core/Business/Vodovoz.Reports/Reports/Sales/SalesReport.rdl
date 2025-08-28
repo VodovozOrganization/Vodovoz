@@ -739,7 +739,7 @@ FROM
          )
        AND (
              (0 IN (@SalesManager_include) OR (counterparty.sales_manager_id IN (@SalesManager_include)))
-                AND NOT (counterparty.sales_manager_id IN (@SalesManager_exclude))
+                AND (counterparty.sales_manager_id IS NULL OR NOT (counterparty.sales_manager_id IN (@SalesManager_exclude)))
          )
        AND (
              (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))

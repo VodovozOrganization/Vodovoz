@@ -1739,10 +1739,10 @@ WHERE
              (0 IN (@Employee_include) OR (o.author_employee_id IN (@Employee_include)))
 				AND NOT (o.author_employee_id IN (@Employee_exclude))
          )
-       AND (
+      AND (
              (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
-                AND NOT (c.sales_manager_id IN (@SalesManager_exclude))
-         )
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      ) 
        AND (
              (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
 				AND (o.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
