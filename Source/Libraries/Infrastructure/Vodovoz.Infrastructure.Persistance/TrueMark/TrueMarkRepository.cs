@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -44,7 +45,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				Organization organizationAlias = null;
+				OrganizationEntity organizationAlias = null;
 				var queryOrganization = uow.Session.QueryOver(() => organizationAlias)
 					.Where(() => organizationAlias.OrganizationEdoType != OrganizationEdoType.WithoutEdo)
 					.Select(Projections.Property(() => organizationAlias.INN));
@@ -61,7 +62,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				var result =
 				(
-					from nomenclatures in unitOfWork.Session.Query<Gtin>()
+					from nomenclatures in unitOfWork.Session.Query<GtinEntity>()
 					select nomenclatures.GtinNumber
 				)
 				.Distinct()
@@ -89,7 +90,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			string checkCode)
 		{
 			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.GTIN == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
+				.Where(x => x.Gtin == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
 			return query.ToList();
 		}
@@ -321,7 +322,15 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.Count)))
+				.Select(Projections.Sum(
+					Projections.Conditional(
+							Restrictions.IsNull(
+								Projections.Property(() => orderItemAlias.ActualCount)
+
+							),
+							Projections.Property(() => orderItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount)
+						)))
 				.SingleOrDefault<decimal>();
 
 			return (int)codesRequired;

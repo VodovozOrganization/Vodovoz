@@ -9,7 +9,12 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Pacs;
+using Vodovoz.Core.Domain.StoredResources;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
@@ -44,16 +49,12 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
-using VodovozBusiness.Domain.Payments;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Domain.Service;
-using VodovozBusiness.Domain.Documents;
-using Vodovoz.Core.Domain.StoredResources;
 using VodovozBusiness.Domain.Contacts;
+using VodovozBusiness.Domain.Documents;
 using VodovozBusiness.Domain.Operations;
-using Vodovoz.Core.Domain.Users;
-using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Core.Domain.Users.Settings;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Payments;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz
 {
@@ -578,6 +579,7 @@ namespace Vodovoz
 				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
 				.AddDeleteDependence<RouteListMaxFastDeliveryOrders>(x => x.RouteList)
 				.AddDeleteDependence<RouteListDebt>(x => x.RouteList)
+				.AddDeleteDependence<CarLoadingDailyQueue>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -897,6 +899,8 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(x => x.Materials);
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductSpecificationMaterial>();
+
+			DeleteConfig.AddHibernateDeleteInfo<CarLoadingDailyQueue>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocument>()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);

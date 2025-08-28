@@ -661,7 +661,7 @@ namespace DriverAPI.Library.V5.Services
 					{
 						IsInvalid = false,
 						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
-						GTIN = parsedCode.GTIN,
+						Gtin = parsedCode.Gtin,
 						SerialNumber = parsedCode.SerialNumber,
 						CheckCode = parsedCode.CheckCode
 					};
