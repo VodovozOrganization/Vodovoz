@@ -1253,8 +1253,8 @@
           )
       AND (
              (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
-             AND NOT (c.sales_manager_id IN (@SalesManager_exclude))
-         )
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      ) 
       AND
         (
             (
