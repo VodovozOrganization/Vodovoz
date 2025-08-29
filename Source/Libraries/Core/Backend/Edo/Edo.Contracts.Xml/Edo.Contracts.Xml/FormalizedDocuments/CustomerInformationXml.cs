@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
 
-namespace Edo.Contracts.Xml
+namespace Edo.Contracts.Xml.FormalizedDocuments
 {
 	// Пока все в одном файле. При дальнейшей реализации все будет раскидано по классам
 	[GeneratedCode("xsd", "2.0.50727.3038")]
@@ -35,7 +35,7 @@ namespace Edo.Contracts.Xml
 		public string Id { get; set; }
 	
 		/// <summary>
-		/// Версия формата
+		/// Формат документа
 		/// </summary>
 		[XmlAttribute("ВерсФорм")]
 		public Format Format { get; set; }
@@ -363,35 +363,6 @@ namespace Edo.Contracts.Xml
 		EnhancedUnqualifiedElectronicSignature = 3
 	}
 
-	/// <summary>
-	/// Полное имя
-	/// </summary>
-	[GeneratedCode("xsd", "4.7.2558.0")]
-	[DebuggerStepThrough]
-	[DesignerCategory("code")]
-	[XmlRoot("ФИОТип")]
-	[Serializable]
-	public class FullName
-	{
-		/// <summary>
-		/// Фамилия
-		/// </summary>
-		[XmlAttribute("Фамилия")]
-		public string LastName { get; set; }
-		
-		/// <summary>
-		/// Имя
-		/// </summary>
-		[XmlAttribute("Имя")]
-		public string Name { get; set; }
-
-		/// <summary>
-		/// Отчество
-		/// </summary>
-		[XmlAttribute("Отчество")]
-		public string Patronymic { get; set; }
-	}
-
 
 	[Serializable]
 	public class DocumentDetails
@@ -712,16 +683,6 @@ namespace Edo.Contracts.Xml
 		[XmlElement("ТекстИнф")]
 		public TextInformation[] TextInformation { get; set; }
 	}
-	
-	[Serializable]
-	public class TextInformation
-	{
-		[XmlAttribute("Идентиф")]
-		public string Key { get; set; }
-		
-		[XmlAttribute("Значен")]
-		public string Value { get; set; }
-	}
 
 	[GeneratedCode("xsd", "4.7.2558.0")]
 	[DebuggerStepThrough]
@@ -795,7 +756,7 @@ namespace Edo.Contracts.Xml
 		/// Иные сведения, идентифицирующие физическое лицо
 		/// </summary>
 		[XmlAttribute("ИныеСвед")]
-		public string OtherIdentifyingInformation  { get; set; }
+		public string OtherIdentifyingInformation { get; set; }
 		
 		/// <summary>
 		/// Фамилия, имя, отчество (при наличии)
@@ -829,13 +790,13 @@ namespace Edo.Contracts.Xml
 		/// Обязателен при отсутствии <see cref="Inn"/>
 		/// </summary>
 		[XmlElement("ОснДоверОргПрин")]
-		public DocumentDetails BasisOrganizationAcceptanceGoods  { get; set; }
+		public DocumentDetails BasisOrganizationAcceptanceGoods { get; set; }
 		
 		/// <summary>
 		/// Основание полномочий представителя организации на принятие товаров
 		/// </summary>
 		[XmlElement("ОснПолнПредПрин")]
-		public DocumentDetails BasisRepresentativeOrganization  { get; set; }
+		public DocumentDetails BasisRepresentativeOrganization { get; set; }
 		
 		/// <summary>
 		/// Фамилия, имя, отчество (при наличии)
@@ -859,14 +820,14 @@ namespace Edo.Contracts.Xml
 		/// Иные сведения, идентифицирующие физическое лицо
 		/// </summary>
 		[XmlAttribute("ИныеСвед")]
-		public string OtherIdentifyingInformation  { get; set; }
+		public string OtherIdentifyingInformation { get; set; }
 		
 		/// <summary>
 		/// ИНН юридического лица, которому доверен прием
 		/// Обязателен при отсутствии <see cref="BasisOrganizationAcceptanceGoods"/> 
 		/// </summary>
 		[XmlAttribute("ИННОргПрин")]
-		public string Inn  { get; set; }
+		public string Inn { get; set; }
 	}
 
 	[GeneratedCode("xsd", "4.7.2558.0")]
@@ -882,20 +843,20 @@ namespace Edo.Contracts.Xml
 		/// Обязателен при отсутствии <see cref="Basis"/>
 		/// </summary>
 		[XmlAttribute("ИННФЛПрин")]
-		public string Inn  { get; set; }
+		public string Inn { get; set; }
 		
 		/// <summary>
 		/// Основание, по которому физическому лицу доверено принятие товаров
 		/// Обязателен при отсутствии <see cref="Inn"/>
 		/// </summary>
 		[XmlElement("ОснДоверФЛ")]
-		public DocumentDetails Basis  { get; set; }
+		public DocumentDetails Basis { get; set; }
 		
 		/// <summary>
 		/// Иные сведения, идентифицирующие физическое лицо
 		/// </summary>
 		[XmlAttribute("ИныеСвед")]
-		public string OtherIdentifyingInformation  { get; set; }
+		public string OtherIdentifyingInformation { get; set; }
 		
 		/// <summary>
 		/// Фамилия, имя, отчество (при наличии)
@@ -929,7 +890,7 @@ namespace Edo.Contracts.Xml
 		/// Товары (работы, услуги, права) приняты с расхождениями (претензией)
 		/// </summary>
 		[XmlEnum("2")]
-		EverythingAcceptedWithDiscrepancies ,
+		EverythingAcceptedWithDiscrepancies,
 		/// <summary>
 		/// Товары (работы, услуги, права) не приняты
 		/// Код элемента может принимать значение «3» только при отсутствии элемента <c>ИспрДок</c>
@@ -939,16 +900,9 @@ namespace Edo.Contracts.Xml
 	}
 
 	[Serializable]
-	public enum Format
-	{
-		[XmlEnum("5.01")] Format5_01,
-		[XmlEnum("5.03")] Format5_03
-	}
-
-	[Serializable]
 	public enum FiscalDocumentClassifiers
 	{
 		[XmlEnum("1115131")] KND1115131,
-		[XmlEnum("1115132")] KND1115132,
+		[XmlEnum("1115132")] KND1115132
 	}
 }

@@ -12,6 +12,14 @@
 		/// </summary>
 		public string BaseUrl { get; set; }
 		/// <summary>
+		/// Логин
+		/// </summary>
+		public string Login { get; set; }
+		/// <summary>
+		/// Пароль
+		/// </summary>
+		public string Password { get; set; }
+		/// <summary>
 		/// Id организации от которой будет обмен по ЭДО
 		/// </summary>
 		public string IntegratorId { get; set; }
@@ -35,5 +43,11 @@
 		/// Отправлять доверенность со счетами без отгрузки
 		/// </summary>
 		public bool SendWarrantWithBillsWithoutShipment { get; set; } = true;
+		public string AcceptContactUri { get; set; }
+		public string RejectContactUri { get; set; }
+		public string SendContactsUri { get; set; }
+		public string CertificateLoginUri { get; set; }
+		public string CheckContragentUri { get; set; }
+		public string SendMessageUri { get; set; }
 	}
 }

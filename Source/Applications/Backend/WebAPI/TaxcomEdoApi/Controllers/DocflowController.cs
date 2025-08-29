@@ -1,58 +1,26 @@
 ﻿using System;
-using System.Linq;
 using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Entity;
-using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Services;
-using TISystems.TTC.CRM.BE.Serialization;
 
 namespace TaxcomEdoApi.Controllers
 {
-	[ApiController]
-	[Route("/api/[action]")]
-	public class TaxcomEdoController : ControllerBase
+	public class DocflowController : ControllerBase
 	{
-		private readonly ILogger<TaxcomEdoController> _logger;
-		private readonly TaxcomApi _taxcomApi;
+		private readonly ILogger<DocflowController> _logger;
 		private readonly ITaxcomEdoService _taxcomEdoService;
-		
-		public TaxcomEdoController(
-			ILogger<TaxcomEdoController> logger,
-			TaxcomApi taxcomApi,
+
+		public DocflowController(
+			ILogger<DocflowController> logger,
 			ITaxcomEdoService taxcomEdoService)
 		{
-			_logger = logger;
-			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
-		}
-
-		[HttpPost]
-		public IActionResult CreateAndSendBulkAccountingUpd(InfoForCreatingEdoUpd data)
-		{
-			return Problem();
-			var orderId = data.OrderInfoForEdo.Id;
-			_logger.LogInformation(
-				"Поступил запрос отправки УПД по заказу {OrderId}",
-				orderId);
-			
-			try
-			{
-				var container = _taxcomEdoService.CreateContainerWithUpd(data);
-				
-				_logger.LogInformation("Отправляем контейнер с УПД по заказу №{OrderId}", orderId);
-				_taxcomApi.Send(container);
-				return Ok();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
-				return Problem();
-			}
 		}
 		
 		[HttpPost]
@@ -128,36 +96,41 @@ namespace TaxcomEdoApi.Controllers
 		{
 			return CreateAndSendBillWithoutShipment(data);
 		}
-
+		
 		[HttpGet]
-		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
+		public IActionResult StartAutoSendReceive()
 		{
-			_logger.LogInformation("Получаем обновленный список контактов...");
-
-			ContactStatus? contactStatus = null;
-
-			if(contactState.HasValue)
-			{
-				if(Enum.TryParse(contactState.ToString(), out ContactStatus parsedContactStatus))
-				{
-					contactStatus = parsedContactStatus;
-				}
-			}
+			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");
 			
 			try
 			{
-				var response = _taxcomApi.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
-				var contactUpdates = ContactListSerializer.DeserializeContactList(response);
-				
-				return Ok(contactUpdates);
+				_taxcomApi.AutoSendReceive();
+				return Ok();
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении обновлений для списка контактов");
+				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
 				return Problem();
 			}
 		}
-
+		
+		[HttpGet]
+		public IActionResult GetDocFlowRawData(string docFlowId)
+		{
+			_logger.LogInformation("Получение документов контейнера документооборота {DocFlowId}", docFlowId);
+			
+			try
+			{
+				var documents = _taxcomApi.GetDocflowRawData(docFlowId);
+				return Ok(documents);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
+				return Problem();
+			}
+		}
+		
 		[HttpGet]
 		public IActionResult GetDocFlowsUpdates([FromBody] GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
 		{
@@ -181,76 +154,27 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-
-		[HttpPost]
-		public IActionResult AcceptContact([FromBody] string edxClientId)
-		{
-			_logger.LogInformation("Принимаем приглашение другой стороны {EdxClientId}", edxClientId);
-			
-			try
-			{
-				_taxcomApi.AcceptContact(edxClientId);
-				return Ok();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при связке контактной пары {EdxClientId}", edxClientId);
-				return Problem();
-			}
-		}
-
+		
 		[HttpGet]
-		public IActionResult GetDocFlowRawData(string docFlowId)
+		public IActionResult GetMessageList()
 		{
-			_logger.LogInformation("Получение документов контейнера документооборота {DocFlowId}", docFlowId);
+			_logger.LogInformation("Получаем исходящие документы");
 			
 			try
 			{
-				var documents = _taxcomApi.GetDocflowRawData(docFlowId);
-				return Ok(documents);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
-				return Problem();
-			}
-		}
+				var docFlowUpdates =
+					_taxcomApi.GetDocflowsUpdates(
+						docFlowsUpdatesParams.DocFlowStatus.TryParseAsEnum<DocFlowStatus>(),
+						docFlowsUpdatesParams.LastEventTimeStamp,
+						docFlowsUpdatesParams.DocFlowDirection.TryParseAsEnum<DocFlowDirection>(),
+						docFlowsUpdatesParams.DepartmentId,
+						docFlowsUpdatesParams.IncludeTransportInfo);
 
-		[HttpGet]
-		public IActionResult StartAutoSendReceive()
-		{
-			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");
-			
-			try
-			{
-				_taxcomApi.AutoSendReceive();
-				return Ok();
+				return Ok(docFlowUpdates);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
-				return Problem();
-			}
-		}
-
-		[HttpGet]
-		public IActionResult OfferCancellation(string docFlowId, string reason)
-		{
-			_logger.LogInformation(
-				"Пришел запрос на аннулирование документооборота {DocFlowId} по причине {Reason}",
-				docFlowId,
-				reason);
-			
-			try
-			{
-				_taxcomApi.OfferCancellation(docFlowId, reason);
-				return Ok();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlowId} с причиной {Reason}",
-					docFlowId,
-					reason);
+				_logger.LogError(e, "Ошибка при получении исходящих документов");
 				return Problem();
 			}
 		}
@@ -374,7 +298,7 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-
+		
 		[HttpGet]
 		public IActionResult GetDocFlowStatus(string docFlowId)
 		{
@@ -382,7 +306,7 @@ namespace TaxcomEdoApi.Controllers
 
 			try
 			{
-				var docflowDescription = _taxcomApi.GetStatus(docFlowId);
+				var docflowDescription = _edoDocflowService.GetStatus(docFlowId);
 				return Ok(docflowDescription);
 			}
 			catch(Exception e)
@@ -397,7 +321,7 @@ namespace TaxcomEdoApi.Controllers
 		{
 			return Ok("It's working!!!");
 		}
-
+		
 		private IActionResult CreateAndSendBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
 		{
 			var documentType = data.GetBillWithoutShipmentInfoTitle();
