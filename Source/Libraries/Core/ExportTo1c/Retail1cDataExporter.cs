@@ -83,7 +83,7 @@ namespace ExportTo1c.Library
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
-						new XAttribute("Безнал", item.Order.PaymentType == PaymentType.Cashless)
+						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash)
 						);
 
 					xElements.Add(rowItem);
