@@ -419,6 +419,10 @@ stage('CleanUp'){
 		"RoboatsService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "RoboatsService") },
 		"CustomerAppsApi" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CustomerAppsApi") }
 	)
+
+	if(IS_RELEASE){
+		WinRemoveOldJenkinsTempFiles();
+	}
 }
 
 //-----------------------------------------------------------------------
@@ -807,4 +811,14 @@ def WinRemoveDirectory(destPath){
 	RunPowerShell("""
 		Remove-Item -LiteralPath "${destPath}" -Force -Recurse
 	""")
+}
+
+def WinRemoveOldJenkinsTempFiles() {
+    node(NODE_WIN_BUILD){
+    	RunPowerShell("""
+        Get-ChildItem 'C:\\Users\\jenkins\\AppData\\Local\\Temp\\Containers\\Content' -File |
+        Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-14) } |
+        ForEach-Object { Remove-Item \$file.FullName -Force }
+        """)
+    }
 }
