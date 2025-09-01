@@ -116,11 +116,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			RouteList routeListAlias = null;
 
 			var query = unitOfWork.Session.QueryOver(() => fineAlias)
-				.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
-				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
-				.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
-				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.Left.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
+				.Left.JoinAlias(f => f.Items, () => fineItemAlias)
+				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.Left.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
+				.Left.JoinAlias(f => f.RouteList, () => routeListAlias);
 
 			if(_filterViewModel.Subdivision != null)
 			{
@@ -213,7 +213,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.Property(() => finedEmployeeSubdivision.Name),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
 					.SelectSubQuery(carEventSubquery).WithAlias(() => resultAlias.CarEvent)
-				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
+				)
+				.OrderBy(o => o.Date).Desc
+				.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		}
 
