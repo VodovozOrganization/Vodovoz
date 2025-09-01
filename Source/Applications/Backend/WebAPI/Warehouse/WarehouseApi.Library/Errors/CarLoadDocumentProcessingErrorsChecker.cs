@@ -209,10 +209,10 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public async Task<Result> IsTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsTrueMarkCodesCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			TrueMarkWaterIdentificationCode trueMarkWaterCode,
+			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCodes,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
@@ -240,13 +240,6 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsScannedCodeValid(trueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
 			result = IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems);
 
 			if(result.IsFailure)
@@ -268,14 +261,24 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
-
-			if(result.IsFailure)
+			foreach(var trueMarkWaterCode in trueMarkWaterCodes)
 			{
-				return result;
+				result = IsScannedCodeValid(trueMarkWaterCode);
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
+
+				result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
 			}
 
-			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(trueMarkWaterCode, cancellationToken);
+			return await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(trueMarkWaterCodes, cancellationToken);
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
