@@ -175,7 +175,8 @@ public class TrueMarkApiController : ControllerBase
 				{
 					return new ProductInstancesInfoResponse
 					{
-						ErrorMessage = response.ErrorMessage
+						ErrorMessage = response.ErrorMessage,
+						NoCodesFound = response.NoCodesFound
 					};
 				}
 
