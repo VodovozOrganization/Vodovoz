@@ -702,8 +702,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
-			DiscountMoney = discountMoney;
 			DiscountReason = discountReason;
+			CalculateAndSetDiscount(isDiscountInMoney ? discountMoney : discount);
 			RecalculateVAT();
 		}
 
