@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
@@ -22,6 +23,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ILifetimeScope _lifetimeScope;
 		private Counterparty _client;
 		private DeliveryPoint _address;
+		private Employee _salesManager;
 		private PersonType? _opf;
 		private DateTime? _endDate;
 		private DateTime? _startDate;
@@ -43,6 +45,7 @@ namespace Vodovoz.Filters.ViewModels
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
 		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
+		private IEntityAutocompleteSelectorFactory _managerSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
 		private DialogViewModelBase _journal;
 		private bool _hideExcludeFromAutoCalls = false;
@@ -56,6 +59,7 @@ namespace Vodovoz.Filters.ViewModels
 			UpdateWith(
 				x => x.Client,
 				x => x.Address,
+				x => x.SalesManager,
 				x => x.OPF,
 				x => x.StartDate,
 				x => x.EndDate,
@@ -82,6 +86,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _address;
 			set => SetField(ref _address, value);
+		}
+
+		public Employee SalesManager
+		{
+			get => _salesManager;
+			set => SetField(ref _salesManager, value);
 		}
 
 		public PersonType? OPF
@@ -239,6 +249,10 @@ namespace Vodovoz.Filters.ViewModels
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
 				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 
+		public virtual IEntityAutocompleteSelectorFactory ManagerSelectorFactory =>
+			_managerSelectorFactory ?? (_managerSelectorFactory =
+				_lifetimeScope.Resolve<IEmployeeJournalFactory>().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+		
 		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
 
 		public DialogViewModelBase Journal

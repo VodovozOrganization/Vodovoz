@@ -1464,6 +1464,7 @@ SELECT
     o.id AS order_id,
     oi.id AS order_item_id,
     n.id AS nomenclature_id,
+    cm.car_type_of_use AS car_type_of_use,
     n.official_name AS nomenclature_name,
     CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
          WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
@@ -1624,6 +1625,9 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
+    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+		LEFT JOIN cars car ON rl.car_id = car.id 
+		LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     warehouses w ON w.id = scld.warehouse_id
     LEFT JOIN
@@ -1720,6 +1724,10 @@ WHERE
 				AND NOT (cc.organization_id IN (@Organization_exclude))
          )
        AND (
+          ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL))
+        AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude) AND cm.car_type_of_use IS NOT NULL)
+         )
+       AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
 				AND (oi.discount_reason_id IS NULL OR NOT (oi.discount_reason_id IN (@DiscountReason_exclude)))
          )
@@ -1731,6 +1739,10 @@ WHERE
              (0 IN (@Employee_include) OR (o.author_employee_id IN (@Employee_include)))
 				AND NOT (o.author_employee_id IN (@Employee_exclude))
          )
+      AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      ) 
        AND (
              (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
 				AND (o.delivery_point_id IS NULL OR NOT gg.id IN (@GeoGroup_exclude) OR gg.id IS NULL)
@@ -1868,6 +1880,12 @@ WHERE
           <QueryParameter Name="Organization_exclude">
             <Value>={?Organization_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_include">
+            <Value>={?CarTypeOfUse_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_exclude">
+            <Value>={?CarTypeOfUse_exclude}</Value>
+          </QueryParameter>
           <QueryParameter Name="Counterparty_include">
             <Value>={?Counterparty_include}</Value>
           </QueryParameter>
@@ -1879,6 +1897,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="Employee_exclude">
             <Value>={?Employee_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>={?SalesManager_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>={?SalesManager_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="Subdivision_include">
             <Value>={?Subdivision_include}</Value>
@@ -2202,6 +2226,12 @@ SELECT
             (IF(excluded_org!=0,
                 CONCAT('Искл.орг: ',excluded_org,'\n'),
                 '')),
+            (IF(included_car_models!=0,
+                CONCAT('Вкл. типы авто: ',included_car_models,'\n'),
+                '')),
+            (IF(excluded_car_models!=0,
+                CONCAT('Искл. типы авто: ',excluded_car_models,'\n'),
+                '')),
             (IF(included_subdivision!=0,
                 CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
                 '')),
@@ -2213,6 +2243,12 @@ SELECT
                 '')),
             (IF(excluded_orderauthor!=0,
                 CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
+                '')),
+            (IF(included_salesmanager!=0,
+                CONCAT('Вкл.менеджеров: ',included_salesmanager,'\n'),
+                '')),
+            (IF(excluded_salesmanager!=0,
+                CONCAT('Искл.менеджеров: ',excluded_salesmanager,'\n'),
                 '')),
             (IF(included_discountreason!=0,
                 CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
@@ -2337,7 +2373,16 @@ FROM
                      (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
                      0
              ) AS excluded_org,
-
+         IF(
+                     '0' NOT IN (@CarTypeOfUse_include),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
+                     0
+             ) AS included_car_models,
+         IF(
+                     '0' NOT IN (@CarTypeOfUse_exclude),
+                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
+                     0
+             ) AS excluded_car_models,
          IF(
                      0 NOT IN (@Subdivision_include),
                      (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
@@ -2359,7 +2404,16 @@ FROM
                      (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
                      0
              ) AS excluded_orderauthor,
-
+         IF(
+                     0 NOT IN (@SalesManager_include),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_include)),
+                     0
+             ) AS included_salesmanager,
+         IF(
+                     0 NOT IN (@SalesManager_exclude),
+                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_exclude)),
+                     0
+             ) AS excluded_salesmanager,
          IF(
                      0 NOT IN (@DiscountReason_include),
                      (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
@@ -2515,6 +2569,12 @@ FROM
           <QueryParameter Name="Organization_exclude">
             <Value>=Parameters!Organization_exclude</Value>
           </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_include">
+            <Value>=Parameters!CarTypeOfUse_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="CarTypeOfUse_exclude">
+            <Value>=Parameters!CarTypeOfUse_exclude</Value>
+          </QueryParameter>
           <QueryParameter Name="Counterparty_include">
             <Value>=Parameters!Counterparty_include</Value>
           </QueryParameter>
@@ -2523,6 +2583,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="Employee_include">
             <Value>=Parameters!Employee_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="Employee_exclude">
             <Value>=Parameters!Employee_exclude</Value>
@@ -2695,6 +2761,20 @@ FROM
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="CarTypeOfUse_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CarTypeOfUse_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
     <ReportParameter Name="Subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -2722,6 +2802,20 @@ FROM
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+          <DataType>Integer</DataType>
+          <Nullable>false</Nullable>
+          <AllowBlank>false</AllowBlank>
+          <MultiValue>true</MultiValue>
+          <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+          <DataType>Integer</DataType>
+          <Nullable>false</Nullable>
+          <AllowBlank>false</AllowBlank>
+          <MultiValue>true</MultiValue>
+          <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="DiscountReason_include">
       <DataType>Integer</DataType>

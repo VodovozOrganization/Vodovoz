@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -165,6 +165,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				orderSettings.PaymentByCardFromMobileAppId
 			};
 
+			var notRetailPadeTypes = new[]
+			{
+				PaymentType.Barter,
+				PaymentType.Cashless,
+				PaymentType.ContractDocumentation
+			};
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
@@ -206,6 +213,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				case Export1cMode.RetailReport:
+					AddWithCashReceipOnlyRestrictionsToOrderQuery(query, orderAlias);
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.WhereRestrictionOn(() => orderAlias.PaymentType).Not.IsIn(notRetailPadeTypes);
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					CashReceipt cashReceiptAlias = null;
@@ -262,6 +275,28 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			query.TransformUsing(Transformers.DistinctRootEntity);
 
 			return query.List();
+		}
+
+		private void AddWithCashReceipOnlyRestrictionsToOrderQuery(IQueryOver<VodovozOrder, VodovozOrder> query, VodovozOrder orderAlias)
+		{
+			var sendedCashReceiptStatuses = new[]
+			{
+				FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed, FiscalDocumentStatus.Completed
+			};
+			
+			EdoFiscalDocument edoFiscalDocumentAlias = null;
+			EdoTask edoTaskAlias = null;
+			OrderEdoRequest edoRequestAlias = null;
+					
+			var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+				.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+				.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+				.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+				.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+				.IsIn(sendedCashReceiptStatuses)
+				.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+			
+				query.WithSubquery.WhereExists(subQueryWithCashReceipts);
 		}
 
 		public IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
@@ -1237,14 +1272,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinEntityAlias(() => edoContainerAlias,
 					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == DocumentContainerType.Bill, JoinType.LeftOuterJoin)
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
-					JoinType.LeftOuterJoin,
+					JoinType.InnerJoin,
 					Restrictions.Where(() => defaultEdoAccountAlias.OrganizationId == counterpartyContractAlias.Organization.Id
 						&& defaultEdoAccountAlias.IsDefault));
 
@@ -1262,9 +1291,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo)
-				.And(Restrictions.Disjunction()
-					.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-					.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+				.And(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(GetUndeliveryAndNewStatuses())
 				.TransformUsing(Transformers.DistinctRootEntity);
 			
@@ -2196,13 +2223,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 		
-		public IEnumerable<VodovozOrder> GetOrdersForResendBills(IUnitOfWork uow)
+		public IEnumerable<VodovozOrder> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null)
 		{
 			var result = from orders in uow.Session.Query<Order>()
 				join actions in uow.Session.Query<OrderEdoTrueMarkDocumentsActions>()
 					on orders.Id equals actions.Order.Id
+				join counterpartyContract in uow.Session.Query<CounterpartyContract>()
+					on orders.Contract.Id equals counterpartyContract.Id
 				where actions.IsNeedToResendEdoBill
-				select orders;
+					&& (organizationId == null || counterpartyContract.Organization.Id == organizationId)
+				select orders;			
 
 			return result
 				.Distinct()

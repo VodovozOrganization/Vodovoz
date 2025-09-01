@@ -10,9 +10,9 @@ namespace Vodovoz.ViewModels.Factories
 {
 	internal class DialogSettingsFactory : IDialogSettingsFactory
 	{
-		public DialogSettings CreateForClosedXmlReport(IClosedXmlReport closedXmlReport)
+		public DialogSettings CreateForClosedXmlReport(IClosedXmlReport closedXmlReport, string fileName = null)
 		{
-			var reportName = closedXmlReport.GetType().GetAttribute<AppellativeAttribute>().Nominative;
+			var reportName = fileName ?? closedXmlReport.GetType().GetAttribute<AppellativeAttribute>().Nominative;
 
 			var exportDate = DateTime.Now.ToString("yyyy-MM-dd HH-mm");
 

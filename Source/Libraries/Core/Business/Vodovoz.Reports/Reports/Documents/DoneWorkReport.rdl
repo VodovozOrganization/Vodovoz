@@ -2143,7 +2143,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
-      <Table Name="Table4" >
+      <Table Name="Table4">
         <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -2158,15 +2158,193 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         </TableColumns>
         <Details>
           <TableRows>
-<TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox23"><Value>Контакты организации:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Black</Color><BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox24"><Value>Телефон и e-mail:</Value><CanGrow>true</CanGrow><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox29"><Value>+7 (812) 317-07-97</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Normal</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox26"><Value>+7 (812) 603-43-23</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Normal</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox40"><Value>Мессенджеры:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox32"><Value>+7 (969) 726-92-84</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Normal</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox31"><Value>Корпоративный e-mail:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Bold</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>12 pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox6"><Value>KULER.SERVICE@YANDEX.RU</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><FontWeight>Normal</FontWeight><VerticalAlign>Middle</VerticalAlign></Style></Textbox></ReportItems></TableCell></TableCells></TableRow></TableRows>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>Контакты организации:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Black</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Телефон и e-mail:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>+7 (812) 317-07-97</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>+7 (812) 603-43-23</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>Мессенджеры:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>+7 (969) 726-92-84</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Корпоративный e-mail:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>KULER.SERVICE@YANDEX.RU</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
         </Details>
         <Left>0.8pt</Left>
         <Top>635.7pt</Top>
       </Table>
-      <Textbox Name="Textbox8" >
+      <Textbox Name="Textbox8">
         <Height>12.75pt</Height>
         <Width>385.04pt</Width>
-        <Value>Гарантия на сервисное обслуживание - 2 недели с момента проведения.</Value>
+        <Value>Гарантия на сервисное обслуживание(санитарная обработка) - 2 недели с момента проведения.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>622.0pt</Top>

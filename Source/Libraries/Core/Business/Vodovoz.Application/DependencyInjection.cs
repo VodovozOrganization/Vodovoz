@@ -31,6 +31,11 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
+using Vodovoz.Application.Clients;
+using Vodovoz.Application.Receipts;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Services.Receipts;
+using Vodovoz.Handlers;
 
 namespace Vodovoz.Application
 {
@@ -77,6 +82,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()

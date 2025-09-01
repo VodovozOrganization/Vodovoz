@@ -1,43 +1,43 @@
-﻿namespace CustomerOrdersApi.Library.Dto.Orders
+using VodovozBusiness.Domain.Orders;
+
+namespace VodovozBusiness.Nodes
 {
 	/// <summary>
-	/// Позиция онлайн заказа
+	/// Позиция онлайн заказа с фиксой
 	/// </summary>
-	public class OnlineOrderItemDto
+	public class OnlineOrderItemWithFixedPrice :  IOnlineOrderedProductWithFixedPrice
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
 		/// </summary>
 		public int NomenclatureId { get; set; }
-		
 		/// <summary>
-		///  id основания скидки из справочника основания скидок
+		/// Старая цена
 		/// </summary>
-		public int? DiscountReasonId { get; set; }
-
+		public decimal OldPrice { get; set; }
 		/// <summary>
-		/// Цена
+		/// Новая цена(фикса)
 		/// </summary>
-		public decimal Price { get; set; }
-
+		public decimal? NewPrice { get; set; }
 		/// <summary>
 		/// Количество
 		/// </summary>
 		public decimal Count { get; set; }
-
 		/// <summary>
 		/// Скидка в деньгах?
 		/// </summary>
 		public bool IsDiscountInMoney { get; set; }
-
 		/// <summary>
 		/// Скидка
 		/// </summary>
 		public decimal Discount { get; set; }
-		
 		/// <summary>
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; set; }
+		/// <summary>
+		/// Id скидки/промокода
+		/// </summary>
+		public int? DiscountReasonId { get; set; }
 	}
 }

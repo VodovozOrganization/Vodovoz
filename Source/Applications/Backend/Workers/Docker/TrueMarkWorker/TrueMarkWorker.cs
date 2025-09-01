@@ -204,7 +204,7 @@ namespace TrueMarkWorker
 								   "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
 								   "ИНН {Inn}, ",
 								   "код личного кабинета {OrganizationTaxcomEdoAccountId}, по которым надо осуществить вывод из оборота",
-								   organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
+								   organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoSettings.EdoAccount);
 
 			var orders = orderRepository.GetOrdersForTrueMark(uow, startDate, organization.Id);
 
@@ -229,7 +229,7 @@ namespace TrueMarkWorker
 				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId} для организации {OrganizationId}, " +
 									   "отпечаток сертификата {OrganizationCertificateThumbPrint}, ИНН {Inn}" +
 									   "код личного кабинета {OrganizationTaxcomEdoAccountId}",
-					order.Id, organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
+					order.Id, organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoSettings.EdoAccount);
 
 				try
 				{

@@ -28,6 +28,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Documents\ForwarderReceipt.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Documents\GeneralBill.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\CarIsNotAtLineReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -638,6 +641,11 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Reports\Store\DefectiveItemsReportForOneWarehouse.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Reports\Sales\RetailSalesReportFor1C.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 </Project>

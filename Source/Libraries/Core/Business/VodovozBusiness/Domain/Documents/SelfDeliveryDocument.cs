@@ -218,6 +218,14 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				if(item.Amount != count)
+				{
+					yield return new ValidationResult(
+						$"Нельзя частично отгрузить номенклатуру <{item.Nomenclature.Name}> в заказе. Для отпуска необходимо {count} шт., а не {decimal.ToInt32(item.Amount)} шт.",
+						new[] { this.GetPropertyName(o => o.Items) });
+				}
+				
 				if(!skipTrueMarkCodesCheck
 					&& !commonServices.CurrentPermissionService.ValidatePresetPermission(
 					   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)

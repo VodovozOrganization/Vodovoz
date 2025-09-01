@@ -346,9 +346,29 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				var nomenclatureGroup = leftGroupingItems
 					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
 
+				//Сначала организация, потом номенклатура
+				
 				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
 				{
-					if(item != organizationGroup && item != nomenclatureGroup)
+					if(item != organizationGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+				
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != nomenclatureGroup)
 					{
 						continue;
 					}
@@ -632,7 +652,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>();
 			var includedEmployees = employeesFilter.GetIncluded().ToArray();
 			var excludedEmployees = employeesFilter.GetExcluded().ToArray();
-
+			
+			var salesManagerFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>("SalesManager");
+			var includedSalesManager = salesManagerFilter.GetIncluded().ToArray();
+			var excludedSalesManager = salesManagerFilter.GetExcluded().ToArray();
+			
 			var geoGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<GeoGroup>>();
 			var includedGeoGroups = geoGroupsFilter.GetIncluded().ToArray();
 			var excludedGeoGroups = geoGroupsFilter.GetExcluded().ToArray();
@@ -702,6 +726,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			Counterparty counterpartyAlias = null;
+			Employee salesManagerAlias = null;
 			CounterpartySubtype counterpartySubtypeAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Organization organizationAlias = null;
@@ -867,6 +892,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => authorAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias)
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartySubtype, () => counterpartySubtypeAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
@@ -1203,6 +1229,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion Employees
+
+			#region SalesManager
+
+			if(includedSalesManager.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => salesManagerAlias.Id),
+					includedSalesManager));
+			}
+
+			if(excludedSalesManager.Any())
+			{
+				query.Where(Restrictions.Not(Restrictions.In(
+					Projections.Property(() => salesManagerAlias.Id),
+					excludedSalesManager)));
+			}
+
+			#endregion
 
 			#region GeoGroups
 
