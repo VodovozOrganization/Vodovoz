@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
@@ -73,6 +74,21 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboPaymentType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangePaymentType, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
+			ylblPaymentFrom.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsVisibleOnlinePaymentSource, w => w.Visible)
+				.InitializeFromSource();
+			
+			//Чтобы не лезть в UI делаю костыльно с существующим виджетом
+			speciallistCmbPaymentsFrom.ItemsList = Enum.GetValues(typeof(OnlinePaymentSource));
+			speciallistCmbPaymentsFrom.RenderTextFunc = x => ((OnlinePaymentSource)x).GetEnumDisplayName();
+			speciallistCmbPaymentsFrom.ShowSpecialStateAll = true;
+			speciallistCmbPaymentsFrom.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsVisibleOnlinePaymentSource, w => w.Visible)
+				.AddBinding(vm => vm.CanChangeOnlinePaymentSource, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictOnlinePaymentSource, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			entryCounterparty.Binding.AddSource(ViewModel)
