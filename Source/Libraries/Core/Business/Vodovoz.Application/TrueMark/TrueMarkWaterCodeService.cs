@@ -350,13 +350,18 @@ namespace Vodovoz.Application.TrueMark
 
 		public Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(IUnitOfWork uow, TrueMarkWaterCode parsedCode)
 		{
+			return TryGetSavedTrueMarkCodeByGtinAndSerialNumber(uow, parsedCode.Gtin, parsedCode.SerialNumber);
+		}
+
+		private Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByGtinAndSerialNumber(IUnitOfWork uow, string gtin, string serialNumber)
+		{
 			// Проверяем КИ
 			if(_trueMarkWaterIdentificationCodeRepository
 				   .Get(
 					   uow,
-					   x => x.Gtin == parsedCode.Gtin
-					        && x.SerialNumber == parsedCode.SerialNumber
-					        && !x.IsInvalid,
+					   x => x.Gtin == gtin
+							&& x.SerialNumber == serialNumber
+							&& !x.IsInvalid,
 					   1)
 				   .FirstOrDefault() is TrueMarkWaterIdentificationCode loadedIdentificationCode)
 			{
@@ -367,9 +372,9 @@ namespace Vodovoz.Application.TrueMark
 			if(_trueMarkWaterGroupCodeRepository
 				   .Get(
 					   uow,
-					   x => x.GTIN == parsedCode.Gtin
-					        && x.SerialNumber == parsedCode.SerialNumber
-					        && !x.IsInvalid,
+					   x => x.GTIN == gtin
+							&& x.SerialNumber == serialNumber
+							&& !x.IsInvalid,
 					   1)
 				   .FirstOrDefault() is TrueMarkWaterGroupCode loadedGroupCode)
 			{
@@ -853,12 +858,28 @@ namespace Vodovoz.Application.TrueMark
 			return requestCodes;
 		}
 
-		public Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode)
+		public Result<TrueMarkAnyCode> TryGetSavedTrueMarkAnyCode(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode)
 		{
-			return
-				_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode)
-				? TryGetSavedTrueMarkCodeByScannedCode(uow, parsedCode)
-				: TryGetSavedTrueMarkCodeByScannedCode(uow, scannedCode);
+			Result<TrueMarkAnyCode> getSavedCodeResult = null;
+
+			trueMarkAnyCode.Match(
+					transportCode =>
+					{
+						getSavedCodeResult = TryGetSavedTrueMarkCodeByScannedCode(uow, transportCode.RawCode);
+						return true;
+					},
+					waterGroupCode =>
+					{
+						getSavedCodeResult = TryGetSavedTrueMarkCodeByGtinAndSerialNumber(uow, waterGroupCode.GTIN, waterGroupCode.SerialNumber);
+						return true;
+					},
+					waterIdentificationCode =>
+					{
+						getSavedCodeResult = TryGetSavedTrueMarkCodeByGtinAndSerialNumber(uow, waterIdentificationCode.Gtin, waterIdentificationCode.SerialNumber);
+						return true;
+					});
+
+			return getSavedCodeResult;
 		}
 
 		private async Task<Result<IDictionary<string, ProductInstanceStatus>>> GetProductInstanceStatuses(IEnumerable<string> requestCodes, CancellationToken cancellationToken)
@@ -901,18 +922,20 @@ namespace Vodovoz.Application.TrueMark
 			{
 				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
 
+				if(productInstancesInfo != null
+					&& (productInstancesInfo.InstanceStatuses is null
+					|| !productInstancesInfo.InstanceStatuses.Any())
+					&& productInstancesInfo.NoCodesFound)
+				{
+					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
+					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
+				}
+
 				if(productInstancesInfo is null
 					|| !string.IsNullOrWhiteSpace(productInstancesInfo.ErrorMessage))
 				{
 					_logger.LogError("Ошибка при запросе к Api TrueMark, ошибка в ответе от Api");
 					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.ErrorResponse);
-				}
-
-				if(productInstancesInfo.InstanceStatuses is null
-					|| !productInstancesInfo.InstanceStatuses.Any())
-				{
-					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");
-					return Result.Failure<IDictionary<string, ProductInstanceStatus>>(Errors.TrueMarkApi.UnknownCode);
 				}
 
 				instancesStatuses = productInstancesInfo.InstanceStatuses;
