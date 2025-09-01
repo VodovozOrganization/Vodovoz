@@ -922,7 +922,8 @@ namespace Vodovoz.Application.TrueMark
 			{
 				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
 
-				if((productInstancesInfo.InstanceStatuses is null
+				if(productInstancesInfo != null
+					&& (productInstancesInfo.InstanceStatuses is null
 					|| !productInstancesInfo.InstanceStatuses.Any())
 					&& productInstancesInfo.NoCodesFound)
 				{
