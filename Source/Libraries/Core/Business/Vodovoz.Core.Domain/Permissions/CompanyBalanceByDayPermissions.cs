@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class CompanyBalanceByDay
+	public static partial class CompanyBalanceByDayPermissions
 	{
 		/// <summary>
 		/// Может изменять остатки ден.средств в прошлом периоде
