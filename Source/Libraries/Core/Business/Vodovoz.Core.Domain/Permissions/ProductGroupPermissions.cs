@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права группы товаров
 	/// </summary>
-	public static partial class ProductGroup
+	public static partial class ProductGroupPermissions
 	{
 		/// <summary>
 		/// Изменение настроек групп для онлайн магазина
