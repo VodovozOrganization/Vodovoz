@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права заказы
 	/// </summary>
-	public static partial class OnlineOrder
+	public static partial class OnlineOrderPermissions
 	{
 		/// <summary>
 		/// Может активировать акцию скидка на второй заказ
@@ -13,6 +13,6 @@ namespace Vodovoz.Core.Domain.Permissions
 		[Display(
 			Name = "Может отменять любой онлайн заказ",
 			Description = "Может отменять любой онлайн заказ, в не зависимости у кого он в работе")]
-		public static string CanCancelAnyOnlineOrder => $"{nameof(OnlineOrder)}.{nameof(CanCancelAnyOnlineOrder)}";
+		public static string CanCancelAnyOnlineOrder => $"{nameof(OnlineOrderPermissions)}.{nameof(CanCancelAnyOnlineOrder)}";
 	}
 }
