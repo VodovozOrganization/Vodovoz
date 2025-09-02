@@ -164,22 +164,22 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			_upcomingTechInspectForOurCars = _generalSettings.UpcomingTechInspectForOurCars;
 			_upcomingTechInspectForRaskatCars = _generalSettings.UpcomingTechInspectForRaskatCars;
-			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditTechInspectSetting);
+			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditTechInspectSetting);
 			SaveUpcomingTechInspectCommand = new DelegateCommand(SaveUpcomingTechInspect, () => CanEditUpcomingTechInspectSetting);
 
 			_osagoEndingNotifyDaysBefore = _carInsuranceSettings.OsagoEndingNotifyDaysBefore;
 			_kaskoEndingNotifyDaysBefore = _carInsuranceSettings.KaskoEndingNotifyDaysBefore;
 			CanEditInsuranceNotificationsSettings =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditInsuranceNotificationsSettings);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditInsuranceNotificationsSettings);
 			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
 
 			_carTechnicalCheckupEndingNotifyDaysBefore = _generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore;
 			CanEditCarTechnicalCheckupNotificationsSettings =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditCarTechnicalCheckupNotificationsSettings);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditCarTechnicalCheckupNotificationsSettings);
 			SaveCarTechnicalCheckupSettingsCommand = new DelegateCommand(SaveCarTechnicalCheckupSettings, () => CanEditCarTechnicalCheckupNotificationsSettings);
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
-			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
+			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditFastDeliveryIntervalFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
 
 			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
@@ -193,7 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Permissions.GeneralSettings.CanEditOrderOrganizationsSettings);
 			CanEditDailyFuelLimitsSetting =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
 			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;

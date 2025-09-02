@@ -129,7 +129,7 @@ public partial class MainWindow : Gtk.Window
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
+			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
@@ -335,7 +335,7 @@ public partial class MainWindow : Gtk.Window
 
 		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
 		CarOwnershipReportAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
 

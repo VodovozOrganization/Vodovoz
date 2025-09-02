@@ -439,7 +439,7 @@ namespace Vodovoz.ViewModels.Widgets
 			set => SetField(ref _newResultText, value);
 		}
 
-		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanDelete);
+		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool, bool> SaveUndelivery;
 

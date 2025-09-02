@@ -617,7 +617,7 @@ namespace Vodovoz
 
 		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
 			?? (_canEditFuelCardNumber =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber)).Value;
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber)).Value;
 
 		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);

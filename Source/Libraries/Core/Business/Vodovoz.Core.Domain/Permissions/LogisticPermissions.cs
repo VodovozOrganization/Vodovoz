@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Logistic
+	public static partial class LogisticPermissions
 	{
 		/// <summary>
 		/// Логистика - Доступ ко вкладке Логистика

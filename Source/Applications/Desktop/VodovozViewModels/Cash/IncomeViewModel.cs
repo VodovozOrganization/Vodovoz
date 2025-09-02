@@ -402,7 +402,7 @@ namespace Vodovoz.ViewModels.Cash
 			|| CanEditRectroactively;
 
 		public bool CanChangeRouteList =>
-			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanDelete)
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanDelete)
 			&& IsDriverReport;
 
 		public bool IsReturnOperation => Entity.TypeOperation == IncomeType.Return;
