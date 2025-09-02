@@ -46,7 +46,7 @@ namespace Vodovoz.Validation
 
 			if(district.TariffZone == null)
 			{
-				return Result.Failure(Errors.Logistics.District.FastDelivery.TariffZoneIsMissing);
+				return Result.Failure(Errors.Logistics.DistrictErrors.FastDelivery.TariffZoneIsMissing);
 			}
 
 			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
