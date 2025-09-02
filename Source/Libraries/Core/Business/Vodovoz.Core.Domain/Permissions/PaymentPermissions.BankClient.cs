@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Payment
+	public static partial class PaymentPermissions
 	{
 		public static class BankClient
 		{
