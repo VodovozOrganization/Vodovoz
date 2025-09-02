@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права в настройках
 	/// </summary>
-	public static class Settings
+	public static class SettingsPermissions
 	{
 		/// <summary>
 		/// Пользователь может добавлять/менять фиксу для сотрудников ВВ в Общих настройках - Заказы
