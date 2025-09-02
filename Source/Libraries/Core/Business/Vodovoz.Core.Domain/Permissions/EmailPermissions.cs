@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Core.Domain.Permissions
 {
-	public static class Email
+	public static class EmailPermissions
 	{
 		/// <summary>
 		/// Массовая рассылка писем
