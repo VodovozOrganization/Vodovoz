@@ -2,11 +2,11 @@
 
 namespace Vodovoz.Errors.Orders
 {
-	public static partial class FixedPrice
+	public static partial class FixedPriceErrors
 	{
 		public static Error NotFound =>
 			new Error(
-				typeof(FixedPrice),
+				typeof(FixedPriceErrors),
 				nameof(NotFound),
 				"Фикса не найдена");
 	}
