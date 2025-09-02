@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права Номенклатура
 	/// </summary>
-	public static class Nomenclature
+	public static class NomenclaturePermissions
 	{
 		/// <summary>
 		/// Может создавать номенклатуры и устанавливать галочку архивный

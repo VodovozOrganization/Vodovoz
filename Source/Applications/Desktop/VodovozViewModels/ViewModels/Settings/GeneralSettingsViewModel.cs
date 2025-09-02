@@ -1008,7 +1008,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_generalSettings, _generalSettings.WarehousesForPricesAndStocksIntegrationName)
 				{
 					CanEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab),
+						Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.HasAccessToSitesAndAppsTab),
 					MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
 					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
 					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
