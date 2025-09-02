@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static class User
+	public static class UserPermissions
 	{
 		/// <summary>
 		/// Пользователь - торговый представитель
