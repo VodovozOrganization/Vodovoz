@@ -6,7 +6,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права сотрудники
 	/// </summary>
-	public static partial class Employee
+	public static partial class EmployeePermissions
 	{
 		/// <summary>
 		/// Может устанавливать клиента в карточке сотрудника
@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Domain.Permissions
 		[Display(
 			Name = "Может устанавливать клиента в карточке сотрудника",
 			Description = "Может устанавливать клиента в карточке сотрудника для работы с фиксой сотрудников ВВ")]
-		public static string CanChangeEmployeeCounterparty => $"{nameof(Employee)}.{nameof(CanChangeEmployeeCounterparty)}";
+		public static string CanChangeEmployeeCounterparty => $"{nameof(EmployeePermissions)}.{nameof(CanChangeEmployeeCounterparty)}";
 		
 		/// <summary>
 		/// Изменение существующего и создание нового пользователей в диалоге сотрудника

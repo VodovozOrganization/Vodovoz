@@ -147,7 +147,7 @@ public partial class MainWindow : Gtk.Window
 		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
-		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanEditWage);
+		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanEditWage);
 		ActionWageDistrict.Sensitive = canEditWage;
 		ActionRates.Sensitive = canEditWage;
 
