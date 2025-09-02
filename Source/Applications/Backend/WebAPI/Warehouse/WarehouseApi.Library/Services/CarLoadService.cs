@@ -29,7 +29,7 @@ using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
-using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
 namespace WarehouseApi.Library.Services
