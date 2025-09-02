@@ -5,7 +5,7 @@ namespace Vodovoz.Permissions
 	/// <summary>
 	/// Права Основание скидки
 	/// </summary>
-	public static class DiscountReason
+	public static class DiscountReasonPermissions
 	{
 		/// <summary>
 		/// Пользователь может менять параметры промокода
