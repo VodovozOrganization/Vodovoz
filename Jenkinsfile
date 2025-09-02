@@ -232,25 +232,25 @@ stage('Checkout'){
 	)
 }
 
-stage('Desktop'){
-	node(NODE_WIN_BUILD){
-		if(CAN_BUILD_DESKTOP)
-		{
-			stage('Desktop.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
-			}
+// stage('Desktop'){
+// 	node(NODE_WIN_BUILD){
+// 		if(CAN_BUILD_DESKTOP)
+// 		{
+// 			stage('Desktop.Restore'){
+// 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+// 			}
 
-			stage('Desktop.Build'){
-				Build("WinDesktop")
-				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
-			}
-		}
-		else
-		{
-			echo "Build Desktop not needed"
-		}
-	}
-}
+// 			stage('Desktop.Build'){
+// 				Build("WinDesktop")
+// 				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
+// 			}
+// 		}
+// 		else
+// 		{
+// 			echo "Build Desktop not needed"
+// 		}
+// 	}
+// }
 
 // 203	Этапы. Сборка
 stage('Web'){
@@ -263,59 +263,59 @@ stage('Web'){
 			}
 			stage('Web.Build'){
 				// IIS
-				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
-				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
+				// PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				// PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
+				// PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
+				// PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
+				// PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
+				// PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
 
 				// Docker
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Warehouse/WarehouseApi/WarehouseApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")				
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ScannedTrueMarkCodesDelayedProcessingWorker/ScannedTrueMarkCodesDelayedProcessingWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Admin.Service/Pacs.Admin.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Calls.Service/Pacs.Calls.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Operator.Service/Pacs.Operator.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RobotMia/Api/Api.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/EarchiveApi/EarchiveApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Api.Service/Mango.Api.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Service/Mango.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailganerEventsDistributorApi/MailganerEventsDistributorApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Warehouse/WarehouseApi/WarehouseApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")				
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ScannedTrueMarkCodesDelayedProcessingWorker/ScannedTrueMarkCodesDelayedProcessingWorker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Admin.Service/Pacs.Admin.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Calls.Service/Pacs.Calls.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Operator.Service/Pacs.Operator.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RobotMia/Api/Api.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/EarchiveApi/EarchiveApi.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Api.Service/Mango.Api.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Service/Mango.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailganerEventsDistributorApi/MailganerEventsDistributorApi.csproj")
 
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Admin.Worker/Edo.Admin.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.CodesSaver.Worker/Edo.CodesSaver.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Docflow.Worker/Edo.Docflow.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Document.Worker/Edo.Document.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Api/Edo.Receipt.Api.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker/Edo.Receipt.Dispatcher.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Sender.Worker/Edo.Receipt.Sender.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker/Edo.Scheduler.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Tender.Worker/Edo.Tender.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Dispatcher.Worker/Edo.Transfer.Dispatcher.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Routine.Worker/Edo.Transfer.Routine.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Sender.Worker/Edo.Transfer.Sender.Worker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Admin.Worker/Edo.Admin.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.CodesSaver.Worker/Edo.CodesSaver.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Docflow.Worker/Edo.Docflow.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Document.Worker/Edo.Document.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Api/Edo.Receipt.Api.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Dispatcher.Worker/Edo.Receipt.Dispatcher.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Receipt.Sender.Worker/Edo.Receipt.Sender.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Scheduler.Worker/Edo.Scheduler.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Tender.Worker/Edo.Tender.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Dispatcher.Worker/Edo.Transfer.Dispatcher.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Routine.Worker/Edo.Transfer.Routine.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Sender.Worker/Edo.Transfer.Sender.Worker.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
 
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
 				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
 				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker", "edo-services.auto-send-receive-worker")
@@ -326,29 +326,29 @@ stage('Web'){
 				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-north.auto-send-receive-worker")
 				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-south.auto-send-receive-worker")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater", "edo-services.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "edo-services.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-kuler-service.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-non-alcoholic-beverages-world.contacts-updater")
+				// PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
+				// DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater", "edo-services.contacts-updater")
+				// DockerPushAs("edo-services.contacts-updater", "edo-services.contacts-updater")
+				// DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-kuler-service.contacts-updater")
+				// DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-non-alcoholic-beverages-world.contacts-updater")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater", "edo-services.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "edo-services.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-beverages-world.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-kuler-service.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-non-alcoholic-beverages-world.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-north.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-south.document-flow-updater")
+				// PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				// DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater", "edo-services.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "edo-services.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-beverages-world.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-kuler-service.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-non-alcoholic-beverages-world.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-north.document-flow-updater")
+				// DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-south.document-flow-updater")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer", "taxcom-docflow-vv.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-beverages-world.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-kuler-service.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-non-alcoholic-beverages-world.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-north.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-south.edo-consumer")
+				// PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
+				// DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer", "taxcom-docflow-vv.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-beverages-world.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-kuler-service.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-non-alcoholic-beverages-world.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-north.edo-consumer")
+				// DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-south.edo-consumer")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -546,12 +546,12 @@ def Build(config){
 
 def DockerFileBuild(projectPath, containerRepository){
 	def workspacePath = GetWorkspacePath()
-	bat "docker build -t ${containerRepository} -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+	bat "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
 }
 
-def DockerPushAs(fromContainerRepository, toRemoteContainerRepository){
-	bat "docker tag ${fromContainerRepository} ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
-	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
+def DockerPushAs(fromContainerRepository, toRemoteContainerRepository) {
+	bat "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
 }
 
 // 304	Фукнции. Запаковка

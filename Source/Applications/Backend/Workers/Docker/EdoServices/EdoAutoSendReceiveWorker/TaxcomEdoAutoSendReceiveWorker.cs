@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -32,7 +32,7 @@ namespace EdoAutoSendReceiveWorker
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Процесс автоматизации выполнения транзакций запущен");
+			_logger.LogInformation("!Процесс автоматизации выполнения транзакций запущен!");
 			await StartWorkingAsync(stoppingToken);
 		}
 
