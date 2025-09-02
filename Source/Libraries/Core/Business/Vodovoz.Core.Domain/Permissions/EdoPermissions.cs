@@ -3,7 +3,7 @@
 	/// <summary>
 	/// ЭДО
 	/// </summary>
-	public static partial class Edo
+	public static partial class EdoPermissions
 	{
 		/// <summary>
 		/// Разрешено закрывать ЭДО задачу по Тендеру
