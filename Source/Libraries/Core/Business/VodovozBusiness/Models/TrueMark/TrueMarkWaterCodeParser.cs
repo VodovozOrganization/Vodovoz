@@ -144,7 +144,7 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				exceptionAction(ex);
-				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCode.TrueMarkCodeParsingError);
+				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCodeErrors.TrueMarkCodeParsingError);
 			}
 		}
 
