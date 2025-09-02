@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Errors.Orders
 {
-	public static partial class Discount
+	public static partial class DiscountErrors
 	{
 	}
 }
