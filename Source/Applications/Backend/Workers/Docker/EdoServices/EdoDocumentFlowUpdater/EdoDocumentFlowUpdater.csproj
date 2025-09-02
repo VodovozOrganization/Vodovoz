@@ -5,7 +5,7 @@
     <UserSecretsId>dotnet-EdoDocumentFlowUpdater-21b4402c-2765-42b2-b770-bc4a11e3dbfe</UserSecretsId>
     <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>

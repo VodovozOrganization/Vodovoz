@@ -62,6 +62,7 @@ DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 JOB_FOLDER_NAME = GetJobFolderName()
+DOCKER_REPOSITORY = "docker.vod.qsolution.ru:5100"
 
 // 102.2	Настройки. Вычисляемые
 GIT_BRANCH = env.BRANCH_NAME
@@ -199,57 +200,57 @@ stage('Log') {
 	echo "Web Publish Path: ${WEB_PUBLISH_PATH}"
 }
 
-stage('Stop previous builds') {
-	def decodedBranchName = java.net.URLDecoder.decode(GIT_BRANCH, "UTF-8")
-	def jobName = "Vodovoz/Vodovoz/${decodedBranchName}"
-	def job = Jenkins.get().getItemByFullName(jobName)
-	if (job == null) {
-		echo "Job ${jobName} not found"
-		return
-	}
-	def currentBuildNumber = currentBuild.number.toInteger()
-	if (job.builds != null && !job.builds.isEmpty()) {
-		job.builds.each { build ->
-			if (build.isBuilding() &&
-				build.number.toInteger() < currentBuildNumber) {
-					build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
-			}
-		}
-	} else {
-		echo "No builds found for job ${jobName}"
-	}
-}
+// stage('Stop previous builds') {
+// 	def decodedBranchName = java.net.URLDecoder.decode(GIT_BRANCH, "UTF-8")
+// 	def jobName = "Vodovoz/Vodovoz/${decodedBranchName}"
+// 	def job = Jenkins.get().getItemByFullName(jobName)
+// 	if (job == null) {
+// 		echo "Job ${jobName} not found"
+// 		return
+// 	}
+// 	def currentBuildNumber = currentBuild.number.toInteger()
+// 	if (job.builds != null && !job.builds.isEmpty()) {
+// 		job.builds.each { build ->
+// 			if (build.isBuilding() &&
+// 				build.number.toInteger() < currentBuildNumber) {
+// 					build.finish(hudson.model.Result.ABORTED, new java.io.IOException("Aborting build"))
+// 			}
+// 		}
+// 	} else {
+// 		echo "No builds found for job ${jobName}"
+// 	}
+// }
 
 // 201	Этапы. Подготовка репозитория
-stage('Checkout'){
-	parallel (
-		"Win" : {
-			node(NODE_WIN_BUILD){
-				PrepareSources()
-			}
-		}
-	)
-}
+// stage('Checkout'){
+// 	parallel (
+// 		"Win" : {
+// 			node(NODE_WIN_BUILD){
+// 				PrepareSources()
+// 			}
+// 		}
+// 	)
+// }
 
-stage('Desktop'){
-	node(NODE_WIN_BUILD){
-		if(CAN_BUILD_DESKTOP)
-		{
-			stage('Desktop.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
-			}
+// stage('Desktop'){
+// 	node(NODE_WIN_BUILD){
+// 		if(CAN_BUILD_DESKTOP)
+// 		{
+// 			stage('Desktop.Restore'){
+// 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+// 			}
 
-			stage('Desktop.Build'){
-				Build("WinDesktop")
-				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
-			}
-		}
-		else
-		{
-			echo "Build Desktop not needed"
-		}
-	}
-}
+// 			stage('Desktop.Build'){
+// 				Build("WinDesktop")
+// 				bat "copy \"D:\\CD\\WaterDelivery\\appsettings.Production.json\" \".\\Vodovoz\\Source\\Applications\\Desktop\\Vodovoz\\bin\\DebugWin\\\""
+// 			}
+// 		}
+// 		else
+// 		{
+// 			echo "Build Desktop not needed"
+// 		}
+// 	}
+// }
 
 // 203	Этапы. Сборка
 stage('Web'){
@@ -315,11 +316,18 @@ stage('Web'){
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
+				// DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
 
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater", "taxcom-docflow.edo-consumer:latest")
+				DockerPushAs("taxcom-docflow.edo-consumer:latest", "taxcom-docflow-beverages-world.document-flow-updater")
+				DockerPushAs("taxcom-docflow.edo-consumer:latest", "taxcom-docflow-kuler-service.document-flow-updater")
+				DockerPushAs("taxcom-docflow.edo-consumer:latest", "taxcom-docflow-non-alcoholic-beverages-world.document-flow-updater")
+				DockerPushAs("taxcom-docflow.edo-consumer:latest", "taxcom-docflow-vv-north.document-flow-updater")
+				DockerPushAs("taxcom-docflow.edo-consumer:latest", "taxcom-docflow-vv-south.document-flow-updater")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -513,6 +521,17 @@ def DockerPublishBuild(projectPath){
 
 def Build(config){
 	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2 /nodeReuse:false"
+}
+
+def DockerFileBuild(projectPath, containerRepository){
+	def workspacePath = GetWorkspacePath()
+	bat "\docker build -t ${containerRepository} -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+}
+
+def DockerPushAs(fromContainerRepository, toRemoteContainerRepository){
+	def workspacePath = GetWorkspacePath()
+	bat "\docker tag -t ${fromContainerRepository} ${DOCKER_REPOSITORY}/${toRemoteContainerRepository}"
+	bat "\docker push -t ${DOCKER_REPOSITORY}/${toRemoteContainerRepository}"
 }
 
 // 304	Фукнции. Запаковка
