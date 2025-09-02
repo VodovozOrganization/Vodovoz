@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Report
+	public static partial class ReportPermissions
 	{
 		public static class Sales
 		{

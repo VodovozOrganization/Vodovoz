@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(userService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
@@ -115,10 +115,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInSalesReports);
 
 			_canViewReportSalesWithCashReceipts =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
