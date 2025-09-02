@@ -2,11 +2,11 @@
 
 namespace Vodovoz.Errors.Logistics
 {
-	public static class DistrictSet
+	public static class DistrictSetErrors
 	{
 		public static Error NotFound(int id) =>
 			new Error(
-				typeof(DistrictSet),
+				typeof(DistrictSetErrors),
 				nameof(NotFound),
 				$"Версия районов #{id} не найдена");
 	}
