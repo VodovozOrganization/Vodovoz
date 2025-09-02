@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права Экземпляр номенклатуры
 	/// </summary>
-	public static class InventoryNomenclatureInstance
+	public static class InventoryNomenclatureInstancePermissions
 	{
 		/// <summary>
 		/// Может снимать и устанавливать параметр б/у
