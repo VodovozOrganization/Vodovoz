@@ -76,7 +76,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null)
 		{
 			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
-				where onlineOrder.CounterpartyId == currentOnlineOrder.CounterpartyId
+				where onlineOrder.CounterpartyId != null
+					&& onlineOrder.CounterpartyId == currentOnlineOrder.CounterpartyId
 					&& onlineOrder.DeliveryPointId == currentOnlineOrder.DeliveryPointId
 					&& onlineOrder.DeliveryDate == currentOnlineOrder.DeliveryDate
 					&& onlineOrder.DeliveryScheduleId == currentOnlineOrder.DeliveryScheduleId

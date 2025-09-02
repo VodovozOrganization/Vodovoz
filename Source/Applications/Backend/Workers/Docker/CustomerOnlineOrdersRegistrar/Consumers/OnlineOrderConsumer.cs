@@ -73,15 +73,17 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				uow.Save(onlineOrder);
 				uow.Commit();
 
+				if(clientOnlineOrdersDuplicates.Any())
+				{
+					return;
+				}
+
 				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
 				var orderId = 0;
 				
 				try
 				{
-					if(!clientOnlineOrdersDuplicates.Any())
-					{
-						orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
-					}
+					orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
 				}
 				catch(Exception e)
 				{
