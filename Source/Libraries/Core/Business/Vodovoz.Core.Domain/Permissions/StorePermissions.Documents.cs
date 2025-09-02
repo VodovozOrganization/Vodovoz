@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Store
+	public static partial class StorePermissions
 	{
 		public static class Documents
 		{

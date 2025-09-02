@@ -159,7 +159,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			InitializeEmployeesFixedPricesViewModel();
 
 			_carLoadDocumentInfoString = _generalSettings.GetCarLoadDocumentInfoString;
-			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
+			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanEditCarLoadDocumentInfoString);
 			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
 
 			_upcomingTechInspectForOurCars = _generalSettings.UpcomingTechInspectForOurCars;

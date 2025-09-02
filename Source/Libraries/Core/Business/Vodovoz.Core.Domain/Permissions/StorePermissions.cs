@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Права склда, номенклатура
 	/// </summary>
-	public static partial class Store
+	public static partial class StorePermissions
 	{
 	}
 }
