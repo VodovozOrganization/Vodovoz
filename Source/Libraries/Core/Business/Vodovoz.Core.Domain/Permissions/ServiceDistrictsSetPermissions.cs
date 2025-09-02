@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Версии сервисных районов
 	/// </summary>
-	public static partial class ServiceDistrictsSet
+	public static partial class ServiceDistrictsSetPermissions
 	{
 		/// <summary>
 		/// Можно измененять условия доставки сервиса
