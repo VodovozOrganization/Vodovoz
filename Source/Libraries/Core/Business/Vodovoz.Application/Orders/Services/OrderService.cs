@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -483,7 +483,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(deliverySchedule is null)
 			{
-				return Vodovoz.Errors.Logistics.DeliverySchedule.NotFound;
+				return Vodovoz.Errors.Logistics.DeliveryScheduleErrors.NotFound;
 			}
 
 			Order order = unitOfWork.Root;
