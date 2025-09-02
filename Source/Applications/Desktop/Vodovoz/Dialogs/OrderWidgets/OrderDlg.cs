@@ -5257,23 +5257,24 @@ namespace Vodovoz
 			if(Order.Id != 0)
 			{
 				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
-				var uow = _unitOfWorkFactory.CreateWithoutRoot();
-
-				var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				{
+					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
 					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
 					.ToList();
 
-				var entityOrderItems = Entity.OrderItems
+					var entityOrderItems = Entity.OrderItems
 					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
 					.ToList();
 
-				var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
-				var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
+					var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
+					var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
 
-				isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
-					&& (!dbOrderItems.Except(entityOrderItems).Any()
-					&& !entityOrderItems.Except(dbOrderItems).Any()
-					|| entityOrderSum <= dbOrderSum);
+					isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
+						&& (!dbOrderItems.Except(entityOrderItems).Any()
+						&& !entityOrderItems.Except(dbOrderItems).Any()
+						|| entityOrderSum <= dbOrderSum);
+				}
 			}
 
 			if(hasDepositForEquipment 
