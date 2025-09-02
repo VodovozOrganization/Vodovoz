@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static class Counterparty
+	public static class CounterpartyPermissions
 	{
 		/// <summary>
 		/// Пересчет классификации контрагентов

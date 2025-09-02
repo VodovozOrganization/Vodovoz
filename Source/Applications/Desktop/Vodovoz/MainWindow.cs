@@ -331,7 +331,7 @@ public partial class MainWindow : Gtk.Window
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.CanGenerateCashFlowDdsReport);
 
 		ActionClassificationCalculation.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanCalculateCounterpartyClassifications);
 
 		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
 		CarOwnershipReportAction.Sensitive =
