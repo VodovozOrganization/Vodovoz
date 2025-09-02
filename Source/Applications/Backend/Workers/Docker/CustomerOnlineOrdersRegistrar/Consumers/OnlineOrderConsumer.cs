@@ -68,6 +68,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 					onlineOrder.OnlineOrderCancellationReason =
 						uow.GetById<OnlineOrderCancellationReason>(_onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId);
+					
+					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
+					uow.Save(notification);
 				}
 
 				uow.Save(onlineOrder);
