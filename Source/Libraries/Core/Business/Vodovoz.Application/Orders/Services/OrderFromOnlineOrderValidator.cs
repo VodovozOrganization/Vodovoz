@@ -489,20 +489,20 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(fastDelivery != null)
 				{
-					errors.Add(Vodovoz.Errors.Orders.FastDelivery.NotNeedFastDelivery);
+					errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.NotNeedFastDelivery);
 				}
 				return;
 			}
 
 			if(fastDelivery is null)
 			{
-				errors.Add(Vodovoz.Errors.Orders.FastDelivery.FastDeliveryIsMissing);
+				errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.FastDeliveryIsMissing);
 				return;
 			}
 
 			if(_onlineOrder.DeliveryDate != DateTime.Today)
 			{
-				errors.Add(Vodovoz.Errors.Orders.FastDelivery.InvalidDate);
+				errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.InvalidDate);
 			}
 			
 			ValidatePrice(fastDelivery, errors);
