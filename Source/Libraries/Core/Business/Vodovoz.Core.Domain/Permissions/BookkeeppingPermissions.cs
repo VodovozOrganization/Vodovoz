@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Бухгалтерия
 	/// </summary>
-	public static partial class Bookkeepping
+	public static partial class BookkeeppingPermissions
 	{
 		/// <summary>
 		/// Доступ к редактированию финансовых статей расхода для списаний платежей

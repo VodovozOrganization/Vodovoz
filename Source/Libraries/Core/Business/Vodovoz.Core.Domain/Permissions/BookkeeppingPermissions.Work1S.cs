@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Bookkeepping
+	public static partial class BookkeeppingPermissions
 	{
 		public static class Work1S
 		{
