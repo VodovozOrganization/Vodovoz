@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2371,6 +2371,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var driversScannedCodes = await query.ToListAsync(cancellationToken);
 
 			return !driversScannedCodes.Any();
+		}
+
+		public IList<OrderItem> GetOrderItems(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+
+			return uow.Session.QueryOver(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.List();
 		}
 	}
 }
