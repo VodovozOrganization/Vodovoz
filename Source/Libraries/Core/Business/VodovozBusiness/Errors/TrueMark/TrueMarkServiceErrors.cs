@@ -2,7 +2,7 @@
 
 namespace VodovozBusiness.Errors.TrueMark
 {
-    public static class TrueMarkService
+    public static class TrueMarkServiceErrors
     {
 		/// <summary>
 		/// Ошибка добавления кода, участвующего в аггрегации<br/>
@@ -10,7 +10,7 @@ namespace VodovozBusiness.Errors.TrueMark
 		/// </summary>
 		public static Error AggregationCodeAddError =>
 			new Error(
-				typeof(TrueMarkService),
+				typeof(TrueMarkServiceErrors),
 				nameof(AggregationCodeAddError),
 				"Нельзя добавить код, участвующий в аггрегации");
 
@@ -20,7 +20,7 @@ namespace VodovozBusiness.Errors.TrueMark
 		/// </summary>
 		public static Error AggregationCodeChangeError =>
 			new Error(
-				typeof(TrueMarkService),
+				typeof(TrueMarkServiceErrors),
 				nameof(AggregationCodeChangeError),
 				"Нельзя изменить код, участвующий в аггрегации");
 
@@ -30,7 +30,7 @@ namespace VodovozBusiness.Errors.TrueMark
 		/// </summary>
 		public static Error MissingTrueMarkCodeToDelete =>
 			new Error(
-				typeof(TrueMarkService),
+				typeof(TrueMarkServiceErrors),
 				nameof(MissingTrueMarkCodeToDelete),
 				"Код запрашиваемый для удаления - отсутствует");
 	}
