@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Errors.Orders
 {
-	public static partial class Order
+	public static partial class OrderErrors
 	{
 		public static class Accept
 		{

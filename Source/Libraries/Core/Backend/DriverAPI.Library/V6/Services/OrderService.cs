@@ -37,7 +37,7 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
-using OrderErrors = Vodovoz.Errors.Orders.Order;
+using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
 using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
@@ -280,7 +280,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)

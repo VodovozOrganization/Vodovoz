@@ -69,7 +69,7 @@ namespace Vodovoz.Validation
 
 				if(total19LBottlesToDeliver > fastDelivery19LBottlesLimitCount)
 				{
-					return Result.Failure(Errors.Orders.Order.FastDelivery19LBottlesLimitError(
+					return Result.Failure(Errors.Orders.OrderErrors.FastDelivery19LBottlesLimitError(
 						total19LBottlesToDeliver, fastDelivery19LBottlesLimitCount));
 				}
 			}

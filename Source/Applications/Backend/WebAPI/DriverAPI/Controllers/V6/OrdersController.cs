@@ -97,7 +97,7 @@ namespace DriverAPI.Controllers.V6
 						return StatusCodes.Status403Forbidden;
 					}
 
-					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+					if(firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound
 						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
 						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
 					{
@@ -194,7 +194,7 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status403Forbidden;
 						}
 
-						if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+						if(firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound
 							|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
 							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
 						{
@@ -323,7 +323,7 @@ namespace DriverAPI.Controllers.V6
 						return StatusCodes.Status403Forbidden;
 					}
 
-					if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+					if(firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound
 						|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder
 						|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder)
 					{
@@ -429,7 +429,7 @@ namespace DriverAPI.Controllers.V6
 
 						var firstError = result.Errors.First();
 
-						if(firstError == Vodovoz.Errors.Orders.Order.NotInOnTheWayStatus)
+						if(firstError == Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
@@ -439,7 +439,7 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status403Forbidden;
 						}
 
-						if(firstError == Vodovoz.Errors.Orders.Order.NotFound
+						if(firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound
 							|| firstError == Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder)
 						{
 							return StatusCodes.Status404NotFound;

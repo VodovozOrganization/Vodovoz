@@ -131,7 +131,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeListAddress.Order is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var deliveryPoint = routeListAddress.Order.DeliveryPoint;
@@ -431,7 +431,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(order is null)
 			{
-				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var result = new List<TransferItemDto>();
