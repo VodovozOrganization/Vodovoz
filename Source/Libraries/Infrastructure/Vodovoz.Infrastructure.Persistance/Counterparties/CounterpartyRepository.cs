@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -14,7 +14,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
@@ -501,6 +500,89 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				};
 
 			return query;
+		}
+
+		public decimal GetTotalDebt(IUnitOfWork unitOfWork, int counterpartyId)
+		{
+			var orderStatuses = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			PaymentItem paymentItemAlias = null;
+			Payment paymentAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+
+			var unallocatedIncomeSubquery = QueryOver.Of(() => cashlessMovementOperationAlias)
+				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Income));
+
+			var paymentItemsSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
+				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(x => x.Sum));
+
+			var unallocatedBalanceProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(unallocatedIncomeSubquery),
+				Projections.SubQuery(paymentItemsSumSubquery)
+			);
+
+			var notPaidOrdersSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
+
+			var partialPaidOrdersSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
+
+			var debtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Decimal,
+					"(IFNULL(?1, 0) - IFNULL(?2, 0) - IFNULL(?3, 0))"
+				),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(notPaidOrdersSumSubquery),
+				unallocatedBalanceProjection,
+				Projections.SubQuery(partialPaidOrdersSumSubquery)
+			);
+
+			var result = unitOfWork.Session.QueryOver<Counterparty>()
+				.Where(c => c.Id == counterpartyId)
+				.Select(debtProjection)
+				.SingleOrDefault<decimal?>();
+
+			return Math.Round(result ?? 0m, 2);
 		}
 	}
 }
