@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			CanEditComplaintClassification =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Complaint.CanEditComplaintClassification);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ComplaintPermissions.CanEditComplaintClassification);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
 				UoW,

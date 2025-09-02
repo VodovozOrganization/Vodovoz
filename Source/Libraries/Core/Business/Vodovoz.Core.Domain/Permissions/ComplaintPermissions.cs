@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Complaint
+	public static partial class ComplaintPermissions
 	{
 		/// <summary>
 		/// Изменение классификации рекламации
