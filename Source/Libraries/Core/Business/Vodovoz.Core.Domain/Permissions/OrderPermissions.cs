@@ -5,7 +5,7 @@ namespace Vodovoz.Core.Domain.Permissions
 	/// <summary>
 	/// Права заказы
 	/// </summary>
-	public static partial class Order
+	public static partial class OrderPermissions
 	{
 		/// <summary>
 		/// Может активировать акцию скидка на второй заказ

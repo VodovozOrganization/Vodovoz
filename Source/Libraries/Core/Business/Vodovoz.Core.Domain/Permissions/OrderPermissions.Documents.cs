@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Extensions;
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Order
+	public static partial class OrderPermissions
 	{
 		public static class Documents
 		{
