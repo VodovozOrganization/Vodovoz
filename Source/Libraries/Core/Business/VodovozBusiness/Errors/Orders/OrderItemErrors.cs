@@ -2,11 +2,11 @@
 
 namespace Vodovoz.Errors.Orders
 {
-	public static class OrderItem
+	public static class OrderItemErrors
 	{
 		public static Error NotFound =>
 			new Error(
-				typeof(OrderItem),
+				typeof(OrderItemErrors),
 				nameof(NotFound),
 				"Строка заказа не найдена");
 	}
