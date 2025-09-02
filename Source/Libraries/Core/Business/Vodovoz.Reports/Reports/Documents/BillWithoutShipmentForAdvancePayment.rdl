@@ -1760,6 +1760,9 @@ Iif(
                   </ReportItems>
                 </TableCell>
               </TableCells>
+              <Visibility>
+                <Hidden>=Not(First(Fields!use_special_doc_fields.Value, "Order")) OR First(Fields!basis_special_contract.Value, "Order") = ""</Hidden>
+              </Visibility>
             </TableRow>
           </TableRows>
         </Details>
