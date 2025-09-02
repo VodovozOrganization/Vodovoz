@@ -5,7 +5,9 @@ using CustomerOrdersApi.Library.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
@@ -19,8 +21,18 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IDiscountReasonSettings discountReasonSettings)
-			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, discountReasonSettings, orderService)
+			IDiscountReasonSettings discountReasonSettings,
+			IOnlineOrderRepository onlineOrderRepository,
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings)
+			: base(
+				logger,
+				unitOfWorkFactory,
+				onlineOrderFactory,
+				deliveryRulesSettings,
+				discountReasonSettings,
+				onlineOrderRepository,
+				onlineOrderCancellationReasonSettings,
+				orderService)
 		{
 		}
 		
