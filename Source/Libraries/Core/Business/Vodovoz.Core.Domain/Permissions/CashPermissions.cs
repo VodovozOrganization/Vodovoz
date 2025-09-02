@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Права кассы
 	/// </summary>
-	public static partial class Cash
+	public static partial class CashPermissions
 	{
 		internal static string CanEditExpenseAndIncomeDate => "can_edit_cash_income_expense_date";
 

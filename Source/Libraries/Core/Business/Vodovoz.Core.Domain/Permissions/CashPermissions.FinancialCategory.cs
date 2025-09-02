@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Cash
+	public static partial class CashPermissions
 	{
 		public static class FinancialCategory
 		{

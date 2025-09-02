@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			_domainObjectsPermissions = InitializePermissionsMatrix(DomainObjectsTypes);
 
 			_hasAccessToHiddenFinancialCategories =
-				_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+				_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.HasAccessToHiddenFinancialCategories);
 
 			FilterViewModel.JournalViewModel = this;
 

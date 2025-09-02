@@ -4,7 +4,7 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Core.Domain.Permissions
 {
-	public static partial class Cash
+	public static partial class CashPermissions
 	{
 		/// <summary>
 		/// Права заявок на выдачу денежных средств по безналу

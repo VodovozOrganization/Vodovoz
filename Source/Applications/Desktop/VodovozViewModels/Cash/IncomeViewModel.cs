@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.Cash
 					typeof(Income), userService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			CanEditDate = commonServices.CurrentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.Income.CanEditDate);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Income.CanEditDate);
 
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
