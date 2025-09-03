@@ -765,6 +765,145 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
+		public async Task<RequestProcessingResult<DeleteOrderCodeResponse>> DeleteOrderCode(int orderId, int nomenclatureId, string deletedScannedCode, string userLogin, CancellationToken cancellationToken)
+		{
+			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+
+			var deletedTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, deletedScannedCode);
+
+			if(deletedTrueMarkCodeResult.IsFailure)
+			{
+				var error = deletedTrueMarkCodeResult.Errors.FirstOrDefault();
+				var result = Result.Failure<DeleteOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new DeleteOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+			
+			if(deletedTrueMarkCodeResult.Value.Match(
+				transportCode => transportCode.ParentTransportCodeId != null,
+				groupCode => groupCode.ParentTransportCodeId != null || groupCode.ParentWaterGroupCodeId != null,
+				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
+			{
+				var error = VodovozBusiness.Errors.TrueMark
+					.TrueMarkService.AggregationCodeChangeError;
+				var result = Result.Failure<DeleteOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new DeleteOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+			
+			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+			
+			var itemsHavingRequiredNomenclature = allWaterOrderItems
+				.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
+
+			var deleteTrueMarkAnyCodes = deletedTrueMarkCodeResult.Value.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+			
+			var deleteTrueMarkAnyCodesList = deleteTrueMarkAnyCodes.ToArray();
+
+			foreach(var codeToDelete in deleteTrueMarkAnyCodesList)
+			{
+				if(!codeToDelete.IsTrueMarkWaterIdentificationCode)
+				{
+					continue;
+				}
+
+				await RemoveSingleCode(_uow, userLogin, codeToDelete.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+			}
+
+			foreach(var deleteCodeToRemoveFromDatabase in deleteTrueMarkAnyCodesList)
+			{
+				deleteCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
+						transportCode.ClearAllCodes();
+						return true;
+					},
+					groupCode =>
+					{
+						groupCode.ClearAllCodes();
+						return true;
+					},
+					waterCode =>
+					{
+						return true;
+					});
+			}
+
+			try
+			{
+				_uow.Commit();
+				_uow.Session.BeginTransaction();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
+
+			foreach(var deleteCodeToRemoveFromDatabase in deleteTrueMarkAnyCodesList)
+			{
+				deleteCodeToRemoveFromDatabase.Match(
+					transportCode =>
+					{
+						_uow.Delete(transportCode);
+						return true;
+					},
+					groupCode =>
+					{
+						_uow.Delete(groupCode);
+						return true;
+					},
+					waterCode =>
+					{
+						_uow.Delete(waterCode);
+						return true;
+					});
+			}
+
+			try
+			{
+				_uow.Commit();
+				_uow.Session.BeginTransaction();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+			}
+
+			NomenclatureDto nomenclatureDto = null;
+
+			var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+			foreach(var deleteTrueMarkAnyCode in deleteTrueMarkAnyCodes)
+			{
+				
+			}
+			
+			if(nomenclatureDto != null)
+			{
+				nomenclatureDto.Codes = trueMarkCodes;
+			}
+
+			var successResponse = new DeleteOrderCodeResponse
+			{
+				Nomenclature = nomenclatureDto,
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
+		}
+
 		private async Task<OneOf<RequestProcessingResult<ChangeOrderCodeResponse>, CarLoadDocumentItemEntity>> RemoveSingleCode(
 			IUnitOfWork unitOfWork,
 			string userLogin,
