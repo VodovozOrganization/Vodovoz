@@ -11,6 +11,7 @@ namespace Vodovoz.Domain.StoredEmails
 	)]
 	public class StoredEmail : BusinessObjectBase<StoredEmail>, IDomainObject
 	{
+		public const int DescriptionMaxLength = 1000;
 		private string _subject;
 		private Guid? _guid;
 		private DateTime _sendDate;
@@ -96,6 +97,11 @@ namespace Vodovoz.Domain.StoredEmails
 			}
 
 			Description += description;
+
+			if(Description.Length > DescriptionMaxLength)
+			{
+				Description = Description.Substring(0, DescriptionMaxLength);
+			}
 		}
 	}
 }
