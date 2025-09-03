@@ -781,7 +781,7 @@ namespace Vodovoz
 
 			specialListCmbOurOrganization.ItemsList = UoW.GetAll<Organization>();
 			specialListCmbOurOrganization.Binding.AddBinding(Entity, o => o.OurOrganization, w => w.SelectedItem).InitializeFromSource();
-			specialListCmbOurOrganization.Sensitive = true;// _canSetOurOrganization;
+			specialListCmbOurOrganization.Sensitive = _canSetOurOrganization;
 			specialListCmbOurOrganization.ItemSelected += OnOurOrganisationsItemSelected;
 
 			pickerDeliveryDate.Binding
@@ -870,7 +870,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
-			yenumcomboboxTerminalSubtype.Sensitive = true;
+			yenumcomboboxTerminalSubtype.Sensitive = false;
 			yenumcomboboxTerminalSubtype.Binding
 				.AddSource(Entity)
 				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
@@ -924,7 +924,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			evmeAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
-			evmeAuthor.Sensitive = true;
+			evmeAuthor.Sensitive = false;
 
 			entryDeliveryPoint.ViewModel = new LegacyEEVMBuilderFactory<OrderDlg>(this, this, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(dlg => dlg.DeliveryPoint)
@@ -963,10 +963,10 @@ namespace Vodovoz
 				UpdateOrderItemsPrices();
 			};
 
-			chkContractCloser.Sensitive = true;
+			chkContractCloser.Sensitive = _canSetContractCloser;
 
-			buttonViewDocument.Sensitive = true;
-			btnDeleteOrderItem.Sensitive = true;
+			buttonViewDocument.Sensitive = false;
+			btnDeleteOrderItem.Sensitive = false;
 			ntbOrderEdit.ShowTabs = false;
 			ntbOrderEdit.Page = 0;
 			ntbOrder.ShowTabs = false;
@@ -1016,10 +1016,10 @@ namespace Vodovoz
 
 				SetDeliveryScheduleSelectionEditable();
 
-				ybuttonFastDeliveryCheck.Sensitive = true;
-				ycheckFastDelivery.Sensitive = true;
-				lblDeliveryPoint.Sensitive = true;
-				buttonAddMaster.Sensitive = true;
+				ybuttonFastDeliveryCheck.Sensitive =
+					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
+				lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
+				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
 				UpdateClientDefaultParam();
 
@@ -1062,7 +1062,7 @@ namespace Vodovoz
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 			ySpecCmbNonReturnReason.Binding.AddBinding(Entity, e => e.TareNonReturnReason, w => w.SelectedItem).InitializeFromSource();
 			ySpecCmbNonReturnReason.ItemSelected += (sender, e) => Entity.IsTareNonReturnReasonChangedByUser = true;
-			ySpecCmbNonReturnReason.Sensitive = true;
+			ySpecCmbNonReturnReason.Sensitive = CanEditByPermission;
 
 			if(DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c))
 			{
@@ -1130,7 +1130,7 @@ namespace Vodovoz
 			{
 				Entity.RecalculateStockBottles(_orderSettings);
 				ControlsActionBottleAccessibility();
-				ycomboboxReason.Sensitive = true;
+				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
 				SetDiscountUnitEditable();
 				SetDiscountEditable();
 			};
@@ -1152,7 +1152,7 @@ namespace Vodovoz
 				.InitializeFromSource();
 			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
-			ybuttonToStorageLogicAddressType.Sensitive = true;
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
 
 			UpdateAvailableEnumSignatureTypes();
 
@@ -1166,7 +1166,7 @@ namespace Vodovoz
 			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
 			CustomizeSendDocumentAgainButton();
 
-			btnCopyEntityId.Sensitive = true;
+			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? _orderService.GetLogisticsRequirements(Entity), ServicesConfig.CommonServices);
@@ -1186,7 +1186,7 @@ namespace Vodovoz
 
 			RefreshBottlesDebtNotifier();
 
-			//RefreshDebtorDebtNotifier();
+			RefreshDebtorDebtNotifier();
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -1399,7 +1399,7 @@ namespace Vodovoz
 		{
 			if(!_canResendDocumentsToEdo)
 			{
-				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Sensitive = false;
 				ybuttonSendDocumentAgain.Label = "Отсутствуют права для повторной отправки";
 
 				return;
@@ -1408,7 +1408,7 @@ namespace Vodovoz
 			if(SelectedEdoDocumentDataNode is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Sensitive = false;
 
 				return;
 			}
@@ -1416,7 +1416,7 @@ namespace Vodovoz
 			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Sensitive = false;
 
 				return;
 			}
@@ -1451,7 +1451,7 @@ namespace Vodovoz
 
 			if(alreadyInProcess)
 			{
-				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Sensitive = false;
 				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
 
 				return;
@@ -1469,7 +1469,7 @@ namespace Vodovoz
 				return;
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = true;
+			ybuttonSendDocumentAgain.Sensitive = false;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
@@ -1895,7 +1895,7 @@ namespace Vodovoz
 			hboxBottlesByStock.Visible = canAddAction;
 			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
-			yEntTareActBtlFromClient.Sensitive = true;
+			yEntTareActBtlFromClient.Sensitive = canAddAction;
 		}
 
 		private void ConfigureTrees()
@@ -2336,7 +2336,7 @@ namespace Vodovoz
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
 			var tareVisible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
-			textTaraComments.Sensitive = true;
+			textTaraComments.Sensitive = CanEditByPermission && !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
 
 			labelTaraComments.Visible = tareVisible;
 			textTaraComments.Visible = tareVisible;
@@ -2362,11 +2362,11 @@ namespace Vodovoz
 			bool canChangeCommentOdz = CanEditByPermission &&
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_odz_op_comment", currentUserId);
 
-			textODZComments.Sensitive = true;
+			textODZComments.Sensitive = canChangeCommentOdz;
 
 			textOPComments.Binding.AddBinding(Entity, e => e.OPComment, w => w.Buffer.Text)
 				.InitializeFromSource();
-			textOPComments.Sensitive = true;
+			textOPComments.Sensitive = CanEditByPermission;
 			textOPComments.Buffer.Changed += OnOpCommentChanged;
 		}
 
@@ -2407,9 +2407,9 @@ namespace Vodovoz
 
 		private void SetSensitivity(bool isSensitive)
 		{
-			_canClose = true;
-			buttonSave.Sensitive = true;
-			btnCancel.Sensitive = true;
+			_canClose = isSensitive;
+			buttonSave.Sensitive = CanEditByPermission && isSensitive;
+			btnCancel.Sensitive = isSensitive;
 		}
 
 		protected bool Validate(ValidationContext validationContext)
@@ -3262,7 +3262,9 @@ namespace Vodovoz
 				ntbOrderEdit.CurrentPage = 5;
 			}
 
-			btnOpnPrnDlg.Sensitive = true;
+			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
+				.OfType<PrintableOrderDocument>()
+				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
 		}
 
 		#endregion
@@ -3330,7 +3332,7 @@ namespace Vodovoz
 
 		private void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
 		{
-			buttonOpenServiceClaim.Sensitive = true;
+			buttonOpenServiceClaim.Sensitive = treeServiceClaim.Selection.CountSelectedRows() > 0;
 		}
 
 		protected void OnButtonOpenServiceClaimClicked(object sender, EventArgs e)
@@ -3654,7 +3656,7 @@ namespace Vodovoz
 				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-				btnDeleteOrderItem.Sensitive = true;
+				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObjects<OrderItem>().Any();
 			}
 		}
 		#endregion
@@ -3747,7 +3749,7 @@ namespace Vodovoz
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
-			//RefreshDebtorDebtNotifier();
+			RefreshDebtorDebtNotifier();
 			UpdateContactPhoneFilter();
 
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(entityVMEntryClient.Subject));
@@ -3759,7 +3761,7 @@ namespace Vodovoz
 					dpf.HidenByDefault = true;
 				});
 
-				entryDeliveryPoint.Sensitive = true;
+				entryDeliveryPoint.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 
 				if(Counterparty.PersonType == PersonType.natural)
 				{
@@ -3790,7 +3792,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				entryDeliveryPoint.Sensitive = true;
+				entryDeliveryPoint.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -3918,12 +3920,37 @@ namespace Vodovoz
 
 			if(bottlesAtDeliveryPoint > bottlesAvgDeliveryPoint)
 			{
-				ylabelBottlesDebtAtDeliveryPoint.Visible = true;
+				ylabelBottlesDebtAtDeliveryPoint.Visible = Entity.OrderAddressType != OrderAddressType.Service;
 				ylabelBottlesDebtAtDeliveryPoint.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг бутылей по адресу: {bottlesAtDeliveryPoint} бут.</span>";
 			}
 			else
 			{
 				ylabelBottlesDebtAtDeliveryPoint.Visible = false;
+			}
+		}
+		private void RefreshDebtorDebtNotifier()
+		{
+			ylabelTotalDebt.UseMarkup = true;
+
+			if(Counterparty != null && Counterparty.PersonType == PersonType.legal)
+			{
+				try
+				{
+					var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+					if(totalDebt > 0)
+					{
+						ylabelTotalDebt.Visible = true;
+						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {totalDebt} руб.</span>";
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex, $"Ошибка при получении задолженности по клиенту {Counterparty.Id}");
+				}
+			}
+			else
+			{
+				ylabelTotalDebt.Visible = false;
 			}
 		}
 
@@ -4001,7 +4028,7 @@ namespace Vodovoz
 			_logger.Info("Открываем печать документов заказа");
 			try
 			{
-				SetSensitivity(true);
+				SetSensitivity(false);
 				var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
 				if(allList.Count <= 0)
 				{
@@ -4056,7 +4083,7 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChanged(object sender, EventArgs e)
 		{
 			//при изменении типа платежа вкл/откл кнопку "ожидание оплаты"
-			buttonWaitForPayment.Sensitive = true;
+			buttonWaitForPayment.Sensitive = CanEditByPermission && IsPaymentTypeBarterOrCashless();
 
 			//при изменении типа платежа вкл/откл кнопку "закрывашка по контракту"
 			chkContractCloser.Visible = IsPaymentTypeCashless();
@@ -4584,7 +4611,7 @@ namespace Vodovoz
 		{
 			object[] items = treeItems.GetSelectedObjects();
 
-			btnDeleteOrderItem.Sensitive = true;
+			btnDeleteOrderItem.Sensitive = items.Any();
 		}
 
 		/// <summary>
@@ -4721,7 +4748,7 @@ namespace Vodovoz
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
-			buttonSelectPaymentType.Sensitive = true;
+			buttonSelectPaymentType.Sensitive = (Counterparty != null) && val && !chkContractCloser.Active && !Entity.IsOrderCashlessAndPaid;
 			if(entryDeliveryPoint.ViewModel != null)
 			{
 				entryDeliveryPoint.ViewModel.IsEditable = val;
@@ -4729,49 +4756,50 @@ namespace Vodovoz
 
 			SetDeliveryScheduleSelectionEditable(val);
 
-			ybuttonFastDeliveryCheck.Sensitive = true;
-			lblDeliveryPoint.Sensitive = true;
-			buttonAddMaster.Sensitive = true;
-			enumSignatureType.Sensitive = true;
-			enumDocumentType.Sensitive = true;
-			buttonAddDoneService.Sensitive = true;
-			buttonAddForSale.Sensitive = true;
-			checkDelivered.Sensitive = true;
-			dataSumDifferenceReason.Sensitive = true;
-			ycheckContactlessDelivery.Sensitive = true;
-			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = true;
+			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
+			lblDeliveryPoint.Sensitive = entryDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Counterparty != null;
+			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
+			enumSignatureType.Sensitive =
+				enumDocumentType.Sensitive = val;
+			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
+				buttonAddForSale.Sensitive = val;
+			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
+			dataSumDifferenceReason.Sensitive = val;
+			ycheckContactlessDelivery.Sensitive = val;
+			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 
 			ChangeGoodsSensitive(val
 				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
-			enumAddRentButton.Sensitive = true && !Entity.IsLoadedFrom1C;
+			enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
 
-			checkPayAfterLoad.Sensitive = true;
-			buttonAddForSale.Sensitive = true;
+			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
+			buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
-			chkContractCloser.Sensitive = true;
+			chkContractCloser.Sensitive = _canSetContractCloser && val && !Entity.SelfDelivery;
 			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
 
 			if(Entity != null)
 			{
-				yCmbPromoSets.Sensitive = true;
+				yCmbPromoSets.Sensitive = val;
 			}
 
-			var canChangeSelfDeliveryGeoGroup = true;
+			var canChangeSelfDeliveryGeoGroup = val
+				|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.WaitForPayment && Entity.SelfDeliveryGeoGroup == null);
 
-			ylabelGeoGroup.Sensitive = true;
-			specialListCmbSelfDeliveryGeoGroup.Sensitive = true;
+			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
+			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 		}
 
 		private void ChangeOrderEditable(bool val)
 		{
 			ChangeGoodsTabSensitiveWithoutGoods(val);
 			SetPadInfoSensitive(val);
-			buttonAddExistingDocument.Sensitive = true;
-			btnAddM2ProxyForThisOrder.Sensitive = true;
-			btnRemExistingDocument.Sensitive = true;
+			buttonAddExistingDocument.Sensitive = val;
+			btnAddM2ProxyForThisOrder.Sensitive = val;
+			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -4780,9 +4808,10 @@ namespace Vodovoz
 					rlStatus = _orderRepository.GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
 				}
 
-				var Sensitive = true;
-				textManagerComments.Editable = true;
-				enumDiverCallType.Sensitive = true;
+				var sensitive = rlStatus.HasValue && CanEditByPermission
+					&& !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+				textManagerComments.Editable = sensitive;
+				enumDiverCallType.Sensitive = sensitive;
 			}
 
 			SetDeliveryDatePickerSensetive();
@@ -4790,18 +4819,18 @@ namespace Vodovoz
 
 		private void ChangeGoodsTabSensitiveWithoutGoods(bool sensitive)
 		{
-			hbox11.Sensitive = true;
-			hboxReturnTareReason.Sensitive = true;
-			orderEquipmentItemsView.Sensitive = true;
-			hbox13.Sensitive = true;
-			depositrefunditemsview.Sensitive = true;
-			table2.Sensitive = true;
+			hbox11.Sensitive = sensitive;
+			hboxReturnTareReason.Sensitive = sensitive;
+			orderEquipmentItemsView.Sensitive = sensitive;
+			hbox13.Sensitive = sensitive;
+			depositrefunditemsview.Sensitive = sensitive;
+			table2.Sensitive = sensitive;
 		}
 
 		private void ChangeGoodsSensitive(bool sensitive)
 		{
-			treeItems.Sensitive = true;
-			hbox12.Sensitive = true;
+			treeItems.Sensitive = sensitive;
+			hbox12.Sensitive = sensitive;
 		}
 
 		private void SetPadInfoSensitive(bool value)
@@ -4810,24 +4839,27 @@ namespace Vodovoz
 			{
 				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
 				{
-					widget.Sensitive = true;
+					widget.Sensitive = IsWaitUntilActive;
 				}
 				else
 				{
-					widget.Sensitive = true;
+					widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
 				}
 			}
 
 			if(chkContractCloser.Active)
 			{
-				buttonSelectPaymentType.Sensitive = true;
+				buttonSelectPaymentType.Sensitive = false;
 			}
 		}
 
 		private void SetDeliveryDatePickerSensetive()
 		{
-			pickerDeliveryDate.Sensitive = true
-				;
+			pickerDeliveryDate.Sensitive =
+				((Order.OrderStatus == OrderStatus.WaitForPayment && !Order.SelfDelivery)
+				|| (Order.OrderStatus == OrderStatus.NewOrder && Order.Id == 0)
+				|| (Order.OrderStatus == OrderStatus.NewOrder && Order.Id != 0 && _canEditDeliveryDateAfterOrderConfirmation))
+				&& (DeliveryPoint != null || Entity.SelfDelivery);
 		}
 
 		private void SetSensitivityOfPaymentType()
@@ -4845,8 +4877,7 @@ namespace Vodovoz
 
 		public void SetDlgToReadOnly()
 		{
-			buttonSave.Sensitive = true;
-			btnCancel.Sensitive = true;
+			buttonSave.Sensitive = btnCancel.Sensitive =
 			hboxStatusButtons.Visible = false;
 		}
 
@@ -4854,13 +4885,13 @@ namespace Vodovoz
 		{
 			if(!CanEditByPermission || !_canEditOrder)
 			{
-				buttonEditOrder.Sensitive = true;
+				buttonEditOrder.Sensitive = false;
 				buttonEditOrder.TooltipText = "Нет права на редактирование";
 			}
 
-			buttonSave.Sensitive = true;
-			menubuttonActions.Sensitive = true;
-			yBtnAddCurrentContract.Sensitive = true;
+			buttonSave.Sensitive = CanEditByPermission;
+			menubuttonActions.Sensitive = CanEditByPermission;
+			yBtnAddCurrentContract.Sensitive = CanEditByPermission;
 
 			if(Entity.CanSetOrderAsAccepted
 				&& (CanFormOrderWithLiquidatedCounterparty || !(Counterparty?.IsLiquidating ?? false)))
@@ -4880,19 +4911,25 @@ namespace Vodovoz
 			}
 
 			textComments.Editable = CanEditByPermission;
-			btnSaveComment.Sensitive = true;
+			btnSaveComment.Sensitive = CanEditByPermission && Entity.OrderStatus != OrderStatus.NewOrder;
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
-			buttonWaitForPayment.Sensitive = true;
+			buttonWaitForPayment.Sensitive = CanEditByPermission && Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = true;
+			buttonCancelOrder.Sensitive = CanEditByPermission &&
+				(_orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
+					|| (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading)) && Entity.OrderStatus != OrderStatus.NewOrder;
 
-			_menuItemSelfDeliveryToLoading.Sensitive = true;
-			_menuItemSelfDeliveryPaid.Sensitive = true
-				;
+			_menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
+				&& Entity.OrderStatus == OrderStatus.Accepted
+				&& _allowLoadSelfDelivery;
+			_menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
+				&& (PaymentType == PaymentType.Cashless || PaymentType == PaymentType.PaidOnline)
+				&& Entity.OrderStatus == OrderStatus.WaitForPayment
+				&& _acceptCashlessPaidSelfDelivery;
 
-			_menuItemCloseOrder.Sensitive = true;
-			_menuItemReturnToAccepted.Sensitive = true;
+			_menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && _canCloseOrders && !Entity.SelfDelivery;
+			_menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 
 		private void UpdateProxyInfo()
@@ -4951,10 +4988,10 @@ namespace Vodovoz
 
 		private void SetDiscountEditable(bool? canEdit = null)
 		{
-			spinDiscount.Sensitive = true;
+			spinDiscount.Sensitive = canEdit ?? enumDiscountUnit.SelectedItem != null && _canChangeDiscountValue && !Entity.IsBottleStock;
 		}
 
-		private void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = true;
+		private void SetDiscountUnitEditable() => enumDiscountUnit.Sensitive = _canChangeDiscountValue && !Entity.IsBottleStock;
 
 		/// <summary>
 		/// Переключает видимость элементов управления депозитами
@@ -5007,7 +5044,7 @@ namespace Vodovoz
 
 		private void Selection_Changed(object sender, EventArgs e)
 		{
-			buttonViewDocument.Sensitive = true;
+			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows() > 0;
 
 			var selectedDoc = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().FirstOrDefault();
 			if(selectedDoc == null)
@@ -5586,21 +5623,45 @@ namespace Vodovoz
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.StorageLogistics:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = true;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.ChainStore:
 					ybuttonToDeliveryAddressType.Visible = false;
 					ybuttonToStorageLogicAddressType.Visible = false;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = true;
+					label7.Visible = true;
+					lblBottlesPlannedToReturn.Visible = true;
+					ylblBottlesPlannedToReturn.Visible = true;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = true;
 					break;
 				case OrderAddressType.Service:
 					ybuttonToDeliveryAddressType.Visible = true;
 					ybuttonToStorageLogicAddressType.Visible = true;
 					ybuttonToServiceType.Visible = false;
+
+					entryBottlesToReturn.Visible = false;
+					label7.Visible = false;
+					lblBottlesPlannedToReturn.Visible = false;
+					ylblBottlesPlannedToReturn.Visible = false;
+					ylabelBottlesDebtAtDeliveryPoint.Visible = false;
 					break;
 			}
 			ylabelOrderAddressType.Visible = true;
@@ -5665,7 +5726,7 @@ namespace Vodovoz
 				entityselectionDeliverySchedule.ViewModel.IsEditable = isEditable;
 			}
 
-			labelDeliverySchedule.Sensitive = true;
+			labelDeliverySchedule.Sensitive = isEditable;
 		}
 
 		private void ResetSelectedDeliveryDate()

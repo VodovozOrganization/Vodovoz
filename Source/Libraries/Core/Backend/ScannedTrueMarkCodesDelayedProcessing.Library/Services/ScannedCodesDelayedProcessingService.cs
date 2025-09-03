@@ -292,17 +292,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					continue;
 				}
 
-
-				var savedCode = getSavedTrueMarkCodeResult.Value;
-
-				if(savedCode.IsTrueMarkWaterIdentificationCode)
-				{
-					codesData[driversScannedCode] = savedCode;
-				}
-				else
-				{
-					codesToRemove.Add(driversScannedCode);
-				}
+				codesData[driversScannedCode] = getSavedTrueMarkCodeResult.Value;
 			}
 
 			foreach(var codeToRemove in codesToRemove)
