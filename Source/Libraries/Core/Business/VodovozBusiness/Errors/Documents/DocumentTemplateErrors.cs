@@ -2,11 +2,11 @@
 
 namespace Vodovoz.Errors.Documents
 {
-	public static class DocumentTemplate
+	public static class DocumentTemplateErrors
 	{
 		public static Error NotFound =>
 			new Error(
-				typeof(DocumentTemplate),
+				typeof(DocumentTemplateErrors),
 				nameof(NotFound),
 				"Не найден шаблон документа");
 	}

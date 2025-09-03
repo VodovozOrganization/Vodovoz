@@ -67,7 +67,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			if(result is null)
 			{
-				return Result.Failure<IDocTemplate>(Errors.Documents.DocumentTemplate.NotFound);
+				return Result.Failure<IDocTemplate>(Errors.Documents.DocumentTemplateErrors.NotFound);
 			}
 
 			return result;
