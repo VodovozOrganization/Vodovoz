@@ -4,7 +4,6 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using OneOf;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,7 @@ using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
@@ -363,28 +363,37 @@ namespace WarehouseApi.Library.Services
 					PopulateTransportCode(trueMarkAnyCodes),
 					PopulateGroupCode(trueMarkAnyCodes),
 					PopulateWaterCode(trueMarkAnyCodes)));
-
-				if(!anyCode.IsTrueMarkWaterIdentificationCode)
-				{
-					continue;
-				}
-
-				var addSingleCodeResult = await AddSingleCode(orderId, nomenclatureId, pickerEmployee, anyCode.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
-
-				if(addSingleCodeResult.IsT0)
-				{
-					return addSingleCodeResult.AsT0;
-				}
-
-				var documentItemToEdit = addSingleCodeResult.AsT1;
-
-				if(nomenclatureDto is null)
-				{
-					nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-				}
-
-				_uow.Save(documentItemToEdit);
 			}
+			
+			var waterCodes =
+				trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode)
+				.ToArray();
+
+			var addCodesResult =
+				await AddCodes(
+					orderId,
+					nomenclatureId,
+					pickerEmployee,
+					waterCodes,
+					allWaterOrderItems,
+					itemsHavingRequiredNomenclature,
+					cancellationToken);
+
+			if(addCodesResult.IsT0)
+			{
+				return addCodesResult.AsT0;
+			}
+
+			var documentItemToEdit = addCodesResult.AsT1;
+
+			if(nomenclatureDto is null)
+			{
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+			}
+
+			_uow.Save(documentItemToEdit);
 
 			try
 			{
@@ -434,11 +443,11 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddSingleCode(
+		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddCodes(
 			int orderId,
 			int nomenclatureId,
 			EmployeeWithLogin pickerEmployee,
-			TrueMarkWaterIdentificationCode waterCode,
+			IEnumerable<TrueMarkWaterIdentificationCode> waterCodes,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CancellationToken cancellationToken)
@@ -469,10 +478,10 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
 
-			checkResult = await _documentErrorsChecker.IsTrueMarkCodeCanBeAdded(
+			checkResult = await _documentErrorsChecker.IsTrueMarkCodesCanBeAdded(
 				orderId,
 				nomenclatureId,
-				waterCode,
+				waterCodes,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,
@@ -489,7 +498,7 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			AddTrueMarkCodeToCarLoadDocumentItem(documentItemToEdit, waterCode);
+			AddTrueMarkCodesToCarLoadDocumentItem(documentItemToEdit, waterCodes);
 
 			return await Task.FromResult(documentItemToEdit);
 		}
@@ -692,45 +701,53 @@ namespace WarehouseApi.Library.Services
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-			CarLoadDocumentItemEntity documentItemToEdit = null;
-
-			foreach(var codeToAdd in newTrueMarkAnyCodes)
+			foreach(var anyCode in newTrueMarkAnyCodes)
 			{
-				trueMarkCodes.Add(codeToAdd.Match(
+				trueMarkCodes.Add(anyCode.Match(
 					PopulateTransportCode(newTrueMarkAnyCodes),
 					PopulateGroupCode(newTrueMarkAnyCodes),
 					PopulateWaterCode(newTrueMarkAnyCodes)));
-
-				if(!codeToAdd.IsTrueMarkWaterIdentificationCode)
-				{
-					continue;
-				}
-
-				var addSingleCodeResult = await AddSingleCode(orderId, nomenclatureId, pickerEmployee, codeToAdd.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
-
-				if(addSingleCodeResult.IsT0)
-				{
-					var otherFailureResult = addSingleCodeResult.AsT0;
-					return RequestProcessingResult.CreateFailure(
-						Result.Failure<ChangeOrderCodeResponse>(otherFailureResult.Result.Errors),
-						new ChangeOrderCodeResponse
-						{
-							Nomenclature = otherFailureResult.FailureData.Nomenclature,
-							Result = otherFailureResult.FailureData.Result,
-							Error = otherFailureResult.FailureData.Error,
-						});
-				}
-
-				documentItemToEdit = addSingleCodeResult.AsT1;
-
-				if(nomenclatureDto is null)
-				{
-					nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-				}
-
-				_uow.Save(documentItemToEdit);
 			}
 
+			CarLoadDocumentItemEntity documentItemToEdit = null;
+
+			var codesToAdd = 
+				newTrueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode)
+				.ToArray();
+
+			var addCodesResult =
+				await AddCodes(
+					orderId,
+					nomenclatureId,
+					pickerEmployee,
+					codesToAdd,
+					allWaterOrderItems,
+					itemsHavingRequiredNomenclature,
+					cancellationToken);
+
+			if(addCodesResult.IsT0)
+			{
+				var otherFailureResult = addCodesResult.AsT0;
+				return RequestProcessingResult.CreateFailure(
+					Result.Failure<ChangeOrderCodeResponse>(otherFailureResult.Result.Errors),
+					new ChangeOrderCodeResponse
+					{
+						Nomenclature = otherFailureResult.FailureData.Nomenclature,
+						Result = otherFailureResult.FailureData.Result,
+						Error = otherFailureResult.FailureData.Error,
+					});
+			}
+
+			documentItemToEdit = addCodesResult.AsT1;
+
+			if(nomenclatureDto is null)
+			{
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+			}
+
+			_uow.Save(documentItemToEdit);
 			_uow.Commit();
 
 			if(nomenclatureDto != null)
@@ -926,6 +943,16 @@ namespace WarehouseApi.Library.Services
 				newLoadOperationState.GetEnumTitle());
 
 			return true;
+		}
+
+		private void AddTrueMarkCodesToCarLoadDocumentItem(
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCode)
+		{
+			foreach(var code in trueMarkWaterCode)
+			{
+				AddTrueMarkCodeToCarLoadDocumentItem(carLoadDocumentItem, code);
+			}
 		}
 
 		private void AddTrueMarkCodeToCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)

@@ -52,8 +52,10 @@ namespace Vodovoz.Filters.ViewModels
 		private bool? _restrictWithoutSelfDelivery;
 		private ViewTypes _viewTypes;
 		private bool _canChangeDeliveryPoint = true;
+		private bool _canChangeSalesManager = true;
 		private DeliveryPoint _deliveryPoint;
 		private Employee _author;
+		private Employee _salesManager;
 		private int? _orderId;
 		private int? _onlineOrderId;
 		private string _counterpartyPhone;
@@ -76,7 +78,8 @@ namespace Vodovoz.Filters.ViewModels
 		public OrderJournalFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
@@ -86,7 +89,10 @@ namespace Vodovoz.Filters.ViewModels
 
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope)
 										  ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-
+			
+			ManagerSelectorFactory = employeeJournalFactory?.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory() 
+			                         ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
@@ -103,6 +109,7 @@ namespace Vodovoz.Filters.ViewModels
 		public IEnumerable<PaymentFrom> PaymentsFrom => _paymentsFrom ?? (_paymentsFrom = UoW.GetAll<PaymentFrom>().ToList());
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public virtual IEntityAutocompleteSelectorFactory ManagerSelectorFactory { get; }
 		public IEntityEntryViewModel AuthorViewModel { get; private set; }
 
 		#endregion
@@ -239,6 +246,17 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _author, value);
 		}
 
+		public virtual Employee SalesManager
+		{
+			get => _salesManager;
+			set => UpdateFilterField(ref _salesManager, value);
+		}
+		
+		public bool CanChangeSalesManager{
+			get => _canChangeSalesManager;
+			set => UpdateFilterField(ref _canChangeSalesManager, value);
+		}
+		
 		public bool CanChangeDeliveryPoint
 		{
 			get => _canChangeDeliveryPoint;

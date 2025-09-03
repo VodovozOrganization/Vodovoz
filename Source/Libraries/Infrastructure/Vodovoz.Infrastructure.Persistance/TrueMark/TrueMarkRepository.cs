@@ -323,7 +323,15 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.Where(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.Select(Projections.Sum(Projections.Property<OrderItem>(x => x.Count)))
+				.Select(Projections.Sum(
+					Projections.Conditional(
+							Restrictions.IsNull(
+								Projections.Property(() => orderItemAlias.ActualCount)
+
+							),
+							Projections.Property(() => orderItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount)
+						)))
 				.SingleOrDefault<decimal>();
 
 			return (int)codesRequired;

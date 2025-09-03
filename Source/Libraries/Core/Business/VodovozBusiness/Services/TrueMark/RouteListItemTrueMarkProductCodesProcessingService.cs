@@ -1,9 +1,10 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Repositories;
@@ -38,7 +39,7 @@ namespace VodovozBusiness.Services.TrueMark
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService;
 		}
-
+		
 		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
 		{
 			if((trueMarkCodeResult.IsTrueMarkTransportCode

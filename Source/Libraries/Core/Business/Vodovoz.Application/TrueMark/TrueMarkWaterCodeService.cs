@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -942,8 +942,9 @@ namespace Vodovoz.Application.TrueMark
 			{
 				var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(requestCodes, cancellationToken);
 
-				if(productInstancesInfo != null 
-					&& (productInstancesInfo.InstanceStatuses is null || !productInstancesInfo.InstanceStatuses.Any())
+				if(productInstancesInfo != null
+					&& (productInstancesInfo.InstanceStatuses is null
+					|| !productInstancesInfo.InstanceStatuses.Any())
 					&& productInstancesInfo.NoCodesFound)
 				{
 					_logger.LogError("Ошибка при запросе к API TrueMark, нет информации о кодах");

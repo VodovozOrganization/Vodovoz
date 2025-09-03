@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;

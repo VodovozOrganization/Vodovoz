@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;

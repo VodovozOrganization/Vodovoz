@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.Dialog;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
 namespace ExportTo1c.Library
@@ -25,6 +26,7 @@ namespace ExportTo1c.Library
 
 			var ordersByDate = orders
 				.Where(o => o.DeliveryDate >= startOfYesterday && o.DeliveryDate <= endOfYesterday)
+				.OrderBy(o => o.DeliveryDate) 
 				.GroupBy(o => o.DeliveryDate)
 				.ToDictionary(g => g.Key, g => g.ToList());
 
@@ -71,7 +73,8 @@ namespace ExportTo1c.Library
 
 				foreach(var item in items)
 				{
-					var rowItem = new XElement("Строка",
+					var rowItem = new XElement("Строка",						
+						new XAttribute("Заказ", item.Order.Id),
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
@@ -79,7 +82,9 @@ namespace ExportTo1c.Library
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value));
+						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
+						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash)
+						);
 
 					xElements.Add(rowItem);
 

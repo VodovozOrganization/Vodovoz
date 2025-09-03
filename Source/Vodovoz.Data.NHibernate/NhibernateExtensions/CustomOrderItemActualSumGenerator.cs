@@ -34,7 +34,7 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 				treeBuilder.Subtract(
 					treeBuilder.Multiply(
 						treeBuilder.Dot(orderItemPrice, treeBuilder.Ident("Price")),
-						treeBuilder.MethodCall("IFNULL",
+						treeBuilder.MethodCall("COALESCE",
 							treeBuilder.Dot(orderItemActualCount, treeBuilder.Ident("ActualCount")),
 							treeBuilder.Dot(orderItemCount, treeBuilder.Ident("Count")))),
 					treeBuilder.Dot(orderItemDiscountMoney, treeBuilder.Ident("DiscountMoney"))),

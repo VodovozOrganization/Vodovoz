@@ -162,6 +162,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			{
 				query.Where(o => o.OnlineOrderPaymentType == _filterViewModel.RestrictPaymentType);
 			}
+			
+			if(_filterViewModel.RestrictOnlinePaymentSource.HasValue)
+			{
+				query.Where(o => o.OnlinePaymentSource == _filterViewModel.RestrictOnlinePaymentSource);
+			}
 
 			if(_filterViewModel.EmployeeWorkWith != null)
 			{
@@ -371,6 +376,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders)
 				|| _filterViewModel.OnlineOrderPaymentStatus.HasValue
 				|| _filterViewModel.RestrictPaymentType.HasValue
+				|| _filterViewModel.RestrictOnlinePaymentSource.HasValue
 				|| _filterViewModel.DeliveryPoint != null
 				|| _filterViewModel.RestrictSelfDelivery.HasValue
 				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue

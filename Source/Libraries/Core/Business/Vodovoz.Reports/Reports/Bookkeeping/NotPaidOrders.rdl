@@ -1151,6 +1151,7 @@
 FROM orders o
 INNER JOIN counterparty c ON o.client_id = c.id
 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
 LEFT JOIN organizations org ON cc.organization_id = org.id
 WHERE
       o.order_payment_status != 'Paid'
@@ -1193,6 +1194,10 @@ WHERE
       		AND (NOT c.close_delivery_debt_type IN (@DebtType_exclude) OR c.close_delivery_debt_type IS NULL)
       )
       AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      )  
+      AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
@@ -1204,6 +1209,7 @@ WHERE
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
       AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
+      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   
   AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
 ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
@@ -1224,6 +1230,12 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
           <QueryParameter Name="Counterparty_exclude">
             <Value>={?Counterparty_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="Organization_include">
             <Value>={?Organization_include}</Value>
@@ -1269,6 +1281,9 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
           <QueryParameter Name="order_by_date">
             <Value>={?order_by_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1481,6 +1496,27 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_tender">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>

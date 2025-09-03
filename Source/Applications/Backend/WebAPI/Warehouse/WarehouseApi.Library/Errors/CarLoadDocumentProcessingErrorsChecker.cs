@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
@@ -148,9 +149,12 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(carLoadDocument);
+
 			var isNotAllCodesAdded = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
+					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
@@ -163,6 +167,27 @@ namespace WarehouseApi.Library.Errors
 			}
 
 			return Result.Success();
+		}
+
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(CarLoadDocumentEntity carLoadDocument)
+		{
+			var ordersInDocument = carLoadDocument.Items
+				.Where(x => x.OrderId != null)
+				.Select(x => x.OrderId.Value)
+				.Distinct()
+				.ToList();
+
+			var undeliveredStatuses = new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+			
+			var cancelledOrders =
+				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
+
+			return cancelledOrders.Select(o => o.Id);
 		}
 
 		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
@@ -209,10 +234,10 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public async Task<Result> IsTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsTrueMarkCodesCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			TrueMarkWaterIdentificationCode trueMarkWaterCode,
+			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCodes,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
@@ -240,13 +265,6 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsScannedCodeValid(trueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
 			result = IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems);
 
 			if(result.IsFailure)
@@ -268,14 +286,24 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
-
-			if(result.IsFailure)
+			foreach(var trueMarkWaterCode in trueMarkWaterCodes)
 			{
-				return result;
+				result = IsScannedCodeValid(trueMarkWaterCode);
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
+
+				result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
 			}
 
-			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(trueMarkWaterCode, cancellationToken);
+			return await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(trueMarkWaterCodes, cancellationToken);
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(

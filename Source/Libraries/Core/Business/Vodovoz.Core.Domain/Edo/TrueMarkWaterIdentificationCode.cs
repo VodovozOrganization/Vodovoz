@@ -1,5 +1,5 @@
-using QS.DomainModel.Entity;
 using System;
+using QS.DomainModel.Entity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
