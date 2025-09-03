@@ -5,14 +5,14 @@ namespace Vodovoz.Errors.Common
 	/// <summary>
 	/// Ошибки апи клиентского приложения
 	/// </summary>
-	public static class CustomerAppsApiClient
+	public static class CustomerAppsApiClientErrors
 	{
 		/// <summary>
 		/// Неизвестный клиент
 		/// </summary>
 		public static Error UnknownCounterparty =>
 			new Error(
-				typeof(CustomerAppsApiClient),
+				typeof(CustomerAppsApiClientErrors),
 				nameof(UnknownCounterparty),
 				"Неизвестный клиент");
 
@@ -21,7 +21,7 @@ namespace Vodovoz.Errors.Common
 		/// </summary>
 		public static Error UnsupportedSource =>
 			new Error(
-				typeof(CustomerAppsApiClient),
+				typeof(CustomerAppsApiClientErrors),
 				nameof(UnsupportedSource),
 				"Неизвестный источник запроса");
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Errors.Common
 		/// </summary>
 		public static Error UnknownUser =>
 			new Error(
-				typeof(CustomerAppsApiClient),
+				typeof(CustomerAppsApiClientErrors),
 				nameof(UnknownUser),
 				"Неизвестный пользователь");
 	}
