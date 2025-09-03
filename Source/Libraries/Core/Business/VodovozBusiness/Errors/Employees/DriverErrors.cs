@@ -2,13 +2,13 @@
 
 namespace Vodovoz.Errors.Employees
 {
-	public static class Driver
+	public static class DriverErrors
 	{
 		/// <summary>
 		/// Водитель не найден
 		/// </summary>
 		public static Error NotFound =>
-			new Error(typeof(Driver),
+			new Error(typeof(DriverErrors),
 				nameof(NotFound),
 				"Водитель не найден");
 
@@ -16,7 +16,7 @@ namespace Vodovoz.Errors.Employees
 		/// Водитель не может принимать звонки от контрагента
 		/// </summary>
 		public static Error CantRecieveCounterpartyCalls =>
-			new Error(typeof(Driver),
+			new Error(typeof(DriverErrors),
 				nameof(CantRecieveCounterpartyCalls),
 				"Водитель не может принимать звонки от контрагента");
 	}

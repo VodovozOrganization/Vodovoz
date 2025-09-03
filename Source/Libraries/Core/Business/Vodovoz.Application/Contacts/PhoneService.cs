@@ -96,12 +96,12 @@ namespace Vodovoz.Application.Contacts
 
 				if(driver is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 				}
 
 				if(!driver.CanRecieveCounterpartyCalls)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.CantRecieveCounterpartyCalls);
+					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.CantRecieveCounterpartyCalls);
 				}
 
 				var phone = driver.PhoneForCounterpartyCalls;

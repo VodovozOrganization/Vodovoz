@@ -110,7 +110,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(driver is null)
 			{
-				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
@@ -341,7 +341,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(currentDriver is null)
 			{
-				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return new DriverTransfersInfoResponse
