@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Errors.Logistics
 {
-	public static partial class TariffZone
+	public static partial class TariffZoneErrors
 	{
 		public static class FastDelivery
 		{

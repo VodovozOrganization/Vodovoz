@@ -51,7 +51,7 @@ namespace Vodovoz.Validation
 
 			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
 			{
-				return Result.Failure(Errors.Logistics.TariffZone.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom));
+				return Result.Failure(Errors.Logistics.TariffZoneErrors.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom));
 			}
 
 			var total19LBottlesToDeliver = order.Total19LBottlesToDeliver;
