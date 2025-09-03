@@ -159,14 +159,14 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Result.Failure(Errors.Email.EmailErrors.MissingDocumentForSending);
 			}
 
 			var emailAddress = GetEmailAddressForBill(order);
 
 			if(emailAddress is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+				return Result.Failure(Errors.Email.EmailErrors.MissingEmailForRequiredMailType);
 			}
 
 			var dateTimeNow = DateTime.Now;
@@ -204,7 +204,7 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{			
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Result.Failure(Errors.Email.EmailErrors.MissingDocumentForSending);
 			}
 
 			try
@@ -213,7 +213,7 @@ namespace Vodovoz.Services
 
 				if(_emailAddressForBill is null)
 				{
-					return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+					return Result.Failure(Errors.Email.EmailErrors.MissingEmailForRequiredMailType);
 				}
 
 				var dateTimeNow = DateTime.Now;
