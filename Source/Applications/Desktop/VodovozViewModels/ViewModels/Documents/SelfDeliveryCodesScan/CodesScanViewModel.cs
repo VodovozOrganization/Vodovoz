@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
 			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
 
-			DeleteCodeCommand = new DelegateCommand(DeleteCode);
+			DeleteCodeCommand = new DelegateCommand(() => DeleteCode());
 
 			_organizationInn = _selfDeliveryDocument.Order.Contract.Organization.INN;
 
@@ -178,6 +178,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					return;
 				}
 
+				var stagingCodeToDelete = GetAddedStagingCodeByRawCode(rawCode);
+
 				var unitCodes = SelectedRow.Children.Any()
 					? SelectedRow.Children.Select(x => x.RawCode).ToList()
 					: new List<string> { SelectedRow.RawCode };
@@ -189,7 +191,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					if(parentRawCode != null)
+					if(parentRawCode != null || stagingCodeToDelete?.ParentCodeId != null)
 					{
 						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя удалять дочерний код из агрегатного.");
 
@@ -207,26 +209,57 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					foreach(var unitCode in unitCodes)
+					if(stagingCodeToDelete != null)
 					{
-						ParseRawCode(unitCode, out var code);
-
-						var documentItem = _selfDeliveryDocument.Items
-							.FirstOrDefault(di => di.TrueMarkProductCodes.Any(pc => pc.SourceCode.RawCode == unitCode));
-
-						var toRemoveProducCode = documentItem?.TrueMarkProductCodes?
-							.FirstOrDefault(x => x.SourceCode.RawCode == unitCode);
-
-						documentItem?.TrueMarkProductCodes?.Remove(toRemoveProducCode);
+						_unitOfWork.Delete(stagingCodeToDelete);
 					}
 
-					var toRemoveRow = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
-
-					CodeScanRows.Remove(toRemoveRow);
+					RemoveCodeFromScanRows(rawCode);
 
 					RefreshCodeScanRows();
 				});
 			}
+		}
+
+		private void RemoveCodeFromScanRows(string rawCode)
+		{
+			var scanRowToRemove = GetCodeScanRowByRawCode(rawCode);
+			RemoveCodeScanRow(scanRowToRemove);
+		}
+
+		private CodeScanRow GetCodeScanRowByRawCode(string rawCode)
+		{
+			var scanRowToRemove = CodeScanRows.FirstOrDefault(x => x.RawCode == rawCode);
+			return scanRowToRemove;
+		}
+
+		private void RemoveCodeScanRows(IEnumerable<CodeScanRow> codeScanRows)
+		{
+			foreach(var codeScanRow in codeScanRows)
+			{
+				CodeScanRows.Remove(codeScanRow);
+			}
+		}
+
+		private void RemoveCodeScanRow(CodeScanRow codeScanRow)
+		{
+			if(!CodeScanRows.Contains(codeScanRow))
+			{
+				throw new InvalidOperationException("Попытка удалить строку, которой нет в списке");
+			}
+
+			CodeScanRows.Remove(codeScanRow);
+		}
+
+		private StagingTrueMarkCode GetAddedStagingCodeByRawCode(string rawCode)
+		{
+			ParseRawCode(rawCode, out var code);
+
+			var stagingCode = GetSelfDeliveryDocumentItemStagingTrueMarkCodes().GetAwaiter().GetResult()
+				.SelectMany(x => x.Value)
+				.FirstOrDefault(x => x.RawCode == rawCode);
+
+			return stagingCode;
 		}
 
 		private void CheckAllCodeScanned()
@@ -460,6 +493,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				if(createStagingTrueMarkCodeResult.IsFailure)
 				{
+					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCode.StagingTrueMarkCodeDuplicate))
+					{
+						additionalInformation.Add("Повторное сканирование");
+						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
+						return;
+					}
+
 					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
 					{
 						additionalInformation.AddRange(createStagingTrueMarkCodeResult.Errors.Select(x => x.Message));
@@ -482,6 +522,12 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				var stagingCode = createStagingTrueMarkCodeResult.Value;
 
+				//Если у созданного кода уже есть Id, значит либо этот код, либо его родительский код уже обрабатывались
+				if(stagingCode.Id != 0)
+				{
+					return;
+				}
+
 				var isCodeCanBeAddedResult = await IsTrueMarkStagingCodeCanBeAdded(
 					stagingCode,
 					_selfDeliveryDocument.Items.First().Nomenclature.Id,
@@ -494,7 +540,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					return;
 				}
 
+				var existingCodeScanRowsToRemove = GetExistingScanRowsToRemove(stagingCode);
+
 				_unitOfWork.Save(stagingCode);
+
+				RemoveCodeScanRows(existingCodeScanRowsToRemove);
 
 				await UpdateCodeScanRowsByAnyCode(stagingCode, cancellationToken);
 			}
@@ -538,6 +588,33 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 
 			return Result.Success();
+		}
+
+		private IEnumerable<CodeScanRow> GetExistingScanRowsToRemove(StagingTrueMarkCode stagingTrueMarkCode)
+		{
+			var rowsToRemove = new List<CodeScanRow>();
+
+			var codesToRemove = stagingTrueMarkCode.AllCodes
+				.Where(x => x.Id != 0);
+
+			if(codesToRemove is null || !codesToRemove.Any())
+			{
+				return rowsToRemove;
+			}
+
+			foreach(var code in codesToRemove)
+			{
+				var row = GetCodeScanRowByRawCode(code.RawCode);
+
+				if(row is null)
+				{
+					continue;
+				}
+
+				rowsToRemove.Add(row);
+			}
+
+			return rowsToRemove;
 		}
 
 		private void AddNewCodeToCheck(string rawCode, string error = null)
@@ -685,7 +762,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			(List<StagingTrueMarkCode> childrenCodesList, string gtin, string rawCode,
 						string identificationCode, string nomenclatureName, bool? hasInOrder) codeData =
-						(stagingCode.AllIdentificationCodes.ToList(),
+						(stagingCode.IsIdentification ? null : stagingCode.AllIdentificationCodes.ToList(),
 						stagingCode.Gtin,
 						ReplaceCodeSpecSymbols(stagingCode.RawCode),
 						stagingCode.IsTransport ? ReplaceCodeSpecSymbols(stagingCode.RawCode) : stagingCode.IdentificationCode,
