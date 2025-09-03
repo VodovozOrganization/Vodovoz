@@ -34,14 +34,14 @@ namespace Vodovoz.Validation
 
 			if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.CoordinatesIsMissing);
+				return Result.Failure(Errors.Clients.DeliveryPointErrors.FastDelivery.CoordinatesIsMissing);
 			}
 
 			var district = order.DeliveryPoint.District;
 
 			if(district == null)
 			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.DistrictIsMissing);
+				return Result.Failure(Errors.Clients.DeliveryPointErrors.FastDelivery.DistrictIsMissing);
 			}
 
 			if(district.TariffZone == null)

@@ -2,14 +2,14 @@
 
 namespace Vodovoz.Errors.Clients
 {
-	public static partial class DeliveryPoint
+	public static partial class DeliveryPointErrors
 	{
 		/// <summary>
 		/// Точка доставки не найдена
 		/// </summary>
 		public static Error NotFound =>
 			new Error(
-				typeof(DeliveryPoint),
+				typeof(DeliveryPointErrors),
 				nameof(NotFound),
 				"Точка доставки не найдена");
 	}

@@ -147,7 +147,7 @@ namespace DriverAPI.Controllers.V5
 
 						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound
 							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound
-							|| firstError == Vodovoz.Errors.Clients.DeliveryPoint.NotFound)
+							|| firstError == Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound)
 						{
 							return StatusCodes.Status404NotFound;
 						}

@@ -138,7 +138,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(deliveryPoint is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPoint.NotFound);
+				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound);
 			}
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)

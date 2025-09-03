@@ -478,7 +478,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(deliveryPoint is null)
 			{
-				return Vodovoz.Errors.Clients.DeliveryPoint.NotFound;
+				return Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound;
 			}
 
 			if(deliverySchedule is null)

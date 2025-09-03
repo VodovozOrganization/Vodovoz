@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Errors.Clients
 {
-	public static partial class DeliveryPoint
+	public static partial class DeliveryPointErrors
 	{
 		public static class FastDelivery
 		{
