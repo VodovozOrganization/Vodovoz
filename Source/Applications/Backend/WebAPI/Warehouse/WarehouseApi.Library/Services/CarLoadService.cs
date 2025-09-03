@@ -880,20 +880,11 @@ namespace WarehouseApi.Library.Services
 				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
 			}
 
-			NomenclatureDto nomenclatureDto = null;
-
-			var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-			foreach(var deleteTrueMarkAnyCode in deleteTrueMarkAnyCodes)
-			{
-				
-			}
+			var document = itemsHavingRequiredNomenclature.FirstOrDefault();
+			var nomenclatureDto = document == null 
+				? null
+				: _carLoadDocumentConverter.ConvertToApiNomenclature(document);
 			
-			if(nomenclatureDto != null)
-			{
-				nomenclatureDto.Codes = trueMarkCodes;
-			}
-
 			var successResponse = new DeleteOrderCodeResponse
 			{
 				Nomenclature = nomenclatureDto,
