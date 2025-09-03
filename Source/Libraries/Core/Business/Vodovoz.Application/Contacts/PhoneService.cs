@@ -61,7 +61,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(!counterpartyPhoneIds.Any())
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.PhoneErrors.NotFound);
 				}
 
 				var orderId = _orderRepository
@@ -108,7 +108,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(phone is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.PhoneErrors.NotFound);
 				}
 
 				return Result.Success(phone.DigitsNumber);
