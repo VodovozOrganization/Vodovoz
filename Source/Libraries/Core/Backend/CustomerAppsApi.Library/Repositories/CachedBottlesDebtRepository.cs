@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -13,21 +14,21 @@ namespace CustomerAppsApi.Library.Repositories
 	{
 		private readonly ILogger<CachedBottlesDebtRepository> _logger;
 		private readonly IBottlesRepository _bottlesRepository;
-		private readonly IDistributedCache _distributedCache;
+		private readonly IMemoryCache _memoryCache;
 
 		public CachedBottlesDebtRepository(
 			ILogger<CachedBottlesDebtRepository> logger,
 			IBottlesRepository bottlesRepository,
-			IDistributedCache distributedCache)
+			IMemoryCache memoryCache)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
-			_distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+			_memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 		}
 
-		public async Task<int> GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, CancellationToken cancellationToken = default)
+		public int GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, int counterpartyDebtCacheMinutes)
 		{
-			string bottlesDebt = null;
+			var bottlesDebt = 0;
 			var counterparty = new Counterparty
 			{
 				Id = counterpartyId
@@ -35,7 +36,11 @@ namespace CustomerAppsApi.Library.Repositories
 
 			try
 			{
-				bottlesDebt = await _distributedCache.GetStringAsync(counterpartyId.ToString(), cancellationToken);
+				if(_memoryCache.TryGetValue(counterpartyId, out bottlesDebt))
+				{
+					_logger.LogInformation("Получили данные из кэша по клиенту {CounterpartyId}", counterpartyId);
+					return bottlesDebt;
+				}
 			}
 			catch
 			{
@@ -44,32 +49,17 @@ namespace CustomerAppsApi.Library.Repositories
 					counterpartyId);
 				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
 			}
-			
-			var result = default(int);
-			
-			if(string.IsNullOrWhiteSpace(bottlesDebt))
-			{
-				_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
-				result = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
 
-				_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
-				await _distributedCache.SetStringAsync(
-					counterpartyId.ToString(),
-					result.ToString(),
-					new DistributedCacheEntryOptions
-					{
-						AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-					},
-					cancellationToken
-				);
-			}
-			else
-			{
-				_logger.LogInformation("Получаем данные из кэша по клиенту {CounterpartyId}", counterpartyId);
-				result = int.Parse(bottlesDebt);
-			}
+			_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
+			bottlesDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
+
+			_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
+			_memoryCache.Set(
+				counterpartyId,
+				bottlesDebt,
+				TimeSpan.FromMinutes(counterpartyDebtCacheMinutes));
 			
-			return result;
+			return bottlesDebt;
 		}
 	}
 }
