@@ -699,7 +699,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.ToList();
 
 			var driverApiClientRequestIsNotSuccess = errors
-				.Where(x => x.Code == DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Where(x => x.Code == DriverApiClientErrors.RequestIsNotSuccess(x.Message))
 				.Select(x => x.Message)
 				.ToList();
 
@@ -854,14 +854,14 @@ namespace Vodovoz.ViewModels.Logistic
 					else
 					{
 						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
-                          $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
-                          $".{typeof(Errors.Common.DriverApiClient).Name}" +
-                          $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+                          $"{typeof(Errors.Common.DriverApiClientErrors).Namespace}" +
+                          $".{typeof(Errors.Common.DriverApiClientErrors).Name}" +
+                          $".{nameof(Errors.Common.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
 				{
-					notifyingErrors.Add(DriverApiClient.RequestIsNotSuccess(ex.Message));
+					notifyingErrors.Add(DriverApiClientErrors.RequestIsNotSuccess(ex.Message));
 				}
 			}
 
