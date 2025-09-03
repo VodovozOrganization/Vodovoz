@@ -473,7 +473,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(counterparty is null)
 			{
-				return Vodovoz.Errors.Clients.Counterparty.NotFound;
+				return Vodovoz.Errors.Clients.CounterpartyErrors.NotFound;
 			}
 
 			if(deliveryPoint is null)

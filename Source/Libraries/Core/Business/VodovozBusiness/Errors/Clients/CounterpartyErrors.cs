@@ -2,14 +2,14 @@
 
 namespace Vodovoz.Errors.Clients
 {
-	public static partial class Counterparty
+	public static partial class CounterpartyErrors
 	{
 		/// <summary>
 		/// Контрагент не найден
 		/// </summary>
 		public static Error NotFound =>
 			new Error(
-				typeof(Counterparty),
+				typeof(CounterpartyErrors),
 				nameof(NotFound),
 				"Контрагент не найден");
 
@@ -18,7 +18,7 @@ namespace Vodovoz.Errors.Clients
 		/// </summary>
 		public static Error DeliveriesClosed =>
 			new Error(
-				typeof(Counterparty),
+				typeof(CounterpartyErrors),
 				nameof(DeliveriesClosed),
 				"Поставки закрыты");
 
@@ -27,7 +27,7 @@ namespace Vodovoz.Errors.Clients
 		/// </summary>
 		public static Error IsNotLegalEntity =>
 			new Error(
-				typeof(Counterparty),
+				typeof(CounterpartyErrors),
 				nameof(IsNotLegalEntity),
 				"Контрагент не является юридическим лицом");
 
@@ -36,7 +36,7 @@ namespace Vodovoz.Errors.Clients
 		/// </summary>
 		public static Error HasNoInn =>
 			new Error(
-				typeof(Counterparty),
+				typeof(CounterpartyErrors),
 				nameof(HasNoInn),
 				"У контрагента не указан ИНН");
 	}
