@@ -40,8 +40,8 @@ using Order = Vodovoz.Domain.Orders.Order;
 using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
 using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
-using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
-using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace DriverAPI.Library.V6.Services
@@ -298,7 +298,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)

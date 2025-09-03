@@ -196,8 +196,8 @@ namespace DriverAPI.Controllers.V6
 
 						var firstError = result.Errors.First();
 
-						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
-							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState)
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
@@ -207,7 +207,7 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status403Forbidden;
 						}
 
-						if(firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound)
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound)
 						{
 							return StatusCodes.Status404NotFound;
 						}

@@ -5,13 +5,13 @@ using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Logistics
 {
-	public static partial class RouteList
+	public static partial class RouteListErrors
 	{
 		public static class RouteListItem
 		{
 			public static Error NotFound =>
 				new Error(
-					typeof(RouteList),
+					typeof(RouteListErrors),
 					nameof(NotFound),
 					"Адрес маршрутного листа не найден");
 
@@ -23,13 +23,13 @@ namespace Vodovoz.Errors.Logistics
 
 			public static Error NotEnRouteState =>
 				new Error(
-					typeof(RouteList),
+					typeof(RouteListErrors),
 					nameof(NotEnRouteState),
 					$"Адрес маршрутного листа не в статусе {RouteListItemStatus.EnRoute.GetEnumDisplayName()}");
 
 			public static Error NotCompletedState =>
 				new Error(
-					typeof(RouteList),
+					typeof(RouteListErrors),
 					nameof(NotCompletedState),
 					$"Адрес маршрутного листа не в статусе {RouteListItemStatus.Completed.GetEnumDisplayName()}");
 			

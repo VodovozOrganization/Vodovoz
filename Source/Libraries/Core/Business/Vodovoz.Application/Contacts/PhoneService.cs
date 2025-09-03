@@ -87,7 +87,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(routeList is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteListErrors.NotFound);
 				}
 
 				var driver = _employeeRepository

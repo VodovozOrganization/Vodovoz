@@ -4266,7 +4266,7 @@ namespace Vodovoz
 						ImportanceLevel.Error,
 						string.Join(", ",
 						result.Errors
-						.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+						.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 						.Select(x => x.Message))
 						);
 				}

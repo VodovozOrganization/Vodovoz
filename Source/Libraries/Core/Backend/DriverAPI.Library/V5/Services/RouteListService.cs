@@ -126,7 +126,7 @@ namespace DriverAPI.Library.V5.Services
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ {RouteListItemId} не нейден", routeListAddressId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(routeListAddress.Order is null)
@@ -161,7 +161,7 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
@@ -174,7 +174,7 @@ namespace DriverAPI.Library.V5.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
@@ -200,14 +200,14 @@ namespace DriverAPI.Library.V5.Services
 		{
 			if(routeListAddressId <= 0)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
@@ -222,12 +222,12 @@ namespace DriverAPI.Library.V5.Services
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.Completed)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState);
 			}
 
 			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);

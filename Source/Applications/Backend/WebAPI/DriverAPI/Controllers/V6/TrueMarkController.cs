@@ -17,8 +17,8 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
 using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
-using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
-using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace DriverAPI.Controllers.V6

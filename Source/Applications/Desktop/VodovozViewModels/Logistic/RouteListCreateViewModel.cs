@@ -644,7 +644,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			bool skipOverfillValidation = false;
 
-			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
+			var overfillErrorsCodes = Errors.Logistics.RouteListErrors.OverfilledErrorCodes;
 
 			var overfillErrorsMessages = beforeAcceptValidation.Errors.Select(x => x.Message).ToArray();
 
@@ -822,7 +822,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(routeList.Status != RouteListStatus.New)
 			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.IncorrectStatusForAccept);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.IncorrectStatusForAccept);
 			}
 
 			var contextItems = new Dictionary<object, object>
@@ -835,7 +835,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(!validationService.Validate(routeList, context))
 			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
@@ -911,7 +911,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 						if(!validationService.Validate(routeList, contextEnroute))
 						{
-							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
+							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 						}
 
 						_routeListService.SendEnRoute(unitOfWork, routeList);
