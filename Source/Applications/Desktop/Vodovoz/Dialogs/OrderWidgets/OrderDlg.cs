@@ -1505,7 +1505,7 @@ namespace Vodovoz
 
 			if(isValidateFailure)
 			{
-				if(edoValidateResult.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd || error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+				if(edoValidateResult.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd || error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
 					&& !ServicesConfig.InteractiveService.Question(
 						"Вы уверены, что хотите отправить повторно?\n" +
 						string.Join("\n - ", errorMessages),
