@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NPOI.SS.Formula.Functions;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -25,6 +26,7 @@ using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 using VodovozInfrastructure.Keyboard;
+using static Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan.CodesScanViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
@@ -248,9 +250,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 
 			_isAllCodesScannedCheckInProgress = true;
-			_isAllCodesScanned = true;
 
 			var scannedCodesByItems = await GetSelfDeliveryDocumentItemStagingTrueMarkCodes();
+
+			_isAllCodesScanned =
+				!scannedCodesByItems.Any(x => x.Key.Amount > x.Value.Where(c => c.IsIdentification).Count());
 
 			await Task.Delay(1000);
 
@@ -295,7 +299,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		private async Task DoUpdate(CancellationToken cancellationToken)
 		{
-			bool scanningInProcess = true;
+			var scanningInProcess = true;
 
 			while(scanningInProcess && !cancellationToken.IsCancellationRequested)
 			{
@@ -389,13 +393,15 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		private void FillAlreadyScannedNomenclatures()
 		{
+			var codesData = GetSelfDeliveryDocumentItemStagingTrueMarkCodes().GetAwaiter().GetResult();
+
 			foreach(var selfDeliveryDocumentItem in _selfDeliveryDocument.Items)
 			{
 				var nomenclature = selfDeliveryDocumentItem.Nomenclature.Name;
-				var codes = _codesProcessingService
-					.GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(_unitOfWork, selfDeliveryDocumentItem.Id)
-					.GetAwaiter().GetResult()
-					.ToList();
+
+				var codes = codesData.TryGetValue(selfDeliveryDocumentItem, out var itemCodes)
+					? itemCodes
+					: Enumerable.Empty<StagingTrueMarkCode>();
 
 				foreach(var code in codes)
 				{
@@ -405,7 +411,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						RawCode = code.RawCode,
 						NomenclatureName = nomenclature,
 						IsTrueMarkValid = true,
-						HasInOrder = true
+						HasInOrder = true,
+						AdditionalInformation = code.IsIdentification ? string.Empty : "Агрегатный код"
 					};
 
 					CodeScanRows.Add(codesScanViewModelNode);
@@ -416,7 +423,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					{
 						NomenclatureName = nomenclature,
 						InSelfDelivery = (int)selfDeliveryDocumentItem.Amount,
-						LeftToScan = (int)selfDeliveryDocumentItem.Amount - selfDeliveryDocumentItem.TrueMarkProductCodes.Count,
+						LeftToScan = (int)selfDeliveryDocumentItem.Amount - codes.Where(x => x.IsIdentification).Count(),
 						Gtin = _allGtins.FirstOrDefault(x => x.NomenclatureName == nomenclature)?.GtinNumber
 					});
 			}
@@ -448,14 +455,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				var additionalInformation = new List<string>();
 
-				var addStagingTrueMarkCodeResult = await _codesProcessingService
+				var createStagingTrueMarkCodeResult = await _codesProcessingService
 					.CreateStagingTrueMarkCode(_unitOfWork, code, 0, cancellationToken);
 
-				if(addStagingTrueMarkCodeResult.IsFailure)
+				if(createStagingTrueMarkCodeResult.IsFailure)
 				{
-					if(addStagingTrueMarkCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
+					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
 					{
-						additionalInformation.AddRange(addStagingTrueMarkCodeResult.Errors.Select(x => x.Message));
+						additionalInformation.AddRange(createStagingTrueMarkCodeResult.Errors.Select(x => x.Message));
 
 						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
@@ -468,17 +475,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					var errorMessages = addStagingTrueMarkCodeResult.Errors.Select(x => x.Message).ToList();
+					var errorMessages = createStagingTrueMarkCodeResult.Errors.Select(x => x.Message).ToList();
 					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: errorMessages);
 					return;
 				}
 
-				var stagingCode = addStagingTrueMarkCodeResult.Value;
+				var stagingCode = createStagingTrueMarkCodeResult.Value;
 
-				_unitOfWork.Save(stagingCode);
-
-				var isCodeCanBeAddedResult = await _codesProcessingService.IsStagingTrueMarkCodeCanBeAdded(
-					_unitOfWork,
+				var isCodeCanBeAddedResult = await IsTrueMarkStagingCodeCanBeAdded(
 					stagingCode,
 					_selfDeliveryDocument.Items.First().Nomenclature.Id,
 					cancellationToken);
@@ -489,6 +493,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: errorMessages);
 					return;
 				}
+
+				_unitOfWork.Save(stagingCode);
 
 				await UpdateCodeScanRowsByAnyCode(stagingCode, cancellationToken);
 			}
@@ -503,6 +509,35 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				AddOldCodeToRecheck(codeToCheck.RawCode, ex.Message);
 			}
+		}
+
+		private async Task<Result> IsTrueMarkStagingCodeCanBeAdded(
+			StagingTrueMarkCode stagingCode,
+			int nomenclatureId,
+			CancellationToken cancellationToken)
+		{
+			var isCodeCanBeAddedToItemOfNomenclature = await _codesProcessingService.IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
+				_unitOfWork,
+				stagingCode,
+				nomenclatureId,
+				cancellationToken);
+
+			if(isCodeCanBeAddedToItemOfNomenclature.IsFailure)
+			{
+				return isCodeCanBeAddedToItemOfNomenclature;
+			}
+
+			var isCodeAlreadyUsedInProductCodes = await _codesProcessingService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+				_unitOfWork,
+				stagingCode,
+				cancellationToken);
+
+			if(isCodeAlreadyUsedInProductCodes.IsFailure)
+			{
+				return isCodeAlreadyUsedInProductCodes;
+			}
+
+			return Result.Success();
 		}
 
 		private void AddNewCodeToCheck(string rawCode, string error = null)

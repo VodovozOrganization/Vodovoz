@@ -88,7 +88,15 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="stagingTrueMarkCode">Код ЧЗ промежуточного хранения</param>
 		/// <param name="nomeclatureId">Номенклатура</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат выполнения операции</returns>
-		Task<Result> IsStagingTrueMarkCodeCanBeAdded(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, int nomeclatureId, CancellationToken cancellationToken);
+		/// <returns>Результат выполнения проверки</returns>
+		Task<Result> IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, int nomeclatureId, CancellationToken cancellationToken);
+		/// <summary>
+		/// Проверяет, что промежуточный код Честного Знака не был ранее использован в других кодах продуктов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Результат выполнения проверки</returns>
+		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
 	}
 }

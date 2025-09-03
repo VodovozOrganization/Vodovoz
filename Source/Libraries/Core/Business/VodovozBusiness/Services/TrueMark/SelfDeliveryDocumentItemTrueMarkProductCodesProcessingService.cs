@@ -324,7 +324,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var isCodeCanBeAddedResult =
-				await IsStagingTrueMarkCodeCanBeAdded(
+				await IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
 					uow,
 					stagingTrueMarkCode,
 					relatedDocumentItem.Nomenclature.Id,
@@ -374,7 +374,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		public async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			int nomeclatureId,
@@ -401,16 +401,14 @@ namespace VodovozBusiness.Services.TrueMark
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
-
-			if(codeCheckingProcessResult.IsFailure)
-			{
-				return codeCheckingProcessResult;
-			}
-
 			return Result.Success();
 		}
+
+		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken) =>
+			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
 
 		private Result IsSelfDeliveryDocumentItemHasNoAddedTrueMarkCodes(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemEntity)
 		{
