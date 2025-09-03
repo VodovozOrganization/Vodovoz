@@ -250,23 +250,40 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_isAllCodesScannedCheckInProgress = true;
 			_isAllCodesScanned = true;
 
-			foreach(var item in _selfDeliveryDocument.Items)
-			{
-				var isAllItemCodesScanned =
-					await _codesProcessingService.IsAllSelfDeliveryDocumentItemStagingCodesScanned(_unitOfWork, item);
-
-				if(!isAllItemCodesScanned)
-				{
-					_isAllCodesScanned = false;
-					break;
-				}
-			}
+			var scannedCodesByItems = await GetSelfDeliveryDocumentItemStagingTrueMarkCodes();
 
 			await Task.Delay(1000);
 
 			_isAllCodesScannedCheckInProgress = false;
 
 			_guiDispatcher.RunInGuiTread(() => OnPropertyChanged(() => IsAllCodesScanned));
+		}
+
+		private async Task<IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>> GetSelfDeliveryDocumentItemStagingTrueMarkCodes()
+		{
+			var result = new Dictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>();
+
+			var allScannedCodes =
+				await _codesProcessingService.GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(_unitOfWork, 0);
+
+			foreach(var item in _selfDeliveryDocument.Items)
+			{
+				var itemGtins = item.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
+				var itemCodes = new List<StagingTrueMarkCode>();
+
+				foreach(var code in allScannedCodes)
+				{
+					var codeGtin = code.AllIdentificationCodes.First().Gtin;
+					if(itemGtins.Contains(codeGtin))
+					{
+						itemCodes.Add(code);
+					}
+				}
+
+				result.Add(item, itemCodes);
+			}
+
+			return result;
 		}
 
 		private void StartUpdater()
