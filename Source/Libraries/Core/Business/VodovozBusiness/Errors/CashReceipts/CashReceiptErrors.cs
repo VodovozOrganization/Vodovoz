@@ -2,14 +2,14 @@
 
 namespace Vodovoz.Errors.CashReceipts
 {
-	public static class CashReceipt
+	public static class CashReceiptErrors
 	{
 		/// <summary>
 		/// Должен быть указан валидный код чека
 		/// </summary>
 		public static Error CashReceiptIdNotValid =>
 			new Error(
-				typeof(CashReceipt),
+				typeof(CashReceiptErrors),
 				nameof(CashReceiptIdNotValid),
 				"Должен быть указан валидный код чека");
 
@@ -18,7 +18,7 @@ namespace Vodovoz.Errors.CashReceipts
 		/// </summary>
 		public static Error CashReceiptApiRequestProcessingError =>
 			new Error(
-				typeof(CashReceipt),
+				typeof(CashReceiptErrors),
 				nameof(CashReceiptApiRequestProcessingError),
 				"Служба кассовых чеков вернула результат с ошибкой");
 
@@ -29,7 +29,7 @@ namespace Vodovoz.Errors.CashReceipts
 		/// <returns></returns>
 		public static Error CreateCashReceiptApiRequestProcessingError(string errorMessage) =>
 			new Error(
-				typeof(CashReceipt),
+				typeof(CashReceiptErrors),
 				nameof(CashReceiptApiRequestProcessingError),
 				$"Служба кассовых чеков вернула результат с ошибкой:\n{errorMessage}");
 
@@ -38,7 +38,7 @@ namespace Vodovoz.Errors.CashReceipts
 		/// </summary>
 		public static Error CashReceiptApiServiceUnavailableError =>
 			new Error(
-				typeof(CashReceipt),
+				typeof(CashReceiptErrors),
 				nameof(CashReceiptApiRequestProcessingError),
 				"Сервис обработки кассовых чеков недоступен");
 
@@ -47,7 +47,7 @@ namespace Vodovoz.Errors.CashReceipts
 		/// </summary>
 		public static Error CashReceiptApiUnauthenticatedError =>
 			new Error(
-				typeof(CashReceipt),
+				typeof(CashReceiptErrors),
 				nameof(CashReceiptApiUnauthenticatedError),
 				"Ошибка аутентификации при обращении к сервису кассовых чеков");
 	}
