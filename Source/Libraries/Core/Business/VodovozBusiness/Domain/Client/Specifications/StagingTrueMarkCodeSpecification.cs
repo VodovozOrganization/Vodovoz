@@ -56,6 +56,11 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				& CreateForOrderItemId(code.OrderItemId)
 				& CreateForExcludeCodeId(code.Id);
 
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForEqualStagingCodes(StagingTrueMarkCode code)
+			=> CreateForCodeData(code.IsTransport, code.RawCode, code.Gtin, code.SerialNumber)
+				& CreateForRelatedDocument(code.RelatedDocumentType, code.RelatedDocumentId)
+				& CreateForOrderItemId(code.OrderItemId);
+
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocumentOrderItemIdentificationCodes(
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
