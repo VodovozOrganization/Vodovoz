@@ -62,6 +62,7 @@ DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 JOB_FOLDER_NAME = GetJobFolderName()
+DOCKER_REGISTRY = "docker.vod.qsolution.ru:5100"
 
 // 102.2	Настройки. Вычисляемые
 GIT_BRANCH = env.BRANCH_NAME
@@ -313,13 +314,41 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Sender.Worker/Edo.Transfer.Sender.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
 
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker", "edo-services.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "edo-services.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-beverages-world.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-kuler-service.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-non-alcoholic-beverages-world.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-north.auto-send-receive-worker")
+				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-south.auto-send-receive-worker")
+
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater", "edo-services.contacts-updater")
+				DockerPushAs("edo-services.contacts-updater", "edo-services.contacts-updater")
+				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-kuler-service.contacts-updater")
+				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-non-alcoholic-beverages-world.contacts-updater")
+
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater", "edo-services.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "edo-services.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-beverages-world.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-kuler-service.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-non-alcoholic-beverages-world.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-north.document-flow-updater")
+				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-south.document-flow-updater")
+
+				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer", "taxcom-docflow-vv.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-beverages-world.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-kuler-service.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-non-alcoholic-beverages-world.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-north.edo-consumer")
+				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-south.edo-consumer")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -513,6 +542,16 @@ def DockerPublishBuild(projectPath){
 
 def Build(config){
 	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2 /nodeReuse:false"
+}
+
+def DockerFileBuild(projectPath, containerRepository){
+	def workspacePath = GetWorkspacePath()
+	bat "docker build -t ${containerRepository} -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+}
+
+def DockerPushAs(fromContainerRepository, toRemoteContainerRepository){
+	bat "docker tag ${fromContainerRepository} ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
+	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
 }
 
 // 304	Фукнции. Запаковка
