@@ -1264,7 +1264,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
-			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed };
+			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed, OrderStatus.WaitForPayment };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
