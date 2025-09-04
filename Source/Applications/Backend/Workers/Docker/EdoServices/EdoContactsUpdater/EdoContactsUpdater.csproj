@@ -5,7 +5,7 @@
     <UserSecretsId>dotnet-EdoContactsUpdater-33e6be26-9dd3-4f5a-818e-97a39b2c37ff</UserSecretsId>
     <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
