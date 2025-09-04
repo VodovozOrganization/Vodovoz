@@ -13,6 +13,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -69,6 +70,7 @@ namespace Vodovoz
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
 		private ICounterpartyEdoAccountController _edoAccountController;
+		public IList<StagingTrueMarkCode> _allScannedStagingCodes = new List<StagingTrueMarkCode>();
 
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -330,8 +332,8 @@ namespace Vodovoz
 			}
 
 			_codesScanViewModel = NavigationManager
-				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument>(
-					null, UoW, Entity).ViewModel;
+				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, IList<StagingTrueMarkCode>>(
+					null, UoW, Entity, _allScannedStagingCodes).ViewModel;
 		}
 
 		private void FillTrees()

@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private CancellationTokenSource _cancelationTokenSource;
 		private CodeScanRow _selectedRow;
 
-		private readonly IList<StagingTrueMarkCode> _allScannedStagingCodes = new List<StagingTrueMarkCode>();
+		private readonly IList<StagingTrueMarkCode> _allScannedStagingCodes;
 
 		public CodesScanViewModel(
 			ILogger<CodesScanViewModel> logger,
@@ -61,7 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			IGenericRepository<Gtin> gtinRepository,
 			IBus messageBus,
 			IGuiDispatcher guiDispatcher,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			IList<StagingTrueMarkCode> scannedStagingCodes = null)
 			: base(navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -74,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_allScannedStagingCodes = scannedStagingCodes ?? new List<StagingTrueMarkCode>();
 
 			WindowPosition = WindowGravity.None;
 
@@ -515,7 +517,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					if(addingCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
 					{
 						additionalInformation.Add("Повторное сканирование");
-						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
+						UpdateCodeScanRows(code, gtin, true, additionalInformation: additionalInformation);
 
 						_logger.LogInformation(
 							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
@@ -544,7 +546,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					RemoveCodeScanRows(existingCodeScanRowsToRemove);
 				}
 
-				await UpdateCodeScanRowsByStagingCode(stagingCode, cancellationToken);
+				UpdateCodeScanRowsByStagingCode(stagingCode);
 				UpdateCodesScanProgressRows();
 			}
 			catch(Exception ex)
@@ -776,7 +778,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			RefreshCodeScanRows();
 		}
 
-		private async Task UpdateCodeScanRowsByStagingCode(StagingTrueMarkCode stagingCode, CancellationToken cancellationToken)
+		private void UpdateCodeScanRowsByStagingCode(StagingTrueMarkCode stagingCode)
 		{
 			var codeNomenclatureName =
 				stagingCode.IsTransport
@@ -795,8 +797,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						stagingCode.IsTransport ? null : IsOrderContainsGtin(stagingCode.Gtin));
 
 			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeData;
-
-			var codesToDistribute = new List<StagingTrueMarkCode>();
 
 			lock(CodeScanRows)
 			{
@@ -818,7 +818,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 						return;
 					}
-					codesToDistribute.Add(stagingCode);
+
+					UpdateCodeScanRows(rawCode, gtin, true, new List<string>());
 				}
 				else
 				{
@@ -859,15 +860,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						childNode.RowNumber = ++rowNumber;
 
 						rootNode.Children.Add(childNode);
-
-						codesToDistribute.Add(trueMarkWaterIdentificationCode);
 					}
-				}
-			}
 
-			if(!stagingCode.IsIdentification)
-			{
-				UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
+					UpdateCodeScanRows(rawCode, gtin, additionalInformation: new List<string> { "Агрегатный код" });
+				}
 			}
 
 			RefreshCodeScanRows();
@@ -894,6 +890,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						= codesLeftToScan;
 				}
 			}
+			OnPropertyChanged(() => IsAllCodesScanned);
 		}
 
 		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(StagingTrueMarkCode code)
