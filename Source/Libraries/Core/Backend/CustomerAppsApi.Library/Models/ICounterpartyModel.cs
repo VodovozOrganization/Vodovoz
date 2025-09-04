@@ -9,6 +9,6 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto);
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
-		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
+		CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId);
 	}
 }

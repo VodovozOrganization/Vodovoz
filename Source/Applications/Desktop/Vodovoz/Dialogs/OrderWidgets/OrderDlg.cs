@@ -1210,7 +1210,7 @@ namespace Vodovoz
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+					Errors.Orders.OrderErrors.PaidCashlessOrderClientReplacementError.Message);
 
 				e.CanChange = false;
 				return;
@@ -1235,7 +1235,7 @@ namespace Vodovoz
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
-				Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				Vodovoz.Core.Domain.Permissions.OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
@@ -1246,9 +1246,9 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
-			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditGoodsInRouteList);
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -1505,7 +1505,7 @@ namespace Vodovoz
 
 			if(isValidateFailure)
 			{
-				if(edoValidateResult.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd || error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+				if(edoValidateResult.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd || error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
 					&& !ServicesConfig.InteractiveService.Question(
 						"Вы уверены, что хотите отправить повторно?\n" +
 						string.Join("\n - ", errorMessages),
@@ -2438,7 +2438,7 @@ namespace Vodovoz
 
 				if(!Validate(validationContext))
 				{
-					_lastSaveResult = Result.Failure(Errors.Orders.Order.Validation);
+					_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Validation);
 
 					return false;
 				}
@@ -2500,7 +2500,7 @@ namespace Vodovoz
 			}
 			catch(Exception e)
 			{
-				_lastSaveResult = Result.Failure(Errors.Orders.Order.Save);
+				_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Save);
 
 				_logger.Log(LogLevel.Error, e);
 
@@ -2613,7 +2613,7 @@ namespace Vodovoz
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					return Result.Failure(Errors.Orders.Order.AcceptException);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptException);
 				}
 			}
 		}
@@ -2622,7 +2622,7 @@ namespace Vodovoz
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return Result.Failure(Errors.Orders.Order.CantEdit);
+				return Result.Failure(Errors.Orders.OrderErrors.CantEdit);
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
@@ -2630,7 +2630,7 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return Result.Failure(Errors.Orders.Order.Accept.HasNoDefaultWater);
+				return Result.Failure(Errors.Orders.OrderErrors.Accept.HasNoDefaultWater);
 			}
 
 			var validationResult = ValidateAndFormOrder();
@@ -2642,7 +2642,7 @@ namespace Vodovoz
 
 			if(!CheckCertificates(canSaveFromHere: true))
 			{
-				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
+				return Result.Failure(Errors.Orders.OrderErrors.HasNoValidCertificates);
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
@@ -2665,7 +2665,7 @@ namespace Vodovoz
 					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +
 					"Хотите продолжить сохранение?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2673,13 +2673,13 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.Id, DeliveryPoint, phones))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 			if(hasPromoSetForNewClients && _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
 				UoW, Entity.SelfDelivery, Counterparty, DeliveryPoint))
 			{
-				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			PrepareSendBillInformation();
@@ -2689,14 +2689,14 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 			}
 
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
 
 			if(fastDeliveryResult.IsFailure)
 			{
-				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing)))
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryIsMissing)))
 				{
 					var fastDeliveryVerificationViewModel =
 						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
@@ -2732,10 +2732,10 @@ namespace Vodovoz
 						return Result.Success();
 					}
 
-					return Result.Failure(Errors.Orders.Order.Save);
+					return Result.Failure(Errors.Orders.OrderErrors.Save);
 				}
 
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 			}
 
 			if(PaymentType == PaymentType.Cashless)
@@ -2746,7 +2746,7 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2772,7 +2772,7 @@ namespace Vodovoz
 					" И т.к. он содержит позиции, продаваемые от разных организаций," +
 					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
 
-				return (false, Result.Failure(Errors.Orders.Order.UnableToPartitionOrderWithBigDeposit));
+				return (false, Result.Failure(Errors.Orders.OrderErrors.UnableToPartitionOrderWithBigDeposit));
 			}
 
 			var partsOrder = orderPartsByOrganizations.OrderParts.Count();
@@ -2794,7 +2794,7 @@ namespace Vodovoz
 					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
 					" Продолжаем?"))
 				{
-					return (false, Result.Failure(Errors.Orders.Order.AcceptAbortedByUser));
+					return (false, Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser));
 				}
 
 				SplitOrder(orderPartsByOrganizations);
@@ -2879,12 +2879,12 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.Order.AcceptException))
+			if(errors.All(x => x == Errors.Orders.OrderErrors.AcceptException))
 			{
 				return;
 			}
 
-			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
+			if(errors.All(x => x != Errors.Orders.OrderErrors.AcceptException))
 			{
 				EditOrder();
 			}
@@ -2894,8 +2894,8 @@ namespace Vodovoz
 
 		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.Order.Validation
-				|| x == Errors.Orders.Order.AcceptAbortedByUser))
+			if(errors.All(x => x == Errors.Orders.OrderErrors.Validation
+				|| x == Errors.Orders.OrderErrors.AcceptAbortedByUser))
 			{
 				return;
 			}
@@ -2928,7 +2928,7 @@ namespace Vodovoz
 
 			if(!Validate(validationContext))
 			{
-				return Result.Failure(Errors.Orders.Order.Validation);
+				return Result.Failure(Errors.Orders.OrderErrors.Validation);
 			}
 
 			if(DeliveryPoint != null && !DeliveryPoint.CalculateDistricts(UoW, _deliveryRepository).Any())
@@ -4266,7 +4266,7 @@ namespace Vodovoz
 						ImportanceLevel.Error,
 						string.Join(", ",
 						result.Errors
-						.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+						.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 						.Select(x => x.Message))
 						);
 				}

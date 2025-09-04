@@ -11,10 +11,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 	{
 		public IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(IUnitOfWork uow, int days)
 		{
-			var notifications = from notification in uow.Session.Query<OnlineOrderStatusUpdatedNotification>()
-								where (notification.HttpCode == null || notification.HttpCode != 204)
-									&& notification.CreationDate >= DateTime.Today.AddDays(-days)
-								select notification;
+			var validCodes = new[] { 204, 200 };
+
+			var notifications =
+				from notification in uow.Session.Query<OnlineOrderStatusUpdatedNotification>()
+				where (notification.HttpCode == null || !validCodes.Contains(notification.HttpCode.Value))
+					&& notification.CreationDate >= DateTime.Today.AddDays(-days)
+				select notification;
 
 			return notifications.ToList();
 		}

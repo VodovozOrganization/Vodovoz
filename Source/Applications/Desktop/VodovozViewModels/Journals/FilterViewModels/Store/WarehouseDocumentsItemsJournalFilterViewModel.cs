@@ -270,7 +270,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
+		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 

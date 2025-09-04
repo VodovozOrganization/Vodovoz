@@ -93,6 +93,6 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 		public DelegateCommand ExportCodesCommand { get; }
 
 		public bool CanCloseTenderEdoTask =>
-			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Edo.CanCloseTenderEdoTask, CurrentUser.Id);
+			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoPermissions.CanCloseTenderEdoTask, CurrentUser.Id);
 	}
 }

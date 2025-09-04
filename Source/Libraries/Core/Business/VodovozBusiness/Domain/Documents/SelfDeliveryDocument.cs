@@ -235,7 +235,7 @@ namespace Vodovoz.Domain.Documents
 				
 				if(!skipTrueMarkCodesCheck
 					&& !commonServices.CurrentPermissionService.ValidatePresetPermission(
-					   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
+					   Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
 				   && item.Amount > item.TrueMarkProductCodes.Count

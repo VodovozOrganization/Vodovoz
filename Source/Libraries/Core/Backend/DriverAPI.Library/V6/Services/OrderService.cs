@@ -36,12 +36,12 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
-using OrderErrors = Vodovoz.Errors.Orders.Order;
+using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
-using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
-using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
-using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -279,7 +279,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
@@ -297,7 +297,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)

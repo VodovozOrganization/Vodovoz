@@ -23,7 +23,7 @@ namespace Vodovoz.Infrastructure.Persistance.Chats
 		{
 			Chat chatAlias = null;
 
-			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician))
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician))
 			{
 				return uow.Session.QueryOver(() => chatAlias)
 				.Where(() => chatAlias.ChatType == ChatType.DriverAndLogists)

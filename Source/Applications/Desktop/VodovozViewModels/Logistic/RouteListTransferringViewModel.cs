@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -679,32 +679,32 @@ namespace Vodovoz.ViewModels.Logistic
 		private void ShowTransferErrors(IEnumerable<Error> errors)
 		{
 			var routeListNotFound = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.NotFound)
+				.Where(x => x.Code == Errors.Logistics.RouteListErrors.NotFound)
 				.Select(x => x.Message)
 				.ToList();
 
 			var transferTypeNotSet = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 				.Select(x => x.Message)
 				.ToList();
 
 			var transferRequiresLoadingWhenRouteListEnRoute = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute)
+				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute)
 				.Select(x => x.Message)
 				.ToList();
 
 			var transferNotEnoughFreeBalance = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferNotEnoughtFreeBalance)
+				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance)
 				.Select(x => x.Message)
 				.ToList();
 
 			var driverApiClientRequestIsNotSuccess = errors
-				.Where(x => x.Code == DriverApiClient.RequestIsNotSuccess(x.Message))
+				.Where(x => x.Code == DriverApiClientErrors.RequestIsNotSuccess(x.Message))
 				.Select(x => x.Message)
 				.ToList();
 
 			var ordersWithCreatedUpdNeedToReload = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.OrdersWithCreatedUpdNeedToReload)
+				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload)
 				.Select(x => x.Message)
 				.ToList();
 
@@ -854,14 +854,14 @@ namespace Vodovoz.ViewModels.Logistic
 					else
 					{
 						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
-                          $"{typeof(Errors.Common.DriverApiClient).Namespace}" +
-                          $".{typeof(Errors.Common.DriverApiClient).Name}" +
-                          $".{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+                          $"{typeof(Errors.Common.DriverApiClientErrors).Namespace}" +
+                          $".{typeof(Errors.Common.DriverApiClientErrors).Name}" +
+                          $".{nameof(Errors.Common.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
 				{
-					notifyingErrors.Add(DriverApiClient.RequestIsNotSuccess(ex.Message));
+					notifyingErrors.Add(DriverApiClientErrors.RequestIsNotSuccess(ex.Message));
 				}
 			}
 

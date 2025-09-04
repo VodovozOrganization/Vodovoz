@@ -50,8 +50,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			CanRead = PermissionResult.CanRead;
 			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
-				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber);
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
 
 			if(IsNewCar)
 			{

@@ -86,7 +86,7 @@ namespace Vodovoz
 				.OrderBy(w => w.Name).ToList();
 
 			bool accessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			var navigatiuonManager = _lifetimeScope.Resolve<INavigationManager>();

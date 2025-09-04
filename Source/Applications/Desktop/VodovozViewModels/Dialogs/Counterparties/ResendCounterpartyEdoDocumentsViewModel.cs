@@ -116,7 +116,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 				if(edoValidateResult.IsFailure)
 				{
-					if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd)
+					if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd)
 						&& !CommonServices.InteractiveService.Question(
 							"Вы уверены, что хотите отправить повторно?\n" +
 							string.Join("\n - ", errorMessages),

@@ -147,11 +147,11 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.Date = DateTime.Now;
 			}
 
-			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeRouteListFixedPrice);
-			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
-			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
-			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier);
-			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanReadRouteListProfitability);
+			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
+			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
+			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
+			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
 			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
 
 			_previousSelectedDate = Entity.Date;
@@ -644,14 +644,14 @@ namespace Vodovoz.ViewModels.Logistic
 
 			bool skipOverfillValidation = false;
 
-			var overfillErrorsCodes = Errors.Logistics.RouteList.OverfilledErrorCodes;
+			var overfillErrorsCodes = Errors.Logistics.RouteListErrors.OverfilledErrorCodes;
 
 			var overfillErrorsMessages = beforeAcceptValidation.Errors.Select(x => x.Message).ToArray();
 
 			if(beforeAcceptValidation.IsFailure)
 			{
 				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
-					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanConfirmOverweighted)
+					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanConfirmOverweighted)
 					|| !_interactiveService.Question(
 						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
 						string.Join("\n", overfillErrorsMessages),
@@ -822,7 +822,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(routeList.Status != RouteListStatus.New)
 			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.IncorrectStatusForAccept);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.IncorrectStatusForAccept);
 			}
 
 			var contextItems = new Dictionary<object, object>
@@ -835,7 +835,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(!validationService.Validate(routeList, context))
 			{
-				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
+				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
@@ -911,7 +911,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 						if(!validationService.Validate(routeList, contextEnroute))
 						{
-							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteList.ValidationFailure);
+							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 						}
 
 						_routeListService.SendEnRoute(unitOfWork, routeList);

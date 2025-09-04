@@ -60,7 +60,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 
-			_canActivateServiceDistrictsSet = CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ServiceDistrictsSet.CanActivateServiceDistrictsSet);
+			_canActivateServiceDistrictsSet = CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ServiceDistrictsSetPermissions.CanActivateServiceDistrictsSet);
 			var permissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(ServiceDistrictsSet));
 			_canCreate = permissionResult.CanCreate;
 			_canUpdate = permissionResult.CanUpdate;
