@@ -20,8 +20,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
-using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace WarehouseApi.Library.Errors
 {

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -198,7 +198,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if(edoValidateResult.IsFailure)
 			{
-				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
 					&& !CommonServices.InteractiveService.Question(
 						"Вы уверены, что хотите отправить дубль?\n" +
 						string.Join("\n", errorMessages),

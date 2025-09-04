@@ -94,7 +94,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(isSelfDelivery)
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsFromSelfDelivery");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSetForNewClientsFromSelfDelivery);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSetForNewClientsFromSelfDelivery);
 			}
 			
 			var counterparty = uow.GetById<Counterparty>(counterpartyId ?? 0);
@@ -103,26 +103,26 @@ namespace Vodovoz.Application.Orders.Services
 			if(counterparty is null || deliveryPoint is null)
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint);
 			}
 			
 			if(_orderRepository.HasCounterpartyFirstRealOrder(uow, counterparty))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsToCounterpartyWithRealOrder");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			if(!CanOrderPromoSetForNewClientsByBuildingFiasGuid(
 				uow, isSelfDelivery, deliveryPoint.BuildingFiasGuid, deliveryPoint.Room))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsByBuildingFiasGuid");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 			
 			if(CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(uow, isSelfDelivery, counterparty, deliveryPoint))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsByNaturalClientToOfficeOrStore");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			var phones = new List<string>();
@@ -137,13 +137,13 @@ namespace Vodovoz.Application.Orders.Services
 			if(CheckFreeLoaders(uow, 0, deliveryPoint, phones, true))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsCheckingByPhones");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 			
 			if(HasOnlineOrderWithPromoSetForNewClient(uow, deliveryPoint.Id))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsToClientWithOnlineOrderWithThem");
-				return Result.Failure(Vodovoz.Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			return Result.Success();

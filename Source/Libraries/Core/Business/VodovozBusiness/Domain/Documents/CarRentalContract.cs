@@ -144,7 +144,7 @@ namespace Vodovoz.Domain.Documents
 
 			if(docTemplateResult.IsFailure)
 			{
-				return Result.Failure<CarRentalContract>(Errors.Documents.DocumentTemplate.NotFound);
+				return Result.Failure<CarRentalContract>(Errors.Documents.DocumentTemplateErrors.NotFound);
 			}
 
 			var validationResults = ValidateParameters(car, organization, driver);

@@ -110,7 +110,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(driver is null)
 			{
-				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
@@ -126,19 +126,19 @@ namespace DriverAPI.Library.V6.Services
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ {RouteListItemId} не нейден", routeListAddressId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(routeListAddress.Order is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var deliveryPoint = routeListAddress.Order.DeliveryPoint;
 
 			if(deliveryPoint is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPoint.NotFound);
+				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound);
 			}
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
@@ -161,7 +161,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
@@ -174,7 +174,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
@@ -200,14 +200,14 @@ namespace DriverAPI.Library.V6.Services
 		{
 			if(routeListAddressId <= 0)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
@@ -222,12 +222,12 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.Completed)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState);
 			}
 
 			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
@@ -341,7 +341,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(currentDriver is null)
 			{
-				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return new DriverTransfersInfoResponse
@@ -431,7 +431,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(order is null)
 			{
-				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var result = new List<TransferItemDto>();
