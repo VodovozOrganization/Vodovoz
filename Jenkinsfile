@@ -546,12 +546,12 @@ def Build(config){
 
 def DockerFileBuild(projectPath, containerRepository){
 	def workspacePath = GetWorkspacePath()
-	bat "docker build -t ${containerRepository} -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+	bat "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
 }
 
-def DockerPushAs(fromContainerRepository, toRemoteContainerRepository){
-	bat "docker tag ${fromContainerRepository} ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
-	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
+def DockerPushAs(fromContainerRepository, toRemoteContainerRepository) {
+	bat "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
 }
 
 // 304	Фукнции. Запаковка
