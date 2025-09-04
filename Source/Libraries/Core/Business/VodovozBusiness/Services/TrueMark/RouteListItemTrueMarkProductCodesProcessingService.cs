@@ -1,10 +1,9 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Repositories;
@@ -16,9 +15,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Client.Specifications;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
-using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
 
 namespace VodovozBusiness.Services.TrueMark
 {

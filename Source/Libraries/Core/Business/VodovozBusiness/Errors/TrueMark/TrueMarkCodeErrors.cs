@@ -49,7 +49,7 @@ namespace Vodovoz.Errors.TrueMark
 
 		public static Error CreateTrueMarkCodeIsAlreadyUsedInOrder(int orderId) =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(TrueMarkCodeIsAlreadyUsed),
 				$"Код ЧЗ уже был использован в заказе {orderId}");
 
@@ -186,7 +186,7 @@ namespace Vodovoz.Errors.TrueMark
 		/// </summary>
 		public static Error StagingTrueMarkCodeDuplicate =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(StagingTrueMarkCodeDuplicate),
 				"Код ЧЗ уже был добавлен");
 
@@ -195,7 +195,7 @@ namespace Vodovoz.Errors.TrueMark
 		/// </summary>
 		public static Error RelatedDocumentHasTrueMarkCodes =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(RelatedDocumentHasTrueMarkCodes),
 				"В связанный документ уже были добавлены коды ЧЗ. Добавление кода для промежуточного хранения невозможно");
 
@@ -204,7 +204,7 @@ namespace Vodovoz.Errors.TrueMark
 		/// </summary>
 		public static Error TrueMarkCodesCountMoreThenInOrderItem =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(TrueMarkCodesCountMoreThenInOrderItem),
 				"Суммарное количество кодов превышает необходимое для строки заказа");
 
@@ -213,7 +213,7 @@ namespace Vodovoz.Errors.TrueMark
 		/// </summary>
 		public static Error GtinNomenclatureNotFoundInOrder =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(GtinNomenclatureNotFoundInOrder),
 				"Номенклатура с Gtin полученного кода отсутствует в заказе");
 
@@ -222,7 +222,7 @@ namespace Vodovoz.Errors.TrueMark
 		/// </summary>
 		public static Error CreateGtinNomenclatureNotFoundInOrder(string nomenclatureName, string gtin) =>
 			new Error(
-				typeof(TrueMarkCode),
+				typeof(TrueMarkCodeErrors),
 				nameof(GtinNomenclatureNotFoundInOrder),
 				$"Номенклатура {nomenclatureName} с данным Gtin {gtin} отсутствует в заказе.");
 	}

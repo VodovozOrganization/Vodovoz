@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
@@ -492,7 +492,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				if(createStagingTrueMarkCodeResult.IsFailure)
 				{
-					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCode.StagingTrueMarkCodeDuplicate))
+					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
 					{
 						additionalInformation.Add("Повторное сканирование");
 						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);

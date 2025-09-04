@@ -30,12 +30,12 @@ namespace Vodovoz.Errors.Goods
 			"Есть непринятые документы перемещения");
 
 		public static Error IsNotAccountableInTrueMark = new Error(
-			typeof(Nomenclature),
+			typeof(NomenclatureErrors),
 			nameof(IsNotAccountableInTrueMark),
 			"Номенклатура не подлежит учету в ЧЗ");
 
 		public static Error CreateIsNotAccountableInTrueMark(string nomenclatureName) => new Error(
-			typeof(Nomenclature),
+			typeof(NomenclatureErrors),
 			nameof(IsNotAccountableInTrueMark),
 			$"Номенклатура {nomenclatureName} не подлежит учету в ЧЗ");
 	}

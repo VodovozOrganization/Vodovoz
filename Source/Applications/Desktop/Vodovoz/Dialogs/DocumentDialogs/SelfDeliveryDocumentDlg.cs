@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -447,7 +447,7 @@ namespace Vodovoz
 			{
 				if(isAllTrueMarkProductCodesMustBeAdded)
 				{
-					return Result.Failure(Errors.TrueMark.TrueMarkCode.NotAllCodesAdded);
+					return Result.Failure(Errors.TrueMark.TrueMarkCodeErrors.NotAllCodesAdded);
 				}
 
 				return Result.Success();

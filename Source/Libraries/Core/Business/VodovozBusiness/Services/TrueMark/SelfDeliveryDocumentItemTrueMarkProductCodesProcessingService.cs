@@ -13,8 +13,8 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using VodovozBusiness.Domain.Client.Specifications;
-using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace VodovozBusiness.Services.TrueMark
 {
