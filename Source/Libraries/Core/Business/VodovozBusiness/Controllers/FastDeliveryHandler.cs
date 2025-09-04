@@ -77,7 +77,7 @@ namespace Vodovoz.Controllers
 
 				if(RouteListToAddFastDeliveryOrder is null)
 				{
-					return Result.Failure(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing);
+					return Result.Failure(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryIsMissing);
 				}
 			}
 			

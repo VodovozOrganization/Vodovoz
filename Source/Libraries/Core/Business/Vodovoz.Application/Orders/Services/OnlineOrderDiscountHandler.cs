@@ -26,18 +26,18 @@ namespace Vodovoz.Application.Orders.Services
 
 		/// <summary>
 		/// Применение промокода к онлайн заказу
-		/// 1. Ищем промокод без учета регистра, если не нашли, возвращаем <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.NotFound"/>
+		/// 1. Ищем промокод без учета регистра, если не нашли, возвращаем <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound"/>
 		/// 2. Смотрим срок действия промокода, если запрос пришел не в этот интервал, возвращаем
-		/// <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.ExpiredDateDuration"/>
+		/// <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration"/>
 		/// 3. Проверяем время действия промокода, если запрос пришел в другое время возвращаем
-		/// <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.ExpiredTimeDuration"/>
+		/// <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration"/>
 		/// 4. Проверяем сумму заказа, если она меньше установленной в промокоде, возвращаем
-		/// <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.InvalidMinimalOrderSum"/>
+		/// <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum"/>
 		/// 5. Если промокод одноразовый и клиент его уже использовал раньше, возвращаем
-		/// <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.UsageLimitHasBeenExceeded"/>
+		/// <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded"/>
 		/// Иначе пытаемся применить этот промокод к товарам онлайн заказа
 		/// Если он не подходит ни под один товар, возвращаем
-		/// <see cref="Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart"/>
+		/// <see cref="Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart"/>
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
@@ -52,31 +52,31 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(discountPromoCode is null)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.NotFound);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
 			}
 
 			if(date.Date < discountPromoCode.StartDatePromoCode || date.Date > discountPromoCode.EndDatePromoCode)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.ExpiredDateDuration);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
 			}
 
 			if(time < discountPromoCode.StartTimePromoCode || time > discountPromoCode.EndTimePromoCode)
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
-					Vodovoz.Errors.Orders.Discount.PromoCode.ExpiredTimeDuration(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration(
 						discountPromoCode.StartTimePromoCodeString, discountPromoCode.EndTimePromoCodeString));
 			}
 
 			if(orderSum < discountPromoCode.PromoCodeOrderMinSum)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.InvalidMinimalOrderSum);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
 				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
-					Vodovoz.Errors.Orders.Discount.PromoCode.UsageLimitHasBeenExceeded);
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);
 			}
 
 			return TryApplyPromoCode(uow, discountPromoCode, onlineOrderPromoCode.Products);
@@ -96,7 +96,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			return promoCodeApplied
 				? Result.Success(products)
-				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.Discount.PromoCode.UnsuitableItemsInCart);
+				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(

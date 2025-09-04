@@ -7,7 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.TrueMark;
-using CashReceiptErrors = Vodovoz.Errors.CashReceipts.CashReceipt;
+using CashReceiptErrors = Vodovoz.Errors.CashReceipts.CashReceiptErrors;
 using RequestProcessingResult = CashReceiptApi.RequestProcessingResult;
 
 namespace Vodovoz.Models.TrueMark

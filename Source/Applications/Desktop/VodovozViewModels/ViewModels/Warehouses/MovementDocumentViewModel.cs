@@ -405,7 +405,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			HasAccessToCarStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_car_storage_in_warehouse_documents");
 			_canEditStoreMovementDocumentTransporterData =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Documents.MovementDocument.CanEditStoreMovementDocumentTransporterData);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanEditStoreMovementDocumentTransporterData);
 		}
 		
 		private void SetStoragesViewModels()

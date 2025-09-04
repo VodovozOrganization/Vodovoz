@@ -54,7 +54,7 @@ namespace Vodovoz.Application.Orders.Services
 			
 			if(orderOrganization is null)
 			{
-				return Result.Failure<Organization>(Vodovoz.Errors.Orders.FastPayment.OrderContractNotFound);
+				return Result.Failure<Organization>(Vodovoz.Errors.Orders.FastPaymentErrors.OrderContractNotFound);
 			}
 			
 			var orderOurOrganizationResult = CheckOrderOrganization(uow, order.OurOrganization, requestTime, requestFromType);
@@ -112,7 +112,7 @@ namespace Vodovoz.Application.Orders.Services
 				case FastPaymentRequestFromType.FromDesktopByCard:
 				case FastPaymentRequestFromType.FromDesktopByQr:
 					return !orderOrganization.AvangardShopId.HasValue
-						? Result.Failure<Organization>(Vodovoz.Errors.Orders.FastPayment.OrganizationNotRegisteredInAvangard)
+						? Result.Failure<Organization>(Vodovoz.Errors.Orders.FastPaymentErrors.OrganizationNotRegisteredInAvangard)
 						: Result.Success(orderOrganization);
 				case FastPaymentRequestFromType.FromDriverAppByQr:
 				case FastPaymentRequestFromType.FromMobileAppByQr:

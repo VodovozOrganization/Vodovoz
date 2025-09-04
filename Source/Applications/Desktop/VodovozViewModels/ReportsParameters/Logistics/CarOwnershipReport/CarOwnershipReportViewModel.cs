@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			IsOneDayReportSelected = true;
 
 			IsUserHasAccessToCarOwnershipReport = 
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.HasAccessToCarOwnershipReport);
 		}
 
 		#region Properties

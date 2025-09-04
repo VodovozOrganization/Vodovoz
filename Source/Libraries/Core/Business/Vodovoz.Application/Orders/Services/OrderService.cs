@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -473,17 +473,17 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(counterparty is null)
 			{
-				return Vodovoz.Errors.Clients.Counterparty.NotFound;
+				return Vodovoz.Errors.Clients.CounterpartyErrors.NotFound;
 			}
 
 			if(deliveryPoint is null)
 			{
-				return Vodovoz.Errors.Clients.DeliveryPoint.NotFound;
+				return Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound;
 			}
 
 			if(deliverySchedule is null)
 			{
-				return Vodovoz.Errors.Logistics.DeliverySchedule.NotFound;
+				return Vodovoz.Errors.Logistics.DeliveryScheduleErrors.NotFound;
 			}
 
 			Order order = unitOfWork.Root;

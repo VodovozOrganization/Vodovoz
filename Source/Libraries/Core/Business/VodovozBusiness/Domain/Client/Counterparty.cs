@@ -785,7 +785,7 @@ namespace Vodovoz.Domain.Client
 				}
 
 				if(CameFrom == null
-					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer)))
+					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer)))
 				{
 					yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
 				}

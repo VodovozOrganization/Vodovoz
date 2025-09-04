@@ -44,10 +44,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			|| (!IsNewEntity && CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ProductGroup)).CanUpdate);
 
 		public bool CanEditOnlineStoreParametersInProductGroup =>
-			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ProductGroup.CanEditOnlineStoreParametersInProductGroups);
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ProductGroupPermissions.CanEditOnlineStoreParametersInProductGroups);
 
 		public bool CanEditAdditionalControlSettingsInProductGroup =>
-			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ProductGroup.CanEditAdditionalControlSettingsInProductGroups);
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ProductGroupPermissions.CanEditAdditionalControlSettingsInProductGroups);
 
 		private void SetArchive()
 		{

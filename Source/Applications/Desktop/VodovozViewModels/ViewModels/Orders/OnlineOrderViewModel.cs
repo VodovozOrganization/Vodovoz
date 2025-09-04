@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			var permissionService = CommonServices.PermissionService;
 			
 			_canCancelAnyOnlineOrder =
-				permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OnlineOrder.CanCancelAnyOnlineOrder, CurrentUser.Id);
+				permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OnlineOrderPermissions.CanCancelAnyOnlineOrder, CurrentUser.Id);
 		}
 		
 		private void CreateCommands()
