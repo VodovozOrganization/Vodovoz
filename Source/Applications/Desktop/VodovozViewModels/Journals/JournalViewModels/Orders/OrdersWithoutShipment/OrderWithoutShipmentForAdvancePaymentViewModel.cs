@@ -375,7 +375,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_userHavePermissionToResendEdoDocuments =
 				CommonServices.PermissionService.ValidateUserPresetPermission(
-					Vodovoz.Core.Domain.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+					Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 		}
 
 		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

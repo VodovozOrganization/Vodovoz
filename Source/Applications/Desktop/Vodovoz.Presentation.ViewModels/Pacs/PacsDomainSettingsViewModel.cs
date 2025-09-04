@@ -86,7 +86,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 					"Не настроен пользователь");
 			}
 
-			_canEdit = permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Pacs.IsAdministrator, _employee.User.Id);
+			_canEdit = permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.PacsPermissions.IsAdministrator, _employee.User.Id);
 
 			SaveCommand = new DelegateCommand(() => Save().Wait(), () => CanSave);
 			SaveCommand.CanExecuteChangedWith(this, x => x.CanSave);

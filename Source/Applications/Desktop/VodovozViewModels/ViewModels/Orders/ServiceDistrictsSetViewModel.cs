@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			var districtPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(ServiceDistrict));
 			CanEditServiceDistrict = districtPermissionResult.CanUpdate && Entity.Status != ServiceDistrictsSetStatus.Active;
 
-			CanEditServiceDeliveryRules = (commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ServiceDistrictsSet.CanEditServiceDeliveryRules))
+			CanEditServiceDeliveryRules = (commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ServiceDistrictsSetPermissions.CanEditServiceDeliveryRules))
 				&& Entity.Status != ServiceDistrictsSetStatus.Active;
 			CanDeleteDistrict = (districtPermissionResult.CanDelete || districtPermissionResult.CanCreate && Entity.Id == 0) && Entity.Status != ServiceDistrictsSetStatus.Active;
 			CanCreateDistrict = districtPermissionResult.CanCreate && Entity.Status != ServiceDistrictsSetStatus.Active;

@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 		private readonly IInteractiveService _interactiveService;
 
 		private bool _canManuallyResendUpd =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.Documents.CanManuallyResendUpd);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.Documents.CanManuallyResendUpd);
 
 		private IEmailableDocument Document { get; set; }
 

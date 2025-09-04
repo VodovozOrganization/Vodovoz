@@ -91,7 +91,7 @@ namespace Vodovoz.Representations
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
-			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
+			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) =>

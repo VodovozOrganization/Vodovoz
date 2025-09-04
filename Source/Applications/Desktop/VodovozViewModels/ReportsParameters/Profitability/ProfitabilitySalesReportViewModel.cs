@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Today;

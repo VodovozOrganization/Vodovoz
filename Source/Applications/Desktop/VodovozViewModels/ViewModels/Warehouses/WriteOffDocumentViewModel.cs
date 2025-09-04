@@ -405,7 +405,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void SetPermissions()
 		{
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 			HasAccessToEmployeeStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
