@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using VodovozBusiness.Domain.Client.Specifications;
 using NomenclatureErrors = Vodovoz.Errors.Goods.Nomenclature;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
@@ -66,7 +67,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public async Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
 			IUnitOfWork uow,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
@@ -163,7 +164,8 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken = default)
 		{
 			if(!selfDeliveryDocumentItem.Nomenclature.IsAccountableInTrueMark)
@@ -171,9 +173,6 @@ namespace VodovozBusiness.Services.TrueMark
 				throw new InvalidOperationException(
 					"Коды ЧЗ можно добавить только к номенклатуре, которая подлежит учету в Честном Знаке");
 			}
-
-			var stagingCodes =
-				await GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(uow, selfDeliveryDocumentItem.Id, cancellationToken);
 
 			var identificationStagingCodesCount = stagingCodes
 				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
@@ -200,26 +199,9 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure(error);
 			}
 
-			var deleteStagingCodesResult =
-				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
-					uow,
-					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-					selfDeliveryDocumentItem.Id,
-					cancellationToken);
-
-			if(deleteStagingCodesResult.IsFailure)
+			foreach(var stagingCode in stagingCodes)
 			{
-				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			var allCodesAddedToOrderResult =
-				IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(selfDeliveryDocumentItem);
-
-			if(allCodesAddedToOrderResult.IsFailure)
-			{
-				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
+				await uow.DeleteAsync(stagingCode, cancellationToken: cancellationToken);
 			}
 
 			return Result.Success();
@@ -245,7 +227,7 @@ namespace VodovozBusiness.Services.TrueMark
 		private async Task<Result> AddProductCodesToSelfDeliveryDocumentItemFromStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var trueMarkAnyCodesResult =
@@ -484,7 +466,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
+		public Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
 		{
 			var isAllTrueMarkCodesAdded = selfDeliveryDocumentItem.Amount == selfDeliveryDocumentItem.TrueMarkProductCodes.Count();
 

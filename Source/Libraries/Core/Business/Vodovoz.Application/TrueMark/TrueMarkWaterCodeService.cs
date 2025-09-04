@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -254,16 +254,19 @@ namespace Vodovoz.Application.TrueMark
 				return isIntroducedResult;
 			}
 
-			var isHasCorrectInnResult = IsCodeHasCorrectInn(productInstanceStatus);
-			if(isHasCorrectInnResult.IsFailure)
+			if(productInstanceStatus.GeneralPackageType == GeneralPackageType.Unit)
 			{
-				return isHasCorrectInnResult;
-			}
+				var isHasCorrectInnResult = IsCodeHasCorrectInn(productInstanceStatus);
+				if(isHasCorrectInnResult.IsFailure)
+				{
+					return isHasCorrectInnResult;
+				}
 
-			var isNotExpiredResult = IsCodeNotExpired(productInstanceStatus);
-			if(isNotExpiredResult.IsFailure)
-			{
-				return isNotExpiredResult;
+				var isNotExpiredResult = IsCodeNotExpired(productInstanceStatus);
+				if(isNotExpiredResult.IsFailure)
+				{
+					return isNotExpiredResult;
+				}
 			}
 
 			return Result.Success();
@@ -1126,7 +1129,7 @@ namespace Vodovoz.Application.TrueMark
 
 			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
 
-			var isAllCodesValidResult = IsAllCodesValid(codesInstanseStatuses);
+			var isAllCodesValidResult = IsAllCodesValid(codesInstanseStatuses.Where(x => x.GeneralPackageType == GeneralPackageType.Unit));
 
 			if(isAllCodesValidResult.IsFailure)
 			{

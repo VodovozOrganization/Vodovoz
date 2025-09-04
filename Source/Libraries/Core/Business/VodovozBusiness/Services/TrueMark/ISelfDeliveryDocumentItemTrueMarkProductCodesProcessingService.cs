@@ -8,6 +8,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 
 namespace VodovozBusiness.Services.TrueMark
 {
@@ -36,9 +37,10 @@ namespace VodovozBusiness.Services.TrueMark
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
+		/// <param name="stagingCodes">Коды ЧЗ промежуточного хранения</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
-		Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(IUnitOfWork uow, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
+		Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode> stagingCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Создает промежуточный код Честного Знака и привязывает его к строке документа самовывоза
@@ -69,7 +71,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="status">Статус исходного кода продукта</param>
 		/// <param name="problem">Проблема с кодом продукта</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
+		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Удаляет промежуточный код Честного Знака из строки документа самовывоза.
@@ -98,5 +100,11 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения проверки</returns>
 		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+		/// <summary>
+		/// Проверяет, что все коды продуктов Честного Знака добавлены к строке документа самовывоза
+		/// </summary>
+		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
+		/// <returns>Результат выполнения проверки</returns>
+		Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem);
 	}
 }
