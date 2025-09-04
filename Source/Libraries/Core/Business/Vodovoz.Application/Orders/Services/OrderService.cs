@@ -128,17 +128,21 @@ namespace Vodovoz.Application.Orders.Services
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
 
-		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			
+			if (deliveryPriceResult.IsFailure) return deliveryPriceResult;
 			order.UpdateDeliveryItem(
-				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPriceResult.Value);
+
+			return deliveryPriceResult;
 		}
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
 		/// </summary>
-		public decimal GetOrderPrice(CreateOrderRequest createOrderRequest)
+		public Result<decimal> GetOrderPrice(CreateOrderRequest createOrderRequest)
 		{
 			if(createOrderRequest is null)
 			{
@@ -166,7 +170,14 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(deliveryCostResult.IsFailure)
+				{
+					_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+					throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				}
+				
 				return order.OrderSum;
 			}
 		}
@@ -230,7 +241,13 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(deliveryCostResult.IsFailure)
+				{
+					_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+					throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				}
 
 				return
 				(
@@ -428,7 +445,14 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			
+			if(deliveryCostResult.IsFailure)
+			{
+				_logger.LogError($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+				throw new InvalidOperationException($"При расчете стоимости доставки в заказе {order.Id} произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -571,7 +595,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			if(deliveryCostResult.IsFailure)
+			{
+				throw new InvalidOperationException("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -626,7 +655,12 @@ namespace Vodovoz.Application.Orders.Services
 
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
-			UpdateDeliveryCost(uow, order);
+			var deliveryCostResult = UpdateDeliveryCost(uow, order);
+			if(deliveryCostResult.IsFailure)
+			{
+				return 0;
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater);

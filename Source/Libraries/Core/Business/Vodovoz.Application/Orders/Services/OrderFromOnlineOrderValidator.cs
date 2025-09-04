@@ -450,33 +450,48 @@ namespace Vodovoz.Application.Orders.Services
 				return;
 			}
 			
-			var paidDelivery =
-				_onlineOrder.OnlineOrderItems
-					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
+			var paidDelivery = _onlineOrder
+				.OnlineOrderItems
+				.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
 
 			var deliveryPrice = _deliveryPriceGetter.GetDeliveryPrice(_onlineOrder);
-			var needPaidDelivery = deliveryPrice > 0;
 
-			if(paidDelivery != null)
+			if(deliveryPrice.IsSuccess)
 			{
-				paidDelivery.NomenclaturePrice = deliveryPrice;
-			}
+				var needPaidDelivery = deliveryPrice.Value > 0;
 
-			if(needPaidDelivery && paidDelivery != null)
-			{
-				if(paidDelivery.Price != deliveryPrice)
+				if(paidDelivery != null)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
+					paidDelivery.NomenclaturePrice = deliveryPrice.Value;
+				}
+
+				switch (needPaidDelivery)
+				{
+					case true when paidDelivery != null:
+					{
+						if(paidDelivery.Price != deliveryPrice.Value)
+						{
+							errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectPricePaidDelivery(deliveryPrice.Value, paidDelivery.Price));
+						}
+
+						break;
+					}
+					case true when paidDelivery is null:
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NeedPaidDelivery);
+						break;
+					case false when paidDelivery != null:
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotNeedPaidDelivery);
+						break;
 				}
 			}
-			else if(needPaidDelivery && paidDelivery is null)
+			else
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NeedPaidDelivery);
+				foreach(var error in deliveryPrice.Errors)
+				{
+					errors.Add(error);
+				}
 			}
-			else if(!needPaidDelivery && paidDelivery != null)
-			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotNeedPaidDelivery);
-			}
+			
 		}
 		
 		private void ValidateFastDelivery(ICollection<Error> errors)

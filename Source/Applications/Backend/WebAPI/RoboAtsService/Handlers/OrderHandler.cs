@@ -254,14 +254,22 @@ namespace RoboatsService.Handlers
 			orderArgs.BottlesReturn = bottlesReturn;
 
 			var price = _orderService.GetOrderPrice(orderArgs);
-			if(price <= 0)
+
+			if(price.IsFailure)
+			{
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
+					 "При расчете стоимости заказа произошла ошибка:\n" + string.Join("\n", price.Errors.Select(e => e.Message)));
+				return ErrorMessage;
+			}
+			
+			if(price.Value <= 0)
 			{
 				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.NegativeOrderSum, RoboatsCallOperation.CalculateOrderPrice,
 					$"При расчете стоимости заказа получена отрицательная сумма. Вода: {RequestDto.WaterQuantity}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
-			var result = (int)Math.Ceiling(price);
+			var result = (int)Math.Ceiling(price.Value);
 
 			return $"{result}";
 		}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
@@ -20,8 +21,8 @@ namespace Vodovoz.Application.Orders.Services
 				(nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings)))
 				.PaidDeliveryNomenclatureId;
 		}
-		
-		public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
+
+		public Result<decimal> GetDeliveryPrice(OnlineOrder onlineOrder)
 		{
 			var isDeliveryForFree =
 				onlineOrder.IsSelfDelivery
@@ -30,19 +31,30 @@ namespace Vodovoz.Application.Orders.Services
 			
 			if(isDeliveryForFree)
 			{
-				return default;
+				return Result.Success(0m);
+			}
+			
+			if(onlineOrder.DeliveryPoint is null)
+			{
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint, 
+					new Error(typeof(OnlineOrder), nameof(onlineOrder.DeliveryPoint), $"Нет точки дооставки в заказе №{onlineOrder.Id}")
+				]);
 			}
 			
 			var district = onlineOrder.DeliveryPoint?.District;
 
 			if(district is null)
 			{
-				return default;
+				return Result.Failure<decimal>([
+					Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint,
+					new Error(typeof(OnlineOrder), nameof(onlineOrder.DeliveryPoint.District), $"Нет привязанного района к точке доставки №{onlineOrder.DeliveryPoint.Id}")
+				]);
 			}
 			
 			_onlineOrderStateKey.InitializeFields(onlineOrder);
 			var price = district.GetDeliveryPrice(_onlineOrderStateKey, 0m);
-			return price;
+			return Result.Success(price);
 		}
 	}
 }

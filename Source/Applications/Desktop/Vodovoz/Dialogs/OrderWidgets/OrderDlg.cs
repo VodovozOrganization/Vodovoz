@@ -2921,7 +2921,14 @@ namespace Vodovoz
 		private Result ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
+			
+			var deliveryCostResult = _orderService.UpdateDeliveryCost(UoW, Entity);
 
+			if(deliveryCostResult.IsFailure)
+			{
+				MessageDialogHelper.RunWarningDialog("При расчете стоимости доставки произошла ошибка:\n" + string.Join("\n", deliveryCostResult.Errors.Select(e => e.Message)));
+			}
+			
 			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 			var validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
 			{
@@ -2948,7 +2955,7 @@ namespace Vodovoz
 		/// </summary>
 		private void OnFormOrderActions()
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			var result = _orderService.UpdateDeliveryCost(UoW, Entity); //ignore
 		}
 
 		/// <summary>
