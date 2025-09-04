@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -330,8 +330,8 @@ namespace Vodovoz
 			}
 
 			_codesScanViewModel = NavigationManager
-				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, ITrueMarkWaterCodeService>(
-					null, UoW, Entity, _trueMarkWaterCodeService).ViewModel;
+				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument>(
+					null, UoW, Entity).ViewModel;
 		}
 
 		private void FillTrees()

@@ -1,9 +1,7 @@
-using Edo.Common;
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -26,7 +24,6 @@ using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 using VodovozInfrastructure.Keyboard;
-using static Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan.CodesScanViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
@@ -35,15 +32,12 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly SelfDeliveryDocument _selfDeliveryDocument;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
-		private readonly ITrueMarkCodesValidator _trueMarkValidator;
 		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodesRepository;
 		private readonly ILogger<CodesScanViewModel> _logger;
 		private string _organizationInn;
 		private List<GtinFromNomenclatureDto> _allGtins;
@@ -55,7 +49,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private CodeScanRow _selectedRow;
 
 		private bool _scannedStagingCodesUpdateInProgress = false;
-		private bool _isAllCodesScanned = false;
 
 		private IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> _scannedStagingCodes =
 			new Dictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>();
@@ -66,30 +59,24 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			SelfDeliveryDocument selfDeliveryDocument,
 			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
-			ITrueMarkCodesValidator trueMarkValidator,
 			IBus messageBus,
 			IGuiDispatcher guiDispatcher,
-			IInteractiveService interactiveService,
-			IGenericRepository<TrueMarkProductCode> trueMarkProductCodesRepository)
+			IInteractiveService interactiveService)
 			: base(navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_selfDeliveryDocument = selfDeliveryDocument ?? throw new ArgumentNullException(nameof(selfDeliveryDocument));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
-			_trueMarkValidator = trueMarkValidator ?? throw new ArgumentNullException(nameof(trueMarkValidator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_trueMarkProductCodesRepository = trueMarkProductCodesRepository ?? throw new ArgumentNullException(nameof(trueMarkProductCodesRepository));
 
 			WindowPosition = WindowGravity.None;
 
@@ -677,26 +664,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return _gtinsInOrder.Contains(gtin);
 		}
 
-		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			CancellationToken cancellationToken)
-		{
-			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
-			
-			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
-			{
-				CreationTime = DateTime.Now,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = trueMarkWaterIdentificationCode,
-				Problem = ProductCodeProblem.None,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
-			};
-
-			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
-		}
-
 		private string ReplaceCodeSpecSymbols(string code) => code.Replace("", "\\u001d");
 
 		private string GetNomenclatureNameByGtin(string gtin) =>
@@ -772,9 +739,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			(var childrenUnitCodeList, var gtin, var rawCode, string identificationCode, var nomenclatureName, bool? hasInOrder) = codeData;
 
-			var validationErrors = await GetValidationErrorsFromTrueMarkAsync(rawCode, identificationCode, gtin, cancellationToken);
-			var isValid = validationErrors is null;
-
 			var codesToDistribute = new List<StagingTrueMarkCode>();
 
 			lock(CodeScanRows)
@@ -797,11 +761,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 						return;
 					}
-
-					if(isValid)
-					{
-						codesToDistribute.Add(stagingCode);
-					}
+					codesToDistribute.Add(stagingCode);
 				}
 				else
 				{
@@ -820,7 +780,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 						return;
 					}
-					
+
 					var rootNode = CodeScanRows.FirstOrDefault(x => x.RawCode.Contains(rawCode) || rawCode.Contains(x.RawCode));
 
 					rootNode.Children.Clear();
@@ -831,26 +791,19 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.Gtin);
 
 						var childNode = CodeScanRows.FirstOrDefault(x =>
-							                x.RawCode.Contains(trueMarkWaterIdentificationCode.RawCode) || trueMarkWaterIdentificationCode.RawCode.Contains(x.RawCode))
-						                ?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
+											x.RawCode.Contains(trueMarkWaterIdentificationCode.RawCode) || trueMarkWaterIdentificationCode.RawCode.Contains(x.RawCode))
+										?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
 						childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
 						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.Gtin);
 						childNode.Parent = rootNode;
 						childNode.HasInOrder = hasInOrder;
-						childNode.IsTrueMarkValid = isValid;
+						childNode.IsTrueMarkValid = true;
 						childNode.RowNumber = ++rowNumber;
 
 						rootNode.Children.Add(childNode);
 
-						if(isValid)
-						{
-							codesToDistribute.Add(trueMarkWaterIdentificationCode);
-						}
-						else
-						{
-							childNode.AdditionalInformation = string.Join(", ", validationErrors);
-						}
+						codesToDistribute.Add(trueMarkWaterIdentificationCode);
 					}
 				}
 			}
@@ -865,75 +818,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			await DistributeCodeOnNextSelfDeliveryItemAsync(codesToDistribute, cancellationToken);
 
 			RefreshCodeScanRows();
-		}
-
-		private async Task<List<string>> GetValidationErrorsFromTrueMarkAsync(string rawCode, string identificationCode, string gtin,
-			CancellationToken cancellationToken)
-		{
-			_logger.LogInformation(
-				"Отправляем запрос на валидацию кода {Code} в {TrueMarkValidator)}", identificationCode, nameof(_trueMarkValidator));
-
-			var trueMarkValidationResults =
-				(await _trueMarkValidator.ValidateAsync(new List<string> { identificationCode }, _organizationInn, cancellationToken))
-				.CodeResults
-				.ToList();
-
-			_logger.LogInformation(
-				"Получили ответ по валидации кодов {Code} в {TrueMarkValidator)}", identificationCode, nameof(_trueMarkValidator));
-
-			var errorMessages = new List<string>();
-
-			if(!trueMarkValidationResults.Any())
-			{
-				errorMessages.Add("Не получен результат валидации в ЧЗ");
-
-				UpdateCodeScanRows(rawCode, gtin, false, errorMessages);
-
-				return errorMessages;
-			}
-
-			errorMessages.Clear();
-
-			var validationResult = trueMarkValidationResults.FirstOrDefault(x => x.CodeString == identificationCode);
-
-			if(validationResult is null)
-			{
-				errorMessages.Add("Не получен результат валидации в ЧЗ для кода");
-
-				UpdateCodeScanRows(rawCode, gtin, false, errorMessages);
-
-				AddOldCodeToRecheck(rawCode, string.Join(", ", errorMessages));
-
-				return errorMessages;
-			}
-
-			if(!validationResult.IsIntroduced)
-			{
-				errorMessages.Add("Код не в обороте");
-			}
-
-			var isOurGtin = gtin == null || validationResult.IsOurGtin;
-
-			if(!isOurGtin)
-			{
-				errorMessages.Add("Это не наш код");
-			}
-
-			if(!validationResult.IsOwnedByOurOrganization)
-			{
-				errorMessages.Add("Не мы являемся владельцем товара");
-			}
-
-			if(!validationResult.IsIntroduced || !isOurGtin || !validationResult.IsOwnedByOurOrganization)
-			{
-				UpdateCodeScanRows(rawCode, gtin, false, errorMessages);
-
-				return errorMessages;
-			}
-
-			UpdateCodeScanRows(rawCode, gtin, true, errorMessages);
-
-			return null;
 		}
 
 		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(List<StagingTrueMarkCode> codes,
@@ -956,8 +840,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			{
 				return;
 			}
-
-			//await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
 
 			var nomenclatureName = nextSelfDeliveryItemToDistributeByGtin.Nomenclature.Name;
 
