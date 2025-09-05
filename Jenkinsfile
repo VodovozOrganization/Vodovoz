@@ -317,38 +317,31 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker", "edo-services.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "edo-services.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-beverages-world.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-kuler-service.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-non-alcoholic-beverages-world.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-north.auto-send-receive-worker")
-				DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-south.auto-send-receive-worker")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-kuler-service")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-non-alcoholic-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-north")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-south")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater", "edo-services.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "edo-services.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-kuler-service.contacts-updater")
-				DockerPushAs("edo-services.contacts-updater", "taxcom-docflow-non-alcoholic-beverages-world.contacts-updater")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj", "registry-prod-kuler-service")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj", "registry-prod-non-alcoholic-beverages-world")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater", "edo-services.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "edo-services.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-beverages-world.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-kuler-service.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-non-alcoholic-beverages-world.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-north.document-flow-updater")
-				DockerPushAs("edo-services.document-flow-updater", "taxcom-docflow-vv-south.document-flow-updater")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-kuler-service")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-non-alcoholic-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-north")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-south")
 
-				PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
-				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer", "taxcom-docflow-vv.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-beverages-world.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-kuler-service.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-non-alcoholic-beverages-world.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-north.edo-consumer")
-				DockerPushAs("taxcom-docflow-vv.edo-consumer", "taxcom-docflow-vv-south.edo-consumer")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-kuler-service")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-non-alcoholic-beverages-world")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-north")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-south")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -546,12 +539,17 @@ def Build(config){
 
 def DockerFileBuild(projectPath, containerRepository){
 	def workspacePath = GetWorkspacePath()
-	bat "docker build -t ${containerRepository} -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+	bat "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
 }
 
-def DockerPushAs(fromContainerRepository, toRemoteContainerRepository){
-	bat "docker tag ${fromContainerRepository} ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
-	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}"
+def DockerPushAs(fromContainerRepository, toRemoteContainerRepository) {
+	bat "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+}
+
+def DockerPublishBuildWithCustomProfileName(projectPath, profileName){
+	def workspacePath = GetWorkspacePath()
+	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=${profileName} /maxcpucount:2"
 }
 
 // 304	Фукнции. Запаковка
