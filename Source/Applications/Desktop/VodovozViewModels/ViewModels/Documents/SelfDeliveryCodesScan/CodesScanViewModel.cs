@@ -5,11 +5,14 @@ using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Bindings;
+using System.Data.Bindings.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,8 +33,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
 	public partial class CodesScanViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		private readonly SelfDeliveryDocument _selfDeliveryDocument;
-		private readonly IUnitOfWork _unitOfWork;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
@@ -48,26 +49,23 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private CancellationTokenSource _cancelationTokenSource;
 		private CodeScanRow _selectedRow;
 
-		private readonly IList<StagingTrueMarkCode> _allScannedStagingCodes;
+		private IUnitOfWork _unitOfWork;
+		private SelfDeliveryDocument _selfDeliveryDocument;
+		private IList<StagingTrueMarkCode> _allScannedStagingCodes;
 
 		public CodesScanViewModel(
 			ILogger<CodesScanViewModel> logger,
 			INavigationManager navigationManager,
-			SelfDeliveryDocument selfDeliveryDocument,
-			IUnitOfWork unitOfWork,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
 			IBus messageBus,
 			IGuiDispatcher guiDispatcher,
-			IInteractiveService interactiveService,
-			IList<StagingTrueMarkCode> scannedStagingCodes = null)
+			IInteractiveService interactiveService)
 			: base(navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_selfDeliveryDocument = selfDeliveryDocument ?? throw new ArgumentNullException(nameof(selfDeliveryDocument));
-			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
@@ -75,16 +73,18 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_allScannedStagingCodes = scannedStagingCodes ?? new List<StagingTrueMarkCode>();
 
 			WindowPosition = WindowGravity.None;
 
-			Initialize();
+			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
+			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
+
+			DeleteCodeCommand = new DelegateCommand(DeleteCode);
 		}
 
 		public List<CodeScanRow> CodeScanRows { get; } = new List<CodeScanRow>();
 
-		public List<CodesScanProgressRow> CodesScanProgressRows { get; } = new List<CodesScanProgressRow>();
+		public IObservableList<CodesScanProgressRow> CodesScanProgressRows { get; } = new ObservableList<CodesScanProgressRow>();
 
 		public DelegateCommand CloseCommand { get; private set; }
 		public DelegateCommand DeleteCodeCommand { get; private set; }
@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		public string CurrentCodeInProcess { get; private set; }
 
 		public bool IsAllCodesScanned =>
-			!_documentItemsScannedStagingCodes.Any(x => x.Key.Amount > x.Value.Where(c => c.IsIdentification).Count());
+			!_documentItemsScannedStagingCodes.Any(x => x.Key.Amount > x.Value.SelectMany(c => c.AllIdentificationCodes).Count());
 
 		public CodeScanRow SelectedRow
 		{
@@ -107,13 +107,22 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> _documentItemsScannedStagingCodes =>
 			GetSelfDeliveryDocumentItemStagingTrueMarkCodes();
 
-		private void Initialize()
+		public void Initialize(IUnitOfWork uow, SelfDeliveryDocument selfDeliveryDocument, IList<StagingTrueMarkCode> allScannedStagingCodes)
 		{
-			CloseCommand = new DelegateCommand(CloseScanning, () => IsAllCodesScanned);
-			CloseCommand.CanExecuteChangedWith(this, vm => vm.IsAllCodesScanned);
+			_unitOfWork = uow ?? throw new ArgumentNullException(nameof(uow));
+			_selfDeliveryDocument = selfDeliveryDocument ?? throw new ArgumentNullException(nameof(selfDeliveryDocument));
+			_allScannedStagingCodes = allScannedStagingCodes ?? new List<StagingTrueMarkCode>();
 
-			DeleteCodeCommand = new DelegateCommand(() => DeleteCode());
+			RecursiveConfig = new RecursiveConfig<CodeScanRow>(x => x.Parent, x => x.Children);
 
+			UpdateGtinsData();
+			FillAlreadyScannedNomenclatures();
+			CheckAllCodeScanned();
+			StartUpdater();
+		}
+
+		private void UpdateGtinsData()
+		{
 			_allGtins = _gtinRepository.GetValue(
 					_unitOfWork,
 					x =>
@@ -146,14 +155,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				.ToList();
 
 			_gtinsInOrder = gtinsInOrder.Union(groupGtinsInOrder).ToList();
-
-			RecursiveConfig = new RecursiveConfig<CodeScanRow>(x => x.Parent, x => x.Children);
-
-			FillAlreadyScannedNomenclatures();
-
-			CheckAllCodeScanned();
-
-			StartUpdater();
 		}
 
 		private void DeleteCode()
@@ -271,6 +272,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> GetSelfDeliveryDocumentItemStagingTrueMarkCodes()
 		{
 			var result = new Dictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>();
+
+			if(_selfDeliveryDocument is null)
+			{
+				return result;
+			}
 
 			foreach(var item in _selfDeliveryDocument.Items)
 			{
@@ -418,20 +424,26 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					CodeScanRows.Add(codesScanViewModelNode);
 				}
 
+				var alreadyScannedItemCodesCount = codes.SelectMany(x => x.AllIdentificationCodes).Count();
+
 				CodesScanProgressRows.Add(
 					new CodesScanProgressRow
 					{
 						NomenclatureName = nomenclature,
 						InSelfDelivery = (int)selfDeliveryDocumentItem.Amount,
-						LeftToScan = (int)selfDeliveryDocumentItem.Amount - codes.Where(x => x.IsIdentification).Count(),
+						LeftToScan = (int)selfDeliveryDocumentItem.Amount - alreadyScannedItemCodesCount,
 						Gtin = _allGtins.FirstOrDefault(x => x.NomenclatureName == nomenclature)?.GtinNumber
 					});
 			}
+			UpdateCodeScanRowsByStagingCodes(_allScannedStagingCodes);
 		}
 
 		private async Task HandleCheckCodeAsync(CodeToCheck codeToCheck, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Обработка кода {RawCode}", codeToCheck.RawCode);
+			_logger.LogInformation(
+				"Обработка кода {RawCode}. Заказ {OrderId}",
+				codeToCheck.RawCode,
+				_selfDeliveryDocument.Order.Id);
 
 			var code = ParseRawCode(codeToCheck.RawCode, out var parsedCode);
 			var gtin = parsedCode?.Gtin;
@@ -778,6 +790,14 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			RefreshCodeScanRows();
 		}
 
+		private void UpdateCodeScanRowsByStagingCodes(IEnumerable<StagingTrueMarkCode> stagingCodes)
+		{
+			foreach(var staingCode in stagingCodes)
+			{
+				UpdateCodeScanRowsByStagingCode(staingCode);
+			}
+		}
+
 		private void UpdateCodeScanRowsByStagingCode(StagingTrueMarkCode stagingCode)
 		{
 			var codeNomenclatureName =
@@ -893,19 +913,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			OnPropertyChanged(() => IsAllCodesScanned);
 		}
 
-		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(StagingTrueMarkCode code)
-		{
-			var documentItem = _selfDeliveryDocument.Items?
-				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-				.FirstOrDefault(s =>
-					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.Gtin)
-					&& s.TrueMarkProductCodes.Count < s.Amount
-					&& s.TrueMarkProductCodes.All(c =>
-						!c.SourceCode.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(c.SourceCode.RawCode)));
-
-			return documentItem;
-		}
-
 		public void CheckCode(string rawCode)
 		{
 			if(rawCode.Length < 20)
@@ -983,8 +990,13 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			AddNewCodeToCheck(rawCode);
 		}
 
-		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes()
+		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(bool isCheckAllCodesScanned = false)
 		{
+			if(isCheckAllCodesScanned && !IsAllCodesScanned)
+			{
+				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+			}
+
 			foreach(var item in _selfDeliveryDocument.Items)
 			{
 				var itemStagingCodes = _documentItemsScannedStagingCodes.TryGetValue(item, out var itemCodes)
@@ -996,7 +1008,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					continue;
 				}
 
-				var addingCodesResult = await _codesProcessingService.AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
+				var addingCodesResult = await _codesProcessingService.AddProductCodesToSelfDeliveryDocumentItem(
 					_unitOfWork,
 					item,
 					itemStagingCodes);

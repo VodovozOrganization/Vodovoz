@@ -1305,7 +1305,7 @@ namespace Vodovoz.Application.TrueMark
 
 			foreach(var stagingCode in stagingCodes)
 			{
-				if(!codesData.TryGetValue(stagingCode.Id, out var trueMarkAnyCode))
+				if(!codesData.TryGetValue(stagingCode, out var trueMarkAnyCode))
 				{
 					throw new InvalidOperationException($"Код ЧЗ с Id {stagingCode.Id} не найден в сохраненных или созданных кодах.");
 				}
@@ -1314,7 +1314,7 @@ namespace Vodovoz.Application.TrueMark
 				{
 					foreach(var innerCode in stagingCode.InnerCodes)
 					{
-						if(!codesData.TryGetValue(innerCode.Id, out var innerTrueMarkAnyCode))
+						if(!codesData.TryGetValue(innerCode, out var innerTrueMarkAnyCode))
 						{
 							throw new InvalidOperationException($"Внутренний код ЧЗ с Id {innerCode.Id} не найден в сохраненных или созданных кодах.");
 						}
@@ -1331,7 +1331,7 @@ namespace Vodovoz.Application.TrueMark
 			return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);
 		}
 
-		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1348,7 +1348,7 @@ namespace Vodovoz.Application.TrueMark
 				.Where(x => x.CodeType == StagingTrueMarkCodeType.Identification)
 				.ToList();
 
-			var codesData = new Dictionary<int, TrueMarkAnyCode>();
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			if(transportSagingCodes.Any())
 			{
@@ -1398,7 +1398,7 @@ namespace Vodovoz.Application.TrueMark
 			return codesData;
 		}
 
-		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1424,26 +1424,26 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var codesData = new Dictionary<int, TrueMarkAnyCode>();
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.RawCode == stagingCode.RawCode);
 				if(savedCode != null)
 				{
-					codesData.Add(stagingCode.Id, savedCode);
+					codesData.Add(stagingCode, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
-					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
 				}
 			}
 
 			return codesData;
 		}
 
-		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1469,26 +1469,26 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var codesData = new Dictionary<int, TrueMarkAnyCode>();
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
 				if(savedCode != null)
 				{
-					codesData.Add(stagingCode.Id, savedCode);
+					codesData.Add(stagingCode, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
-					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
 				}
 			}
 
 			return codesData;
 		}
 
-		private async Task<IDictionary<int, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
@@ -1514,19 +1514,19 @@ namespace Vodovoz.Application.TrueMark
 
 			var savedCodes = savedCodesResult.Value;
 
-			var codesData = new Dictionary<int, TrueMarkAnyCode>();
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
 				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.Gtin == stagingCode.Gtin);
 				if(savedCode != null)
 				{
-					codesData.Add(stagingCode.Id, savedCode);
+					codesData.Add(stagingCode, savedCode);
 				}
 				else
 				{
 					var newTrueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
-					codesData.Add(stagingCode.Id, newTrueMarkAnyCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
 				}
 			}
 

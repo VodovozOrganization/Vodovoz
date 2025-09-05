@@ -162,7 +162,7 @@ namespace VodovozBusiness.Services.TrueMark
 				Problem = problem
 			};
 
-		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
+		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItem(
 			IUnitOfWork uow,
 			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
@@ -172,18 +172,6 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				throw new InvalidOperationException(
 					"Коды ЧЗ можно добавить только к номенклатуре, которая подлежит учету в Честном Знаке");
-			}
-
-			var identificationStagingCodesCount = stagingCodes
-				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
-
-			var isStagingCodesCountValidResult = 
-				IsSelfDeliveryDocumentItemStagingCodesCountValid(identificationStagingCodesCount, selfDeliveryDocumentItem.Amount);
-
-			if(isStagingCodesCountValidResult.IsFailure)
-			{
-				var error = isStagingCodesCountValidResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
 			}
 
 			var addProductCodesResult =
@@ -199,28 +187,6 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure(error);
 			}
 
-			foreach(var stagingCode in stagingCodes)
-			{
-				await uow.DeleteAsync(stagingCode, cancellationToken: cancellationToken);
-			}
-
-			return Result.Success();
-		}
-
-		private Result IsSelfDeliveryDocumentItemStagingCodesCountValid(int stagingCodesCount, decimal selfDeliveryDocumentItemAmount)
-		{
-			if(stagingCodesCount < selfDeliveryDocumentItemAmount)
-			{
-				var error = TrueMarkCodeErrors.NotAllCodesAdded;
-				return Result.Failure(error);
-			}
-
-			if(stagingCodesCount > selfDeliveryDocumentItemAmount)
-			{
-				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
-				return Result.Failure(error);
-			}
-
 			return Result.Success();
 		}
 
@@ -233,7 +199,7 @@ namespace VodovozBusiness.Services.TrueMark
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
-					stagingCodes,
+					stagingCodes.SelectMany(x => x.AllCodes),
 					cancellationToken);
 
 			if(trueMarkAnyCodesResult.IsFailure)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -87,7 +87,9 @@ namespace Vodovoz.Views.Documents
 				.AddColumn("")
 				.Finish();
 
-			ytreeviewProgress.ItemsDataSource = ViewModel.CodesScanProgressRows;
+			ytreeviewProgress.Binding
+				.AddBinding(ViewModel, vm => vm.CodesScanProgressRows, w => w.ItemsDataSource)
+				.InitializeFromSource();
 
 			ybuttonOk.BindCommand(ViewModel.CloseCommand);
 

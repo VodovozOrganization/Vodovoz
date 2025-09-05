@@ -331,9 +331,8 @@ namespace Vodovoz
 				return;
 			}
 
-			_codesScanViewModel = NavigationManager
-				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, IList<StagingTrueMarkCode>>(
-					null, UoW, Entity, _allScannedStagingCodes).ViewModel;
+			_codesScanViewModel = NavigationManager.OpenViewModel<CodesScanViewModel>(null).ViewModel;
+			_codesScanViewModel.Initialize(UoW, Entity, _allScannedStagingCodes);
 		}
 
 		private void FillTrees()
@@ -455,7 +454,7 @@ namespace Vodovoz
 				return Result.Success();
 			}
 
-			var addingCodesResult = AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes();
+			var addingCodesResult = AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(isAllTrueMarkProductCodesMustBeAdded);
 			if(addingCodesResult.IsFailure)
 			{
 				return addingCodesResult;
@@ -473,7 +472,7 @@ namespace Vodovoz
 			return Result.Success();
 		}
 
-		private Result AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes()
+		private Result AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(bool isAllTrueMarkProductCodesMustBeAdded = false)
 		{
 			if(_codesScanViewModel is null)
 			{
@@ -481,7 +480,8 @@ namespace Vodovoz
 			}
 
 			var addingCodesResult =
-				_codesScanViewModel.AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes().GetAwaiter().GetResult();
+				_codesScanViewModel.AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(isAllTrueMarkProductCodesMustBeAdded)
+				.GetAwaiter().GetResult();
 
 			if(addingCodesResult.IsFailure)
 			{

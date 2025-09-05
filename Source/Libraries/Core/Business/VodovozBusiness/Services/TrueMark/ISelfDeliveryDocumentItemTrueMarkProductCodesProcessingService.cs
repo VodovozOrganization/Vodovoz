@@ -40,7 +40,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="stagingCodes">Коды ЧЗ промежуточного хранения</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
-		Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode> stagingCodes, CancellationToken cancellationToken = default);
+		Task<Result> AddProductCodesToSelfDeliveryDocumentItem(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode> stagingCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Создает промежуточный код Честного Знака и привязывает его к строке документа самовывоза
