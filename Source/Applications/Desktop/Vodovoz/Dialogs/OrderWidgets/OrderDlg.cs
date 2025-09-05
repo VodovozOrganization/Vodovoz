@@ -5295,7 +5295,7 @@ namespace Vodovoz
 		{
 			if(Entity.OrderItems == null ||
 				_currentPermissionService.ValidatePresetPermission(
-					Core.Domain.Permissions.Order.CanFormOrderWithDepositWithoutPayment))
+					Core.Domain.Permissions.OrderPermissions.CanFormOrderWithDepositWithoutPayment))
 			{
 				return true;
 			}
