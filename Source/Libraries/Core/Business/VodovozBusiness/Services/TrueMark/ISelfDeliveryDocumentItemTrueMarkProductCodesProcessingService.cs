@@ -23,7 +23,7 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(IUnitOfWork uow, int selfDeliveryDocumentItemId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Добавляет коды Честного Знака к строке документа самовывоза и удаляет промежуточные коды.
+		/// Добавляет коды Честного Знака к строке документа самовывоза
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
@@ -33,7 +33,7 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result> AddProductCodesToSelfDeliveryDocumentItem(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode> stagingCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Создает промежуточный код Честного Знака и привязывает его к строке документа самовывоза
+		/// Создает промежуточный код Честного Знака
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
