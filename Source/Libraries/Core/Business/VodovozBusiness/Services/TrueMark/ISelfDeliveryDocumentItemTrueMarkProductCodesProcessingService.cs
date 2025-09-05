@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -22,15 +21,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Промежуточные коды ЧЗ</returns>
 		Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(IUnitOfWork uow, int selfDeliveryDocumentItemId, CancellationToken cancellationToken = default);
-
-		/// <summary>
-		/// Проверяет, что все промежуточные коды Честного Знака, привязанные к строке документа самовывоза, отсканированы
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns></returns>
-		Task<bool> IsAllSelfDeliveryDocumentItemStagingCodesScanned(IUnitOfWork uow, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Добавляет коды Честного Знака к строке документа самовывоза и удаляет промежуточные коды.
@@ -53,16 +43,6 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int selfDeliveryDocumentItemId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Добавляет промежуточный код Честного Знака к строке документа самовывоза.
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="scannedCode">Отсканированный код</param>
-		/// <param name="selfDeliveryDocumentItems">Строки документа самовывоза</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат с добавленным промежуточным кодом</returns>
-		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, IEnumerable<SelfDeliveryDocumentItemEntity> selfDeliveryDocumentItems, CancellationToken cancellationToken = default);
-
-		/// <summary>
 		/// Добавляет любой код Честного Знака к строке документа самовывоза без проверки статуса кода.
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
@@ -72,16 +52,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="problem">Проблема с кодом продукта</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
-
-		/// <summary>
-		/// Удаляет промежуточный код Честного Знака из строки документа самовывоза.
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="scannedCode">Отсканированный код</param>
-		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат выполнения операции</returns>
-		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Проверяет, можно ли добавить промежуточный код Честного Знака к строке документа самовывоза

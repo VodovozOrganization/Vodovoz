@@ -12,7 +12,6 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
-using VodovozBusiness.Domain.Client.Specifications;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
@@ -50,20 +49,6 @@ namespace VodovozBusiness.Services.TrueMark
 				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
 				selfDeliveryDocumentItemId,
 				cancellationToken);
-
-		public async Task<bool> IsAllSelfDeliveryDocumentItemStagingCodesScanned(
-			IUnitOfWork uow,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
-			CancellationToken cancellationToken = default)
-		{
-			var stagingCodes =
-				await GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(uow, selfDeliveryDocumentItem.Id, cancellationToken);
-
-			var identificationStagingCodesCount = stagingCodes
-				.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
-
-			return identificationStagingCodesCount == selfDeliveryDocumentItem.Amount;
-		}
 
 		public async Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
 			IUnitOfWork uow,
@@ -235,93 +220,6 @@ namespace VodovozBusiness.Services.TrueMark
 				null,
 				cancellationToken);
 
-		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
-			IUnitOfWork uow,
-			string scannedCode,
-			IEnumerable<SelfDeliveryDocumentItemEntity> selfDeliveryDocumentItems,
-			CancellationToken cancellationToken = default)
-		{
-			var createCodeResult =
-				await CreateStagingTrueMarkCode(uow, scannedCode, 0, cancellationToken);
-
-			if(createCodeResult.IsFailure)
-			{
-				return createCodeResult;
-			}
-
-			var stagingTrueMarkCode = createCodeResult.Value;
-
-			var codeGtin = stagingTrueMarkCode.AllIdentificationCodes
-				.Select(x => x.Gtin)
-				.FirstOrDefault();
-
-			var relatedDocumentItem =
-				selfDeliveryDocumentItems.FirstOrDefault(x => x.Nomenclature.Gtins.Any(g => g.GtinNumber == codeGtin));
-
-			if(relatedDocumentItem is null)
-			{
-				var nomeclatureName = await GetNomenclatureNameByGtin(uow, codeGtin, cancellationToken);
-
-				var error = TrueMarkCodeErrors.CreateGtinNomenclatureNotFoundInOrder(nomeclatureName, codeGtin);
-				return Result.Failure<StagingTrueMarkCode>(error);
-			}
-
-			foreach(var code in stagingTrueMarkCode.AllCodes)
-			{
-				code.RelatedDocumentId = relatedDocumentItem.Id;
-			}
-
-			var isCodeCanBeAddedResult =
-				await IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
-					uow,
-					stagingTrueMarkCode,
-					relatedDocumentItem.Nomenclature.Id,
-					cancellationToken);
-
-			if(isCodeCanBeAddedResult.IsFailure)
-			{
-				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
-				return Result.Failure<StagingTrueMarkCode>(error);
-			}
-
-			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
-
-			return Result.Success(stagingTrueMarkCode);
-		}
-
-		public async Task<Result> RemoveStagingTrueMarkCode(
-			IUnitOfWork uow,
-			string scannedCode,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
-			CancellationToken cancellationToken = default)
-		{
-			var existingCodeResult =
-				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
-					uow,
-					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-					selfDeliveryDocumentItem.Id,
-					null);
-
-			if(existingCodeResult.IsFailure)
-			{
-				var error = existingCodeResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			var codeToRemove = existingCodeResult.Value;
-
-			if(codeToRemove.ParentCodeId != null)
-			{
-				var error = TrueMarkCodeErrors.AggregatedCode;
-				return Result.Failure(error);
-			}
-
-			await uow.DeleteAsync(codeToRemove, cancellationToken: cancellationToken);
-
-			return Result.Success();
-		}
-
 		public async Task<Result> IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
@@ -357,43 +255,6 @@ namespace VodovozBusiness.Services.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken) =>
 			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
-
-		private Result IsSelfDeliveryDocumentItemHasNoAddedTrueMarkCodes(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemEntity)
-		{
-			if(selfDeliveryDocumentItemEntity.TrueMarkProductCodes.Count > 0)
-			{
-				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
-
-		private Result IsStagingTrueMarkCodesCountCanBeAdded(
-			IUnitOfWork uow,
-			StagingTrueMarkCode stagingTrueMarkCode,
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
-		{
-			var addedStagingCodesCount = _stagingTrueMarkCodeRepository.GetCount(
-				uow,
-				StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
-					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
-					selfDeliveryDocumentItem.Id,
-					null,
-					stagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id)));
-
-			var newStagingCodesCount = stagingTrueMarkCode.AllIdentificationCodes.Count;
-
-			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount <= selfDeliveryDocumentItem.Amount;
-
-			if(!isCodeCanBeAdded)
-			{
-				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
 
 		private Result IsNomeclatureAccountableInTrueMark(NomenclatureEntity nomenclature)
 		{
