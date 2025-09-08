@@ -44,6 +44,45 @@ namespace Vodovoz
 			return false;
 		}
 
+		public static bool NHibernateGenericADOExceptionHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
+		{
+			var genericAdoException = ExceptionHelper.FindExceptionTypeInInner<NHibernate.Exceptions.GenericADOException>(exception);
+			if(genericAdoException != null)
+			{
+				var staleObjectStateException = ExceptionHelper.FindExceptionTypeInInner<NHibernate.StaleObjectStateException>(genericAdoException);
+				if(staleObjectStateException != null)
+				{
+					return NHibernateStaleObjectStateExceptionHandler(staleObjectStateException, application, user, interactiveMessage);
+				}
+
+				var type = OrmConfig.FindMappingByFullClassName(staleObjectStateException.EntityName).MappedClass;
+				var objectName = DomainHelper.GetSubjectNames(type);
+
+				string message;
+
+				switch(objectName?.Gender)
+				{
+					case GrammaticalGender.Feminine:
+						message = "Сохраняемая <b>{0}</b> c номером <b>{1}</b> была кем то изменена.";
+						break;
+					case GrammaticalGender.Neuter:
+						message = "Сохраняемое <b>{0}</b> c номером <b>{1}</b> было кем то изменено.";
+						break;
+					case GrammaticalGender.Masculine:
+					default:
+						message = "Сохраняемый <b>{0}</b> c номером <b>{1}</b> был кем то изменен.";
+						break;
+				}
+				message = String.Format(message + "\nВаши изменения не будут записаны, чтобы не потерять чужие изменения. \nПереоткройте вкладку.", 
+					objectName?.Nominative ?? type.Name, 
+					staleObjectStateException.Identifier);
+
+				interactiveMessage.ShowMessage(ImportanceLevel.Warning, message);
+				return true;
+			}
+			return false;
+		}
+
 		public static bool MySqlExceptionConnectionTimeoutHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
 			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
