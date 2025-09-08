@@ -308,7 +308,11 @@ namespace Vodovoz
 		private Result _lastSaveResult;
 
 		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
-		public bool IsWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
+		public bool IsWaitUntilActive => Entity.OrderStatus.IsIn(
+			OrderStatus.Accepted, 
+			OrderStatus.OnLoading, 
+			OrderStatus.InTravelList, 
+			OrderStatus.OnTheWay)
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
