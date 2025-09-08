@@ -114,13 +114,16 @@ namespace Vodovoz
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
-
+		private bool _canEditCar;
+		private bool _canEditDriver;
+		
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
+		
 
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
@@ -246,15 +249,28 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
+			_canEditCar = !(Entity.Status == RouteListStatus.Delivered 
+			              || Entity.Status == RouteListStatus.OnClosing
+			              || Entity.Status == RouteListStatus.MileageCheck 
+			              || Entity.Status == RouteListStatus.Closed) 
+				|| ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList);
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
-
+			entityentryCar.Sensitive = _canEditCar;
+			
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			
+			_canEditDriver = !(Entity.Status == RouteListStatus.Delivered 
+			                 || Entity.Status == RouteListStatus.OnClosing 
+			                 || Entity.Status == RouteListStatus.MileageCheck 
+			                 || Entity.Status == RouteListStatus.Closed)
+			                 || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList);
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
 				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Changed += OnEvmeDriverChanged;
-
+			evmeDriver.Sensitive = _canEditDriver;
+			
 			previousForwarder = Entity.Forwarder;
 			
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(
