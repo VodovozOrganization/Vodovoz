@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
@@ -67,6 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				.CreateNewValidationContext(Counterparty);
 
 			Initialize();
+			Entity.Counterparty.PropertyChanged += OnCounterpartyPropertyChanged;
 		}
 
 		public event Action RefreshEdoLightsMatrixAction;
@@ -167,6 +169,17 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			SetPropertyChangeRelations();
 		}
+		
+		private void OnCounterpartyPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Counterparty.PersonType) || e.PropertyName == nameof(Counterparty.ReasonForLeaving))
+			{
+				OnPropertyChanged(nameof(CanCheckClientInTaxcom));
+				OnPropertyChanged(nameof(CanEditPersonalAccountCodeInEdo));
+				OnPropertyChanged(nameof(CanSelectRegisteredEdoAccount));
+				OnPropertyChanged(nameof(CanChangeOperatorEdo));
+			}
+		}
 
 		private void SetPropertyChangeRelations()
 		{
@@ -187,22 +200,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				() => CanSendManualInviteByTaxcom,
 				() => CanCheckConsentForEdo,
 				() => CanCopyFromEdoOperatorWithAccount
-			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.PersonType,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
-			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.ReasonForLeaving,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
 			);
 		}
 
@@ -363,6 +360,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
+			UoW.Save(Entity.Counterparty);
+			UoW.Save(Entity);
+			UoW.Commit();
+
 			try
 			{
 				if(isManual)
@@ -470,6 +471,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			Scope = null;
 			ParentTab = null;
+			Entity.Counterparty.PropertyChanged -= OnCounterpartyPropertyChanged;
 		}
 	}
 }
