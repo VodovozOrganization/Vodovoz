@@ -158,6 +158,7 @@ namespace Vodovoz
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionHandler);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateGenericADOExceptionHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
