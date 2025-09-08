@@ -257,13 +257,13 @@ stage('Checkout'){
 
 // 203	Этапы. Сборка
 stage('Web'){
-	node(NODE_WIN_BUILD){
+	node(NODE_LINUX_BUILD){
 		
-		if(CAN_PUBLISH_BUILD_WEB)
-		{
-			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
-			}
+		//if(CAN_PUBLISH_BUILD_WEB)
+		//{
+			//stage('Web.Restore'){
+				//bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+			//}
 			stage('Web.Build'){
 				// IIS
 				// PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
@@ -386,23 +386,30 @@ stage('Web'){
 				// DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-north")
 				// DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-south")
 
-
+				//PublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
+				DockerFileBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker", "edo-services.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "edo-services.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-beverages-world.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-kuler-service.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-non-alcoholic-beverages-world.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-north.auto-send-receive-worker")
+				// DockerPushAs("edo-services.auto-send-receive-worker", "taxcom-docflow-vv-south.auto-send-receive-worker")
 			}
-		}
-		else if(CAN_BUILD_WEB)
-		{
-			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
-			}
-			stage('Web.Build'){
-				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-				Build("Web")
-			}
-		}
-		else
-		{
-			echo "Build Web not needed"
-		}
+		//}
+		// else if(CAN_BUILD_WEB)
+		// {
+		// 	stage('Web.Restore'){
+		// 		bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
+		// 	}
+		// 	stage('Web.Build'){
+		// 		//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+		// 		Build("Web")
+		// 	}
+		// }
+		// else
+		// {
+		// 	echo "Build Web not needed"
+		// }
 		
 	}
 }
@@ -499,69 +506,99 @@ stage('CleanUp'){
 // 301	Фукнции. Подготовка репозитория
 
 def PrepareSources() {
-	JENKINS_HOME_NODE = env.JENKINS_HOME
-	def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-	echo "Prepare reference repository ${REFERENCE_REPOSITORY_PATH}"
+    JENKINS_HOME_NODE = env.JENKINS_HOME
+    def REFERENCE_REPOSITORY_PATH = "${JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+    echo "Prepare reference repository ${REFERENCE_REPOSITORY_PATH}"
 
-	if (fileExists(REFERENCE_REPOSITORY_PATH)) {
-		// fetch all on reference repository
-		if (isUnix()) {
-			sh script: """\
-				cd ${REFERENCE_REPOSITORY_PATH} \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
-				git fetch --all \
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
-				git fetch --all \
-			""", returnStdout: true
-		} else {
-			RunPowerShell("""
-				cd ${REFERENCE_REPOSITORY_PATH}
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
-				git fetch --all
-				cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
-				git fetch --all
-			""")
-		}		
-	} else {
-		// clone reference
-		if (isUnix()) {
-			sh script: """\
-				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH} \
-				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET \
-				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings \
-				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting \
-				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects \
-			""", returnStdout: true
-		} else {
-			RunPowerShell("""
-				git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH}
-				git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
-				git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
-				git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
-				git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
-			""")
-		}
-	}
+    if (fileExists(REFERENCE_REPOSITORY_PATH)) {
+        // fetch all on reference repository
+        if (isUnix()) {
+            sh """
+                # Проверяем и обновляем основной репозиторий
+                if [ -d "${REFERENCE_REPOSITORY_PATH}/.git" ]; then
+                    cd "${REFERENCE_REPOSITORY_PATH}"
+                    git fetch --all
+                else
+                    echo "Warning: ${REFERENCE_REPOSITORY_PATH} is not a git repository"
+                fi
+                
+                # Проверяем и обновляем подмодули
+                if [ -d "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET/.git" ]; then
+                    cd "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET"
+                    git fetch --all
+                else
+                    echo "Warning: GMap.NET is not a git repository"
+                fi
+                
+                if [ -d "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings/.git" ]; then
+                    cd "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings"
+                    git fetch --all
+                else
+                    echo "Warning: Gtk.DataBindings is not a git repository"
+                fi
+                
+                if [ -d "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting/.git" ]; then
+                    cd "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting"
+                    git fetch --all
+                else
+                    echo "Warning: My-FyiReporting is not a git repository"
+                fi
+                
+                if [ -d "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects/.git" ]; then
+                    cd "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects"
+                    git fetch --all
+                else
+                    echo "Warning: QSProjects is not a git repository"
+                fi
+            """
+        } else {
+            RunPowerShell("""
+                cd ${REFERENCE_REPOSITORY_PATH}
+                git fetch --all
+                cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+                git fetch --all
+                cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+                git fetch --all
+                cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+                git fetch --all
+                cd ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+                git fetch --all
+            """)
+        }        
+    } else {
+        // clone reference
+        if (isUnix()) {
+            sh """
+                # Клонируем основной репозиторий
+                git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror "${REFERENCE_REPOSITORY_PATH}"
+                
+                # Создаем директории для подмодулей и клонируем их
+                mkdir -p "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External"
+                git clone https://github.com/QualitySolution/GMap.NET.git --mirror "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET"
+                git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings"
+                git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting"
+                git clone https://github.com/QualitySolution/QSProjects.git --mirror "${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects"
+            """
+        } else {
+            RunPowerShell("""
+                git clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ${REFERENCE_REPOSITORY_PATH}
+                git clone https://github.com/QualitySolution/GMap.NET.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/GMap.NET
+                git clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/Gtk.DataBindings
+                git clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/My-FyiReporting
+                git clone https://github.com/QualitySolution/QSProjects.git --mirror ${REFERENCE_REPOSITORY_PATH}/modules/Source/Libraries/External/QSProjects
+            """)
+        }
+    }
 
-	checkout changelog: false, poll: false, scm:([
-		$class: 'GitSCM',
-		branches: scm.branches,
-		extensions: scm.extensions
-		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
-		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
-		userRemoteConfigs: scm.userRemoteConfigs
-	])
+    checkout changelog: false, poll: false, scm:([
+        $class: 'GitSCM',
+        branches: scm.branches,
+        extensions: scm.extensions
+        + [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
+        + [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
+        + [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
+        userRemoteConfigs: scm.userRemoteConfigs
+    ])
 }
 
 // 302	Фукнции. Восстановление пакетов
@@ -588,14 +625,37 @@ def Build(config){
 	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2 /nodeReuse:false"
 }
 
-def DockerFileBuild(projectPath, containerRepository){
+def DockerFileBuild1(projectPath, containerRepository){
 	def workspacePath = GetWorkspacePath()
-	bat "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+    def dockerfilePath = "${workspacePath}/${projectPath}/Dockerfile"
+    def buildContext = "${workspacePath}/${projectPath}"
+
+	echo "Building Docker image:"
+    echo "  Dockerfile: ${dockerfilePath}"
+    echo "  Context: ${buildContext}"
+    echo "  Image: ${containerRepository}:latest"
+
+	sh "docker build -t '${containerRepository}:latest' -f '${dockerfilePath}' '${buildContext}'"
+	//bat "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+	//sh "docker build -t ${containerRepository}:latest -f ${workspacePath}/${projectPath}/Dockerfile ${workspacePath}/${projectPath}"
+}
+
+def DockerFileBuild(projectPath, containerRepository){
+    def workspacePath = GetWorkspacePath()
+    def dockerfilePath = "${workspacePath}/${projectPath}/Dockerfile"
+    def buildContext = "${workspacePath}/${projectPath}"
+    
+    // Использовать хостовой Docker
+    sh """
+        /usr/bin/docker build -t ${containerRepository}:latest -f '${dockerfilePath}' '${buildContext}'
+    """
 }
 
 def DockerPushAs(fromContainerRepository, toRemoteContainerRepository) {
-	bat "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
-	bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	// bat "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	// bat "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	sh "docker tag ${fromContainerRepository}:latest ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
+	sh "docker push ${DOCKER_REGISTRY}/${toRemoteContainerRepository}:latest"
 }
 
 // 304	Фукнции. Запаковка
