@@ -15,7 +15,6 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
@@ -104,18 +103,6 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		private Result IsCarLoadDocumentLoadOperationStateNotStarted(CarLoadDocument carLoadDocument, int documentId)
-		{
-			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.NotStarted)
-			{
-				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStarted(documentId);
-				LogError(error);
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
-
 		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee)
 		{
 			var lastDocumentLoadingProcessAction =
@@ -183,7 +170,7 @@ namespace WarehouseApi.Library.Errors
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
 			};
-			
+
 			var cancelledOrders =
 				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
 
@@ -237,7 +224,6 @@ namespace WarehouseApi.Library.Errors
 		public async Task<Result> IsTrueMarkCodesCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCodes,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
@@ -281,36 +267,12 @@ namespace WarehouseApi.Library.Errors
 
 			result = IsNotAllProductsHasTrueMarkCode(orderId, nomenclatureId, documentItemToEdit);
 
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			foreach(var trueMarkWaterCode in trueMarkWaterCodes)
-			{
-				result = IsScannedCodeValid(trueMarkWaterCode);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-			}
-
-			return await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(trueMarkWaterCodes, cancellationToken);
+			return result;
 		}
 
-		public async Task<Result> IsTrueMarkCodeCanBeChanged(
+		public async Task<Result> IsCanChangeTrueMarkCode(
 			int orderId,
 			int nomenclatureId,
-			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
-			TrueMarkWaterIdentificationCode newTrueMarkWaterCode,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
 			CarLoadDocumentItemEntity documentItemToEdit,
@@ -337,27 +299,6 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsScannedCodeValid(oldTrueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			result = IsScannedCodeValid(newTrueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			result = IsTrueMarkCodesHasEqualGtins(oldTrueMarkWaterCode, newTrueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
 			result = IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(orderId, allWaterOrderItems);
 
 			if(result.IsFailure)
@@ -367,26 +308,7 @@ namespace WarehouseApi.Library.Errors
 
 			result = IsSingleItemHavingRequiredOrderAndNomenclatureExists(orderId, nomenclatureId, itemsHavingRequiredNomenclature);
 
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			result = IsProductsHavingRequiredTrueMarkCodeExists(documentItemToEdit, oldTrueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			result = IsTrueMarkCodeNotUsed(newTrueMarkWaterCode);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(newTrueMarkWaterCode, cancellationToken);
+			return result;
 		}
 
 		public Result IsOrderNeedIndividualSetOnLoad(int orderId)

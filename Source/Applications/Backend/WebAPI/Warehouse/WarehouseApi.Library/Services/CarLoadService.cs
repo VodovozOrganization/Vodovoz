@@ -481,7 +481,6 @@ namespace WarehouseApi.Library.Services
 			checkResult = await _documentErrorsChecker.IsTrueMarkCodesCanBeAdded(
 				orderId,
 				nomenclatureId,
-				waterCodes,
 				allWaterOrderItems,
 				itemsHavingRequiredNomenclature,
 				documentItemToEdit,

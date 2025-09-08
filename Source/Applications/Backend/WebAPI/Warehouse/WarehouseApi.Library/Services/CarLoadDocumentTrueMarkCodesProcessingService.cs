@@ -11,7 +11,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Errors.Goods;
 using Vodovoz.Errors.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
@@ -32,25 +31,80 @@ namespace WarehouseApi.Library.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
-		public void AddTrueMarkCodeToCarLoadDocumentItem(
+		public async Task<Result> AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
 			CarLoadDocumentItemEntity carLoadDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			SourceProductCodeStatus status,
-			ProductCodeProblem problem)
+			CancellationToken cancellationToken = default)
 		{
-			var productCode = CreateCarLoadDocumentItemTrueMarkProductCode(
-				carLoadDocumentItem,
-				trueMarkWaterIdentificationCode,
-				status,
-				problem);
+			var stagingCodes =
+				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				uow,
+				StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+				carLoadDocumentItem.Id,
+				cancellationToken);
 
-			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
-			uow.Save(productCode);
+			var addProductCodesResult =
+				await AddProductCodesToCarLoadDocumentItemFromStagingCodes(
+					uow,
+					stagingCodes,
+					carLoadDocumentItem,
+					cancellationToken);
+
+			if(addProductCodesResult.IsFailure)
+			{
+				var error = addProductCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			var deleteStagingCodesResult =
+				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
+					uow,
+					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+					carLoadDocumentItem.Id,
+					cancellationToken);
+
+			if(deleteStagingCodesResult.IsFailure)
+			{
+				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
 		}
 
-		/// <inheritdoc/>
-		public async Task AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
+		private async Task<Result> AddProductCodesToCarLoadDocumentItemFromStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CarLoadDocumentItemEntity routeListItem,
+			CancellationToken cancellationToken = default)
+		{
+			var trueMarkAnyCodesResult =
+				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
+					uow,
+					stagingCodes,
+					cancellationToken);
+
+			if(trueMarkAnyCodesResult.IsFailure)
+			{
+				var error = trueMarkAnyCodesResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
+			{
+				await AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
+					uow,
+					routeListItem,
+					trueMarkAnyCode,
+					SourceProductCodeStatus.Accepted,
+					ProductCodeProblem.None,
+					cancellationToken);
+			}
+
+			return Result.Success();
+		}
+
+		private async Task AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
 			IUnitOfWork uow,
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkAnyCode trueMarkAnyCode,
@@ -115,6 +169,23 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
+		private void AddTrueMarkCodeToCarLoadDocumentItem(
+			IUnitOfWork uow,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem)
+		{
+			var productCode = CreateCarLoadDocumentItemTrueMarkProductCode(
+				carLoadDocumentItem,
+				trueMarkWaterIdentificationCode,
+				status,
+				problem);
+
+			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
+			uow.Save(productCode);
+		}
+
 		private CarLoadDocumentItemTrueMarkProductCode CreateCarLoadDocumentItemTrueMarkProductCode(
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
@@ -129,139 +200,6 @@ namespace WarehouseApi.Library.Services
 				CarLoadDocumentItem = carLoadDocumentItem,
 				Problem = problem
 			};
-
-		public async Task<Result> AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
-			IUnitOfWork uow,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
-			CancellationToken cancellationToken = default)
-		{
-			var stagingCodes =
-				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
-				uow,
-				StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
-				carLoadDocumentItem.Id,
-				cancellationToken);
-
-			foreach(var stagingCode in stagingCodes)
-			{
-				var addProductCodesResult =
-					await AddProductCodesToCarLoadDocumentItemFromStagingCodes(
-						uow,
-						stagingCode,
-						carLoadDocumentItem,
-						cancellationToken);
-
-				if(addProductCodesResult.IsFailure)
-				{
-					var error = addProductCodesResult.Errors.FirstOrDefault();
-					return Result.Failure(error);
-				}
-			}
-
-			var orderItemStaginCodes = stagingCodes
-				.GroupBy(x => x.OrderItemId)
-				.ToDictionary(x => x.Key, x => x.ToList());
-
-			foreach(var orderItem in order.OrderItems)
-			{
-				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
-				{
-					continue;
-				}
-
-				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
-				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
-				}
-
-				var stagingCodesForOrderItemCount = stagingCodesForOrderItem
-					.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
-
-				var orderItemCount = orderItem.ActualCount ?? orderItem.Count;
-
-				if(stagingCodesForOrderItemCount < orderItemCount)
-				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
-				}
-
-				if(stagingCodesForOrderItemCount > orderItemCount)
-				{
-					var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
-					return Result.Failure(error);
-				}
-
-				var addProductCodesResult =
-					await AddProductCodesToCarLoadDocumentItemFromStagingCodes(
-						uow,
-						stagingCodesForOrderItem,
-						orderItem.Id,
-						cancellationToken);
-
-				if(addProductCodesResult.IsFailure)
-				{
-					var error = addProductCodesResult.Errors.FirstOrDefault();
-					return Result.Failure(error);
-				}
-			}
-
-			var deleteStagingCodesResult =
-				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
-					uow,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					null,
-					cancellationToken);
-
-			if(deleteStagingCodesResult.IsFailure)
-			{
-				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			var allCodesAddedToOrderResult =
-				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
-
-			if(allCodesAddedToOrderResult.IsFailure)
-			{
-				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
-
-		private async Task<Result> AddProductCodesToCarLoadDocumentItemFromStagingCodes(
-			IUnitOfWork uow,
-			IEnumerable<StagingTrueMarkCode> stagingCodes,
-			CarLoadDocumentItemEntity routeListItem,
-			CancellationToken cancellationToken = default)
-		{
-			var trueMarkAnyCodesResult =
-				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
-					uow,
-					stagingCodes,
-					cancellationToken);
-
-			if(trueMarkAnyCodesResult.IsFailure)
-			{
-				var error = trueMarkAnyCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
-			{
-				await AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
-					uow,
-					routeListItem,
-					trueMarkAnyCode,
-					SourceProductCodeStatus.Accepted,
-					ProductCodeProblem.None,
-					cancellationToken);
-			}
-
-			return Result.Success();
-		}
 
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
@@ -340,36 +278,36 @@ namespace WarehouseApi.Library.Services
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			CarLoadDocumentItemEntity orderItem,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
 			CancellationToken cancellationToken)
 		{
-			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.RouteListItem)
+			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem)
 			{
-				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в водительском приложении, могут быть добавлены");
+				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в складском приложении, могут быть добавлены");
 			}
 
-			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(orderItem.Nomenclature);
+			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(carLoadDocumentItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, orderItem.Nomenclature);
+			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(stagingTrueMarkCode, carLoadDocumentItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId);
+			codeCheckingProcessResult = IsCarLoadDocumentItemHaveNoAddedCodes(carLoadDocumentItem);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsStagingTrueMarkCodesCountCanBeAdded(uow, stagingTrueMarkCode, orderItem);
+			codeCheckingProcessResult = IsStagingTrueMarkCodesCountCanBeAdded(uow, stagingTrueMarkCode, carLoadDocumentItem);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -387,13 +325,9 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsRouteListItemHaveNoAddedCodes(IUnitOfWork uow, int routeListItemid)
+		private Result IsCarLoadDocumentItemHaveNoAddedCodes(CarLoadDocumentItemEntity carLoadDocumentItem)
 		{
-			var routeListItem = _routeListItemRepository.GetFirstOrDefault(
-				uow,
-				x => x.Id == routeListItemid);
-
-			if(routeListItem?.TrueMarkCodes.Count > 0)
+			if(carLoadDocumentItem?.TrueMarkCodes.Count > 0)
 			{
 				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
 				return Result.Failure(error);
@@ -405,22 +339,22 @@ namespace WarehouseApi.Library.Services
 		private Result IsStagingTrueMarkCodesCountCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			OrderItem orderItem)
+			CarLoadDocumentItemEntity carLoadDocumentItem)
 		{
-			var routeListItemId = stagingTrueMarkCode.RelatedDocumentId;
-			var orderItemId = stagingTrueMarkCode.OrderItemId;
+			var carLoadDocumentItemId = stagingTrueMarkCode.RelatedDocumentId;
 
 			var addedStagingCodesCount = _stagingTrueMarkCodeRepository.GetCount(
 				uow,
 				StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItemId,
-					orderItem.Id,
+					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+					carLoadDocumentItemId,
+					null,
 					stagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id)));
 
 			var newStagingCodesCount = stagingTrueMarkCode.AllIdentificationCodes.Count;
 
-			var isCodeCanBeAdded = addedStagingCodesCount + newStagingCodesCount <= (orderItem.ActualCount ?? orderItem.Count);
+			var isCodeCanBeAdded =
+				addedStagingCodesCount + newStagingCodesCount <= carLoadDocumentItem.Amount;
 
 			if(!isCodeCanBeAdded)
 			{
@@ -460,19 +394,5 @@ namespace WarehouseApi.Library.Services
 
 			return Result.Success();
 		}
-
-		private Result IsAllRouteListItemTrueMarkProductCodesAddedToOrder(IUnitOfWork uow, int orderId)
-		{
-			var isAllTrueMarkCodesAdded =
-				_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, orderId);
-
-			if(!isAllTrueMarkCodesAdded)
-			{
-				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
-			}
-
-			return Result.Success();
-		}
 	}
-}
 }
