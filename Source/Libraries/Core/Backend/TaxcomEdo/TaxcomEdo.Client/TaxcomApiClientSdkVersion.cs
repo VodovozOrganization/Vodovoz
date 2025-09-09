@@ -15,14 +15,14 @@ using TaxcomEdo.Contracts.Documents;
 
 namespace TaxcomEdo.Client
 {
-	public partial class TaxcomApiClient : ITaxcomApiClient
+	public partial class TaxcomApiClientSdkVersion : ITaxcomApiClientSdkVersion
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly TaxcomApiOptions _taxcomApiOptions;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
 
 		// Т.к. фабрика сама управляет созданными клиентами, то ее нужно регистрировать, как Singleton
-		public TaxcomApiClient(
+		public TaxcomApiClientSdkVersion(
 			IHttpClientFactory httpClientFactory,
 			TaxcomApiOptions taxcomApiOptions,
 			JsonSerializerOptions jsonSerializerOptions)
@@ -182,7 +182,7 @@ namespace TaxcomEdo.Client
 
 		private HttpClient CreateClient()
 		{
-			var client = _httpClientFactory.CreateClient(nameof(TaxcomApiClient));
+			var client = _httpClientFactory.CreateClient(nameof(TaxcomApiClientSdkVersion));
 			client.BaseAddress = new Uri(_taxcomApiOptions.BaseAddress);
 			
 			return client;

@@ -134,7 +134,7 @@ namespace EdoDocumentFlowUpdater
 						_logger.LogInformation("Получаем исходящие документы");
 
 						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 
 						docFlowUpdates =
 							await taxcomApiClient.GetDocFlowsUpdates(
@@ -254,7 +254,7 @@ namespace EdoDocumentFlowUpdater
 						_logger.LogInformation("Получаем входящие документы");
 
 						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 
 						docFlowUpdates =
 							await taxcomApiClient.GetDocFlowsUpdates(
@@ -317,7 +317,7 @@ namespace EdoDocumentFlowUpdater
 						_logger.LogInformation("Получаем документы ожидающие аннулирования");
 
 						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 						var lastProcessTime = _lastEventsProcessTime
 							.LastProcessedEventWaitingForCancellationDocuments
 							.ToBinary();
@@ -393,7 +393,7 @@ namespace EdoDocumentFlowUpdater
 			EdoContainer container,
 			EdoDocFlow docflow,
 			EdoDocFlowDocument mainDocument,
-			ITaxcomApiClient taxcomApiClient,
+			ITaxcomApiClientSdkVersion taxcomApiClient,
 			IUnitOfWork uow)
 		{
 			if(container is null)
@@ -495,7 +495,7 @@ namespace EdoDocumentFlowUpdater
 				foreach(var offerCancellation in offerCancellationFromActions)
 				{
 					using var scope = _serviceScopeFactory.CreateScope();
-					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 				
 					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
 						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
@@ -534,7 +534,7 @@ namespace EdoDocumentFlowUpdater
 		}
 		
 		private async Task SendOfferCancellationContainer(
-			ITaxcomApiClient taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
+			ITaxcomApiClientSdkVersion taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{
 			try
 			{

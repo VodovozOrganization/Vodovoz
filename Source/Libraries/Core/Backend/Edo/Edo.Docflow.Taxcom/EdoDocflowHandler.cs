@@ -15,12 +15,12 @@ namespace Edo.Docflow.Taxcom
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<EdoDocflowHandler> _logger;
-		private readonly ITaxcomApiClient _taxcomApiClient;
+		private readonly ITaxcomApiClientSdkVersion _taxcomApiClient;
 
 		public EdoDocflowHandler(
 			IUnitOfWork uow,
 			ILogger<EdoDocflowHandler> logger,
-			ITaxcomApiClient taxcomApiClient)
+			ITaxcomApiClientSdkVersion taxcomApiClient)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

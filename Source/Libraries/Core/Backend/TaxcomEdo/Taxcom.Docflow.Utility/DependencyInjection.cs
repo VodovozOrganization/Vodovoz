@@ -30,7 +30,7 @@ namespace Taxcom.Docflow.Utility
 
 			services.TryAddScoped<ITaxcomApiFactory, TaxcomApiFactory>();
 			services.TryAddScoped<DocflowStatusesService>();
-			services.TryAddScoped<ITaxcomApiClient, TaxcomApiClient>();
+			services.TryAddScoped<ITaxcomApiClientSdkVersion, TaxcomApiClientSdkVersion>();
 
 			return services;
 		}

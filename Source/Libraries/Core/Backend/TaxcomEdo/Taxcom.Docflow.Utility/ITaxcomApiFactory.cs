@@ -5,6 +5,6 @@ namespace Taxcom.Docflow.Utility
 {
 	public interface ITaxcomApiFactory
 	{
-		ITaxcomApiClient Create(TaxcomApiOptions taxcomApiOptions);
+		ITaxcomApiClientSdkVersion Create(TaxcomApiOptions taxcomApiOptions);
 	}
 }

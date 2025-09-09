@@ -20,9 +20,9 @@ namespace Taxcom.Docflow.Utility
 			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 		}
 
-		public ITaxcomApiClient Create(TaxcomApiOptions taxcomApiOptions)
+		public ITaxcomApiClientSdkVersion Create(TaxcomApiOptions taxcomApiOptions)
 		{
-			return new TaxcomApiClient(_httpClientFactory, taxcomApiOptions, _jsonSerializerOptions);
+			return new TaxcomApiClientSdkVersion(_httpClientFactory, taxcomApiOptions, _jsonSerializerOptions);
 		}
 	}
 }

@@ -10,11 +10,11 @@ namespace EdoDocumentsConsumer.Consumers
 	public class BillEdoDocumentConsumer : IConsumer<InfoForCreatingEdoBill>
 	{
 		private readonly ILogger<BillEdoDocumentConsumer> _logger;
-		private readonly ITaxcomApiClient _taxcomApiClient;
+		private readonly ITaxcomApiClientSdkVersion _taxcomApiClient;
 
 		public BillEdoDocumentConsumer(
 			ILogger<BillEdoDocumentConsumer> logger,
-			ITaxcomApiClient taxcomApiClient)
+			ITaxcomApiClientSdkVersion taxcomApiClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));

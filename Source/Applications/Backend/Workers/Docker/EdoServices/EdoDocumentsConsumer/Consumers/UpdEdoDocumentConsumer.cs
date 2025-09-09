@@ -10,11 +10,11 @@ namespace EdoDocumentsConsumer.Consumers
 	public class UpdEdoDocumentConsumer : IConsumer<InfoForCreatingEdoUpd>
 	{
 		private readonly ILogger<UpdEdoDocumentConsumer> _logger;
-		private readonly ITaxcomApiClient _taxcomApiClient;
+		private readonly ITaxcomApiClientSdkVersion _taxcomApiClient;
 
 		public UpdEdoDocumentConsumer(
 			ILogger<UpdEdoDocumentConsumer> logger,
-			ITaxcomApiClient taxcomApiClient)
+			ITaxcomApiClientSdkVersion taxcomApiClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));

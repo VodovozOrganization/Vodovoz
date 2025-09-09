@@ -10,7 +10,7 @@ namespace TaxcomEdo.Client
 		public static IServiceCollection AddTaxcomClient(this IServiceCollection services)
 		{
 			return services
-				.AddScoped<ITaxcomApiClient, TaxcomApiClient>()
+				.AddScoped<ITaxcomApiClientSdkVersion, TaxcomApiClientSdkVersion>()
 				.AddSingleton<TaxcomApiOptions>(c =>
 				{
 					var configuration = c.GetService<IConfiguration>();

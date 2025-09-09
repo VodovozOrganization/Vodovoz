@@ -9,7 +9,7 @@ using TaxcomEdo.Contracts.Documents;
 
 namespace TaxcomEdo.Client
 {
-	public interface ITaxcomApiClient
+	public interface ITaxcomApiClientSdkVersion
 	{
 		/// <summary>
 		/// Передача данных по УПД в TaxcomApi для его формирования и отправки по ЭДО в Такском

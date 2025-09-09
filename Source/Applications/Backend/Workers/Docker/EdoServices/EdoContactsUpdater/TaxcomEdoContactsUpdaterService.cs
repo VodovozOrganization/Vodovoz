@@ -96,7 +96,7 @@ namespace EdoContactsUpdater
 						do
 						{
 							using var scope = _serviceScopeFactory.CreateScope();
-							var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+							var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 							
 							try
 							{
@@ -249,7 +249,7 @@ namespace EdoContactsUpdater
 			EdoContactInfo contact,
 			Organization organization,
 			IUnitOfWork uow,
-			ITaxcomApiClient taxcomApiClient,
+			ITaxcomApiClientSdkVersion taxcomApiClient,
 			CancellationToken cancellationToken)
 		{
 			IList<Counterparty> counterparties;

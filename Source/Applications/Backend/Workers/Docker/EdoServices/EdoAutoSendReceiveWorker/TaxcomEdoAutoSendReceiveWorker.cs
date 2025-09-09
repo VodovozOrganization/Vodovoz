@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -49,7 +49,7 @@ namespace EdoAutoSendReceiveWorker
 					
 					_logger.LogInformation("Отправляем запрос на запуск необходимых транзакций");
 					using var scope = _serviceScopeFactory.CreateScope();
-					var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+					var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
 					await taxcomClient.StartProcessAutoSendReceive(stoppingToken);
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}

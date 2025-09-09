@@ -12,7 +12,7 @@ namespace EdoDocumentsConsumer.Consumers
 	{
 		public BillWithoutShipmentForPaymentEdoDocumentConsumer(
 			ILogger<BillWithoutShipmentForPaymentEdoDocumentConsumer> logger,
-			ITaxcomApiClient taxcomApiClient)
+			ITaxcomApiClientSdkVersion taxcomApiClient)
 			: base(taxcomApiClient, logger)
 		{
 		}

@@ -8,10 +8,10 @@ namespace EdoDocumentsConsumer.Consumers
 {
 	public abstract class BillWithoutShipmentEdoDocumentConsumer
 	{
-		private readonly ITaxcomApiClient _taxcomApiClient;
+		private readonly ITaxcomApiClientSdkVersion _taxcomApiClient;
 
 		protected BillWithoutShipmentEdoDocumentConsumer(
-			ITaxcomApiClient taxcomApiClient,
+			ITaxcomApiClientSdkVersion taxcomApiClient,
 			ILogger<BillWithoutShipmentEdoDocumentConsumer> logger)
 		{
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
