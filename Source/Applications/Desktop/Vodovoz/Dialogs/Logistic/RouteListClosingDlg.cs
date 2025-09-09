@@ -249,20 +249,26 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			_canEditCar = !(Entity.Status == RouteListStatus.Delivered 
-			              || Entity.Status == RouteListStatus.OnClosing
-			              || Entity.Status == RouteListStatus.MileageCheck 
-			              || Entity.Status == RouteListStatus.Closed) 
-				|| ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList);
+			_canEditCar = _isRoleCashier
+			              && permissionResult.CanUpdate
+			              && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) &
+			              !(Entity.Status == RouteListStatus.Delivered 
+				              || Entity.Status == RouteListStatus.OnClosing
+				              || Entity.Status == RouteListStatus.MileageCheck 
+				              || Entity.Status == RouteListStatus.Closed) 
+			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList);
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
 			
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
-			_canEditDriver = !(Entity.Status == RouteListStatus.Delivered 
-			                 || Entity.Status == RouteListStatus.OnClosing 
-			                 || Entity.Status == RouteListStatus.MileageCheck 
-			                 || Entity.Status == RouteListStatus.Closed)
+			_canEditDriver = _isRoleCashier
+			                 && permissionResult.CanUpdate
+			                 && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) &
+			                 !(Entity.Status == RouteListStatus.Delivered 
+			                   || Entity.Status == RouteListStatus.OnClosing 
+			                   || Entity.Status == RouteListStatus.MileageCheck 
+			                   || Entity.Status == RouteListStatus.Closed)
 			                 || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList);
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
@@ -493,9 +499,7 @@ namespace Vodovoz
 				vbxFuelTickets.Sensitive = false;
 				speccomboShift.Sensitive = false;
 				evmeLogistician.Sensitive = false;
-				evmeDriver.Sensitive = false;
 				evmeForwarder.Sensitive = false;
-				entityentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
 				hbox11.Sensitive = false;
 				routelistdiscrepancyview.Sensitive = false;
@@ -513,8 +517,6 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			entityentryCar.Sensitive = _canEdit;
-			evmeDriver.Sensitive = _canEdit;
 			evmeForwarder.Sensitive = _canEdit;
 			evmeLogistician.Sensitive = _canEdit;
 			datePickerDate.Sensitive = _canEdit;
