@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
@@ -33,7 +34,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -74,6 +74,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -251,25 +252,18 @@ namespace Vodovoz
 
 			_canEditCar = _isRoleCashier
 			              && permissionResult.CanUpdate
-			              && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) &
-			              !(Entity.Status == RouteListStatus.Delivered 
-				              || Entity.Status == RouteListStatus.OnClosing
-				              || Entity.Status == RouteListStatus.MileageCheck 
-				              || Entity.Status == RouteListStatus.Closed) 
+			              && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) 
+			              && !(Entity.Status == RouteListStatus.Delivered 
+			                  || Entity.Status == RouteListStatus.OnClosing
+			                  || Entity.Status == RouteListStatus.MileageCheck 
+			                  || Entity.Status == RouteListStatus.Closed) 
 			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList);
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
 			
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
-			_canEditDriver = _isRoleCashier
-			                 && permissionResult.CanUpdate
-			                 && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) &
-			                 !(Entity.Status == RouteListStatus.Delivered 
-			                   || Entity.Status == RouteListStatus.OnClosing 
-			                   || Entity.Status == RouteListStatus.MileageCheck 
-			                   || Entity.Status == RouteListStatus.Closed)
-			                 || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList);
+			_canEditDriver = _canEditCar;
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
 				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
