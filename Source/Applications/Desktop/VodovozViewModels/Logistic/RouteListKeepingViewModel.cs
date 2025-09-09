@@ -510,7 +510,7 @@ namespace Vodovoz
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						vm.Initialize(oldOrderId: rli.RouteListItem.Order.Id);
 					}
 					).ViewModel;
 
@@ -627,6 +627,8 @@ namespace Vodovoz
 			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
+
+			UoW.Session.Refresh(address.RouteListItem.Order);
 
 			var notificationRequest = new NotificationRouteListChangesRequest
 			{
