@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Core.Infrastructure;
 using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
@@ -250,20 +251,21 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			_canEditCar = _isRoleCashier
-			              && permissionResult.CanUpdate
-			              && (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status)) 
-			              && !(Entity.Status == RouteListStatus.Delivered 
-			                  || Entity.Status == RouteListStatus.OnClosing
-			                  || Entity.Status == RouteListStatus.MileageCheck 
-			                  || Entity.Status == RouteListStatus.Closed) 
-			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList);
+			var isEditableStatus = !(Entity.Status == RouteListStatus.Delivered
+			                         || Entity.Status == RouteListStatus.OnClosing
+			                         || Entity.Status == RouteListStatus.MileageCheck
+			                         || Entity.Status == RouteListStatus.Closed);
+			_canEditCar = _canEdit 
+			              && (isEditableStatus 
+			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
 			
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
-			_canEditDriver = _canEditCar;
+			_canEditDriver = _canEdit
+			                && (isEditableStatus
+			                || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList));
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
 				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
