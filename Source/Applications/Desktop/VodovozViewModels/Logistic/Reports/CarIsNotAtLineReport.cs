@@ -114,12 +114,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.Select(c => c.Id)
 				.ToArray();
 
+			var routeListItemNodDeliveredStatuses = RouteListItem.GetNotDeliveredStatuses();
+
 			var carsWithLastRouteLists =
 				(from car in unitOfWork.Session.Query<Car>()
 				 let lastRouteListDate =
 					(DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
+								join routeListItem in unitOfWork.Session.Query<RouteListItem>()
+									on routeList.Id equals routeListItem.RouteList.Id
 								where routeList.Car.Id == car.Id
 									&& routeList.Date <= date.LatestDayTime()
+									&& !routeListItemNodDeliveredStatuses.Contains(routeListItem.Status)
 								orderby routeList.Date descending
 								select routeList.Date)
 					.FirstOrDefault()
@@ -183,22 +188,20 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.Distinct()
 				.ToArray();
 
-			var eventsGrouppedByCarModel = events.GroupBy(fe => fe.Car.CarModel.Id);
-
 			var skippedRows = 0;
 
 			for(var i = 0; i < cars.Count; i++)
 			{
 				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == cars[i].Id);
 
+				if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
+				{
+					skippedRows++;
+					continue;
+				}
+
 				if(carEventGroup == null)
 				{
-					if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
-					{
-						skippedRows++;
-						continue;
-					}
-
 					rows.Add(new Row
 					{
 						Id = i + 1 - skippedRows,
