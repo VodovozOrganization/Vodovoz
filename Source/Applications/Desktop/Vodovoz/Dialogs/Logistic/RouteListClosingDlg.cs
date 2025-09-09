@@ -23,7 +23,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -33,7 +32,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -66,7 +64,6 @@ using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
@@ -74,6 +71,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
@@ -114,13 +112,16 @@ namespace Vodovoz
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
-
+		private bool _canEditCar;
+		private bool _canEditDriver;
+		
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
+		
 
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
@@ -246,15 +247,28 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
+			var isEditableStatus = !(Entity.Status == RouteListStatus.Delivered
+			                         || Entity.Status == RouteListStatus.OnClosing
+			                         || Entity.Status == RouteListStatus.MileageCheck
+			                         || Entity.Status == RouteListStatus.Closed);
+			_canEditCar = _canEdit 
+			              && (isEditableStatus 
+			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
-
+			entityentryCar.Sensitive = _canEditCar;
+			
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			
+			_canEditDriver = _canEdit
+			                && (isEditableStatus
+			                || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList));
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
 				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Changed += OnEvmeDriverChanged;
-
+			evmeDriver.Sensitive = _canEditDriver;
+			
 			previousForwarder = Entity.Forwarder;
 			
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(
@@ -477,9 +491,7 @@ namespace Vodovoz
 				vbxFuelTickets.Sensitive = false;
 				speccomboShift.Sensitive = false;
 				evmeLogistician.Sensitive = false;
-				evmeDriver.Sensitive = false;
 				evmeForwarder.Sensitive = false;
-				entityentryCar.Sensitive = false;
 				datePickerDate.Sensitive = false;
 				hbox11.Sensitive = false;
 				routelistdiscrepancyview.Sensitive = false;
@@ -497,8 +509,6 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			entityentryCar.Sensitive = _canEdit;
-			evmeDriver.Sensitive = _canEdit;
 			evmeForwarder.Sensitive = _canEdit;
 			evmeLogistician.Sensitive = _canEdit;
 			datePickerDate.Sensitive = _canEdit;
