@@ -77,6 +77,6 @@ namespace TaxcomEdo.Contracts.Contacts
 		[XmlElement(ElementName = "Active", IsNullable = false)]
 		public string Active { get; set; }
 
-		public static EdoContactInfo CreateForCheckContragent(string inn, string kpp) => new EdoContactInfo(inn, kpp);
+		public static EdoContactInfo CreateForCheckCounterparty(string inn, string kpp) => new EdoContactInfo(inn, kpp);
 	}
 }

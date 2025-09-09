@@ -14,13 +14,16 @@ namespace TaxcomEdoApi.Controllers
 	{
 		private readonly ILogger<DocflowController> _logger;
 		private readonly ITaxcomEdoService _taxcomEdoService;
+		private readonly IEdoDocflowService _docflowService;
 
 		public DocflowController(
 			ILogger<DocflowController> logger,
-			ITaxcomEdoService taxcomEdoService)
+			ITaxcomEdoService taxcomEdoService,
+			IEdoDocflowService docflowService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
+			_docflowService = docflowService ?? throw new ArgumentNullException(nameof(docflowService));
 		}
 		
 		[HttpPost]
@@ -41,7 +44,7 @@ namespace TaxcomEdoApi.Controllers
 					updInfo.Number,
 					documentId);
 				
-				_taxcomApi.Send(container);
+				_docflowService.SendMessageAsync(container);
 				return Ok();
 			}
 			catch(Exception e)

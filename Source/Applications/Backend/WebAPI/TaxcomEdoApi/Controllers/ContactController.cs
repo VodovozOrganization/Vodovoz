@@ -37,7 +37,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var response = _client.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
+				var response = _edoContactService.GetContactListUpdatesAsync(lastCheckContactsUpdates, contactStatus);
 				return Ok(response);
 			}
 			catch(Exception e)
@@ -64,7 +64,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var response = _client.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
+				var response = _edoContactService.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
 				return Ok(response);
 			}
 			catch(Exception e)
@@ -129,7 +129,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var response = _edoContactService.GetContacts(clientEdoAccountId);
+				var response = _edoContactService.GetContactsAsync(clientEdoAccountId);
 				return Ok(response);
 			}
 			catch(Exception e)
@@ -153,13 +153,13 @@ namespace TaxcomEdoApi.Controllers
 		/// <param name="comment"></param>
 		/// <returns></returns>
 		[HttpPost]
-		public IActionResult CheckContragent(object innKpp)
+		public IActionResult CheckCounterparty(object innKpp)
 		{
 			_logger.LogInformation("Проверка наличия данных о клиентах в Такскоме");
 			
 			try
 			{
-				var response = _edoContactService.CheckContragent(clientEdoAccountId);
+				var response = _edoContactService.CheckCounterpartyAsync(clientEdoAccountId);
 				return Ok(response);
 			}
 			catch(Exception e)

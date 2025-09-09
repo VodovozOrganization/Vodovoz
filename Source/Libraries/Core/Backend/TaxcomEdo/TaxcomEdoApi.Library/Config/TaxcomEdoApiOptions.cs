@@ -43,11 +43,17 @@
 		/// Отправлять доверенность со счетами без отгрузки
 		/// </summary>
 		public bool SendWarrantWithBillsWithoutShipment { get; set; } = true;
-		public string AcceptContactUri { get; set; }
-		public string RejectContactUri { get; set; }
-		public string SendContactsUri { get; set; }
-		public string CertificateLoginUri { get; set; }
-		public string CheckContragentUri { get; set; }
-		public string SendMessageUri { get; set; }
+		/// <summary>
+		/// Эндпойнты для работы со списком контактов
+		/// </summary>
+		public ContactsUri ContactsUri { get; set; }
+		/// <summary>
+		/// Эндпойнты для работы с документами
+		/// </summary>
+		public DocflowUri DocflowUri { get; set; }
+		/// <summary>
+		/// Эндпойнты для авторизации
+		/// </summary>
+		public AuthorizationUri AuthorizationUri { get; set; }
 	}
 }

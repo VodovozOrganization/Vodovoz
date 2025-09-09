@@ -29,7 +29,7 @@ namespace TaxcomEdoApi.Library.Services
 				.AddParameter(password, nameof(password))
 				.ToString();
 			
-			var response = await _httpClient.GetAsync("API/Login" + query);
+			var response = await _httpClient.GetAsync(_options.AuthorizationUri.LoginUri + query);
 			var responseBody = await response.Content.ReadAsStringAsync();
 
 			return responseBody;
@@ -39,7 +39,7 @@ namespace TaxcomEdoApi.Library.Services
 		{
 			var content = new ByteArrayContent(certificateData);
 			
-			var response = _httpClient.PostAsync(_options.CertificateLoginUri, content);
+			var response = await _httpClient.PostAsync(_options.AuthorizationUri.CertificateLoginUri, content);
 			var tokenData = DecryptMessage();
 			var token = Encoding.ASCII.GetString(tokenData);
 			

@@ -37,9 +37,9 @@ namespace TaxcomEdo.Contracts.Contacts
 		[XmlElement(ElementName = "TemplateID")]
 		public Guid TemplateId { get; set; }
 
-		public static EdoContactList CreateForCheckContragent(string inn, string kpp)
+		public static EdoContactList CreateForCheckCounterparty(string inn, string kpp)
 		{
-			var contactInfo = EdoContactInfo.CreateForCheckContragent(inn, kpp);
+			var contactInfo = EdoContactInfo.CreateForCheckCounterparty(inn, kpp);
 			return new EdoContactList(new[] { contactInfo });
 		}
 	}
