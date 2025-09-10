@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using QS.Dialog;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using Gamma.Utilities;
-using QS.Dialog;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -69,11 +70,16 @@ namespace ExportTo1c.Library
 			{
 				var order = orders[i];
 
-				var items = order.OrderItems;
+				var items = order.OrderItems
+					.Where(x => x.Price != 0m)
+					.Where(x => x.Count > 0m);
 
 				foreach(var item in items)
 				{
-					var rowItem = new XElement("Строка",						
+					var isService = item.Nomenclature.Category == NomenclatureCategory.master
+						|| item.Nomenclature.Category == NomenclatureCategory.service;
+
+					var rowItem = new XElement("Строка",
 						new XAttribute("Заказ", item.Order.Id),
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
@@ -83,7 +89,8 @@ namespace ExportTo1c.Library
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
-						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash)
+						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
+						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар")
 						);
 
 					xElements.Add(rowItem);
