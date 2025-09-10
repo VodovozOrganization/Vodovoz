@@ -32,10 +32,10 @@ namespace Vodovoz.ViewModels.Store.Reports
 			DefectSource? defectSource,
 			IEnumerable<DefectiveItemsReportRow> defectiveItemsReportRows,
 			IEnumerable<SummaryDisplayRow> summaryDisplayRows,
-			List<string> warehouseNames,
-			List<SummaryBySourceRow> summaryBySourceRows,
-			List<string> sourceNames,
-			List<string> defectNames,
+			IEnumerable<string> warehouseNames,
+			IEnumerable<SummaryBySourceRow> summaryBySourceRows,
+			IEnumerable<string> sourceNames,
+			IEnumerable<string> defectNames,
 			IEnumerable<SummaryByNomenclatureRow> summaryByNomenclatureRow,
 			IEnumerable<SummaryByNomenclatureWithTypeDefectRow> summaryByNomenclatureWithTypeDefectRow,
 			IEnumerable<SummaryByOldNomenclatureRow> summaryByOldNomenclatureRow,
@@ -84,12 +84,12 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
 		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
 		
-		public List<string> WarehouseNames { get; }
-		public List<string> SourceNames { get; }
-		public List<string> DefectNames { get; }
+		public IEnumerable<string> WarehouseNames { get; }
+		public IEnumerable<string> SourceNames { get; }
+		public IEnumerable<string> DefectNames { get; }
 		
-		public List<string> SourceOldNames { get; }
-		public List<string> DefectOldNames { get; }
+		public IEnumerable<string> SourceOldNames { get; }
+		public IEnumerable<string> DefectOldNames { get; }
 
 
 		public static async Task<Result<DefectiveItemsReport>> Create(
@@ -376,23 +376,31 @@ namespace Vodovoz.ViewModels.Store.Reports
 				var defectNames = defectTypesIdsNames.Values
 					.OrderBy(x => x.Id)
 					.Select(x => x.Name)
-					.ToList();
+					.ToArray();
+
+				var sourceNamesEnum =  new[]
+				{
+					Domain.Documents.DefectSource.Driver, 
+					Domain.Documents.DefectSource.Client, 
+					Domain.Documents.DefectSource.Production,
+					Domain.Documents.DefectSource.Warehouse
+				};
 				
-				var sourceNames =
-					(from DefectSource source in Enum.GetValues(typeof(DefectSource))
-						select source.GetEnumDisplayName())
-					.ToList();
-				sourceNames.RemoveAt(0);
+				var sourceNames = sourceNamesEnum
+					.Select(e => e.GetEnumDisplayName())
+					.ToArray();
 				
 				var summaryByOldNomenclatureRows = oldNomenclatureIds
 					.Select(nomenclatureId => new
 					{
 						nomenclatureId,
 						amountBySource =
-							(from DefectSource source in Enum.GetValues(typeof(DefectSource))
-								where source != Vodovoz.Domain.Documents.DefectSource.None
-								select sortedRows.Where(x => x.DefectSource == source && x.OldNomenclatureId == nomenclatureId && !string.IsNullOrEmpty(x.DefectiveItemOldName))
-									.Sum(x => x.Amount)).ToList()
+							(sourceNamesEnum
+								.Select(source =>
+									sortedRows.Where(x =>
+											x.DefectSource == source && x.OldNomenclatureId == nomenclatureId &&
+											!string.IsNullOrEmpty(x.DefectiveItemOldName))
+										.Sum(x => x.Amount))).ToArray()
 					})
 					.Select(t => new SummaryByOldNomenclatureRow()
 					{

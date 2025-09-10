@@ -126,7 +126,7 @@ namespace Vodovoz.Store.Reports
 					.AddColumn("Номеклатура")
 					.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
 				
-				for(var i = 0; i < dynamicSourceNameColumns.Count; i++)
+				for(var i = 0; i < dynamicSourceNameColumns.Count(); i++)
 				{
 					var currentId = i;
 					
@@ -146,7 +146,7 @@ namespace Vodovoz.Store.Reports
 					.AddColumn("Номеклатура")
 					.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
 				
-				for(var i = 0; i < dynamicDefectNameColumns.Count; i++)
+				for(var i = 0; i < dynamicDefectNameColumns.Count(); i++)
 				{
 					var currentId = i;
 
@@ -201,7 +201,7 @@ namespace Vodovoz.Store.Reports
 				.AddColumn("Старая номеклатура")
 				.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
 				
-			for(var i = 0; i < dynamicSourceOldNameColumns.Count; i++)
+			for(var i = 0; i < dynamicSourceOldNameColumns.Count(); i++)
 			{
 				var currentId = i;
 					
@@ -221,7 +221,7 @@ namespace Vodovoz.Store.Reports
 				.AddColumn("Старая номеклатура")
 				.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
 				
-			for(var i = 0; i < dynamicDefectOldNameColumns.Count; i++)
+			for(var i = 0; i < dynamicDefectOldNameColumns.Count(); i++)
 			{
 				var currentId = i;
 
