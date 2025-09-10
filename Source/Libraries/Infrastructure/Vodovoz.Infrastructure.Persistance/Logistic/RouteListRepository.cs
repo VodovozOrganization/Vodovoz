@@ -1664,8 +1664,8 @@ FROM
 
 		public async Task<IList<RouteList>> GetCarsRouteListsForPeriod(
 			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
-			CarOwnType carOwnType,
+			CarTypeOfUse[] carTypesOfUse,
+			CarOwnType[] carOwnTypes,
 			Car car,
 			int[] includedCarModelIds,
 			int[] excludedCarModelIds,
@@ -1697,12 +1697,8 @@ FROM
 					.Where(() => !carAlias.IsArchive)
 					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
-
-				if(carTypeOfUse != null)
-				{
-					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
+					.And(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), carOwnTypes))
+					.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), carTypesOfUse));
 
 				if(car != null)
 				{
