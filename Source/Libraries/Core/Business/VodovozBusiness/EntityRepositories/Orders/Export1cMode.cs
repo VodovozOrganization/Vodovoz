@@ -1,4 +1,4 @@
-namespace Vodovoz.EntityRepositories.Orders
+﻿namespace Vodovoz.EntityRepositories.Orders
 {
 	/// <summary>
 	/// Тип эскпорта 1С
@@ -15,6 +15,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <summary>
 		///Розничная продажа
 		/// </summary>
-		RetailReport
+		Retail
 	}
 }

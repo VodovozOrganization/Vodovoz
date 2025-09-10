@@ -214,7 +214,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
-				case Export1cMode.RetailReport:
+				case Export1cMode.Retail:
 					AddWithCashReceipOnlyRestrictionsToOrderQuery(query, orderAlias);
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)

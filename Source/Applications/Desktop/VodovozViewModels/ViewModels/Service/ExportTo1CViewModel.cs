@@ -424,7 +424,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			return _orderRepository.GetOrdersToExport1c8(
 				unitOfWork,
 				_orderSettings,
-				Export1cMode.RetailReport,
+				Export1cMode.Retail,
 				StartDate.Value,
 				EndDate.Value,
 				organization.Id);

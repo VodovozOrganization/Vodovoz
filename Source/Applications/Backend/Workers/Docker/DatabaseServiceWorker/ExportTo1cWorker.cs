@@ -128,7 +128,7 @@ namespace DatabaseServiceWorker
 			var startOfYesterday = yesterday;
 			var endOfYesterday = yesterday.AddDays(1).AddTicks(-1);
 
-			var exportMode = Export1cMode.RetailReport;
+			var exportMode = Export1cMode.Retail;
 
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт данных в 1С");
 
