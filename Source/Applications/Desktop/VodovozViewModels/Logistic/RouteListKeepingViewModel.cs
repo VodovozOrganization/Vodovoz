@@ -705,16 +705,21 @@ namespace Vodovoz
 					UoW.Save(keyPairValue.Value.Request);
 				}
 
-				UoW.Commit();
-
-				var changedList = Items
+				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
 
-				if(changedList.Count == 0)
+				if(changedItems.Count == 0)
 				{
 					return true;
 				}
+
+				foreach(var item in changedItems)
+				{
+					var attachedItem = UoW.Session.Merge(item.RouteListItem);
+				}
+
+				UoW.Commit();
 
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 
