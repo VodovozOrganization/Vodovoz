@@ -114,6 +114,7 @@ namespace Vodovoz
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 		private bool _canEditCar;
 		private bool _canEditDriver;
+		private bool _canEditExpeditor;
 		
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -269,6 +270,10 @@ namespace Vodovoz
 			evmeDriver.Changed += OnEvmeDriverChanged;
 			evmeDriver.Sensitive = _canEditDriver;
 			
+			_canEditExpeditor =  _canEdit 
+			                     && (isEditableStatus
+			                     || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditExpeditorOnCloseRouteList));
+			
 			previousForwarder = Entity.Forwarder;
 			
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(
@@ -278,6 +283,7 @@ namespace Vodovoz
 				.AddFuncBinding(rl => rl.CanAddForwarder && _canEdit, widget => widget.Sensitive)
 				.InitializeFromSource();
 			evmeForwarder.Changed += ReferenceForwarder_Changed;
+			evmeForwarder.Sensitive = _canEditExpeditor;
 			
 			evmeLogistician.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeLogistician.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
@@ -491,7 +497,6 @@ namespace Vodovoz
 				vbxFuelTickets.Sensitive = false;
 				speccomboShift.Sensitive = false;
 				evmeLogistician.Sensitive = false;
-				evmeForwarder.Sensitive = false;
 				datePickerDate.Sensitive = false;
 				hbox11.Sensitive = false;
 				routelistdiscrepancyview.Sensitive = false;
@@ -509,7 +514,6 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			evmeForwarder.Sensitive = _canEdit;
 			evmeLogistician.Sensitive = _canEdit;
 			datePickerDate.Sensitive = _canEdit;
 			ycheckConfirmDifferences.Sensitive = _canEdit &&
