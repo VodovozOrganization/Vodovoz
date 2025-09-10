@@ -3144,7 +3144,7 @@ FROM
     LEFT JOIN
     employees e ON o.author_employee_id = e.id
     LEFT JOIN
-    employees e_manager ON counterparty.sales_manager_id = e_manager.id
+    employees e_manager ON c.sales_manager_id = e_manager.id
     LEFT JOIN
     subdivisions s ON s.id = e.subdivision_id
     LEFT JOIN
