@@ -59,7 +59,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			dataLoader.AddQuery(RequestsForCallQuery);
 			
 			dataLoader.MergeInOrderBy(x => x.OrderByStatusValue);
-			dataLoader.MergeInOrderBy(x => x.EntityTypeString, true);
 			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
 			DataLoader = dataLoader;
 
