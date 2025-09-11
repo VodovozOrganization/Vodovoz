@@ -1,4 +1,4 @@
-﻿using DatabaseServiceWorker.Options;
+using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

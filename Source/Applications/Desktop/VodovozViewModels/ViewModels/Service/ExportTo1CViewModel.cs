@@ -1,4 +1,4 @@
-﻿using ExportTo1c.Library;
+using ExportTo1c.Library;
 using ExportTo1c.Library.ExportNodes;
 using ExportTo1c.Library.Factories;
 using Microsoft.VisualBasic.FileIO;
