@@ -431,7 +431,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					
 					if(endDate.HasValue)
 					{ 
-						query.Where(r => r.Created <= endDate); 
+						query.Where(r => r.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
 			}
