@@ -6,7 +6,6 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
