@@ -978,18 +978,18 @@ FROM
          IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) as delivery_point,
          orders.id as order_id,
          IF(
-                     employees.name IS NULL OR employees.last_name IS NULL,
+                     e.name IS NULL OR e.last_name IS NULL,
                      '',
-                     CONCAT(SUBSTR(employees.name,1,1),'.',employees.last_name)
+                     CONCAT(SUBSTR(e.name,1,1),'.',e.last_name)
              ) AS order_author,
          CONCAT(
                  orders.id,
                  '\n',
                  DATE_FORMAT(orders.delivery_date, '%d.%m.%Y'),
                  IF(
-                             employees.name IS NULL OR employees.last_name IS NULL,
+                             e.name IS NULL OR e.last_name IS NULL,
                              '',
-                             CONCAT('\n',SUBSTR(employees.name,1,1),'.',employees.last_name)
+                             CONCAT('\n',SUBSTR(e.name,1,1),'.',e.last_name)
                      )
              ) AS ord_details,
          nomenclature.official_name AS nomenclature_name,
