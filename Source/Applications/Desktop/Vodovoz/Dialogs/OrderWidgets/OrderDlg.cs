@@ -1323,11 +1323,28 @@ namespace Vodovoz
 							try
 							{
 								var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+								var organizations = UoW.GetAll<Organization>().ToList();
+								var orgDebts = new StringBuilder();
+
+								foreach(var org in organizations)
+								{
+									var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+									if(orgDebt > 0)
+									{
+										orgDebts.AppendLine($"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{org.FullName}: {orgDebt} руб.</span>");
+									}
+								}
 								if(totalDebt > 0)
 								{
+									var message = $"У клиента имеется задолженность в размере {totalDebt} руб.";
+									if(orgDebts.Length > 0)
+									{
+										message += "\nЗадолженность по следующим организациям:\n" + orgDebts.ToString();
+									}
+									message += "Пожалуйста, уведомите клиента о задолженности";
 									_interactiveService.ShowMessage(
 										ImportanceLevel.Warning,
-										$"У клиента имеется задолженность в размере {totalDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+										message,
 										"Уведомление о задолженности клиента");
 								}
 							}
