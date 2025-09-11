@@ -29,10 +29,10 @@ namespace Vodovoz.Logistic.Reports
 				.AddBinding(ViewModel, vm => vm.CountDays, w => w.ValueAsInt)
 				.InitializeFromSource();
 
-			vbox1.Remove(includeexcludefiltergroupview1);
+			vboxFilter.Remove(includeexcludefiltergroupview1);
 			includeexcludefiltergroupview1 = new Presentation.Views.IncludeExcludeFilterGroupView(ViewModel.IncludeExludeFilterGroupViewModel);
 			includeexcludefiltergroupview1.Show();
-			vbox1.Add(includeexcludefiltergroupview1);
+			vboxFilter.Add(includeexcludefiltergroupview1);
 
 			ybuttonGenerate.BindCommand(ViewModel.GenerateAndSaveReportCommand);
 		}
