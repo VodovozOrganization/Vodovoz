@@ -9,7 +9,6 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
@@ -21,7 +20,6 @@ using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -203,7 +201,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					errors =>
 					{
 						_logger.LogError(
-							"При формировании отчета {ReportName} возникли ошибки:\n{Errors}", 
+							"При формировании отчета {ReportName} возникли ошибки:\n{Errors}",
 							reportName,
 							string.Join("\n",
 							errors));

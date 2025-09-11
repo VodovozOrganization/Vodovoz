@@ -48,8 +48,19 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			private UiRow() { }
 
+			/// <summary>
+			/// Идентификатор строки
+			/// </summary>
 			public new string IdString { get; set; }
+
+			/// <summary>
+			/// Дата начала простоя или комментарий (в зависимости от типа строки)
+			/// </summary>
 			public new string DowntimeStartedAtString { get; set; }
+
+			/// <summary>
+			/// Тип строки отчета в UI
+			/// </summary>
 			public UiRowType RowType { get; set; }
 
 			public bool IsMainRow => RowType == UiRowType.Row;
@@ -159,17 +170,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 				return uiRows;
 			}
-		}
-
-		public enum UiRowType
-		{
-			Row,
-			CarReceptionRow,
-			CarTransferRow,
-			SubtableName,
-			SubtableHeader,
-			SummaryRow,
-			EmptyRow
 		}
 	}
 }
