@@ -33,6 +33,7 @@ namespace Vodovoz.EntityRepositories.Employees
 		NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
 			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId);
 		IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId);
+
 		/// <summary>
 		/// Получение баланса (З/П) сотрудника
 		/// </summary>
