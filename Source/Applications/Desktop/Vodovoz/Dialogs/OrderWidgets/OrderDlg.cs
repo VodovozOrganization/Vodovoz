@@ -1185,6 +1185,8 @@ namespace Vodovoz
 
 			_lastWaitUntilTime = Entity.WaitUntilTime;
 
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
+
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
@@ -1194,6 +1196,24 @@ namespace Vodovoz
 			RefreshBottlesDebtNotifier();
 
 			RefreshDebtorDebtNotifier();
+		}
+
+		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
+		{
+			if(!IsWaitUntilActive)
+			{
+				return;
+			}
+
+			Entity.WaitUntilTime = timepickerWaitUntil.TimeOrNull;
+			if(Save())
+			{
+				MessageDialogHelper.RunInfoDialog("Поле \"Ожидает до\" успешно сохранено.");
+			}
+			else
+			{
+				MessageDialogHelper.RunWarningDialog("Не удалось сохранить");
+			}
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -4798,6 +4818,7 @@ namespace Vodovoz
 
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
 		}
 
 		private void ChangeOrderEditable(bool val)
@@ -4844,7 +4865,7 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
+				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
 				}
