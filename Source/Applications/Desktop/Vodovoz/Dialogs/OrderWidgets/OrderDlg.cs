@@ -47,6 +47,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using QS.Utilities.Debug;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -463,6 +464,8 @@ namespace Vodovoz
 
 		public OrderDlg()
 		{
+			PerformanceHelper.StartMeasurement("Создание нового заказа");
+			
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
@@ -496,6 +499,8 @@ namespace Vodovoz
 
 		public OrderDlg(IUnitOfWorkGeneric<Order> unitOfWork)
 		{
+			PerformanceHelper.StartMeasurement("Создание нового заказа на забор оборудования");
+			
 			Build();
 			UoWGeneric = unitOfWork;
 			Entity.OrderStatus = OrderStatus.NewOrder;
@@ -528,6 +533,8 @@ namespace Vodovoz
 
 		public OrderDlg(int id)
 		{
+			PerformanceHelper.StartMeasurement("Работа с заказом");
+			
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
@@ -2430,6 +2437,7 @@ namespace Vodovoz
 		{
 			try
 			{
+				PerformanceHelper.StartPointsGroup("Сохранение заказа");
 				SetSensitivity(false);
 
 				if(_orderRepository.GetStatusesForFreeBalanceOperations().Contains(Entity.OrderStatus))
@@ -2440,15 +2448,20 @@ namespace Vodovoz
 				_lastSaveResult = null;
 
 				Entity.CheckAndSetOrderIsService();
+				
+				PerformanceHelper.AddTimePoint(_logger, "Проверки операций остатков и сервисного заказа");
 
 				ValidationContext validationContext = new ValidationContext(Entity);
 
 				if(!Validate(validationContext))
 				{
+					PerformanceHelper.AddTimePoint(_logger, "Не прошли валидацию");
 					_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Validation);
 
 					return false;
 				}
+				
+				PerformanceHelper.AddTimePoint(_logger, "Прошли валидацию");
 
 				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Обновление статуса оплаты из карточки заказа"))
 				{
@@ -2486,10 +2499,10 @@ namespace Vodovoz
 					}
 				}
 
-				_logger.Info("Сохраняем заказ...");
-
+				PerformanceHelper.AddTimePoint(_logger, "Проверки по отправке документов");
 				Entity.SaveEntity(UoW, _orderContractUpdater, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
-
+				PerformanceHelper.AddTimePoint(_logger, "Сохранили заказ");
+				
 				if(Entity.WaitUntilTime != _lastWaitUntilTime)
 				{
 					// Пока нет доработки в мобильном тут оставим заглушенным
@@ -2498,6 +2511,9 @@ namespace Vodovoz
 
 				_logger.Info("Ok.");
 				UpdateUIState();
+				PerformanceHelper.EndPointsGroup();
+				PerformanceHelper.Main.PrintAllPoints(_logger);
+				
 				btnCopyEntityId.Sensitive = true;
 				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
 
@@ -2571,15 +2587,20 @@ namespace Vodovoz
 
 		private Result AcceptOrder()
 		{
+			PerformanceHelper.StartPointsGroup("Подтверждение заказа");
+
 			if(!Save())
 			{
 				return _lastSaveResult;
 			}
 
 			var possibleConfirmation = CheckPossibilityConfirmation();
+			PerformanceHelper.AddTimePoint(_logger, "Проверили возможность подтверждения");
 
 			if(possibleConfirmation.IsFailure)
 			{
+				PerformanceHelper.AddTimePoint(_logger, "Не можем подтвердить заказ");
+				PerformanceHelper.EndPointsGroup();
 				return possibleConfirmation;
 			}
 
@@ -2588,6 +2609,8 @@ namespace Vodovoz
 				try
 				{
 					var acceptResult = TryAcceptOrder();
+					PerformanceHelper.AddTimePoint(_logger, "Подтвердили заказ");
+					PerformanceHelper.EndPointsGroup();
 
 					if(!acceptResult.SplitedOrder && acceptResult.Result.IsSuccess)
 					{
