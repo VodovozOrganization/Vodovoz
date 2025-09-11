@@ -10,36 +10,40 @@ using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
-namespace ExportTo1c.Library
+namespace ExportTo1c.Library.Exporters
 {
-	public static class Retail1cDataExporter
+	/// <summary>
+	/// Экспорт данных розничных продаж для 1С
+	/// </summary>
+	public class Retail1cDataExporter : IDataExporterFor1c
 	{
-		public static XElement CreateRetailXml(
+		public XElement CreateXml(
 			IList<Order> orders,
-			DateTime startOfYesterday,
-			DateTime endOfYesterday,
-			string organizationInn,
+			DateTime startDate,
+			DateTime endDate,
+			Organization organization,
 			CancellationToken cancellationToken,
 			IProgressBarDisplayable progressBarDisplayable = null)
 		{
-			var datesInRange = GetDatesInRange(startOfYesterday, endOfYesterday);
+			var datesInRange = GetDatesInRange(startDate, endDate);
 
 			var ordersByDate = orders
-				.Where(o => o.DeliveryDate >= startOfYesterday && o.DeliveryDate <= endOfYesterday)
-				.OrderBy(o => o.DeliveryDate) 
+				.Where(o => o.DeliveryDate >= startDate && o.DeliveryDate <= endDate)
+				.OrderBy(o => o.DeliveryDate)
 				.GroupBy(o => o.DeliveryDate)
 				.ToDictionary(g => g.Key, g => g.ToList());
 
 			return new XElement("ФайлОбмена",
-				new XAttribute("НачалоПериодаВыгрузки", startOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
-				new XAttribute("ОкончаниеПериодаВыгрузки", endOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
-				new XElement("Организация", new XAttribute("ИНН", organizationInn)),
+				new XAttribute("НачалоПериодаВыгрузки", startDate.ToString("yyyy-MM-ddTHH:mm:ss")),
+				new XAttribute("ОкончаниеПериодаВыгрузки", endDate.ToString("yyyy-MM-ddTHH:mm:ss")),
+				new XElement("Организация", new XAttribute("ИНН", organization.INN)),
 				datesInRange.Select(date => new XElement("Дата",
 					new XAttribute("Значение", date.ToString("yyyy-MM-ddTHH:mm:ss")),
 					new XElement("Продажи",
 						ordersByDate.TryGetValue(date, out var dateOrders)
-							? CreateExportRetailRows(dateOrders, progressBarDisplayable, date, cancellationToken)
+							? CreateExportRetailRows(dateOrders, organization, progressBarDisplayable, date, cancellationToken)
 							: Enumerable.Empty<XElement>())
 				)));
 		}
@@ -54,6 +58,7 @@ namespace ExportTo1c.Library
 
 		private static IList<XElement> CreateExportRetailRows(
 			IList<Order> orders,
+			Organization organization,
 			IProgressBarDisplayable progressBarDisplayable,
 			DateTime date,
 			CancellationToken cancellationToken)
@@ -100,10 +105,10 @@ namespace ExportTo1c.Library
 
 				i++;
 
-				progressBarDisplayable?.Add(1, $"Выгрузка розницы за {date:yyyy-MM-dd}. Заказ {i}/{ordersCount}");
+				progressBarDisplayable?.Add(1, $"Выгрузка розницы для {organization.Name} за {date:d}. Заказ {i}/{ordersCount}");
 			}
 
-			progressBarDisplayable?.Update("Выгрузка розницы завершена. Сохранение в файл...");
+			progressBarDisplayable?.Update("Выгрузка розницы завершена.");
 
 			return xElements;
 		}

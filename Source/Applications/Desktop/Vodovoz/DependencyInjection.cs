@@ -1,13 +1,13 @@
 ﻿using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
+using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
 using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using MySqlConnector;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -223,7 +223,10 @@ namespace Vodovoz
 				.AddScoped<EntityJournalOpener>()
 
 				.AddMailganerApiClient()
-				.AddScoped<EmailDirectSender>();
+				.AddScoped<EmailDirectSender>()
+				
+				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
+				;
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();

@@ -1,21 +1,21 @@
-﻿using System;
+﻿using DatabaseServiceWorker.Options;
+using ExportTo1c.Library.Factories;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using SharpCifs.Smb;
+using SharpCifs.Util.Sharpen;
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using DatabaseServiceWorker.Options;
-using ExportTo1c.Library;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
-using SharpCifs.Smb;
-using SharpCifs.Util.Sharpen;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
-using Vodovoz.Settings.Organizations;
 using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker
@@ -29,10 +29,8 @@ namespace DatabaseServiceWorker
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IOrganizationSettings _organizationSettings;
-		private const string _leftPartNameOfExportFile = "obmen";
-		private const string _cashless = "_cashless";
-		private const string _retail = "_retail";
+		private readonly IDataExporterFor1cFactory _dataExporterFor1cFactory;
+		private const string _leftPartNameOfExportFile = "ДВ-1с-обмен";
 
 		public ExportTo1cWorker(
 			ILogger<ExportTo1cWorker> logger,
@@ -41,7 +39,7 @@ namespace DatabaseServiceWorker
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
 			IOrderSettings orderSettings,
-			IOrganizationSettings organizationSettings)
+			IDataExporterFor1cFactory dataExporterFor1CFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -49,8 +47,7 @@ namespace DatabaseServiceWorker
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
-
+			_dataExporterFor1cFactory = dataExporterFor1CFactory ?? throw new ArgumentNullException(nameof(dataExporterFor1CFactory));
 			Interval = options.Value.ExportInterval;
 		}
 
@@ -118,17 +115,15 @@ namespace DatabaseServiceWorker
 
 			await DeleteFilesOlderThanOneMonth(smbPath, auth, cancellationToken);
 
-			await ExportCashless(yesterday, smbPath, auth, cancellationToken);
+			await Export(Export1cMode.ComplexAutomation, yesterday, smbPath, auth, cancellationToken);
 
-			await ExportRetail(yesterday, smbPath, auth, cancellationToken);
+			await Export(Export1cMode.Retail, yesterday, smbPath, auth, cancellationToken);
 		}
 
-		private async Task ExportRetail(DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
+		private async Task Export(Export1cMode exportMode, DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
 		{
 			var startOfYesterday = yesterday;
 			var endOfYesterday = yesterday.AddDays(1).AddTicks(-1);
-
-			var exportMode = Export1cMode.Retail;
 
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт данных в 1С");
 
@@ -141,70 +136,28 @@ namespace DatabaseServiceWorker
 
 			foreach(var groupedOrder in orders.GroupBy(x => x.Contract.Organization))
 			{
-				var retailFileName = $"{_leftPartNameOfExportFile}{_retail}-{groupedOrder.Key.INN}-{yesterday:yyyyMMdd}.xml";
+				var fileName = $"{_leftPartNameOfExportFile}-{exportMode.GetEnumDisplayName()}-{groupedOrder.Key.INN}-{yesterday:yyyyMMdd}.xml";
 
-				var smbFile = new SmbFile($"{smbPath}{retailFileName}", auth);
+				var smbFile = new SmbFile($"{smbPath}{fileName}", auth);
 
 				if(smbFile.Exists())
 				{
 					continue;
 				}
 
-				var organizaionOrders = groupedOrder.ToList();
-				var organizationInn = groupedOrder.Key.INN;
+				var organizaionOrders = groupedOrder.ToArray();
 
-				var xml = Retail1cDataExporter.CreateRetailXml(
+				var exporter = _dataExporterFor1cFactory.Create1cDataExporter(exportMode);
+
+				var xml = exporter.CreateXml(
 					organizaionOrders,
 					startOfYesterday,
 					endOfYesterday,
-					organizationInn,
+					groupedOrder.Key,
 					cancellationToken);
 
 				await ExportToFile(smbFile, xml, cancellationToken);
 			}
-		}
-
-		private async Task ExportCashless(DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
-		{
-			var cashlessFileName = $"{_leftPartNameOfExportFile}{_cashless}-{yesterday:yyyyMMdd}.xml";
-
-			var smbFile = new SmbFile($"{smbPath}{cashlessFileName}", auth);
-
-			if(smbFile.Exists())
-			{
-				return;
-			}
-
-			var startOfYesterday = yesterday;
-			var endOfYesterday = yesterday.AddDays(1).AddTicks(-1);
-
-			var organizationId = _organizationSettings.VodovozOrganizationId;
-			var exportMode = Export1cMode.ComplexAutomation;
-
-			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт данных в 1С");
-
-			var orders = _orderRepository.GetOrdersToExport1c8(
-				unitOfWork,
-				_orderSettings,
-				exportMode,
-				startOfYesterday,
-				endOfYesterday,
-				organizationId);
-
-			var exportData = new ExportData(unitOfWork, exportMode, startOfYesterday, endOfYesterday);
-
-			var i = 0;
-
-			while(!cancellationToken.IsCancellationRequested && i < orders.Count)
-			{
-				exportData.AddOrder(orders[i]);
-
-				i++;
-			}
-
-			exportData.FinishRetailDocuments();
-
-			await ExportToFile(smbFile, exportData.ToXml(), cancellationToken);
 		}
 
 
