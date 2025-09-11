@@ -34,6 +34,8 @@ namespace Vodovoz.Logistic.Reports
 
 		private global::Gamma.GtkWidgets.yButton ybuttonSave;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonAbortCreateReport;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonGenerate;
 
 		private global::Gtk.EventBox eventboxArrow;
@@ -198,22 +200,34 @@ namespace Vodovoz.Logistic.Reports
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vboxFilter.Gtk.Box+BoxChild
+			this.ybuttonAbortCreateReport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAbortCreateReport.CanFocus = true;
+			this.ybuttonAbortCreateReport.Name = "ybuttonAbortCreateReport";
+			this.ybuttonAbortCreateReport.UseUnderline = true;
+			this.ybuttonAbortCreateReport.Label = global::Mono.Unix.Catalog.GetString("Отчет в процессе формирования... (Отменить)");
+			this.vboxFilter.Add(this.ybuttonAbortCreateReport);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.ybuttonAbortCreateReport]));
+			w14.PackType = ((global::Gtk.PackType)(1));
+			w14.Position = 5;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vboxFilter.Gtk.Box+BoxChild
 			this.ybuttonGenerate = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonGenerate.CanFocus = true;
 			this.ybuttonGenerate.Name = "ybuttonGenerate";
 			this.ybuttonGenerate.UseUnderline = true;
 			this.ybuttonGenerate.Label = global::Mono.Unix.Catalog.GetString("Сформировать");
 			this.vboxFilter.Add(this.ybuttonGenerate);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.ybuttonGenerate]));
-			w14.PackType = ((global::Gtk.PackType)(1));
-			w14.Position = 5;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.ybuttonGenerate]));
+			w15.PackType = ((global::Gtk.PackType)(1));
+			w15.Position = 6;
+			w15.Expand = false;
+			w15.Fill = false;
 			w1.Add(this.vboxFilter);
 			this.scrolledwindowFilter.Add(w1);
 			this.hboxControls.Add(this.scrolledwindowFilter);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.scrolledwindowFilter]));
-			w17.Position = 0;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.scrolledwindowFilter]));
+			w18.Position = 0;
 			// Container child hboxControls.Gtk.Box+BoxChild
 			this.eventboxArrow = new global::Gtk.EventBox();
 			this.eventboxArrow.Name = "eventboxArrow";
@@ -225,16 +239,16 @@ namespace Vodovoz.Logistic.Reports
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
 			this.vbox4.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
-			w18.Position = 0;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
+			w19.Position = 0;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.arrowSlider = new global::Gtk.Arrow(((global::Gtk.ArrowType)(3)), ((global::Gtk.ShadowType)(2)));
 			this.arrowSlider.Name = "arrowSlider";
 			this.vbox4.Add(this.arrowSlider);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
+			w20.Position = 1;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.labelTitle = new global::Gtk.Label();
 			this.labelTitle.Name = "labelTitle";
@@ -242,25 +256,25 @@ namespace Vodovoz.Logistic.Reports
 			this.labelTitle.SingleLineMode = true;
 			this.labelTitle.Angle = 90D;
 			this.vbox4.Add(this.labelTitle);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
-			w20.Position = 2;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.vseparator3 = new global::Gtk.VSeparator();
 			this.vseparator3.Name = "vseparator3";
 			this.vbox4.Add(this.vseparator3);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator3]));
-			w21.Position = 3;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator3]));
+			w22.Position = 3;
 			this.eventboxArrow.Add(this.vbox4);
 			this.hboxControls.Add(this.eventboxArrow);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.eventboxArrow]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxControls[this.eventboxArrow]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
 			this.hpanedMain.Add(this.hboxControls);
-			global::Gtk.Paned.PanedChild w24 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.hboxControls]));
-			w24.Resize = false;
+			global::Gtk.Paned.PanedChild w25 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.hboxControls]));
+			w25.Resize = false;
 			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.GtkScrolledWindowData = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowData.Name = "GtkScrolledWindowData";
