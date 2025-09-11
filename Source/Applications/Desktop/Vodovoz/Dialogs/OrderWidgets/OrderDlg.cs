@@ -28,6 +28,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Control.EEVM;
@@ -231,6 +232,8 @@ namespace Vodovoz
 		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
+		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -5112,13 +5115,18 @@ namespace Vodovoz
 		{
 			if(Counterparty is null)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
 
 			if(Counterparty.PaymentMethod != PaymentType
 				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{PaymentType.GetEnumTitle()}&gt;." +
 				$" У клиента по умолчанию установлено &lt;{Counterparty.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
+			if(!CheckDepositOrderCanBeFormed())
 			{
 				return;
 			}
@@ -5285,6 +5293,59 @@ namespace Vodovoz
 			ntbOrder.GetNthPage(1).Show();
 
 			ntbOrder.CurrentPage = 1;
+		}
+
+		private bool CheckDepositOrderCanBeFormed()
+		{
+			if(Entity.OrderItems == null ||
+				_currentPermissionService.ValidatePresetPermission(
+					Core.Domain.Permissions.OrderPermissions.CanFormOrderWithDepositWithoutPayment))
+			{
+				return true;
+			}
+
+			bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+				oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+				oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+			bool isCashless = Entity.PaymentType == PaymentType.Cashless;
+			bool isPaidAndOrderItemsMatch = false;
+
+			if(Order.Id != 0)
+			{
+				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				{
+					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var entityOrderItems = Entity.OrderItems
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
+					var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
+
+					isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
+						&& (!dbOrderItems.Except(entityOrderItems).Any()
+						&& !entityOrderItems.Except(dbOrderItems).Any()
+						|| entityOrderSum <= dbOrderSum);
+				}
+			}
+
+			if(hasDepositForEquipment 
+				&& !isPaidAndOrderItemsMatch 
+				&& isCashless)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+					"Проверка корректности данных");
+				return false;
+			}
+
+			return true;
 		}
 
 		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()

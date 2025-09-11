@@ -69,6 +69,14 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanEditGoodsInRouteList => "can_edit_goods_in_route_list";
 
 		/// <summary>
+		/// Разрешено формировать заявки с залогом без предоплаты
+		/// Возможность формировать заявки с залогом без предоплаты
+		/// </summary>
+		[Display(
+			Name = "Разрешено формировать заявки с залогом без предоплаты",
+			Description = "Возможность формировать заявки с залогом без предоплаты")]
+		public static string CanFormOrderWithDepositWithoutPayment => "can_form_order_with_deposit_without_payment";
+		/// <summary>
 		/// Выбор сотрудника в отчёте по дате создания заказа
 		/// Разрешить выбор сотрудника в отчёте по дате создания заказа
 		/// </summary>
