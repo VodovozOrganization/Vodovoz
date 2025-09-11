@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using MoreLinq;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -203,28 +204,27 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.Distinct()
 				.ToArray();
 
-			var skippedRows = 0;
+			var rowsHavingEvents = new List<Row>();
+			var rowsWithoutEvents = new List<Row>();
 
-			for(var i = 0; i < cars.Count; i++)
+			foreach(var car in cars)
 			{
-				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == cars[i].Id);
+				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == car.Id);
 
-				if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
+				if(!carIdsWithoutRouteListsAfterStartDate.Contains(car.Id))
 				{
-					skippedRows++;
 					continue;
 				}
 
 				if(carEventGroup == null)
 				{
-					rows.Add(new Row
+					rowsWithoutEvents.Add(new Row
 					{
-						Id = i + 1 - skippedRows,
-						RegistationNumber = cars[i].RegistrationNumber,
-						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
-						CarType = cars[i].CarModel.Name,
+						RegistationNumber = car.RegistrationNumber,
+						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
+						CarType = car.CarModel.Name,
 						CarTypeWithGeographicalGroup =
-							$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
+							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 						TimeAndBreakdownReason = "Простой",
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = "",
@@ -233,21 +233,26 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					continue;
 				}
 
-				rows.Add(new Row
+				rowsHavingEvents.Add(new Row
 				{
-					Id = i + 1 - skippedRows,
-					RegistationNumber = cars[i].RegistrationNumber,
-					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
-					CarType = cars[i].CarModel.Name,
+					RegistationNumber = car.RegistrationNumber,
+					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
+					CarType = car.CarModel.Name,
 					CarTypeWithGeographicalGroup =
-						$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
-					CaeEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
+						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
+					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
 			}
 
+			rows.AddRange(rowsHavingEvents.OrderBy(x => x.CarEventTypes.First()).ThenBy(x => x.DowntimeStartedAt));
+			rows.AddRange(rowsWithoutEvents.OrderBy(x => x.DowntimeStartedAt));
+
+			var counter = 1;
+			rows.ForEach(x => x.Id = counter++);
+			
 			for(var i = 0; i < filteredTransferEvents.Length; i++)
 			{
 				carTransferRows.Add(new CarTransferRow
@@ -283,8 +288,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				string.Join("\n", summaryByCarModel);
 
 			var summaryByEventThanCar = rows
-				.GroupBy(row => (row.CaeEventTypes, row.CarType))
-				.GroupBy(g => g.Key.CaeEventTypes)
+				.GroupBy(row => (row.CarEventTypes, row.CarType))
+				.GroupBy(g => g.Key.CarEventTypes)
 				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
 					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
 

@@ -18,7 +18,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				TimeAndBreakdownReason = row.TimeAndBreakdownReason;
 				PlannedReturnToLineDate = row.PlannedReturnToLineDate;
 				PlannedReturnToLineDateAndReschedulingReason = row.PlannedReturnToLineDateAndReschedulingReason;
-				CaeEventTypes = row.CaeEventTypes;
+				CarEventTypes = row.CarEventTypes;
 				RowType = UiRowType.Row;
 			}
 

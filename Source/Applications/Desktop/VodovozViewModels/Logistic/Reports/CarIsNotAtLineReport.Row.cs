@@ -57,7 +57,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Название события (для группировки)
 			/// </summary>
-			public string CaeEventTypes { get; set; }
+			public string CarEventTypes { get; set; }
 		}
 	}
 }
