@@ -51,6 +51,9 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(eventsSummary));
 			EventsSummaryDetails = eventsSummaryDetails;
 			CreatedAt = DateTime.Now;
+
+			UiRows =
+				UiRow.CreateUiRows(Rows, CarTransferRows, CarReceptionRows, EventsSummary, EventsSummaryDetails);
 		}
 
 		public string TemplatePath => @".\Reports\Logistic\CarIsNotAtLineReport.xlsx";
@@ -80,6 +83,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		public IEnumerable<CarTransferRow> CarTransferRows { get; set; }
 
 		public IEnumerable<CarReceptionRow> CarReceptionRows { get; set; }
+
+		public IList<UiRow> UiRows { get; private set; }
 
 		#endregion Строки отчета
 

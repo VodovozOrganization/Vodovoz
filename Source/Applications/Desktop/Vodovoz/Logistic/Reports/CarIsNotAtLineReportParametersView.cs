@@ -1,10 +1,10 @@
 ﻿using Gamma.ColumnConfig;
+using Gdk;
 using Gtk;
-using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System.Linq;
+using Vodovoz.Infrastructure;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
-using Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl;
 using static Vodovoz.Presentation.ViewModels.Logistic.Reports.CarIsNotAtLineReport;
 using WrapMode = Pango.WrapMode;
 
@@ -16,12 +16,18 @@ namespace Vodovoz.Logistic.Reports
 		private const int _hpanedDefaultPosition = 530;
 		private const int _hpanedMinimalPosition = 16;
 
+		private readonly Color _defaultColor = GdkColors.PrimaryBase;
+		private readonly Color _notAtLineStartTimeColor = GdkColors.BabyBlue;
+		private readonly Color _carModelTypeColor = GdkColors.LightPurple;
+		private readonly Color _carRegNumberColor = GdkColors.YellowMustard;
+		private readonly Color _subtableHeadersColor = GdkColors.BabyBlue;
+		private readonly Color _subtableNameColor = GdkColors.LightPurple;
+
 		public CarIsNotAtLineReportParametersView(
 			CarIsNotAtLineReportParametersViewModel viewModel)
 			: base(viewModel)
 		{
 			Build();
-
 			Initialize();
 		}
 
@@ -64,20 +70,160 @@ namespace Vodovoz.Logistic.Reports
 
 		private void ConfigureDataTreeView()
 		{
-			ytreeReportRows.ColumnsConfig = FluentColumnsConfig<Row>.Create()
-				.AddColumn("№ п/п").AddNumericRenderer(x => x.Id)
-				.AddColumn("Дата начала простоя").AddTextRenderer(x => x.DowntimeStartedAtString).WrapWidth(400).WrapMode(WrapMode.WordChar)
-				.AddColumn("Тип авто").AddTextRenderer(x => x.CarTypeWithGeographicalGroup)
-				.AddColumn("Госномер").AddTextRenderer(x => x.RegistationNumber)
-				.AddColumn("Время / описание поломки").AddTextRenderer(x => x.TimeAndBreakdownReason).WrapWidth(200).WrapMode(WrapMode.WordChar)
-				.AddColumn("Планируемая дата выпуска\nавтомобиля на линию").AddTextRenderer(x => x.PlannedReturnToLineDateString)
-				.AddColumn("Основания переноса даты").AddTextRenderer(x => x.PlannedReturnToLineDateAndReschedulingReason).WrapWidth(400).WrapMode(WrapMode.WordChar)
-				.Finish();
+			var columnsConfig = FluentColumnsConfig<UiRow>.Create();
+
+			columnsConfig
+				.AddColumn("№ п/п")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.IdString)
+				.XAlign(0.5f)
+				.RowCells().AddSetter<CellRenderer>(
+				(cell, node) =>
+				{
+					var color = _defaultColor;
+
+					if(node.IsSubtableNameRow)
+					{
+						color = _subtableNameColor;
+					}
+					else if(node.IsSubtableHeadereRow)
+					{
+						color = _subtableHeadersColor;
+					}
+
+					cell.CellBackgroundGdk = color;
+				});
+
+			columnsConfig
+				.AddColumn("Дата начала простоя")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.DowntimeStartedAtString)
+				.WrapWidth(100)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells().AddSetter<CellRenderer>(
+				(cell, node) =>
+				{
+					var color = _defaultColor;
+
+					if(node.IsMainRow)
+					{
+						color = _notAtLineStartTimeColor;
+					}
+					else if(node.IsSubtableNameRow)
+					{
+						color = _subtableNameColor;
+					}
+					else if(node.IsSubtableHeadereRow)
+					{
+						color = _subtableHeadersColor;
+					}
+
+					cell.CellBackgroundGdk = color;
+				});
+
+			columnsConfig
+				.AddColumn("Тип авто")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.CarTypeWithGeographicalGroup)
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells().AddSetter<CellRenderer>(
+				(cell, node) =>
+				{
+					var color = _defaultColor;
+
+					if(node.IsMainRow || node.IsCatTransferRow || node.IsCarReceptionRow)
+					{
+						color = _carModelTypeColor;
+					}
+					else if(node.IsSubtableNameRow)
+					{
+						color = _subtableNameColor;
+					}
+					else if(node.IsSubtableHeadereRow)
+					{
+						color = _subtableHeadersColor;
+					}
+
+					cell.CellBackgroundGdk = color;
+				});
+
+			columnsConfig
+				.AddColumn("Госномер")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.RegistationNumber)
+				.WrapWidth(100)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells().AddSetter<CellRenderer>(
+				(cell, node) =>
+				{
+					var color = _defaultColor;
+
+					if(node.IsMainRow)
+					{
+						color = _carRegNumberColor;
+					}
+					else if(node.IsSubtableNameRow)
+					{
+						color = _subtableNameColor;
+					}
+					else if(node.IsSubtableHeadereRow)
+					{
+						color = _subtableHeadersColor;
+					}
+
+					cell.CellBackgroundGdk = color;
+				});
+
+			columnsConfig
+				.AddColumn("Время / описание поломки")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.TimeAndBreakdownReason)
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells().AddSetter<CellRenderer>(
+				(cell, node) =>
+				{
+					var color = _defaultColor;
+
+					if(node.IsSubtableNameRow)
+					{
+						color = _subtableNameColor;
+					}
+					else if(node.IsSubtableHeadereRow)
+					{
+						color = _subtableHeadersColor;
+					}
+
+					cell.CellBackgroundGdk = color;
+				});
+
+			columnsConfig
+				.AddColumn("Планируемая дата\nвыпуска автомобиля\nна линию")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.PlannedReturnToLineDateString)
+				.WrapWidth(100)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f);
+
+			columnsConfig
+				.AddColumn("Основания переноса даты")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.PlannedReturnToLineDateAndReschedulingReason)
+				.WrapWidth(300)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f);
+
+			ytreeReportRows.ColumnsConfig = columnsConfig.Finish();
 
 			ytreeReportRows.Binding
 				.AddSource(ViewModel)
 				.AddFuncBinding(vm => vm.Report != null, w => w.Visible)
-				.AddFuncBinding(vm => vm.Report != null ? vm.Report.Rows : Enumerable.Empty<Row>(), w => w.ItemsDataSource)
+				.AddFuncBinding(vm => vm.Report != null ? vm.Report.UiRows : Enumerable.Empty<UiRow>(), w => w.ItemsDataSource)
 				.InitializeFromSource();
 
 			ytreeReportRows.EnableGridLines = TreeViewGridLines.Both;
@@ -86,9 +232,7 @@ namespace Vodovoz.Logistic.Reports
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
 			vboxFilter.Visible = !vboxFilter.Visible;
-
 			hpanedMain.Position = vboxFilter.Visible ? _hpanedDefaultPosition : _hpanedMinimalPosition;
-
 			UpdateSliderArrow();
 		}
 
