@@ -26,6 +26,11 @@
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
        counterparty.special_contract_name) AS special_contract_number,
+    CONCAT(
+      IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_name), counterparty.special_contract_name, ''),
+      IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), CONCAT(' №', counterparty.special_contract_number), ''),
+      IF(counterparty.special_contract_date IS NOT NULL, CONCAT(' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')), '')
+      ) AS basis_special_contract,
     counterparty.payer_special_kpp,
     counterparty.special_gov_contract,
     counterparty.special_delivery_address,
@@ -110,6 +115,10 @@ WHERE
         </Field>
         <Field Name="special_contract_number">
           <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="basis_special_contract">
+          <DataField>basis_special_contract</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="payer_special_kpp">
@@ -1363,14 +1372,14 @@ WHERE
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>317.7pt</Top>
+        <Top>345.7pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
         <Height>122.72pt</Height>
         <Width>535.30pt</Width>
         <Left>31.2pt</Left>
-        <Top>424.4pt</Top>
+        <Top>452.4pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1716,6 +1725,44 @@ Iif(
                   </ReportItems>
                 </TableCell>
               </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>18pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxBasisLabel">
+                      <Value>Основание:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxBasisValue">
+                      <Value>=First(Fields!basis_special_contract.Value, "Order")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+              <Visibility>
+                <Hidden>=Not(First(Fields!use_special_doc_fields.Value, "Order")) OR First(Fields!basis_special_contract.Value, "Order") = ""</Hidden>
+              </Visibility>
             </TableRow>
           </TableRows>
         </Details>
