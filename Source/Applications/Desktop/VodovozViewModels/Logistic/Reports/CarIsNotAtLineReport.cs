@@ -1,16 +1,18 @@
-﻿using NHibernate.Linq;
+﻿using DateTimeHelpers;
+using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using DateTimeHelpers;
 using Vodovoz.Presentation.ViewModels.Reports;
-using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -81,7 +83,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		#endregion Строки отчета
 
-		public static Result<CarIsNotAtLineReport> Generate(
+		public static async Task<Result<CarIsNotAtLineReport>> Generate(
 			IUnitOfWork unitOfWork,
 			IGenericRepository<CarEvent> carEventRepository,
 			DateTime date,
@@ -90,25 +92,26 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IEnumerable<(int Id, string Title)> excludedEvents,
 			IEnumerable<int> excludeCarsIds,
 			int carTransferEventTypeId,
-			int carReceptionEventTypeId)
+			int carReceptionEventTypeId,
+			CancellationToken cancellationToken)
 		{
 			var startDate = date.AddDays(-countDays).Date;
 
-			var cars = (from car in unitOfWork.Session.Query<Car>()
-						let carOwnType =
-							(CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
-										  where carVersion.Car.Id == car.Id
-											&& carVersion.EndDate == null
-											&& _carOwnTypes.Contains(carVersion.CarOwnType)
-										  select carVersion.CarOwnType)
-							.FirstOrDefault()
-						where !excludeCarsIds.Contains(car.Id)
-							&& !car.IsArchive
-							&& carOwnType != null
-							&& !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
-						select car)
+			var cars = await (from car in unitOfWork.Session.Query<Car>()
+							  let carOwnType =
+								  (CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
+												where carVersion.Car.Id == car.Id
+												  && carVersion.EndDate == null
+												  && _carOwnTypes.Contains(carVersion.CarOwnType)
+												select carVersion.CarOwnType)
+								  .FirstOrDefault()
+							  where !excludeCarsIds.Contains(car.Id)
+								  && !car.IsArchive
+								  && carOwnType != null
+								  && !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
+							  select car)
 				.Fetch(c => c.Driver)
-				.ToList();
+				.ToListAsync(cancellationToken);
 
 			var carIds = cars
 				.Select(c => c.Id)
@@ -117,24 +120,24 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var routeListItemNodDeliveredStatuses = RouteListItem.GetNotDeliveredStatuses();
 
 			var carsWithLastRouteLists =
-				(from car in unitOfWork.Session.Query<Car>()
-				 let lastRouteListDate =
-					(DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
-								join routeListItem in unitOfWork.Session.Query<RouteListItem>()
-									on routeList.Id equals routeListItem.RouteList.Id
-								where routeList.Car.Id == car.Id
-									&& routeList.Date <= date.LatestDayTime()
-									&& !routeListItemNodDeliveredStatuses.Contains(routeListItem.Status)
-								orderby routeList.Date descending
-								select routeList.Date)
-					.FirstOrDefault()
-				 where carIds.Contains(car.Id)
-				 select new
-				 {
-					 car,
-					 lastRouteListDate
-				 })
-				.ToArray();
+				await (from car in unitOfWork.Session.Query<Car>()
+					   let lastRouteListDate =
+						  (DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
+									  join routeListItem in unitOfWork.Session.Query<RouteListItem>()
+										  on routeList.Id equals routeListItem.RouteList.Id
+									  where routeList.Car.Id == car.Id
+										  && routeList.Date <= date.LatestDayTime()
+										  && !routeListItemNodDeliveredStatuses.Contains(routeListItem.Status)
+									  orderby routeList.Date descending
+									  select routeList.Date)
+						  .FirstOrDefault()
+					   where carIds.Contains(car.Id)
+					   select new
+					   {
+						   car,
+						   lastRouteListDate
+					   })
+				.ToListAsync(cancellationToken);
 
 			var carIdsWithoutRouteListsAfterStartDate = cars
 				.Where(c => !carsWithLastRouteLists.Any(cwrl => cwrl.lastRouteListDate > startDate && cwrl.car.Id == c.Id))
@@ -144,12 +147,15 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var includedEventsIds = includedEvents.Select(iep => iep.Id).ToArray();
 			var excludedEventsIds = excludedEvents.Select(iep => iep.Id).ToArray();
 
-			var events = carEventRepository.Get(
+			var events = (await carEventRepository.GetAsync(
 				unitOfWork,
 				ce => ce.StartDate <= date.Date
 					&& ce.EndDate >= date.Date
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(ce.CarEventType.Id))
-					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)));
+					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)),
+				cancellationToken: cancellationToken))
+				.Value
+				.ToArray();
 
 			var notTransferRecieveEvents = events
 				.Where(ce => ce.CarEventType.Id != carTransferEventTypeId
@@ -159,24 +165,28 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.GroupBy(ce => ce.Car.Id)
 				.ToArray();
 
-			var filteredTransferEvents = carEventRepository.Get(
+			var filteredTransferEvents = (await carEventRepository.GetAsync(
 				unitOfWork,
 				e => carIds.Contains(e.Car.Id)
 					&& e.CarEventType.Id == carTransferEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carTransferEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carTransferEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate <= date.LatestDayTime(),
+				cancellationToken: cancellationToken))
+				.Value
 				.ToArray();
 
-			var filteredRecieveEvents = carEventRepository.Get(
+			var filteredRecieveEvents = (await carEventRepository.GetAsync(
 				unitOfWork,
 				e => carIds.Contains(e.Car.Id)
 					&& e.CarEventType.Id == carReceptionEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carReceptionEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carReceptionEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate <= date.LatestDayTime(),
+				cancellationToken: cancellationToken))
+				.Value
 				.ToArray();
 
 			var rows = new List<Row>();
