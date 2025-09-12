@@ -90,6 +90,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
@@ -230,6 +231,7 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
@@ -1343,11 +1345,28 @@ namespace Vodovoz
 							try
 							{
 								var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+								var organizations = _organizationRepository.GetOrganizations(UoW);
+								var orgDebts = new StringBuilder();
+
+								foreach(var org in organizations)
+								{
+									var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+									if(orgDebt > 0)
+									{
+										orgDebts.AppendLine($"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{org.FullName}: {orgDebt} руб.</span>");
+									}
+								}
 								if(totalDebt > 0)
 								{
+									var message = $"У клиента имеется задолженность в размере {totalDebt} руб.";
+									if(orgDebts.Length > 0)
+									{
+										message += "\nЗадолженность по следующим организациям:\n" + orgDebts.ToString();
+									}
+									message += "Пожалуйста, уведомите клиента о задолженности";
 									_interactiveService.ShowMessage(
 										ImportanceLevel.Warning,
-										$"У клиента имеется задолженность в размере {totalDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+										message,
 										"Уведомление о задолженности клиента");
 								}
 							}

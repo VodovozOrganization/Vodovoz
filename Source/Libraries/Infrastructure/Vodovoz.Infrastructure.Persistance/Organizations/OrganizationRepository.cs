@@ -96,6 +96,11 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 		{
 			return uow.GetById<Organization>(_organizationSettings.CommonCashDistributionOrganisationId);
 		}
+
+		public IList<Organization> GetOrganizations(IUnitOfWork uow)
+		{
+			return uow.GetAll<Organization>().ToList();
+		}
 	}
 }
 
