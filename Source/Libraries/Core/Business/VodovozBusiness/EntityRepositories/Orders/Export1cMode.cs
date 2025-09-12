@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Vodovoz.EntityRepositories.Orders
 {
 	/// <summary>
@@ -11,10 +13,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <summary>
 		///Комплексная автоматизация
 		/// </summary>
+		[Display(Name = "Безнал-КА")]
 		ComplexAutomation,
 		/// <summary>
 		///Розничная продажа
 		/// </summary>
-		RetailReport
+		[Display(Name = "Розница")]
+		Retail
 	}
 }

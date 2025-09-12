@@ -5,7 +5,7 @@ using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
 using VodovozInfrastructure.Utils;
 
-namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
+namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1c
 {
 	public partial class RetailSalesReportFor1c
 	{
