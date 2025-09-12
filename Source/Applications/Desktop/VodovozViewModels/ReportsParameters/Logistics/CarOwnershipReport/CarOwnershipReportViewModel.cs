@@ -146,7 +146,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 				{ "car_type_of_use", SelectedCarTypesOfUse.ToArray() },
 				{ "car_own_type", SelectedCarOwnTypes.ToArray() },
 				{ "filters_text", filtersText },
-				{ "excluded_car_ids", _carEventSettings.CarsExcludedFromReportsIds.Select(x => (object)x).ToArray() }
+				{ "excluded_car_ids", _carEventSettings.CarsExcludedFromReportsIds }
 			};
 
 			if(IsOneDayReportSelected)
