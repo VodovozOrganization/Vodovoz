@@ -508,7 +508,7 @@ namespace Vodovoz
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						vm.Initialize(oldOrderId: rli.RouteListItem.Order.Id);
 					}
 					).ViewModel;
 
@@ -626,6 +626,8 @@ namespace Vodovoz
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
+			UoW.Session.Refresh(address.RouteListItem.Order);
+
 			var notificationRequest = new NotificationRouteListChangesRequest
 			{
 				OrderId = e.UndeliveredOrder.OldOrder.Id ,
@@ -696,16 +698,21 @@ namespace Vodovoz
 					UoW.Save(keyPairValue.Value.Request);
 				}
 
-				UoW.Commit();
-
-				var changedList = Items
+				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
 
-				if(changedList.Count == 0)
+				if(changedItems.Count == 0)
 				{
 					return true;
 				}
+
+				foreach(var item in changedItems)
+				{
+					var attachedItem = UoW.Session.Merge(item.RouteListItem);
+				}
+
+				UoW.Commit();
 
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 
