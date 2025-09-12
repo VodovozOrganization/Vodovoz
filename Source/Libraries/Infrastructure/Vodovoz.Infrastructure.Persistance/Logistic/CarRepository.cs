@@ -309,8 +309,6 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
-				carsQuery.Fetch(SelectMode.Fetch, x => x.GeographicGroups);
-
 				return carsQuery.List<Car>();
 			},
 			cancellationToken);
