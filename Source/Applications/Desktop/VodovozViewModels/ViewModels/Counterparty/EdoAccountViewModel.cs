@@ -366,6 +366,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
+				var organization = UoW.GetById<Organization>(Entity.OrganizationId ?? _organizationSettings.VodovozOrganizationId);
+				
 				if(isManual)
 				{
 					if(!CommonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
@@ -374,7 +376,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					}
 
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 					resultMessage = _contactListService
 						.SendContactsForManualInvitationAsync(
@@ -391,7 +392,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				else
 				{
 					resultMessage = _contactListService
-						.SendContactsAsync(UoW, Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
+						.SendContactsAsync(UoW, Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo, organization.Name)
 						.Result;
 				}
 			}

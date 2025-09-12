@@ -590,7 +590,7 @@ namespace TrueMarkWorker
 			var edoAccount =
 				edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
 
-			if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			if(edoAccount is { ConsentForEdoStatus: ConsentForEdoStatus.Agree })
 			{
 				orders.Remove(order);
 			}
