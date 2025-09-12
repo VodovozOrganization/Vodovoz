@@ -46,6 +46,10 @@ namespace Edo.Contracts.Messages.Dto
 		/// </summary>
 		public BasisShipmentInfo BasisShipment { get; set; }
 		/// <summary>
+		/// Идентификатор государственного контракта, договора
+		/// </summary>
+		public string GovContract { get; set; }
+		/// <summary>
 		/// Информация об оплатах <see cref="PaymentInfo"/>
 		/// </summary>
 		public IEnumerable<PaymentInfo> Payments { get; set; }
