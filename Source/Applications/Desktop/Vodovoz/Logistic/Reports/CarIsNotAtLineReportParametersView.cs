@@ -16,13 +16,6 @@ namespace Vodovoz.Logistic.Reports
 		private const int _hpanedDefaultPosition = 530;
 		private const int _hpanedMinimalPosition = 16;
 
-		private readonly Color _defaultColor = GdkColors.PrimaryBase;
-		private readonly Color _notAtLineStartTimeColor = GdkColors.BabyBlue;
-		private readonly Color _carModelTypeColor = GdkColors.LightPurple;
-		private readonly Color _carRegNumberColor = GdkColors.YellowMustard;
-		private readonly Color _subtableHeadersColor = GdkColors.BabyBlue;
-		private readonly Color _subtableNameColor = GdkColors.LightPurple;
-
 		public CarIsNotAtLineReportParametersView(
 			CarIsNotAtLineReportParametersViewModel viewModel)
 			: base(viewModel)
@@ -30,6 +23,13 @@ namespace Vodovoz.Logistic.Reports
 			Build();
 			Initialize();
 		}
+
+		private Color _defaultColor => GdkColors.PrimaryBase;
+		private Color _notAtLineStartTimeColor => GdkColors.IsLight ? GdkColors.BabyBlue : GdkColors.DarkBlue;
+		private Color _carModelTypeColor => GdkColors.IsLight ? GdkColors.LightPurple : GdkColors.DarkViolet;
+		private Color _carRegNumberColor => GdkColors.YellowMustard;
+		private Color _subtableHeadersColor => GdkColors.IsLight ? GdkColors.BabyBlue : GdkColors.DarkBlue;
+		private Color _subtableNameColor => GdkColors.IsLight ? GdkColors.LightPurple : GdkColors.DarkViolet;
 
 		private void Initialize()
 		{
