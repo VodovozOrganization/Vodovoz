@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -69,6 +70,9 @@ namespace ExportTo1c.Library.Exporters
 
 				foreach(var item in items)
 				{
+					var isService = item.Nomenclature.Category == NomenclatureCategory.master
+						|| item.Nomenclature.Category == NomenclatureCategory.service;
+
 					var rowElement = new XElement
 					(
 						"Строка",
@@ -80,7 +84,8 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
-						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash)
+						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
+						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар")
 					);
 
 					salesElement.Add(rowElement);
