@@ -13,6 +13,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// № п/п
 			/// </summary>
 			public int Id { get; set; }
+			public string IdString => Id.ToString();
 
 			/// <summary>
 			/// дата начала простоя
@@ -56,7 +57,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Название события (для группировки)
 			/// </summary>
-			public string CaeEventTypes { get; set; }
+			public string CarEventTypes { get; set; }
 		}
 	}
 }
