@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Gamma.Utilities;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,10 +14,12 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -35,6 +38,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeRepository _employeeRepository;
 
 		private Employee _currentEmployee;
 
@@ -46,7 +50,8 @@ namespace Vodovoz.ViewModels.Employees
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			ICarEventRepository carEventRepository
+			ICarEventRepository carEventRepository,
+			IEmployeeRepository employeeRepository
 		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -58,6 +63,7 @@ namespace Vodovoz.ViewModels.Employees
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 
@@ -268,6 +274,29 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			foreach(var item in Entity.ObservableItems)
+			{
+				var employee = item.Employee;
+				if(employee == null)
+				{
+					continue;
+				}
+
+				if(employee.Category == EmployeeCategory.driver || employee.Category == EmployeeCategory.forwarder)
+				{
+					decimal employeeBalance = _employeeRepository.GetEmployeeBalance(UoW, employee.Id);
+
+					if(item.Money > employeeBalance)
+					{
+						CommonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							"Баланс сотрудника меньше, чем сумма штрафа.",
+							"Невозможно выставить штраф"
+						);
+						return false;
+					}
+				}
+			}
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 

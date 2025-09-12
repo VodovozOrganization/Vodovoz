@@ -243,5 +243,10 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.Concat(subdivisionChiefIds)
 				.Distinct();
 		}
+
+		public decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId)
+		{
+			return 0;
+		}
 	}
 }
