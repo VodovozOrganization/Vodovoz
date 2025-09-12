@@ -8,33 +8,33 @@
 		public enum UiRowType
 		{
 			/// <summary>
-			/// Строка отчета - основная секция
+			/// Основная секция
 			/// </summary>
-			Row,
+			Main,
 			/// <summary>
-			/// Строка отчета - прием автомобиля
+			/// Прием автомобиля
 			/// </summary>
-			CarReceptionRow,
+			CarReception,
 			/// <summary>
-			/// Строка отчета - передача автомобиля
+			/// Передача автомобиля
 			/// </summary>
-			CarTransferRow,
+			CarTransfer,
 			/// <summary>
-			/// Строка отчета - название подтаблицы
+			/// Название подтаблицы
 			/// </summary>
 			SubtableName,
 			/// <summary>
-			/// Строка отчета - заголовок подтаблицы
+			/// Заголовок подтаблицы
 			/// </summary>
 			SubtableHeader,
 			/// <summary>
-			/// Строка отчета - итоговая строка
+			/// Итоговая строка
 			/// </summary>
-			SummaryRow,
+			Summary,
 			/// <summary>
-			/// Строка отчета - пустая строка
+			/// Пустая строка
 			/// </summary>
-			EmptyRow
+			Empty
 		}
 	}
 }

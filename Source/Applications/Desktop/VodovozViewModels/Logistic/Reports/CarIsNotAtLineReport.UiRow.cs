@@ -19,7 +19,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				PlannedReturnToLineDate = row.PlannedReturnToLineDate;
 				PlannedReturnToLineDateAndReschedulingReason = row.PlannedReturnToLineDateAndReschedulingReason;
 				CarEventTypes = row.CarEventTypes;
-				RowType = UiRowType.Row;
+				RowType = UiRowType.Main;
 			}
 
 			private UiRow(CarReceptionRow row)
@@ -31,7 +31,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.Comment;
-				RowType = UiRowType.CarReceptionRow;
+				RowType = UiRowType.CarReception;
 			}
 
 			private UiRow(CarTransferRow row)
@@ -43,7 +43,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.Comment;
-				RowType = UiRowType.CarTransferRow;
+				RowType = UiRowType.CarTransfer;
 			}
 
 			private UiRow() { }
@@ -63,9 +63,9 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// </summary>
 			public UiRowType RowType { get; set; }
 
-			public bool IsMainRow => RowType == UiRowType.Row;
-			public bool IsCatTransferRow => RowType == UiRowType.CarTransferRow;
-			public bool IsCarReceptionRow => RowType == UiRowType.CarReceptionRow;
+			public bool IsMainRow => RowType == UiRowType.Main;
+			public bool IsCatTransferRow => RowType == UiRowType.CarTransfer;
+			public bool IsCarReceptionRow => RowType == UiRowType.CarReception;
 			public bool IsSubtableNameRow => RowType == UiRowType.SubtableName;
 			public bool IsSubtableHeadereRow => RowType == UiRowType.SubtableHeader;
 
@@ -75,7 +75,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				RowType = UiRowType.SubtableName
 			};
 
-			private static UiRow CreateSubrtableHeaderRow() => new UiRow
+			private static UiRow CreateSubtableHeaderRow() => new UiRow
 			{
 				IdString = "№ п/п",
 				DowntimeStartedAtString = "Дата",
@@ -87,14 +87,14 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			
 			private static UiRow CreateEmptyRow() => new UiRow
 			{
-				RowType = UiRowType.EmptyRow
+				RowType = UiRowType.Empty
 			};
 
 			private static UiRow CreateSummaryRow(string key, string value) => new UiRow
 			{
 				IdString = key,
 				DowntimeStartedAtString = value,
-				RowType = UiRowType.SummaryRow
+				RowType = UiRowType.Summary
 			};
 
 			public static IList<UiRow> CreateUiRows(
@@ -144,7 +144,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				var uiRows = new List<UiRow>
 				{
 					UiRow.CreateSubrtableNameRow("Передача"),
-					UiRow.CreateSubrtableHeaderRow()
+					UiRow.CreateSubtableHeaderRow()
 				};
 
 				foreach(var row in carTransferRows)
@@ -160,7 +160,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				var uiRows = new List<UiRow>
 				{
 					UiRow.CreateSubrtableNameRow("Прием"),
-					UiRow.CreateSubrtableHeaderRow()
+					UiRow.CreateSubtableHeaderRow()
 				};
 
 				foreach(var row in carReceptionRows)
