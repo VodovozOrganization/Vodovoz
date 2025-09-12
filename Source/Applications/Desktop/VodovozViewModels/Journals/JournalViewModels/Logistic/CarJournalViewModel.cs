@@ -338,7 +338,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+
+			var canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate;
+			var canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
+			var canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+				(selected) => canCreate,
+				(selected) => VisibleCreateAction,
+				(selected) => CreateEntityDialog(),
+				"Insert"
+			);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+				(selected) => canEdit && selected.Any(),
+				(selected) => VisibleEditAction,
+				(selected) => selected.Cast<CarJournalNode>().ToList().ForEach(EditEntityDialog)
+			);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+				RowActivatedAction = editAction;
+
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => canDelete && selected.Any(),
+				(selected) => VisibleDeleteAction,
+				(selected) => DeleteEntities(selected.Cast<CarJournalNode>().ToArray()),
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
 
 			var reportActions = new JournalAction("Отчёты",
 				(selected) => true,

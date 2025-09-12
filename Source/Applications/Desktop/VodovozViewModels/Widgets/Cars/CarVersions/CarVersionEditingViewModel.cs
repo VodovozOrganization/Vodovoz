@@ -9,6 +9,7 @@ using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CarVersionEditingViewModel));
+			SetPermissions();
 
 			SaveCarVersionCommand = new DelegateCommand(SaveCarVersion, () => CanSaveCarVersion);
 			CancelEditingCommand = new DelegateCommand(CancelEditing);
@@ -120,12 +122,33 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			_carVersion.Id == 0
 			&& SelectedCarOwner?.Id == LastCarVersion?.CarOwnerOrganization?.Id
 			&& SelectedCarOwnType == LastCarVersion?.CarOwnType;
+		
+		private bool CanChangeCompositionCompanyTransportPark { get; set; }
+		
+		private void SetPermissions()
+		{
+			CanChangeCompositionCompanyTransportPark =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+		}
 
 		private void SaveCarVersion()
 		{
 			if(!CanSaveCarVersion)
 			{
 				return;
+			}
+
+			if(!CanChangeCompositionCompanyTransportPark)
+			{
+				const string message = "Невозможно изменить принадлежность авто. У Вас нет права менять состав автопарка компании";
+				
+				if(((LastCarVersion is null || LastCarVersion.CarOwnType == CarOwnType.Driver)
+					&& (SelectedCarOwnType == CarOwnType.Raskat || SelectedCarOwnType == CarOwnType.Company))
+					|| LastCarVersion != null && (LastCarVersion.IsCompanyCar || LastCarVersion.IsRaskat))
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+					return;
+				}
 			}
 
 			if(IsVersionNewAndTypeWithOwnerOrganizationEqualsLastVersion)
