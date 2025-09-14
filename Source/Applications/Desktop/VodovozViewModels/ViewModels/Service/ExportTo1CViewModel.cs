@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Xml;
-using System.Xml.Linq;
 using ExportTo1c.Library;
 using ExportTo1c.Library.ExportNodes;
+using ExportTo1c.Library.Factories;
 using Microsoft.VisualBasic.FileIO;
 using QS.Commands;
 using QS.Dialog;
@@ -16,14 +9,22 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels.Dialog;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Xml;
+using System.Xml.Linq;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
-using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1c;
 
 namespace Vodovoz.ViewModels.ViewModels.Service
 {
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IDataExporterFor1cFactory _dataExporterFor1CFactory;
 		private Organization _selectedCashlessOrganization;
 		private Organization _selectedRetailOrganization;
 		private DateTime? _endDate;
@@ -59,7 +61,8 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IGenericRepository<Organization> organizationRepository,
-			IOrganizationSettings organizationSettings)
+			IOrganizationSettings organizationSettings,
+			IDataExporterFor1cFactory dataExporterFor1CFactory)
 			: base(navigation)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -69,6 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_dataExporterFor1CFactory = dataExporterFor1CFactory ?? throw new ArgumentNullException(nameof(dataExporterFor1CFactory));
 			Title = "Выгрузка в 1с 8.3";
 
 			CreateCommands();
@@ -246,11 +250,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			ExportCashless(Export1cMode.BuhgalteriaOOO);
 		}
 
-		private void ExportCashlessComplexAutomation()
-		{
-			ExportCashless(Export1cMode.ComplexAutomation);
-		}
-
 		private void ExportCashless(Export1cMode mode)
 		{
 			StartProgressAction?.Invoke();
@@ -263,7 +262,6 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 					organizationId = (SelectedCashlessOrganization)?.Id;
 					break;
 				case Export1cMode.BuhgalteriaOOO:
-				case Export1cMode.ComplexAutomation:
 					organizationId = _organizationSettings.VodovozOrganizationId;
 					break;
 			}
@@ -299,9 +297,9 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 				.ToString();
 
 			TotalSales = (ExportCashlessData.Objects
-				              .OfType<SalesDocumentNode>()
-				              .Count()
-			              + ExportCashlessData.Objects.OfType<RetailDocumentNode>().Count())
+							  .OfType<SalesDocumentNode>()
+							  .Count()
+						  + ExportCashlessData.Objects.OfType<RetailDocumentNode>().Count())
 				.ToString();
 
 			TotalSum = ExportCashlessData.OrdersTotalSum.ToString("C", CultureInfo.GetCultureInfo("ru-RU"));
@@ -367,67 +365,12 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для отчёта"))
 			{
-				var orders = GetRetailOrders(unitOfWork, organization);
+				var orders = GetOrdersByModeFor1cExport(unitOfWork, organization.Id, Export1cMode.Retail);
 
 				retailSalesReport.Generate(orders, ProgressBarDisplayable, cancellationToken);
 			}
 
 			return retailSalesReport;
-		}
-
-		private void ExportRetail()
-		{
-			ExportInProgress = true;
-
-			if(SelectedRetailOrganization is null)
-			{
-				foreach(var organization in RetailOrganizations)
-				{
-					ExportRetailForOrganization(organization);
-				}
-			}
-			else
-			{
-				ExportRetailForOrganization(SelectedRetailOrganization);
-			}
-
-			_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт розницы завершен");
-
-			ExportInProgress = false;
-		}
-
-		private void ExportRetailForOrganization(Organization organization)
-		{
-			XElement xml;
-
-			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение заказов розницы для экспорта в 1С"))
-			{
-				var orders = GetRetailOrders(unitOfWork, organization);
-
-				xml = Retail1cDataExporter.CreateRetailXml(
-					orders,
-					StartDate.Value,
-					EndDate.Value,
-					organization.INN,
-					_cancellationTokenSource.Token,
-					ProgressBarDisplayable);
-			}
-
-			var dateText = EndDate.Value.ToString("yyyy-MM-dd");
-			var fileName = $"Выгрузка 1с на {dateText} ИНН {organization.INN} (розница).xml";
-
-			SaveXmlToFile(xml, fileName);
-		}
-
-		private IList<Order> GetRetailOrders(IUnitOfWork unitOfWork, Organization organization)
-		{
-			return _orderRepository.GetOrdersToExport1c8(
-				unitOfWork,
-				_orderSettings,
-				Export1cMode.RetailReport,
-				StartDate.Value,
-				EndDate.Value,
-				organization.Id);
 		}
 
 		private void CreateAndSaveRetailReport()
@@ -450,7 +393,61 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			EndProgressAction?.Invoke();
 		}
 
+		private void ExportRetail()
+		{
+			ExportInProgress = true;
+
+			if(SelectedRetailOrganization is null)
+			{
+				foreach(var organization in RetailOrganizations)
+				{
+					ExportData(Export1cMode.Retail, organization);
+				}
+			}
+			else
+			{
+				ExportData(Export1cMode.Retail, SelectedRetailOrganization);
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт розницы завершен");
+
+			ExportInProgress = false;
+		}
+
 		#endregion Retail
+
+
+		private void ExportCashlessComplexAutomation()
+		{
+			ExportInProgress = true;
+
+			if(SelectedCashlessOrganization is null)
+			{
+				foreach(var organization in CashlessOrganizations)
+				{
+					ExportData(Export1cMode.ComplexAutomation, organization);
+				}
+			}
+			else
+			{
+				ExportData(Export1cMode.ComplexAutomation, SelectedCashlessOrganization);
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт безнала завершен");
+
+			ExportInProgress = false;
+		}
+
+		private IList<Order> GetOrdersByModeFor1cExport(IUnitOfWork unitOfWork, int organizationId, Export1cMode export1CMode)
+		{
+			return _orderRepository.GetOrdersToExport1c8(
+				unitOfWork,
+				_orderSettings,
+				export1CMode,
+				StartDate.Value,
+				EndDate.Value,
+				organizationId);
+		}
 
 		#region Save xml to file
 
@@ -495,6 +492,55 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 			settings.FileFilters.Add(new DialogFileFilter($"XML файлы", "*.xml"));
 
 			return settings;
+		}
+
+		private XElement CreateXml(Export1cMode export1CMode, IList<Order> orders, Organization organization)
+		{
+			var exporter = _dataExporterFor1CFactory.Create1cDataExporter(export1CMode);
+
+			var xml = exporter.CreateXml
+			(
+				orders,
+				StartDate.Value,
+				EndDate.Value,
+				organization,
+				_cancellationTokenSource.Token,
+				ProgressBarDisplayable
+			);
+
+			return xml;
+		}
+
+		private void ExportData(Export1cMode exportMode, Organization organization)
+		{
+			IList<Order> orders;
+			XElement xml;
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot($"Получение заказов для экспорта в 1С ({exportMode.GetEnumDisplayName()})"))
+			{
+				orders = GetOrdersByModeFor1cExport(unitOfWork, organization.Id, exportMode);
+
+				if(!orders.Any())
+				{
+					return;
+				}
+
+				xml = CreateXml(exportMode, orders, organization);
+			}
+
+			SaveExportFile(xml, organization.INN, exportMode);
+
+			ProgressBarDisplayable.Close();
+		}
+
+		private void SaveExportFile(XElement xml, string organizationInn, Export1cMode export1cMode)
+		{
+			var startDate = StartDate.Value.ToString("yyyy-MM-dd");
+			var endDate = EndDate.Value.ToString("yyyy-MM-dd");
+
+			var fileName = $"Выгрузка 1с c {startDate} по {endDate} ИНН {organizationInn} ({export1cMode.GetEnumDisplayName()}).xml";
+
+			SaveXmlToFile(xml, fileName);
 		}
 
 		#endregion Save xml to file

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
+namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1c
 {
 	/// <summary>
 	/// Отчёт о розничных продажах для 1С
