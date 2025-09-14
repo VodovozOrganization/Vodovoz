@@ -78,6 +78,10 @@ namespace Vodovoz.Views.Logistic
 
 			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
+			ycheckbuttonUsedInDelivery.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
+
 			ylabelArchivingDate.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.ArchivingDate != null, w => w.Visible)
 				.InitializeFromSource();
