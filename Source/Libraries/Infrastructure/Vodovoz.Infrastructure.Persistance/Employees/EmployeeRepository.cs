@@ -2,7 +2,6 @@
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
@@ -15,7 +14,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
