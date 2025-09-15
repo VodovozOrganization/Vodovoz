@@ -162,6 +162,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			InitializeCommands();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
+			Organization = Entity.Id != 0 ?Entity.Organization : null;
 		}
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();

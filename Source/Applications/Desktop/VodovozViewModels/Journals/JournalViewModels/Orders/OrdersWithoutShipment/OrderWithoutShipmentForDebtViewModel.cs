@@ -164,6 +164,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
+			Organization = Entity.Id != 0 ?Entity.Organization : null;
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
