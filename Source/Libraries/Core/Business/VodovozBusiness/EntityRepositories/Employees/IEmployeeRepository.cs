@@ -40,6 +40,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="uow"></param>
 		/// <param name="employeeId"></param>
 		/// <returns></returns>
-		decimal GetBalanceForDriverOrForwarder(IUnitOfWork uow, int employeeId);
+		decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId);
 	}
 }

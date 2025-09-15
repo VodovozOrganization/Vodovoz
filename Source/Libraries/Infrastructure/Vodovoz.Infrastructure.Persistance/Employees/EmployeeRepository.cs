@@ -246,50 +246,21 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.Distinct();
 		}
 
-		public decimal GetBalanceForDriverOrForwarder(IUnitOfWork uow, int employeeId)
+		public decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId)
 		{
 			Employee employeeAlias = null;
 			WagesMovementOperations wageAlias = null;
-			RouteList routeListAlias = null;
 
 			var wageQuery = QueryOver.Of(() => wageAlias)
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
-			var routeListStatusesForLastWorkingDay = new RouteListStatus[] 
-			{
-				RouteListStatus.Closed, 
-				RouteListStatus.Delivered, 
-				RouteListStatus.OnClosing, 
-				RouteListStatus.MileageCheck
-			};
-
-			var driverLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
-				.Where(() => routeListAlias.Driver.Id == employeeAlias.Id)
-				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
-				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
-
-			var forwarderLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
-				.Where(() => routeListAlias.Forwarder.Id == employeeAlias.Id)
-				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
-				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
-
 			var result = uow.Session.QueryOver(() => employeeAlias)
 				.Where(() => employeeAlias.Id == employeeId)
-				.SelectList(list => list
-					.SelectSubQuery(wageQuery)
-					.Select(Projections.Conditional(
-						Expression.In(nameof(employeeAlias.Category), new[] { EmployeeCategory.driver, EmployeeCategory.forwarder }),
-							Projections.Conditional(
-								Expression.Eq(nameof(employeeAlias.Category), EmployeeCategory.driver),
-								Projections.SubQuery(driverLastWorkingDateQuery),
-								Projections.SubQuery(forwarderLastWorkingDateQuery)),
-							Projections.Property(nameof(employeeAlias.DateFired))))
-				)
-				.SingleOrDefault<object[]>();
+				.SelectList(list => list.SelectSubQuery(wageQuery))
+				.SingleOrDefault<decimal?>() ?? 0m;
 
-			decimal balance = result?[0] is decimal d ? d : 0m;
-			return balance;
+			return result;
 		}
 	}
 }
