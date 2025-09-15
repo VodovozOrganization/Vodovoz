@@ -246,32 +246,24 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.Distinct();
 		}
 
-		public decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId)
+		public decimal GetBalanceForDriverOrForwarder(IUnitOfWork uow, int employeeId)
 		{
-			WagesMovementOperations wageAlias = null;
-
-			var balance = uow.Session.QueryOver(() => wageAlias)
-				.Where(() => wageAlias.Employee.Id == employeeId)
-				.Select(Projections.Sum(() => wageAlias.Money))
-				.SingleOrDefault<decimal?>();
-
-			//return balance ?? 0m;
-
 			Employee employeeAlias = null;
-			Subdivision subdivisionAlias = null;
-			EmployeeWithLastWorkingDayJournalNode resultAlias = null;
-
-			var employeesQuery = uow.Session.QueryOver(() => employeeAlias)
-				.Left.JoinAlias(e => e.Subdivision, () => subdivisionAlias);
-
+			WagesMovementOperations wageAlias = null;
+			RouteList routeListAlias = null;
 
 			var wageQuery = QueryOver.Of(() => wageAlias)
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
 
-			var routeListStatusesForLastWorkingDay = new RouteListStatus[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
+			var routeListStatusesForLastWorkingDay = new RouteListStatus[] 
+			{
+				RouteListStatus.Closed, 
+				RouteListStatus.Delivered, 
+				RouteListStatus.OnClosing, 
+				RouteListStatus.MileageCheck
+			};
 
-			RouteList routeListAlias = null;
 			var driverLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
 				.Where(() => routeListAlias.Driver.Id == employeeAlias.Id)
 				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
@@ -282,45 +274,21 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
 				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
 
-			var employeeProjection = CustomProjections.Concat_WS(
-				" ",
-				() => employeeAlias.LastName,
-				() => employeeAlias.Name,
-				() => employeeAlias.Patronymic
-			);
-
-			employeesQuery.Where(GetSearchCriterion(
-				() => employeeAlias.Id,
-				() => employeeProjection
-			));
-
-			employeesQuery
+			var result = uow.Session.QueryOver(() => employeeAlias)
+				.Where(() => employeeAlias.Id == employeeId)
 				.SelectList(list => list
-					.SelectGroup(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => employeeAlias.Status).WithAlias(() => resultAlias.Status)
-					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmpFirstName)
-					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
-					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
-					.Select(() => employeeAlias.Category).WithAlias(() => resultAlias.EmpCatEnum)
-					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
-					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
-					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
+					.SelectSubQuery(wageQuery)
 					.Select(Projections.Conditional(
-								Expression.In(nameof(employeeAlias.Category), new[] { EmployeeCategory.driver, EmployeeCategory.forwarder }),
-								(Projections.Conditional(
-									Expression.Eq(nameof(employeeAlias.Category), EmployeeCategory.driver),
-									Projections.SubQuery(driverLastWorkingDateQuery),
-									Projections.SubQuery(forwarderLastWorkingDateQuery))),
-								Projections.Property(nameof(employeeAlias.DateFired)))).WithAlias(() => resultAlias.LastWorkingDay)
-				);
+						Expression.In(nameof(employeeAlias.Category), new[] { EmployeeCategory.driver, EmployeeCategory.forwarder }),
+							Projections.Conditional(
+								Expression.Eq(nameof(employeeAlias.Category), EmployeeCategory.driver),
+								Projections.SubQuery(driverLastWorkingDateQuery),
+								Projections.SubQuery(forwarderLastWorkingDateQuery)),
+							Projections.Property(nameof(employeeAlias.DateFired))))
+				)
+				.SingleOrDefault<decimal>();
 
-			employeesQuery
-				.OrderBy(e => e.LastName).Asc
-				.OrderBy(e => e.Name).Asc
-				.OrderBy(e => e.Patronymic).Asc
-				.TransformUsing(Transformers.AliasToBean<EmployeeWithLastWorkingDayJournalNode>());
-
-			return employeesQuery;
+			return result;
 		}
 	}
 }

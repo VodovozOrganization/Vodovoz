@@ -284,7 +284,7 @@ namespace Vodovoz.ViewModels.Employees
 
 				if(employee.Category == EmployeeCategory.driver || employee.Category == EmployeeCategory.forwarder)
 				{
-					decimal employeeBalance = _employeeRepository.GetEmployeeBalance(UoW, employee.Id);
+					decimal employeeBalance = _employeeRepository.GetBalanceForDriverOrForwarder(UoW, employee.Id);
 
 					if(item.Money > employeeBalance)
 					{
