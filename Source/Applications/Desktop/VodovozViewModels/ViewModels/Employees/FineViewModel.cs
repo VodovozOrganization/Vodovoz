@@ -275,6 +275,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			var allowedCategories = new[] 
+			{
+				EmployeeCategory.driver,
+				EmployeeCategory.forwarder
+			};
+
 			var allowedStatuses = new[] 
 			{
 				EmployeeStatus.IsFired,
@@ -289,8 +295,8 @@ namespace Vodovoz.ViewModels.Employees
 					continue;
 				}
 
-				if((employee.Category == EmployeeCategory.driver
-					|| employee.Category == EmployeeCategory.forwarder) && employee.Status.IsIn(allowedStatuses))
+				if(employee.Category.IsIn(allowedCategories) 
+					&& employee.Status.IsIn(allowedStatuses))
 				{
 					decimal employeeBalance = _employeeRepository.GetEmployeeBalance(UoW, employee.Id);
 
