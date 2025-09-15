@@ -245,22 +245,5 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.Concat(subdivisionChiefIds)
 				.Distinct();
 		}
-
-		public decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId)
-		{
-			Employee employeeAlias = null;
-			WagesMovementOperations wageAlias = null;
-
-			var wageQuery = QueryOver.Of(() => wageAlias)
-				.Where(wage => wage.Employee.Id == employeeAlias.Id)
-				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
-
-			var result = uow.Session.QueryOver(() => employeeAlias)
-				.Where(() => employeeAlias.Id == employeeId)
-				.SelectList(list => list.SelectSubQuery(wageQuery))
-				.SingleOrDefault<decimal?>() ?? 0m;
-
-			return result;
-		}
 	}
 }
