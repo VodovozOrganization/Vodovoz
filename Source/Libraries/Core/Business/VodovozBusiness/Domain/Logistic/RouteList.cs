@@ -1816,12 +1816,17 @@ namespace Vodovoz.Domain.Logistic
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			bool cashOrderClose = false;
-
+			bool canSaveRouteListWithoutOrders = false;
+			
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
 			}
-
+			if(validationContext.Items.ContainsKey(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders))
+			{
+				canSaveRouteListWithoutOrders = (bool)validationContext.Items[Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders];
+			}
+			
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
@@ -1995,6 +2000,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
 					new[] { nameof(ConfirmedDistance) });
+			}
+
+			if(ObservableAddresses.Count == 0 && !canSaveRouteListWithoutOrders)
+			{
+				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения", 
+						new[] { nameof(ObservableAddresses) });
 			}
 		}
 
