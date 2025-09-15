@@ -84,10 +84,10 @@ namespace Vodovoz.Controllers
 			}
 		}
 		
-		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date)
+		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null)
 		{
 			var routeListsWithProfitabilities =
-				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date);
+				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date, carModel);
 
 			foreach(var routeList in routeListsWithProfitabilities)
 			{
