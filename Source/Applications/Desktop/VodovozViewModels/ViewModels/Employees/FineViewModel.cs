@@ -20,8 +20,8 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
-		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
 
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Employees
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			ICarEventRepository carEventRepository,
-			IEmployeeRepository employeeRepository
+			IWagesMovementRepository wagesMovementRepository
 		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Employees
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_wagesMovementRepository = wagesMovementRepository ?? throw new ArgumentNullException(nameof(wagesMovementRepository));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 
@@ -275,6 +275,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			var allowedCategories = new[] 
+			{
+				EmployeeCategory.driver,
+				EmployeeCategory.forwarder
+			};
+
 			var allowedStatuses = new[] 
 			{
 				EmployeeStatus.IsFired,
@@ -289,10 +295,10 @@ namespace Vodovoz.ViewModels.Employees
 					continue;
 				}
 
-				if((employee.Category == EmployeeCategory.driver
-					|| employee.Category == EmployeeCategory.forwarder) && employee.Status.IsIn(allowedStatuses))
+				if(employee.Category.IsIn(allowedCategories) 
+					&& employee.Status.IsIn(allowedStatuses))
 				{
-					decimal employeeBalance = _employeeRepository.GetEmployeeBalance(UoW, employee.Id);
+					decimal employeeBalance = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 
 					if(item.Money > employeeBalance)
 					{

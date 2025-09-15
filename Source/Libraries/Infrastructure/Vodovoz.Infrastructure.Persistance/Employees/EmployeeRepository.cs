@@ -2,7 +2,6 @@
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
@@ -15,7 +14,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
@@ -244,23 +242,6 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			return subdivisionsResponsibleByFinancialResponsibilityCentersIds
 				.Concat(subdivisionChiefIds)
 				.Distinct();
-		}
-
-		public decimal GetEmployeeBalance(IUnitOfWork uow, int employeeId)
-		{
-			Employee employeeAlias = null;
-			WagesMovementOperations wageAlias = null;
-
-			var wageQuery = QueryOver.Of(() => wageAlias)
-				.Where(wage => wage.Employee.Id == employeeAlias.Id)
-				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
-
-			var result = uow.Session.QueryOver(() => employeeAlias)
-				.Where(() => employeeAlias.Id == employeeId)
-				.SelectList(list => list.SelectSubQuery(wageQuery))
-				.SingleOrDefault<decimal?>() ?? 0m;
-
-			return result;
 		}
 	}
 }
