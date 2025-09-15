@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
@@ -274,6 +275,12 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			var allowedStatuses = new[] 
+			{
+				EmployeeStatus.IsFired,
+				EmployeeStatus.OnCalculation 
+			};
+
 			foreach(var item in Entity.ObservableItems)
 			{
 				var employee = item.Employee;
@@ -282,7 +289,8 @@ namespace Vodovoz.ViewModels.Employees
 					continue;
 				}
 
-				if(employee.Category == EmployeeCategory.driver || employee.Category == EmployeeCategory.forwarder)
+				if((employee.Category == EmployeeCategory.driver
+					|| employee.Category == EmployeeCategory.forwarder) && employee.Status.IsIn(allowedStatuses))
 				{
 					decimal employeeBalance = _employeeRepository.GetBalanceForDriverOrForwarder(UoW, employee.Id);
 
@@ -290,7 +298,7 @@ namespace Vodovoz.ViewModels.Employees
 					{
 						CommonServices.InteractiveService.ShowMessage(
 							ImportanceLevel.Warning,
-							"Баланс сотрудника меньше, чем сумма штрафа.",
+							$"Баланс сотрудника {employee.GetPersonNameWithInitials()} меньше, чем сумма штрафа.",
 							"Невозможно выставить штраф"
 						);
 						return false;

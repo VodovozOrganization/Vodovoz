@@ -286,9 +286,10 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 								Projections.SubQuery(forwarderLastWorkingDateQuery)),
 							Projections.Property(nameof(employeeAlias.DateFired))))
 				)
-				.SingleOrDefault<decimal>();
+				.SingleOrDefault<object[]>();
 
-			return result;
+			decimal balance = result?[0] is decimal d ? d : 0m;
+			return balance;
 		}
 	}
 }
