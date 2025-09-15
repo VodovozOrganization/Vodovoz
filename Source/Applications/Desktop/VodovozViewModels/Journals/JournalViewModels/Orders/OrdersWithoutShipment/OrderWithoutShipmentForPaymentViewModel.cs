@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
-					Entity.OrganizationId = Organization?.Id ?? _organizationSettings.GetCashlessOrganisationId;
+					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
 
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
 					{

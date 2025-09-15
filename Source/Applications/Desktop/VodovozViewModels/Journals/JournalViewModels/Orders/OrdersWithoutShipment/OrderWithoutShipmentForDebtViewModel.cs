@@ -13,18 +13,22 @@ using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
+using Vodovoz.ViewModels.Organizations;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -38,8 +42,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEdoService _edoService;
+		private readonly IOrganizationSettings _organizationSettings;
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
+		private Organization _organization;
 		
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -56,7 +62,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
-			IEdoService edoService) : base(uowBuilder, uowFactory, commonServices)
+			IEdoService edoService,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder,
+			IOrganizationSettings organizationSettings) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
@@ -74,11 +82,20 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_organizationSettings = organizationSettings;
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
+			OrganizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+			
 			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
@@ -129,6 +146,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
+					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
+					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
 					{
 						if(Save(false))
@@ -153,6 +172,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		public IEntityEntryViewModel OrganizationViewModel { get; }
+		
+		public Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
 		
 		#region Commands
 
@@ -232,7 +258,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		}
 
 		#endregion
-
+		
 		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
 
 		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();

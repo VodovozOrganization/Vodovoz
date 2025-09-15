@@ -31,8 +31,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	[HistoryTrace]
 	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
-		private Organization _organization;
-
 		public virtual int Id { get; set; }
 		
 		IList<OrderWithoutShipmentForAdvancePaymentItem> orderWithoutDeliveryForAdvancePaymentItems = new List<OrderWithoutShipmentForAdvancePaymentItem>();
@@ -121,11 +119,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 		
-		public virtual Organization Organization
-		{
-			get => _organization;
-			set => SetField(ref _organization, value);
-		}
+		
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
@@ -137,7 +131,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_advance_payment_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", _organization?.Id },
+				{ "organization_id", Organization.Id },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
