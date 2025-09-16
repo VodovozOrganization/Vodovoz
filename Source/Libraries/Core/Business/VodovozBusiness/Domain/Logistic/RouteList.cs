@@ -1835,7 +1835,10 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
 					case RouteListStatus.InLoading:
-					case RouteListStatus.Closed: break;
+					case RouteListStatus.Closed:
+					case RouteListStatus.EnRoute:
+					case RouteListStatus.OnClosing: 
+						break;
 					case RouteListStatus.MileageCheck:
 						var orderSettings = validationContext.GetService<IOrderSettings>();
 						var deliveryRulesSettings = validationContext.GetService<IDeliveryRulesSettings>();
@@ -1886,13 +1889,13 @@ namespace Vodovoz.Domain.Logistic
 
 
 						}
-
 						break;
-					case RouteListStatus.EnRoute: break;
-					case RouteListStatus.OnClosing: break;
+					
 				}
 
-				if(newStatus == RouteListStatus.New && ObservableAddresses.Count == 0 && !canSaveRouteListWithoutOrders)
+				if((newStatus == RouteListStatus.EnRoute || newStatus == RouteListStatus.Confirmed)
+				   && ObservableAddresses.Count == 0 
+				   && !canSaveRouteListWithoutOrders)
 				{
 					yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
 						new[] { nameof(ObservableAddresses) });
