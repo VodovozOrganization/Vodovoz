@@ -149,6 +149,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
 			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
@@ -242,6 +243,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanEditFixedPrice { get; }
 		public bool CanСreateRoutelistInPastPeriod { get; }
+		
+		public bool CanCreateRouteListWithoutOrders { get; }
 		public bool IsLogistician { get; }
 		public bool IsCashier { get; }
 		public bool CanReadRouteListProfitability { get; }
@@ -489,7 +492,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var contextItems = new Dictionary<object, object>
 			{
-				{nameof(IRouteListItemRepository), _routeListItemRepository}
+				{nameof(IRouteListItemRepository), _routeListItemRepository},
+				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
@@ -763,7 +767,8 @@ namespace Vodovoz.ViewModels.Logistic
 			var contextItemsEnroute = new Dictionary<object, object>
 			{
 				{ "NewStatus", RouteListStatus.EnRoute },
-				{ nameof(IRouteListItemRepository), _routeListItemRepository }
+				{ nameof(IRouteListItemRepository), _routeListItemRepository },
+				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 
 			ValidationContext = new ValidationContext(Entity, null, contextItemsEnroute);
@@ -828,7 +833,8 @@ namespace Vodovoz.ViewModels.Logistic
 			var contextItems = new Dictionary<object, object>
 			{
 				{ "NewStatus", RouteListStatus.Confirmed },
-				{ nameof(IRouteListItemRepository), _routeListItemRepository }
+				{ nameof(IRouteListItemRepository), _routeListItemRepository },
+				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(routeList, null, contextItems);
@@ -837,7 +843,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
-
+ 
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
 
 			//Строим маршрут для МЛ.
@@ -904,7 +910,8 @@ namespace Vodovoz.ViewModels.Logistic
 						var contextItemsEnroute = new Dictionary<object, object>
 						{
 							{ "NewStatus", RouteListStatus.EnRoute },
-							{ nameof(IRouteListItemRepository), _routeListItemRepository }
+							{ nameof(IRouteListItemRepository), _routeListItemRepository },
+							{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 						};
 
 						var contextEnroute = new ValidationContext(routeList, null, contextItemsEnroute);
