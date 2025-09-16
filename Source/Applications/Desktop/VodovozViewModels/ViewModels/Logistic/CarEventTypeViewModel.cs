@@ -2,9 +2,6 @@
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -21,13 +18,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			get => _isVisibleAreaOfResponsibility;
 			set => SetField(ref _isVisibleAreaOfResponsibility, value);
-		}
-		
-		public IEnumerable<AreaOfResponsibility> AvailableAreasOfResponsibility
-		{
-			get => Enum.GetValues(typeof(AreaOfResponsibility))
-				.Cast<AreaOfResponsibility>()
-				.Where(x => x != AreaOfResponsibility.None);
 		}
 	}
 }

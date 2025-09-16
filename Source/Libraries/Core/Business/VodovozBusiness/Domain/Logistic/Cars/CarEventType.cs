@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _isArchive;
 		private bool _isDoNotShowInOperation;
 		private bool _isAttachWriteOffDocument;
-		private AreaOfResponsibility _areaOfResponsibility;
+		private AreaOfResponsibility? _areaOfResponsibility;
 
 		#region Свойства
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Зона ответственности отдела")]
-		public virtual AreaOfResponsibility AreaOfResponsibility
+		public virtual AreaOfResponsibility? AreaOfResponsibility
 		{
 			get => _areaOfResponsibility;
 			set => SetField(ref _areaOfResponsibility, value);
