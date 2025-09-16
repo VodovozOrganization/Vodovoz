@@ -1893,7 +1893,7 @@ namespace Vodovoz.Domain.Logistic
 					
 				}
 
-				if((newStatus == RouteListStatus.EnRoute || newStatus == RouteListStatus.Confirmed)
+				if((newStatus == RouteListStatus.New)
 				   && ObservableAddresses.Count == 0 
 				   && !canSaveRouteListWithoutOrders)
 				{
