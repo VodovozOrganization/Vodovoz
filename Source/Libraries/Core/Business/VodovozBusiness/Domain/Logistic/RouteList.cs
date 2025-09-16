@@ -1815,6 +1815,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var routeList = validationContext.ObjectInstance as RouteList;
 			bool cashOrderClose = false;
 			bool canSaveRouteListWithoutOrders = false;
 			
@@ -1892,14 +1893,15 @@ namespace Vodovoz.Domain.Logistic
 						break;
 					
 				}
-
-				if((newStatus == RouteListStatus.New)
-				   && ObservableAddresses.Count == 0 
-				   && !canSaveRouteListWithoutOrders)
-				{
-					yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
-						new[] { nameof(ObservableAddresses) });
-				}
+			}
+			
+			if(routeList != null
+			   && routeList.Status == RouteListStatus.New
+			   && ObservableAddresses.Count == 0 
+			   && !canSaveRouteListWithoutOrders)
+			{
+				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
+					new[] { nameof(ObservableAddresses) });
 			}
 
 			validationContext.Items.TryGetValue(nameof(IRouteListItemRepository), out var rliRepositoryObject);
