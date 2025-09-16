@@ -1891,7 +1891,6 @@ namespace Vodovoz.Domain.Logistic
 
 						}
 						break;
-					
 				}
 			}
 			
@@ -2018,8 +2017,6 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
 					new[] { nameof(ConfirmedDistance) });
 			}
-
-			
 		}
 
 		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
