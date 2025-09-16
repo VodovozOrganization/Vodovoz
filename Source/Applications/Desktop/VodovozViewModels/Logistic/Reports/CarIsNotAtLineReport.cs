@@ -226,7 +226,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 						TimeAndBreakdownReason = "Простой без водителя",
-						AreaOfResponsibility = "Простой",
+						AreaOfResponsibility = "Простой2",
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
@@ -241,11 +241,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 				string areaOfResponsibility;
 				if(areas.Count == 1)
+				{
 					areaOfResponsibility = areas.First().ToString();
+				}
 				else if(areas.Count > 1)
+				{
 					areaOfResponsibility = string.Join(", ", areas.Select(a => a.ToString()));
+				}
 				else
+				{
 					areaOfResponsibility = "Простой";
+				}
 
 				rowsHavingEvents.Add(new Row
 				{
@@ -262,8 +268,17 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				});
 			}
 
-			rows.AddRange(rowsHavingEvents.OrderBy(x => x.CarEventTypes.First()).ThenBy(x => x.DowntimeStartedAt));
-			rows.AddRange(rowsWithoutEvents.OrderBy(x => x.DowntimeStartedAt));
+			rows.AddRange(
+				rowsHavingEvents
+					.OrderBy(x => x.AreaOfResponsibility)
+					.ThenBy(x => x.CarEventTypes.First())
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
+			rows.AddRange(
+				rowsWithoutEvents
+					.OrderBy(x => x.AreaOfResponsibility)
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
 
 			var counter = 1;
 			rows.ForEach(x => x.Id = counter++);
@@ -302,14 +317,18 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
-			var summaryByEventThanCar = rows
-				.GroupBy(row => (row.CarEventTypes, row.CarType))
-				.GroupBy(g => g.Key.CarEventTypes)
-				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
-					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
+			var summaryByArea = rows
+				.GroupBy(row => row.AreaOfResponsibility)
+				.Select(g =>
+					$"{(string.IsNullOrWhiteSpace(g.Key) ? "Без зоны ответственности" : g.Key)}\n" +
+					string.Join("\n", g
+						.GroupBy(x => x.CarEventTypes)
+						.Select(ev => $"{(string.IsNullOrWhiteSpace(ev.Key) ? "Простой" : ev.Key)}: {ev.Count()}"))
+					+ "\n"
+				);
 
 			var eventsSummaryDetails =
-				string.Join("\n", summaryByEventThanCar);
+				string.Join("\n", summaryByArea);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
 		}

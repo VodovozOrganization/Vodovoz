@@ -1,10 +1,6 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
-using ReactiveUI;
-using System.Linq;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
