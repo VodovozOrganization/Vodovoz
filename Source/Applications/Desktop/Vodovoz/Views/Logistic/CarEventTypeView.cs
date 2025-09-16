@@ -54,6 +54,7 @@ namespace Vodovoz.Views.Logistic
 			yenumcomboboxAreaOfResponsibility.ItemsEnum = typeof(AreaOfResponsibility);
 			yenumcomboboxAreaOfResponsibility.Binding
 				.AddBinding(ViewModel, vm => vm.IsVisibleAreaOfResponsibility, w => w.Sensitive)
+				.AddBinding(ViewModel.Entity, e => e.AreaOfResponsibility, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 

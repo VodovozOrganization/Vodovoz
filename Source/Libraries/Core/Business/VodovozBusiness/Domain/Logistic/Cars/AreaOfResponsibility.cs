@@ -11,11 +11,6 @@ namespace Vodovoz.Domain.Logistic
 	public enum AreaOfResponsibility
 	{
 		/// <summary>
-		/// Не выбрано
-		/// </summary>
-		[Display(Name = "Не выбрано", ShortName = "Н/Д")]
-		None,
-		/// <summary>
 		/// Логистический отдел
 		/// </summary>
 		[Display(Name = "Логистический отдел", ShortName = "ЛО")]
