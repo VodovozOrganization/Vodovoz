@@ -16,6 +16,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.TimeAndBreakdownReason;
+				AreaOfResponsibility = row.AreaOfResponsibility;
 				PlannedReturnToLineDate = row.PlannedReturnToLineDate;
 				PlannedReturnToLineDateAndReschedulingReason = row.PlannedReturnToLineDateAndReschedulingReason;
 				CarEventTypes = row.CarEventTypes;

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -45,7 +49,47 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Зона ответственности
 			/// </summary>
-			public string AreaOfResponsibility { get; set; }
+			private AreaOfResponsibility? _areaOfResponsibility;
+
+			public string AreaOfResponsibility
+			{
+				get
+				{
+					if(!_areaOfResponsibility.HasValue)
+					{
+						return "Простой1";
+					}
+
+					var member = typeof(AreaOfResponsibility).GetMember(_areaOfResponsibility.Value.ToString()).FirstOrDefault();
+					if(member != null)
+					{
+						var displayAttr = member.GetCustomAttribute<DisplayAttribute>();
+						if(displayAttr != null && !string.IsNullOrWhiteSpace(displayAttr.ShortName))
+						{
+							return displayAttr.ShortName;
+						}
+					}
+					return _areaOfResponsibility.Value.ToString();
+				}
+				set
+				{
+					if(string.IsNullOrWhiteSpace(value))
+					{
+						_areaOfResponsibility = null;
+					}
+					else
+					{
+						if(Enum.TryParse<AreaOfResponsibility>(value, out var parsed))
+						{
+							_areaOfResponsibility = parsed;
+						}
+						else
+						{
+							_areaOfResponsibility = GetAreaOfResponsibilityByShortName(value);
+						}
+					}
+				}
+			}
 
 			/// <summary>
 			/// Планируемая дата выпуска автомобиля на линию
@@ -63,6 +107,23 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// Название события (для группировки)
 			/// </summary>
 			public string CarEventTypes { get; set; }
+
+			private static AreaOfResponsibility? GetAreaOfResponsibilityByShortName(string shortName)
+			{
+				foreach(var value in Enum.GetValues(typeof(AreaOfResponsibility)).Cast<AreaOfResponsibility>())
+				{
+					var member = typeof(AreaOfResponsibility).GetMember(value.ToString()).FirstOrDefault();
+					if(member != null)
+					{
+						var displayAttr = member.GetCustomAttribute<DisplayAttribute>();
+						if(displayAttr != null && displayAttr.ShortName == shortName)
+						{
+							return value;
+						}
+					}
+				}
+				return null;
+			}
 		}
 	}
 }
