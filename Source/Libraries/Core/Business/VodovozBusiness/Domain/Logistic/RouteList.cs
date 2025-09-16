@@ -1826,10 +1826,12 @@ namespace Vodovoz.Domain.Logistic
 			{
 				canSaveRouteListWithoutOrders = (bool)validationContext.Items[Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders];
 			}
-			
-			if(validationContext.Items.ContainsKey("NewStatus")) {
+
+			if(validationContext.Items.ContainsKey("NewStatus"))
+			{
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				switch(newStatus) {
+				switch(newStatus)
+				{
 					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
 					case RouteListStatus.InLoading:
@@ -1845,7 +1847,8 @@ namespace Vodovoz.Domain.Logistic
 							ignoreReceiptsInOrders = new List<int>();
 						}
 
-						foreach(var address in Addresses) {
+						foreach(var address in Addresses)
+						{
 							var validator = ServicesConfig.ValidationService;
 							var orderValidationContext = new ValidationContext(
 								address.Order,
@@ -1873,17 +1876,26 @@ namespace Vodovoz.Domain.Logistic
 
 								return null;
 							});
-								
+
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
 							{
 								yield return result;
 							}
+
+
 						}
+
 						break;
 					case RouteListStatus.EnRoute: break;
 					case RouteListStatus.OnClosing: break;
+				}
+
+				if(newStatus == RouteListStatus.New && ObservableAddresses.Count == 0 && !canSaveRouteListWithoutOrders)
+				{
+					yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
+						new[] { nameof(ObservableAddresses) });
 				}
 			}
 
@@ -2002,11 +2014,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(ConfirmedDistance) });
 			}
 
-			if(ObservableAddresses.Count == 0 && !canSaveRouteListWithoutOrders)
-			{
-				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения", 
-						new[] { nameof(ObservableAddresses) });
-			}
+			
 		}
 
 		public static string ValidationKeyIgnoreReceiptsForOrders => nameof(ValidationKeyIgnoreReceiptsForOrders);
