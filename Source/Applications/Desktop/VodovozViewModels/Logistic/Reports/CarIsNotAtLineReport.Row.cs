@@ -43,6 +43,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			public string TimeAndBreakdownReason { get; set; }
 
 			/// <summary>
+			/// Зона ответственности
+			/// </summary>
+			public string AreaOfResponsibility { get; set; }
+
+			/// <summary>
 			/// Планируемая дата выпуска автомобиля на линию
 			/// </summary>
 			public DateTime? PlannedReturnToLineDate { get; set; }

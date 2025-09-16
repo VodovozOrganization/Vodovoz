@@ -26,6 +26,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(node => node.IsAttachWriteOffDocument)
 					.Editing(false)
 					.XAlign(0f)
+				.AddColumn("Зона\nответственности")
+					.AddEnumRenderer(node => node.AreaOfResponsibility)
 				.Finish();
 	}
 }

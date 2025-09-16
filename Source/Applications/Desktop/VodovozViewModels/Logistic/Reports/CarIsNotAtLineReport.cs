@@ -225,13 +225,27 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						CarType = car.CarModel.Name,
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
-						TimeAndBreakdownReason = "Простой",
+						TimeAndBreakdownReason = "Простой без водителя",
+						AreaOfResponsibility = "Простой",
 						PlannedReturnToLineDate = null,
-						PlannedReturnToLineDateAndReschedulingReason = "",
+						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
 
 					continue;
 				}
+
+				var areas = carEventGroup
+					.Select(ce => ce.CarEventType.AreaOfResponsibility)
+					.Distinct()
+					.ToList();
+
+				string areaOfResponsibility;
+				if(areas.Count == 1)
+					areaOfResponsibility = areas.First().ToString();
+				else if(areas.Count > 1)
+					areaOfResponsibility = string.Join(", ", areas.Select(a => a.ToString()));
+				else
+					areaOfResponsibility = "Простой";
 
 				rowsHavingEvents.Add(new Row
 				{
@@ -242,6 +256,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
+					AreaOfResponsibility = areaOfResponsibility,
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
