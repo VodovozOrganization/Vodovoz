@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Транспортный отдел
 		/// </summary>
-		[Display(Name = "Транспортный отдел", ShortName = "ТРо")]
+		[Display(Name = "Транспортный отдел", ShortName = "ТрО")]
 		TransportDepartment
 	}
 }
