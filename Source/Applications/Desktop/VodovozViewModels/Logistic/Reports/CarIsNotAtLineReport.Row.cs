@@ -57,7 +57,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					if(!_areaOfResponsibility.HasValue)
 					{
-						return "Простой1";
+						return "Простой";
 					}
 
 					var member = typeof(AreaOfResponsibility).GetMember(_areaOfResponsibility.Value.ToString()).FirstOrDefault();

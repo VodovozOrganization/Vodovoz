@@ -103,6 +103,12 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult($"Превышена максимально допустимая длина сокращённого названия ({ShortName.Length}/255).",
 					new[] { nameof(ShortName) });
 			}
+
+			if(AreaOfResponsibility == null && Id == 0)
+			{
+				yield return new ValidationResult($"Зона ответственности должна быть заполнена.",
+					new[] { nameof(AreaOfResponsibility) });
+			}
 		}
 
 		#endregion
