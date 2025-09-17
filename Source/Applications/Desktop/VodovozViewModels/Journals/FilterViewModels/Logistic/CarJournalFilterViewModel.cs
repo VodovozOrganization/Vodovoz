@@ -33,6 +33,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Counterparty _insurer;
 		private bool _isOnlyCarsWithoutCarOwner;
 		private bool _isOnlyCarsWithoutInsurer;
+		private bool _isUsedInDelivery;
+		private bool _isNotUsedInDelivery;
 		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
 		public CarJournalFilterViewModel(
@@ -46,6 +48,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(carModelViewModelBuilder));
 			_organizationModelViewModelBuilder = organizationModelViewModelBuilder
 				?? throw new ArgumentNullException(nameof(organizationModelViewModelBuilder));
+
+			_isUsedInDelivery = true;
+			_isNotUsedInDelivery = true;
 		}
 
 		public CarJournalViewModel Journal
@@ -159,6 +164,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					Insurer = null;
 				}
 			}
+		}
+
+		public bool IsUsedInDelivery
+		{
+			get => _isUsedInDelivery;
+			set => UpdateFilterField(ref _isUsedInDelivery, value);
+		}
+
+		public bool IsNotUsedInDelivery
+		{
+			get => _isNotUsedInDelivery;
+			set => UpdateFilterField(ref _isNotUsedInDelivery, value);
 		}
 
 		public bool CanChangeIsArchive
