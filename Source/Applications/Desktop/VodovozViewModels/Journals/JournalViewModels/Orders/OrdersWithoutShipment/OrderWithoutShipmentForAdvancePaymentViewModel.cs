@@ -69,6 +69,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
+		private bool _canSetOrganization = true;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -167,6 +168,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		}
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
+
+		public bool CanSetOrganization
+		{
+			get => _canSetOrganization;
+			set => SetField(ref _canSetOrganization, value);
+		}
 
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		

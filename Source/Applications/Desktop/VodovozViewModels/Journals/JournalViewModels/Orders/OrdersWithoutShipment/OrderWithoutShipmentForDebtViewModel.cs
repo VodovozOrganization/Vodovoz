@@ -46,7 +46,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
 		private Organization _organization;
-		
+		private bool _canSetOrganization = true;
+
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public OrderWithoutShipmentForDebtViewModel(
@@ -171,6 +172,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
+
+		public bool CanSetOrganization
+		{
+			get => _canSetOrganization;
+			set => SetField(ref _canSetOrganization, value);
+		}
 
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
