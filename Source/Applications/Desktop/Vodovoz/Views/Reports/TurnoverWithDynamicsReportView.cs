@@ -58,6 +58,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
+			datePeriodPicker.PeriodChangedByUser += OnDatePeriodChangedByUser;
 
 			yenumSlice.ItemsEnum = typeof(DateTimeSliceType);
 			yenumSlice.ShowSpecialStateAll = false;
@@ -109,6 +110,16 @@ namespace Vodovoz.ReportsParameters.Sales
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 
 			hpaned1.Position = 680;
+		}
+
+		private void OnDatePeriodChangedByUser(object sender, EventArgs e)
+		{
+			if((ViewModel.EndDate.HasValue && ViewModel.EndDate.Value.Date >= DateTime.Today)
+				|| (!ViewModel.EndDate.HasValue && ViewModel.StartDate.HasValue && ViewModel.StartDate.Value.Date <= DateTime.Today))
+			{
+				ViewModel.ShowWarning("Внимание! В отчет попадают заказы, которые добавлены в МЛ." +
+					" В текущем дне информация меняется в онлайне и некорректна для статистики");
+			}
 		}
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
@@ -389,6 +400,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
+			datePeriodPicker.PeriodChangedByUser -= OnDatePeriodChangedByUser;
 			base.Dispose();
 		}
 	}

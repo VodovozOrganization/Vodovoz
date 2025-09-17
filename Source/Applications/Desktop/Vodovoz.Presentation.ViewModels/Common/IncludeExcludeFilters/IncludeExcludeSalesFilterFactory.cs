@@ -100,7 +100,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				OrderStatus.OnTheWay,
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
-				OrderStatus.WaitForPayment,
 				OrderStatus.Closed
 			};
 
@@ -110,8 +109,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			
 			return includeExludeFiltersViewModel;
 		}
-
-		
 
 		public IncludeExludeFiltersViewModel CreateTurnoverOfWarehouseBalancesReportFilterViewModel(IUnitOfWork unitOfWork)
 		{

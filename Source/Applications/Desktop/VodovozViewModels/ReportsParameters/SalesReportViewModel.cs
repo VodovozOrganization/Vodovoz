@@ -171,6 +171,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
 			}
+			
+			additionalParams.Add("Только заказы в МЛ", "only_orders_from_route_lists");
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
@@ -281,7 +283,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				$"\t'{OrderStatus.Shipped.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.Closed.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' и заказ - самовывоз с оплатой после отгрузки.\n" +
 				"В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.\n" +
 				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\n\n" +
 				"<b>2.</b> Подсчет тары ведется следующим образом:\n" +
