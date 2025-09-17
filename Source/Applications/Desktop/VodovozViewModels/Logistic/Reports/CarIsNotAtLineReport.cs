@@ -226,7 +226,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 						TimeAndBreakdownReason = "Простой без водителя",
-						AreaOfResponsibility = null,
+						AreasOfResponsibility = null,
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
@@ -237,22 +237,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				var areas = carEventGroup
 					.Select(ce => ce.CarEventType.AreaOfResponsibility)
 					.Distinct()
+					.OrderBy(area => area)
 					.ToList();
-
-				AreaOfResponsibility? areaOfResponsibility;
-				if(areas.Count == 1)
-				{
-					areaOfResponsibility = areas.First();
-				}
-				else if(areas.Count > 1)
-				{
-					//areaOfResponsibility = string.Join(", ", areas.Select(a => a.ToString()));
-					areaOfResponsibility = null;
-				}
-				else
-				{
-					areaOfResponsibility = null;
-				}
 
 				rowsHavingEvents.Add(new Row
 				{
@@ -263,7 +249,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
-					AreaOfResponsibility = areaOfResponsibility,
+					AreasOfResponsibility = areas,
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
@@ -271,13 +257,13 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 			rows.AddRange(
 				rowsHavingEvents
-					.OrderBy(x => x.AreaOfResponsibility)
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
 					.ThenBy(x => x.CarEventTypes.First())
 					.ThenBy(x => x.DowntimeStartedAt)
 			);
 			rows.AddRange(
 				rowsWithoutEvents
-					.OrderBy(x => x.AreaOfResponsibility)
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
 					.ThenBy(x => x.DowntimeStartedAt)
 			);
 
@@ -319,13 +305,20 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				string.Join("\n", summaryByCarModel);
 
 			var summaryByArea = rows
-				.GroupBy(row => row.AreaOfResponsibilityShortName)
-				.Select(g =>
-					$"{(string.IsNullOrWhiteSpace(g.Key) ? "Без зоны ответственности" : g.Key)}\n" +
-					string.Join("\n", g
-						.GroupBy(x => x.CarEventTypes)
-						.Select(ev => $"{(string.IsNullOrWhiteSpace(ev.Key) ? "Простой" : ev.Key)}: {ev.Count()}"))
-					+ "\n"
+				.GroupBy(row => row.AreasOfResponsibilityShortNames)
+				.Select(areaGroup =>
+					$"{(string.IsNullOrWhiteSpace(areaGroup.Key) ? "Без зоны ответственности" : areaGroup.Key)}\n" +
+					string.Join("\n",
+						areaGroup
+							.GroupBy(row => row.CarEventTypes)
+							.Select(eventGroup =>
+								$"{(string.IsNullOrWhiteSpace(eventGroup.Key) ? "Простой без водителя" : eventGroup.Key)}\n" +
+								string.Join("\n",
+									eventGroup
+										.GroupBy(row => row.CarType)
+										.Select(carGroup => $"{carGroup.Key}: {carGroup.Count()}"))
+							)
+					) + "\n"
 				);
 
 			var eventsSummaryDetails =
