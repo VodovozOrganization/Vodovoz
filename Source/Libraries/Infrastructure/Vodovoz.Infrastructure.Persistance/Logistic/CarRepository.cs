@@ -303,7 +303,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
-				return carsQuery.List<Car>().Distinct().ToList();
+				return carsQuery.TransformUsing(Transformers.DistinctRootEntity).List<Car>();
 			},
 			cancellationToken);
 		}
