@@ -39,17 +39,8 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.IsAttachWriteOffDocument, w => w.Active)
 				.InitializeFromSource();
 
-			ycheckbuttonAreaOfResponsibility.Binding
-				.AddBinding(ViewModel, vm => vm.IsVisibleAreaOfResponsibility, w => w.Active)
-				.InitializeFromSource();
-
-			ylabelDepartment.Binding
-				.AddBinding(ViewModel, vm => vm.IsVisibleAreaOfResponsibility, w => w.Sensitive)
-				.InitializeFromSource();
-
 			yenumcomboboxAreaOfResponsibility.ItemsEnum = typeof(AreaOfResponsibility);
 			yenumcomboboxAreaOfResponsibility.Binding
-				.AddBinding(ViewModel, vm => vm.IsVisibleAreaOfResponsibility, w => w.Sensitive)
 				.AddBinding(ViewModel.Entity, e => e.AreaOfResponsibility, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 

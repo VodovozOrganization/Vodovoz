@@ -13,11 +13,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			TabName = "Вид события ТС";
 		}
-		private bool _isVisibleAreaOfResponsibility;
-		public bool IsVisibleAreaOfResponsibility
-		{
-			get => _isVisibleAreaOfResponsibility;
-			set => SetField(ref _isVisibleAreaOfResponsibility, value);
-		}
 	}
 }
