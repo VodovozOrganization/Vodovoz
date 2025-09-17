@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Employees
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private readonly IEmployeeService _employeeService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
@@ -47,6 +48,7 @@ namespace Vodovoz.ViewModels.Employees
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
+			IInteractiveService interactiveService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
@@ -61,6 +63,7 @@ namespace Vodovoz.ViewModels.Employees
 			}
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
@@ -154,7 +157,9 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanEditFineType => CanEdit;
 
-		public decimal Liters
+        public bool IsNew => Entity.Id == 0;
+
+        public decimal Liters
 		{
 			get => Entity.LitersOverspending;
 
@@ -199,9 +204,11 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void CalculateMoneyFromLiters()
 		{
-			if(Entity.ObservableItems.Count() > 1)
+			if(Entity.ObservableItems.Count() > 1 && IsFuelOverspendingFine)
 			{
-				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+				return;
 			}
 
 			if(RouteList != null)
@@ -260,7 +267,6 @@ namespace Vodovoz.ViewModels.Employees
 			{
 				FineItem item = null;
 				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
-				Entity.ObservableItems.Clear();
 
 				if(item != null)
 				{
@@ -427,10 +433,10 @@ namespace Vodovoz.ViewModels.Employees
 					};
 					TabParent.AddSlaveTab(this, employeeSelector);
 				},
-				() => Entity.RouteList == null && IsStandartFine
-			);
+				() => IsStandartFine && IsNew
+            );
 			AddFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
-			AddFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
+			AddFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit, x => x.IsNew);
 		}
 
 		#endregion AddFineItemCommand
@@ -443,14 +449,15 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			DeleteFineItemCommand = new DelegateCommand<FineItem>(
 				Entity.RemoveItem,
-				(item) => item != null && CanEdit && IsStandartFine && Entity.RouteList == null
-			);
+				(item) => item != null && CanEdit && IsStandartFine && IsNew
+            );
 			DeleteFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
-			DeleteFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
-		}
+			DeleteFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit, x => x.IsNew);
 
-		#endregion DeleteFineItemCommand
+        }
 
-		#endregion Commands
-	}
+        #endregion DeleteFineItemCommand
+
+        #endregion Commands
+    }
 }
