@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -49,30 +50,29 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Зона ответственности
 			/// </summary>
-			public AreaOfResponsibility? AreaOfResponsibility { get; set; }
+			public List<AreaOfResponsibility?> AreasOfResponsibility { get; set; } = new List<AreaOfResponsibility?>();
 
 			/// <summary>
 			/// Короткое имя зоны ответственности для отчёта/UI
 			/// </summary>
-			public string AreaOfResponsibilityShortName
+			public string AreasOfResponsibilityShortNames
 			{
 				get
 				{
-					if(!AreaOfResponsibility.HasValue)
-					{
-						return "Простой";
-					}
-
-					var member = typeof(AreaOfResponsibility).GetMember(AreaOfResponsibility.Value.ToString()).FirstOrDefault();
-					if(member != null)
-					{
-						var displayAttr = member.GetCustomAttribute<DisplayAttribute>();
-						if(displayAttr != null && !string.IsNullOrWhiteSpace(displayAttr.ShortName))
-						{
-							return displayAttr.ShortName;
-						}
-					}
-					return AreaOfResponsibility.Value.ToString();
+					return AreasOfResponsibility == null || !AreasOfResponsibility.Any()
+						? "Простой"
+						: string.Join(", ",
+						AreasOfResponsibility
+							.Where(a => a.HasValue)
+							.Select(a =>
+							{
+								var member = typeof(AreaOfResponsibility).GetMember(a.Value.ToString()).FirstOrDefault();
+								var displayAttr = member?.GetCustomAttribute<DisplayAttribute>();
+								return !string.IsNullOrWhiteSpace(displayAttr?.ShortName)
+									? displayAttr.ShortName
+									: a.Value.ToString();
+							})
+					);
 				}
 			}
 
