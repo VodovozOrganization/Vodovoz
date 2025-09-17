@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(ShortName) });
 			}
 
-			if(AreaOfResponsibility == null && Id == 0)
+			if(AreaOfResponsibility == null)
 			{
 				yield return new ValidationResult($"Зона ответственности должна быть заполнена.",
 					new[] { nameof(AreaOfResponsibility) });
