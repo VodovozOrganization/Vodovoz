@@ -49,18 +49,21 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// <summary>
 			/// Зона ответственности
 			/// </summary>
-			private AreaOfResponsibility? _areaOfResponsibility;
+			public AreaOfResponsibility? AreaOfResponsibility { get; set; }
 
-			public string AreaOfResponsibility
+			/// <summary>
+			/// Короткое имя зоны ответственности для отчёта/UI
+			/// </summary>
+			public string AreaOfResponsibilityShortName
 			{
 				get
 				{
-					if(!_areaOfResponsibility.HasValue)
+					if(!AreaOfResponsibility.HasValue)
 					{
 						return "Простой";
 					}
 
-					var member = typeof(AreaOfResponsibility).GetMember(_areaOfResponsibility.Value.ToString()).FirstOrDefault();
+					var member = typeof(AreaOfResponsibility).GetMember(AreaOfResponsibility.Value.ToString()).FirstOrDefault();
 					if(member != null)
 					{
 						var displayAttr = member.GetCustomAttribute<DisplayAttribute>();
@@ -69,25 +72,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 							return displayAttr.ShortName;
 						}
 					}
-					return _areaOfResponsibility.Value.ToString();
-				}
-				set
-				{
-					if(string.IsNullOrWhiteSpace(value))
-					{
-						_areaOfResponsibility = null;
-					}
-					else
-					{
-						if(Enum.TryParse<AreaOfResponsibility>(value, out var parsed))
-						{
-							_areaOfResponsibility = parsed;
-						}
-						else
-						{
-							_areaOfResponsibility = GetAreaOfResponsibilityByShortName(value);
-						}
-					}
+					return AreaOfResponsibility.Value.ToString();
 				}
 			}
 

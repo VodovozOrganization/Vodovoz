@@ -226,7 +226,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 						TimeAndBreakdownReason = "Простой без водителя",
-						AreaOfResponsibility = "Простой2",
+						AreaOfResponsibility = null,
 						PlannedReturnToLineDate = null,
 						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
@@ -239,18 +239,19 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					.Distinct()
 					.ToList();
 
-				string areaOfResponsibility;
+				AreaOfResponsibility? areaOfResponsibility;
 				if(areas.Count == 1)
 				{
-					areaOfResponsibility = areas.First().ToString();
+					areaOfResponsibility = areas.First();
 				}
 				else if(areas.Count > 1)
 				{
-					areaOfResponsibility = string.Join(", ", areas.Select(a => a.ToString()));
+					//areaOfResponsibility = string.Join(", ", areas.Select(a => a.ToString()));
+					areaOfResponsibility = null;
 				}
 				else
 				{
-					areaOfResponsibility = "Простой";
+					areaOfResponsibility = null;
 				}
 
 				rowsHavingEvents.Add(new Row
@@ -318,7 +319,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				string.Join("\n", summaryByCarModel);
 
 			var summaryByArea = rows
-				.GroupBy(row => row.AreaOfResponsibility)
+				.GroupBy(row => row.AreaOfResponsibilityShortName)
 				.Select(g =>
 					$"{(string.IsNullOrWhiteSpace(g.Key) ? "Без зоны ответственности" : g.Key)}\n" +
 					string.Join("\n", g
