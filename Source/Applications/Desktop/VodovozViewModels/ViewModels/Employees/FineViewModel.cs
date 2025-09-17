@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Gamma.Utilities;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,11 +15,13 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -35,6 +39,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
+		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
 
@@ -46,7 +51,8 @@ namespace Vodovoz.ViewModels.Employees
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			ICarEventRepository carEventRepository
+			ICarEventRepository carEventRepository,
+			IWagesMovementRepository wagesMovementRepository
 		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -58,6 +64,7 @@ namespace Vodovoz.ViewModels.Employees
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_wagesMovementRepository = wagesMovementRepository ?? throw new ArgumentNullException(nameof(wagesMovementRepository));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 
@@ -268,6 +275,42 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			var allowedCategories = new[] 
+			{
+				EmployeeCategory.driver,
+				EmployeeCategory.forwarder
+			};
+
+			var allowedStatuses = new[] 
+			{
+				EmployeeStatus.IsFired,
+				EmployeeStatus.OnCalculation 
+			};
+
+			foreach(var item in Entity.ObservableItems)
+			{
+				var employee = item.Employee;
+				if(employee == null)
+				{
+					continue;
+				}
+
+				if(employee.Category.IsIn(allowedCategories) 
+					&& employee.Status.IsIn(allowedStatuses))
+				{
+					decimal employeeBalance = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+
+					if(item.Money > employeeBalance)
+					{
+						CommonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							$"Баланс сотрудника {employee.GetPersonNameWithInitials()} меньше, чем сумма штрафа.",
+							"Невозможно выставить штраф"
+						);
+						return false;
+					}
+				}
+			}
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 
