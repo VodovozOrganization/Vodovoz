@@ -205,7 +205,7 @@ namespace Vodovoz.Logistic.Reports
 			columnsConfig
 				.AddColumn("Зона ответственности")
 				.HeaderAlignment(.5f)
-				.AddTextRenderer(x => x.AreaOfResponsibility)
+				.AddTextRenderer(x => x.AreaOfResponsibilityShortName)
 				.WrapWidth(200)
 				.WrapMode(WrapMode.Word)
 				.XAlign(0.5f)
