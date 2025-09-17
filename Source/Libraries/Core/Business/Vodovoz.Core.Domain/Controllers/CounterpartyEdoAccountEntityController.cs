@@ -21,17 +21,14 @@ namespace Vodovoz.Core.Domain.Controllers
 		{
 			if(!organizationId.HasValue)
 			{
-				return client.DefaultEdoAccount(_organizationSettings.VodovozOrganizationId);
+				return GetDefaultEmptyEdoAccount(client);
 			}
 			
 			var counterpartyEdoAccount = client.DefaultEdoAccount(organizationId.Value);
-
-			if(counterpartyEdoAccount is null)
-			{
-				counterpartyEdoAccount = client.DefaultEdoAccount(_organizationSettings.VodovozOrganizationId);
-			}
-			
-			return counterpartyEdoAccount;
+			return counterpartyEdoAccount ?? GetDefaultEmptyEdoAccount(client);
 		}
+		
+		private CounterpartyEdoAccountEntity GetDefaultEmptyEdoAccount(CounterpartyEntity client) =>
+			CounterpartyEdoAccountEntity.Create(client, null, null, 0, true);
 	}
 }

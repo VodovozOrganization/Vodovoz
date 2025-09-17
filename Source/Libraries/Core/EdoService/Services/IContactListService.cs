@@ -12,7 +12,7 @@ namespace EdoService.Library.Services
 		void SetOrganizationId(int organizationId);
 		Task<ContactList> CheckContragentAsync(IUnitOfWork uow, string inn, string kpp);
 		Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, DateTime dateLastRequest, ContactStateCode? status = null);
-		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, string inn, string kpp, string email, string edxClientId);
+		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, string inn, string kpp, string email, string edxClientId, string organizationName);
 		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, ContactList invitationsList);
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
 		Task<ResultDto> SendContactsForManualInvitationAsync(
