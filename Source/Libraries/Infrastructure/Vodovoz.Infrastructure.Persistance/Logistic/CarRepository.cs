@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
@@ -400,6 +399,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				);
 
 			return carVersionsData;
+		}
+
+		public void ArchiveCar(IUnitOfWork uow, Car car, ArchivingReason reason)
+		{
+			if(car == null)
+			{
+				throw new ArgumentNullException(nameof(car));
+			}
+
+			car.IsArchive = true;
+			car.ArchivingDate = DateTime.Now;
+			car.ArchivingReason = reason;
+			uow.Save(car);
 		}
 
 		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>
