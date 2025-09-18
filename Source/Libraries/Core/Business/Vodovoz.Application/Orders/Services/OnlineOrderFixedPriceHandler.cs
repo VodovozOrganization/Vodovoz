@@ -68,7 +68,7 @@ namespace Vodovoz.Application.Orders.Services
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPrice>>(Vodovoz.Errors.Orders.FixedPrice.NotFound);
+				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPrice>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);

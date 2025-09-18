@@ -111,7 +111,7 @@ namespace Vodovoz.Reports
 			int currentUserId = commonServices.UserService.CurrentUserId;
 
 			_canGenerateCashReportsForOrganisations =
-				commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Cash.CanGenerateCashReportsForOrganizations, currentUserId);
+				commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CanGenerateCashReportsForOrganizations, currentUserId);
 
 			checkOrganisations.Visible = _canGenerateCashReportsForOrganisations;
 			checkOrganisations.Toggled += CheckOrganisationsToggled;

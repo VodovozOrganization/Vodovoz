@@ -5,7 +5,7 @@
     <UserSecretsId>dotnet-EdoAutoSendReceiveWorker-ab40520d-8982-4afd-897b-2241de5533fa</UserSecretsId>
     <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..</DockerfileContext>
+    <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>

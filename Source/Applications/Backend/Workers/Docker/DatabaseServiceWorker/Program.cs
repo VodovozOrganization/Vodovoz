@@ -16,6 +16,7 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
 using Vodovoz.Zabbix.Sender;
+using ExportTo1c.Library;
 
 namespace DatabaseServiceWorker
 {
@@ -76,6 +77,7 @@ namespace DatabaseServiceWorker
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
 
 						.AddHostedService<ExportTo1cWorker>()
+						.AddExportTo1c()
 						.ConfigureExportTo1cWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cWorker))
 

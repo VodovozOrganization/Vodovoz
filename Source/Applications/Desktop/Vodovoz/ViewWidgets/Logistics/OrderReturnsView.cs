@@ -182,13 +182,13 @@ namespace Vodovoz
 			}
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canEditPrices = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteListAndSelfDelivery);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditPriceDiscountFromRouteListAndSelfDelivery);
 
 			_canEditOrderAfterRecieptCreated = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanChangeOrderAfterRecieptCreated);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanChangeOrderAfterRecieptCreated);
 
 			Build();
 
@@ -701,7 +701,7 @@ namespace Vodovoz
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+					Errors.Orders.OrderErrors.PaidCashlessOrderClientReplacementError.Message);
 
 				e.CanChange = false;
 				return;

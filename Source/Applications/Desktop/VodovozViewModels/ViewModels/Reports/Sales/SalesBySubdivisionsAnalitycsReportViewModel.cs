@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}

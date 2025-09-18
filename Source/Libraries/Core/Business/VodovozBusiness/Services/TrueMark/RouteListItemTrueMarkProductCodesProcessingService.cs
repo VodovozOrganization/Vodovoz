@@ -14,7 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace VodovozBusiness.Services.TrueMark
 {

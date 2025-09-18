@@ -303,7 +303,7 @@ namespace Vodovoz
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+						Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

@@ -144,7 +144,7 @@ namespace Vodovoz
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
 			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
-			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.IsLogistician);
+			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 			LogisticanEditing = IsUserLogist && AllEditing;
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
@@ -254,10 +254,10 @@ namespace Vodovoz
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
 			&& IsUserLogist
-			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanReturnRouteListToEnRouteStatus);
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReturnRouteListToEnRouteStatus);
 
 		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
-			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime)
+			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts { get; }
@@ -573,7 +573,7 @@ namespace Vodovoz
 			if(newStatus == RouteListItemStatus.Completed
 				&& order.IsOrderContainsIsAccountableInTrueMarkItems
 				&& !_currentPermissionService.ValidatePresetPermission(
-				   Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				   Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
 			{
 				int requiredCodesCount = _trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
 
@@ -640,7 +640,7 @@ namespace Vodovoz
 					ImportanceLevel.Error,
 					string.Join(", ",
 					result.Errors
-					.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+					.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 					.Select(x => x.Message))
 					);
 			}
@@ -777,7 +777,7 @@ namespace Vodovoz
 
 		protected void ChangeDeliveryTimeHandler()
 		{
-			if(_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanChangeDeliveryTime))
+			if(_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeDeliveryTime))
 			{
 				if(SelectedRouteListAddresses.Count() != 1)
 				{

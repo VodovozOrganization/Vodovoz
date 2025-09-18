@@ -147,7 +147,7 @@ namespace EdoService.Library
 			{
 				if(_successfulEdoStatuses.Contains(edoContainer.EdoDocFlowStatus))
 				{
-					errors.Add(Vodovoz.Errors.Edo.Edo.CreateAlreadySuccefullSended(edoContainer));
+					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(edoContainer));
 				}
 			}
 
@@ -165,7 +165,7 @@ namespace EdoService.Library
 
 			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
 			{
-				errors.Add(Vodovoz.Errors.Edo.Edo.CreateAlreadyPaidUpd(order.Id, type));
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
 			}
 
 			if(errors.Any())

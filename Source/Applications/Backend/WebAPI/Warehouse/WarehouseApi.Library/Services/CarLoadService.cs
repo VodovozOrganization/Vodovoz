@@ -29,7 +29,7 @@ using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
-using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
 namespace WarehouseApi.Library.Services
@@ -333,7 +333,7 @@ namespace WarehouseApi.Library.Services
 					&& (trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
 					|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
 			{
-				var error = VodovozBusiness.Errors.TrueMark.TrueMarkService.AggregationCodeAddError;
+				var error = VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.AggregationCodeAddError;
 
 				var result = Result.Failure<AddOrderCodeResponse>(error);
 
@@ -587,7 +587,7 @@ namespace WarehouseApi.Library.Services
 				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
 			{
 				var error = VodovozBusiness.Errors.TrueMark
-					.TrueMarkService.AggregationCodeChangeError;
+					.TrueMarkServiceErrors.AggregationCodeChangeError;
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
 				{
@@ -603,7 +603,7 @@ namespace WarehouseApi.Library.Services
 				groupCode => groupCode.ParentTransportCodeId != null || groupCode.ParentWaterGroupCodeId != null,
 				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
 			{
-				var error = VodovozBusiness.Errors.TrueMark.TrueMarkService.AggregationCodeAddError;
+				var error = VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.AggregationCodeAddError;
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
 				{
@@ -1121,7 +1121,7 @@ namespace WarehouseApi.Library.Services
 
 			if(codeToRemove is null)
 			{
-				return Result.Failure(VodovozBusiness.Errors.TrueMark.TrueMarkService.MissingTrueMarkCodeToDelete);
+				return Result.Failure(VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.MissingTrueMarkCodeToDelete);
 			}
 
 			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);

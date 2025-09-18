@@ -10,5 +10,6 @@ namespace Vodovoz.EntityRepositories.Orders
 	{
 		IEnumerable<OrderDto> GetCounterpartyOnlineOrdersWithoutOrder(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		OnlineOrder GetOnlineOrderByExternalId(IUnitOfWork uow, Guid externalId);
+		IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null);
 	}
 }

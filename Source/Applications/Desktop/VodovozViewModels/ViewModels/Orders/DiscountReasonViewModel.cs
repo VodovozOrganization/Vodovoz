@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private void SetPermissions()
 		{
 			CanEditPromoCode = CommonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Permissions.DiscountReason.CanEditPromoCode)
+				Vodovoz.Permissions.DiscountReasonPermissions.CanEditPromoCode)
 				&& CanEditDiscountReason;
 		}
 		

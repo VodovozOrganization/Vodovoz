@@ -212,7 +212,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 				return PayoutRequestUserRole.Financier;
 			}
 
-			if(CheckRole(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier, userId))
+			if(CheckRole(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier, userId))
 			{
 				return PayoutRequestUserRole.Cashier;
 			}

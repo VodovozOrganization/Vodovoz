@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 

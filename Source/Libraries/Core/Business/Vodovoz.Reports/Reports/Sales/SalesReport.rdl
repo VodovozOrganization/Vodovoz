@@ -534,8 +534,10 @@
     T.nomen_group_level_1_id,
     T.nomen_group_level_2_id,
     T.nomen_group_level_3_id,
+    sales_manager_name,
     counterparty_classification,
     promotional_set
+   
 FROM
     (SELECT
          counterparty.name as counterparty,
@@ -551,6 +553,7 @@ FROM
          cst.name AS counterparty_subtype,
          cst.id AS counterparty_subtype_id,
          org.name AS organization,
+         counterparty.sales_manager_id as sales_manager_id,
          delivery_points.compiled_address as delivery_point,
          orders.id as order_id,
          CASE WHEN orders.payment_type = 'Cash' THEN "Наличная"
@@ -594,7 +597,8 @@ FROM
          IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
          IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
          IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
-         IFNULL(ps.name, ' Без промонабора')  as promotional_set
+         IFNULL(ps.name, ' Без промонабора')  as promotional_set,
+         IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name
          
      FROM
          order_items
@@ -619,9 +623,11 @@ FROM
              LEFT JOIN
          organizations org ON counterparty_contract.organization_id = org.id
              LEFT JOIN
-         employees ON orders.author_employee_id = employees.id
+         employees e ON orders.author_employee_id = e.id
+             LEFT JOIN
+         employees e_manager ON counterparty.sales_manager_id = e_manager.id
          	 LEFT JOIN
-         subdivisions s ON employees.subdivision_id = s.id       	 
+         subdivisions s ON e.subdivision_id = s.id       	 
              LEFT JOIN
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
@@ -730,8 +736,8 @@ FROM
 				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
          )
        AND (
-             (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
-				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
+             (0 IN (@Subdivision_include) OR (e.subdivision_id IN (@Subdivision_include)))
+				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
          )
        AND (
              (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
@@ -1101,6 +1107,10 @@ GROUP BY T.order_items_id
         </Field>
         <Field Name="promotional_set">
           <DataField>promotional_set</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="sales_manager_name">
+          <DataField>sales_manager_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

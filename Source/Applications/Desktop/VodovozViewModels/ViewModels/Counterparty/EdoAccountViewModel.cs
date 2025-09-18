@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
@@ -36,6 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IValidator _validator;
 		private readonly ValidationContext _counterpartyValidationContext;
 
+		private int _organizationId => Entity.OrganizationId ?? 0;
+
 		public EdoAccountViewModel(
 			ILogger<EdoAccountViewModel> logger,
 			IUnitOfWork uow,
@@ -53,7 +56,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_contactListService = contactListService ?? throw new ArgumentNullException(nameof(contactListService));
-			_contactListService.SetOrganizationId(Entity.OrganizationId ?? 0);
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -67,10 +69,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				.CreateNewValidationContext(Counterparty);
 
 			Initialize();
+			Entity.Counterparty.PropertyChanged += OnCounterpartyPropertyChanged;
 		}
 
 		public event Action RefreshEdoLightsMatrixAction;
 		public event Action<CounterpartyEdoAccount> RemovedEdoAccountAction;
+		public Action UpdateOperators { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; private set; }
 		public ITdiTab ParentTab { get; private set; }
 		public ILifetimeScope Scope { get; private set; }
@@ -167,6 +171,17 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			SetPropertyChangeRelations();
 		}
+		
+		private void OnCounterpartyPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Counterparty.PersonType) || e.PropertyName == nameof(Counterparty.ReasonForLeaving))
+			{
+				OnPropertyChanged(nameof(CanCheckClientInTaxcom));
+				OnPropertyChanged(nameof(CanEditPersonalAccountCodeInEdo));
+				OnPropertyChanged(nameof(CanSelectRegisteredEdoAccount));
+				OnPropertyChanged(nameof(CanChangeOperatorEdo));
+			}
+		}
 
 		private void SetPropertyChangeRelations()
 		{
@@ -188,22 +203,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				() => CanCheckConsentForEdo,
 				() => CanCopyFromEdoOperatorWithAccount
 			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.PersonType,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
-			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.ReasonForLeaving,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
-			);
 		}
 
 		private void CheckClientInTaxcom()
@@ -212,7 +211,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
-				contactResult = _contactListService.CheckContragentAsync(UoW, Counterparty.INN, Counterparty.KPP).Result;
+				contactResult = _contactListService.CheckContragentAsync(UoW, _organizationId, Counterparty.INN, Counterparty.KPP).Result;
 			}
 			catch(Exception ex)
 			{
@@ -256,10 +255,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			foreach(var edoOperator in contactResult.Contacts)
 			{
-				var isNotExists = Counterparty.CounterpartyEdoAccounts
+				var isNotExistsCounterpartyEdoAccount = Counterparty.CounterpartyEdoAccounts
 					.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
 
-				if(isNotExists)
+				if(isNotExistsCounterpartyEdoAccount)
 				{
 					Counterparty.CounterpartyEdoAccounts.Add(new CounterpartyEdoAccount
 					{
@@ -267,13 +266,25 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
 						Counterparty = Counterparty
 					});
+				}
 
-					//specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
+				var isNotExistsCounterpartyEdoOperator = Counterparty.CounterpartyEdoOperators
+						.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
+
+				if(isNotExistsCounterpartyEdoOperator)
+				{
+					Counterparty.CounterpartyEdoOperators.Add(new CounterpartyEdoOperator
+					{
+						PersonalAccountIdInEdo = edoOperator.EdxClientId,
+						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
+						Counterparty = Counterparty
+					});										
 				}
 			}
 
 			Entity.EdoOperator = null;
 			Entity.PersonalAccountIdInEdo = null;
+			UpdateOperators?.Invoke();
 
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 				"У контрагента найдено несколько операторов, выберите нужный из списка");
@@ -308,8 +319,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			try
 			{
 				contactListItem = _contactListService
-					.GetLastChangeOnDate(UoW, checkDate, Counterparty.INN, Counterparty.KPP)
+					.GetLastChangeOnDate(UoW, _organizationId, checkDate, Counterparty.INN, Counterparty.KPP)
 					.Result;
+
+				return;
 			}
 			catch(Exception ex)
 			{
@@ -363,6 +376,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
+			UoW.Save(Entity.Counterparty);
+			UoW.Save(Entity);
+			UoW.Commit();
+
 			try
 			{
 				if(isManual)
@@ -378,6 +395,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					resultMessage = _contactListService
 						.SendContactsForManualInvitationAsync(
 							UoW,
+							_organizationId,
 							Counterparty.INN,
 							Counterparty.KPP,
 							organization.Name,
@@ -390,7 +408,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				else
 				{
 					resultMessage = _contactListService
-						.SendContactsAsync(UoW, Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
+						.SendContactsAsync(UoW, _organizationId, Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
 						.Result;
 				}
 			}
@@ -470,6 +488,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			Scope = null;
 			ParentTab = null;
+			Entity.Counterparty.PropertyChanged -= OnCounterpartyPropertyChanged;
 		}
 	}
 }

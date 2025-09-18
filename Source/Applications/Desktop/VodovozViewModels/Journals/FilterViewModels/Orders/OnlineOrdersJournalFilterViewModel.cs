@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
-			StartDate = DateTime.Today.AddDays(-1);
+			StartDate = DateTime.Today.AddMonths(-1);
 			EndDate = DateTime.Today.AddDays(7);
 		}
 

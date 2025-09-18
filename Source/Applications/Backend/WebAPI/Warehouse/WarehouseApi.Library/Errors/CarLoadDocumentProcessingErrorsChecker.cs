@@ -16,11 +16,12 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
-using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace WarehouseApi.Library.Errors
 {
@@ -148,9 +149,12 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(carLoadDocument);
+
 			var isNotAllCodesAdded = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
+					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
@@ -163,6 +167,27 @@ namespace WarehouseApi.Library.Errors
 			}
 
 			return Result.Success();
+		}
+
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(CarLoadDocumentEntity carLoadDocument)
+		{
+			var ordersInDocument = carLoadDocument.Items
+				.Where(x => x.OrderId != null)
+				.Select(x => x.OrderId.Value)
+				.Distinct()
+				.ToList();
+
+			var undeliveredStatuses = new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+			
+			var cancelledOrders =
+				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
+
+			return cancelledOrders.Select(o => o.Id);
 		}
 
 		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)

@@ -83,12 +83,15 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 			ybuttonGetReasonFromTemplate.Clicked += (sender, e) => ViewModel.SelectReasonTemplateCommand.Execute();
 
+			ybuttonAdd.Binding
+				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
+				.InitializeFromSource();
 			ybuttonAdd.Clicked += (sender, e) => ViewModel.AddFineItemCommand.Execute();
-			ViewModel.AddFineItemCommand.CanExecuteChanged += (sender, e) => ybuttonAdd.Sensitive = ViewModel.AddFineItemCommand.CanExecute();
 
+			ybuttonRemove.Binding
+				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
+				.InitializeFromSource();
 			ybuttonRemove.Clicked += (sender, e) => ViewModel.DeleteFineItemCommand.Execute(GetSelectedFineItem());
-			ViewModel.DeleteFineItemCommand.CanExecuteChanged += (sender, e) =>
-				ybuttonRemove.Sensitive = ViewModel.DeleteFineItemCommand.CanExecute(GetSelectedFineItem());
 
 			ytreeviewItems.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.FullName)

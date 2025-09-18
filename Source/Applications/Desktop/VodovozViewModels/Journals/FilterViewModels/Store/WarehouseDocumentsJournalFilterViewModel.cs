@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		public bool IsUserHasAccessNotOnlyToWarehouseAndComplaints =>
-			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+			!_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 			|| _commonServices.UserService.GetCurrentUser().IsAdmin;
 
 		public bool CanSelectMovementStatus => DocumentType == DocumentTypeEnum.MovementDocument;

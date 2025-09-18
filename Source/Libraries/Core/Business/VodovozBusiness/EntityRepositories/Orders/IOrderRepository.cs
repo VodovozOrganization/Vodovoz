@@ -163,6 +163,13 @@ namespace Vodovoz.EntityRepositories.Orders
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 		IEnumerable<Payment> GetOrderPayments(IUnitOfWork uow, int orderId);
+		/// <summary>
+		/// Получение списка связанных строк заказа
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		IList<OrderItem> GetOrderItems(IUnitOfWork uow, int orderId);
 		IList<Order> GetOrdersForTrueMark(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);

@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.Finish();
 			
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
-			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
@@ -291,6 +291,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 				    .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryAddress)
 				    .Select(() => contractOrganizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
@@ -349,7 +350,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if(edoValidateResult.IsFailure)
 			{
-				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
 					&& !CommonServices.InteractiveService.Question(
 						"Вы уверены, что хотите отправить дубль?\n" +
 						string.Join("\n", errorMessages),

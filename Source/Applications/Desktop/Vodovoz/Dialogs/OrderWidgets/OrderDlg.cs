@@ -28,6 +28,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Control.EEVM;
@@ -89,6 +90,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
@@ -229,8 +231,11 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
+		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -308,7 +313,11 @@ namespace Vodovoz
 		private Result _lastSaveResult;
 
 		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
-		public bool IsWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
+		public bool IsWaitUntilActive => Entity.OrderStatus.IsIn(
+			OrderStatus.Accepted, 
+			OrderStatus.OnLoading, 
+			OrderStatus.InTravelList, 
+			OrderStatus.OnTheWay)
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
@@ -1178,6 +1187,8 @@ namespace Vodovoz
 
 			_lastWaitUntilTime = Entity.WaitUntilTime;
 
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
+
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
@@ -1187,6 +1198,24 @@ namespace Vodovoz
 			RefreshBottlesDebtNotifier();
 
 			RefreshDebtorDebtNotifier();
+		}
+
+		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
+		{
+			if(!IsWaitUntilActive)
+			{
+				return;
+			}
+
+			Entity.WaitUntilTime = timepickerWaitUntil.TimeOrNull;
+			if(Save())
+			{
+				MessageDialogHelper.RunInfoDialog("Поле \"Ожидает до\" успешно сохранено.");
+			}
+			else
+			{
+				MessageDialogHelper.RunWarningDialog("Не удалось сохранить");
+			}
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -1210,7 +1239,7 @@ namespace Vodovoz
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+					Errors.Orders.OrderErrors.PaidCashlessOrderClientReplacementError.Message);
 
 				e.CanChange = false;
 				return;
@@ -1235,7 +1264,7 @@ namespace Vodovoz
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
-				Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				Vodovoz.Core.Domain.Permissions.OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
@@ -1246,9 +1275,9 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
-			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditGoodsInRouteList);
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -1316,11 +1345,28 @@ namespace Vodovoz
 							try
 							{
 								var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+								var organizations = _organizationRepository.GetOrganizations(UoW);
+								var orgDebts = new StringBuilder();
+
+								foreach(var org in organizations)
+								{
+									var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+									if(orgDebt > 0)
+									{
+										orgDebts.AppendLine($"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{org.FullName}: {orgDebt} руб.</span>");
+									}
+								}
 								if(totalDebt > 0)
 								{
+									var message = $"У клиента имеется задолженность в размере {totalDebt} руб.";
+									if(orgDebts.Length > 0)
+									{
+										message += "\nЗадолженность по следующим организациям:\n" + orgDebts.ToString();
+									}
+									message += "Пожалуйста, уведомите клиента о задолженности";
 									_interactiveService.ShowMessage(
 										ImportanceLevel.Warning,
-										$"У клиента имеется задолженность в размере {totalDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+										message,
 										"Уведомление о задолженности клиента");
 								}
 							}
@@ -1505,7 +1551,7 @@ namespace Vodovoz
 
 			if(isValidateFailure)
 			{
-				if(edoValidateResult.Any(error => error.Code == Errors.Edo.Edo.AlreadyPaidUpd || error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
+				if(edoValidateResult.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd || error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
 					&& !ServicesConfig.InteractiveService.Question(
 						"Вы уверены, что хотите отправить повторно?\n" +
 						string.Join("\n - ", errorMessages),
@@ -2438,7 +2484,7 @@ namespace Vodovoz
 
 				if(!Validate(validationContext))
 				{
-					_lastSaveResult = Result.Failure(Errors.Orders.Order.Validation);
+					_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Validation);
 
 					return false;
 				}
@@ -2500,7 +2546,7 @@ namespace Vodovoz
 			}
 			catch(Exception e)
 			{
-				_lastSaveResult = Result.Failure(Errors.Orders.Order.Save);
+				_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Save);
 
 				_logger.Log(LogLevel.Error, e);
 
@@ -2613,7 +2659,7 @@ namespace Vodovoz
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					return Result.Failure(Errors.Orders.Order.AcceptException);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptException);
 				}
 			}
 		}
@@ -2622,7 +2668,7 @@ namespace Vodovoz
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return Result.Failure(Errors.Orders.Order.CantEdit);
+				return Result.Failure(Errors.Orders.OrderErrors.CantEdit);
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
@@ -2630,7 +2676,7 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return Result.Failure(Errors.Orders.Order.Accept.HasNoDefaultWater);
+				return Result.Failure(Errors.Orders.OrderErrors.Accept.HasNoDefaultWater);
 			}
 
 			var validationResult = ValidateAndFormOrder();
@@ -2642,7 +2688,7 @@ namespace Vodovoz
 
 			if(!CheckCertificates(canSaveFromHere: true))
 			{
-				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
+				return Result.Failure(Errors.Orders.OrderErrors.HasNoValidCertificates);
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
@@ -2665,7 +2711,7 @@ namespace Vodovoz
 					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +
 					"Хотите продолжить сохранение?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2673,13 +2719,13 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.Id, DeliveryPoint, phones))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 			if(hasPromoSetForNewClients && _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
 				UoW, Entity.SelfDelivery, Counterparty, DeliveryPoint))
 			{
-				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
+				return Result.Failure(Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			PrepareSendBillInformation();
@@ -2689,14 +2735,14 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 			}
 
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
 
 			if(fastDeliveryResult.IsFailure)
 			{
-				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDelivery.RouteListForFastDeliveryIsMissing)))
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryIsMissing)))
 				{
 					var fastDeliveryVerificationViewModel =
 						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
@@ -2732,10 +2778,10 @@ namespace Vodovoz
 						return Result.Success();
 					}
 
-					return Result.Failure(Errors.Orders.Order.Save);
+					return Result.Failure(Errors.Orders.OrderErrors.Save);
 				}
 
-				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 			}
 
 			if(PaymentType == PaymentType.Cashless)
@@ -2746,7 +2792,7 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
+					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2772,7 +2818,7 @@ namespace Vodovoz
 					" И т.к. он содержит позиции, продаваемые от разных организаций," +
 					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
 
-				return (false, Result.Failure(Errors.Orders.Order.UnableToPartitionOrderWithBigDeposit));
+				return (false, Result.Failure(Errors.Orders.OrderErrors.UnableToPartitionOrderWithBigDeposit));
 			}
 
 			var partsOrder = orderPartsByOrganizations.OrderParts.Count();
@@ -2794,7 +2840,7 @@ namespace Vodovoz
 					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
 					" Продолжаем?"))
 				{
-					return (false, Result.Failure(Errors.Orders.Order.AcceptAbortedByUser));
+					return (false, Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser));
 				}
 
 				SplitOrder(orderPartsByOrganizations);
@@ -2879,12 +2925,12 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.Order.AcceptException))
+			if(errors.All(x => x == Errors.Orders.OrderErrors.AcceptException))
 			{
 				return;
 			}
 
-			if(errors.All(x => x != Errors.Orders.Order.AcceptException))
+			if(errors.All(x => x != Errors.Orders.OrderErrors.AcceptException))
 			{
 				EditOrder();
 			}
@@ -2894,8 +2940,8 @@ namespace Vodovoz
 
 		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.Order.Validation
-				|| x == Errors.Orders.Order.AcceptAbortedByUser))
+			if(errors.All(x => x == Errors.Orders.OrderErrors.Validation
+				|| x == Errors.Orders.OrderErrors.AcceptAbortedByUser))
 			{
 				return;
 			}
@@ -2928,7 +2974,7 @@ namespace Vodovoz
 
 			if(!Validate(validationContext))
 			{
-				return Result.Failure(Errors.Orders.Order.Validation);
+				return Result.Failure(Errors.Orders.OrderErrors.Validation);
 			}
 
 			if(DeliveryPoint != null && !DeliveryPoint.CalculateDistricts(UoW, _deliveryRepository).Any())
@@ -4266,7 +4312,7 @@ namespace Vodovoz
 						ImportanceLevel.Error,
 						string.Join(", ",
 						result.Errors
-						.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
+						.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 						.Select(x => x.Message))
 						);
 				}
@@ -4791,6 +4837,7 @@ namespace Vodovoz
 
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
 		}
 
 		private void ChangeOrderEditable(bool val)
@@ -4837,7 +4884,7 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
+				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
 				}
@@ -5108,13 +5155,18 @@ namespace Vodovoz
 		{
 			if(Counterparty is null)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
 
 			if(Counterparty.PaymentMethod != PaymentType
 				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{PaymentType.GetEnumTitle()}&gt;." +
 				$" У клиента по умолчанию установлено &lt;{Counterparty.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
+			if(!CheckDepositOrderCanBeFormed())
 			{
 				return;
 			}
@@ -5281,6 +5333,59 @@ namespace Vodovoz
 			ntbOrder.GetNthPage(1).Show();
 
 			ntbOrder.CurrentPage = 1;
+		}
+
+		private bool CheckDepositOrderCanBeFormed()
+		{
+			if(Entity.OrderItems == null ||
+				_currentPermissionService.ValidatePresetPermission(
+					Core.Domain.Permissions.OrderPermissions.CanFormOrderWithDepositWithoutPayment))
+			{
+				return true;
+			}
+
+			bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+				oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+				oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+			bool isCashless = Entity.PaymentType == PaymentType.Cashless;
+			bool isPaidAndOrderItemsMatch = false;
+
+			if(Order.Id != 0)
+			{
+				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				{
+					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var entityOrderItems = Entity.OrderItems
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
+					var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
+
+					isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
+						&& (!dbOrderItems.Except(entityOrderItems).Any()
+						&& !entityOrderItems.Except(dbOrderItems).Any()
+						|| entityOrderSum <= dbOrderSum);
+				}
+			}
+
+			if(hasDepositForEquipment 
+				&& !isPaidAndOrderItemsMatch 
+				&& isCashless)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+					"Проверка корректности данных");
+				return false;
+			}
+
+			return true;
 		}
 
 		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()

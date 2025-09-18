@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(userService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
@@ -111,14 +111,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
+			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInSalesReports);
 
 			_canViewReportSalesWithCashReceipts =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanViewReportSalesWithCashReceipts);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -1246,6 +1246,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					excludedSalesManager)));
 			}
 
+			var fullNameProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' ', ?2, ' ', ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => salesManagerAlias.LastName),
+				Projections.Property(() => salesManagerAlias.Name),
+				Projections.Property(() => salesManagerAlias.Patronymic)
+			);
+
+			var salesManagerNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => salesManagerAlias.LastName)),
+				fullNameProjection,
+				Projections.Constant("Без менеджера КА")
+			);
+
+			var salesManagerIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => salesManagerAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => salesManagerAlias.Id));
+			
 			#endregion
 
 			#region GeoGroups
@@ -1296,7 +1315,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				Projections.Property(() => promotionalSetAlias.Id));
 
 			#endregion PromotionalSets
-
+			
 			#region OrderStatuses
 
 			if(includedOrderStatuses.Any())
@@ -1476,7 +1495,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(counterpartyClassificationProjection).WithAlias(() => resultNodeAlias.CounterpartyClassification)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName)
 						.Select(promotinalSetIdProjection).WithAlias(() => resultNodeAlias.PromotionalSetId)
-						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName))
+						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName)
+						.Select(salesManagerIdProjection).WithAlias(() => resultNodeAlias.SalesManagerId)
+						.Select(salesManagerNameProjection).WithAlias(() => resultNodeAlias.SalesManagerName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
 				.List<TurnoverWithDynamicsReport.OrderItemNode>();

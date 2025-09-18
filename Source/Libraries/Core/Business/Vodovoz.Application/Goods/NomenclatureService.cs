@@ -77,7 +77,7 @@ namespace Vodovoz.Application.Goods
 
 			if(nomenclature is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Goods.Nomenclature.NotFound(nomenclatureId));
+				return Result.Failure(Vodovoz.Errors.Goods.NomenclatureErrors.NotFound(nomenclatureId));
 			}
 
 			return Archive(unitOfWork, nomenclature);
@@ -156,22 +156,22 @@ namespace Vodovoz.Application.Goods
 
 			if(warehouseBalance != 0)
 			{
-				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesInWarhouses);
+				errors.Add(Vodovoz.Errors.Goods.NomenclatureErrors.HasResiduesInWarhouses);
 			}
 
 			if(employeeBalance != 0)
 			{
-				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesOnEmployees);
+				errors.Add(Vodovoz.Errors.Goods.NomenclatureErrors.HasResiduesOnEmployees);
 			}
 
 			if(carBalance != 0)
 			{
-				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasResiduesOnCars);
+				errors.Add(Vodovoz.Errors.Goods.NomenclatureErrors.HasResiduesOnCars);
 			}
 
 			if(sendedButNotRecievedBalance != 0)
 			{
-				errors.Add(Vodovoz.Errors.Goods.Nomenclature.HasNotAcceptedTransfers);
+				errors.Add(Vodovoz.Errors.Goods.NomenclatureErrors.HasNotAcceptedTransfers);
 			}
 
 			if(!errors.Any())

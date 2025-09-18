@@ -109,17 +109,17 @@ namespace DriverApi.Notifications.Client.Clients
 
 				if(string.IsNullOrWhiteSpace(responseBody))
 				{
-					return Result.Failure(CommonErrors.DriverApiClient.ApiError(response.ReasonPhrase));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(response.ReasonPhrase));
 				}
 
 				try
 				{
 					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(CommonErrors.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
 				}
 				catch(Exception ex)
 				{
-					return Result.Failure(CommonErrors.DriverApiClient.ApiError(ex.Message));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(ex.Message));
 				}
 			}
 		}

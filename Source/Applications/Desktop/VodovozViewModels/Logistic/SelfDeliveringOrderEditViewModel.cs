@@ -131,7 +131,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private void SetPermissions()
 		{
 			_canEditPriceDiscountFromRouteListAndSelfDelivery = _currentPermissionService.
-				ValidatePresetPermission(Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteListAndSelfDelivery);
+				ValidatePresetPermission(Core.Domain.Permissions.OrderPermissions.CanEditPriceDiscountFromRouteListAndSelfDelivery);
 		}
 	}
 }

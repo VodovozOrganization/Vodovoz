@@ -49,11 +49,7 @@ namespace CustomerAppsApi
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				})
 
-				.AddStackExchangeRedisCache(redisOptions =>
-				{
-					var connection = Configuration.GetConnectionString("Redis");
-					redisOptions.Configuration = connection;
-				})
+				.AddMemoryCache()
 
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
