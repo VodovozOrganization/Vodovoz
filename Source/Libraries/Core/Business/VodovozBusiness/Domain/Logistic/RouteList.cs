@@ -2017,8 +2017,9 @@ namespace Vodovoz.Domain.Logistic
 				RouteListStatus.OnClosing,
 				RouteListStatus.MileageCheck
 			};
+			
 			if(routeList != null
-			   && banStatuses.Any(s => s == routeList.Status)
+			   && banStatuses.Contains(routeList.Status)
 			   && ObservableAddresses.Count == 0
 			   && !canSaveRouteListWithoutOrders)
 			{
