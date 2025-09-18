@@ -314,7 +314,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays-2);
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
 			ContactListItem contactListItem = null;
 
 			try
