@@ -17,7 +17,7 @@ namespace WarehouseApi.Contracts.V1.Requests
 		/// Id номенклатуры в заказе
 		/// </summary>
 		[Required]
-		public int NomenclatureId { get; set; }
+		public int OrderSaleItemId { get; set; }
 
 		/// <summary>
 		/// Код для удаления в позиции из заказа
