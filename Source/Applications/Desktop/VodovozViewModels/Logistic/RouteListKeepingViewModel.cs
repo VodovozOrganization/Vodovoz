@@ -148,6 +148,8 @@ namespace Vodovoz
 			LogisticanEditing = IsUserLogist && AllEditing;
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 
 			CarViewModel = BuildCarEntryViewModel();
@@ -237,7 +239,7 @@ namespace Vodovoz
 
 		public bool CanSave => IsCanClose && AllEditing;
 		public bool CanCancel => IsCanClose;
-
+		public bool CanCreateRouteListWithoutOrders { get; }
 		public bool CanComplete => AllEditing && SelectedRouteListAddresses.Any();
 
 		[PropertyChangedAlso(nameof(CanSave), nameof(CanCancel))]
@@ -517,7 +519,7 @@ namespace Vodovoz
 
 			var validationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
 			{
-				{ "uowFactory", UnitOfWorkFactory }
+				{ "uowFactory", UnitOfWorkFactory },
 			});
 
 			var canCreateSeveralOrdersValidationResult =
@@ -674,7 +676,12 @@ namespace Vodovoz
 
 		protected override bool BeforeValidation()
 		{
-			ValidationContext = new ValidationContext(Entity);
+			
+			ValidationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
+			{
+				{ "uowFactory", UnitOfWorkFactory },
+				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
+			});
 
 			return base.BeforeValidation();
 		}
