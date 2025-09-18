@@ -92,23 +92,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// Название события (для группировки)
 			/// </summary>
 			public string CarEventTypes { get; set; }
-
-			private static AreaOfResponsibility? GetAreaOfResponsibilityByShortName(string shortName)
-			{
-				foreach(var value in Enum.GetValues(typeof(AreaOfResponsibility)).Cast<AreaOfResponsibility>())
-				{
-					var member = typeof(AreaOfResponsibility).GetMember(value.ToString()).FirstOrDefault();
-					if(member != null)
-					{
-						var displayAttr = member.GetCustomAttribute<DisplayAttribute>();
-						if(displayAttr != null && displayAttr.ShortName == shortName)
-						{
-							return value;
-						}
-					}
-				}
-				return null;
-			}
 		}
 	}
 }
