@@ -834,7 +834,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				{ "NewStatus", RouteListStatus.Confirmed },
 				{ nameof(IRouteListItemRepository), _routeListItemRepository },
-				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
+				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(routeList, null, contextItems);
@@ -843,7 +843,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
- 
+
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
 
 			//Строим маршрут для МЛ.
