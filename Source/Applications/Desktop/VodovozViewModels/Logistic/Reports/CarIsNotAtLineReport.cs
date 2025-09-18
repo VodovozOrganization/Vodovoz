@@ -115,6 +115,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 								  && !car.IsArchive
 								  && carOwnType != null
 								  && !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
+								  && car.IsUsedInDelivery
 							  select car)
 				.Fetch(c => c.Driver)
 				.ToListAsync(cancellationToken);
