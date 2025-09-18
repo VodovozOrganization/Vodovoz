@@ -30,6 +30,10 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yEntry yentryShortName;
 
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxAreaOfResponsibility;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelAreaOfResponsibility;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -79,7 +83,7 @@ namespace Vodovoz.Views.Logistic
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -112,8 +116,8 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonDoNotShowInOperation.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonDoNotShowInOperation);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonDoNotShowInOperation]));
-			w8.TopAttach = ((uint)(4));
-			w8.BottomAttach = ((uint)(5));
+			w8.TopAttach = ((uint)(5));
+			w8.BottomAttach = ((uint)(6));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -127,8 +131,8 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonIsArchive.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonIsArchive);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonIsArchive]));
-			w9.TopAttach = ((uint)(3));
-			w9.BottomAttach = ((uint)(4));
+			w9.TopAttach = ((uint)(4));
+			w9.BottomAttach = ((uint)(5));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -142,8 +146,8 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonIsAttachWriteOffDocument.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonIsAttachWriteOffDocument);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonIsAttachWriteOffDocument]));
-			w10.TopAttach = ((uint)(5));
-			w10.BottomAttach = ((uint)(6));
+			w10.TopAttach = ((uint)(6));
+			w10.BottomAttach = ((uint)(7));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -157,8 +161,8 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonNeedComment.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonNeedComment);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonNeedComment]));
-			w11.TopAttach = ((uint)(2));
-			w11.BottomAttach = ((uint)(3));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -187,11 +191,36 @@ namespace Vodovoz.Views.Logistic
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yenumcomboboxAreaOfResponsibility = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxAreaOfResponsibility.Name = "yenumcomboboxAreaOfResponsibility";
+			this.yenumcomboboxAreaOfResponsibility.ShowSpecialStateAll = false;
+			this.yenumcomboboxAreaOfResponsibility.ShowSpecialStateNot = false;
+			this.yenumcomboboxAreaOfResponsibility.UseShortTitle = false;
+			this.yenumcomboboxAreaOfResponsibility.DefaultFirst = false;
+			this.table1.Add(this.yenumcomboboxAreaOfResponsibility);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboboxAreaOfResponsibility]));
+			w14.TopAttach = ((uint)(2));
+			w14.BottomAttach = ((uint)(3));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelAreaOfResponsibility = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelAreaOfResponsibility.Name = "ylabelAreaOfResponsibility";
+			this.ylabelAreaOfResponsibility.LabelProp = global::Mono.Unix.Catalog.GetString("Зона ответственности:");
+			this.table1.Add(this.ylabelAreaOfResponsibility);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelAreaOfResponsibility]));
+			w15.TopAttach = ((uint)(2));
+			w15.BottomAttach = ((uint)(3));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Logistic
 	[EntityPermission]
 	[HistoryTrace]
 
-	public class CarEventType : PropertyChangedBase, IDomainObject, IValidatableObject, IArchivable, INamedDomainObject
+	public partial class CarEventType : PropertyChangedBase, IDomainObject, IValidatableObject, IArchivable, INamedDomainObject
 	{
 		private string _name;
 		private string _shortName;
@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Logistic
 		private bool _isArchive;
 		private bool _isDoNotShowInOperation;
 		private bool _isAttachWriteOffDocument;
+		private AreaOfResponsibility? _areaOfResponsibility;
 
 		#region Свойства
 
@@ -66,6 +67,13 @@ namespace Vodovoz.Domain.Logistic
 			get => _isAttachWriteOffDocument;
 			set => SetField(ref _isAttachWriteOffDocument, value);
 		}
+
+		[Display(Name = "Зона ответственности отдела")]
+		public virtual AreaOfResponsibility? AreaOfResponsibility
+		{
+			get => _areaOfResponsibility;
+			set => SetField(ref _areaOfResponsibility, value);
+		}
 		#endregion
 
 		#region IValidatableObject implementation
@@ -95,8 +103,14 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult($"Превышена максимально допустимая длина сокращённого названия ({ShortName.Length}/255).",
 					new[] { nameof(ShortName) });
 			}
+
+			if(AreaOfResponsibility == null)
+			{
+				yield return new ValidationResult($"Зона ответственности должна быть заполнена.",
+					new[] { nameof(AreaOfResponsibility) });
+			}
 		}
-		
+
 		#endregion
 	}
 }
