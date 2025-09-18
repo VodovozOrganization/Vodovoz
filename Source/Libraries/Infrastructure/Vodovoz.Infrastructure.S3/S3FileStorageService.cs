@@ -64,7 +64,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция создания файла в S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция создания файла в S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure(Application.Errors.S3.OperationCanceled);
 			}
 		}
@@ -95,7 +95,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция получения файла из S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция получения файла из S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure<Stream>(Application.Errors.S3.OperationCanceled);
 			}
 		}
@@ -135,7 +135,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция обновления файла из S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция обновления файла из S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure(Application.Errors.S3.OperationCanceled);
 			}
 		}
@@ -165,7 +165,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция удаления файла из S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция удаления файла из S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure(Application.Errors.S3.OperationCanceled);
 			}
 		}
@@ -195,7 +195,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция получения списка файлов из S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция получения списка файлов из S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure<IEnumerable<string>>(Application.Errors.S3.OperationCanceled);
 			}
 		}
@@ -219,7 +219,7 @@ namespace Vodovoz.Infrastructure.S3
 			}
 			catch(OperationCanceledException e)
 			{
-				_logger.LogWarning(e, "Операция проверки наличия файла из S3 была отменена (таймаут или отмена токена)");
+				_logger.LogError(e, "Операция проверки наличия файла из S3 была отменена (таймаут или отмена токена)");
 				return Result.Failure<bool>(Application.Errors.S3.OperationCanceled);
 			}
 		}
