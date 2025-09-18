@@ -33,7 +33,8 @@ namespace Vodovoz.ReportsParameters
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
-			dateperiodpicker.EndDate = DateTime.Today;
+			dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
+			dateperiodpicker.PeriodChangedByUser += OnPeriodChangedByUser;
 
 			cmbReportType.ItemsEnum = typeof(OrderStatisticsByWeekReportType);
 			cmbReportType.Binding
@@ -168,6 +169,16 @@ namespace Vodovoz.ReportsParameters
 			
 			return result;
 		}
+		
+		private void OnPeriodChangedByUser(object sender, EventArgs e)
+		{
+			if((dateperiodpicker.EndDate.Date >= DateTime.Today)
+				|| (dateperiodpicker.EndDate == default && dateperiodpicker.StartDate.Date <= DateTime.Today))
+			{
+				MessageDialogHelper.RunWarningDialog("Внимание! В отчет попадают заказы, которые добавлены в МЛ." +
+					" В текущем дне информация меняется в онлайне и некорректна для статистики");
+			}
+		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -182,6 +193,12 @@ namespace Vodovoz.ReportsParameters
 			field = value;
 			OnPropertyChanged(propertyName);
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			dateperiodpicker.PeriodChangedByUser -= OnPeriodChangedByUser;
+			base.Destroy();
 		}
 	}
 }

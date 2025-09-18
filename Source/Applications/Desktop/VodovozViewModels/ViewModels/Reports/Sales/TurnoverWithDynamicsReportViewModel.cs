@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
-			EndDate = DateTime.Today.AddDays(-1);
+			EndDate = DateTime.Now.Date;
 
 			_lastGenerationErrors = Enumerable.Empty<string>();
 
@@ -422,6 +422,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				"    'Закрыт'\r\n" +
 				"В отчет не попадают заказы, являющиеся закрывашками по контракту.\r\n" +
 				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\r\n" +
+				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
 				"Если текущий день попадает в выборку, то будет всплывающее окно с сообщением \"Внимание! В отчет попадают заказы, которые добавлены в МЛ. В текущем дне информация меняется в онлайне и некорректна для статистики\"\r\n" +
 				"2. Настройки отчёта:\r\n" +
 				"«В разрезе» - Выбор разбивки по периодам. В отчет попадают периоды согласно выбранного разреза, но не выходя за границы выставленного периода.\r\n" +
