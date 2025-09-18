@@ -239,7 +239,7 @@ namespace WarehouseApi.Controllers.V1
 			_logger.LogInformation("Запрос удаления кода ЧЗ в заказе." +
 			                       " OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, DeletedCode: {DeletedCode}. User token: {AccessToken}",
 				requestData.OrderId,
-				requestData.NomenclatureId,
+				requestData.OrderSaleItemId,
 				requestData.DeletedCode,
 				Request.Headers[HeaderNames.Authorization]);
 
@@ -250,7 +250,7 @@ namespace WarehouseApi.Controllers.V1
 				var requestProcessingResult =
 					await _carLoadService.DeleteOrderCode(
 						requestData.OrderId,
-						requestData.NomenclatureId,
+						requestData.OrderSaleItemId,
 						requestData.DeletedCode,
 						user.UserName,
 						cancellationToken);

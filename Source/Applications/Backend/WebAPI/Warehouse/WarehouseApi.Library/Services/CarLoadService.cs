@@ -789,7 +789,7 @@ namespace WarehouseApi.Library.Services
 				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
 			{
 				var error = VodovozBusiness.Errors.TrueMark
-					.TrueMarkService.AggregationCodeChangeError;
+					.TrueMarkServiceErrors.AggregationCodeChangeError;
 				var result = Result.Failure<DeleteOrderCodeResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, new DeleteOrderCodeResponse
 				{
