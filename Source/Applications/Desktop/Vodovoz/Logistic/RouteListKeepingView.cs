@@ -299,6 +299,18 @@ namespace Vodovoz.Logistic
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
+				.AddColumn("Клиент")
+					.AddTextRenderer(node => node.RouteListItem.Order.Client != null
+						? node.RouteListItem.Order.Client.Name
+						: "")
+				.AddColumn("Телефон")
+					.AddTextRenderer(node => node.RouteListItem.Order.ContactPhone != null
+						? node.RouteListItem.Order.ContactPhone.Additional + node.RouteListItem.Order.ContactPhone
+						: "")
+				.AddColumn("Отзвон за")
+					.AddTextRenderer(node => node.RouteListItem.Order.CallBeforeArrivalMinutes.HasValue
+						? $"{node.RouteListItem.Order.CallBeforeArrivalMinutes.Value} мин."
+						: "")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, node) =>
 					{

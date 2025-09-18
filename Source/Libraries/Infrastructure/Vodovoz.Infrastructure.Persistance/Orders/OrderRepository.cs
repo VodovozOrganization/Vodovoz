@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -214,7 +214,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
-				case Export1cMode.RetailReport:
+				case Export1cMode.Retail:
 					AddWithCashReceipOnlyRestrictionsToOrderQuery(query, orderAlias);
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
@@ -1264,7 +1264,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
-			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed };
+			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed, OrderStatus.WaitForPayment };
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -2371,6 +2371,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var driversScannedCodes = await query.ToListAsync(cancellationToken);
 
 			return !driversScannedCodes.Any();
+		}
+
+		public IList<OrderItem> GetOrderItems(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+
+			return uow.Session.QueryOver(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.List();
 		}
 	}
 }

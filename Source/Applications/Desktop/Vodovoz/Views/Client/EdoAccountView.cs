@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -58,6 +58,7 @@ namespace Vodovoz.Views.Client
 
 			ybuttonCheckConsentForEdo.BindCommand(ViewModel.CheckConsentForEdoCommand);
 			
+			ViewModel.UpdateOperators = UpdateOperators;
 			specialListCmbAllOperators.Binding
 				.AddBinding(ViewModel, vm => vm.CanSelectRegisteredEdoAccount, w => w.Sensitive)
 				.AddBinding(ViewModel.Counterparty, e => e.CounterpartyEdoOperators, w => w.ItemsList)
@@ -66,6 +67,11 @@ namespace Vodovoz.Views.Client
 			specialListCmbAllOperators.ItemSelected += OnAllOperatorsItemSelected;
 			
 			btnRemoveEdoAccount.BindCommand(ViewModel.RemoveEdoAccountCommand);
+		}
+
+		private void UpdateOperators()
+		{
+			specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);			
 		}
 
 		private void ConfigureMenuCopyFrom()
@@ -147,6 +153,13 @@ namespace Vodovoz.Views.Client
 			{
 				ViewModel.TryFillEdoAccount(counterpartyEdoOperator);
 			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.UpdateOperators = null;
+
+			base.Destroy();
 		}
 	}
 }

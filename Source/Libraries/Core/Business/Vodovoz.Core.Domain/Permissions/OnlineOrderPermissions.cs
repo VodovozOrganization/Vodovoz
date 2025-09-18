@@ -13,6 +13,6 @@ namespace Vodovoz.Core.Domain.Permissions
 		[Display(
 			Name = "Может отменять любой онлайн заказ",
 			Description = "Может отменять любой онлайн заказ, в не зависимости у кого он в работе")]
-		public static string CanCancelAnyOnlineOrder => $"{nameof(OnlineOrderPermissions)}.{nameof(CanCancelAnyOnlineOrder)}";
+		public static string CanCancelAnyOnlineOrder => $"OnlineOrder.{nameof(CanCancelAnyOnlineOrder)}";
 	}
 }

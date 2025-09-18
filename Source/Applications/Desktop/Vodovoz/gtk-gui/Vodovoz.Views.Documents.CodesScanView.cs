@@ -32,6 +32,8 @@ namespace Vodovoz.Views.Documents
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCopyCodes;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonPasteCodesFromClipboard;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonDeleteCode;
 
 		protected virtual void Build()
@@ -143,22 +145,33 @@ namespace Vodovoz.Views.Documents
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.ybuttonPasteCodesFromClipboard = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonPasteCodesFromClipboard.CanFocus = true;
+			this.ybuttonPasteCodesFromClipboard.Name = "ybuttonPasteCodesFromClipboard";
+			this.ybuttonPasteCodesFromClipboard.UseUnderline = true;
+			this.ybuttonPasteCodesFromClipboard.Label = global::Mono.Unix.Catalog.GetString("Вставить коды из буфера обмена");
+			this.yhboxButtons.Add(this.ybuttonPasteCodesFromClipboard);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonPasteCodesFromClipboard]));
+			w13.Position = 4;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonDeleteCode = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDeleteCode.CanFocus = true;
 			this.ybuttonDeleteCode.Name = "ybuttonDeleteCode";
 			this.ybuttonDeleteCode.UseUnderline = true;
 			this.ybuttonDeleteCode.Label = global::Mono.Unix.Catalog.GetString("Удалить код");
 			this.yhboxButtons.Add(this.ybuttonDeleteCode);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonDeleteCode]));
-			w13.PackType = ((global::Gtk.PackType)(1));
-			w13.Position = 3;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
-			w14.Position = 2;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonDeleteCode]));
+			w14.PackType = ((global::Gtk.PackType)(1));
+			w14.Position = 6;
 			w14.Expand = false;
 			w14.Fill = false;
+			this.yvboxMain.Add(this.yhboxButtons);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

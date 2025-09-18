@@ -1,44 +1,49 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using QS.Dialog;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using Gamma.Utilities;
-using QS.Dialog;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 
-namespace ExportTo1c.Library
+namespace ExportTo1c.Library.Exporters
 {
-	public static class Retail1cDataExporter
+	/// <summary>
+	/// Экспорт данных розничных продаж для 1С
+	/// </summary>
+	public class Retail1cDataExporter : IDataExporterFor1c
 	{
-		public static XElement CreateRetailXml(
+		public XElement CreateXml(
 			IList<Order> orders,
-			DateTime startOfYesterday,
-			DateTime endOfYesterday,
-			string organizationInn,
+			DateTime startDate,
+			DateTime endDate,
+			Organization organization,
 			CancellationToken cancellationToken,
 			IProgressBarDisplayable progressBarDisplayable = null)
 		{
-			var datesInRange = GetDatesInRange(startOfYesterday, endOfYesterday);
+			var datesInRange = GetDatesInRange(startDate, endDate);
 
 			var ordersByDate = orders
-				.Where(o => o.DeliveryDate >= startOfYesterday && o.DeliveryDate <= endOfYesterday)
-				.OrderBy(o => o.DeliveryDate) 
+				.Where(o => o.DeliveryDate >= startDate && o.DeliveryDate <= endDate)
+				.OrderBy(o => o.DeliveryDate)
 				.GroupBy(o => o.DeliveryDate)
 				.ToDictionary(g => g.Key, g => g.ToList());
 
 			return new XElement("ФайлОбмена",
-				new XAttribute("НачалоПериодаВыгрузки", startOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
-				new XAttribute("ОкончаниеПериодаВыгрузки", endOfYesterday.ToString("yyyy-MM-ddTHH:mm:ss")),
-				new XElement("Организация", new XAttribute("ИНН", organizationInn)),
+				new XAttribute("НачалоПериодаВыгрузки", startDate.ToString("yyyy-MM-ddTHH:mm:ss")),
+				new XAttribute("ОкончаниеПериодаВыгрузки", endDate.ToString("yyyy-MM-ddTHH:mm:ss")),
+				new XElement("Организация", new XAttribute("ИНН", organization.INN)),
 				datesInRange.Select(date => new XElement("Дата",
 					new XAttribute("Значение", date.ToString("yyyy-MM-ddTHH:mm:ss")),
 					new XElement("Продажи",
 						ordersByDate.TryGetValue(date, out var dateOrders)
-							? CreateExportRetailRows(dateOrders, progressBarDisplayable, date, cancellationToken)
+							? CreateExportRetailRows(dateOrders, organization, progressBarDisplayable, date, cancellationToken)
 							: Enumerable.Empty<XElement>())
 				)));
 		}
@@ -53,6 +58,7 @@ namespace ExportTo1c.Library
 
 		private static IList<XElement> CreateExportRetailRows(
 			IList<Order> orders,
+			Organization organization,
 			IProgressBarDisplayable progressBarDisplayable,
 			DateTime date,
 			CancellationToken cancellationToken)
@@ -69,11 +75,16 @@ namespace ExportTo1c.Library
 			{
 				var order = orders[i];
 
-				var items = order.OrderItems;
+				var items = order.OrderItems
+					.Where(x => x.Price != 0m)
+					.Where(x => x.Count > 0m);
 
 				foreach(var item in items)
 				{
-					var rowItem = new XElement("Строка",						
+					var isService = item.Nomenclature.Category == NomenclatureCategory.master
+						|| item.Nomenclature.Category == NomenclatureCategory.service;
+
+					var rowItem = new XElement("Строка",
 						new XAttribute("Заказ", item.Order.Id),
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
@@ -83,7 +94,8 @@ namespace ExportTo1c.Library
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
-						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash)
+						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
+						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар")
 						);
 
 					xElements.Add(rowItem);
@@ -93,10 +105,10 @@ namespace ExportTo1c.Library
 
 				i++;
 
-				progressBarDisplayable?.Add(1, $"Выгрузка розницы за {date:yyyy-MM-dd}. Заказ {i}/{ordersCount}");
+				progressBarDisplayable?.Add(1, $"Выгрузка розницы для {organization.Name} за {date:d}. Заказ {i}/{ordersCount}");
 			}
 
-			progressBarDisplayable?.Update("Выгрузка розницы завершена. Сохранение в файл...");
+			progressBarDisplayable?.Update("Выгрузка розницы завершена.");
 
 			return xElements;
 		}

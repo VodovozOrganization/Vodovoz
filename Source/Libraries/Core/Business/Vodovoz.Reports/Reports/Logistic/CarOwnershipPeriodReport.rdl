@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -501,6 +501,13 @@
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="excluded_car_ids">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
   </ReportParameters>
   <DataSets>
     <DataSet Name="car_changes">
@@ -547,6 +554,7 @@ LEFT JOIN employees e ON c.driver_id = e.id
 WHERE 
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
+    AND c.id NOT IN (@excluded_car_ids)
 HAVING 
     current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 UNION
@@ -584,6 +592,7 @@ WHERE
 	c2.archiving_date &gt;= @start_date and c2.archiving_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
 	AND c2.is_archive = 1
     AND cv2.car_own_type IN (@car_own_type)
+    AND c2.id NOT IN (@excluded_car_ids)
 HAVING 
     current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 ORDER BY change_date DESC, car_own_type
@@ -600,6 +609,9 @@ ORDER BY change_date DESC, car_own_type
           </QueryParameter>
           <QueryParameter Name="@car_own_type">
             <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
