@@ -264,7 +264,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					{
 						PersonalAccountIdInEdo = edoOperator.EdxClientId,
 						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
-						Counterparty = Counterparty
+						Counterparty = Counterparty,
+						OrganizationId = _organizationId
 					});
 				}
 
@@ -313,7 +314,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
+			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays-2);
 			ContactListItem contactListItem = null;
 
 			try
