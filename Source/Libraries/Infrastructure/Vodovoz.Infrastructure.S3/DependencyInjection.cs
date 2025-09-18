@@ -20,7 +20,8 @@ namespace Vodovoz.Infrastructure.S3
 					{
 						ServiceURL = options.Value.ServiceUrl,
 						ForcePathStyle = true,
-						Timeout = TimeSpan.FromSeconds(10)
+						Timeout = TimeSpan.FromSeconds(10),
+						MaxErrorRetry = 1
 					};
 
 					return new AmazonS3Client(
