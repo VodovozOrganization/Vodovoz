@@ -235,6 +235,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
+
+			SetIsCarUsedInDeliveryDefaultValueIfNeed();
 		}
 		
 		public bool CanEdit { get; private set; }
@@ -983,6 +985,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				OnPropertyChanged(nameof(UpcomingTechInspectKm));
 				return;
 			}
+		}
+
+		private void SetIsCarUsedInDeliveryDefaultValueIfNeed()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.IsUsedInDelivery = true;
 		}
 
 		public override void Dispose()
