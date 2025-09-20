@@ -143,7 +143,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
-
 		private IEnumerable<GroupingType> SelectedGroupings =>
 			GetGroupingParameters().Select(x => (GroupingType)x.Value);
 
@@ -157,6 +156,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			var additionalParams = new Dictionary<string, string>
 			{
 				{ "Самовывоз", "is_self_delivery" },
+				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
 			};
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
@@ -378,10 +378,10 @@ $@"
 {OrderStatus.UnloadingOnStock.GetEnumTitle()}
 {OrderStatus.Closed.GetEnumTitle()}
 {OrderStatus.WaitForPayment.GetEnumTitle()}
-Если выбран статус {OrderStatus.WaitForPayment.GetEnumTitle()}, то выбираются только заказы самовывозы с оплатой после отгрузки.
 
 В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.
 Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.
+«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели
 
 Детальный отчет отличается от обычного тем, что у него подробно разбиты затраты и всегда есть группировка по товарам.
 
@@ -389,7 +389,7 @@ $@"
 Сумма продажи - Сумма продажи фактического количества товара с учетом скидки
 
 Затраты:
-	Производство или закупка - Если товар учавствует в групповой установке себестоимости, то это затраты на себестоимость, 
+	Производство или закупка - Если товар участвует в групповой установке себестоимости, то это затраты на себестоимость, 
 		а если нет, то это затраты на закупку.
 	Фура - Стоимость доставки единицы товара с производства на склад
 	Доставка - Стоимость доставки товара на адрес в пересчете на вес единицы товара

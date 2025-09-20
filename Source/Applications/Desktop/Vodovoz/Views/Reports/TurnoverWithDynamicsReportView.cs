@@ -1,7 +1,6 @@
 ﻿using DateTimeHelpers;
 using Gamma.Utilities;
 using Gtk;
-using NHibernate.Util;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;

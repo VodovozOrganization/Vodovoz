@@ -171,6 +171,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
 			}
+			
+			additionalParams.Add("Только заказы в МЛ", "only_orders_from_route_lists");
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
@@ -281,9 +283,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				$"\t'{OrderStatus.Shipped.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.Closed.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' и заказ - самовывоз с оплатой после отгрузки.\n" +
 				"В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.\n" +
 				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\n\n" +
+				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
 				"<b>2.</b> Подсчет тары ведется следующим образом:\n" +
 				"\tПлановое значение - сумма бутылей на возврат попавших в отчет заказов;\n" +
 				"\tФактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа.\n" +
@@ -296,7 +298,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				$"\t\t <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или " +
 				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
 				$"или '{RouteListStatus.OnClosing.GetEnumTitle()}'.\n" +
-				$"По умолчаению используется группировка Тип номенклатуры | Номенклатура\n\n" +
+				$"По умолчанию используется группировка Тип номенклатуры | Номенклатура\n\n" +
 				"Детальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
