@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
-					Entity.OrganizationId = Organization?.Id ?? _organizationSettings.GetCashlessOrganisationId;
+					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
 
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
 					{
@@ -170,6 +170,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
+			Organization = Entity.Id != 0 ? Entity.Organization : null;
 		}
 
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();

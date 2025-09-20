@@ -21,6 +21,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void Configure()
 		{
+			//organizationEntry.Binding.AddBinding();
 			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
@@ -66,6 +67,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
 				.AddColumn("Код документооборота")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)

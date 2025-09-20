@@ -30,6 +30,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityViewModelEntryCounterparty;
 
+		private global::Gamma.GtkWidgets.yLabel lblOrganization;
+
+		private global::QS.Views.Control.EntityEntry organizationEntry;
+
 		private global::Gtk.HBox hbox4;
 
 		private global::Gamma.GtkWidgets.yEntry yentryDebtName;
@@ -102,6 +106,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabelOrderNum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrderNum.Name = "ylabelOrderNum";
+			this.ylabelOrderNum.Xalign = 0F;
 			this.ylabelOrderNum.LabelProp = global::Mono.Unix.Catalog.GetString("orderNum");
 			this.hbox1.Add(this.ylabelOrderNum);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelOrderNum]));
@@ -152,7 +157,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
+			this.hbox2.Spacing = 7;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.ylabel7 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel7.Name = "ylabel7";
@@ -167,15 +172,33 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
 			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.entityViewModelEntryCounterparty.CanDisposeEntitySelectorFactory = false;
 			this.entityViewModelEntryCounterparty.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityViewModelEntryCounterparty);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityViewModelEntryCounterparty]));
 			w11.Position = 1;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblOrganization = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrganization.Name = "lblOrganization";
+			this.lblOrganization.Xalign = 1F;
+			this.lblOrganization.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.hbox2.Add(this.lblOrganization);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblOrganization]));
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.organizationEntry = new global::QS.Views.Control.EntityEntry();
+			this.organizationEntry.Events = ((global::Gdk.EventMask)(256));
+			this.organizationEntry.Name = "organizationEntry";
+			this.hbox2.Add(this.organizationEntry);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.organizationEntry]));
+			w13.Position = 3;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -188,10 +211,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.yentryDebtName.IsEditable = true;
 			this.yentryDebtName.InvisibleChar = '•';
 			this.hbox4.Add(this.yentryDebtName);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yentryDebtName]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yentryDebtName]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yspinbtnDebtSum = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000000D, 1D);
 			this.yspinbtnDebtSum.CanFocus = true;
@@ -203,10 +226,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.yspinbtnDebtSum.ValueAsDecimal = 0m;
 			this.yspinbtnDebtSum.ValueAsInt = 0;
 			this.hbox4.Add(this.yspinbtnDebtSum);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yspinbtnDebtSum]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yspinbtnDebtSum]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ybtnOpenBill = new global::Gamma.GtkWidgets.yButton();
 			this.ybtnOpenBill.CanFocus = true;
@@ -214,10 +237,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ybtnOpenBill.UseUnderline = true;
 			this.ybtnOpenBill.Label = global::Mono.Unix.Catalog.GetString("Открыть счет");
 			this.hbox4.Add(this.ybtnOpenBill);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybtnOpenBill]));
-			w15.Position = 2;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybtnOpenBill]));
+			w17.Position = 2;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yCheckBtnHideSignature = new global::Gamma.GtkWidgets.yCheckButton();
 			this.yCheckBtnHideSignature.CanFocus = true;
@@ -226,22 +249,22 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.yCheckBtnHideSignature.DrawIndicator = true;
 			this.yCheckBtnHideSignature.UseUnderline = true;
 			this.hbox4.Add(this.yCheckBtnHideSignature);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yCheckBtnHideSignature]));
-			w16.Position = 3;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yCheckBtnHideSignature]));
+			w18.Position = 3;
+			w18.Expand = false;
+			w18.Fill = false;
 			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w17.Position = 3;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w19.Position = 3;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w18.Position = 4;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w20.Position = 4;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.vboxEdo = new global::Gtk.VBox();
 			this.vboxEdo.Name = "vboxEdo";
@@ -252,10 +275,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ylabel4.Xalign = 0F;
 			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("Электронные документы:");
 			this.vboxEdo.Add(this.ylabel4);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
-			w19.Position = 0;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.ylabel4]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vboxEdo.Gtk.Box+BoxChild
 			this.GtkScrolledWindow10 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow10.Name = "GtkScrolledWindow10";
@@ -266,8 +289,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.treeViewEdoContainers.Name = "treeViewEdoContainers";
 			this.GtkScrolledWindow10.Add(this.treeViewEdoContainers);
 			this.vboxEdo.Add(this.GtkScrolledWindow10);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
-			w21.Position = 1;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.GtkScrolledWindow10]));
+			w23.Position = 1;
 			// Container child vboxEdo.Gtk.Box+BoxChild
 			this.hboxEdoContainersBtns = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxEdoContainersBtns.Name = "hboxEdoContainersBtns";
@@ -279,10 +302,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.btnUpdateEdoDocFlowStatus.UseUnderline = true;
 			this.btnUpdateEdoDocFlowStatus.Label = global::Mono.Unix.Catalog.GetString("Обновить статус");
 			this.hboxEdoContainersBtns.Add(this.btnUpdateEdoDocFlowStatus);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
-			w22.Position = 0;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
 			this.ybuttonSendDocumentAgain = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSendDocumentAgain.CanFocus = true;
@@ -290,18 +313,18 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			this.ybuttonSendDocumentAgain.UseUnderline = true;
 			this.ybuttonSendDocumentAgain.Label = global::Mono.Unix.Catalog.GetString("Отправить повторно");
 			this.hboxEdoContainersBtns.Add(this.ybuttonSendDocumentAgain);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.vboxEdo.Add(this.hboxEdoContainersBtns);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
-			w24.Position = 2;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxEdo[this.hboxEdoContainersBtns]));
+			w26.Position = 2;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.vbox1.Add(this.vboxEdo);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
-			w25.Position = 5;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxEdo]));
+			w27.Position = 5;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
