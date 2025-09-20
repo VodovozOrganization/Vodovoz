@@ -81,7 +81,13 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					return;
 				}
 
-				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
+				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+					" клиента {ClientId} с контактным номером {ContactPhone}",
+					externalOrderId,
+					message.ExternalCounterpartyId,
+					message.CounterpartyErpId,
+					message.ContactPhone);
+				
 				var orderId = 0;
 				
 				try
@@ -92,22 +98,34 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				{
 					Logger.LogError(
 						e,
-						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
-						externalOrderId);
+						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+						" клиента {ClientId} с контактным номером {ContactPhone}",
+						externalOrderId,
+						message.ExternalCounterpartyId,
+						message.CounterpartyErpId,
+						message.ContactPhone);
 				}
 				finally
 				{
 					if(orderId == default)
 					{
 						Logger.LogInformation(
-							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
-							externalOrderId);
+							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+							" клиента {ClientId} с контактным номером {ContactPhone} отправляем на ручное...",
+							externalOrderId,
+							message.ExternalCounterpartyId,
+							message.CounterpartyErpId,
+							message.ContactPhone);
 					}
 					else
 					{
 						Logger.LogInformation(
-							"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
+							"Онлайн заказ {ExternalOrderId} от пользователя {ExternalCounterpartyId} клиента {ClientId}" +
+							" с контактным номером {ContactPhone} оформлен в заказ {OrderId}",
 							externalOrderId,
+							message.ExternalCounterpartyId,
+							message.CounterpartyErpId,
+							message.ContactPhone,
 							orderId);
 					}
 				}
