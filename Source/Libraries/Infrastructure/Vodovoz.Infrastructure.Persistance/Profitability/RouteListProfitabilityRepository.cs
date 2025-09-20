@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories.Profitability;
 
@@ -23,17 +24,26 @@ namespace Vodovoz.Infrastructure.Persistance.Profitability
 			return query;
 		}
 
-		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByDate(IUnitOfWork uow, DateTime date)
+		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null)
 		{
 			RouteList resultAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
+			CarModel carModelAlias = null;
+			Car carAlias = null;
 
+			if(carModel == null || carModel.Id == 0)
+			{
+				return new List<RouteList>();
+			}
+			
 			var query = uow.Session.QueryOver(() => resultAlias)
 				.JoinAlias(() => resultAlias.RouteListProfitability, () => routeListProfitabilityAlias)
+				.JoinAlias(() => resultAlias.Car, () => carAlias)
+				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Where(() => resultAlias.Date >= date)
-				.List();
-
-			return query;
+				.Where(() => carAlias.CarModel.Id == carModel.Id);
+			
+			return query.List();
 		}
 
 		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesBetweenDates(IUnitOfWork uow, DateTime dateFrom, DateTime dateTo)
