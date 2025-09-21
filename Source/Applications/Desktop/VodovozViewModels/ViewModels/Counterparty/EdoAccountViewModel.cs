@@ -264,7 +264,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					{
 						PersonalAccountIdInEdo = edoOperator.EdxClientId,
 						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
-						Counterparty = Counterparty
+						Counterparty = Counterparty,
+						OrganizationId = _organizationId
 					});
 				}
 
@@ -321,8 +322,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				contactListItem = _contactListService
 					.GetLastChangeOnDate(UoW, _organizationId, checkDate, Counterparty.INN, Counterparty.KPP)
 					.Result;
-
-				return;
 			}
 			catch(Exception ex)
 			{

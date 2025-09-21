@@ -115,6 +115,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 								  && !car.IsArchive
 								  && carOwnType != null
 								  && !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
+								  && car.IsUsedInDelivery
 							  select car)
 				.Fetch(c => c.Driver)
 				.ToListAsync(cancellationToken);
@@ -225,13 +226,20 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						CarType = car.CarModel.Name,
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
-						TimeAndBreakdownReason = "Простой",
+						TimeAndBreakdownReason = "Простой без водителя",
+						AreasOfResponsibility = null,
 						PlannedReturnToLineDate = null,
-						PlannedReturnToLineDateAndReschedulingReason = "",
+						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
 
 					continue;
 				}
+
+				var areas = carEventGroup
+					.Select(ce => ce.CarEventType.AreaOfResponsibility)
+					.Distinct()
+					.OrderBy(area => area)
+					.ToList();
 
 				rowsHavingEvents.Add(new Row
 				{
@@ -242,13 +250,23 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
+					AreasOfResponsibility = areas,
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
 			}
 
-			rows.AddRange(rowsHavingEvents.OrderBy(x => x.CarEventTypes.First()).ThenBy(x => x.DowntimeStartedAt));
-			rows.AddRange(rowsWithoutEvents.OrderBy(x => x.DowntimeStartedAt));
+			rows.AddRange(
+				rowsHavingEvents
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
+					.ThenBy(x => x.CarEventTypes.First())
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
+			rows.AddRange(
+				rowsWithoutEvents
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
 
 			var counter = 1;
 			rows.ForEach(x => x.Id = counter++);
@@ -287,14 +305,25 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
-			var summaryByEventThanCar = rows
-				.GroupBy(row => (row.CarEventTypes, row.CarType))
-				.GroupBy(g => g.Key.CarEventTypes)
-				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
-					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
+			var summaryByArea = rows
+				.GroupBy(row => row.AreasOfResponsibilityShortNames)
+				.Select(areaGroup =>
+					$"{(string.IsNullOrWhiteSpace(areaGroup.Key) ? "Без зоны ответственности" : areaGroup.Key)}\n" +
+					string.Join("\n",
+						areaGroup
+							.GroupBy(row => row.CarEventTypes)
+							.Select(eventGroup =>
+								$"{(string.IsNullOrWhiteSpace(eventGroup.Key) ? "Простой без водителя" : eventGroup.Key)}\n" +
+								string.Join("\n",
+									eventGroup
+										.GroupBy(row => row.CarType)
+										.Select(carGroup => $"{carGroup.Key}: {carGroup.Count()}"))
+							)
+					) + "\n"
+				);
 
 			var eventsSummaryDetails =
-				string.Join("\n", summaryByEventThanCar);
+				string.Join("\n", summaryByArea);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
 		}
