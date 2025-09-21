@@ -7,31 +7,69 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Errors.Goods;
+using Vodovoz.Errors.Stores;
 using Vodovoz.Errors.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 
 namespace WarehouseApi.Library.Services
 {
-	public class CarLoadDocumentTrueMarkCodesProcessingService
+	public class CarLoadDocumentTrueMarkCodesProcessingService : ICarLoadDocumentTrueMarkCodesProcessingService
 	{
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IGenericRepository<OrderEntity> orderRepository)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public async Task<Result> AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
+		public async Task<Result> AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(
+			IUnitOfWork uow,
+			CarLoadDocumentEntity carLoadDocument,
+			CancellationToken cancellationToken = default)
+		{
+			foreach(var carLoadDocumentItem in carLoadDocument.Items)
+			{
+				var addProductCodesResult =
+					await AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
+						uow,
+						carLoadDocumentItem,
+						cancellationToken);
+
+				if(addProductCodesResult.IsFailure)
+				{
+					var error = addProductCodesResult.Errors.FirstOrDefault();
+					return Result.Failure(error);
+				}
+			}
+
+			var isAllTrueMarkCodesAddedResult =
+				IsAllTrueMarkCodesInCarLoadDocumentAdded(uow, carLoadDocument);
+
+			if(isAllTrueMarkCodesAddedResult.IsFailure)
+			{
+				var error = isAllTrueMarkCodesAddedResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
 			CarLoadDocumentItemEntity carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
@@ -70,6 +108,48 @@ namespace WarehouseApi.Library.Services
 			}
 
 			return Result.Success();
+		}
+
+		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocumentEntity carLoadDocument)
+		{
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(uow, carLoadDocument);
+
+			var isNotAllCodesAdded = carLoadDocument.Items
+				.Where(x =>
+					x.OrderId != null
+					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
+					&& x.Nomenclature.IsAccountableInTrueMark
+					&& x.Nomenclature.Gtin != null)
+				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+
+			if(isNotAllCodesAdded)
+			{
+				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(carLoadDocument.Id);
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(IUnitOfWork uow, CarLoadDocumentEntity carLoadDocument)
+		{
+			var ordersInDocument = carLoadDocument.Items
+				.Where(x => x.OrderId != null)
+				.Select(x => x.OrderId.Value)
+				.Distinct()
+				.ToList();
+
+			var undeliveredStatuses = new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+
+			var cancelledOrders =
+				_orderRepository.Get(uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
+
+			return cancelledOrders.Select(o => o.Id);
 		}
 
 		private async Task<Result> AddProductCodesToCarLoadDocumentItemFromStagingCodes(
@@ -244,17 +324,16 @@ namespace WarehouseApi.Library.Services
 		public async Task<Result> RemoveStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			int routeListItemId,
-			int orderItemId,
+			int carLoadDocumentItemId,
 			CancellationToken cancellationToken = default)
 		{
 			var existingCodeResult =
 				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
 					uow,
 					scannedCode,
-					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-					routeListItemId,
-					orderItemId);
+					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+					carLoadDocumentItemId,
+					null);
 
 			if(existingCodeResult.IsFailure)
 			{

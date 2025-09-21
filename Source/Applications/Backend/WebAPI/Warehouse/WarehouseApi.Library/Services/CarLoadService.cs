@@ -3,7 +3,6 @@ using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using OneOf;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,6 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
@@ -28,7 +26,6 @@ using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
@@ -46,6 +43,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
+		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
 		private readonly IBus _messageBus;
 
 		public CarLoadService(
@@ -59,6 +57,7 @@ namespace WarehouseApi.Library.Services
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
+			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -71,6 +70,7 @@ namespace WarehouseApi.Library.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -271,135 +271,66 @@ namespace WarehouseApi.Library.Services
 		{
 			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
 
-			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, scannedCode);
-
-			if(trueMarkCodeResult.IsFailure)
-			{
-				var error = trueMarkCodeResult.Errors.FirstOrDefault();
-
-				var result = Result.Failure<AddOrderCodeResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
-			try
-			{
-				trueMarkCodeResult.Value.Match(
-					transportCode =>
-					{
-						_uow.Save(transportCode);
-						return true;
-					},
-					waterGroupCode =>
-					{
-						_uow.Save(waterGroupCode);
-						return true;
-					},
-					waterIdentificationCode =>
-					{
-						_uow.Save(waterIdentificationCode);
-						return true;
-					});
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-
-				var error = new Error("Database.Commit.Error", e.Message);
-				var result = Result.Failure<AddOrderCodeResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
-			_uow.Commit();
-			_uow.Session.BeginTransaction();
-
-			if((trueMarkCodeResult.Value.IsTrueMarkTransportCode &&
-				trueMarkCodeResult.Value.TrueMarkTransportCode?.ParentTransportCodeId != null)
-				|| (trueMarkCodeResult.Value.IsTrueMarkWaterGroupCode
-					&& (trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
-					|| trueMarkCodeResult.Value.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null))
-				|| (trueMarkCodeResult.Value.IsTrueMarkWaterIdentificationCode
-					&& (trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
-					|| trueMarkCodeResult.Value.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
-			{
-				var error = VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.AggregationCodeAddError;
-
-				var result = Result.Failure<AddOrderCodeResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, new AddOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
-			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
-				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
-				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
-
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
+			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
-			NomenclatureDto nomenclatureDto = null;
-
-			var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-			foreach(var anyCode in trueMarkAnyCodes)
+			var failureResponse = new AddOrderCodeResponse
 			{
-				trueMarkCodes.Add(anyCode.Match(
-					PopulateTransportCode(trueMarkAnyCodes),
-					PopulateGroupCode(trueMarkAnyCodes),
-					PopulateWaterCode(trueMarkAnyCodes)));
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Result = OperationResultEnumDto.Error,
+			};
+
+			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
+
+			if(checkResult.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
-			
-			var waterCodes =
-				trueMarkAnyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.ToArray();
+
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(
+				documentItemToEdit?.Document?.Id ?? 0,
+				pickerEmployee,
+				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
+
+			var isCodesCanBeAdded = _documentErrorsChecker.IsTrueMarkCodesCanBeAdded(
+				orderId,
+				nomenclatureId,
+				allWaterOrderItems,
+				itemsHavingRequiredNomenclature,
+				documentItemToEdit);
+
+			if(isCodesCanBeAdded.IsFailure)
+			{
+				var error = isCodesCanBeAdded.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
 
 			var addCodesResult =
-				await AddCodes(
-					orderId,
-					nomenclatureId,
-					pickerEmployee,
-					waterCodes,
-					allWaterOrderItems,
-					itemsHavingRequiredNomenclature,
+				await _codesProcessingService.AddStagingTrueMarkCode(
+					_uow,
+					scannedCode,
+					documentItemToEdit.Id,
 					cancellationToken);
 
-			if(addCodesResult.IsT0)
+			if(addCodesResult.IsFailure)
 			{
-				return addCodesResult.AsT0;
+				var error = addCodesResult.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<AddOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
-
-			var documentItemToEdit = addCodesResult.AsT1;
-
-			if(nomenclatureDto is null)
-			{
-				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-			}
-
-			_uow.Save(documentItemToEdit);
 
 			try
 			{
 				_uow.Commit();
 			}
-			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
 			{
 				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
 
@@ -428,9 +359,20 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
+			NomenclatureDto nomenclatureDto = null;
+
+			if(nomenclatureDto is null)
+			{
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+			}
+
 			if(nomenclatureDto != null)
 			{
-				nomenclatureDto.Codes = trueMarkCodes;
+				var allCodes = addCodesResult.Value.AllCodes;
+
+				nomenclatureDto.Codes =
+					allCodes
+					.Select(PopulateStagingTrueMarkCodes(allCodes));
 			}
 
 			var successResponse = new AddOrderCodeResponse
@@ -443,65 +385,6 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		private async Task<OneOf<RequestProcessingResult<AddOrderCodeResponse>, CarLoadDocumentItemEntity>> AddCodes(
-			int orderId,
-			int nomenclatureId,
-			EmployeeWithLogin pickerEmployee,
-			IEnumerable<TrueMarkWaterIdentificationCode> waterCodes,
-			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
-			List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CancellationToken cancellationToken)
-		{
-			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
-
-			var failureResponse = new AddOrderCodeResponse
-			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
-				Result = OperationResultEnumDto.Error,
-			};
-
-			var checkResult = _documentErrorsChecker.IsEmployeeCanPickUpCarLoadDocument(documentItemToEdit?.Document?.Id ?? 0, pickerEmployee);
-
-			if(checkResult.IsFailure)
-			{
-				var error = checkResult.Errors.FirstOrDefault();
-
-				failureResponse.Error = error.Message;
-
-				var result = Result.Failure<AddOrderCodeResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, failureResponse);
-			}
-
-			CreateAndSaveCarLoadDocumentLoadingProcessAction(
-				documentItemToEdit?.Document?.Id ?? 0,
-				pickerEmployee,
-				CarLoadDocumentLoadingProcessActionType.AddTrueMarkCode);
-
-			checkResult = await _documentErrorsChecker.IsTrueMarkCodesCanBeAdded(
-				orderId,
-				nomenclatureId,
-				allWaterOrderItems,
-				itemsHavingRequiredNomenclature,
-				documentItemToEdit,
-				cancellationToken);
-
-			if(checkResult.IsFailure)
-			{
-				var error = checkResult.Errors.FirstOrDefault();
-
-				failureResponse.Error = error.Message;
-
-				var result = Result.Failure<AddOrderCodeResponse>(error);
-
-				return RequestProcessingResult.CreateFailure(result, failureResponse);
-			}
-
-			AddTrueMarkCodesToCarLoadDocumentItem(documentItemToEdit, waterCodes);
-
-			return await Task.FromResult(documentItemToEdit);
-		}
-
 		public async Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(
 			int orderId,
 			int nomenclatureId,
@@ -512,268 +395,9 @@ namespace WarehouseApi.Library.Services
 		{
 			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
 
-			var oldTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, oldScannedCode);
-
-			if(oldTrueMarkCodeResult.IsFailure)
-			{
-				var error = oldTrueMarkCodeResult.Errors.FirstOrDefault();
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
-			Vodovoz.Core.Domain.Results.Result<TrueMarkAnyCode> newTrueMarkCodeResult = null;
-
-			if(!string.IsNullOrWhiteSpace(newScannedCode))
-			{
-				newTrueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(_uow, newScannedCode);
-
-				if(newTrueMarkCodeResult.IsFailure)
-				{
-					var error = newTrueMarkCodeResult.Errors.FirstOrDefault();
-					var result = Result.Failure<ChangeOrderCodeResponse>(error);
-					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
-					{
-						Nomenclature = null,
-						Result = OperationResultEnumDto.Error,
-						Error = error.Message
-					});
-				}
-				try
-				{
-					newTrueMarkCodeResult.Value.Match(
-						transportCode =>
-						{
-							_uow.Save(transportCode);
-							return true;
-						},
-						waterGroupCode =>
-						{
-							_uow.Save(waterGroupCode);
-							return true;
-						},
-						waterIdentificationCode =>
-						{
-							_uow.Save(waterIdentificationCode);
-							return true;
-						});
-
-					_uow.Commit();
-					_uow.Session.BeginTransaction();
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-
-					var error = new Error("Database.Commit.Error", e.Message);
-					var result = Result.Failure<ChangeOrderCodeResponse>(error);
-					return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
-					{
-						Nomenclature = null,
-						Result = OperationResultEnumDto.Error,
-						Error = error.Message
-					});
-				}
-			}
-
-			if(oldTrueMarkCodeResult.Value.Match(
-				transportCode => transportCode.ParentTransportCodeId != null,
-				groupCode => groupCode.ParentTransportCodeId != null || groupCode.ParentWaterGroupCodeId != null,
-				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
-			{
-				var error = VodovozBusiness.Errors.TrueMark
-					.TrueMarkServiceErrors.AggregationCodeChangeError;
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
-			if(newTrueMarkCodeResult != null
-				&& newTrueMarkCodeResult.Value.Match(
-				transportCode => transportCode.ParentTransportCodeId != null,
-				groupCode => groupCode.ParentTransportCodeId != null || groupCode.ParentWaterGroupCodeId != null,
-				waterCode => waterCode.ParentTransportCodeId != null || waterCode.ParentWaterGroupCodeId != null))
-			{
-				var error = VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.AggregationCodeAddError;
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
-				{
-					Nomenclature = null,
-					Result = OperationResultEnumDto.Error,
-					Error = error.Message
-				});
-			}
-
 			var allWaterOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var itemsHavingRequiredNomenclature = allWaterOrderItems.Where(item => item.Nomenclature.Id == nomenclatureId).ToList();
-
-			IEnumerable<TrueMarkAnyCode> oldTrueMarkAnyCodes = oldTrueMarkCodeResult.Value.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
-
-			IEnumerable<TrueMarkAnyCode> newTrueMarkAnyCodes = newTrueMarkCodeResult?.Value.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode }) ?? Enumerable.Empty<TrueMarkAnyCode>();
-
-			var oldTrueMarkAnyCodesList = oldTrueMarkAnyCodes.ToArray();
-
-			foreach(var codeToRemove in oldTrueMarkAnyCodesList)
-			{
-				if(!codeToRemove.IsTrueMarkWaterIdentificationCode)
-				{
-					continue;
-				}
-
-				await RemoveSingleCode(_uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
-			}
-
-			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
-			{
-				oldCodeToRemoveFromDatabase.Match(
-					transportCode =>
-					{
-						transportCode.ClearAllCodes();
-						return true;
-					},
-					groupCode =>
-					{
-						groupCode.ClearAllCodes();
-						return true;
-					},
-					waterCode =>
-					{
-						return true;
-					});
-			}
-
-			try
-			{
-				_uow.Commit();
-				_uow.Session.BeginTransaction();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-			}
-
-			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
-			{
-				oldCodeToRemoveFromDatabase.Match(
-					transportCode =>
-					{
-						_uow.Delete(transportCode);
-						return true;
-					},
-					groupCode =>
-					{
-						_uow.Delete(groupCode);
-						return true;
-					},
-					waterCode =>
-					{
-						_uow.Delete(waterCode);
-						return true;
-					});
-			}
-
-			try
-			{
-				_uow.Commit();
-				_uow.Session.BeginTransaction();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
-			}
-
-			NomenclatureDto nomenclatureDto = null;
-
-			var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-			foreach(var anyCode in newTrueMarkAnyCodes)
-			{
-				trueMarkCodes.Add(anyCode.Match(
-					PopulateTransportCode(newTrueMarkAnyCodes),
-					PopulateGroupCode(newTrueMarkAnyCodes),
-					PopulateWaterCode(newTrueMarkAnyCodes)));
-			}
-
-			CarLoadDocumentItemEntity documentItemToEdit = null;
-
-			var codesToAdd = 
-				newTrueMarkAnyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.ToArray();
-
-			var addCodesResult =
-				await AddCodes(
-					orderId,
-					nomenclatureId,
-					pickerEmployee,
-					codesToAdd,
-					allWaterOrderItems,
-					itemsHavingRequiredNomenclature,
-					cancellationToken);
-
-			if(addCodesResult.IsT0)
-			{
-				var otherFailureResult = addCodesResult.AsT0;
-				return RequestProcessingResult.CreateFailure(
-					Result.Failure<ChangeOrderCodeResponse>(otherFailureResult.Result.Errors),
-					new ChangeOrderCodeResponse
-					{
-						Nomenclature = otherFailureResult.FailureData.Nomenclature,
-						Result = otherFailureResult.FailureData.Result,
-						Error = otherFailureResult.FailureData.Error,
-					});
-			}
-
-			documentItemToEdit = addCodesResult.AsT1;
-
-			if(nomenclatureDto is null)
-			{
-				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-			}
-
-			_uow.Save(documentItemToEdit);
-			_uow.Commit();
-
-			if(nomenclatureDto != null)
-			{
-				nomenclatureDto.Codes = trueMarkCodes;
-			}
-
-			var successResponse = new ChangeOrderCodeResponse
-			{
-				Nomenclature = nomenclatureDto,
-				Result = OperationResultEnumDto.Success,
-				Error = null
-			};
-
-			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
-		}
-
-		private async Task<OneOf<RequestProcessingResult<ChangeOrderCodeResponse>, CarLoadDocumentItemEntity>> RemoveSingleCode(
-			IUnitOfWork unitOfWork,
-			string userLogin,
-			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
-			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
-			List<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CancellationToken cancellationToken)
-		{
-			CarLoadDocumentItemEntity documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
-			var pickerEmployee = GetEmployeeProxyByApiLogin(userLogin);
+			var documentItemToEdit = itemsHavingRequiredNomenclature.FirstOrDefault();
 
 			var failureResponse = new ChangeOrderCodeResponse
 			{
@@ -786,11 +410,8 @@ namespace WarehouseApi.Library.Services
 			if(checkResult.IsFailure)
 			{
 				var error = checkResult.Errors.FirstOrDefault();
-
 				failureResponse.Error = error.Message;
-
 				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
@@ -799,16 +420,108 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			var resultOfRemoving = RemoveTrueMarkCodeInCarLoadDocumentItem(unitOfWork, documentItemToEdit, oldTrueMarkWaterCode);
+			var removeOldCodeResult =
+				await _codesProcessingService.RemoveStagingTrueMarkCode(
+					_uow,
+					oldScannedCode,
+					documentItemToEdit.Id,
+					cancellationToken);
 
-			if(resultOfRemoving.IsFailure)
+			if(removeOldCodeResult.IsFailure)
 			{
-				return RequestProcessingResult.CreateFailure(
-					Result.Failure<ChangeOrderCodeResponse>(resultOfRemoving.Errors),
-					failureResponse);
+				var error = removeOldCodeResult.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			return await Task.FromResult(documentItemToEdit);
+			var isCodesCanBeAdded = _documentErrorsChecker.IsCanChangeTrueMarkCode(
+				orderId,
+				nomenclatureId,
+				allWaterOrderItems,
+				itemsHavingRequiredNomenclature,
+				documentItemToEdit);
+
+			if(isCodesCanBeAdded.IsFailure)
+			{
+				var error = isCodesCanBeAdded.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			var addCodesResult =
+				await _codesProcessingService.AddStagingTrueMarkCode(
+					_uow,
+					newScannedCode,
+					documentItemToEdit.Id,
+					cancellationToken);
+
+			if(addCodesResult.IsFailure)
+			{
+				var error = addCodesResult.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+
+			try
+			{
+				_uow.Commit();
+			}
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			{
+				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
+
+				var error = new Error("Database.Commit.Error", "Код уже был добавлен в другом документе");
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new ChangeOrderCodeResponse
+				{
+					Nomenclature = null,
+					Result = OperationResultEnumDto.Error,
+					Error = error.Message
+				});
+			}
+
+			NomenclatureDto nomenclatureDto = null;
+
+			if(nomenclatureDto is null)
+			{
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+			}
+
+			if(nomenclatureDto != null)
+			{
+				var allCodes = addCodesResult.Value.AllCodes;
+
+				nomenclatureDto.Codes =
+					allCodes
+					.Select(PopulateStagingTrueMarkCodes(allCodes));
+			}
+
+			var successResponse = new ChangeOrderCodeResponse
+			{
+				Nomenclature = nomenclatureDto,
+				Result = OperationResultEnumDto.Success,
+				Error = null
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
 		public async Task<RequestProcessingResult<EndLoadResponse>> EndLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
@@ -830,26 +543,33 @@ namespace WarehouseApi.Library.Services
 			if(checkResult.IsFailure)
 			{
 				var error = checkResult.Errors.FirstOrDefault();
-
 				failureResponse.Error = error.Message;
-
 				var result = Result.Failure<EndLoadResponse>(error);
-
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			CreateAndSaveCarLoadDocumentLoadingProcessAction(carLoadDocument?.Id ?? 0, pickerEmployee, CarLoadDocumentLoadingProcessActionType.EndLoad);
+			CreateAndSaveCarLoadDocumentLoadingProcessAction(
+				carLoadDocument?.Id ?? 0, pickerEmployee,
+				CarLoadDocumentLoadingProcessActionType.EndLoad);
 
 			checkResult = _documentErrorsChecker.IsCarLoadDocumentLoadingCanBeDone(carLoadDocument, documentId);
 
 			if(checkResult.IsFailure)
 			{
 				var error = checkResult.Errors.FirstOrDefault();
-
 				failureResponse.Error = error.Message;
-
 				var result = Result.Failure<EndLoadResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
 
+			var saveProductCodesResult =
+				await _codesProcessingService.AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(_uow, carLoadDocument, cancellationToken);
+
+			if(saveProductCodesResult.IsFailure)
+			{
+				var error = saveProductCodesResult.Errors.FirstOrDefault();
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<EndLoadResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
@@ -859,11 +579,8 @@ namespace WarehouseApi.Library.Services
 			if(!isDocumentLoadOperationStateUpdated)
 			{
 				var error = CarLoadDocumentErrors.CreateCarLoadDocumentStateChangeError(carLoadDocument.Id);
-
 				failureResponse.Error = error.Message;
-
 				var result = Result.Failure<EndLoadResponse>(error);
-
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
@@ -873,17 +590,35 @@ namespace WarehouseApi.Library.Services
 			if(!isLogisticEventCreated)
 			{
 				var error = CarLoadDocumentErrors.CarLoadDocumentLogisticEventCreationError;
-
 				failureResponse.Error = error.Message;
-
 				var result = Result.Failure<EndLoadResponse>(error);
-
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
 			var edoRequests = CreateEdoRequests(carLoadDocument);
 
-			_uow.Commit();
+			try
+			{
+				_uow.Commit();
+			}
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			{
+				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
+
+				var error = new Error("Database.Commit.Error", "Код уже был добавлен в другом документе");
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<EndLoadResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+
+				var error = new Error("Database.Commit.Error", e.Message);
+				failureResponse.Error = error.Message;
+				var result = Result.Failure<EndLoadResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
 
 			await PublishEdoRequestCreatedEvents(edoRequests);
 
@@ -942,62 +677,6 @@ namespace WarehouseApi.Library.Services
 				newLoadOperationState.GetEnumTitle());
 
 			return true;
-		}
-
-		private void AddTrueMarkCodesToCarLoadDocumentItem(
-			CarLoadDocumentItemEntity carLoadDocumentItem,
-			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCode)
-		{
-			foreach(var code in trueMarkWaterCode)
-			{
-				AddTrueMarkCodeToCarLoadDocumentItem(carLoadDocumentItem, code);
-			}
-		}
-
-		private void AddTrueMarkCodeToCarLoadDocumentItem(CarLoadDocumentItemEntity carLoadDocumentItem, TrueMarkWaterIdentificationCode trueMarkWaterCode)
-		{
-			if(trueMarkWaterCode.Id == 0)
-			{
-				_uow.Save(trueMarkWaterCode);
-			}
-
-			var productCode = new CarLoadDocumentItemTrueMarkProductCode
-			{
-				CreationTime = DateTime.Now,
-				SourceCode = trueMarkWaterCode,
-				ResultCode = trueMarkWaterCode,
-				Problem = ProductCodeProblem.None,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				CarLoadDocumentItem = carLoadDocumentItem
-			};
-
-			_uow.Save(productCode);
-
-			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
-		}
-
-		private Result RemoveTrueMarkCodeInCarLoadDocumentItem(
-			IUnitOfWork uow,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
-			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode)
-		{
-			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
-				.Where(x =>
-					x.SourceCode.Gtin == oldTrueMarkWaterCode.Gtin
-					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
-					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
-				.FirstOrDefault();
-
-			if(codeToRemove is null)
-			{
-				return Result.Failure(VodovozBusiness.Errors.TrueMark.TrueMarkServiceErrors.MissingTrueMarkCodeToDelete);
-			}
-
-			carLoadDocumentItem.TrueMarkCodes.Remove(codeToRemove);
-
-			uow.Delete(codeToRemove);
-
-			return Result.Success();
 		}
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
@@ -1242,6 +921,45 @@ namespace WarehouseApi.Library.Services
 				{
 					Code = transportCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.transport,
+					Parent = parentRawCode
+				};
+			};
+		}
+
+		private static Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(IEnumerable<StagingTrueMarkCode> allCodes)
+		{
+			return stagingCode =>
+			{
+				string parentRawCode = null;
+
+				if(stagingCode.ParentCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
+						?.RawCode;
+				}
+
+				WarehouseApiTruemarkCodeLevel level;
+
+				switch(stagingCode.CodeType)
+				{
+					case StagingTrueMarkCodeType.Transport:
+						level = WarehouseApiTruemarkCodeLevel.transport;
+						break;
+					case StagingTrueMarkCodeType.Group:
+						level = WarehouseApiTruemarkCodeLevel.group;
+						break;
+					case StagingTrueMarkCodeType.Identification:
+						level = WarehouseApiTruemarkCodeLevel.unit;
+						break;
+					default:
+						throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel");
+				}
+
+				return new TrueMarkCodeDto
+				{
+					Code = stagingCode.RawCode,
+					Level = level,
 					Parent = parentRawCode
 				};
 			};

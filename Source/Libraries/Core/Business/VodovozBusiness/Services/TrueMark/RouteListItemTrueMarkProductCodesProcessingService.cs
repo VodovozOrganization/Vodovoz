@@ -227,6 +227,15 @@ namespace VodovozBusiness.Services.TrueMark
 				}
 			}
 
+			var allCodesAddedToOrderResult =
+				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
+
+			if(allCodesAddedToOrderResult.IsFailure)
+			{
+				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
+				return Result.Failure(error);
+			}
+
 			var deleteStagingCodesResult =
 				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
 					uow,
@@ -237,15 +246,6 @@ namespace VodovozBusiness.Services.TrueMark
 			if(deleteStagingCodesResult.IsFailure)
 			{
 				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
-			}
-
-			var allCodesAddedToOrderResult =
-				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
-
-			if(allCodesAddedToOrderResult.IsFailure)
-			{
-				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
 				return Result.Failure(error);
 			}
 
