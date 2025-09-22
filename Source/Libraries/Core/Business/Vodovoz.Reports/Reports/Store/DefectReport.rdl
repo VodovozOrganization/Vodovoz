@@ -211,7 +211,7 @@ WHERE stored_resource.id = @id1
             <Width>55.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>241.7pt</Width>
+            <Width>222.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -404,7 +404,7 @@ WHERE stored_resource.id = @id1
         <Left>2.90pt</Left>
         <Width>806.08pt</Width>
         <Height>20.35pt</Height>
-        <Value>= "Акт дефектации №" + First(Fields!id.Value, "Doc")</Value>      
+        <Value>= "Акт дефектации №" + First(Fields!id.Value, "Doc")</Value>
         <Style>
           <FontSize>14pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -462,9 +462,10 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox23">
         <Height>17.28pt</Height>
         <Width>365.96pt</Width>
-        <Value>= "Ответственное лицо ______________ (" + First(Fields!responsible_person.Value, "Doc") + ")"</Value>        <ZIndex>0</ZIndex>
-        <Left>396.8pt</Left>
-        <Top>424.4pt</Top>
+        <Value>= "Ответственное лицо ______________ (" + First(Fields!responsible_person.Value, "Doc") + ")"</Value>
+        <ZIndex>0</ZIndex>
+        <Left>369.7pt</Left>
+        <Top>423.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -504,7 +505,7 @@ WHERE stored_resource.id = @id1
         <Sizing>FitProportional</Sizing>
       </Image>
       <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>290.6pt</Top>
+        <Top>293.0pt</Top>
         <Left>0.8pt</Left>
         <Width>806.08pt</Width>
         <Height>20.35pt</Height>
@@ -570,7 +571,7 @@ WHERE stored_resource.id = @id1
             <Width>55.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>241.7pt</Width>
+            <Width>221.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
