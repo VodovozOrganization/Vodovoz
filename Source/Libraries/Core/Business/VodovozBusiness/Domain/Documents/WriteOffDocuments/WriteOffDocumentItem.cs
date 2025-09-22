@@ -124,6 +124,11 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			{
 				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
 			}
+
+			if(Type == WriteOffDocumentItemType.InstanceWriteOffFromCarDocumentItem && CullingCategory is null)
+			{
+				yield return new ValidationResult("Поле \"Причина выбраковки\" не должно быть пустым", new[] { nameof(Type) });
+			}
 		}
 	}
 }
