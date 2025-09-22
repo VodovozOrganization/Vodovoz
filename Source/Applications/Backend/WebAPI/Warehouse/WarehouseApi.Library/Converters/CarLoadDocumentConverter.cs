@@ -57,7 +57,7 @@ namespace WarehouseApi.Library.Converters
 				Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
 				GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
 				Quantity = (int)documentItem.Amount,
-				Codes = GetApiTrueMarkCodes(documentItem)
+				Codes = GetApiTrueMarkCodes(documentItem, carLoadDocumentItemsStagingCodes)
 			};
 
 			return apiNomenclature;
@@ -129,10 +129,18 @@ namespace WarehouseApi.Library.Converters
 					.ToList();
 			}
 
-			carLoadDocumentItemsStagingCodes.TryGetValue(documentItem.Id, out var stagingCodes);
+			if(!carLoadDocumentItemsStagingCodes.TryGetValue(documentItem.Id, out var stagingCodes))
+			{
+				return Enumerable.Empty<TrueMarkCodeDto>();
+			}
 
-			return (stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>())
-				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
+			if(stagingCodes?.Any() != true)
+			{
+				return Enumerable.Empty<TrueMarkCodeDto>();
+			}
+
+			return stagingCodes
+				.Select(PopulateStagingTrueMarkCodes(stagingCodes, sequenceNumber++))
 				.ToList();
 
 		}
@@ -147,13 +155,44 @@ namespace WarehouseApi.Library.Converters
 			};
 		}
 
-		private TrueMarkCodeDto ConvertToApiTrueMarkCode(StagingTrueMarkCode stagingTrueMarkCode, int sequenceNumber)
+		public Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(
+			IEnumerable<StagingTrueMarkCode> allCodes,
+			int sequenceNumber = 0)
 		{
-			return new TrueMarkCodeDto
+			return stagingCode =>
 			{
-				SequenceNumber = sequenceNumber,
-				Code = stagingTrueMarkCode.RawCode,
-				Level = WarehouseApiTruemarkCodeLevel.unit
+				string parentRawCode = null;
+
+				if(stagingCode.ParentCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
+						?.RawCode;
+				}
+
+				WarehouseApiTruemarkCodeLevel level;
+
+				switch(stagingCode.CodeType)
+				{
+					case StagingTrueMarkCodeType.Transport:
+						level = WarehouseApiTruemarkCodeLevel.transport;
+						break;
+					case StagingTrueMarkCodeType.Group:
+						level = WarehouseApiTruemarkCodeLevel.group;
+						break;
+					case StagingTrueMarkCodeType.Identification:
+						level = WarehouseApiTruemarkCodeLevel.unit;
+						break;
+					default:
+						throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel");
+				}
+
+				return new TrueMarkCodeDto
+				{
+					Code = stagingCode.RawCode,
+					Level = level,
+					Parent = parentRawCode
+				};
 			};
 		}
 

@@ -389,7 +389,7 @@ namespace WarehouseApi.Library.Services
 
 				nomenclatureDto.Codes =
 					allCodes
-					.Select(PopulateStagingTrueMarkCodes(allCodes));
+					.Select(_carLoadDocumentConverter.PopulateStagingTrueMarkCodes(allCodes));
 			}
 
 			var successResponse = new AddOrderCodeResponse
@@ -538,7 +538,7 @@ namespace WarehouseApi.Library.Services
 
 				nomenclatureDto.Codes =
 					allCodes
-					.Select(PopulateStagingTrueMarkCodes(allCodes));
+					.Select(_carLoadDocumentConverter.PopulateStagingTrueMarkCodes(allCodes));
 			}
 
 			var successResponse = new ChangeOrderCodeResponse
@@ -962,45 +962,6 @@ namespace WarehouseApi.Library.Services
 				{
 					Code = transportCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.transport,
-					Parent = parentRawCode
-				};
-			};
-		}
-
-		private static Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(IEnumerable<StagingTrueMarkCode> allCodes)
-		{
-			return stagingCode =>
-			{
-				string parentRawCode = null;
-
-				if(stagingCode.ParentCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
-						?.RawCode;
-				}
-
-				WarehouseApiTruemarkCodeLevel level;
-
-				switch(stagingCode.CodeType)
-				{
-					case StagingTrueMarkCodeType.Transport:
-						level = WarehouseApiTruemarkCodeLevel.transport;
-						break;
-					case StagingTrueMarkCodeType.Group:
-						level = WarehouseApiTruemarkCodeLevel.group;
-						break;
-					case StagingTrueMarkCodeType.Identification:
-						level = WarehouseApiTruemarkCodeLevel.unit;
-						break;
-					default:
-						throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel");
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = stagingCode.RawCode,
-					Level = level,
 					Parent = parentRawCode
 				};
 			};
