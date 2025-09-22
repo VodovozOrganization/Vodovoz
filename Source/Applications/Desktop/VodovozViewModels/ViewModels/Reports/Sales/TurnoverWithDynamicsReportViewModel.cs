@@ -34,6 +34,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -86,7 +88,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			ICurrentPermissionService currentPermissionService,
-			IUserService userService)
+			IUserService userService,
+			IEmployeeRepository employeeRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(currentPermissionService is null)
@@ -107,6 +110,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
+			_employeeRepository = employeeRepository ?? throw new  ArgumentNullException(nameof(employeeRepository));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
@@ -290,7 +294,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				_userIsSalesRepresentative ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
@@ -321,7 +327,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return;
 			}
 
-			var parameters = FilterViewModel.GetReportParametersSet();
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
 			{
@@ -494,25 +500,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ReportGenerationCancelationTokenSource.Cancel();
 			}
 
-			var filters = string.Empty;
-
-			var sb2 = new StringBuilder();
-
-			GetParameterValues<NomenclatureCategory>(sb2);
-			GetParameterValues<Nomenclature>(sb2);
-			GetParameterValues<ProductGroup>(sb2);
-			GetParameterValues<Counterparty>(sb2);
-			GetParameterValues<Organization>(sb2);
-			GetParameterValues<DiscountReason>(sb2);
-			GetParameterValues<Subdivision>(sb2);
-			GetParameterValues<Employee>(sb2);
-			GetParameterValues<GeoGroup>(sb2);
-			GetParameterValues<PaymentType>(sb2);
-			GetParameterValues<PromotionalSet>(sb2);
-			GetParameterValues<CounterpartyCompositeClassification>(sb2);
-			GetBoolParamsValues(sb2);
-
-			filters = sb2.ToString().Trim('\n');
+			_filterViewModel.GetReportParametersSet(out var sb, withCounts: false);
 
 			var selectedGroupings = SelectedGroupings;
 
@@ -526,7 +514,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return TurnoverWithDynamicsReport.Create(
 					StartDate.Value,
 					EndDate.Value,
-					filters,
+					sb.ToString(),
 					selectedGroupings,
 					SlicingType,
 					MeasurementUnit,
@@ -1460,6 +1448,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								.JoinAlias(() => routeListAlias.Car, () => carAlias)
 								.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 								.Where(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck);
+						}
+						else
+						{
+							query
+								.JoinEntityAlias(
+									() => notTransferedRouteListItemAlias,
+									() => orderAlias.Id == notTransferedRouteListItemAlias.Order.Id
+										&& notTransferedRouteListItemAlias.Status != RouteListItemStatus.Transfered,
+									JoinType.LeftOuterJoin)
+								.Left.JoinAlias(() => notTransferedRouteListItemAlias.RouteList, () => routeListAlias)
+								.Where(() => routeListAlias.Id == null);
 						}
 						break;
 					default:

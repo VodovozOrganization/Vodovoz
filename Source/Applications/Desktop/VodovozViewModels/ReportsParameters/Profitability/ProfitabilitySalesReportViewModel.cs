@@ -23,6 +23,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
@@ -151,7 +152,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				_userIsSalesRepresentative ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
@@ -164,16 +167,34 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
 			{
 				filter.HideElements.Add(CarTypeOfUse.Loader);
-				filter.GetReportParametersFunc = f =>
+				filter.GetReportParametersFunc = (f, sb, withCounts) =>
 				{
 					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
 					var excludedTypes = filter.GetExcluded().Select(x => x.ToString()).ToArray();
 
-					return new Dictionary<string, object>
+					var parameters = new Dictionary<string, object>();
+
+					if(includedTypes.Length > 0)
 					{
-						{ "CarTypeOfUse_include", includedTypes.Length > 0 ? includedTypes : new[] { "0" } },
-						{ "CarTypeOfUse_exclude", excludedTypes.Length > 0 ? excludedTypes : new[] { "0" } }
-					};
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", includedTypes);
+						sb.AppendLine($"Вкл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {includedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", new[] { "0" });
+					}
+					
+					if(excludedTypes.Length > 0)
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", excludedTypes);
+						sb.AppendLine($"Искл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {excludedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", new[] { "0" });
+					}
+
+					return parameters;
 				};
 			});
 		}
@@ -202,18 +223,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
 			}
 
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate);
 			_parameters.Add("end_date", EndDate);
 			_parameters.Add("creation_date", DateTime.Now);
-
-			if(_userIsSalesRepresentative)
-			{
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
-
-				_parameters.Add("Employee_include", new[] { currentEmployee.Id.ToString() });
-				_parameters.Add("Employee_exclude", new[] { "0" });
-			}
+			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
 
 			var groupParameters = GetGroupingParameters();
 

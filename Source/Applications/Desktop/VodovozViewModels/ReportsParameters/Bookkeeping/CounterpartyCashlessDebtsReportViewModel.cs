@@ -21,7 +21,9 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 {
@@ -152,7 +154,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private void GenerateReport(bool isReportBySingleCounterpartyDebt = false)
 		{
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 			_parameters.Add("start_date", StartDate.HasValue ? StartDate.Value.ToString(DateTimeFormats.QueryDateTimeFormat) : string.Empty);
 			_parameters.Add("end_date", EndDate.HasValue ? EndDate.Value.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat) : string.Empty);
@@ -179,7 +181,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private bool IsSelectedOneCounterpartyCheck()
 		{
-			var parameters = FilterViewModel.GetReportParametersSet();
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 			if(parameters.TryGetValue("Counterparty_include", out object value))
 			{
@@ -194,7 +196,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		private int GetSelectedCounterpartyId()
 		{
-			var parameters = FilterViewModel.GetReportParametersSet();
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 			if(parameters.TryGetValue("Counterparty_include", out object value))
 			{
@@ -423,73 +425,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 					}
 				};
 
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип контрагента
-
-					var includeCounterpartyTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, includeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartyTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, excludeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Клиент Рекламного Отдела
-
-					var includeCounterpartySubtypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, includeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartySubtypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, excludeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, new object[] { "0" });
-					}
-
-					return result;
-
-				};
+				filterConfig.GetReportParametersFunc = CustomReportParametersFunc.CounterpartyTypeReportParametersFunc;
 			});
 
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _counterpartyRepository);

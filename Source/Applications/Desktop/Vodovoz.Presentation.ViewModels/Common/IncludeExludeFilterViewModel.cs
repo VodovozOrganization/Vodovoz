@@ -129,6 +129,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var newFilter = new IncludeExcludeEntityFilter<TEntity>
 			{
 				Title = Title,
+				GenitivePluralTitle = typeof(TEntity).GetClassUserFriendlyName().GenitivePlural,
 				Type = typeof(TEntity)
 			};
 

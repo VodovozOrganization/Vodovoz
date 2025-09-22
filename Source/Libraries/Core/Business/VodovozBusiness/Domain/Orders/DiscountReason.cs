@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "основания скидок",
-		Nominative = "основание скидки")]
+		Nominative = "основание скидки",
+		GenitivePlural = "оснований скидок")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable

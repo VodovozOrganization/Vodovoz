@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				.GetFilter<IncludeExcludeEnumFilter<EmployeeCategoryFilterType>>()
 				.GetIncluded();
 
-			_filterParameters = filterViewModel.GetReportParametersSet();
+			_filterParameters = filterViewModel.GetReportParametersSet(out var sb);
 			
 			List<LastRouteListReportRow> driverRows = new List<LastRouteListReportRow>();
 

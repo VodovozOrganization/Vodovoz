@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -160,7 +161,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative && CanAccessSalesReports);
+			var onlyCurrentEmployee = _userIsSalesRepresentative || !CanAccessSalesReports;
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				onlyCurrentEmployee ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
@@ -190,7 +194,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-			var parameters = FilterViewModel.GetReportParametersSet();
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
 			{
@@ -345,19 +349,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate?.ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("end_date", EndDate?.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
-
-			if(_userIsSalesRepresentative || !CanAccessSalesReports)
-			{
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
-
-				_parameters.Add("Employee_include", new[] { currentEmployee.Id.ToString() });
-				_parameters.Add("Employee_exclude", new[] { "0" });
-			}
+			_parameters.Add("filters", sb.ToString());
 
 			var groupParameters = GetGroupingParameters();
 

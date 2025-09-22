@@ -9,7 +9,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 	[Appellative(
 		Nominative = "Тип модели авто",
-		NominativePlural = "Типы моделей авто")]
+		NominativePlural = "Типы моделей авто",
+		Genitive = "Типа модели авто",
+		GenitivePlural = "Типов моделей авто")]
 	public enum CarTypeOfUse
 	{
 		/// <summary>

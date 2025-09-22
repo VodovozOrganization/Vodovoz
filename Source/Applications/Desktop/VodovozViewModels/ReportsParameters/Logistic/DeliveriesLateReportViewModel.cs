@@ -115,7 +115,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 					{ "interval_select_mode", GetIntervalSelectedMode().ToString() },
 				};
 
-				foreach(var item in IncludeFilterViewModel.GetReportParametersSet())
+				foreach(var item in IncludeFilterViewModel.GetReportParametersSet(out var sb))
 				{
 					parameters.Add(item.Key, item.Value);
 				}
