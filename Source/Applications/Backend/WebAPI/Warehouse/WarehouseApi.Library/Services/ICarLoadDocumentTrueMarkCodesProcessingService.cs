@@ -22,18 +22,28 @@ namespace WarehouseApi.Library.Services
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
-		/// <param name="carLoadDocumentItemId">Идентификатор строки талона погрузки</param>
-		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="carLoadDocumentItem">Строка талона погрузки</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
-		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int carLoadDocumentItemId, CancellationToken cancellationToken = default);
+		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, CarLoadDocumentItemEntity carLoadDocumentItem, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Заменяем отсканированный код ЧЗ в staging таблице
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="newScannedCode">Новый отсканированный код</param>
+		/// <param name="oldScannedCode">Старый отсканированный код</param>
+		/// <param name="carLoadDocumentItem">Строка талона погрузки</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Результат выполнения операции</returns>
+		Task<Result<StagingTrueMarkCode>> ChangeStagingTrueMarkCode(IUnitOfWork uow, string newScannedCode, string oldScannedCode, CarLoadDocumentItemEntity carLoadDocumentItem, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Удаляем отсканированный код ЧЗ из staging таблицы
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="scannedCode">Отсканированный код</param>
 		/// <param name="carLoadDocumentItemId">Идентификатор строки талона погрузки</param>
-		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
-		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int carLoadDocumentItemId, CancellationToken cancellationToken = default);
+		Task<Result<StagingTrueMarkCode>> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int carLoadDocumentItemId, CancellationToken cancellationToken = default);
 	}
 }

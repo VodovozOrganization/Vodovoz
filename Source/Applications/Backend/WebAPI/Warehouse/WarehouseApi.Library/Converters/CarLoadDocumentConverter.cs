@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using WarehouseApi.Contracts.V1.Dto;
@@ -24,7 +25,9 @@ namespace WarehouseApi.Library.Converters
 			return carLoadDocumentDto;
 		}
 
-		public OrderDto ConvertToApiOrder(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
+		public OrderDto ConvertToApiOrder(
+			IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems,
+			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var waterCarLoadDocumentItems = carLoadDocumentItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
@@ -36,14 +39,16 @@ namespace WarehouseApi.Library.Converters
 			{
 				Id = firstDocumentItem?.OrderId ?? 0,
 				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
-				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems),
-				Items = GetApiOrderItems(waterCarLoadDocumentItems)
+				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems, carLoadDocumentItemsStagingCodes),
+				Items = GetApiOrderItems(waterCarLoadDocumentItems, carLoadDocumentItemsStagingCodes)
 			};
 
 			return apiOrder;
 		}
 
-		public NomenclatureDto ConvertToApiNomenclature(CarLoadDocumentItemEntity documentItem)
+		public NomenclatureDto ConvertToApiNomenclature(
+			CarLoadDocumentItemEntity documentItem,
+			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var apiNomenclature = new NomenclatureDto
 			{
@@ -58,7 +63,9 @@ namespace WarehouseApi.Library.Converters
 			return apiNomenclature;
 		}
 
-		private List<OrderItemDto> GetApiOrderItems(List<CarLoadDocumentItemEntity> waterCarLoadDocuemntItems)
+		private List<OrderItemDto> GetApiOrderItems(
+			List<CarLoadDocumentItemEntity> waterCarLoadDocuemntItems,
+			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var apiOrderItems = new List<OrderItemDto>();
 
@@ -73,7 +80,7 @@ namespace WarehouseApi.Library.Converters
 					Quantity = (int)documentItem.Amount,
 				};
 
-				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem));
+				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem, carLoadDocumentItemsStagingCodes));
 
 				apiOrderItems.Add(apiOrderItem);
 			}
@@ -81,13 +88,16 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderItems;
 		}
 
-		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems)
+		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(
+			IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems,
+			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
 
 			foreach(var item in carLoadDocumentItems)
 			{
-				itemsLoadState.Add(item.GetDocumentItemLoadOperationState());
+				carLoadDocumentItemsStagingCodes.TryGetValue(item.Id, out var stagingCodes);
+				itemsLoadState.Add(item.GetDocumentItemLoadOperationState(stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>()));
 			}
 
 			var apiOrderLoadOperationState = LoadOperationStateEnumDto.NotStarted;
@@ -105,16 +115,26 @@ namespace WarehouseApi.Library.Converters
 			return apiOrderLoadOperationState;
 		}
 
-		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(CarLoadDocumentItemEntity documentItem)
+		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(
+			CarLoadDocumentItemEntity documentItem,
+			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var sequenceNumber = 0;
 
-			var apiTrueMarkCodes =
-				documentItem.TrueMarkCodes
+			if(documentItem.Document.LoadOperationState == CarLoadDocumentLoadOperationState.Done
+				|| carLoadDocumentItemsStagingCodes == null)
+			{
+				return documentItem.TrueMarkCodes
+					.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
+					.ToList();
+			}
+
+			carLoadDocumentItemsStagingCodes.TryGetValue(documentItem.Id, out var stagingCodes);
+
+			return (stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>())
 				.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
 				.ToList();
 
-			return apiTrueMarkCodes;
 		}
 
 		private TrueMarkCodeDto ConvertToApiTrueMarkCode(CarLoadDocumentItemTrueMarkProductCode documentTrueMarkCode, int sequenceNumber)
@@ -123,6 +143,16 @@ namespace WarehouseApi.Library.Converters
 			{
 				SequenceNumber = sequenceNumber,
 				Code = documentTrueMarkCode.SourceCode.RawCode,
+				Level = WarehouseApiTruemarkCodeLevel.unit
+			};
+		}
+
+		private TrueMarkCodeDto ConvertToApiTrueMarkCode(StagingTrueMarkCode stagingTrueMarkCode, int sequenceNumber)
+		{
+			return new TrueMarkCodeDto
+			{
+				SequenceNumber = sequenceNumber,
+				Code = stagingTrueMarkCode.RawCode,
 				Level = WarehouseApiTruemarkCodeLevel.unit
 			};
 		}

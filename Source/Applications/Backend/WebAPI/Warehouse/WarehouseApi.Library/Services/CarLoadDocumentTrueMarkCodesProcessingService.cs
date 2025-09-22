@@ -284,7 +284,7 @@ namespace WarehouseApi.Library.Services
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			int carLoadDocumentItemId,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
@@ -292,7 +292,7 @@ namespace WarehouseApi.Library.Services
 					uow,
 					scannedCode,
 					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
-					carLoadDocumentItemId,
+					carLoadDocumentItem.Id,
 					null,
 					cancellationToken);
 
@@ -307,7 +307,7 @@ namespace WarehouseApi.Library.Services
 				await IsStagingTrueMarkCodeCanBeAdded(
 					uow,
 					stagingTrueMarkCode,
-					null,
+					carLoadDocumentItem,
 					cancellationToken);
 
 			if(isCodeCanBeAddedResult.IsFailure)
@@ -321,7 +321,62 @@ namespace WarehouseApi.Library.Services
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		public async Task<Result> RemoveStagingTrueMarkCode(
+		public async Task<Result<StagingTrueMarkCode>> ChangeStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string newScannedCode,
+			string oldScannedCode,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CancellationToken cancellationToken = default)
+		{
+			var removeCodeResult =
+				await RemoveStagingTrueMarkCode(
+					uow,
+					oldScannedCode,
+					carLoadDocumentItem.Id,
+					cancellationToken);
+
+			if(removeCodeResult.IsFailure)
+			{
+				return removeCodeResult;
+			}
+
+			var createCodeResult =
+				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+					uow,
+					newScannedCode,
+					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+					carLoadDocumentItem.Id,
+					null,
+					cancellationToken);
+
+			if(createCodeResult.IsFailure)
+			{
+				return createCodeResult;
+			}
+
+			var newStagingCode = createCodeResult.Value;
+			var removedStagingCode = removeCodeResult.Value;
+
+			var isCodeCanBeAddedResult =
+				await IsStagingTrueMarkCodeCanBeChanged(
+					uow,
+					newStagingCode,
+					removedStagingCode,
+					carLoadDocumentItem,
+					cancellationToken);
+
+			if(isCodeCanBeAddedResult.IsFailure)
+			{
+				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			await uow.SaveAsync(newStagingCode, cancellationToken: cancellationToken);
+
+			return Result.Success(newStagingCode);
+		}
+
+		public async Task<Result<StagingTrueMarkCode>> RemoveStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
 			int carLoadDocumentItemId,
@@ -338,7 +393,7 @@ namespace WarehouseApi.Library.Services
 			if(existingCodeResult.IsFailure)
 			{
 				var error = existingCodeResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
+				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
 			var codeToRemove = existingCodeResult.Value;
@@ -346,12 +401,12 @@ namespace WarehouseApi.Library.Services
 			if(codeToRemove.ParentCodeId != null)
 			{
 				var error = TrueMarkCodeErrors.AggregatedCode;
-				return Result.Failure(error);
+				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
 			await uow.DeleteAsync(codeToRemove, cancellationToken: cancellationToken);
 
-			return Result.Success();
+			return existingCodeResult;
 		}
 
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
@@ -404,6 +459,58 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
+		private async Task<Result> IsStagingTrueMarkCodeCanBeChanged(
+			IUnitOfWork uow,
+			StagingTrueMarkCode newStagingTrueMarkCode,
+			StagingTrueMarkCode oldStagingTrueMarkCode,
+			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CancellationToken cancellationToken)
+		{
+			if(newStagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem)
+			{
+				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в складском приложении, могут быть добавлены");
+			}
+
+			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(carLoadDocumentItem.Nomenclature);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(newStagingTrueMarkCode, carLoadDocumentItem.Nomenclature);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult = IsCarLoadDocumentItemHaveNoAddedCodes(carLoadDocumentItem);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult =
+				await IsStagingTrueMarkCodesCountCanBeChanged(uow, newStagingTrueMarkCode, oldStagingTrueMarkCode, carLoadDocumentItem);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult =
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, newStagingTrueMarkCode, cancellationToken);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			return Result.Success();
+		}
+
 		private Result IsCarLoadDocumentItemHaveNoAddedCodes(CarLoadDocumentItemEntity carLoadDocumentItem)
 		{
 			if(carLoadDocumentItem?.TrueMarkCodes.Count > 0)
@@ -431,6 +538,40 @@ namespace WarehouseApi.Library.Services
 					stagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id)));
 
 			var newStagingCodesCount = stagingTrueMarkCode.AllIdentificationCodes.Count;
+
+			var isCodeCanBeAdded =
+				addedStagingCodesCount + newStagingCodesCount <= carLoadDocumentItem.Amount;
+
+			if(!isCodeCanBeAdded)
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> IsStagingTrueMarkCodesCountCanBeChanged(
+			IUnitOfWork uow,
+			StagingTrueMarkCode newStagingTrueMarkCode,
+			StagingTrueMarkCode oldStagingTrueMarkCode,
+			CarLoadDocumentItemEntity carLoadDocumentItem)
+		{
+			var carLoadDocumentItemId = newStagingTrueMarkCode.RelatedDocumentId;
+			var allRemoveingCodes = oldStagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id).ToList();
+
+			var addedStagingCodesCount = (await _stagingTrueMarkCodeRepository.GetAsync(
+				uow,
+				StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderItemIdentificationCodesExcludeIds(
+					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
+					carLoadDocumentItemId,
+					null,
+					newStagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id))))
+				.Value
+				.Where(x => !allRemoveingCodes.Contains(x.Id))
+				.Count();
+
+			var newStagingCodesCount = newStagingTrueMarkCode.AllIdentificationCodes.Count;
 
 			var isCodeCanBeAdded =
 				addedStagingCodesCount + newStagingCodesCount <= carLoadDocumentItem.Amount;

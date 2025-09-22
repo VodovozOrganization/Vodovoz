@@ -22,6 +22,13 @@ namespace VodovozBusiness.Domain.Client.Specifications
 				c => c.RelatedDocumentType == relatedDocumentType
 					&& c.RelatedDocumentId == relatedDocumentId);
 
+		public static ExpressionSpecification<StagingTrueMarkCode> CreateForRelatedDocuments(
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			IEnumerable<int> relatedDocumentsIds)
+			=> new ExpressionSpecification<StagingTrueMarkCode>(
+				c => c.RelatedDocumentType == relatedDocumentType
+					&& relatedDocumentsIds.Contains(c.RelatedDocumentId));
+
 		public static ExpressionSpecification<StagingTrueMarkCode> CreateForOrderItemId(int? orderItemId)
 			=> new ExpressionSpecification<StagingTrueMarkCode>(
 				c => (c.OrderItemId == null && orderItemId == null) || c.OrderItemId == orderItemId);

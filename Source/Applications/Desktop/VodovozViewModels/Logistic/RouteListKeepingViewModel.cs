@@ -1,9 +1,14 @@
-﻿using Gamma.Utilities;
+﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
+using Edo.Transport;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -19,11 +24,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
-using Edo.Transport;
-using Microsoft.Extensions.Logging;
-using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -37,6 +37,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
@@ -46,14 +47,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
-using VodovozBusiness.NotificationSenders;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Vodovoz.ViewModels.TrueMark;
 using VodovozBusiness.Controllers;
-using Vodovoz.EntityRepositories.TrueMark;
+using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services.TrueMark;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
 {
@@ -84,6 +85,7 @@ namespace Vodovoz
 		private readonly MessageService _edoMessageService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
+		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -114,7 +116,8 @@ namespace Vodovoz
 			IEdoSettings edoSettings,
 			MessageService messageService,
 			ICounterpartyEdoAccountController edoAccountController,
-			IRouteListChangesNotificationSender routeListChangesNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
+			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -139,6 +142,7 @@ namespace Vodovoz
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -593,24 +597,36 @@ namespace Vodovoz
 				}
 
 				if(order.IsOrderForResale
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
-				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
 				{
-					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
+						.GetAwaiter().GetResult();
+
+					if(addCodesResult.IsFailure)
+					{
+						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 							  "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
 
-					return false;
+						return false;
+					}
 				}
 
 				if(order.IsOrderForTender
 				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
-				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
 				{
-					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
+						.GetAwaiter().GetResult();
+
+					if(addCodesResult.IsFailure)
+					{
+						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 							  "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
 
-					return false;
+						return false;
+					}
 				}
 			}
 

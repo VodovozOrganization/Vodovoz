@@ -46,6 +46,7 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ICarLoadDocumentTrueMarkCodesProcessingService, CarLoadDocumentTrueMarkCodesProcessingService>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
 				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();

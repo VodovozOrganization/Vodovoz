@@ -21,6 +21,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
+using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
@@ -44,6 +45,7 @@ namespace WarehouseApi.Library.Services
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
+		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
 		public CarLoadService(
@@ -58,6 +60,7 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
+			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -71,6 +74,7 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
+			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -155,76 +159,90 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		public async Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId)
+		public async Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId, CancellationToken cancellationToken)
 		{
 			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
+			var carLoadDocument = documentOrderItems.FirstOrDefault().Document;
 
-			var response = new GetOrderResponse
-			{
-				Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems)
-			};
+			var response = new GetOrderResponse();
 
-			foreach(var documentOrderItem in documentOrderItems)
+			if(carLoadDocument is null)
 			{
-				foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+				var error = CarLoadDocumentErrors.CreateCarLoadDocumentItemNotFound(orderId);
+				var result = Result.Failure<GetOrderResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, response);
+			}
+
+			var carLoadDocumentItemsStagingCodes = await GetCarLoadDocumentOrderItemsStagingCodes(
+				documentOrderItems.Select(x => x.Id),
+				cancellationToken);
+
+			response.Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems, carLoadDocumentItemsStagingCodes);
+
+			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.Done)
+			{
+				foreach(var documentOrderItem in documentOrderItems)
 				{
-					if(trueMarkProductCode.ResultCode == null)
+					foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
 					{
-						continue;
-					}
-
-					if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
-						&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
-					{
-						continue;
-					}
-
-					var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
-
-					if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
-					{
-						continue;
-					}
-
-					var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
-
-					if(codeToAddInfo is null)
-					{
-						continue;
-					}
-
-					var trueMarkCodes = new List<TrueMarkCodeDto>();
-
-					var allCodes = parentCode.Match(
-						transportCode => transportCode.GetAllCodes(),
-						groupCode => groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode })
-						.ToArray();
-
-					var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
-						&& documentOrderItem.TrueMarkCodes.Any(y =>
-							(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
-							|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.ToArray();
-
-					foreach(var anyCode in allCodes)
-					{
-						if(anyCode.IsTrueMarkWaterIdentificationCode
-							&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+						if(trueMarkProductCode.ResultCode == null)
 						{
 							continue;
 						}
 
-						trueMarkCodes.Add(
-							anyCode.Match(
-								PopulateTransportCode(allCodes),
-								PopulateGroupCode(allCodes),
-								PopulateWaterCode(allCodes)));
-					}
+						if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
+							&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+						{
+							continue;
+						}
 
-					codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
-					codeToAddInfo.Codes.AddRange(trueMarkCodes);
+						var codeToAddInfo = response.Order.Items.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+
+						if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+						{
+							continue;
+						}
+
+						var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+
+						if(codeToAddInfo is null)
+						{
+							continue;
+						}
+
+						var trueMarkCodes = new List<TrueMarkCodeDto>();
+
+						var allCodes = parentCode.Match(
+							transportCode => transportCode.GetAllCodes(),
+							groupCode => groupCode.GetAllCodes(),
+							waterCode => new TrueMarkAnyCode[] { waterCode })
+							.ToArray();
+
+						var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+							&& documentOrderItem.TrueMarkCodes.Any(y =>
+								(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
+								|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
+							.Select(x => x.TrueMarkWaterIdentificationCode)
+							.ToArray();
+
+						foreach(var anyCode in allCodes)
+						{
+							if(anyCode.IsTrueMarkWaterIdentificationCode
+								&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+							{
+								continue;
+							}
+
+							trueMarkCodes.Add(
+								anyCode.Match(
+									PopulateTransportCode(allCodes),
+									PopulateGroupCode(allCodes),
+									PopulateWaterCode(allCodes)));
+						}
+
+						codeToAddInfo.Codes.RemoveAll(code => trueMarkCodes.Any(x => x.Code == code.Code));
+						codeToAddInfo.Codes.AddRange(trueMarkCodes);
+					}
 				}
 			}
 
@@ -233,7 +251,6 @@ namespace WarehouseApi.Library.Services
 			if(checkResult.IsFailure)
 			{
 				var error = checkResult.Errors.FirstOrDefault();
-
 				response.Result = OperationResultEnumDto.Error;
 				response.Error = error.Message;
 
@@ -315,7 +332,7 @@ namespace WarehouseApi.Library.Services
 				await _codesProcessingService.AddStagingTrueMarkCode(
 					_uow,
 					scannedCode,
-					documentItemToEdit.Id,
+					documentItemToEdit,
 					cancellationToken);
 
 			if(addCodesResult.IsFailure)
@@ -420,21 +437,6 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
-			var removeOldCodeResult =
-				await _codesProcessingService.RemoveStagingTrueMarkCode(
-					_uow,
-					oldScannedCode,
-					documentItemToEdit.Id,
-					cancellationToken);
-
-			if(removeOldCodeResult.IsFailure)
-			{
-				var error = removeOldCodeResult.Errors.FirstOrDefault();
-				failureResponse.Error = error.Message;
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, failureResponse);
-			}
-
 			var isCodesCanBeAdded = _documentErrorsChecker.IsCanChangeTrueMarkCode(
 				orderId,
 				nomenclatureId,
@@ -450,19 +452,44 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var addCodesResult =
-				await _codesProcessingService.AddStagingTrueMarkCode(
-					_uow,
-					newScannedCode,
-					documentItemToEdit.Id,
-					cancellationToken);
+			StagingTrueMarkCode addedCode = null;
 
-			if(addCodesResult.IsFailure)
+			if(!string.IsNullOrWhiteSpace(newScannedCode))
 			{
-				var error = addCodesResult.Errors.FirstOrDefault();
-				failureResponse.Error = error.Message;
-				var result = Result.Failure<ChangeOrderCodeResponse>(error);
-				return RequestProcessingResult.CreateFailure(result, failureResponse);
+				var changeCodesResult =
+					await _codesProcessingService.ChangeStagingTrueMarkCode(
+						_uow,
+						newScannedCode,
+						oldScannedCode,
+						documentItemToEdit,
+						cancellationToken);
+
+				if(changeCodesResult.IsFailure)
+				{
+					var error = changeCodesResult.Errors.FirstOrDefault();
+					failureResponse.Error = error.Message;
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, failureResponse);
+				}
+
+				addedCode = changeCodesResult.Value;
+			}
+			else
+			{
+				var removeCodesResult =
+					await _codesProcessingService.RemoveStagingTrueMarkCode(
+						_uow,
+						oldScannedCode,
+						documentItemToEdit.Id,
+						cancellationToken);
+
+				if(removeCodesResult.IsFailure)
+				{
+					var error = removeCodesResult.Errors.FirstOrDefault();
+					failureResponse.Error = error.Message;
+					var result = Result.Failure<ChangeOrderCodeResponse>(error);
+					return RequestProcessingResult.CreateFailure(result, failureResponse);
+				}
 			}
 
 			try
@@ -505,9 +532,9 @@ namespace WarehouseApi.Library.Services
 				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 			}
 
-			if(nomenclatureDto != null)
+			if(nomenclatureDto != null && addedCode != null)
 			{
-				var allCodes = addCodesResult.Value.AllCodes;
+				var allCodes = addedCode.AllCodes;
 
 				nomenclatureDto.Codes =
 					allCodes
@@ -834,6 +861,20 @@ namespace WarehouseApi.Library.Services
 					requestId,
 					ex.Message);
 			}
+		}
+
+		private async Task<IDictionary<int, IEnumerable<StagingTrueMarkCode>>> GetCarLoadDocumentOrderItemsStagingCodes(
+			IEnumerable<int> documentItemsIds,
+			CancellationToken cancellationToken)
+		{
+			var carLoadDocumentItemsStagingCodes = (await _stagingTrueMarkCodeRepository.GetAsync(
+				_uow,
+				StagingTrueMarkCodeSpecification.CreateForRelatedDocuments(StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem, documentItemsIds.ToArray()),
+				cancellationToken: cancellationToken))
+				.Value
+				.GroupBy(x => x.RelatedDocumentId)
+				.ToDictionary(g => g.Key, g => g.Distinct());
+			return carLoadDocumentItemsStagingCodes;
 		}
 
 		public EmployeeWithLogin GetEmployeeProxyByApiLogin(
