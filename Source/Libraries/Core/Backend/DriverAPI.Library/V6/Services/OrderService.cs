@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -1100,7 +1100,7 @@ namespace DriverAPI.Library.V6.Services
 			var trueMarkCodeDtos =
 				allCodes
 				.Where(c => c.OrderItemId == vodovozOrderItem.Id)
-				.Select(PopulateStagingTrueMarkCodes(stagingTrueMarkCode.AllCodes));
+				.Select(_orderConverter.PopulateStagingTrueMarkCodes(stagingTrueMarkCode.AllCodes));
 
 			if(nomenclatureDto != null)
 			{
@@ -1166,36 +1166,6 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			return Result.Success();
-		}
-
-		private static Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(IEnumerable<StagingTrueMarkCode> allCodes)
-		{
-			return stagingCode =>
-			{
-				string parentRawCode = null;
-
-				if(stagingCode.ParentCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
-						?.RawCode;
-				}
-
-				var level = stagingCode.CodeType switch
-				{
-					StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
-					StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
-					StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
-					_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel")
-				};
-
-				return new TrueMarkCodeDto
-				{
-					Code = stagingCode.RawCode,
-					Level = level,
-					Parent = parentRawCode
-				};
-			};
 		}
 
 		public async Task<Result> SendTrueMarkCodes(

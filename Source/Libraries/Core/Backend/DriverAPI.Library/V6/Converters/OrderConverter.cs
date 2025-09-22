@@ -300,6 +300,21 @@ namespace DriverAPI.Library.V6.Converters
 
 			var sequenceNumber = 0;
 
+			if(routeListItem.Status == RouteListItemStatus.EnRoute)
+			{
+				var allStagingCodes =
+					_trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+						_uow,
+						StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+						routeListItem.Id)
+					.GetAwaiter()
+					.GetResult();
+
+				codes = allStagingCodes.Select(PopulateStagingTrueMarkCodes(allStagingCodes));
+
+				return codes;
+			}
+
 			var addedTrueMarkWaterCodes =
 				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController)
 				? GetCodesAddedInWarehouse(saleItem)
@@ -476,6 +491,37 @@ namespace DriverAPI.Library.V6.Converters
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
 			return result;
+		}
+
+		public Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(
+			IEnumerable<StagingTrueMarkCode> allCodes)
+		{
+			return stagingCode =>
+			{
+				string parentRawCode = null;
+
+				if(stagingCode.ParentCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
+						?.RawCode;
+				}
+
+				var level = stagingCode.CodeType switch
+				{
+					StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
+					StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
+					StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
+					_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel")
+				};
+
+				return new TrueMarkCodeDto
+				{
+					Code = stagingCode.RawCode,
+					Level = level,
+					Parent = parentRawCode
+				};
+			};
 		}
 	}
 }
