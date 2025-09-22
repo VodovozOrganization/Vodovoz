@@ -17,7 +17,6 @@ namespace Vodovoz.Presentation.Views
 			: base(viewModel)
 		{
 			Build();
-
 			Initialize();
 		}
 
@@ -76,13 +75,18 @@ namespace Vodovoz.Presentation.Views
 
 			var columnConfig = ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>();
 
-			columnConfig
-				.AddColumn("\t✔️")
-					.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled);
+			columnConfig.AddColumn("\t✔️")
+				.AddToggleRenderer(x => x.Include)
+				.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+				.ToggledEvent(OnElementCheckboxToggled);
 
 			if(ViewModel.WithExcludes)
 			{
-				columnConfig.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled);
+				columnConfig.AddColumn("X")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => x.Exclude)
+					.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+					.ToggledEvent(OnElementCheckboxToggled);
 			}
 
 			columnConfig

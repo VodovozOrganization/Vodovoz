@@ -5,7 +5,9 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(
 		Nominative = "Статус заказа",
-		NominativePlural = "Статусы заказа")]
+		NominativePlural = "Статусы заказов",
+		GenitivePlural = "Статусов заказов"
+		)]
 	public enum OrderStatus
 	{
 		[Display(Name = "Отменён")]

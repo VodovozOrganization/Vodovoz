@@ -7,7 +7,8 @@ namespace Vodovoz.Domain.Client.ClientClassification
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "классификации контрагентов",
-		Nominative = "классификация контрагента")]
+		Nominative = "классификация контрагента",
+		GenitivePlural = "классификаций контрагентов")]
 	public class CounterpartyClassification : PropertyChangedBase, IDomainObject
 	{
 		private int _counterpartyId;

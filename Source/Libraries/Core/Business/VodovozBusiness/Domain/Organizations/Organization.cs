@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Organizations
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
-		Nominative = "организация")]
+		Nominative = "организация",
+		GenitivePlural = "организаций")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Organization : OrganizationEntity
