@@ -128,8 +128,9 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.CarTypeWithGeographicalGroup)
 				.WrapWidth(200)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f)
-				.RowCells().AddSetter<CellRenderer>(
+				.XAlign(0.05f)
+				.RowCells()
+					.AddSetter<CellRenderer>(
 				(cell, node) =>
 				{
 					var color = _defaultColor;
@@ -184,7 +185,7 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.TimeAndBreakdownReason)
 				.WrapWidth(200)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f)
+				.XAlign(0.05f)
 				.RowCells().AddSetter<CellRenderer>(
 				(cell, node) =>
 				{
@@ -224,7 +225,7 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.PlannedReturnToLineDateAndReschedulingReason)
 				.WrapWidth(300)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f);
+				.XAlign(0.01f);
 
 			ytreeReportRows.ColumnsConfig = columnsConfig.Finish();
 
