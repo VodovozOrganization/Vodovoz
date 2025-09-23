@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 			_fuelVersionsController.CreateAndAddVersion(FuelConsumption, SelectedFuelDate);
-			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedFuelDate.Value, carModel: Entity);
+			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedFuelDate.Value, Entity, null);
 
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));

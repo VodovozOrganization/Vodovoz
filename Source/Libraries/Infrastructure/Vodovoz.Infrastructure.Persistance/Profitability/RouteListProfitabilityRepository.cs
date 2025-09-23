@@ -24,24 +24,38 @@ namespace Vodovoz.Infrastructure.Persistance.Profitability
 			return query;
 		}
 
-		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null)
+		public IEnumerable<RouteList> GetAllRouteListsWithProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null, FuelType fuelType = null)
 		{
 			RouteList resultAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
 			CarModel carModelAlias = null;
 			Car carAlias = null;
+			FuelType fuelTypeAlias = null;
 
-			if(carModel == null || carModel.Id == 0)
+			var hasValidCarModel = carModel != null && carModel.Id != 0;
+			var hasValidFuelType = fuelType != null && fuelType.Id != 0;
+			
+			if (!hasValidCarModel && !hasValidFuelType)
 			{
 				return new List<RouteList>();
 			}
-			
+
 			var query = uow.Session.QueryOver(() => resultAlias)
 				.JoinAlias(() => resultAlias.RouteListProfitability, () => routeListProfitabilityAlias)
 				.JoinAlias(() => resultAlias.Car, () => carAlias)
-				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Where(() => resultAlias.Date >= date)
-				.Where(() => carAlias.CarModel.Id == carModel.Id);
+				.Where(() => resultAlias.Date >= date);
+			
+			if (hasValidCarModel)
+			{
+				query = query.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Where(() => carModelAlias.Id == carModel.Id);
+			}
+
+			if (hasValidFuelType)
+			{
+				query = query.JoinAlias(() => carAlias.FuelType, () => fuelTypeAlias)
+					.Where(() => fuelTypeAlias.Id == fuelType.Id);
+			}
 			
 			return query.List();
 		}
