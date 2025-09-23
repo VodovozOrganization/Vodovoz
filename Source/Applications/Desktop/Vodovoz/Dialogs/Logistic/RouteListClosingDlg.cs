@@ -115,6 +115,7 @@ namespace Vodovoz
 		private bool _canEditCar;
 		private bool _canEditDriver;
 		private bool _canEditExpeditor;
+		private bool _canCreateRouteListWithoutOrders;
 		
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -273,6 +274,8 @@ namespace Vodovoz
 			_canEditExpeditor =  _canEdit 
 			                     && (isEditableStatus
 			                     || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditExpeditorOnCloseRouteList));
+			
+			_canCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			
 			previousForwarder = Entity.Forwarder;
 			
@@ -1070,7 +1073,8 @@ namespace Vodovoz
 			var contextItems = new Dictionary<object, object>
 			{
 				{nameof(IRouteListItemRepository), _routeListItemRepository},
-				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
+				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed},
+				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
@@ -1166,7 +1170,8 @@ namespace Vodovoz
 					{"cash_order_close", true},
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition},
-					{RouteList.ValidationKeyIgnoreReceiptsForOrders, _ignoreReceiptsForOrderIds}
+					{RouteList.ValidationKeyIgnoreReceiptsForOrders, _ignoreReceiptsForOrderIds},
+					{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
 				});
 			validationContext.ServiceContainer.AddService(_orderSettings);
 			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);

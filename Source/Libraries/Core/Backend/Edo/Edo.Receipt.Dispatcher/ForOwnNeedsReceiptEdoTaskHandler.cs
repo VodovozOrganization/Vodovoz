@@ -143,10 +143,6 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
-			var cashPaymentKulerService =
-				order.PaymentType == PaymentType.Cash
-				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
-
 			// принудительная отправка чека
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
 			if(hasManualSend)
@@ -157,7 +153,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// всегда отправлять чек клиенту
 			var hasAlwaysSend = receiptEdoTask.OrderEdoRequest.Order.Client.AlwaysSendReceipts;
-			if(hasAlwaysSend && !cashPaymentKulerService)
+			if(hasAlwaysSend)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
@@ -165,7 +161,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// проверка на наличие чека на сумму за сегодня
 			var hasReceiptOnSumToday = await HasReceiptOnSumToday(receiptEdoTask, cancellationToken);
-			if(!hasReceiptOnSumToday && !cashPaymentKulerService)
+			if(!hasReceiptOnSumToday)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;

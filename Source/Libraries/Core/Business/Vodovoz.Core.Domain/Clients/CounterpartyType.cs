@@ -7,7 +7,8 @@ namespace Vodovoz.Core.Domain.Clients
 	/// Тип контрагента
 	/// </summary>
 	[Appellative(Nominative = "Тип контрагента",
-		NominativePlural = "Типы контрагента")]
+		NominativePlural = "Типы контрагентов",
+		GenitivePlural = "Типов контрагентов")]
 	public enum CounterpartyType
 	{
 		/// <summary>

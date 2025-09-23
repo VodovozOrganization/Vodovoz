@@ -203,6 +203,14 @@ namespace Vodovoz.Logistic.Reports
 				});
 
 			columnsConfig
+				.AddColumn("Зона ответственности")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.IsMainRow ? x.AreasOfResponsibilityShortNames : "")
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f);
+
+			columnsConfig
 				.AddColumn("Планируемая дата\nвыпуска автомобиля\nна линию")
 				.HeaderAlignment(.5f)
 				.AddTextRenderer(x => x.PlannedReturnToLineDateString)

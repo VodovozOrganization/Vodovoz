@@ -720,7 +720,7 @@ public partial class MainWindow
 		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory)));
+			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory, ServicesConfig.InteractiveService)));
 	}
 
 	/// <summary>

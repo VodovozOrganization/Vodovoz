@@ -60,6 +60,14 @@ namespace Vodovoz.Core.Domain.Permissions
 				Name = "Логистика. Ведение МЛ. Изменение времени доставки",
 				Description = "Пользователь может изменять время доставки в диалоге ведения маршрутного листа")]
 			public static string CanChangeDeliveryTime => "logistic_changedeliverytime";
+			
+			/// <summary>
+			/// Логистика. Создание МЛ. Создание МЛ без заказов
+			/// </summary>
+			[Display(
+				Name = "Логистика. Создание МЛ. Создание МЛ без заказов",
+				Description = "Пользователь может создавать МЛ без заказов")]
+			public static string CanCreateRouteListWithoutOrders => "can_create_route_list_without_orders";
 		}
 	}
 }

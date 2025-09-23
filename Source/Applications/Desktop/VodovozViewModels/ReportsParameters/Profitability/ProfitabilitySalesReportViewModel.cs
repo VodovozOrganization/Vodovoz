@@ -23,6 +23,7 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
@@ -143,7 +144,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
-
 		private IEnumerable<GroupingType> SelectedGroupings =>
 			GetGroupingParameters().Select(x => (GroupingType)x.Value);
 
@@ -152,11 +152,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				_userIsSalesRepresentative ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
 				{ "Самовывоз", "is_self_delivery" },
+				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
 			};
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
@@ -164,16 +167,34 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
 			{
 				filter.HideElements.Add(CarTypeOfUse.Loader);
-				filter.GetReportParametersFunc = f =>
+				filter.GetReportParametersFunc = (f, sb, withCounts) =>
 				{
 					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
 					var excludedTypes = filter.GetExcluded().Select(x => x.ToString()).ToArray();
 
-					return new Dictionary<string, object>
+					var parameters = new Dictionary<string, object>();
+
+					if(includedTypes.Length > 0)
 					{
-						{ "CarTypeOfUse_include", includedTypes.Length > 0 ? includedTypes : new[] { "0" } },
-						{ "CarTypeOfUse_exclude", excludedTypes.Length > 0 ? excludedTypes : new[] { "0" } }
-					};
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", includedTypes);
+						sb.AppendLine($"Вкл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {includedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", new[] { "0" });
+					}
+					
+					if(excludedTypes.Length > 0)
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", excludedTypes);
+						sb.AppendLine($"Искл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {excludedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", new[] { "0" });
+					}
+
+					return parameters;
 				};
 			});
 		}
@@ -202,18 +223,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
 			}
 
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate);
 			_parameters.Add("end_date", EndDate);
 			_parameters.Add("creation_date", DateTime.Now);
-
-			if(_userIsSalesRepresentative)
-			{
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
-
-				_parameters.Add("Employee_include", new[] { currentEmployee.Id.ToString() });
-				_parameters.Add("Employee_exclude", new[] { "0" });
-			}
+			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
 
 			var groupParameters = GetGroupingParameters();
 
@@ -378,10 +392,10 @@ $@"
 {OrderStatus.UnloadingOnStock.GetEnumTitle()}
 {OrderStatus.Closed.GetEnumTitle()}
 {OrderStatus.WaitForPayment.GetEnumTitle()}
-Если выбран статус {OrderStatus.WaitForPayment.GetEnumTitle()}, то выбираются только заказы самовывозы с оплатой после отгрузки.
 
 В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.
 Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.
+«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели
 
 Детальный отчет отличается от обычного тем, что у него подробно разбиты затраты и всегда есть группировка по товарам.
 
@@ -389,7 +403,7 @@ $@"
 Сумма продажи - Сумма продажи фактического количества товара с учетом скидки
 
 Затраты:
-	Производство или закупка - Если товар учавствует в групповой установке себестоимости, то это затраты на себестоимость, 
+	Производство или закупка - Если товар участвует в групповой установке себестоимости, то это затраты на себестоимость, 
 		а если нет, то это затраты на закупку.
 	Фура - Стоимость доставки единицы товара с производства на склад
 	Доставка - Стоимость доставки товара на адрес в пересчете на вес единицы товара

@@ -7,6 +7,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		[Display(Name = "Продано")]
 		Sales,
 		[Display(Name = "Утиль")]
-		Scrap
+		Scrap,
+		[Display(Name = "Наемная")]
+		Hired
 	}
 }

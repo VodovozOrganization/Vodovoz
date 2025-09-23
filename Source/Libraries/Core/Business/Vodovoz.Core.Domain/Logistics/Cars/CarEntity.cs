@@ -19,6 +19,7 @@ namespace Vodovoz.Core.Domain.Logistics.Cars
 	{
 		private int _id;
 		private string _registrationNumber = string.Empty;
+		private bool _isUsedInDelivery;
 		private IObservableList<CarFileInformation> _attachedFileInformations = new ObservableList<CarFileInformation>();
 
 		public virtual IUnitOfWork UoW { set; get; }
@@ -41,6 +42,16 @@ namespace Vodovoz.Core.Domain.Logistics.Cars
 		{
 			get => _registrationNumber;
 			set => SetField(ref _registrationNumber, value);
+		}
+
+		/// <summary>
+		/// Участие авто в доставке
+		/// </summary>
+		[Display(Name = "Участие авто в доставке")]
+		public virtual bool IsUsedInDelivery
+		{
+			get => _isUsedInDelivery;
+			set => SetField(ref _isUsedInDelivery, value);
 		}
 
 		[Display(Name = "Информация о прикрепленных файлах")]
