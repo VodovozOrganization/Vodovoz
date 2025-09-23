@@ -270,6 +270,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>
 				{
 					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
+					var currentSpecification = specificationExpression;
 
 					foreach(var word in splitedWords)
 					{
@@ -283,12 +284,12 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
 							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
 
-						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+						currentSpecification = currentSpecification.CombineWith(searchInFullNameSpec);
 					}
 
 					var elementsToAdd = _employeeRepository.Get(
 							unitOfWork,
-							specificationExpression,
+							currentSpecification,
 							limit: IncludeExludeFiltersViewModel.DefaultLimit)
 						.Select(x => new IncludeExcludeElement<int, Employee>
 						{
