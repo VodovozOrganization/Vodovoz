@@ -1,9 +1,14 @@
-﻿using Gamma.Utilities;
+﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
+using Edo.Transport;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -19,11 +24,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
-using Edo.Transport;
-using Microsoft.Extensions.Logging;
-using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -37,6 +37,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
@@ -46,15 +47,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
-using VodovozBusiness.NotificationSenders;
-using VodovozBusiness.Services.TrueMark;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Vodovoz.ViewModels.TrueMark;
 using VodovozBusiness.Controllers;
-using Vodovoz.EntityRepositories.TrueMark;
+using VodovozBusiness.NotificationSenders;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
 {
@@ -687,11 +686,9 @@ namespace Vodovoz
 			{
 				IsCanClose = false;
 				
-				UoWGeneric.Save();
-
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
-				UoW.Save(Entity.RouteListProfitability);
+				//UoW.Save(Entity.RouteListProfitability);
 				
 				foreach(var keyPairValue in _createdOrderEdoRequests)
 				{
@@ -707,14 +704,28 @@ namespace Vodovoz
 					return true;
 				}
 
+				var changedItemsBackup = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.Select(item => new {
+						item.RouteListItem,
+						item.Status
+					})
+					.ToList();
+
+				UoW.Session.Refresh(Entity);
+
 				foreach(var item in changedItems)
 				{
-					var attachedItem = UoW.Session.Merge(item.RouteListItem);
+					var backup = changedItemsBackup.FirstOrDefault(b => b.RouteListItem.Id == item.RouteListItem.Id);
+
+					item.RouteListItem = backup.RouteListItem;
+					Entity.SetAddressStatusWithoutOrderChange(UoW, item.RouteListItem.Id, backup.Status);
+					UoW.Save(item.RouteListItem);
 				}
 
 				UoW.Commit();
 
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 				if(currentEmployee == null)
 				{
@@ -777,7 +788,7 @@ namespace Vodovoz
 
 			if(!hasChanges || _interactiveService.Question("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
-				UoWGeneric.Session.Refresh(Entity);
+				UoW.Session.Refresh(Entity);
 				UpdateNodes();
 			}
 		}
