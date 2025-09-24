@@ -90,7 +90,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_debt_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "organization_id", Organization.Id },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
