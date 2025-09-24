@@ -126,7 +126,7 @@ WHERE
             COALESCE(oi.actual_count, oi.count) AS deposit_count,
             mu.name AS deposit_unit,
             oi.price AS deposit_price,
-            (oi.count * oi.price) AS deposit_sum
+            ROUND(oi.count * oi.price, 2) AS deposit_sum
           FROM
             orders o
           LEFT JOIN order_items oi ON
