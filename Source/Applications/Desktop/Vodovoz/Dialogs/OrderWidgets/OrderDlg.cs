@@ -316,7 +316,7 @@ namespace Vodovoz
 
 		private bool HasNonPaidDeliveryItems() =>
 			Entity.OrderItems.Any(x => 
-				!_nomenclatureSettings.PaidDeliveriesNomenclaturesIds.Contains(x.Nomenclature.Id));
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
 
 		private UndeliveryViewModel _undeliveryViewModel;
 
