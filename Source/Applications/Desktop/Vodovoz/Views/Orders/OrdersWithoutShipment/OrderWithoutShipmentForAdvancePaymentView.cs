@@ -70,6 +70,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			ConfigureTreeItems();
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()

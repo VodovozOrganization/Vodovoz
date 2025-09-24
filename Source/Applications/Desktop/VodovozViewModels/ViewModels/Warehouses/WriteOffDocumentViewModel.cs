@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Report.Utils;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -49,6 +50,9 @@ namespace Vodovoz.ViewModels.Warehouses
 {
 	public class WriteOffDocumentViewModel : EntityTabViewModelBase<WriteOffDocument>
 	{
+		private const string DefectActTitle = "Акт списания";
+		private const string WriteOffActTitle = "Акт выбраковки";
+
 		private bool _canChangeDocumentType;
 		private WriteOffDocumentItem _selectedItem;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -56,6 +60,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly ILifetimeScope _scope;
 		private readonly CommonMessages _commonMessages;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IInteractiveService _interactiveService;
 		private readonly StoreDocumentHelper _storeDocumentHelper;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
@@ -77,6 +82,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			ILifetimeScope scope,
 			CommonMessages commonMessages,
 			IEmployeeRepository employeeRepository,
+			IInteractiveService interactiveService,
 			StoreDocumentHelper storeDocumentHelper,
 			IEntityExtendedPermissionValidator extendedPermissionValidator,
 			IReportInfoFactory reportInfoFactory,
@@ -109,6 +115,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_storeDocumentHelper = storeDocumentHelper ?? throw new ArgumentNullException(nameof(storeDocumentHelper));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
@@ -202,20 +209,36 @@ namespace Vodovoz.ViewModels.Warehouses
 				{
 					if(!Save())
 					{
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+						_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
 						return;
 					}
 				}
 
-				var reportInfo = _reportInfoFactory.Create();
-				reportInfo.Title = $"Акт выбраковки №{Entity.Id} от {Entity.TimeStamp:d}";
-				reportInfo.Identifier = "Store.WriteOff";
-				reportInfo.Parameters = new Dictionary<string, object>
-				{
-					{ "writeoff_id", Entity.Id }
-				};
+				string selectedActType = WriteOffActTitle;
 
-				_reportViewOpener.OpenReport(this, reportInfo);
+				if(Entity.WriteOffType == WriteOffType.Car)
+				{
+					if(Entity.Items.Any(x => x.CullingCategory == null))
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning,
+							"Поле \"Причина выбраковки\" не должно быть пустым",
+							"Предупреждение");
+						return;
+					}
+
+					selectedActType = _interactiveService.Question(new string[]
+					{
+						DefectActTitle,
+						WriteOffActTitle
+					}, "Выберите, какой документ вы хотите распечатать:", "Тип акта списания");
+
+					if(selectedActType.IsNullOrWhiteSpace())
+					{
+						return;
+					}
+				}
+
+				PrintReport(selectedActType);
 			}
 			));
 
@@ -319,6 +342,27 @@ namespace Vodovoz.ViewModels.Warehouses
 				}
 			}));
 
+		private void PrintReport(string actType)
+		{
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"{actType} №{Entity.Id} от {Entity.TimeStamp:d}";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "writeoff_id", Entity.Id }
+			};
+
+			switch(actType)
+			{
+				case DefectActTitle:
+					reportInfo.Identifier = "Store.DefectReport";
+					break;
+				case WriteOffActTitle:
+					reportInfo.Identifier = "Store.WriteOff";
+					break;
+			}
+
+			_reportViewOpener.OpenReport(this, reportInfo);
+		}
 		private void OnItemSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(e.Entity);

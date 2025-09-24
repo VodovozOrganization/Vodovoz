@@ -28,7 +28,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 	[HistoryTrace]
 	public class OrderWithoutShipmentForPayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
-		
 		public virtual int Id { get; set; }
 		
 		IList<OrderWithoutShipmentForPaymentItem> orderWithoutDeliveryForPaymentItems = new List<OrderWithoutShipmentForPaymentItem>();
@@ -109,7 +108,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_payment_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", OrganizationId },
+				{ "organization_id", Organization.Id },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
@@ -136,15 +135,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => copiesToPrint = value;
 		}
 		
-		private int? _organizationId;
-		
-		[Display(Name = "ID Организации в счете")]
-		public virtual int? OrganizationId
-		{
-			get => _organizationId;
-			set => SetField(ref _organizationId, value);
-		}
-
 		#region Свои свойства
 
 		private bool hideSignature;

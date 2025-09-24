@@ -301,21 +301,26 @@ namespace Edo.Problems
 				edoTask = await uow.Session.GetAsync<EdoTask>(edoTask.Id, cancellationToken);
 			}
 
+			var edoProblems = edoTask.Problems;
 			foreach(var validationResult in validationResults)
 			{
-				var problem = edoTask.Problems.FirstOrDefault(x => x.SourceName == validationResult.Validator.Name);
-				if(problem == null && validationResult.IsValid)
-				{
-					continue;
-				}
+				var problem = edoProblems.FirstOrDefault(x => x.SourceName == validationResult.Validator.Name);
 
-				if(problem == null)
+				switch (problem)
 				{
-					problem = new ValidationEdoTaskProblem
-					{
-						SourceName = validationResult.Validator.Name,
-						EdoTask = edoTask,
-					};
+					case null when validationResult.IsValid:
+						continue;
+					case null:
+						problem = new ValidationEdoTaskProblem
+						{
+							SourceName = validationResult.Validator.Name,
+							EdoTask = edoTask,
+						};
+						break;
+					default:
+						//проблема дальше проверится, убираем ее из списка текущих проблем задачи чтобы остались лишь проблемы без результата валидации
+						edoProblems.Remove(problem);
+						break;
 				}
 
 				if(validationResult.IsValid)
@@ -338,6 +343,13 @@ namespace Edo.Problems
 			if(isAllValid)
 			{
 				edoTask.Status = EdoTaskStatus.InProgress;
+				
+				//оставшиеся проблемы помечаем решенными т.к. валидация прошла успешно и результатов валидации нет
+				foreach (var edoTaskProblem in edoProblems)
+				{
+					edoTaskProblem.State = TaskProblemState.Solved;
+					await uow.SaveAsync(edoTaskProblem, cancellationToken: cancellationToken);
+				}
 			}
 			else
 			{
