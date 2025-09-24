@@ -21,7 +21,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void Configure()
 		{
-			//organizationEntry.Binding.AddBinding();
 			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
