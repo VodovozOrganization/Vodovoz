@@ -101,6 +101,7 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
 
 			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanCreate;
 			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
