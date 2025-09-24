@@ -51,6 +51,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					.Select(() => carEventTypeAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => carEventTypeAlias.IsDoNotShowInOperation).WithAlias(() => resultAlias.IsDoNotShowInOperation)
 					.Select(() => carEventTypeAlias.IsAttachWriteOffDocument).WithAlias(() => resultAlias.IsAttachWriteOffDocument)
+					.Select(() => carEventTypeAlias.AreaOfResponsibility).WithAlias(() => resultAlias.AreaOfResponsibility)
 				)
 				.TransformUsing(Transformers.AliasToBean<CarEventTypeJournalNode>());
 

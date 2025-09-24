@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>296mm</PageHeight>
   <PageWidth>209mm</PageWidth>
   <Width>7.5in</Width>
@@ -33,7 +35,8 @@
           <VerticalAlign>Middle</VerticalAlign>
           <FontWeight>Bold</FontWeight>
         </Style>
-        <Visibility></Visibility>
+        <Visibility>
+        </Visibility>
       </Textbox>
       <Table Name="TableSales">
         <DataSetName>Sales</DataSetName>
@@ -267,7 +270,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -275,7 +279,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -286,7 +291,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -305,7 +311,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -432,7 +439,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -447,7 +455,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -455,7 +464,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -470,7 +480,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -478,7 +489,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -493,7 +505,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -501,7 +514,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -524,7 +538,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -547,7 +562,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -570,7 +586,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -593,7 +610,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -616,7 +634,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -644,7 +663,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -655,7 +675,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -663,7 +684,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -674,7 +696,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -682,7 +705,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -693,7 +717,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format></Format>
+                        <Format>
+                        </Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1007,14 +1032,16 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value></Value>
+                      <Value>
+                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1026,7 +1053,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1151,7 +1179,7 @@
       <Textbox Name="Textbox11">
         <Height>25.52pt</Height>
         <Width>246.60pt</Width>
-        <Value>=Iif(First({criterions}, "Criterions") = '', 'Не выбраны', First({criterions}, "Criterions"))</Value>
+        <Value>={?filters}</Value>
         <ZIndex>0</ZIndex>
         <Left>301.60pt</Left>
         <Top>63.20pt</Top>
@@ -1398,7 +1426,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>
@@ -1629,8 +1657,8 @@ FROM
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
     LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-		LEFT JOIN cars car ON rl.car_id = car.id 
-		LEFT JOIN car_models cm ON car.model_id = cm.id 
+	LEFT JOIN cars car ON rl.car_id = car.id 
+	LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     warehouses w ON w.id = scld.warehouse_id
     LEFT JOIN
@@ -1793,30 +1821,6 @@ WHERE
 				AND (NOT (ng.id IN (@ProductGroup_exclude)) OR ng.id IS NULL)
          )
        AND (
-            (
-            (
-              (
-                (
-                  o.order_status IN (@OrderStatus_include)
-                  AND
-                  o.order_status != 'WaitForPayment'
-                )
-                OR
-                (
-                  o.order_status = 'WaitForPayment' 
-                  AND 'WaitForPayment' IN (@OrderStatus_include) 
-                  AND self_delivery 
-                  AND pay_after_shipment
-                )
-              )
-              AND '0' IN (@OrderStatus_exclude) 
-            )
-            OR
-            (o.order_status NOT IN (@OrderStatus_exclude) AND '0' IN (@OrderStatus_include))
-          )
-	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
-	    )
-       AND (
        	     ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
        	     	AND NOT (o.order_status IN (@OrderStatus_exclude))
          )
@@ -1850,6 +1854,17 @@ WHERE
        	     )
          )
       AND (@is_self_delivery IS NULL OR o.self_delivery = @is_self_delivery)
+     	AND (
+     		@only_orders_from_route_lists IS NULL
+     		OR (
+     			@only_orders_from_route_lists = TRUE
+     			AND	rla.id is not null AND cm.car_type_of_use != 'Truck'
+ 		)
+     		OR (
+     			@only_orders_from_route_lists = FALSE
+     			AND	rla.id is null
+     		)
+ 	)
 	GROUP BY oi.id
 ;</CommandText>
         <QueryParameters>
@@ -1988,9 +2003,12 @@ WHERE
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
           </QueryParameter>
+          <QueryParameter Name="only_orders_from_route_lists">
+            <Value>={?only_orders_from_route_lists}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -2184,496 +2202,7 @@ WHERE
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="sales_manager_name">
-           <DataField>sales_manager_name</DataField>
-           <TypeName>System.String</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="Criterions">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
-        <CommandText>SET @classification_include = 0;
-SET @classification_exclude = 0;
-SELECT
-    CONCAT(
-            (IF(included_noms!=0,
-                CONCAT('Вкл.ном: ',included_noms,'\n'),
-                '')),
-            (IF(excluded_noms!=0,
-                CONCAT('Искл.ном: ',excluded_noms,'\n'),
-                '')),
-            (IF(included_nomtypes!=0,
-                CONCAT('Вкл.типов ном: ',included_nomtypes,'\n'),
-                '')),
-            (IF(excluded_nomtypes!=0,
-                CONCAT('Искл.типов ном: ',excluded_nomtypes,'\n'),
-                '')),
-            (IF(included_client!=0,
-                CONCAT('Вкл.клиентов: ',included_client,'\n'),
-                '')),
-            (IF(excluded_client!=0,
-                CONCAT('Искл.клиентов: ',excluded_client,'\n'),
-                '')),
-            (IF(included_client_type!=0,
-                CONCAT('Вкл.типов клиентов: ',included_client_type,'\n'),
-                '')),
-            (IF(excluded_client_type!=0,
-                CONCAT('Искл.типов клиентов: ',excluded_client_type,'\n'),
-                '')),
-            (IF(included_client_subtype!=0,
-                CONCAT('Вкл.подтипов клиентов: ',included_client_subtype,'\n'),
-                '')),
-            (IF(excluded_client_subtype!=0,
-                CONCAT('Искл.подтипов клиентов: ',excluded_client_subtype,'\n'),
-                '')),
-            (IF(included_org!=0,
-                CONCAT('Вкл.орг: ',included_org,'\n'),
-                '')),
-            (IF(excluded_org!=0,
-                CONCAT('Искл.орг: ',excluded_org,'\n'),
-                '')),
-            (IF(included_car_models!=0,
-                CONCAT('Вкл. типы авто: ',included_car_models,'\n'),
-                '')),
-            (IF(excluded_car_models!=0,
-                CONCAT('Искл. типы авто: ',excluded_car_models,'\n'),
-                '')),
-            (IF(included_subdivision!=0,
-                CONCAT('Вкл.отделов: ',included_subdivision,'\n'),
-                '')),
-            (IF(excluded_subdivision!=0,
-                CONCAT('Искл.отделов: ',excluded_subdivision,'\n'),
-                '')),
-            (IF(included_orderauthor!=0,
-                CONCAT('Вкл.авторов заказов: ',included_orderauthor,'\n'),
-                '')),
-            (IF(excluded_orderauthor!=0,
-                CONCAT('Искл.авторов заказов: ',excluded_orderauthor,'\n'),
-                '')),
-            (IF(included_salesmanager!=0,
-                CONCAT('Вкл.менеджеров: ',included_salesmanager,'\n'),
-                '')),
-            (IF(excluded_salesmanager!=0,
-                CONCAT('Искл.менеджеров: ',excluded_salesmanager,'\n'),
-                '')),
-            (IF(included_discountreason!=0,
-                CONCAT('Вкл.причин скидок: ',included_discountreason,'\n'),
-                '')),
-            (IF(excluded_discountreason!=0,
-                CONCAT('Искл.причин скидок: ',excluded_discountreason,'\n'),
-                '')),
-            (IF(included_geographic_groups!=0,
-                CONCAT('Вкл.частей города: ',included_geographic_groups,'\n'),
-                '')),
-            (IF(excluded_geographic_groups!=0,
-                CONCAT('Искл.частей города: ',excluded_geographic_groups,'\n'),
-                '')),
-            (IF(included_payment_types!=0,
-                CONCAT('Вкл.типов оплаты: ',included_payment_types,'\n'),
-                '')),
-            (IF(excluded_payment_types!=0,
-                CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
-                '')),
-            (IF(included_terminal_subtypes!=0,
-                CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
-                '')),
-            (IF(excluded_terminal_subtypes!=0,
-                CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
-                '')),
-            (IF(included_payment_froms!=0,
-                CONCAT('Вкл.источников оплаты: ',included_payment_froms,'\n'),
-                '')),
-            (IF(excluded_payment_froms!=0,
-                CONCAT('Искл.источников оплаты: ',excluded_payment_froms,'\n'),
-                '')),
-            (IF(included_promo_sets!=0,
-                CONCAT('Вкл.промонаборов: ',included_promo_sets,'\n'),
-                '')),
-            (IF(excluded_promo_sets!=0,
-                CONCAT('Искл.промонаборов: ',excluded_promo_sets,'\n'),
-                '')),
-            (IF(included_product_groups!=0,
-                CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
-                '')),
-            (IF(excluded_product_groups!=0,
-                CONCAT('Искл.групп товаров: ',excluded_product_groups,'\n'),
-                '')),
-        (IF(included_order_statuses!=0,
-		CONCAT('Вкл.статусов заказов: ',included_order_statuses,'\n'),
-		'')),
-		(IF(excluded_order_statuses!=0,
-		CONCAT('Искл.статусов заказов: ',excluded_order_statuses,'\n'),
-		'')),
-        (IF(included_counterparty_classifications!=0,
-		CONCAT('Вкл.классификаций контрагентов: ',included_counterparty_classifications,'\n'),
-		'')),
-		(IF(excluded_counterparty_classifications!=0,
-		CONCAT('Искл.классификаций контрагентов: ',excluded_counterparty_classifications,'\n'),
-		'')),
-        (IF(@is_self_delivery, 'Только самовывозы\n', IF(!@is_self_delivery, 'Кроме самовывозов\n', '')))
-        ) AS criterions
-FROM
-    (SELECT
-         IF(
-                     0 NOT IN (@Nomenclature_include),
-                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
-                     0
-             ) AS included_noms,
-         IF(
-                     0 NOT IN (@Nomenclature_exclude),
-                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
-                     0
-             ) AS excluded_noms,
-
-         IF(
-                     '0' NOT IN (@NomenclatureCategory_include),
-                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_include) GROUP BY nomenclature.category) AS q),
-                     0
-             ) AS included_nomtypes,
-         IF(
-                     '0' NOT IN (@NomenclatureCategory_exclude),
-                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@NomenclatureCategory_exclude) GROUP BY nomenclature.category) AS q),
-                     0
-             ) AS excluded_nomtypes,
-
-         IF(
-                     0 NOT IN (@Counterparty_include),
-                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_include)),
-                     0
-             ) AS included_client,
-         IF(
-                     0 NOT IN (@Counterparty_exclude),
-                     (SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@Counterparty_exclude)),
-                     0
-             ) AS excluded_client,
-             
-         IF(
-                     '0' NOT IN (@CounterpartyType_include),
-                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_include) GROUP BY counterparty.counterparty_type) AS q),
-                     0
-             ) AS included_client_type,
-         IF(
-                     '0' NOT IN (@CounterpartyType_exclude),
-                     (SELECT COUNT(q.cat) FROM (SELECT COUNT(counterparty.counterparty_type) AS cat FROM counterparty WHERE counterparty.counterparty_type IN(@CounterpartyType_exclude) GROUP BY counterparty.counterparty_type) AS q),
-                     0
-             ) AS excluded_client_type,
-             
-         IF(
-                     0 NOT IN (@CounterpartySubtype_include),
-                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_include)),
-                     0
-             ) AS included_client_subtype,
-         IF(
-                     0 NOT IN (@CounterpartySubtype_exclude),
-                     (SELECT COUNT(id) FROM counterparty_subtypes WHERE counterparty_subtypes.id IN(@CounterpartySubtype_exclude)),
-                     0
-             ) AS excluded_client_subtype,
-
-         IF(
-                     0 NOT IN (@Organization_include),
-                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_include)),
-                     0
-             ) AS included_org,
-         IF(
-                     0 NOT IN (@Organization_exclude),
-                     (SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@Organization_exclude)),
-                     0
-             ) AS excluded_org,
-         IF(
-                     '0' NOT IN (@CarTypeOfUse_include),
-                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_include)),
-                     0
-             ) AS included_car_models,
-         IF(
-                     '0' NOT IN (@CarTypeOfUse_exclude),
-                     (SELECT COUNT(DISTINCT car_type_of_use) FROM car_models WHERE car_type_of_use IN(@CarTypeOfUse_exclude)),
-                     0
-             ) AS excluded_car_models,
-         IF(
-                     0 NOT IN (@Subdivision_include),
-                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_include)),
-                     0
-             ) AS included_subdivision,
-         IF(
-                     0 NOT IN (@Subdivision_exclude),
-                     (SELECT COUNT(id) FROM subdivisions WHERE subdivisions.id IN(@Subdivision_exclude)),
-                     0
-             ) AS excluded_subdivision,
-
-         IF(
-                     0 NOT IN (@Employee_include),
-                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_include)),
-                     0
-             ) AS included_orderauthor,
-         IF(
-                     0 NOT IN (@Employee_exclude),
-                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@Employee_exclude)),
-                     0
-             ) AS excluded_orderauthor,
-         IF(
-                     0 NOT IN (@SalesManager_include),
-                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_include)),
-                     0
-             ) AS included_salesmanager,
-         IF(
-                     0 NOT IN (@SalesManager_exclude),
-                     (SELECT COUNT(id) FROM employees WHERE employees.id IN(@SalesManager_exclude)),
-                     0
-             ) AS excluded_salesmanager,
-         IF(
-                     0 NOT IN (@DiscountReason_include),
-                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_include)),
-                     0
-             ) AS included_discountreason,
-         IF(
-                     0 NOT IN (@DiscountReason_exclude),
-                     (SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@DiscountReason_exclude)),
-                     0
-             ) AS excluded_discountreason,
-
-         IF(
-                     0 NOT IN (@GeoGroup_include),
-                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_include)),
-                     0
-             ) AS included_geographic_groups,
-         IF(
-                     0 NOT IN (@GeoGroup_exclude),
-                     (SELECT COUNT(id) FROM geo_groups WHERE geo_groups.id IN(@GeoGroup_exclude)),
-                     0
-             ) AS excluded_geographic_groups,
-
-         IF(
-                     '0' NOT IN (@PaymentType_include),
-                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_include) GROUP BY orders.payment_type) AS q),
-                     0
-             ) AS included_payment_types,
-         IF(
-                     '0' NOT IN (@PaymentType_exclude),
-                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@PaymentType_exclude) GROUP BY orders.payment_type) AS q),
-                     0
-             ) AS excluded_payment_types,
-         IF(
-                 '0' NOT IN (@PaymentByTerminalSource_include),
-                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_include) GROUP BY orders.terminal_subtype) AS q),
-                 0
-         ) AS included_terminal_subtypes,
-         IF(
-                     '0' NOT IN (@PaymentByTerminalSource_exclude),
-                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@PaymentByTerminalSource_exclude) GROUP BY orders.terminal_subtype) AS q),
-                     0
-             ) AS excluded_terminal_subtypes,
-      	 IF(
-                     0 NOT IN (@PaymentFrom_include),
-                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_include)),
-                     0
-         ) AS included_payment_froms,
-         IF(
-                     0 NOT IN (@PaymentFrom_exclude),
-                     (SELECT COUNT(id) FROM payments_from WHERE payments_from.id IN(@PaymentFrom_exclude)),
-                     0
-             ) AS excluded_payment_froms,
-         IF(
-                     0 NOT IN (@PromotionalSet_include),
-                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_include)),
-                     0
-             ) AS included_promo_sets,
-         IF(
-                     0 NOT IN (@PromotionalSet_exclude),
-                     (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@PromotionalSet_exclude)),
-                     0
-             ) AS excluded_promo_sets,
-         IF(
-                     0 NOT IN (@ProductGroup_include),
-                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_include)),
-                     0
-             ) AS included_product_groups,
-         IF(
-                     0 NOT IN (@ProductGroup_exclude),
-                     (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@ProductGroup_exclude)),
-                     0
-             ) AS excluded_product_groups,
-        IF(
-			'0' NOT IN (@OrderStatus_include),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_include) GROUP BY orders.order_status) AS q),
-			0
-		) AS included_order_statuses,
-		IF(
-			'0' NOT IN (@OrderStatus_exclude),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(orders.order_status) AS cat FROM orders WHERE orders.order_status IN(@OrderStatus_exclude) GROUP BY orders.order_status) AS q),
-			0
-		) AS excluded_order_statuses,		
-        IF(
-			'0' NOT IN (@CounterpartyCompositeClassification_include),
-			(SELECT total_includes
-			FROM
-			(
-			SELECT
-			IF('AX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ax,
-			IF('AY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as ay,
-			IF('AZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as az,
-			IF('BX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bx,
-			IF('BY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as by_,
-			IF('BZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as bz,
-			IF('CX' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cx,
-			IF('CY' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cy,
-			IF('CZ' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as cz,
-			IF('New' IN (@CounterpartyCompositeClassification_include), @classification_include := @classification_include + 1, @classification_include := @classification_include) as new_,
-			@classification_include as total_includes
-			) incl),
-			0
-		) AS included_counterparty_classifications,		
-        IF(
-			'0' NOT IN (@CounterpartyCompositeClassification_exclude),
-			(SELECT total_excludes
-			FROM
-			(
-			SELECT
-			IF('AX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ax,
-			IF('AY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as ay,
-			IF('AZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as az,
-			IF('BX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bx,
-			IF('BY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as by_,
-			IF('BZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as bz,
-			IF('CX' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cx,
-			IF('CY' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cy,
-			IF('CZ' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as cz,
-			IF('New' IN (@CounterpartyCompositeClassification_exclude), @classification_exclude := @classification_exclude + 1, @classification_exclude := @classification_exclude) as new_,
-			@classification_exclude as total_excludes
-			) incl),
-			0
-		) AS excluded_counterparty_classifications
-    ) AS tbl
-;;</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!end_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="Nomenclature_include">
-            <Value>=Parameters!Nomenclature_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="Nomenclature_exclude">
-            <Value>=Parameters!Nomenclature_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="NomenclatureCategory_include">
-            <Value>=Parameters!NomenclatureCategory_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="NomenclatureCategory_exclude">
-            <Value>=Parameters!NomenclatureCategory_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="DiscountReason_include">
-            <Value>=Parameters!DiscountReason_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="DiscountReason_exclude">
-            <Value>=Parameters!DiscountReason_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="Organization_include">
-            <Value>=Parameters!Organization_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="Organization_exclude">
-            <Value>=Parameters!Organization_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="CarTypeOfUse_include">
-            <Value>=Parameters!CarTypeOfUse_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="CarTypeOfUse_exclude">
-            <Value>=Parameters!CarTypeOfUse_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="Counterparty_include">
-            <Value>=Parameters!Counterparty_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="Counterparty_exclude">
-            <Value>=Parameters!Counterparty_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>=Parameters!Employee_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="SalesManager_include">
-            <Value>=Parameters!SalesManager_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="SalesManager_exclude">
-            <Value>=Parameters!SalesManager_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>=Parameters!Employee_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="Subdivision_include">
-            <Value>=Parameters!Subdivision_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="Subdivision_exclude">
-            <Value>=Parameters!Subdivision_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="GeoGroup_include">
-            <Value>=Parameters!GeoGroup_include</Value>
-          </QueryParameter>
-          <QueryParameter Name="GeoGroup_exclude">
-            <Value>=Parameters!GeoGroup_exclude</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentType_include">
-            <Value>={?PaymentType_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentType_exclude">
-            <Value>={?PaymentType_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PromotionalSet_include">
-            <Value>={?PromotionalSet_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PromotionalSet_exclude">
-            <Value>={?PromotionalSet_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="ProductGroup_include">
-            <Value>={?ProductGroup_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="ProductGroup_exclude">
-            <Value>={?ProductGroup_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="OrderStatus_include">
-            <Value>={?OrderStatus_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="OrderStatus_exclude">
-            <Value>={?OrderStatus_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentByTerminalSource_include">
-            <Value>={?PaymentByTerminalSource_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentByTerminalSource_exclude">
-            <Value>={?PaymentByTerminalSource_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentFrom_include">
-            <Value>={?PaymentFrom_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="PaymentFrom_exclude">
-            <Value>={?PaymentFrom_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartyType_include">
-            <Value>={?CounterpartyType_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartyType_exclude">
-            <Value>={?CounterpartyType_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartySubtype_include">
-            <Value>={?CounterpartySubtype_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartySubtype_exclude">
-            <Value>={?CounterpartySubtype_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartyCompositeClassification_include">
-            <Value>={?CounterpartyCompositeClassification_include}</Value>
-          </QueryParameter>
-          <QueryParameter Name="CounterpartyCompositeClassification_exclude">
-            <Value>={?CounterpartyCompositeClassification_exclude}</Value>
-          </QueryParameter>
-          <QueryParameter Name="is_self_delivery">
-            <Value>={?is_self_delivery}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="criterions">
-          <DataField>criterions</DataField>
+          <DataField>sales_manager_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2683,7 +2212,8 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString></ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -2696,333 +2226,396 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="NomenclatureCategory_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="NomenclatureCategory_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CarTypeOfUse_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CarTypeOfUse_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Employee_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Employee_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="SalesManager_include">
-          <DataType>Integer</DataType>
-          <Nullable>false</Nullable>
-          <AllowBlank>false</AllowBlank>
-          <MultiValue>true</MultiValue>
-          <Prompt></Prompt>
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="SalesManager_exclude">
-          <DataType>Integer</DataType>
-          <Nullable>false</Nullable>
-          <AllowBlank>false</AllowBlank>
-          <MultiValue>true</MultiValue>
-          <Prompt></Prompt>
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="DiscountReason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="DiscountReason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="GeoGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="GeoGroup_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentByTerminalSource_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentByTerminalSource_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentFrom_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentFrom_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PromotionalSet_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PromotionalSet_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="ProductGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="ProductGroup_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="grouping_title">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="grouping_title_comma_splitrted">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyCompositeClassification_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyCompositeClassification_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="is_self_delivery">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="only_orders_from_route_lists">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="filters">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />

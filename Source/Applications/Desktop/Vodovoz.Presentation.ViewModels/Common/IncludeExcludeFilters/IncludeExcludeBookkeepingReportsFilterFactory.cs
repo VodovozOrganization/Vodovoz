@@ -3,7 +3,6 @@ using NHibernate.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
@@ -105,70 +104,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 				};
 
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип контрагента
-					var includeCounterpartyTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, includeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartyTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, excludeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Клиент Рекламного Отдела
-					var includeCounterpartySubtypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, includeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartySubtypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, excludeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, new object[] { "0" });
-					}
-
-					return result;
-				};
+				filterConfig.GetReportParametersFunc = CustomReportParametersFunc.CounterpartyTypeReportParametersFunc;
 			});
 		}
 
@@ -265,99 +201,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 				};
 
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип оплаты
-					var includePaymentTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _includeString, includePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _excludeString, excludePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Оплата по термииналу
-					var includePaymentByTerminalSourceValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, includePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, excludePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Оплачено онлайн
-					var includePaymentFromValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeString, includePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentFromValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeString, excludePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeString, new object[] { "0" });
-					}
-
-					return result;
-				};
+				filterConfig.GetReportParametersFunc = CustomReportParametersFunc.PaymentTypeReportParametersFunc;
 			});
 		}
 

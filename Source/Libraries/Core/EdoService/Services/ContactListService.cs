@@ -25,8 +25,6 @@ namespace EdoService.Library.Services
 		private readonly IGenericRepository<TaxcomEdoSettings> _edoSettingsRepository;
 		private static HttpClient _httpClient;
 		private readonly IEdoLogger _edoLogger;
-		
-		private int _organizationId;
 
 		public ContactListService(
 			IEdoLogger edoLogger,
@@ -50,16 +48,6 @@ namespace EdoService.Library.Services
 			_httpClient.DefaultRequestHeaders.Add("Integrator-Id", _edoSettings.TaxcomIntegratorId);
 		}
 
-		public void SetOrganizationId(int organizationId)
-		{
-			if(organizationId <= 0)
-			{
-				throw new ArgumentOutOfRangeException(nameof(organizationId));
-			}
-
-			_organizationId = organizationId;
-		}
-
 		private string Encode(string str)
 		{
 			var bytes = Encoding.GetEncoding(1252).GetBytes(str);
@@ -76,9 +64,9 @@ namespace EdoService.Library.Services
 
 		public async Task<string> Login(string login, string password) => await _authorizationService.Login(login, password);
 
-		public async Task<ContactList> CheckContragentAsync(IUnitOfWork uow, string inn, string kpp)
+		public async Task<ContactList> CheckContragentAsync(IUnitOfWork uow, int organizationId, string inn, string kpp)
 		{
-			var key = await GetSettingsAndLogin(uow);
+			var key = await GetSettingsAndLogin(uow, organizationId);
 
 			byte[] requestBytes;
 			var invitationsList = new ContactList
@@ -113,22 +101,28 @@ namespace EdoService.Library.Services
 			return null;
 		}
 
-		private async Task<string> GetSettingsAndLogin(IUnitOfWork uow)
+		private async Task<string> GetSettingsAndLogin(IUnitOfWork uow, int organizationId)
 		{
 			var edoSettings = _edoSettingsRepository
-				.Get(uow, x => x.OrganizationId == _organizationId)
+				.Get(uow, x => x.OrganizationId == organizationId)
 				.FirstOrDefault();
 			
 			if(edoSettings == null)
 			{
-				throw new InvalidOperationException($"Не заполнены настройки по ЭДО для организации с Id {_organizationId}");
+				throw new InvalidOperationException($"Не заполнены настройки по ЭДО для организации с Id {organizationId}");
 			}
 
 			return await Login(edoSettings.Login, edoSettings.Password);
 		}
 
 		public async Task<ResultDto> SendContactsAsync(
-			IUnitOfWork uow, string inn, string kpp, string email, string edxClientId)
+			IUnitOfWork uow,
+			int organizationId,
+			string inn,
+			string kpp,
+			string email,
+			string edxClientId,
+			string organizationName)
 		{
 			var invitationsList = new ContactList
 			{
@@ -140,16 +134,17 @@ namespace EdoService.Library.Services
 						Kpp = kpp,
 						Email = email,
 						EdxClientId = Regex.Replace(edxClientId, @"\s+", string.Empty),
-						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+						Comment = $"{organizationName} приглашает Вас к электронному обмену документами"
 					}
 				}
 			};
 
-			return await SendContactsAsync(uow, invitationsList);
+			return await SendContactsAsync(uow, organizationId, invitationsList);
 		}
 
 		public async Task<ResultDto> SendContactsForManualInvitationAsync(
 			IUnitOfWork uow,
+			int organizationId,
 			string inn,
 			string kpp,
 			string organizationName,
@@ -171,17 +166,17 @@ namespace EdoService.Library.Services
 						OperatorId = operatorId,
 						ScanFilename = scanFileName,
 						Scan = Convert.ToBase64String(scanFile),
-						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену документами"
 					}
 				}
 			};
 
-			return await SendContactsAsync(uow, invitationsList);
+			return await SendContactsAsync(uow, organizationId, invitationsList);
 		}
 
-		public async Task<ResultDto> SendContactsAsync(IUnitOfWork uow, ContactList invitationsList)
+		public async Task<ResultDto> SendContactsAsync(IUnitOfWork uow, int organizationId, ContactList invitationsList)
 		{
-			var key = await GetSettingsAndLogin(uow);
+			var key = await GetSettingsAndLogin(uow, organizationId);
 
 			byte[] requestBytes;
 
@@ -215,9 +210,9 @@ namespace EdoService.Library.Services
 		public ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode) =>
 			_contactStateConverter.ConvertStateToConsentForEdoStatus(stateCode);
 
-		public async Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, DateTime dateLastRequest, ContactStateCode? status = null)
+		public async Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, int organizationId, DateTime dateLastRequest, ContactStateCode? status = null)
 		{
-			var key = await GetSettingsAndLogin(uow);
+			var key = await GetSettingsAndLogin(uow, organizationId);
 
 			var uri = status is null
 					? $"{_edoSettings.TaxcomGetContactListUpdatesUri}?DATE={dateLastRequest}"
@@ -242,6 +237,7 @@ namespace EdoService.Library.Services
 		
 		public async Task<ContactListItem> GetLastChangeOnDate(
 			IUnitOfWork uow,
+			int organizationId,
 			DateTime dateLastRequest,
 			string inn,
 			string kpp,
@@ -253,7 +249,7 @@ namespace EdoService.Library.Services
 
 			do
 			{
-				contactList = await GetContactListUpdatesAsync(uow, date, status);
+				contactList = await GetContactListUpdatesAsync(uow, organizationId, date, status);
 
 				if(contactList.Contacts != null && contactList.Contacts.LastOrDefault() is ContactListItem item)
 				{
@@ -262,7 +258,6 @@ namespace EdoService.Library.Services
 				}
 
 			} while(contactList.Contacts != null && contactList.Contacts.Length >= 100);
-
 
 			return items
 				.Where(x => x.Inn == inn

@@ -381,7 +381,6 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			Nomenclature orderItemNomenclatureAlias = null;
 			CounterpartyContract contractAlias = null;
 			Organization organizationAlias = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
@@ -398,12 +397,6 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
 				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
 					JoinType.LeftOuterJoin,
 					Restrictions.Where(() => defaultEdoAccountAlias.OrganizationId == organizationAlias.Id
@@ -415,9 +408,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 							Restrictions.Conjunction()
 								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
 								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
-								.Add(Restrictions.Disjunction()
-									.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-									.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+								.Add(Restrictions.Eq(Projections.Property(() => defaultEdoAccountAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
 						)
 						.Add(
 							Restrictions.Conjunction()
@@ -1664,8 +1655,8 @@ FROM
 
 		public async Task<IList<RouteList>> GetCarsRouteListsForPeriod(
 			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
-			CarOwnType carOwnType,
+			CarTypeOfUse[] carTypesOfUse,
+			CarOwnType[] carOwnTypes,
 			Car car,
 			int[] includedCarModelIds,
 			int[] excludedCarModelIds,
@@ -1697,12 +1688,8 @@ FROM
 					.Where(() => !carAlias.IsArchive)
 					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
-
-				if(carTypeOfUse != null)
-				{
-					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
+					.And(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), carOwnTypes))
+					.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), carTypesOfUse));
 
 				if(car != null)
 				{

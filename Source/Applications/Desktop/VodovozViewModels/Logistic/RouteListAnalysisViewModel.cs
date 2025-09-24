@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -75,7 +76,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ISubdivisionSettings subdivisionSettings,
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			ICurrentPermissionService currentPermissionService)
 			: base (uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -96,6 +98,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_subdivisionSettings =
 				subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); _lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_currentPermissionService = currentPermissionService;
 
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
@@ -116,7 +119,8 @@ namespace Vodovoz.ViewModels.Logistic
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
 			CurrentEmployee = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
-			
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+
 			if(CurrentEmployee == null) {
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете открыть " +
 				             "диалог разбора МЛ, так как некого указывать в качестве логиста.", "Невозможно открыть разбор МЛ");
@@ -130,6 +134,8 @@ namespace Vodovoz.ViewModels.Logistic
 			TabName = $"Диалог разбора {Entity.Title}";
 			
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
+			ValidationContext.Items.Add(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders);
+			
 		}
 		
 		#endregion
@@ -150,6 +156,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanEditRouteList => PermissionResult.CanUpdate;
 
+		public bool CanCreateRouteListWithoutOrders { get; }
+		
 		#endregion
 
 		public Action UpdateTreeAddresses;
