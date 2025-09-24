@@ -192,10 +192,10 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public async Task<IList<CarEventData>> GetCarEvents(
 			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
+			CarTypeOfUse[] carTypesOfUse,
 			int[] includedCarModelIds,
 			int[] excludedCarModelIds,
-			CarOwnType carOwnType,
+			CarOwnType[] carOwnTypes,
 			Car car,
 			DateTime startDate,
 			DateTime endDate,
@@ -224,12 +224,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.Where(() => !carAlias.IsArchive)
 					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
-
-				if(carTypeOfUse != null)
-				{
-					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
+					.And(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), carOwnTypes))
+					.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), carTypesOfUse));
 
 				if(car != null)
 				{
@@ -262,10 +258,10 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public async Task<IList<Car>> GetCarsWithoutData(
 			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
+			CarTypeOfUse[] carTypesOfUse,
 			int[] includedCarModelIds,
 			int[] excludedCarModelIds,
-			CarOwnType carOwnType,
+			CarOwnType[] carOwnTypes,
 			Car car,
 			DateTime startDate,
 			DateTime endDate,
@@ -288,12 +284,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.Where(() => !carAlias.IsArchive)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
 					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
+					.And(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), carOwnTypes))
+					.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), carTypesOfUse));
 
-				if(carTypeOfUse != null)
-				{
-					carsQuery.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
 				if(car != null)
 				{
 					carsQuery.Where(() => carAlias.Id == car.Id);
@@ -309,9 +302,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
-				carsQuery.Fetch(SelectMode.Fetch, x => x.GeographicGroups);
-
-				return carsQuery.List<Car>();
+				return carsQuery.TransformUsing(Transformers.DistinctRootEntity).List<Car>();
 			},
 			cancellationToken);
 		}
@@ -382,6 +373,45 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			return (await driversNames.ToListAsync(cancellationToken))
 				.GroupBy(g => g.CarId)
 				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+		}
+
+		public async Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(
+			IUnitOfWork uow,
+			IEnumerable<int> carsIds,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			var carVersions =
+				await (from carVersion in uow.Session.Query<CarVersion>()
+					   where
+						   carsIds.Contains(carVersion.Car.Id)
+						   && carVersion.StartDate <= endDate
+						   && (carVersion.EndDate == null || carVersion.EndDate >= startDate)
+					   select new { CarId = carVersion.Car.Id, CarVersion = carVersion })
+				.ToListAsync(cancellationToken);
+
+			var carVersionsData = carVersions
+				.GroupBy(cv => cv.CarId)
+				.ToDictionary(
+					g => g.Key,
+					g => g.Select(v => v.CarVersion)
+				);
+
+			return carVersionsData;
+		}
+
+		public void ArchiveCar(IUnitOfWork uow, Car car, ArchivingReason reason)
+		{
+			if(car == null)
+			{
+				throw new ArgumentNullException(nameof(car));
+			}
+
+			car.IsArchive = true;
+			car.ArchivingDate = DateTime.Now;
+			car.ArchivingReason = reason;
+			uow.Save(car);
 		}
 
 		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>

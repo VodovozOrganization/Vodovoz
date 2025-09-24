@@ -95,13 +95,9 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 			
-			var cashPaymentKulerService =
-				order.PaymentType == PaymentType.Cash
-				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
-			
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
 
-			if(cashPaymentKulerService && !hasManualSend)
+			if(!hasManualSend)
 			{
 				await SaveCodesToPool(receiptEdoTask, cancellationToken);
 				receiptEdoTask.Status = EdoTaskStatus.Completed;

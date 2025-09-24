@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -81,6 +81,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
+				.AddColumn("Статус\nоплаты").AddEnumRenderer(node => node.OrderPaymentStatus)
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryAddress)
 				.AddColumn("Название организации").AddTextRenderer(node => node.OrganizationName)
 				.Finish();

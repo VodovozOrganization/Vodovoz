@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Extensions;
 
-namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1C
+namespace Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1c
 {
 	public partial class RetailSalesReportFor1c
 	{

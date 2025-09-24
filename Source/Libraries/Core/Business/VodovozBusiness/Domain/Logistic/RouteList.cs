@@ -1816,15 +1816,25 @@ namespace Vodovoz.Domain.Logistic
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			bool cashOrderClose = false;
+			bool canSaveRouteListWithoutOrders = false;
+			var routeList = validationContext.ObjectInstance as RouteList;
 
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
 			}
 
-			if(validationContext.Items.ContainsKey("NewStatus")) {
+			if(validationContext.Items.ContainsKey(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders))
+			{
+				canSaveRouteListWithoutOrders =
+					(bool)validationContext.Items[Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders];
+			}
+
+			if(validationContext.Items.ContainsKey("NewStatus"))
+			{
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
-				switch(newStatus) {
+				switch(newStatus)
+				{
 					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
 					case RouteListStatus.InLoading:
@@ -1840,7 +1850,8 @@ namespace Vodovoz.Domain.Logistic
 							ignoreReceiptsInOrders = new List<int>();
 						}
 
-						foreach(var address in Addresses) {
+						foreach(var address in Addresses)
+						{
 							var validator = ServicesConfig.ValidationService;
 							var orderValidationContext = new ValidationContext(
 								address.Order,
@@ -1868,7 +1879,7 @@ namespace Vodovoz.Domain.Logistic
 
 								return null;
 							});
-								
+
 							validator.Validate(address.Order, orderValidationContext, false);
 
 							foreach(var result in validator.Results)
@@ -1876,6 +1887,7 @@ namespace Vodovoz.Domain.Logistic
 								yield return result;
 							}
 						}
+
 						break;
 					case RouteListStatus.EnRoute: break;
 					case RouteListStatus.OnClosing: break;
@@ -1917,9 +1929,9 @@ namespace Vodovoz.Domain.Logistic
 			if(!GeographicGroups.Any())
 			{
 				yield return new ValidationResult(
-						"Необходимо указать район",
-						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
-					);
+					"Необходимо указать район",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
+				);
 			}
 
 			if(Driver == null)
@@ -1952,7 +1964,7 @@ namespace Vodovoz.Domain.Logistic
 					yield return new ValidationResult("Нет данных о версии автомобиля на выбранную дату доставки.",
 						new[] { nameof(Car.CarVersions) });
 				}
-				
+
 				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
 				{
 					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
@@ -1974,7 +1986,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
 			{
-				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.",
 					new[] { nameof(GeographicGroups) });
 			}
 
@@ -1993,8 +2005,26 @@ namespace Vodovoz.Domain.Logistic
 
 			if(ConfirmedDistance > ConfirmedDistanceLimit)
 			{
-				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
+				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}",
 					new[] { nameof(ConfirmedDistance) });
+			}
+
+			var banStatuses = new[]
+			{
+				RouteListStatus.EnRoute,
+				RouteListStatus.Delivered,
+				RouteListStatus.Closed,
+				RouteListStatus.OnClosing,
+				RouteListStatus.MileageCheck
+			};
+			
+			if(routeList != null
+			   && banStatuses.Contains(routeList.Status)
+			   && ObservableAddresses.Count == 0
+			   && !canSaveRouteListWithoutOrders)
+			{
+				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
+					new[] { nameof(ObservableAddresses) });
 			}
 		}
 

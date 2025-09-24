@@ -17,7 +17,6 @@ namespace Vodovoz.ViewWidgets.Reports
 			: base(viewModel)
 		{
 			Build();
-
 			Initialize();
 		}
 
@@ -80,14 +79,7 @@ namespace Vodovoz.ViewWidgets.Reports
 					.AddSetter((c, n) =>
 					{
 						c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
-						if(n.IncludedCount == 0)
-						{
-							c.Text = "";
-						}
-						else
-						{
-							c.Text = n.IncludedCount.ToString();
-						}
+						c.Text = n.IncludedCount == 0 ? "" : n.IncludedCount.ToString();
 					});
 
 			if(ViewModel.WithExcludes)
@@ -98,14 +90,7 @@ namespace Vodovoz.ViewWidgets.Reports
 						.AddSetter((c, n) =>
 						{
 							c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
-							if(n.ExcludedCount == 0)
-							{
-								c.Text = "";
-							}
-							else
-							{
-								c.Text = n.ExcludedCount.ToString();
-							}
+							c.Text = n.ExcludedCount == 0 ? "" : n.ExcludedCount.ToString();
 						});
 			}
 
@@ -154,23 +139,24 @@ namespace Vodovoz.ViewWidgets.Reports
 				ytreeviewElements.YTreeModel = recursiveModel;
 
 				var columnConfig = ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>();
+				
+				var includeMapping = columnConfig.AddColumn("\t✔️")
+					.AddToggleRenderer(x => x.Include)
+					.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+					.ToggledEvent(OnElementCheckboxToggled);
 
 				if(ViewModel.ActiveFilter.IsRadio)
 				{
-					columnConfig
-						.AddColumn("\t✔️")
-							.AddToggleRenderer(x => x.Include).Radio().ToggledEvent(OnElementCheckboxToggled);
-				}
-				else
-				{
-					columnConfig
-						.AddColumn("\t✔️")
-							.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled);
+					includeMapping.Radio();
 				}
 
 				if(ViewModel.WithExcludes)
 				{
-					columnConfig.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled);
+					columnConfig.AddColumn("X")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(x => x.Exclude)
+						.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+						.ToggledEvent(OnElementCheckboxToggled);
 				}
 
 				columnConfig

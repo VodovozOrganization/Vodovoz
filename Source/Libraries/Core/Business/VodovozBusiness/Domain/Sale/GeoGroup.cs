@@ -12,7 +12,8 @@ namespace Vodovoz.Domain.Sale
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "Часть города",
-		NominativePlural = "Части города")]
+		NominativePlural = "Части города",
+		GenitivePlural = "Частей города")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed

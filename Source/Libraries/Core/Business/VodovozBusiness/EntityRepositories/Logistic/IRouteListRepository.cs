@@ -93,7 +93,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);
 		void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms);
-		Task<IList<RouteList>> GetCarsRouteListsForPeriod(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
+		Task<IList<RouteList>> GetCarsRouteListsForPeriod(IUnitOfWork uow, CarTypeOfUse[] carTypesOfUse, CarOwnType[] carOwnTypes, Car car,
 			int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
 			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
 		IQueryable<ExploitationReportRouteListDataNode> GetExploitationReportRouteListDataNodes(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);

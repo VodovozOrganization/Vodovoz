@@ -40,19 +40,19 @@ namespace Edo.Common
 			EdoTaskItem edoTaskItem
 			)
 		{
-			if(edoTaskItem.ProductCode.SourceCode != null)
-			{
-				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
-					edoTaskItem.ProductCode.SourceCode,
-					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem }
-				);
-			}
-
 			if(edoTaskItem.ProductCode.ResultCode != null)
 			{
 				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
 					edoTaskItem.ProductCode.ResultCode,
-					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem }
+					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Result }
+				);
+			}
+
+			if(edoTaskItem.ProductCode.SourceCode != null)
+			{
+				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
+					edoTaskItem.ProductCode.SourceCode,
+					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Source }
 				);
 			}
 		}

@@ -28,6 +28,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.Tdi;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Control.EEVM;
@@ -89,6 +90,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
@@ -229,8 +231,11 @@ namespace Vodovoz
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
 		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
+		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -308,7 +313,11 @@ namespace Vodovoz
 		private Result _lastSaveResult;
 
 		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
-		public bool IsWaitUntilActive => Entity.OrderStatus == OrderStatus.OnTheWay
+		public bool IsWaitUntilActive => Entity.OrderStatus.IsIn(
+			OrderStatus.Accepted, 
+			OrderStatus.OnLoading, 
+			OrderStatus.InTravelList, 
+			OrderStatus.OnTheWay)
 			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
@@ -1178,6 +1187,8 @@ namespace Vodovoz
 
 			_lastWaitUntilTime = Entity.WaitUntilTime;
 
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
+
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
@@ -1187,6 +1198,24 @@ namespace Vodovoz
 			RefreshBottlesDebtNotifier();
 
 			RefreshDebtorDebtNotifier();
+		}
+
+		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
+		{
+			if(!IsWaitUntilActive)
+			{
+				return;
+			}
+
+			Entity.WaitUntilTime = timepickerWaitUntil.TimeOrNull;
+			if(Save())
+			{
+				MessageDialogHelper.RunInfoDialog("Поле \"Ожидает до\" успешно сохранено.");
+			}
+			else
+			{
+				MessageDialogHelper.RunWarningDialog("Не удалось сохранить");
+			}
 		}
 
 		private void UpdateOrderItemsOriginalValues()
@@ -1316,11 +1345,28 @@ namespace Vodovoz
 							try
 							{
 								var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+								var organizations = _organizationRepository.GetOrganizations(UoW);
+								var orgDebts = new StringBuilder();
+
+								foreach(var org in organizations)
+								{
+									var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+									if(orgDebt > 0)
+									{
+										orgDebts.AppendLine($"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{org.FullName}: {orgDebt} руб.</span>");
+									}
+								}
 								if(totalDebt > 0)
 								{
+									var message = $"У клиента имеется задолженность в размере {totalDebt} руб.";
+									if(orgDebts.Length > 0)
+									{
+										message += "\nЗадолженность по следующим организациям:\n" + orgDebts.ToString();
+									}
+									message += "Пожалуйста, уведомите клиента о задолженности";
 									_interactiveService.ShowMessage(
 										ImportanceLevel.Warning,
-										$"У клиента имеется задолженность в размере {totalDebt} руб.\nПожалуйста, уведомите клиента о задолженности",
+										message,
 										"Уведомление о задолженности клиента");
 								}
 							}
@@ -4791,6 +4837,7 @@ namespace Vodovoz
 
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
+			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
 		}
 
 		private void ChangeOrderEditable(bool val)
@@ -4837,7 +4884,7 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				if(widget.Name == timepickerWaitUntil.Name || widget.Name == ylabelWaitUntil.Name)
+				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
 				}
@@ -5108,13 +5155,18 @@ namespace Vodovoz
 		{
 			if(Counterparty is null)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
 				return;
 			}
 
 			if(Counterparty.PaymentMethod != PaymentType
 				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{PaymentType.GetEnumTitle()}&gt;." +
 				$" У клиента по умолчанию установлено &lt;{Counterparty.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
+			if(!CheckDepositOrderCanBeFormed())
 			{
 				return;
 			}
@@ -5281,6 +5333,59 @@ namespace Vodovoz
 			ntbOrder.GetNthPage(1).Show();
 
 			ntbOrder.CurrentPage = 1;
+		}
+
+		private bool CheckDepositOrderCanBeFormed()
+		{
+			if(Entity.OrderItems == null ||
+				_currentPermissionService.ValidatePresetPermission(
+					Core.Domain.Permissions.OrderPermissions.CanFormOrderWithDepositWithoutPayment))
+			{
+				return true;
+			}
+
+			bool hasDepositForEquipment = Entity.OrderItems.Any(oi =>
+				oi.Nomenclature.Category == NomenclatureCategory.deposit &&
+				oi.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.EquipmentDeposit);
+
+			bool isCashless = Entity.PaymentType == PaymentType.Cashless;
+			bool isPaidAndOrderItemsMatch = false;
+
+			if(Order.Id != 0)
+			{
+				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				{
+					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var entityOrderItems = Entity.OrderItems
+					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
+					.ToList();
+
+					var dbOrderSum = dbOrderItems.Sum(x => x.Sum);
+					var entityOrderSum = entityOrderItems.Sum(x => x.Sum);
+
+					isPaidAndOrderItemsMatch = Entity.OrderPaymentStatus == OrderPaymentStatus.Paid
+						&& (!dbOrderItems.Except(entityOrderItems).Any()
+						&& !entityOrderItems.Except(dbOrderItems).Any()
+						|| entityOrderSum <= dbOrderSum);
+				}
+			}
+
+			if(hasDepositForEquipment 
+				&& !isPaidAndOrderItemsMatch 
+				&& isCashless)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Невозможно сформировать.\nЗаказ с залогом должен быть в статусе \"Оплачен\"",
+					"Проверка корректности данных");
+				return false;
+			}
+
+			return true;
 		}
 
 		private void OpenNewOrderForDailyRentEquipmentReturnIfNeeded()

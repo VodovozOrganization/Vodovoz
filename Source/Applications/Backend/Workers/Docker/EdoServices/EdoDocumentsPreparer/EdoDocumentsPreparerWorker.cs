@@ -127,8 +127,7 @@ namespace EdoDocumentsPreparer
 
 					if(mainOrganization != null)
 					{
-						await PrepareUpdDocumentsForSend(uow, mainOrganization.Id);
-						await PrepareBillsForSend(uow, mainOrganization.Id, stoppingToken);
+						await PrepareUpdDocumentsForSend(uow, mainOrganization.Id);						
 					}
 					else
 					{
@@ -146,8 +145,9 @@ namespace EdoDocumentsPreparer
 					{
 						foreach(var organization in organizations)
 						{
-							await PrepareBillsWithoutShipmentForSend(uow, organization);
+							await PrepareBillsForSend(uow, organization.Id, stoppingToken);
 
+							await PrepareBillsWithoutShipmentForSend(uow, organization);
 						}
 					}
 					else

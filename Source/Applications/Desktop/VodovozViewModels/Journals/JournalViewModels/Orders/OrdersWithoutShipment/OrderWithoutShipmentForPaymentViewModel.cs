@@ -291,6 +291,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 				    .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryAddress)
 				    .Select(() => contractOrganizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)

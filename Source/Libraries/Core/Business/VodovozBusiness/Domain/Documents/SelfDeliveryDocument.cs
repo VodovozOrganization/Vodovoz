@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -47,6 +47,7 @@ namespace Vodovoz.Domain.Documents
 			= new List<SelfDeliveryDocumentReturned>();
 		private int _defBottleId;
 		private int _returnedTareBefore;
+		private int _tareToReturn;
 
 		/// <summary>
 		/// <inheritdoc/>
@@ -173,7 +174,11 @@ namespace Vodovoz.Domain.Documents
 		/// <summary>
 		/// Количество тары, которую нужно вернуть
 		/// </summary>
-		public virtual int TareToReturn { get; set; }
+		public virtual int TareToReturn
+		{
+			get => _tareToReturn;
+			set => SetField(ref _tareToReturn, value);
+		}
 
 		#endregion
 

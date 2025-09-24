@@ -186,6 +186,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.Organization: return "={organization}";
 				case GroupingType.CounterpartyClassification: return "={counterparty_classification}";
 				case GroupingType.PromotionalSet: return "={promotional_set}";
+				case GroupingType.CounterpartyManager: return "={sales_manager_name}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -210,6 +211,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.Organization: return "{organization}";
 				case GroupingType.CounterpartyClassification: return "{counterparty_classification}";
 				case GroupingType.PromotionalSet: return "{promotional_set}";
+				case GroupingType.CounterpartyManager: return "{sales_manager_name}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}

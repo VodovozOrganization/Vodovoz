@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",
-		Nominative = "группа товаров")]
+		Nominative = "группа товаров",
+		GenitivePlural = "групп товаров")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class ProductGroup : PropertyChangedBase, INamedDomainObject, IValidatableObject, IArchivable

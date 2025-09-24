@@ -1,10 +1,11 @@
-using System;
-using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
+using QS.Utilities;
 using QS.Views.Dialog;
+using System;
+using System.Linq;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
 using VodovozInfrastructure.Extensions;
@@ -96,6 +97,31 @@ namespace Vodovoz.Views.Documents
 			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+
+			ybuttonPasteCodesFromClipboard.Clicked += OnYProcessCodesFromClipboardButtonClicked;
+		}
+
+		private void OnYProcessCodesFromClipboardButtonClicked(object sender, EventArgs e)
+		{
+			var clipboard = GetClipboard(Gdk.Selection.Clipboard);
+			var clipboardText = clipboard.WaitForText();
+
+			if(string.IsNullOrWhiteSpace(clipboardText))
+			{
+				return;
+			}
+
+			var codes = clipboardText
+				.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+
+			foreach(var code in codes)
+			{
+				yentryCode.Text = code;
+
+				GtkHelper.WaitRedraw();
+
+				yentryCode.Activate();
+			}
 		}
 
 		private Color GetHasInOrderColor(CodesScanViewModel.CodeScanRow n)
@@ -104,7 +130,7 @@ namespace Vodovoz.Views.Documents
 			{
 				return _colorDuplicate;
 			}
-			
+
 			if(n.Children.Any())
 			{
 				return _colorAggregate;
@@ -150,6 +176,7 @@ namespace Vodovoz.Views.Documents
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
 			ybuttonCopyCodes.Clicked -= OnYbuttonCopyCodesClicked;
+			ybuttonPasteCodesFromClipboard.Clicked -= OnYProcessCodesFromClipboardButtonClicked;
 
 			base.Destroy();
 		}
