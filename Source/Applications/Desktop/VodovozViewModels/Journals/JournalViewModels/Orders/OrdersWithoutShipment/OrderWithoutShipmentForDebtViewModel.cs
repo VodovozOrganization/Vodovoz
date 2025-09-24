@@ -45,7 +45,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IOrganizationSettings _organizationSettings;
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
-		private Organization _organization;
 		private bool _canSetOrganization = true;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
@@ -92,7 +91,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(this, x => x.Organization)
+				.ForProperty(this, x => x.Entity.Organization)
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
@@ -146,8 +145,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() =>
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-
-					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
+					
+					if(Entity.Organization == null)
+					{
+						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+						return;
+					}
 					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
 					{
@@ -165,8 +168,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-			
-			Organization = Entity.Id != 0 ?Entity.Organization : null;
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
@@ -182,12 +183,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		public IEntityEntryViewModel OrganizationViewModel { get; }
-		
-		public Organization Organization
-		{
-			get => _organization;
-			set => SetField(ref _organization, value);
-		}
 		
 		#region Commands
 

@@ -64,7 +64,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private bool _canChoosePremiumDiscount;
 		private bool _canAddOnlineStoreNomenclaturesToOrder;
 		private bool _userHavePermissionToResendEdoDocuments;
-		private Organization _organization;
 
 		private object _selectedItem;
 		
@@ -118,7 +117,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(this, x => x.Organization)
+				.ForProperty(this, x => x.Entity.Organization)
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
@@ -163,8 +162,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			InitializeCommands();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-			
-			Organization = Entity.Id != 0 ?Entity.Organization : null;
 		}
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
@@ -189,12 +186,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			set => SetField(ref _selectedItem, value);
 		}
 		
-		public Organization Organization
-		{
-			get => _organization;
-			set => SetField(ref _organization, value);
-		}
-
 		public IList<DiscountReason> DiscountReasons { get; private set; }
 		public IOrderDiscountsController DiscountsController { get; }
 		public bool CanChangeDiscountValue { get; private set; }
@@ -303,12 +294,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		protected override bool BeforeSave()
 		{
-			var organizationId = IsOnlineStoreOrderWithoutShipment(Entity)
-				? _organizationSettings.VodovozNorthOrganizationId
-				: _organizationSettings.VodovozOrganizationId;
+			if(Entity.Organization != null)
+			{
+				return true;
+			}
 
-			Entity.Organization = Organization ?? UoW.GetById<Organization>(organizationId);
-			return true;
+			ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+				
+			return false;
 		}
 
 		private void InitializeCommands()
@@ -375,9 +368,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OpenBillCommand = new DelegateCommand(
 				() =>
 				{
-					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+					var whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
-					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
+					if(Entity.Organization == null)
+					{
+						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+						return;
+					}
 					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 					{
