@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(this, x => x.Entity.Organization)
+				.ForProperty(Entity, x => x.Organization)
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
