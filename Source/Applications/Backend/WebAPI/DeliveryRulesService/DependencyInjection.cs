@@ -1,4 +1,4 @@
-using DeliveryRulesService.Cache;
+﻿using DeliveryRulesService.Cache;
 using DeliveryRulesService.HealthChecks;
 using DeliveryRulesService.Workers;
 using Fias.Client;
@@ -28,10 +28,10 @@ namespace DeliveryRulesService
 			services
 				.AddControllers()
 				.AddJsonOptions(j =>
-			{
-				//Необходимо для сериализации свойств как PascalCase
-				j.JsonSerializerOptions.PropertyNamingPolicy = null;
-			});
+				{
+					//Необходимо для сериализации свойств как PascalCase
+					j.JsonSerializerOptions.PropertyNamingPolicy = null;
+				});
 
 			services
 				.AddMappingAssemblies(
