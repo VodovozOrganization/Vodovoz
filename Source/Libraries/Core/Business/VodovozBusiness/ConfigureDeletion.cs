@@ -1313,6 +1313,12 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Car
+
+			DeleteConfig.AddHibernateDeleteInfo<CarModel>();
+
+			#endregion
+			
 			logger.Info("Ок");
 		}
 
