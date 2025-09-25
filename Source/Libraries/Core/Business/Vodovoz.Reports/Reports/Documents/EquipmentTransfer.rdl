@@ -123,7 +123,7 @@ WHERE
         <CommandText>
           SELECT
             n.official_name AS deposit_name,
-            COALESCE(oi.actual_count, oi.count) AS deposit_count,
+            ROUND(COALESCE(oi.actual_count, oi.count), 2) AS deposit_count,
             mu.name AS deposit_unit,
             oi.price AS deposit_price,
             ROUND(oi.count * oi.price, 2) AS deposit_sum
