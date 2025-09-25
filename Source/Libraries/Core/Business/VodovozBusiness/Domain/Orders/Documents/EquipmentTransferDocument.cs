@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name {
-			get { return String.Format("Акт приемо-передачи оборудования"); }
+			get { return String.Format("Акт приема-передачи оборудования"); }
 		}
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
