@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -15,6 +15,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using QS.Navigation;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Infrastructure;
@@ -33,6 +36,8 @@ namespace Vodovoz.ServiceDialogs
 		private MenuItem _readCloudPayments;
 		private Widget _readFileButton;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private IResourceLocker _resourceLocker;
+		private readonly IResourceLockerFactory _resourceLockerFactory = ScopeProvider.Scope.Resolve<IResourceLockerFactory>();
 
 		GenericObservableList<PaymentByCardOnline> paymentsByCard;
 		List<string> errorList = new List<string>();
@@ -53,6 +58,15 @@ namespace Vodovoz.ServiceDialogs
 
 		void ConfigureDlg()
 		{
+			_resourceLocker = _resourceLockerFactory.Create(nameof(ImportPaymentsFromTinkoffDlg));
+
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
+			
+			if(!lockResult.IsSuccess)
+			{
+				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Ресурс занят");
+			}
+			
 			var csvFilter = new FileFilter();
 			csvFilter.AddPattern("*.csv");
 			csvFilter.Name = "Comma Separated Values File (*.csv)";
@@ -433,6 +447,13 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnBtnCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false);
+		}
+
+		public override void Destroy()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
+
+			base.Destroy();
 		}
 	}
 }

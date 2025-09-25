@@ -37,6 +37,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
+using ResourceLocker.Library;
 using System;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
@@ -226,6 +227,8 @@ namespace Vodovoz
 				.AddScoped<EmailDirectSender>()
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
+
+				.AddVodovozDesktopResourceLocker()
 				;
 
 			services.AddStaticHistoryTracker();

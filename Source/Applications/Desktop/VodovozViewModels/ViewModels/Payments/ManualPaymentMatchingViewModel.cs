@@ -21,6 +21,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
@@ -61,6 +63,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private DelegateCommand _revertAllocatedSum;
+		private IResourceLocker _resourceLocker;
 
 		public ManualPaymentMatchingViewModel(
 			ILifetimeScope lifetimeScope,
@@ -73,11 +76,17 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IDialogsFactory dialogsFactory,
 			IOrganizationRepository organizationRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryScheduleSettings deliveryScheduleSettings) : base(uowBuilder, uowFactory, commonServices)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IResourceLockerFactory resourceLockerFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
+			if(resourceLockerFactory == null)
+			{
+				throw new ArgumentNullException(nameof(resourceLockerFactory));
 			}
 
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -97,16 +106,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					_error);
 			}
 
-			var curEditor = Entity.CurrentEditorUser;
-			if(curEditor != null)
+			_resourceLocker = resourceLockerFactory.Create($"{nameof(ManualPaymentMatchingViewModel)}[Id:{Entity.Id}]");
+			
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
+			
+			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(
-					$"Невозможно открыть диалог ручного распределения платежа №{Entity.PaymentNum}," +
-					$" т.к. он уже открыт пользователем: {curEditor.Name}",
-					_error);
+				throw new AbortCreatingPageException(lockResult.ErrorMessage, _error);
 			}
-
-			UpdateCurrentEditor();
+			
 			TabName = "Ручное распределение платежей";
 
 			//Поиск
@@ -557,7 +565,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void SaveAndCloseDialog()
 		{
-			UpdateCurrentEditor();
+			ReleaseLock();
 
 			try
 			{
@@ -567,9 +575,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				ShowErrorMessage("При сохранении платежа произошла ошибка. Переоткройте диалог.");
 				UoW.Session.Clear();
-				RemoveCurrentEditor(UoW);
 				Close(false, CloseSource.Self);
 			}
+		}
+
+		private void ReleaseLock()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
 		}
 
 		private void ConfigureEntityChangingRelations()
@@ -799,41 +811,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return null;
 		}
 
-		private void UpdateCurrentEditor()
-		{
-			if(Entity.CurrentEditorUser != null)
-			{
-				DeleteCurrentEditor();
-			}
-			else
-			{
-				Entity.CurrentEditorUser = CurrentUser;
-				UoW.Save();
-			}
-		}
-
-		private void DeleteCurrentEditor()
-		{
-			Entity.CurrentEditorUser = null;
-		}
-
 		private void OnTabClosed(object sender, EventArgs e)
 		{
-			if(Entity.CurrentEditorUser != null)
-			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-				{
-					RemoveCurrentEditor(uow);
-				}
-			}
-		}
-
-		private void RemoveCurrentEditor(IUnitOfWork uow)
-		{
-			var curPayment = uow.GetById<Payment>(Entity.Id);
-			curPayment.CurrentEditorUser = null;
-			uow.Save(curPayment);
-			uow.Commit();
+			ReleaseLock();
 		}
 
 		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
