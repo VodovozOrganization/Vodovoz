@@ -1,4 +1,4 @@
-using EdoDocumentsPreparer.Factories;
+﻿using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,6 +19,7 @@ using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -195,6 +196,13 @@ namespace EdoDocumentsPreparer
 					.Where(o => o.OrderDocuments.Any(
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 					.ToDictionary(x => x.Id);
+
+				foreach(var order in filteredOrdersDictionary.Values)
+				{
+					order.OrderItems = order.OrderItems
+						.Where(x => x.Nomenclature.Category != NomenclatureCategory.deposit)
+						.ToList();
+				}
 
 				_logger.LogInformation(
 					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
