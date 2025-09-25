@@ -39,10 +39,10 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		int copiesToPrint = 2;
+		private int _copiesToPrint = 2;
 		public override int CopiesToPrint {
-			get => copiesToPrint;
-			set => copiesToPrint = value;
+			get => _copiesToPrint;
+			set => _copiesToPrint = value;
 		}
 	}
 }
