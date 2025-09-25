@@ -45,7 +45,17 @@ FROM
         LEFT JOIN
     special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
 WHERE
-    order_items.order_id = @order_id;</CommandText>
+    order_items.order_id = @order_id
+    AND (
+        nomenclature.category != 'deposit'
+        OR (
+            nomenclature.category = 'deposit'
+            AND (
+                order_items.rent_type = 'NonFreeRent'
+                OR order_items.rent_type = 'DailyRent'
+            )
+        )
+    );</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
