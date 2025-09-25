@@ -287,12 +287,14 @@ namespace Vodovoz.Tools.Orders
 		(	
 			ConditionForUPD(key)
 			&& !key.HaveSpecialFields
+			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
 		(
 			ConditionForUPD(key)
 			&& key.HaveSpecialFields
+			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
 		);
 
 		static bool GetConditionForBill(OrderStateKey key) =>
