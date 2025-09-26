@@ -277,17 +277,6 @@ namespace Vodovoz.Core.Domain.Payments
 			set => SetField(ref _isManuallyCreated, value);
 		}
 
-		/// <summary>
-		/// Пользователь, работающий с диалогом ручного распределения
-		/// </summary>
-		[Display(Name = "Пользователь, работающий с диалогом ручного распределения")]
-		[IgnoreHistoryTrace]
-		public virtual UserBase CurrentEditorUser
-		{
-			get => _currentEditorUser;
-			set => SetField(ref _currentEditorUser, value);
-		}
-
 		public virtual string NumOrders { get; set; }
 
 		public virtual PaymentEntity GetFirstParentRefundedPaymentOrCurrent()
