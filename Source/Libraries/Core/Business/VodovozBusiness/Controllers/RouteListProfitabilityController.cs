@@ -234,6 +234,10 @@ namespace Vodovoz.Controllers
 						amortisationPerKm = nearestProfitabilityConstants.LargusAmortisationPerKm;
 						repairCostsPerKm = nearestProfitabilityConstants.LargusRepairCostPerKm;
 						break;
+					case CarTypeOfUse.Minivan:
+						amortisationPerKm = nearestProfitabilityConstants.MinivanAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.MinivanRepairCostPerKm;
+						break;
 					case CarTypeOfUse.Truck:
 						amortisationPerKm = nearestProfitabilityConstants.TruckAmortisationPerKm;
 						repairCostsPerKm = nearestProfitabilityConstants.TruckRepairCostPerKm;
