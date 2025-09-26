@@ -15,22 +15,28 @@ namespace Vodovoz.Domain.Logistic.Cars
 	public enum CarTypeOfUse
 	{
 		/// <summary>
-		/// Фургон (Ларгус)
+		/// Легковой
 		/// </summary>
-		[Display(Name = "Фургон (Ларгус)")]
+		[Display(Name = "Легковая (Ларгус)")]
 		Largus,
 
 		/// <summary>
-		/// Фура
+		/// Фургон
 		/// </summary>
-		[Display(Name = "Фура")]
-		Truck,
+		[Display(Name = "Фургон (Transit Mini)")]
+		Minivan,
 
 		/// <summary>
 		/// Грузовой
 		/// </summary>
 		[Display(Name = "Грузовой")]
 		GAZelle,
+
+		/// <summary>
+		/// Фура
+		/// </summary>
+		[Display(Name = "Фура")]
+		Truck,
 
 		/// <summary>
 		/// Погрузчик
