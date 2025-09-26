@@ -183,6 +183,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.Hide, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
+			entryCode1c.IsEditable = false;
 			entryCode1c.Binding
 				.AddBinding(ViewModel.Entity, e => e.Code1c, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
