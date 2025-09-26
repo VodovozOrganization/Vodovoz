@@ -13,7 +13,7 @@ namespace ResourceLocker.Library
 		private readonly ILogger<GarnetResourceLocker> _logger;
 		private readonly IResourceLockerUniqueKeyProvider _resourceLockerUniqueKeyProvider;
 		private readonly IResourceLockerValueProvider _resourceLockerValueProvider;
-		private readonly TimeSpan _defaultLockDuration = TimeSpan.FromMinutes(1);
+		private readonly TimeSpan _defaultLockDuration = TimeSpan.FromSeconds(10);
 		private readonly string _resourceKey;
 		private volatile CancellationTokenSource _renewalCts;
 		private volatile Task _renewalTask;
@@ -46,9 +46,9 @@ namespace ResourceLocker.Library
 
 		private string CurrentUserId => _resourceLockerValueProvider.GetResourceLockerValue();
 
-		private void StartRenewal(TimeSpan ttl)
+		private async Task StartRenewal(TimeSpan ttl)
 		{
-			StopRenewal();
+			await StopRenewal().ConfigureAwait(false);
 
 			if(Interlocked.Exchange(ref _renewalInProgress, 1) == 1)
 			{
@@ -56,11 +56,12 @@ namespace ResourceLocker.Library
 			}
 
 			_renewalCts = new CancellationTokenSource();
-			
+
 			var cancellationToken = _renewalCts.Token;
 
 			var renewalDuration = TimeSpan.FromTicks((long)(ttl.Ticks * 0.8));
 
+			// Запускаем "Watchdog"
 			_renewalTask = Task.Run(async () =>
 				{
 					try
@@ -75,7 +76,7 @@ namespace ResourceLocker.Library
 
 							if(owner != CurrentUserId)
 							{
-								StopRenewal();
+								await StopRenewal().ConfigureAwait(false);
 
 								_logger.LogWarning($"{CurrentUserId} Блокировка ресурса '{LockKey}' утрачена или захвачена другим пользователем.");
 
@@ -111,7 +112,7 @@ namespace ResourceLocker.Library
 				cancellationToken);
 		}
 
-		private void StopRenewal()
+		private async Task StopRenewal()
 		{
 			var cts = Interlocked.Exchange(ref _renewalCts, null);
 
@@ -124,7 +125,10 @@ namespace ResourceLocker.Library
 
 			try
 			{
-				_renewalTask?.Wait(TimeSpan.FromSeconds(5));
+				if(_renewalTask != null)
+				{
+					await _renewalTask.ConfigureAwait(false);
+				}
 			}
 			catch
 			{
@@ -147,7 +151,7 @@ namespace ResourceLocker.Library
 			{
 				await Database.KeyExpireAsync(LockKey, ttl).ConfigureAwait(false);
 
-				StartRenewal(ttl.Value);
+				await StartRenewal(ttl.Value).ConfigureAwait(false);
 
 				_logger.LogInformation($"Обновлена блокировка ресурса {LockKey}, пользователь: {CurrentUserId}");
 
@@ -177,7 +181,7 @@ namespace ResourceLocker.Library
 
 				if(acquired)
 				{
-					StartRenewal(ttl.Value);
+					await StartRenewal(ttl.Value).ConfigureAwait(false);
 
 					_logger.LogInformation($"Захвачена блокировка ресурса {LockKey}, пользователь: {CurrentUserId}");
 
@@ -190,7 +194,7 @@ namespace ResourceLocker.Library
 			catch(Exception ex)
 			{
 				var errorMessage = $"Ошибка при попытке захватить блокировку ресурса {LockKey} пользователем {CurrentUserId}";
-				
+
 				_logger.LogError(ex, errorMessage);
 
 				return new ResourceLockResult
@@ -199,7 +203,7 @@ namespace ResourceLocker.Library
 					ErrorMessage = errorMessage
 				};
 			}
-			
+
 			return new ResourceLockResult
 			{
 				IsSuccess = false,
@@ -208,14 +212,14 @@ namespace ResourceLocker.Library
 
 		public async Task ReleaseLockResourceAsync()
 		{
-			StopRenewal();
+			await StopRenewal().ConfigureAwait(false);
 
 			const string atomicUnlockLuaScript = @"
-				if redis.call('GET', KEYS[1]) == ARGV[1] then
-				    return redis.call('DEL', KEYS[1])
-				else
-				    return 0
-				end";
+                if redis.call('GET', KEYS[1]) == ARGV[1] then
+                    return redis.call('DEL', KEYS[1])
+                else
+                    return 0
+                end";
 
 			try
 			{
