@@ -10,5 +10,7 @@ namespace Vodovoz.ViewModels.Organizations
 		public bool HasTaxcomEdoAccountId { get; set; }
 		public bool HasAvangardShopId { get; set; }
 		public bool HasCashBoxId { get; set; }
+		public bool SendDebtLetters { get; set; }
+		public bool SendDebtLettersWithASignatureAndSeal { get; set; }
 	}
 }
