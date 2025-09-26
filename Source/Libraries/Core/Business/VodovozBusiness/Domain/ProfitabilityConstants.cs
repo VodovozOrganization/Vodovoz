@@ -479,6 +479,10 @@ namespace Vodovoz.Domain
 						AverageMileageAllLarguses = (int)resultItem.Distance;
 						LargusAverageMileage = AverageMileageAllLarguses / resultItem.CountCars;
 						continue;
+					case CarTypeOfUse.Minivan:
+						AverageMileageAllMinivans = (int)resultItem.Distance;
+						MinivanAverageMileage = AverageMileageAllMinivans / resultItem.CountCars;
+						continue;
 					case CarTypeOfUse.Truck:
 						AverageMileageAllTrucks = (int)resultItem.Distance;
 						TruckAverageMileage = AverageMileageAllTrucks / resultItem.CountCars;
@@ -491,13 +495,16 @@ namespace Vodovoz.Domain
 
 		public virtual void CalculateAmortisation()
 		{
-			GazelleAmortisationPerKm = GazelleAverageMileage != default(int)
+			GazelleAmortisationPerKm = GazelleAverageMileage != default
 				? Math.Round((decimal)DecreaseGazelleCostFor3Year / _threeYearsInMonths / GazelleAverageMileage, 2)
 				: 0;
-			LargusAmortisationPerKm = LargusAverageMileage != default(int)
+			LargusAmortisationPerKm = LargusAverageMileage != default
 				? Math.Round((decimal)DecreaseLargusCostFor3Year / _threeYearsInMonths / LargusAverageMileage, 2)
 				: 0;
-			TruckAmortisationPerKm = TruckAverageMileage != default(int)
+			MinivanAmortisationPerKm = MinivanAverageMileage != default
+				? Math.Round((decimal)DecreaseMinivanCostFor3Year / _threeYearsInMonths / MinivanAverageMileage, 2)
+				: 0;
+			TruckAmortisationPerKm = TruckAverageMileage != default
 				? Math.Round((decimal)DecreaseTruckCostFor3Year / _threeYearsInMonths / TruckAverageMileage, 2)
 				: 0;
 		}
@@ -509,6 +516,7 @@ namespace Vodovoz.Domain
 		{
 			CalculateGazellesExpenses(uow, carRepository, carEventTypesIds);
 			CalculateLargusesExpenses(uow, carRepository, carEventTypesIds);
+			CalculateMinivansExpenses(uow, carRepository, carEventTypesIds);
 			CalculateTrucksExpenses(uow, carRepository, carEventTypesIds);
 		}
 
@@ -543,6 +551,22 @@ namespace Vodovoz.Domain
 			CalculateExpensesFromCarEvents(companyLargusesCarEvents, out var largusRepairCost, out var largusFines);
 			OperatingExpensesAllLarguses = (int)(largusRepairCost - largusFines);
 		}
+
+		private void CalculateMinivansExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
+		{
+			var companyMinivansCarEvents =
+				carRepository.GetCarEventsForCostCarExploitation(
+					uow,
+					CalculatedMonth,
+					CalculatedMonth.AddMonths(1).AddMilliseconds(-1),
+					null,
+					carEventTypesIds,
+					new[] { CarTypeOfUse.Minivan },
+					CarOwnTypes);
+			
+			CalculateExpensesFromCarEvents(companyMinivansCarEvents, out var largusRepairCost, out var largusFines);
+			OperatingExpensesAllMinivans = (int)(largusRepairCost - largusFines);
+		}
 		
 		private void CalculateTrucksExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
 		{
@@ -562,13 +586,16 @@ namespace Vodovoz.Domain
 
 		public virtual void CalculateRepairCost()
 		{
-			GazelleRepairCostPerKm = AverageMileageAllGazelles != default(int)
+			GazelleRepairCostPerKm = AverageMileageAllGazelles != default
 				? Math.Round((decimal)OperatingExpensesAllGazelles / AverageMileageAllGazelles, 2)
 				: 0;
-			LargusRepairCostPerKm = AverageMileageAllLarguses != default(int)
+			LargusRepairCostPerKm = AverageMileageAllLarguses != default
 				? Math.Round((decimal)OperatingExpensesAllLarguses / AverageMileageAllLarguses, 2)
 				: 0;
-			TruckRepairCostPerKm = AverageMileageAllTrucks != default(int)
+			MinivanRepairCostPerKm = AverageMileageAllMinivans != default
+				? Math.Round((decimal)OperatingExpensesAllMinivans / AverageMileageAllMinivans, 2)
+				: 0;
+			TruckRepairCostPerKm = AverageMileageAllTrucks != default
 				? Math.Round((decimal)OperatingExpensesAllTrucks / AverageMileageAllTrucks, 2)
 				: 0;
 		}
@@ -643,7 +670,7 @@ namespace Vodovoz.Domain
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(AdministrativeExpenses == default(int))
+			if(AdministrativeExpenses == default)
 			{
 				var administrativeExpensesName = this.GetPropertyInfo(pc => pc.AdministrativeExpenses)
 					.GetCustomAttribute<DisplayAttribute>(true).Name;
@@ -652,7 +679,7 @@ namespace Vodovoz.Domain
 					new[] { nameof(AdministrativeExpenses) });
 			}
 			
-			if(WarehouseExpenses == default(int))
+			if(WarehouseExpenses == default)
 			{
 				var warehouseExpensesName = this.GetPropertyInfo(pc => pc.WarehouseExpenses)
 					.GetCustomAttribute<DisplayAttribute>(true).Name;
@@ -661,7 +688,7 @@ namespace Vodovoz.Domain
 					new[] { nameof(WarehouseExpenses) });
 			}
 			
-			if(DecreaseGazelleCostFor3Year == default(int))
+			if(DecreaseGazelleCostFor3Year == default)
 			{
 				var decreaseGazelleCostFor3YearName = this.GetPropertyInfo(pc => pc.DecreaseGazelleCostFor3Year)
 					.GetCustomAttribute<DisplayAttribute>(true).Name;
@@ -670,7 +697,7 @@ namespace Vodovoz.Domain
 					new[] { nameof(DecreaseGazelleCostFor3Year) });
 			}
 			
-			if(DecreaseLargusCostFor3Year == default(int))
+			if(DecreaseLargusCostFor3Year == default)
 			{
 				var decreaseLargusCostFor3YearName = this.GetPropertyInfo(pc => pc.DecreaseLargusCostFor3Year)
 					.GetCustomAttribute<DisplayAttribute>(true).Name;
@@ -679,7 +706,16 @@ namespace Vodovoz.Domain
 					new[] { nameof(DecreaseLargusCostFor3Year) });
 			}
 			
-			if(DecreaseTruckCostFor3Year == default(int))
+			if(DecreaseMinivanCostFor3Year == default)
+			{
+				var decreaseMinivanCostFor3YearName = this.GetPropertyInfo(pc => pc.DecreaseMinivanCostFor3Year)
+					.GetCustomAttribute<DisplayAttribute>(true).Name;
+				yield return new ValidationResult(
+					$"Необходимо заполнить { decreaseMinivanCostFor3YearName }",
+					new[] { nameof(DecreaseMinivanCostFor3Year) });
+			}
+			
+			if(DecreaseTruckCostFor3Year == default)
 			{
 				var decreaseTruckCostFor3YearName = this.GetPropertyInfo(pc => pc.DecreaseTruckCostFor3Year)
 					.GetCustomAttribute<DisplayAttribute>(true).Name;
