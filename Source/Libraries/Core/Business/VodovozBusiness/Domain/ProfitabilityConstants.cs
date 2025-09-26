@@ -48,22 +48,28 @@ namespace Vodovoz.Domain
 
 		private int _decreaseGazelleCostFor3Year;
 		private int _decreaseLargusCostFor3Year;
+		private int _decreaseMinivanCostFor3Year;
 		private int _decreaseTruckCostFor3Year;
 		private int _gazelleAverageMileage;
 		private int _largusAverageMileage;
+		private int _minivanAverageMileage;
 		private int _truckAverageMileage;
 		private decimal _gazelleAmortisationPerKm;
 		private decimal _largusAmortisationPerKm;
+		private decimal _minivanAmortisationPerKm;
 		private decimal _truckAmortisationPerKm;
 
 		private int _operatingExpensesAllGazelles;
 		private int _operatingExpensesAllLarguses;
+		private int _operatingExpensesAllMinivans;
 		private int _operatingExpensesAllTrucks;
 		private int _averageMileageAllGazelles;
 		private int _averageMileageAllLarguses;
+		private int _averageMileageAllMinivans;
 		private int _averageMileageAllTrucks;
 		private decimal _gazelleRepairCostPerKm;
 		private decimal _largusRepairCostPerKm;
+		private decimal _minivanRepairCostPerKm;
 		private decimal _truckRepairCostPerKm;
 		private IList<CarEventType> _repairCostCarEventTypeTypesFilter = new List<CarEventType>();
 		private GenericObservableList<CarEventType> _observableRepairCostCarEventTypesFilter;
@@ -194,6 +200,13 @@ namespace Vodovoz.Domain
 			set => SetField(ref _decreaseLargusCostFor3Year, value);
 		}
 
+		[Display(Name = "Падение стоимости Transit Mini компании за три года")]
+		public virtual int DecreaseMinivanCostFor3Year
+		{
+			get => _decreaseMinivanCostFor3Year;
+			set => SetField(ref _decreaseMinivanCostFor3Year, value);
+		}
+
 		[Display(Name = "Падение стоимости фуры компании за три года")]
 		public virtual int DecreaseTruckCostFor3Year
 		{
@@ -215,6 +228,13 @@ namespace Vodovoz.Domain
 			set => SetField(ref _largusAverageMileage, value);
 		}
 
+		[Display(Name = "Средний пробег Transit Mini за расчетный период")]
+		public virtual int MinivanAverageMileage
+		{
+			get => _minivanAverageMileage;
+			set => SetField(ref _minivanAverageMileage, value);
+		}
+
 		[Display(Name = "Средний пробег одной фуры за расчетный период")]
 		public virtual int TruckAverageMileage
 		{
@@ -234,6 +254,13 @@ namespace Vodovoz.Domain
 		{
 			get => _largusAmortisationPerKm;
 			set => SetField(ref _largusAmortisationPerKm, value);
+		}
+
+		[Display(Name = "Амортизация Transit Mini на км")]
+		public virtual decimal MinivanAmortisationPerKm
+		{
+			get => _minivanAmortisationPerKm;
+			set => SetField(ref _minivanAmortisationPerKm, value);
 		}
 
 		[Display(Name = "Амортизация фуры на км")]
@@ -261,6 +288,13 @@ namespace Vodovoz.Domain
 			set => SetField(ref _operatingExpensesAllLarguses, value);
 		}
 
+		[Display(Name = "Затраты при эксплуатации всех Transit Mini за расчетный период")]
+		public virtual int OperatingExpensesAllMinivans
+		{
+			get => _operatingExpensesAllMinivans;
+			set => SetField(ref _operatingExpensesAllMinivans, value);
+		}
+
 		[Display(Name = "Затраты при эксплуатации всех фур за расчетный период")]
 		public virtual int OperatingExpensesAllTrucks
 		{
@@ -282,6 +316,13 @@ namespace Vodovoz.Domain
 			set => SetField(ref _averageMileageAllLarguses, value);
 		}
 
+		[Display(Name = "Средний пробег всех Transit Mini за расчетный период")]
+		public virtual int AverageMileageAllMinivans
+		{
+			get => _averageMileageAllMinivans;
+			set => SetField(ref _averageMileageAllMinivans, value);
+		}
+
 		[Display(Name = "Средний пробег всех фур за расчетный период")]
 		public virtual int AverageMileageAllTrucks
 		{
@@ -301,6 +342,13 @@ namespace Vodovoz.Domain
 		{
 			get => _largusRepairCostPerKm;
 			set => SetField(ref _largusRepairCostPerKm, value);
+		}
+
+		[Display(Name = "Стоимость ремонта Transit Mini на км")]
+		public virtual decimal MinivanRepairCostPerKm
+		{
+			get => _minivanRepairCostPerKm;
+			set => SetField(ref _minivanRepairCostPerKm, value);
 		}
 
 		[Display(Name = "Стоимость ремонта фуры на км")]

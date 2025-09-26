@@ -89,45 +89,71 @@ namespace Vodovoz.Views.Profitability
 			spinBtnDecreaseGazelleCostFor3Year.Binding
 				.AddBinding(ViewModel.Entity, e => e.DecreaseGazelleCostFor3Year, w => w.ValueAsInt)
 				.InitializeFromSource();
+
 			spinBtnDecreaseLargusCostFor3Year.Binding
 				.AddBinding(ViewModel.Entity, e => e.DecreaseLargusCostFor3Year, w => w.ValueAsInt)
 				.InitializeFromSource();
+
+			spinBtnDecreaseMinivanCostFor3Year.Binding
+				.AddBinding(ViewModel.Entity, e => e.DecreaseMinivanCostFor3Year, w => w.ValueAsInt)
+				.InitializeFromSource();
+
 			spinBtnDecreaseTruckCostFor3Year.Binding
 				.AddBinding(ViewModel.Entity, e => e.DecreaseTruckCostFor3Year, w => w.ValueAsInt)
 				.InitializeFromSource();
+
 			spinBtnGazelleAverageMileage.Binding
 				.AddBinding(ViewModel.Entity, e => e.GazelleAverageMileage, w => w.ValueAsInt)
 				.InitializeFromSource();
+
 			spinBtnGazelleAverageMileage.IsEditable = false;
 			spinBtnGazelleAverageMileage.ClimbRate = 0;
 			spinBtnGazelleAverageMileage.Adjustment.StepIncrement = 0;
+
 			spinBtnLargusAverageMileage.Binding
 				.AddBinding(ViewModel.Entity, e => e.LargusAverageMileage, w => w.ValueAsInt)
 				.InitializeFromSource();
+
 			spinBtnLargusAverageMileage.IsEditable = false;
 			spinBtnLargusAverageMileage.ClimbRate = 0;
 			spinBtnLargusAverageMileage.Adjustment.StepIncrement = 0;
+
+			spinBtnMinivanAverageMileage.Binding
+				.AddBinding(ViewModel.Entity, e => e.MinivanAverageMileage, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			spinBtnMinivanAverageMileage.IsEditable = false;
+			spinBtnMinivanAverageMileage.ClimbRate = 0;
+			spinBtnMinivanAverageMileage.Adjustment.StepIncrement = 0;
+
 			spinBtnTruckAverageMileage.Binding
 				.AddBinding(ViewModel.Entity, e => e.TruckAverageMileage, w => w.ValueAsInt)
 				.InitializeFromSource();
+
 			spinBtnTruckAverageMileage.IsEditable = false;
 			spinBtnTruckAverageMileage.ClimbRate = 0;
 			spinBtnTruckAverageMileage.Adjustment.StepIncrement = 0;
+
 			spinBtnGazelleAmortisation.Binding
 				.AddBinding(ViewModel.Entity, e => e.GazelleAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
+
 			spinBtnGazelleAmortisation.IsEditable = false;
 			spinBtnGazelleAmortisation.ClimbRate = 0;
 			spinBtnGazelleAmortisation.Adjustment.StepIncrement = 0;
+
 			spinBtnLargusAmortisation.Binding
 				.AddBinding(ViewModel.Entity, e => e.LargusAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
+
 			spinBtnLargusAmortisation.IsEditable = false;
 			spinBtnLargusAmortisation.ClimbRate = 0;
 			spinBtnLargusAmortisation.Adjustment.StepIncrement = 0;
+
 			spinBtnTruckAmortisation.Binding
 				.AddBinding(ViewModel.Entity, e => e.TruckAmortisationPerKm, e => e.ValueAsDecimal)
 				.InitializeFromSource();
+
 			spinBtnTruckAmortisation.IsEditable = false;
 			spinBtnTruckAmortisation.ClimbRate = 0;
 			spinBtnTruckAmortisation.Adjustment.StepIncrement = 0;
