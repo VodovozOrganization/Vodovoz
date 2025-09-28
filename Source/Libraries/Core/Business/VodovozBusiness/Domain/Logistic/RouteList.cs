@@ -2903,6 +2903,7 @@ namespace Vodovoz.Domain.Logistic
 			return Car != null
 				&& (carVersion.CarOwnType == CarOwnType.Raskat
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.GAZelle)
 				&& Car.CarModel.MaxWeight < GetTotalWeight();
 		}
