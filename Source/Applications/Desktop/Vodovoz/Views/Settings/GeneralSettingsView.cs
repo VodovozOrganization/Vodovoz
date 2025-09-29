@@ -570,6 +570,10 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
 				.InitializeFromSource();
 
+			yspinbuttonMinivanMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.MinivanMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 

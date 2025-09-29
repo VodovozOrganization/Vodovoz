@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _truckMaxDailyFuelLimit;
 		private int _gazelleMaxDailyFuelLimit;
 		private int _loaderMaxDailyFuelLimit;
-
+		private int _minivanMaxDailyFuelLimit;
 		private int _osagoEndingNotifyDaysBefore;
 		private int _kaskoEndingNotifyDaysBefore;
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
@@ -189,6 +189,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
 			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+			_minivanMaxDailyFuelLimit = fuelControlSettings.MinivanMaxDailyFuelLimit;
+			
 			CanEditOrderOrganizationsSettings = 
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Core.Domain.Permissions.SettingsPermissions.CanEditOrderOrganizationsSettings);
@@ -648,6 +650,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _loaderMaxDailyFuelLimit, value);
 		}
 
+		public int MinivanMaxDailyFuelLimit
+		{
+			get => _minivanMaxDailyFuelLimit;
+			set => SetField(ref _minivanMaxDailyFuelLimit, value);
+		}
+
 		public DelegateCommand SaveDailyFuelLimitsCommand { get; }
 		public bool CanEditDailyFuelLimitsSetting { get; }
 		public PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel { get; private set; }
@@ -658,7 +666,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_fuelControlSettings.SetTruckMaxDailyFuelLimit(TruckMaxDailyFuelLimit);
 			_fuelControlSettings.SetGAZelleMaxDailyFuelLimit(GazelleMaxDailyFuelLimit);
 			_fuelControlSettings.SetLoaderMaxDailyFuelLimit(LoaderMaxDailyFuelLimit);
-
+			_fuelControlSettings.SetMinivanMaxDailyFuelLimit(MinivanMaxDailyFuelLimit);
+			
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		#endregion
