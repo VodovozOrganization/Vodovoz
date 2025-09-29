@@ -564,8 +564,8 @@ namespace Vodovoz.Domain
 					new[] { CarTypeOfUse.Minivan },
 					CarOwnTypes);
 			
-			CalculateExpensesFromCarEvents(companyMinivansCarEvents, out var largusRepairCost, out var largusFines);
-			OperatingExpensesAllMinivans = (int)(largusRepairCost - largusFines);
+			CalculateExpensesFromCarEvents(companyMinivansCarEvents, out var minivanRepairCost, out var minivanFines);
+			OperatingExpensesAllMinivans = (int)(minivanRepairCost - minivanFines);
 		}
 		
 		private void CalculateTrucksExpenses(IUnitOfWork uow, ICarRepository carRepository, IEnumerable<int> carEventTypesIds)
