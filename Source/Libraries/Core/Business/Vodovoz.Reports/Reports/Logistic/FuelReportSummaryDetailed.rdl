@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -7592,7 +7592,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox336">
+                    <Textbox Name="ValidDateHeader">
                       <Value>Дата действия</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7610,7 +7610,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox337">
+                    <Textbox Name="MLDateHeader">
                       <Value>Дата МЛ</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7628,7 +7628,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox338">
+                    <Textbox Name="FuelCardNumberHeader">
                       <Value>Номер ТК</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -7646,7 +7646,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox339">
+                    <Textbox Name="MLNumberHeader">
                       <Value>№ МЛ</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7664,7 +7664,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox340">
+                    <Textbox Name="DriverNameHeader">
                       <Value>Водитель</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7682,10 +7682,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox341">
+                    <Textbox Name="LitersPlanHeader">
                       <Value>Потра-
-чено
-литров
+чено литров
 план ТРО</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7703,7 +7702,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox342">
+                    <Textbox Name="LitersPaidHeader">
                       <Value>Выдано литров деньгами</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -7721,7 +7720,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox343">
+                    <Textbox Name="CashPaidHeader">
                       <Value>Выдано деньгами (нал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -7739,7 +7738,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox344">
+                    <Textbox Name="CashlessPaidHeader">
                       <Value>Выдано деньгами (безнал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -7757,7 +7756,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox345">
+                    <Textbox Name="LitersLimitsHeader">
                       <Value>Выдано кассой лимитами, литров</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -7775,8 +7774,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox346">
-                      <Value>Заправ- лено, литров</Value>
+                    <Textbox Name="FueledLitersHeader">
+                      <Value>Заправ-
+                      лено, литров</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -7793,8 +7793,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox347">
-                      <Value>Заправ- лено топливо</Value>
+                    <Textbox Name="FuelTypeHeader">
+                      <Value>Заправ-
+                      лено топливо</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -7811,8 +7812,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox348">
-                      <Value>Заправ- лено, рублей</Value>
+                    <Textbox Name="FueledRublesHeader">
+                      <Value>Заправ-
+                      лено, рублей</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -7829,7 +7831,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox349">
+                    <Textbox Name="AuthorHeader">
                       <Value>Выдал</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7847,7 +7849,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox350">
+                    <Textbox Name="LastEditorHeader">
                       <Value>Последний редактировал</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7865,7 +7867,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox351">
+                    <Textbox Name="LastEditDateHeader">
                       <Value>Дата и время последнего изменения</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -7893,7 +7895,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox352">
+                    <Textbox Name="ValidDate">
                       <Value>=Format(Fields!date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -7915,7 +7917,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox353">
+                    <Textbox Name="MLDate">
                       <Value>=Format(Fields!route_list_date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -7937,7 +7939,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox354">
+                    <Textbox Name="FuelCardNumber">
                       <Value>={fuel_card_number}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -7959,7 +7961,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox355">
+                    <Textbox Name="MLNumber">
                       <Value>=Fields!route_list_id.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -7981,7 +7983,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox356">
+                    <Textbox Name="DriverName">
                       <Value>=Fields!driver_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -8003,7 +8005,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox357">
+                    <Textbox Name="LitersOutlayed">
                       <Value>=Fields!liters_outlayed.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -8026,7 +8028,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox358">
+                    <Textbox Name="LitersPayed">
                       <Value>={liters_payed}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8048,7 +8050,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox359">
+                    <Textbox Name="CashPaid">
                       <Value>={payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8070,7 +8072,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox360">
+                    <Textbox Name="CashlessPaid">
                       <Value>={cashless_payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8092,7 +8094,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox361">
+                    <Textbox Name="LitersLimits">
                       <Value>={liters_limits}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8115,7 +8117,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox362">
+                    <Textbox Name="FueledLiters">
                       <Value>={fuel_transactions_quantity}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8137,7 +8139,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox363">
+                    <Textbox Name="FuelType">
                       <Value>={gazprom_product_name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8159,7 +8161,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox364">
+                    <Textbox Name="FueledRubles">
                       <Value>={fuel_transactions_total_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8182,7 +8184,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox365">
+                    <Textbox Name="Author">
                       <Value>=Fields!author_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -8204,7 +8206,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox366">
+                    <Textbox Name="LastEditor">
                       <Value>=Fields!last_editor_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -8226,7 +8228,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox367">
+                    <Textbox Name="LastEditDate">
                       <Value>=Format({last_edit_date}, "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -8260,7 +8262,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox368">
+                    <Textbox Name="FooterEmpty1">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8279,7 +8281,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox369">
+                    <Textbox Name="FooterEmpty2">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8298,7 +8300,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox370">
+                    <Textbox Name="FooterEmpty3">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8317,7 +8319,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox371">
+                    <Textbox Name="FooterEmpty4">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8336,7 +8338,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox372">
+                    <Textbox Name="TotalLabel">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8357,7 +8359,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox373">
+                    <Textbox Name="TotalLitersOutlayed">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8379,7 +8381,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox374">
+                    <Textbox Name="FooterEmpty5">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8401,7 +8403,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox375">
+                    <Textbox Name="TotalCashPaid">
                       <Value>=Sum({payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8423,7 +8425,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox376">
+                    <Textbox Name="TotalCashlessPaid">
                       <Value>=Sum({cashless_payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8445,7 +8447,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox377">
+                    <Textbox Name="TotalLitersLimits">
                       <Value>=Sum({liters_limits})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8468,7 +8470,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox378">
+                    <Textbox Name="TotalFueledLiters">
                       <Value>=Sum({fuel_transactions_quantity})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8491,7 +8493,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox379">
+                    <Textbox Name="FooterEmpty6">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8513,7 +8515,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox380">
+                    <Textbox Name="TotalFueledRubles">
                       <Value>=Sum({fuel_transactions_total_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -8536,7 +8538,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox381">
+                    <Textbox Name="FooterEmpty7">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8555,7 +8557,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox382">
+                    <Textbox Name="FooterEmpty8">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8574,7 +8576,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox383">
+                    <Textbox Name="FooterEmpty9">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -8607,7 +8609,7 @@
             <FilterExpression>={car_type_of_use}</FilterExpression>
             <Operator>Equal</Operator>
             <FilterValues>
-              <FilterValue>Largus</FilterValue>
+              <FilterValue>Minivan</FilterValue>
             </FilterValues>
           </Filter>
           <Filter>
