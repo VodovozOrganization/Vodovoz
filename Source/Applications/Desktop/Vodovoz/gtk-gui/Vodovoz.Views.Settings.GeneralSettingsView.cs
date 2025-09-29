@@ -1617,7 +1617,7 @@ namespace Vodovoz.Views.Settings
 			this.ylabelLargusMaxDailyFuelLimit = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelLargusMaxDailyFuelLimit.Name = "ylabelLargusMaxDailyFuelLimit";
 			this.ylabelLargusMaxDailyFuelLimit.Xalign = 1F;
-			this.ylabelLargusMaxDailyFuelLimit.LabelProp = global::Mono.Unix.Catalog.GetString("Фургон:");
+			this.ylabelLargusMaxDailyFuelLimit.LabelProp = global::Mono.Unix.Catalog.GetString("Легковая(Ларгус):");
 			this.ytableMaxDailyFuelLimits.Add(this.ylabelLargusMaxDailyFuelLimit);
 			global::Gtk.Table.TableChild w89 = ((global::Gtk.Table.TableChild)(this.ytableMaxDailyFuelLimits[this.ylabelLargusMaxDailyFuelLimit]));
 			w89.LeftAttach = ((uint)(1));
