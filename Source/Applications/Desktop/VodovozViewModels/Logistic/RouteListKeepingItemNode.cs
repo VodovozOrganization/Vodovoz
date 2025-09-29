@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.CallTasks;
 
@@ -56,6 +57,12 @@ namespace Vodovoz
 				}
 				return string.Empty;
 			}
+		}
+
+		public PaymentType PaymentType
+		{
+			get => RouteListItem.Order.PaymentType;
+			set => RouteListItem.Order.ChangePaymentType(value);
 		}
 
 		public RouteListItem RouteListItem

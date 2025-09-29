@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Dialogs;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -276,6 +276,28 @@ namespace Vodovoz.Logistic
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
+				.AddColumn("Форма оплаты")
+					.AddEnumRenderer(node =>
+						node.PaymentType, 
+						excludeItems: new Enum[] 
+						{ 
+							PaymentType.Barter, 
+							PaymentType.Cashless, 
+							PaymentType.ContractDocumentation, 
+							PaymentType.PaidOnline, 
+							PaymentType.SmsQR 
+						}
+					)
+					.AddSetter((c, n) =>
+					{
+						var editableTypes = new[] 
+						{ 
+							PaymentType.Cash, 
+							PaymentType.Terminal,
+							PaymentType.DriverApplicationQR 
+						};
+						c.Editable = ViewModel.AllEditing && editableTypes.Contains(n.RouteListItem.Order.PaymentType);
+					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
