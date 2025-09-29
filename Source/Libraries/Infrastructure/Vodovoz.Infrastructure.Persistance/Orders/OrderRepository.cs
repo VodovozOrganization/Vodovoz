@@ -2062,6 +2062,48 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
+		public IList<OrderWithAllocation> GetAllocationsToOrdersWithAnotherClient(
+			IUnitOfWork uow,
+			int counterpartyId,
+			string counterpartyInn,
+			IEnumerable<int> exceptOrderIds)
+		{
+			var query =
+				from payment in uow.Session.Query<Payment>()
+				join paymentItem in uow.Session.Query<PaymentItem>()
+					on payment.Id equals paymentItem.Payment.Id
+				join order in uow.Session.Query<Order>()
+					on paymentItem.Order.Id equals order.Id
+				join orderClient in uow.Session.Query<Counterparty>()
+					on order.Client.Id equals orderClient.Id
+
+				where payment.CounterpartyInn == counterpartyInn
+					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+					&& order.Client.Id != counterpartyId
+					&& !exceptOrderIds.Contains(order.Id)
+					&& order.PaymentType == PaymentType.Cashless
+				group paymentItem by paymentItem.Order.Id
+				into orderGroup
+
+				let order = orderGroup.First().Order
+				let orderSum = order.ActualGoodsTotalSum
+				
+				select new OrderWithAllocation
+				{
+					OrderStatus = order.OrderStatus,
+					OrderClientInn = order.Client.INN,
+					OrderClientName = order.Client.Name,
+					IsMissingFromDocument = true,
+					OrderSum = orderSum ?? 0,
+					OrderAllocation = orderGroup.Sum(x => x.Sum),
+					OrderId = order.Id,
+					OrderDeliveryDate = order.DeliveryDate.Value,
+					OrderPaymentStatus = order.OrderPaymentStatus,
+				};
+
+			return query.Distinct().ToList();
+		}
+
 		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
 		{
 			var referredCounterpartiesCount =
