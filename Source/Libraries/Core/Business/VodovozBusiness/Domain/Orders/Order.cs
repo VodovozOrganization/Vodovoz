@@ -3701,7 +3701,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			var initialPaymentType = PaymentType;
 
-			if(EditablePaymentTypes.Contains(paymentType) 
+			if(OrderStatus == OrderStatus.OnTheWay
+				&& EditablePaymentTypes.Contains(paymentType) 
 				&& EditablePaymentTypes.Contains(initialPaymentType))
 			{
 				PaymentType = paymentType;
