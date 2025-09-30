@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(lockResult.ErrorMessage, _error);
+				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог");
 			}
 			
 			TabName = "Ручное распределение платежей";
