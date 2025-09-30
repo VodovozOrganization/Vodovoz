@@ -3697,15 +3697,6 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		private static readonly PaymentType[] _editablePaymentTypes = new[]
-		{
-			PaymentType.Cash,
-			PaymentType.Terminal,
-			PaymentType.DriverApplicationQR
-		};
-
-		public static PaymentType[] EditablePaymentTypes => _editablePaymentTypes;
-
 		public virtual void ChangePaymentTypeFromRouteList(PaymentType paymentType)
 		{
 			var initialPaymentType = PaymentType;
@@ -4715,6 +4706,15 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.SmsQR,
 			PaymentType.DriverApplicationQR
 		};
+
+		private static readonly PaymentType[] _editablePaymentTypes = new[]
+		{
+			PaymentType.Cash,
+			PaymentType.Terminal,
+			PaymentType.DriverApplicationQR
+		};
+
+		public static PaymentType[] EditablePaymentTypes => _editablePaymentTypes;
 
 		#endregion
 
