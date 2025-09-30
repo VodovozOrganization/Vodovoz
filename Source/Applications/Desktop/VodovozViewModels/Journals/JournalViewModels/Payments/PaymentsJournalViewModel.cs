@@ -599,7 +599,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		}
 
 		protected ITdiTab CreatePaymentDialog() =>
-			NavigationManager.OpenViewModel<PaymentLoaderViewModel>(this).ViewModel;
+			NavigationManager.OpenViewModel<PaymentLoaderViewModel>(this)?.ViewModel;
 
 		protected ITdiTab EditPaymentDialog(PaymentJournalNode node) =>
 			NavigationManager.OpenViewModel<ManualPaymentMatchingViewModel, IEntityUoWBuilder>(

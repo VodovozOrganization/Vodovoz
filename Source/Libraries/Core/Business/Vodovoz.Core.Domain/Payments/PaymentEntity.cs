@@ -4,7 +4,6 @@ using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using QS.Project.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Organizations;
 
@@ -43,7 +42,6 @@ namespace Vodovoz.Core.Domain.Payments
 		private Account _organizationAccount;
 		private ProfitCategory _profitCategory;
 		private PaymentEntity _refundedPayment;
-		private UserBase _currentEditorUser;
 		private IObservableList<PaymentItemEntity> _items = new ObservableList<PaymentItemEntity>();
 
 		public virtual int Id { get; set; }
