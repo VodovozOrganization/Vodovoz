@@ -279,24 +279,11 @@ namespace Vodovoz.Logistic
 				.AddColumn("Форма оплаты")
 					.AddEnumRenderer(node =>
 						node.PaymentType, 
-						excludeItems: new Enum[] 
-						{ 
-							PaymentType.Barter, 
-							PaymentType.Cashless, 
-							PaymentType.ContractDocumentation, 
-							PaymentType.PaidOnline, 
-							PaymentType.SmsQR 
-						}
+						excludeItems: ViewModel.ExcludedPaymentTypes
 					)
 					.AddSetter((c, n) =>
 					{
-						var editableTypes = new[] 
-						{ 
-							PaymentType.Cash, 
-							PaymentType.Terminal,
-							PaymentType.DriverApplicationQR 
-						};
-						c.Editable = ViewModel.AllEditing && editableTypes.Contains(n.RouteListItem.Order.PaymentType);
+						c.Editable = ViewModel.AllEditing && Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
 					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])

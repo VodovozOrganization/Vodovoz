@@ -55,6 +55,7 @@ using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 using Vodovoz.ViewModels.TrueMark;
 using VodovozBusiness.Controllers;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
@@ -217,7 +218,16 @@ namespace Vodovoz
 			}
 		}
 
-		public string BottlesInfo { get; private set; }
+        public Enum[] ExcludedPaymentTypes =
+        {
+            PaymentType.Barter,
+            PaymentType.Cashless,
+            PaymentType.ContractDocumentation,
+            PaymentType.PaidOnline,
+            PaymentType.SmsQR
+        };
+
+        public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
 		#region EEVMs

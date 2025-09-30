@@ -3696,12 +3696,22 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
-		public virtual void ChangePaymentType(PaymentType paymentType)
+
+		private static readonly PaymentType[] _editablePaymentTypes = new[]
+		{
+			PaymentType.Cash,
+			PaymentType.Terminal,
+			PaymentType.DriverApplicationQR
+		};
+
+		public static PaymentType[] EditablePaymentTypes => _editablePaymentTypes;
+
+		public virtual void ChangePaymentTypeFromRouteList(PaymentType paymentType)
 		{
 			var initialPaymentType = PaymentType;
-			var editableTypes = new[] { PaymentType.Cash, PaymentType.Terminal, PaymentType.DriverApplicationQR };
-			if(editableTypes.Contains(paymentType) 
-				&& editableTypes.Contains(initialPaymentType))
+
+			if(EditablePaymentTypes.Contains(paymentType) 
+				&& EditablePaymentTypes.Contains(initialPaymentType))
 			{
 				PaymentType = paymentType;
 			}
