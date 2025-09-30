@@ -21,6 +21,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using QS.Dialog;
 using ResourceLocker.Library;
 using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Clients;
@@ -112,7 +113,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог");
+				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог", ImportanceLevel.Warning);
 			}
 			
 			TabName = "Ручное распределение платежей";

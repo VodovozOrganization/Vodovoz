@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог");
+				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог", ImportanceLevel.Warning);
 			}
 			
 			UnitOfWorkFactory = unitOfWorkFactory;
