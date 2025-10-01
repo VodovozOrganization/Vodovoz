@@ -13,6 +13,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				DowntimeStartedAt = row.DowntimeStartedAt;
 				DowntimeStartedAtString = row.DowntimeStartedAtString;
 				CarType = row.CarType;
+				CarOwnType = row.CarOwnType;
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.TimeAndBreakdownReason;
@@ -30,6 +31,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				DowntimeStartedAt = row.RecievedAt;
 				DowntimeStartedAtString = row.RecievedAt.ToString(_defaultDateTimeFormat);
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
+				CarOwnType = row.CarOwnType;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.Comment;
 				RowType = UiRowType.CarReception;
@@ -42,6 +44,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				DowntimeStartedAt = row.TransferedAt;
 				DowntimeStartedAtString = row.TransferedAt.ToString(_defaultDateTimeFormat);
 				CarTypeWithGeographicalGroup = row.CarTypeWithGeographicalGroup;
+				CarOwnType = row.CarOwnType;
 				RegistationNumber = row.RegistationNumber;
 				TimeAndBreakdownReason = row.Comment;
 				RowType = UiRowType.CarTransfer;
@@ -81,6 +84,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				IdString = "№ п/п",
 				DowntimeStartedAtString = "Дата",
 				CarTypeWithGeographicalGroup = "Тип авто",
+				CarOwnType = "П",
 				RegistationNumber = "Госномер",
 				TimeAndBreakdownReason = "Комментарий",
 				RowType = UiRowType.SubtableHeader

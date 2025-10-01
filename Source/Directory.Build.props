@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+	  <RegistryUrl>docker.vod.qsolution.ru:5100</RegistryUrl>
+  </PropertyGroup>
+</Project>

@@ -224,6 +224,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 						RegistationNumber = car.RegistrationNumber,
 						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
 						CarType = car.CarModel.Name,
+						CarOwnType = GetCarOwnType(date, car),
 						CarTypeWithGeographicalGroup =
 							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 						TimeAndBreakdownReason = "Простой без водителя",
@@ -246,6 +247,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 					RegistationNumber = car.RegistrationNumber,
 					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
 					CarType = car.CarModel.Name,
+					CarOwnType = GetCarOwnType(date, car),
 					CarTypeWithGeographicalGroup =
 						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
 					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
@@ -277,6 +279,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					Id = i + 1,
 					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
+					CarOwnType = GetCarOwnType(date, filteredTransferEvents[i].Car),
 					CarTypeWithGeographicalGroup =
 						$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
 					Comment = filteredTransferEvents[i].Comment,
@@ -290,6 +293,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					Id = i + 1,
 					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
+					CarOwnType = GetCarOwnType(date, filteredRecieveEvents[i].Car),
 					CarTypeWithGeographicalGroup =
 						$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
 					Comment = filteredRecieveEvents[i].Comment,
@@ -326,6 +330,28 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				string.Join("\n", summaryByArea);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
+		}
+
+		private static string GetCarOwnType(DateTime date, Car car)
+		{
+			var version = car.GetActiveCarVersionOnDate(date);
+
+			if(version is null)
+			{
+				return string.Empty;
+			}
+
+			switch(version.CarOwnType)
+			{
+				case CarOwnType.Company:
+					return "К";
+				case CarOwnType.Driver:
+					return "В";
+				case CarOwnType.Raskat:
+					return "Р";
+				default:
+					return string.Empty;
+			}
 		}
 
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>

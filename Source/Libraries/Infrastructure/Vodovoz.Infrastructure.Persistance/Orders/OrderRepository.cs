@@ -1261,7 +1261,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed, OrderStatus.WaitForPayment };
@@ -1376,7 +1375,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkDocument trueMarkApiDocument = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
@@ -1386,12 +1384,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinAlias(o => counterpartyContractAlias.Organization, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => trueMarkApiDocument, () => orderAlias.Id == trueMarkApiDocument.Order.Id, JoinType.LeftOuterJoin)
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
 					JoinType.LeftOuterJoin,
@@ -1420,7 +1412,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-							.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
@@ -1443,7 +1434,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkDocument trueMarkApiDocument = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
@@ -1452,12 +1442,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => trueMarkApiDocument, () => orderAlias.Id == trueMarkApiDocument.Order.Id)
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
 					JoinType.LeftOuterJoin,
@@ -1487,7 +1471,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-							.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
@@ -1540,7 +1523,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			Organization organizationAlias = null;
 			CounterpartyContract contractAlias = null;
 			TrueMarkCancellationDto resultAlias = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
@@ -1565,12 +1547,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
 					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin)
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
 					JoinType.LeftOuterJoin,
 					Restrictions.Where(() => defaultEdoAccountAlias.OrganizationId == contractAlias.Organization.Id
@@ -1584,7 +1560,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-							.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 							)
@@ -1784,7 +1759,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			VodovozOrder orderAlias = null;
 			Counterparty clientAlias = null;
 			CounterpartyContract contractAlias = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var mainQuery = QueryOver.Of(() => orderAlias)
@@ -1848,13 +1822,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				mainQuery
 					.JoinAlias(
 						() => clientAlias.CounterpartyEdoAccounts,
-						() => defaultOrganizationEdoAccountAlias,
-						JoinType.InnerJoin,
-						Restrictions.Where(() =>
-							defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
-					.JoinAlias(
-						() => clientAlias.CounterpartyEdoAccounts,
 						() => defaultEdoAccountAlias,
 						JoinType.LeftOuterJoin,
 						Restrictions.Where(() => defaultEdoAccountAlias.OrganizationId == contractAlias.Organization.Id
@@ -1872,9 +1839,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					additionalParametersRestriction.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => clientAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
-						.Add(Restrictions.Disjunction()
-							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-							.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)));
+						.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree));
 				}
 
 				mainQuery.Where(additionalParametersRestriction);
@@ -2097,6 +2062,48 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
+		public IList<OrderWithAllocation> GetAllocationsToOrdersWithAnotherClient(
+			IUnitOfWork uow,
+			int counterpartyId,
+			string counterpartyInn,
+			IEnumerable<int> exceptOrderIds)
+		{
+			var query =
+				from payment in uow.Session.Query<Payment>()
+				join paymentItem in uow.Session.Query<PaymentItem>()
+					on payment.Id equals paymentItem.Payment.Id
+				join order in uow.Session.Query<Order>()
+					on paymentItem.Order.Id equals order.Id
+				join orderClient in uow.Session.Query<Counterparty>()
+					on order.Client.Id equals orderClient.Id
+
+				where payment.CounterpartyInn == counterpartyInn
+					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+					&& order.Client.Id != counterpartyId
+					&& !exceptOrderIds.Contains(order.Id)
+					&& order.PaymentType == PaymentType.Cashless
+				group paymentItem by paymentItem.Order.Id
+				into orderGroup
+
+				let order = orderGroup.First().Order
+				let orderSum = order.ActualGoodsTotalSum
+				
+				select new OrderWithAllocation
+				{
+					OrderStatus = order.OrderStatus,
+					OrderClientInn = order.Client.INN,
+					OrderClientName = order.Client.Name,
+					IsMissingFromDocument = true,
+					OrderSum = orderSum ?? 0,
+					OrderAllocation = orderGroup.Sum(x => x.Sum),
+					OrderId = order.Id,
+					OrderDeliveryDate = order.DeliveryDate.Value,
+					OrderPaymentStatus = order.OrderPaymentStatus,
+				};
+
+			return query.Distinct().ToList();
+		}
+
 		public int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId)
 		{
 			var referredCounterpartiesCount =
@@ -2141,7 +2148,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
-			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
@@ -2152,12 +2158,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
 					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == DocumentContainerType.Upd, JoinType.LeftOuterJoin)
-				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
-					() => defaultOrganizationEdoAccountAlias,
-					JoinType.InnerJoin,
-					Restrictions.Where(
-						() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
-							&& defaultOrganizationEdoAccountAlias.IsDefault))
 				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
 					() => defaultEdoAccountAlias,
 					JoinType.LeftOuterJoin,
@@ -2191,11 +2191,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Add(() => (
 						counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
-							&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-								|| defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+							&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-						&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-							|| defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)))
+						&& defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.And(orderStatusRestriction)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.SetTimeout(120)
