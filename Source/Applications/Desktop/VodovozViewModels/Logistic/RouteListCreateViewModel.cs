@@ -468,8 +468,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(!isCompanyCar
-				|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
-				|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan
+				|| (Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan)
 				&& Entity.CanAddForwarder)
 			{
 				Entity.Forwarder = Entity.Forwarder;
