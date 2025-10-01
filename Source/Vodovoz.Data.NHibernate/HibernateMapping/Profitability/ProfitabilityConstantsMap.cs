@@ -20,21 +20,27 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Profitability
 			Map(x => x.WarehouseExpensesPerKg).Column("warehouse_expenses_per_kg");
 			Map(x => x.DecreaseGazelleCostFor3Year).Column("decrease_gazelle_cost_for_3_year");
 			Map(x => x.DecreaseLargusCostFor3Year).Column("decrease_largus_cost_for_3_year");
+			Map(x => x.DecreaseMinivanCostFor3Year).Column("decrease_minivan_cost_for_3_year");
 			Map(x => x.DecreaseTruckCostFor3Year).Column("decrease_truck_cost_for_3_year");
 			Map(x => x.GazelleAverageMileage).Column("gazelle_average_mileage");
 			Map(x => x.LargusAverageMileage).Column("largus_average_mileage");
+			Map(x => x.MinivanAverageMileage).Column("minivan_average_mileage");
 			Map(x => x.TruckAverageMileage).Column("truck_average_mileage");
 			Map(x => x.GazelleAmortisationPerKm).Column("gazelle_amortisation");
 			Map(x => x.LargusAmortisationPerKm).Column("largus_amortisation");
+			Map(x => x.MinivanAmortisationPerKm).Column("minivan_amortisation");
 			Map(x => x.TruckAmortisationPerKm).Column("truck_amortisation");
 			Map(x => x.OperatingExpensesAllGazelles).Column("operating_expenses_all_gazelles");
 			Map(x => x.OperatingExpensesAllLarguses).Column("operating_expenses_all_larguses");
+			Map(x => x.OperatingExpensesAllMinivans).Column("operating_expenses_all_minivans");
 			Map(x => x.OperatingExpensesAllTrucks).Column("operating_expenses_all_trucks");
 			Map(x => x.AverageMileageAllGazelles).Column("average_mileage_all_gazelles");
 			Map(x => x.AverageMileageAllLarguses).Column("average_mileage_all_larguses");
+			Map(x => x.AverageMileageAllMinivans).Column("average_mileage_all_minivans");
 			Map(x => x.AverageMileageAllTrucks).Column("average_mileage_all_trucks");
 			Map(x => x.GazelleRepairCostPerKm).Column("gazelle_repair_cost");
 			Map(x => x.LargusRepairCostPerKm).Column("largus_repair_cost");
+			Map(x => x.MinivanRepairCostPerKm).Column("minivan_repair_cost");
 			Map(x => x.TruckRepairCostPerKm).Column("truck_repair_cost");
 			Map(x => x.CalculationSaved).Column("calculation_saved");
 
