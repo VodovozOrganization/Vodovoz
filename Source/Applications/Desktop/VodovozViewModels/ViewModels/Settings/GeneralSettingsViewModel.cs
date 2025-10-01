@@ -51,8 +51,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private string _routeListPrintedFormPhones;
 		private bool _canAddForwardersToLargus;
+		private bool _canAddForwardersToMinivan;
 		private DelegateCommand _saveRouteListPrintedFormPhonesCommand;
 		private DelegateCommand _saveCanAddForwardersToLargusCommand;
+		private DelegateCommand _saveCanAddForwardersToMinivanCommand;
 		private DelegateCommand _saveOrderAutoCommentCommand;
 		private DelegateCommand _showAutoCommentInfoCommand;
 		private string _orderAutoComment;
@@ -125,10 +127,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			RouteListPrintedFormPhones = _generalSettings.GetRouteListPrintedFormPhones;
 			CanAddForwardersToLargus = _generalSettings.GetCanAddForwardersToLargus;
+			CanAddForwardersToMinivan = _generalSettings.GetCanAddForwardersToMinivan;
 			CanEditRouteListPrintedFormPhones =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
+			CanEditCanAddForwardersToMinivan =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_minivan");
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
 			OrderAutoComment = _generalSettings.OrderAutoComment;
@@ -260,10 +265,18 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public bool CanEditCanAddForwardersToLargus { get; }
 
+		public bool CanEditCanAddForwardersToMinivan { get; }
+
 		public bool CanAddForwardersToLargus
 		{
 			get => _canAddForwardersToLargus;
 			set => SetField(ref _canAddForwardersToLargus, value);
+		}
+
+		public bool CanAddForwardersToMinivan
+		{
+			get => _canAddForwardersToMinivan;
+			set => SetField(ref _canAddForwardersToMinivan, value);
 		}
 
 		public DelegateCommand SaveCanAddForwardersToLargusCommand => _saveCanAddForwardersToLargusCommand
@@ -272,6 +285,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					_generalSettings.UpdateCanAddForwardersToLargus(CanAddForwardersToLargus);
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 				})
+			);
+
+		public DelegateCommand SaveCanAddForwardersToMinivanCommand => _saveCanAddForwardersToMinivanCommand
+			?? (_saveCanAddForwardersToMinivanCommand = new DelegateCommand(() =>
+			{
+				_generalSettings.UpdateCanAddForwardersToMinivan(CanAddForwardersToMinivan);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			})
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }

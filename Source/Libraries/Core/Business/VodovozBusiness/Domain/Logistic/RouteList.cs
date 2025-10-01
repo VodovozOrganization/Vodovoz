@@ -1661,9 +1661,26 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool CanAddForwarder => GetGeneralSettingsSettings.GetCanAddForwardersToLargus
-			|| Car?.CarModel.CarTypeOfUse != CarTypeOfUse.Largus
-			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
+		public virtual bool CanAddForwarder
+		{
+			get
+			{
+				if(GetCarVersion?.CarOwnType != CarOwnType.Company)
+				{
+					return true;
+				}
+
+				switch(Car.CarModel.CarTypeOfUse)
+				{
+					case CarTypeOfUse.Largus:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToLargus;
+					case CarTypeOfUse.Minivan:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToMinivan;
+					default:
+						return true;
+				}
+			}
+		}
 
 		public static void SetGeneralSettingsSettingsGap(
 			IGeneralSettings generalSettingsSettingsGap)
