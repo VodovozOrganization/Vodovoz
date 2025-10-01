@@ -1665,6 +1665,11 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get
 			{
+				if(GetCarVersion?.CarOwnType != CarOwnType.Company)
+				{
+					return true;
+				}
+
 				switch(Car.CarModel.CarTypeOfUse)
 				{
 					case CarTypeOfUse.Largus:
@@ -1672,7 +1677,7 @@ namespace Vodovoz.Domain.Logistic
 					case CarTypeOfUse.Minivan:
 						return GetGeneralSettingsSettings.GetCanAddForwardersToMinivan;
 					default:
-						return GetCarVersion?.CarOwnType != CarOwnType.Company;
+						return true;
 				}
 			}
 		}

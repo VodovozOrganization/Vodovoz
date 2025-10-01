@@ -48,7 +48,6 @@ namespace Vodovoz.Settings.Database.Common
 
 		public bool GetCanAddForwardersToMinivan => _settingsController.GetValue<bool>(_canAddForwarderToMinivan);
 
-
 		public string OrderAutoComment => _settingsController.GetStringValue(_orderAutoComment);
 
 		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
