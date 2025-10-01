@@ -21,9 +21,9 @@ using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -54,10 +54,11 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
-using VodovozBusiness.Controllers;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
+using Vodovoz.Core.Domain.Contacts;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -4695,6 +4696,7 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.SmsQR,
 			PaymentType.DriverApplicationQR
 		};
+
 		#endregion
 
 		#region Операции
