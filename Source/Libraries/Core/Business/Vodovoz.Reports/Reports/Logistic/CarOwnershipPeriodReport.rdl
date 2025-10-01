@@ -523,7 +523,8 @@ CASE cv.car_own_type
 END as car_own_type,
 cv.car_own_type as current_own_type,
 CASE cm.car_type_of_use 
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая'
+	WHEN 'Minivan' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
@@ -568,7 +569,8 @@ CONCAT('В архиве (',
 	END, ')')   as car_own_type,
 cv2.car_own_type as current_own_type,
 CASE cm2.car_type_of_use 
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая'
+	WHEN 'Minivan' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'

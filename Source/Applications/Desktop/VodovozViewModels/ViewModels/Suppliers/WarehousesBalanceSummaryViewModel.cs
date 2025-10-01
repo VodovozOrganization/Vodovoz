@@ -1958,15 +1958,19 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 								Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Largus),
 								Projections.Constant(0),
 								Projections.Conditional(
-									Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.GAZelle),
+									Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Minivan),
 									Projections.Constant(1),
 									Projections.Conditional(
-										Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Truck),
+										Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.GAZelle),
 										Projections.Constant(2),
-										Projections.Constant(3)
+										Projections.Conditional(
+											Restrictions.Where(() => carModelAlias.CarTypeOfUse == CarTypeOfUse.Truck),
+											Projections.Constant(3),
+											Projections.Constant(4)
+											)
+										)
 									)
-								)
-							);
+								);
 
 						if(GroupingActiveStorage)
 						{

@@ -178,7 +178,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 				var reportInfo = _reportInfoFactory.Create();
 
-				if(Entity.Car != null && (Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle))
+				var carTypeOfUsesForDefectionAct = new List<CarTypeOfUse> { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
+
+				if(Entity.Car != null
+					&& Entity.Car.CarModel != null
+					&& carTypeOfUsesForDefectionAct.Contains(Entity.Car.CarModel.CarTypeOfUse))
 				{
 					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
 					reportInfo.Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct";
