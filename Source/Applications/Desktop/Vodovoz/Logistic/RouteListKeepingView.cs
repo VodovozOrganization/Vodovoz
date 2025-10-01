@@ -283,7 +283,9 @@ namespace Vodovoz.Logistic
 					)
 					.AddSetter((c, n) =>
 					{
-						c.Editable = ViewModel.AllEditing && Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
+						c.Editable = ViewModel.AllEditing 
+						&& n.RouteListItem.Status == RouteListItemStatus.EnRoute 
+						&& Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
 					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])

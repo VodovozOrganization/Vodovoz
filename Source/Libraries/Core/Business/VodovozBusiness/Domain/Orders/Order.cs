@@ -4697,6 +4697,15 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.DriverApplicationQR
 		};
 
+		private static readonly PaymentType[] _editablePaymentTypes = new[]
+		{
+			PaymentType.Cash,
+			PaymentType.Terminal,
+			PaymentType.DriverApplicationQR
+		};
+
+		public static PaymentType[] EditablePaymentTypes => _editablePaymentTypes;
+
 		#endregion
 
 		#region Операции
