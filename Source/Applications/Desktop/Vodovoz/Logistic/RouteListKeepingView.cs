@@ -277,8 +277,8 @@ namespace Vodovoz.Logistic
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Форма оплаты")
-					.AddEnumRenderer(node =>
-						node.PaymentType, 
+					.AddEnumRenderer(node => 
+						node.PaymentType,
 						excludeItems: ViewModel.ExcludedPaymentTypes
 					)
 					.AddSetter((c, n) =>

@@ -61,9 +61,19 @@ namespace Vodovoz
 
 		public PaymentType PaymentType
 		{
-			get => RouteListItem.Order.PaymentType;
-			set => RouteListItem.Order.ChangePaymentTypeFromRouteList(value);
+			get => NewPaymentType ?? RouteListItem.Order.PaymentType;
+			set
+			{
+				if(NewPaymentType != value)
+				{
+					NewPaymentType = value;
+					HasChanged = true;
+					OnPropertyChanged(() => PaymentType);
+				}
+			}
 		}
+
+		public PaymentType? NewPaymentType { get; set; }
 
 		public RouteListItem RouteListItem
 		{
