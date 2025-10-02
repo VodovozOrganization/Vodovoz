@@ -17,11 +17,11 @@ using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Banks.Domain;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Filters.ViewModels;
@@ -180,6 +180,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			PaymentItem paymentItemAlias2 = null;
 			ProfitCategory profitCategoryAlias = null;
 			Counterparty counterpartyAlias = null;
+			Account orgAccountAlias = null;
+			Bank orgBankAlias = null;
 			CashlessMovementOperation incomeOperationAlias = null;
 
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
@@ -188,7 +190,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Left.JoinAlias(p => p.Organization, () => organizationAlias)
 				.Left.JoinAlias(p => p.ProfitCategory, () => profitCategoryAlias)
 				.Left.JoinAlias(p => p.Items, () => paymentItemAlias)
-				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias);
+				.Left.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(p => p.OrganizationAccount, () => orgAccountAlias)
+				.Left.JoinAlias(() => orgAccountAlias.InBank, () => orgBankAlias);
 
 			var numOrdersProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
@@ -235,6 +239,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery.Where(p => p.Counterparty.Id == _filterViewModel.Counterparty.Id);
 				}
+				
+				if(_filterViewModel.Organization != null)
+				{
+					paymentQuery.Where(p => p.Organization.Id == _filterViewModel.Organization.Id);
+				}
 
 				var startDate = _filterViewModel.StartDate;
 				var endDate = _filterViewModel.EndDate;
@@ -274,9 +283,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					paymentQuery.Where(p => p.Status == _filterViewModel.PaymentState);
 				}
 
-				if(_filterViewModel.IsManuallyCreated)
+				if(_filterViewModel.IsManuallyCreated.HasValue)
 				{
-					paymentQuery.Where(p => p.IsManuallyCreated);
+					if(_filterViewModel.IsManuallyCreated.Value)
+					{
+						paymentQuery.Where(p => p.IsManuallyCreated);
+					}
+					else
+					{
+						paymentQuery.Where(p => !p.IsManuallyCreated);
+					}
 				}
 
 				if(_filterViewModel.IsSortingDescByUnAllocatedSum)
@@ -324,6 +340,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					.Select(() => paymentAlias.CounterpartyName).WithAlias(() => resultAlias.PayerName)
 					.Select(counterpartyNameProjection).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.Organization)
+					.Select(() => orgAccountAlias.Number).WithAlias(() => resultAlias.OrganizationAccountNumber)
+					.Select(() => orgBankAlias.Name).WithAlias(() => resultAlias.OrganizationBank)
 					.Select(() => paymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
 					.Select(() => profitCategoryAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
 					.Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
@@ -377,6 +395,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.CounterpartyId == _filterViewModel.Counterparty.Id);
+				}
+				
+				if(_filterViewModel.Organization != null)
+				{
+					paymentQuery.Where(p => p.OrganizationId == _filterViewModel.Organization.Id);
 				}
 
 				var startDate = _filterViewModel.StartDate;
@@ -492,6 +515,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				if(_filterViewModel.Counterparty != null)
 				{
 					paymentQuery.Where(p => p.CounterpartyId == _filterViewModel.Counterparty.Id);
+				}
+				
+				if(_filterViewModel.Organization != null)
+				{
+					paymentQuery.Where(p => p.OrganizationId == _filterViewModel.Organization.Id);
 				}
 
 				var startDate = _filterViewModel.StartDate;

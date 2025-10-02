@@ -5,6 +5,7 @@ using QS.Tdi;
 using System;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Filters.ViewModels
@@ -16,11 +17,12 @@ namespace Vodovoz.Filters.ViewModels
 		private PaymentState? _paymentState;
 		private bool _hideCompleted;
 		private bool _hideCancelledPayments;
-		private bool _isManuallyCreated;
+		private bool? _isManuallyCreated;
 		private bool _hidePaymentsWithoutCounterparty;
 		private bool _hideAllocatedPayments;
 		private bool _isSortingDescByUnAllocatedSum;
 		private Counterparty _counterparty;
+		private Organization _organization;
 		private PaymentJournalSortType _sortType;
 		private Type _documentType;
 		private bool _canChangeDocumentType;
@@ -63,6 +65,12 @@ namespace Vodovoz.Filters.ViewModels
 			get => _counterparty;
 			set => UpdateFilterField(ref _counterparty, value);
 		}
+		
+		public Organization Organization
+		{
+			get => _organization;
+			set => UpdateFilterField(ref _organization, value);
+		}
 
 		public bool HideCompleted
 		{
@@ -76,7 +84,7 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _hideCancelledPayments, value);
 		}
 
-		public bool IsManuallyCreated
+		public bool? IsManuallyCreated
 		{
 			get => _isManuallyCreated;
 			set => UpdateFilterField(ref _isManuallyCreated, value);
