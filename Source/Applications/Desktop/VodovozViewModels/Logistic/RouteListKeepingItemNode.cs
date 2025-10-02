@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Tools.CallTasks;
 
@@ -12,6 +13,7 @@ namespace Vodovoz
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
 		private RouteListItem _routeListItem;
+		private PaymentType _paymentType;
 
 		public RouteListItemStatus Status
 		{
@@ -58,6 +60,20 @@ namespace Vodovoz
 			}
 		}
 
+		public PaymentType PaymentType
+		{
+			get => _paymentType;
+			set
+			{
+				if(_paymentType != value)
+				{
+					_paymentType = value;
+					HasChanged = true;
+					OnPropertyChanged(() => PaymentType);
+				}
+			}
+		}
+
 		public RouteListItem RouteListItem
 		{
 			get => _routeListItem;
@@ -66,6 +82,7 @@ namespace Vodovoz
 				_routeListItem = value;
 				if(RouteListItem != null)
 				{
+					_paymentType = RouteListItem.Order.PaymentType;
 					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
 				}
 			}
