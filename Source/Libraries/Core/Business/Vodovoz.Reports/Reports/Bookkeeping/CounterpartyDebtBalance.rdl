@@ -29,13 +29,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>20.0pt</Width>
+            <Width>20.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.8pt</Width>
+            <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.6pt</Width>
+            <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>80.0pt</Width>
@@ -62,10 +62,10 @@
             <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.7pt</Width>
+            <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.3pt</Width>
+            <Width>27.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>40.9pt</Width>
@@ -366,7 +366,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Отсро-чка контра-гента</Value>
+                      <Value>Отс-рочка конт-раген-та</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1147,7 +1147,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
@@ -1246,7 +1246,7 @@
                 ) AS debtor_debt,
         c.delay_days_for_buyers,
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
-        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
+        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
          	  ELSE ""
@@ -1388,7 +1388,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
