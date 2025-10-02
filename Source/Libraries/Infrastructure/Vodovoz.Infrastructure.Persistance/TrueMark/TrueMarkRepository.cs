@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -25,11 +24,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
@@ -291,7 +287,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
 			OrderEdoRequest customerEdoRequestAlias = null;
-			EdoTaskItem edoTaskItemAlias = null;	
+			EdoTaskItem edoTaskItemAlias = null;
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -426,6 +422,36 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				default:
 					throw new InvalidOperationException("Неизвестный тип кода ЧЗ товара");
 			}
+		}
+
+		public IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codes =
+				from code in uow.Session.Query<StagingTrueMarkCode>()
+
+				join cldi in uow.Session.Query<CarLoadDocumentItem>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = cldi.Id, Type = StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem } into cldis
+				from carLoadDocumentItem in cldis.DefaultIfEmpty()
+
+				join rli in uow.Session.Query<RouteListItemEntity>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = rli.Id, Type = StagingTrueMarkCodeRelatedDocumentType.RouteListItem } into rlis
+				from routeListItem in rlis.DefaultIfEmpty()
+
+				join sdi in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = sdi.Id, Type = StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem } into sdis
+				from selfDeliveryItem in sdis.DefaultIfEmpty()
+
+				where
+				(carLoadDocumentItem != null && carLoadDocumentItem.OrderId == orderId)
+				|| (routeListItem != null && routeListItem.Order.Id == orderId)
+				|| (selfDeliveryItem != null && selfDeliveryItem.SelfDeliveryDocument.Order.Id == orderId)
+
+				select code;
+
+			return codes.ToList();
 		}
 	}
 }

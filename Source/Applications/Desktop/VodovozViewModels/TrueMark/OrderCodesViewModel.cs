@@ -617,7 +617,13 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadScanndedStagingCodes(IUnitOfWork uow)
 		{
-			_scannedStagingCodesOrigin = new List<OrderCodeItemViewModel>();
+			var stagingTrueMarkCodes = _trueMarkRepository.GetAllStagingCodesByOrderId(uow, OrderId);
+			_totalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
+			_scannedStagingCodesOrigin =
+				stagingTrueMarkCodes.Select(x => new OrderCodeItemViewModel
+				{
+					StagingTrueMarkCode = x
+				}).ToList();
 		}
 
 		private void FilterCodes()

@@ -329,7 +329,7 @@ namespace Vodovoz.Views.TrueMark
 					.AddTextRenderer(x => x.Type)
 					.Editable(false)
 				.AddColumn("Код")
-					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.AddTextRenderer(x => x.SourceIdentificationCode)
 					.Editable(false)
 					.SearchHighlight()
 				.AddColumn("Источник")

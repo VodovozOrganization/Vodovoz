@@ -107,5 +107,6 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Номер заказа</returns>
 		Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken);
+		IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId);
 	}
 }
