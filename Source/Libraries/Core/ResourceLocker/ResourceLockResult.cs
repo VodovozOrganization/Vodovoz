@@ -14,5 +14,10 @@
 		/// Сообщение об ошибке
 		/// </summary>
 		public string ErrorMessage { get; set; }
+
+		/// <summary>
+		/// Владелец блокировки
+		/// </summary>
+		public string OwnerLockValue { get; set; }
 	}
 }

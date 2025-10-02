@@ -44,7 +44,7 @@ namespace ResourceLocker.Library
 
 		private string LockKey => _resourceLockerUniqueKeyProvider.GetResourceLockerUniqueKeyByResourceName(_resourceKey);
 
-		private string CurrentUserId => _resourceLockerValueProvider.GetResourceLockerValue();
+		private string CurrentUserLockValue => _resourceLockerValueProvider.GetResourceLockerValue();
 
 		private async Task StartRenewal(TimeSpan ttl)
 		{
@@ -74,11 +74,11 @@ namespace ResourceLocker.Library
 								.StringGetAsync(LockKey)
 								.ConfigureAwait(false);
 
-							if(owner != CurrentUserId)
+							if(owner != CurrentUserLockValue)
 							{
 								await StopRenewal().ConfigureAwait(false);
 
-								_logger.LogWarning($"{CurrentUserId} Блокировка ресурса '{LockKey}' утрачена или захвачена другим пользователем.");
+								_logger.LogWarning($"{CurrentUserLockValue} Блокировка ресурса '{LockKey}' утрачена или захвачена другим пользователем.");
 
 								break;
 							}
@@ -89,11 +89,11 @@ namespace ResourceLocker.Library
 
 							if(extended)
 							{
-								_logger.LogInformation($"{CurrentUserId} Продлена блокировка ресурса {LockKey}");
+								_logger.LogInformation($"{CurrentUserLockValue} Продлена блокировка ресурса {LockKey}");
 							}
 							else
 							{
-								_logger.LogWarning($"{CurrentUserId} Не удалось продлить блокировку ресурса {LockKey}");
+								_logger.LogWarning($"{CurrentUserLockValue} Не удалось продлить блокировку ресурса {LockKey}");
 							}
 						}
 					}
@@ -102,7 +102,7 @@ namespace ResourceLocker.Library
 					}
 					catch(Exception ex)
 					{
-						_logger.LogError(ex, $"{CurrentUserId} Ошибка при продлении блокировки ресурса {LockKey}");
+						_logger.LogError(ex, $"{CurrentUserLockValue} Ошибка при продлении блокировки ресурса {LockKey}");
 					}
 					finally
 					{
@@ -143,57 +143,60 @@ namespace ResourceLocker.Library
 		{
 			ttl = ttl ?? _defaultLockDuration;
 
-			var owner = await Database
+			var ownerLockValue = await Database
 				.StringGetAsync(LockKey)
 				.ConfigureAwait(false);
 
-			if(owner == CurrentUserId)
+			if(ownerLockValue == CurrentUserLockValue)
 			{
 				await Database.KeyExpireAsync(LockKey, ttl).ConfigureAwait(false);
 
 				await StartRenewal(ttl.Value).ConfigureAwait(false);
 
-				_logger.LogInformation($"Обновлена блокировка ресурса {LockKey}, пользователь: {CurrentUserId}");
+				_logger.LogInformation($"Обновлена блокировка ресурса {LockKey}, пользователь: {CurrentUserLockValue}");
 
 				return new ResourceLockResult
 				{
-					IsSuccess = true
+					IsSuccess = true,
+					OwnerLockValue = ownerLockValue.ToString()
 				};
 			}
 
-			if(!owner.IsNullOrEmpty)
+			if(!ownerLockValue.IsNullOrEmpty)
 			{
-				var errorMessage = $"Ресурс {LockKey} уже заблокирован пользователем {owner}";
+				var errorMessage = $"Ресурс {LockKey} уже заблокирован пользователем {ownerLockValue}";
 				_logger.LogWarning(errorMessage);
 
 				return new ResourceLockResult
 				{
 					IsSuccess = false,
-					ErrorMessage = errorMessage
+					ErrorMessage = errorMessage,
+					OwnerLockValue = ownerLockValue.ToString()
 				};
 			}
 
 			try
 			{
 				var acquired = await Database
-					.StringSetAsync(LockKey, CurrentUserId, ttl, When.NotExists)
+					.StringSetAsync(LockKey, CurrentUserLockValue, ttl, When.NotExists)
 					.ConfigureAwait(false);
 
 				if(acquired)
 				{
 					await StartRenewal(ttl.Value).ConfigureAwait(false);
 
-					_logger.LogInformation($"Захвачена блокировка ресурса {LockKey}, пользователь: {CurrentUserId}");
+					_logger.LogInformation($"Захвачена блокировка ресурса {LockKey}, пользователь: {CurrentUserLockValue}");
 
 					return new ResourceLockResult
 					{
-						IsSuccess = true
+						IsSuccess = true,
+						OwnerLockValue = CurrentUserLockValue
 					};
 				}
 			}
 			catch(Exception ex)
 			{
-				var errorMessage = $"Ошибка при попытке захватить блокировку ресурса {LockKey} пользователем {CurrentUserId}";
+				var errorMessage = $"Ошибка при попытке захватить блокировку ресурса {LockKey} пользователем {CurrentUserLockValue}";
 
 				_logger.LogError(ex, errorMessage);
 
@@ -224,21 +227,21 @@ namespace ResourceLocker.Library
 			try
 			{
 				var removed = (int)await Database
-					.ScriptEvaluateAsync(atomicUnlockLuaScript, new RedisKey[] { LockKey }, new RedisValue[] { CurrentUserId })
+					.ScriptEvaluateAsync(atomicUnlockLuaScript, new RedisKey[] { LockKey }, new RedisValue[] { CurrentUserLockValue })
 					.ConfigureAwait(false);
 
 				if(removed == 1)
 				{
-					_logger.LogInformation($"{CurrentUserId} Снята блокировка ресурса {LockKey}");
+					_logger.LogInformation($"{CurrentUserLockValue} Снята блокировка ресурса {LockKey}");
 				}
 				else
 				{
-					_logger.LogWarning($"{CurrentUserId} Не удалось снять блокировку ресурса {LockKey}");
+					_logger.LogWarning($"{CurrentUserLockValue} Не удалось снять блокировку ресурса {LockKey}");
 				}
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"{CurrentUserId} Ошибка при попытке снять блокировку ресурса {LockKey}");
+				_logger.LogError(ex, $"{CurrentUserLockValue} Ошибка при попытке снять блокировку ресурса {LockKey}");
 			}
 		}
 
