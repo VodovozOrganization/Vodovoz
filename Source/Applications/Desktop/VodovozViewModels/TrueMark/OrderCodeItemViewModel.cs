@@ -22,6 +22,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		private int? _sourceDocumentId;
 		private int? _codeAuthorId;
 		private string _codeAuthor;
+		private StagingTrueMarkCode _stagingTrueMarkCode;
+		private string _stagingCodeSource;
 
 		public virtual OrderCodeItemViewModel Parent
 		{
@@ -136,6 +138,27 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			get => _codeAuthor;
 			set => SetField(ref _codeAuthor, value);
+		}
+
+		public virtual StagingTrueMarkCode StagingTrueMarkCode
+		{
+			get => _stagingTrueMarkCode;
+			set
+			{
+				SetField(ref _stagingTrueMarkCode, value);
+				if(value != null)
+				{
+					SourceIdentificationCode = value.IdentificationCode;
+					Type = value.GetCodeTypeString();
+					StagingCodeSource = value.GetCodeSourceString();
+				}
+			}
+		}
+
+		public virtual string StagingCodeSource
+		{
+			get => _stagingCodeSource;
+			set => SetField(ref _stagingCodeSource, value);
 		}
 	}
 }
