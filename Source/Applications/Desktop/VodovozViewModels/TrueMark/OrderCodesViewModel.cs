@@ -44,9 +44,9 @@ namespace Vodovoz.ViewModels.TrueMark
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodesOrigin;
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodes;
 		private IEnumerable<OrderCodeItemViewModel> _addedFromPoolCodesSelected;
+		private int _totalScannedStagingCodes;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodes;
-		private int _totalScannedStagingCodes;
 		private IEnumerable<OrderCodeItemViewModel> _scannedStagingCodesSelected;
 		private string _searchText;
 		private bool? _isValidSearchCodeText;

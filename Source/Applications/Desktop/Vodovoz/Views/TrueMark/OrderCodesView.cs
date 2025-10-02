@@ -86,6 +86,10 @@ namespace Vodovoz.Views.TrueMark
 				.AddFuncBinding(vm => $"Из пула ({vm.TotalAddedFromPool})", w => w.LabelProp)
 				.InitializeFromSource();
 
+			labelPageStaging.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => $"Промежуточные ({vm.TotalScannedStagingCodes})", w => w.LabelProp)
+				.InitializeFromSource();
+
 			entrySearch.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SearchText, w => w.Text)
 				.InitializeFromSource();
