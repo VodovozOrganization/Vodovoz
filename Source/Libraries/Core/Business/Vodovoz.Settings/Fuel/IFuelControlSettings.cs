@@ -55,7 +55,7 @@ namespace Vodovoz.Settings.Fuel
 		string RubleCurrencyId { get; }
 
 		/// <summary>
-		/// Максимальный суточный лимит на топливо для авто типа Фургон, л.
+		/// Максимальный суточный лимит на топливо для авто типа Легковая (Ларгус), л.
 		/// </summary>
 		int LargusMaxDailyFuelLimit { get; }
 
@@ -80,7 +80,7 @@ namespace Vodovoz.Settings.Fuel
 		int MinivanMaxDailyFuelLimit { get; }
 
 		/// <summary>
-		/// Максимальный число транзакций в топливном лимите для авто типа Фургон
+		/// Максимальный число транзакций в топливном лимите для авто типа Легковая (Ларгус)
 		/// </summary>
 		int LargusFuelLimitMaxTransactionsCount { get; }
 
