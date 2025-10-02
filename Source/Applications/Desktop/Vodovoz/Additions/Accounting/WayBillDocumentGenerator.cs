@@ -206,7 +206,7 @@ namespace Vodovoz.Additions.Accounting
 						(carFuelVersionAlias.EndDate == null || carFuelVersionAlias.EndDate >= currentDateTime))
 				.Where(() => carVersionAlias.CarOwnType == CarOwnType.Company)
 				.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
-					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle }))
+					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle, CarTypeOfUse.Minivan }))
 				.SelectList(list => list
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegistrationNumber)
 					.Select(() => carAlias.FuelType).WithAlias(() => resultAlias.FuelType)
