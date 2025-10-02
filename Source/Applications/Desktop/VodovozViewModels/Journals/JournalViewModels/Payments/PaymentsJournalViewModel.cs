@@ -17,7 +17,10 @@ using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using QS.Banks.Domain;
+using QS.Dialog;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -30,6 +33,7 @@ using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Cash.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
+using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
@@ -45,12 +49,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private readonly ILifetimeScope _scope;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly ICurrentPermissionService _permissionService;
+		private readonly IFileDialogService _fileDialogService;
 		private bool _canCreateNewManualPayment;
 		private bool _canCancelManualPaymentFromBankClient;
 		private IPermissionResult _paymentPermissionResult;
 
 		private PaymentsJournalFilterViewModel _filterViewModel;
 		private ThreadDataLoader<PaymentJournalNode> _threadDataLoader;
+		private bool _isExportToExcelInProcess;
 
 		public PaymentsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -60,6 +66,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			ICurrentPermissionService permissionService,
+			IFileDialogService fileDialogService,
 			Action<PaymentsJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -73,6 +80,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_permissionService = permissionService
 				?? throw new ArgumentNullException(nameof(permissionService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			TabName = "Журнал платежей из банк-клиента";
 
 			CreateFilter(filterParams);
@@ -97,78 +105,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			Refresh();
 		}
-
-		private void SetPermissions()
+		
+		public bool IsExportToExcelInProcess
 		{
-			_canCreateNewManualPayment =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.PaymentPermissions.BankClient.CanCreateNewManualPaymentFromBankClient);
-
-			_canCancelManualPaymentFromBankClient =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.PaymentPermissions.BankClient.CanCancelManualPaymentFromBankClient);
-		}
-
-		private void CreateFilter(Action<PaymentsJournalFilterViewModel> filterParams = null)
-		{
-			_filterViewModel = _scope.Resolve<PaymentsJournalFilterViewModel>(new[]{
-				new TypedParameter(typeof(ITdiTab), this)
-			});
-
-			if(filterParams != null)
+			get => _isExportToExcelInProcess;
+			private set
 			{
-				_filterViewModel.ConfigureWithoutFiltering(filterParams);
+				SetField(ref _isExportToExcelInProcess, value);
+				UpdateJournalActions();
 			}
-
-			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
-			JournalFilter = _filterViewModel;
-		}
-
-		private void OnFilterViewModelFiltered(object sender, EventArgs e)
-		{
-			var sortExpressions = GetOrdering();
-			_threadDataLoader.OrderRules.Clear();
-			_threadDataLoader.OrderRules.AddRange(sortExpressions);
-			Refresh();
-		}
-
-		private void RegisterPayments()
-		{
-			var paymentsConfiguration = RegisterEntity<Payment>(PaymentsQuery)
-				.AddDocumentConfiguration(
-					CreatePaymentDialog,
-					EditPaymentDialog,
-					node => node.EntityType == typeof(Payment),
-					typeof(Payment).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
-					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
-				);
-
-			paymentsConfiguration.FinishConfiguration();
-		}
-
-		private void RegisterPaymentWriteOffs()
-		{
-			var paymentsConfiguration = RegisterEntity<PaymentWriteOff>(PaymentWriteOffsQuery)
-				.AddDocumentConfiguration(
-					CreatePaymentWriteOffDialog,
-					EditPaymentWriteOffDialog,
-					node => node.EntityType == typeof(PaymentWriteOff),
-					typeof(PaymentWriteOff).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
-					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
-				);
-
-			paymentsConfiguration.FinishConfiguration();
-		}
-
-		private void RegisterOutgoingPayments()
-		{
-			var paymentsConfiguration = RegisterEntity<OutgoingPayment>(OutgoingPaymentsQuery)
-				.AddDocumentConfiguration(
-					CreateOutgoingPaymentDialog,
-					EditOutgoingPaymentDialog,
-					node => node.EntityType == typeof(OutgoingPayment),
-					typeof(OutgoingPayment).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
-					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
-				);
-			paymentsConfiguration.FinishConfiguration();
 		}
 
 		protected IQueryOver<Payment> PaymentsQuery(IUnitOfWork uow)
@@ -414,6 +359,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery.Where(p => p.Date <= endDate.Value.LatestDayTime());
 				}
+				
+				if(_filterViewModel.IsManuallyCreated.HasValue)
+				{
+					if(!_filterViewModel.IsManuallyCreated.Value)
+					{
+						paymentQuery.Where(p => p.Id == 0);
+					}
+				}
 
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)
 				{
@@ -534,6 +487,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				{
 					paymentQuery.Where(p => p.PaymentDate <= endDate.Value.LatestDayTime());
 				}
+				
+				if(_filterViewModel.IsManuallyCreated.HasValue)
+				{
+					if(!_filterViewModel.IsManuallyCreated.Value)
+					{
+						paymentQuery.Where(p => p.Id == 0);
+					}
+				}
 
 				if(_filterViewModel.HidePaymentsWithoutCounterparty)
 				{
@@ -586,6 +547,79 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.TransformUsing(Transformers.AliasToBean<PaymentJournalNode>());
 
 			return resultQuery;
+		}
+		
+		private void SetPermissions()
+		{
+			_canCreateNewManualPayment =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.PaymentPermissions.BankClient.CanCreateNewManualPaymentFromBankClient);
+
+			_canCancelManualPaymentFromBankClient =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.PaymentPermissions.BankClient.CanCancelManualPaymentFromBankClient);
+		}
+
+		private void CreateFilter(Action<PaymentsJournalFilterViewModel> filterParams = null)
+		{
+			_filterViewModel = _scope.Resolve<PaymentsJournalFilterViewModel>(new[]{
+				new TypedParameter(typeof(ITdiTab), this)
+			});
+
+			if(filterParams != null)
+			{
+				_filterViewModel.ConfigureWithoutFiltering(filterParams);
+			}
+
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			var sortExpressions = GetOrdering();
+			_threadDataLoader.OrderRules.Clear();
+			_threadDataLoader.OrderRules.AddRange(sortExpressions);
+			Refresh();
+		}
+
+		private void RegisterPayments()
+		{
+			var paymentsConfiguration = RegisterEntity<Payment>(PaymentsQuery)
+				.AddDocumentConfiguration(
+					CreatePaymentDialog,
+					EditPaymentDialog,
+					node => node.EntityType == typeof(Payment),
+					typeof(Payment).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+
+			paymentsConfiguration.FinishConfiguration();
+		}
+
+		private void RegisterPaymentWriteOffs()
+		{
+			var paymentsConfiguration = RegisterEntity<PaymentWriteOff>(PaymentWriteOffsQuery)
+				.AddDocumentConfiguration(
+					CreatePaymentWriteOffDialog,
+					EditPaymentWriteOffDialog,
+					node => node.EntityType == typeof(PaymentWriteOff),
+					typeof(PaymentWriteOff).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+
+			paymentsConfiguration.FinishConfiguration();
+		}
+
+		private void RegisterOutgoingPayments()
+		{
+			var paymentsConfiguration = RegisterEntity<OutgoingPayment>(OutgoingPaymentsQuery)
+				.AddDocumentConfiguration(
+					CreateOutgoingPaymentDialog,
+					EditOutgoingPaymentDialog,
+					node => node.EntityType == typeof(OutgoingPayment),
+					typeof(OutgoingPayment).GetClassUserFriendlyName().Nominative.CapitalizeSentence(),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+			paymentsConfiguration.FinishConfiguration();
 		}
 
 		private IList<SortRule<PaymentJournalNode>> GetOrdering()
@@ -674,6 +708,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				selectedItems => CompleteAllocation()));
 
 			CreateAddNewOutgoingPaymentAction();
+			CreateExportToExcelAction();
 		}
 
 		protected void CreateAddActions()
@@ -848,6 +883,73 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 					NavigationManager.OpenViewModel<OutgoingPaymentCreateViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 				}));
+		}
+		
+		private void CreateExportToExcelAction()
+		{
+			var createExportToExcelAction = new JournalAction(
+				"Выгрузить в Excel",
+				(selected) => !IsExportToExcelInProcess,
+				(selected) => true,
+				async (selected) => await ExportToExcel()
+			);
+			NodeActionsList.Add(createExportToExcelAction);
+		}
+		
+		private async Task ExportToExcel()
+		{
+			if(!_filterViewModel.StartDate.HasValue)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Нужно выбрать начальный период выгрузки");
+				return;
+			}
+			
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!saveDialogResul.Successful)
+			{
+				return;
+			}
+
+			IsExportToExcelInProcess = true;
+
+			await Task.Run(() =>
+			{
+				var nodes = GetReportData();
+
+				var ordersReport = new PaymentsFromBankClientReport(
+					_filterViewModel.StartDate.Value,
+					_filterViewModel.EndDate,
+					nodes);
+
+				ordersReport.Export(saveDialogResul.Path);
+			});
+
+			IsExportToExcelInProcess = false;
+		}
+		
+		private IEnumerable<PaymentJournalNode> GetReportData()
+		{
+			var paymentsRows = PaymentsQuery(UoW).List<PaymentJournalNode>();
+			var writeOffs = PaymentWriteOffsQuery(UoW).List<PaymentJournalNode>();
+			var outgoingPayments = OutgoingPaymentsQuery(UoW).List<PaymentJournalNode>();
+
+			var sortedRules = GetOrdering();
+
+			IEnumerable<PaymentJournalNode> paymentNodes = new List<PaymentJournalNode>();
+			paymentNodes = paymentsRows
+				.Concat(writeOffs)
+				.Concat(outgoingPayments);
+
+			return sortedRules.Aggregate(paymentNodes, (current, sortedRule) => sortedRule.Descending
+				? current.OrderByDescending(sortedRule.GetOrderByValue)
+				: current.OrderBy(sortedRule.GetOrderByValue));
 		}
 
 		private void CreateCancelPaymentAction()

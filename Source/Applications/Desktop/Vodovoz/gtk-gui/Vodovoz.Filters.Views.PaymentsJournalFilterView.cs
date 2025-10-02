@@ -254,7 +254,7 @@ namespace Vodovoz.Filters.Views
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
 			this.ytable1.NRows = ((uint)(3));
-			this.ytable1.NColumns = ((uint)(4));
+			this.ytable1.NColumns = ((uint)(6));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -273,10 +273,8 @@ namespace Vodovoz.Filters.Views
 			this.lblOrganizationAccount.LabelProp = global::Mono.Unix.Catalog.GetString("Р/сч организации:");
 			this.ytable1.Add(this.lblOrganizationAccount);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblOrganizationAccount]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
-			w20.LeftAttach = ((uint)(2));
-			w20.RightAttach = ((uint)(3));
+			w20.LeftAttach = ((uint)(4));
+			w20.RightAttach = ((uint)(5));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -286,8 +284,8 @@ namespace Vodovoz.Filters.Views
 			this.lblOrganizationBank.LabelProp = global::Mono.Unix.Catalog.GetString("Банк организации:");
 			this.ytable1.Add(this.lblOrganizationBank);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblOrganizationBank]));
-			w21.TopAttach = ((uint)(1));
-			w21.BottomAttach = ((uint)(2));
+			w21.LeftAttach = ((uint)(2));
+			w21.RightAttach = ((uint)(3));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -296,10 +294,8 @@ namespace Vodovoz.Filters.Views
 			this.organizationAccountEntry.Name = "organizationAccountEntry";
 			this.ytable1.Add(this.organizationAccountEntry);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytable1[this.organizationAccountEntry]));
-			w22.TopAttach = ((uint)(1));
-			w22.BottomAttach = ((uint)(2));
-			w22.LeftAttach = ((uint)(3));
-			w22.RightAttach = ((uint)(4));
+			w22.LeftAttach = ((uint)(5));
+			w22.RightAttach = ((uint)(6));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
@@ -308,10 +304,8 @@ namespace Vodovoz.Filters.Views
 			this.organizationBankEntry.Name = "organizationBankEntry";
 			this.ytable1.Add(this.organizationBankEntry);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytable1[this.organizationBankEntry]));
-			w23.TopAttach = ((uint)(1));
-			w23.BottomAttach = ((uint)(2));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
+			w23.LeftAttach = ((uint)(3));
+			w23.RightAttach = ((uint)(4));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild

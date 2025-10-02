@@ -3,15 +3,23 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.Tdi;
 using System;
+using QS.Banks.Domain;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Banks;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Banks;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Filters.ViewModels
 {
 	public partial class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
+		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
+		private readonly ViewModelEEVMBuilder<Bank> _organizationBankViewModelBuilder;
+		private readonly ViewModelEEVMBuilder<Account> _organizationAccountViewModelBuilder;
 		private DateTime? _startDate = DateTime.Today.AddDays(-14);
 		private DateTime? _endDate;
 		private PaymentState? _paymentState;
@@ -23,19 +31,31 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _isSortingDescByUnAllocatedSum;
 		private Counterparty _counterparty;
 		private Organization _organization;
+		private Bank _organizationBank;
+		private Account _organizationAccount;
 		private PaymentJournalSortType _sortType;
 		private Type _documentType;
-		private bool _canChangeDocumentType;
+		private bool _canChangeDocumentType = true;
 		private bool _outgoingPaymentsWithoutCashlessRequestAssigned;
 
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
 			INavigationManager navigationManager,
-			ITdiTab journalTab)
+			ITdiTab journalTab,
+			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
+			ViewModelEEVMBuilder<Bank> organizationBankViewModelBuilder,
+			ViewModelEEVMBuilder<Account> organizationAccountViewModelBuilder)
 		{
+			_organizationViewModelBuilder = organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
+			_organizationBankViewModelBuilder =
+				organizationBankViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationBankViewModelBuilder));
+			_organizationAccountViewModelBuilder =
+				organizationAccountViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationAccountViewModelBuilder));
 			Scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
+
+			ConfigureEntryViewModels();
 		}
 
 		public ILifetimeScope Scope { get; }
@@ -70,6 +90,18 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _organization;
 			set => UpdateFilterField(ref _organization, value);
+		}
+		
+		public Bank OrganizationBank
+		{
+			get => _organizationBank;
+			set => UpdateFilterField(ref _organizationBank, value);
+		}
+		
+		public Account OrganizationAccount
+		{
+			get => _organizationAccount;
+			set => UpdateFilterField(ref _organizationAccount, value);
 		}
 
 		public bool HideCompleted
@@ -165,6 +197,47 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _outgoingPaymentsWithoutCashlessRequestAssigned;
 			set => UpdateFilterField(ref _outgoingPaymentsWithoutCashlessRequestAssigned, value);
+		}
+		
+		public IEntityEntryViewModel OrganizationEntryViewModel { get; private set; }
+		public IEntityEntryViewModel OrganizationBankEntryViewModel { get; private set; }
+		public IEntityEntryViewModel OrganizationAccountEntryViewModel { get; private set; }
+		
+		private void ConfigureEntryViewModels()
+		{
+			var journal = JournalTab as DialogViewModelBase;
+			var organizationViewModel =  _organizationViewModelBuilder
+				.SetViewModel(journal)
+				.SetUnitOfWork(UoW)
+				.ForProperty(this, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationViewModel.CanViewEntity = false;
+			OrganizationEntryViewModel = organizationViewModel;
+			
+			var organizationBankViewModel =  _organizationBankViewModelBuilder
+				.SetViewModel(journal)
+				.SetUnitOfWork(UoW)
+				.ForProperty(this, x => x.OrganizationBank)
+				.UseViewModelJournalAndAutocompleter<BanksJournalViewModel, BanksJournalFilterViewModel>(f => f.Account = OrganizationAccount)
+				.UseViewModelDialog<AccountViewModel>()
+				.Finish();
+
+			organizationBankViewModel.CanViewEntity = false;
+			OrganizationBankEntryViewModel = organizationBankViewModel;
+			
+			var organizationAccountViewModel =  _organizationAccountViewModelBuilder
+				.SetViewModel(journal)
+				.SetUnitOfWork(UoW)
+				.ForProperty(this, x => x.OrganizationAccount)
+				.UseViewModelJournalAndAutocompleter<AccountJournalViewModel, AccountJournalFilterViewModel>(f => f.Bank = OrganizationBank)
+				.UseViewModelDialog<AccountViewModel>()
+				.Finish();
+
+			organizationAccountViewModel.CanViewEntity = false;
+			OrganizationAccountEntryViewModel = organizationAccountViewModel;
 		}
 	}
 }

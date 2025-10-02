@@ -1,12 +1,15 @@
-﻿using System;
+﻿using System.ComponentModel;
+using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Banks;
+
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BanksJournalFilterView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class BanksJournalFilterView : FilterViewBase<BanksJournalFilterViewModel>
 	{
-		public BanksJournalFilterView()
+		public BanksJournalFilterView(BanksJournalFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
