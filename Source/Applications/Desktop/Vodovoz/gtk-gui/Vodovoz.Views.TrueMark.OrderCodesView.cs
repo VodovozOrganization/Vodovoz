@@ -70,7 +70,7 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewStaging;
 
-		private global::Gtk.Label labelPageStaging;
+		private global::Gamma.GtkWidgets.yLabel labelPageStaging;
 
 		protected virtual void Build()
 		{
@@ -354,7 +354,7 @@ namespace Vodovoz.Views.TrueMark
 			global::Gtk.Notebook.NotebookChild w27 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow4]));
 			w27.Position = 4;
 			// Notebook tab
-			this.labelPageStaging = new global::Gtk.Label();
+			this.labelPageStaging = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPageStaging.Name = "labelPageStaging";
 			this.labelPageStaging.LabelProp = global::Mono.Unix.Catalog.GetString("Промежуточные");
 			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow4, this.labelPageStaging);
