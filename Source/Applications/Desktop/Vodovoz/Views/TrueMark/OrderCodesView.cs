@@ -39,6 +39,10 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _poolPopup = new Menu();
 		private MenuItem _poolCopyCodes = new MenuItem("Копировать коды");
 
+		//staging popup
+		private Menu _stagingPopup = new Menu();
+		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
+
 		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
@@ -308,6 +312,36 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+			// staging tableytreeviewPool.Binding.AddSource(ViewModel)
+			ytreeviewStaging.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ScannedStagingCodes, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
+					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
+				.InitializeFromSource();
+			ytreeviewStaging.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewStaging.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Тип")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Type)
+					.Editable(false)
+				.AddColumn("Код")
+					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Источник")
+					.AddTextRenderer(x => x.StagingCodeSource)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("")
+				.Finish();
+			ytreeviewStaging.Add(_stagingPopup);
+			_stagingPopup.Add(_stagingCopyCodes);
+			_stagingCopyCodes.Show();
+			_stagingPopup.Show();
+			_stagingCopyCodes.Activated += (sender, e) => ViewModel.CopyStagingCodesCommand.Execute(null);
+			ytreeviewStaging.ButtonReleaseEvent += OnTableStagingRightClick;
+			ytreeviewStaging.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
@@ -430,6 +464,17 @@ namespace Vodovoz.Views.TrueMark
 
 			_poolCopyCodes.Sensitive = ViewModel.CopyPoolCodesCommand.CanExecute(null);
 			_poolPopup.Popup();
+		}
+
+		private void OnTableStagingRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_stagingCopyCodes.Sensitive = ViewModel.CopyStagingCodesCommand.CanExecute(null);
+			_stagingPopup.Popup();
 		}
 
 		protected override void OnDestroyed()

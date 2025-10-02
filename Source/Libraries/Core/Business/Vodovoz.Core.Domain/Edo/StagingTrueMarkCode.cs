@@ -232,6 +232,36 @@ namespace Vodovoz.Core.Domain.Edo
 		public virtual IList<StagingTrueMarkCode> AllIdentificationCodes =>
 			GetAllCodesOfType(this, StagingTrueMarkCodeType.Identification);
 
+		public virtual string GetCodeTypeString()
+		{
+			switch (CodeType)
+			{
+				case StagingTrueMarkCodeType.Identification:
+					return "Экземплярный";
+				case StagingTrueMarkCodeType.Group:
+					return "Групповой";
+				case StagingTrueMarkCodeType.Transport:
+					return "Транспортный";
+				default:
+					throw new InvalidOperationException("Неизвестный тип кода");
+			}
+		}
+
+		public virtual string GetCodeSourceString()
+		{
+			switch(RelatedDocumentType)
+			{
+				case StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem:
+					return "Талон погрузки";
+				case StagingTrueMarkCodeRelatedDocumentType.RouteListItem:
+					return "Маршрутный лист";
+				case StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem:
+					return "Отпуск самовывоза";
+				default:
+					throw new InvalidOperationException("Неизвестный тип документа");
+			}
+		}
+
 		private IList<StagingTrueMarkCode> GetAllCodesOfType(StagingTrueMarkCode code, StagingTrueMarkCodeType codeType)
 		{
 			var resultCodes = new List<StagingTrueMarkCode>();
