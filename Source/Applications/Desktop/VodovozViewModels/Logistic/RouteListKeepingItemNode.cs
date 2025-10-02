@@ -13,6 +13,7 @@ namespace Vodovoz
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
 		private RouteListItem _routeListItem;
+		private PaymentType _paymentType;
 
 		public RouteListItemStatus Status
 		{
@@ -61,19 +62,17 @@ namespace Vodovoz
 
 		public PaymentType PaymentType
 		{
-			get => NewPaymentType ?? RouteListItem.Order.PaymentType;
+			get => _paymentType;
 			set
 			{
-				if(NewPaymentType != value)
+				if(_paymentType != value)
 				{
-					NewPaymentType = value;
+					_paymentType = value;
 					HasChanged = true;
 					OnPropertyChanged(() => PaymentType);
 				}
 			}
 		}
-
-		public PaymentType? NewPaymentType { get; set; }
 
 		public RouteListItem RouteListItem
 		{
@@ -83,6 +82,7 @@ namespace Vodovoz
 				_routeListItem = value;
 				if(RouteListItem != null)
 				{
+					_paymentType = RouteListItem.Order.PaymentType;
 					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
 				}
 			}
