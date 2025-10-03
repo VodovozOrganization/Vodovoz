@@ -9,6 +9,7 @@ namespace Vodovoz
 	public class RouteListKeepingItemNode : PropertyChangedBase
 	{
 		public bool HasChanged = false;
+		public bool PaymentTypeHasChanged = false;
 		public bool ChangedDeliverySchedule = false;
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
@@ -68,7 +69,7 @@ namespace Vodovoz
 				if(_paymentType != value)
 				{
 					_paymentType = value;
-					HasChanged = true;
+					PaymentTypeHasChanged = true;
 					OnPropertyChanged(() => PaymentType);
 				}
 			}

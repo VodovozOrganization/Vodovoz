@@ -707,7 +707,7 @@ namespace Vodovoz
 			{
 				IsCanClose = false;
 
-				foreach(var node in Items.Where(x => x.HasChanged))
+				foreach(var node in Items.Where(x => x.PaymentTypeHasChanged))
 				{
 					var order = node.RouteListItem.Order;
 					var newPaymentType = node.PaymentType;
