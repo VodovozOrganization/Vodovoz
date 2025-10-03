@@ -194,22 +194,17 @@ namespace Vodovoz.SidePanel.InfoViews
 			Responsible responsibleAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
-						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
+			   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
+			   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
+			   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
+			   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
+			   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
+			   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
+			   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
-
-			if(filter.EndDate != null)
-			{
-				filter.EndDate = filter.EndDate.Value.LatestDayTime();
-			}
-
-			if(filter.StartDate.HasValue)
-				filter.StartDate = filter.StartDate.Value.Date;
+			var startDate = filter.StartDate;
+			var endDate = filter.EndDate;
+			endDate = endDate?.LatestDayTime();
 
 			QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
@@ -220,39 +215,75 @@ namespace Vodovoz.SidePanel.InfoViews
 					.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
 			}
 
-			if(filter.StartDate.HasValue) {
-				switch (filter.FilterDateType) {
-					case DateFilterType.PlannedCompletionDate:
-						if(dicussionQuery == null) {
-							query = query.Where(() => complaintAlias.PlannedCompletionDate <= filter.EndDate)
-								.And(() => filter.StartDate == null || complaintAlias.PlannedCompletionDate >= filter.StartDate.Value);
-						} else {
-							dicussionQuery = dicussionQuery
-								.And(() => filter.StartDate == null || discussionAlias.PlannedCompletionDate >= filter.StartDate.Value)
-								.And(() => discussionAlias.PlannedCompletionDate <= filter.EndDate);
+			switch (filter.FilterDateType)
+			{
+				case DateFilterType.PlannedCompletionDate:
+					if(dicussionQuery == null)
+					{
+						if(startDate.HasValue)
+						{
+							query.Where(() => complaintAlias.PlannedCompletionDate >= startDate);
 						}
-						break;
-					case DateFilterType.ActualCompletionDate:
-						query = query.Where(() => complaintAlias.ActualCompletionDate <= filter.EndDate)
-								.And(() => filter.StartDate == null || complaintAlias.ActualCompletionDate >= filter.StartDate.Value);
-						break;
-					case DateFilterType.CreationDate:
-						query = query.Where(() => complaintAlias.CreationDate <= filter.EndDate)
-							.And(() => filter.StartDate == null || complaintAlias.CreationDate >= filter.StartDate.Value);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
+						if(endDate.HasValue)
+						{
+							query.Where(() => complaintAlias.PlannedCompletionDate <= endDate);
+						}
+					}
+					else
+					{
+						if(startDate.HasValue)
+						{
+							dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= startDate);
+						}
+						if(endDate.HasValue)
+						{
+							dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= endDate);
+						}
+					}
+					break;
+				case DateFilterType.ActualCompletionDate:
+					if(startDate.HasValue)
+					{
+						query.Where(() => complaintAlias.ActualCompletionDate >= startDate);
+					}
+					if(endDate.HasValue)
+					{
+						query.Where(() => complaintAlias.ActualCompletionDate <= endDate);
+					}
+					break;
+				case DateFilterType.CreationDate:
+					if(startDate.HasValue)
+					{
+						query.Where(() => complaintAlias.CreationDate >= startDate);
+					}
+					if(endDate.HasValue)
+					{
+						query.Where(() => complaintAlias.CreationDate <= endDate);
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
 			if(dicussionQuery != null)
+			{
 				query.WithSubquery.WhereExists(dicussionQuery);
+			}
+
 			if(filter.ComplaintType != null)
+			{
 				query = query.Where(() => complaintAlias.ComplaintType == filter.ComplaintType);
+			}
+
 			if(filter.ComplaintStatus != null)
+			{
 				query = query.Where(() => complaintAlias.Status == filter.ComplaintStatus);
+			}
+
 			if(filter.Employee != null)
+			{
 				query = query.Where(() => complaintAlias.CreatedBy.Id == filter.Employee.Id);
+			}
 
 			if(filter.GuiltyItemVM?.Entity?.Responsible != null) 
 			{
@@ -273,7 +304,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			if(filter.ComplaintKind != null)
+			{
 				query.Where(() => complaintAlias.ComplaintKind.Id == filter.ComplaintKind.Id);
+			}
 
 			var result = query.SelectList(list => list
 				.SelectGroup(c => c.Complaint.Id)
