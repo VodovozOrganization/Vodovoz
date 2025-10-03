@@ -29,7 +29,7 @@ function Get-RegistryUrlFromDirectoryBuild {
     param([string]$solutionRoot)
     $directoryBuildsPath = Join-Path $solutionRoot "Directory.Build.props"
     if (-not (Test-Path $directoryBuildsPath)) {
-        Write-Warning "Directory.Build.props not found in solution root: $solutionRoot"
+        Write-Warning "Directory.Build.props не найден в корне решения: $solutionRoot"
         return $null
     }
     
@@ -39,9 +39,94 @@ function Get-RegistryUrlFromDirectoryBuild {
         return $publishRepositoryUrl
     }
     catch {
-        Write-Warning "Failed to read RegistryUrl from Directory.Build.props: $_"
+        Write-Warning "Не удалось прочитать RegistryUrl из Directory.Build.props: $_"
         return $null
     }
+}
+
+function Test-DockerAuth {
+    param([string]$registryUrl)
+    
+    $dockerConfigPath = Join-Path $env:USERPROFILE ".docker\config.json"
+    
+    if (-not (Test-Path $dockerConfigPath)) {
+        Write-Host "Конфигурационный файл Docker не найден в $dockerConfigPath"
+        return $false
+    }
+    
+    try {
+        $configContent = Get-Content $dockerConfigPath -Raw | ConvertFrom-Json
+        
+        if ($configContent.auths -and $configContent.auths.PSObject.Properties.Name -contains $registryUrl) {
+            Write-Host "Найдена существующая аутентификация для $registryUrl в конфигурации Docker"
+            return $true
+        } else {
+            Write-Host "Аутентификация для $registryUrl не найдена в конфигурации Docker"
+            return $false
+        }
+    }
+    catch {
+        Write-Warning "Не удалось прочитать конфигурацию Docker: $_"
+        return $false
+    }
+}
+
+function Test-DockerEngine {
+    try {
+        # Проверяем доступность Docker Engine через named pipe
+        $dockerPipe = "//./pipe/dockerDesktopLinuxEngine"
+        
+        # Попытка подключения к named pipe
+        try {
+            $pipeStream = New-Object System.IO.Pipes.NamedPipeClientStream(".", "dockerDesktopLinuxEngine", [System.IO.Pipes.PipeDirection]::InOut)
+            $pipeStream.Connect(1000) # Timeout 1 секунда
+            $pipeStream.Close()
+            Write-Host "Docker Engine запущен (соединение через pipe успешно)"
+            return $true
+        }
+        catch {
+            Write-Host "Docker Engine не запущен (соединение через pipe не удалось)"
+            return $false
+        }
+    }
+    catch {
+        Write-Host "Docker недоступен"
+        return $false
+    }
+}
+
+function Wait-ForDockerDesktop {
+    Write-Host ""
+    Write-Host "====================================================================" -ForegroundColor Yellow
+    Write-Host "Docker Desktop не запущен или недоступен." -ForegroundColor Yellow
+    Write-Host "Пожалуйста, запустите Docker Desktop и дождитесь его полной загрузки." -ForegroundColor Yellow
+    Write-Host "====================================================================" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Ожидание запуска Docker Desktop..." -ForegroundColor Cyan
+    
+    $timeout = 300 # 5 минут
+    $elapsed = 0
+    $interval = 5
+    
+    while ($elapsed -lt $timeout) {
+        if (Test-DockerEngine) {
+            Write-Host "Docker Desktop успешно запущен!" -ForegroundColor Green
+            return $true
+        }
+        
+        Start-Sleep -Seconds $interval
+        $elapsed += $interval
+        
+        # Каждые 30 секунд показываем сообщение
+        if ($elapsed % 30 -eq 0) {
+            Write-Host ""
+            Write-Host "Все еще ожидаем запуска Docker Desktop... (прошло $elapsed секунд)" -ForegroundColor Cyan
+        }
+    }
+    
+    Write-Host ""
+    Write-Error "Timeout: Docker Desktop не запустился в течение $timeout секунд"
+    return $false
 }
 
 # Поиск всех профилей публикации в проекте
@@ -96,11 +181,39 @@ if ($publishProvider -eq "ContainerRegistry") {
         }
         Write-Host "Используется RegistryUrl из Directory.Build.props: $registryUrl"
     }
-    Write-Host "Выполняется docker login..."
-    docker login $registryUrl
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Не удалось выполнить docker login в $registryUrl"
-        exit 1
+    
+    # Новая логика аутентификации
+    Write-Host "Проверяем аутентификацию в реестре $registryUrl..."
+    
+    # Шаг 1: Проверяем, залогинен ли пользователь в реестр через config.json
+    if (Test-DockerAuth -registryUrl $registryUrl) {
+        Write-Host "Пользователь уже аутентифицирован в реестре $registryUrl" -ForegroundColor Green
+    } else {
+        Write-Host "Требуется аутентификация в реестре $registryUrl"
+        
+        # Шаг 2: Проверяем, запущен ли Docker Engine
+        if (Test-DockerEngine) {
+            # Шаг 3: Если запущен, выполняем логин
+            Write-Host "Выполняется docker login..."
+            docker login $registryUrl
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "Не удалось выполнить docker login в $registryUrl"
+                exit 1
+            }
+        } else {
+            # Шаг 4: Если не запущен, ждем запуска Docker Desktop
+            if (-not (Wait-ForDockerDesktop)) {
+                exit 1
+            }
+            
+            # После запуска Docker Desktop выполняем логин
+            Write-Host "Выполняется docker login..."
+            docker login $registryUrl
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "Не удалось выполнить docker login в $registryUrl"
+                exit 1
+            }
+        }
     }
 }
 
@@ -113,19 +226,19 @@ if (Get-Command msbuild -ErrorAction SilentlyContinue) {
 } elseif (Test-Path $msbuildPath) {
     $msbuildCmd = "`"$msbuildPath`""
 } else {
-    Write-Error "MSBuild not found."
+    Write-Error "MSBuild не найден."
     exit 1
 }
 
 # Находим проект, в котором лежит скрипт
 $projectFile = Get-ChildItem -Path $projectPath -Filter *.csproj -File | Select-Object -First 1
 if (-not $projectFile) {
-    Write-Error "Project file (*.csproj) not found in $projectPath"
+    Write-Error "Файл проекта (*.csproj) не найден в $projectPath"
     exit 1
 }
 
 Write-Host "Запуск MSBuild для публикации..."
 & $msbuildCmd $projectFile.FullName -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=$selectedProfile /maxcpucount:6
 
-Write-Host "Press any key to exit..."
+Write-Host "Нажмите любую клавишу для выхода..."
 [void][System.Console]::ReadKey($true)
