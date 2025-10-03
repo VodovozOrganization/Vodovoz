@@ -26,6 +26,8 @@
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+          <PaddingBottom>0pt</PaddingBottom>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -129,11 +131,11 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox49">
+                    <Textbox Name="Textbox46">
                       <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -152,7 +154,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>11</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -216,7 +218,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Организация</Value>
+                      <Value>=Iif({?show_phones}, "Телефоны", "Организация")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -840,7 +842,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>={org_name}</Value>
+                      <Value>=Iif({?show_phones}, {phones}, {org_name})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -852,8 +854,12 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
-                        <PaddingTop>1pt</PaddingTop>
-                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>=Iif(
+    {?show_phones},
+    CStr((Len({phones}) / 20)) + "pt",
+    "1pt"
+)</PaddingTop>
+                        <PaddingBottom>=Len({phones}) / 20 + "pt"</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -949,6 +955,7 @@
                         <Format>#,##0.00</Format>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1147,12 +1154,13 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
         c.inn AS inn,
         c.name AS counterparty_name,
+        (SELECT GROUP_CONCAT(DISTINCT CONCAT('+7', client_phones.digits_number) SEPARATOR ',\n') FROM phones client_phones WHERE client_phones.counterparty_id = o.client_id) AS phones,
         org.name AS org_name,
         (
             (SELECT IFNULL(SUM(cmo.income), 0)
@@ -1388,7 +1396,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
@@ -1440,6 +1448,10 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
         <Field Name="overdue_debtor_debt">
           <DataField>overdue_debtor_debt</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="phones">
+          <DataField>phones</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1623,6 +1635,13 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_phones">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
