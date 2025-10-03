@@ -22,9 +22,15 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(
+					ViewModel.RdlViewerViewModel,
+					ViewModel.TdiTab,
+					ViewModel,
+					ViewModel.UnitOfWork,
+					ViewModel.NavigationManager,
+					ViewModel.LifetimeScope)
 					.ForProperty(x => x.Counterparty)
-					.UseTdiEntityDialog()
+					.UseTdiDialog<CounterpartyDlg>()
 					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 					.Finish();
 
