@@ -21,7 +21,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Banks
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
-			BanksJournalFilterViewModel banksJournalViewModel) : base(unitOfWorkFactory, interactiveService, navigation)
+			BanksJournalFilterViewModel banksJournalViewModel,
+			Action<BanksJournalFilterViewModel> filterConfig = null) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_filterViewModel = banksJournalViewModel ?? throw new ArgumentNullException(nameof(banksJournalViewModel));
 			
@@ -32,6 +33,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Banks
 			DataLoader = loader;
 			
 			JournalFilter =  _filterViewModel;
+
+			if(filterConfig != null)
+			{
+				_filterViewModel.ConfigureWithoutFiltering(filterConfig);
+			}
 		}
 
 		private IQueryOver<Bank> BanksQuery(IUnitOfWork uow)
