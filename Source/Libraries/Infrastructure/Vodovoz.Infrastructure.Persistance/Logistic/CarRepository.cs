@@ -393,9 +393,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.GroupBy(g => g.CarId)
 				.ToDictionary(
 				g => g.Key, 
-				g => (
-					g.FirstOrDefault().DriverName
-				));
+				g => g.FirstOrDefault().DriverName);
 		}
 
 		public async Task<IDictionary<int, Employee>> GetDriversByCars(
@@ -427,9 +425,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.GroupBy(g => g.CarId)
 				.ToDictionary(
 				g => g.Key,
-				g => (
-					g.FirstOrDefault().Driver
-				));
+				g => g.FirstOrDefault().Driver);
 		}
 
 		public async Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(
