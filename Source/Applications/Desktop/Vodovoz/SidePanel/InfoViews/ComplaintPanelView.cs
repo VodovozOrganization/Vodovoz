@@ -194,13 +194,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			Responsible responsibleAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
-			   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
-			   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
-			   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
-			   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
-			   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
-			   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
-			   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
+				.Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
+				.Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
 			var startDate = filter.StartDate;
 			var endDate = filter.EndDate;
