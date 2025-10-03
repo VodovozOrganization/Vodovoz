@@ -1,4 +1,4 @@
-﻿namespace ResourceLocker.Library
+namespace ResourceLocker.Library
 {
 	/// <summary>
 	/// Результат блокировки ресурса
@@ -14,5 +14,10 @@
 		/// Сообщение об ошибке
 		/// </summary>
 		public string ErrorMessage { get; set; }
+
+		/// <summary>
+		/// Владелец блокировки
+		/// </summary>
+		public string OwnerLockValue { get; set; }
 	}
 }

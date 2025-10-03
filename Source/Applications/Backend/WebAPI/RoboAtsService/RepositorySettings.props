@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>roboats.api</ContainerRepository>
+  </PropertyGroup>
+</Project>

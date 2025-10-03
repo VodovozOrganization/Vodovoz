@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
@@ -78,7 +79,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrganizationRepository organizationRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			IResourceLockerFactory resourceLockerFactory) : base(uowBuilder, uowFactory, commonServices)
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(lifetimeScope == null)
 			{
@@ -88,6 +90,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			if(resourceLockerFactory == null)
 			{
 				throw new ArgumentNullException(nameof(resourceLockerFactory));
+			}
+
+			if(userRepository == null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
 			}
 
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -110,10 +117,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_resourceLocker = resourceLockerFactory.Create($"{nameof(ManualPaymentMatchingViewModel)}[Id:{Entity.Id}]");
 			
 			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
-			
+
 			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог", ImportanceLevel.Warning);
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Не удалось открыть выписку {Entity.Id}. Она уже открыта пользователем: {ownerUser?.Name}.",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
 			}
 			
 			TabName = "Ручное распределение платежей";

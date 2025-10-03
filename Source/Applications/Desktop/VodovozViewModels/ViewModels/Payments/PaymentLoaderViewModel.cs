@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -52,7 +53,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository,
 			IGenericRepository<Organization> organizationRepository,
-			IResourceLockerFactory resourceLockerFactory) 
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -76,15 +78,25 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(resourceLockerFactory));
 			}
 
+			if(userRepository == null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
+			}
+
 			InteractiveService = commonServices.InteractiveService;
 			
 			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
 			
 			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
-			
+
 			if(!lockResult.IsSuccess)
 			{
-				throw new AbortCreatingPageException(lockResult.ErrorMessage, "Не удалось заблокировать диалог", ImportanceLevel.Warning);
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Диалог уже открыт пользователем {ownerUser?.Name}",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
 			}
 			
 			UnitOfWorkFactory = unitOfWorkFactory;
