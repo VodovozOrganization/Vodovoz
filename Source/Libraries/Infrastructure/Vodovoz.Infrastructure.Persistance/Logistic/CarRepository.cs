@@ -382,7 +382,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				select new
 				{
 					CarId = car.Id,
-					DriverName = driver != null
+                    DriverName = driver != null
 						? driver.ShortName
 						: lastRouteListDriver != null
 							? $"МЛ: {lastRouteListDriver.ShortName}"
@@ -391,7 +391,45 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 			return (await driversNames.ToListAsync(cancellationToken))
 				.GroupBy(g => g.CarId)
-				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+				.ToDictionary(
+				g => g.Key, 
+				g => (
+					g.FirstOrDefault().DriverName
+				));
+		}
+
+		public async Task<IDictionary<int, Employee>> GetDriversByCars(
+			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
+		{
+			var carsQuery = unitOfWork.Session.Query<Car>()
+				.Where(car => carsIds.Contains(car.Id));
+
+			var routeListsQuery = unitOfWork.Session.Query<RouteList>()
+				.Where(rl => carsIds.Contains(rl.Car.Id));
+
+			var driversNames =
+				from car in carsQuery
+				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
+				from driver in drivers.DefaultIfEmpty()
+				let lastRouteListDriver = (
+					from rl in routeListsQuery
+					where rl.Car.Id == car.Id
+					orderby rl.Date descending
+					select rl.Driver
+				).FirstOrDefault()
+				select new
+				{
+					CarId = car.Id,
+					Driver = driver ?? lastRouteListDriver
+				};
+
+			return (await driversNames.ToListAsync(cancellationToken))
+				.GroupBy(g => g.CarId)
+				.ToDictionary(
+				g => g.Key,
+				g => (
+					g.FirstOrDefault().Driver
+				));
 		}
 
 		public async Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(

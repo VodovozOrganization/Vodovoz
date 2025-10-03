@@ -39,6 +39,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IQueryable<OdometerReading> GetOdometerReadingByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 		IDictionary<int, string> GetCarsGeoGroups(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 		Task<IDictionary<int, string>> GetDriversNamesByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken);
+		Task<IDictionary<int, Employee>> GetDriversByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken);
 		IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 
 		/// <summary>
