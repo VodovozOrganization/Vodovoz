@@ -619,11 +619,27 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			var stagingTrueMarkCodes = _trueMarkRepository.GetAllStagingCodesByOrderId(uow, OrderId);
 			_totalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
-			_scannedStagingCodesOrigin =
-				stagingTrueMarkCodes.Select(x => new OrderCodeItemViewModel
+			var allCodes =
+				stagingTrueMarkCodes
+				.Select(x => new OrderCodeItemViewModel
 				{
 					StagingTrueMarkCode = x
 				}).ToList();
+
+			foreach(var code in allCodes)
+			{
+				if(code.StagingTrueMarkCode.ParentCodeId.HasValue)
+				{
+					code.Parent = allCodes.FirstOrDefault(x => x.StagingTrueMarkCode.Id == code.StagingTrueMarkCode.ParentCodeId.Value);
+				}
+
+				var children = allCodes
+					.Where(x => x.StagingTrueMarkCode.ParentCodeId != null && x.StagingTrueMarkCode.ParentCodeId == code.StagingTrueMarkCode.Id);
+
+				code.Children = children.ToList();
+			}
+
+			_scannedStagingCodesOrigin = allCodes.Where(x => x.Parent == null).ToList();
 		}
 
 		private void FilterCodes()

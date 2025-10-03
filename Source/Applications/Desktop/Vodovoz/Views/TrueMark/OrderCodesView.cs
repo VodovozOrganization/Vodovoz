@@ -316,9 +316,15 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
-			// staging tableytreeviewPool.Binding.AddSource(ViewModel)
+			// staging table
+			var stagingRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
+				x => x.Parent,
+				x => x.Children);
+			ytreeviewStaging.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewStaging.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ScannedStagingCodes, w => w.ItemsDataSource)
+				.AddFuncBinding(
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedStagingCodes, selfdeliveryRecursiveConfig),
+					w => w.YTreeModel)
 				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
