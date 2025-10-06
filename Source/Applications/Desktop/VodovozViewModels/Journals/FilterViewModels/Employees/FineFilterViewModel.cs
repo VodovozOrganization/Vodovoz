@@ -36,7 +36,7 @@ namespace Vodovoz.FilterViewModels.Employees
 		private Employee _author;
 		private bool _canEditAuthor;
 
-		private List<EmployeeFineCategoryNode> _fineTypeNodes = EnumHelper.GetValuesList<FineTypes>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
+		private List<EmployeeFineCategoryNode> _fineCategoryNodes = EnumHelper.GetValuesList<FineTypes>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
 
 
 		public FineFilterViewModel()
@@ -171,7 +171,7 @@ namespace Vodovoz.FilterViewModels.Employees
 				.ToArray();
 			set
 			{
-				foreach(var category in _fineTypeNodes.Where(x => value.Contains(x.FineCategory)))
+				foreach(var category in _fineCategoryNodes.Where(x => value.Contains(x.FineCategory)))
 				{
 					category.Selected = true;
 				}
@@ -181,11 +181,11 @@ namespace Vodovoz.FilterViewModels.Employees
 
 		public List<EmployeeFineCategoryNode> FineCategoryNodes
 		{
-			get => _fineTypeNodes;
+			get => _fineCategoryNodes;
 			set
 			{
 				UnsubscribeOnFineCategoryChanged();
-				_fineTypeNodes = value;
+				_fineCategoryNodes = value;
 				SubscribeOnFineCategoryChanged();
 			}
 		}
@@ -213,13 +213,13 @@ namespace Vodovoz.FilterViewModels.Employees
 
 		public void SelectAllFineCategories()
 		{
-			_fineTypeNodes.ForEach(x => x.Selected = true);
+			_fineCategoryNodes.ForEach(x => x.Selected = true);
 			Update();
 		}
 
 		public void DeselectAllFineCategories()
 		{
-			_fineTypeNodes.ForEach(x => x.Selected = false);
+			_fineCategoryNodes.ForEach(x => x.Selected = false);
 			Update();
 		}
 

@@ -12,11 +12,13 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
@@ -51,13 +53,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			_employeeJournalFactory.SetEmployeeFilterViewModel(_employeeFilter);
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
-			AvailableFineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
-
-
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			AllStatusCommand = new DelegateCommand(AllStatus);
+			NoneStatusCommand = new DelegateCommand(NoneStatus);
+
+			FineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
+
+			foreach(var fine in Enum.GetValues(typeof(FineTypes)))
+			{
+				var fineNode = new EmployeeFineCategoryNode((FineTypes)fine) { Selected = true };
+				FineCategories.Add(fineNode);
+			}
 		}
 
 		public DelegateCommand GenerateReportCommand;
+		public DelegateCommand AllStatusCommand;
+		public DelegateCommand NoneStatusCommand;
 
 		public virtual DateTime? StartDate
 		{
@@ -109,7 +120,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 
-		public GenericObservableList<EmployeeFineCategoryNode> AvailableFineCategories { get; private set; }
+		public GenericObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
 
 		public List<FineTypes> SelectedFineCategory
 		{
@@ -145,6 +156,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				parameters.Add("showbottom", false);
 				parameters.Add("routelist", 0);
 				parameters.Add("category", GetCategory());
+
+				parameters.Add("fineCategories", FineCategories.Any(x => x.Selected) 
+					? string.Join(",", FineCategories.Where(x => x.Selected).Select(x => x.FineCategory)) 
+					: "");
 
 				return parameters;
 			}
@@ -193,14 +208,22 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			return cat;
 		}
 
-		public void SelectAllFineTypes()
+		private void NoneStatus()
 		{
-			SelectedFineCategory = AvailableFineCategories.ToList().Select(x => x.FineCategory).ToList();
+			foreach(var fineCategory in FineCategories)
+			{
+				var item = fineCategory;
+				item.Selected = false;
+			}
 		}
 
-		public void DeselectAllFineTypes()
+		private void AllStatus()
 		{
-			SelectedFineCategory.Clear();
+			foreach(var fineCategory in FineCategories)
+			{
+				var item = fineCategory;
+				item.Selected = true;
+			}
 		}
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

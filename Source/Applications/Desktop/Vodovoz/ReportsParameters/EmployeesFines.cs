@@ -37,19 +37,15 @@ namespace Vodovoz.Reports
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 
-			ytreeviewFineTypes.ItemsDataSource = ViewModel.AvailableFineCategories;
+			ytreeviewFineTypes.Binding
+				.AddBinding(ViewModel, x => x.FineCategories, x => x.ItemsDataSource)
+				.InitializeFromSource();
 
-			buttonStatusNone.Clicked += (sender, args) =>
-			{
-				ViewModel.DeselectAllFineTypes();
-				ytreeviewFineTypes.YTreeModel.EmitModelChanged();
-			};
+			ytreeviewFineTypes.HeadersVisible = false;
 
-			buttonStatusAll.Clicked += (sender, args) =>
-			{
-				ViewModel.SelectAllFineTypes();
-				ytreeviewFineTypes.YTreeModel.EmitModelChanged();
-			};
+			buttonStatusNone.Clicked += (sender, args) => ViewModel.NoneStatusCommand.Execute();
+
+			buttonStatusAll.Clicked += (sender, args) => ViewModel.AllStatusCommand.Execute();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddSource(ViewModel)
