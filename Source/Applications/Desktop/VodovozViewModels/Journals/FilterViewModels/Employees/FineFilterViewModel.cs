@@ -1,9 +1,18 @@
-﻿using QS.Project.Filter;
+﻿using Microsoft.AspNetCore.Http;
+using MoreLinq.Extensions;
+using QS.Project.Filter;
+using QS.Utilities.Enums;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -26,6 +35,9 @@ namespace Vodovoz.FilterViewModels.Employees
 		private bool _canEditFilter;
 		private Employee _author;
 		private bool _canEditAuthor;
+
+		private List<EmployeeFineCategoryNode> _fineTypeNodes = EnumHelper.GetValuesList<FineTypes>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
+
 
 		public FineFilterViewModel()
 		{
@@ -151,6 +163,51 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
+
+		public List<EmployeeFineCategoryNode> FineCategoryNodes
+		{
+			get => _fineTypeNodes;
+			set
+			{
+				UnsubscribeOnFineCategoryChanged();
+				_fineTypeNodes = value;
+				SubscribeOnFineCategoryChanged();
+			}
+		}
+
+		private void SubscribeOnFineCategoryChanged()
+		{
+			foreach(var node in FineCategoryNodes)
+			{
+				node.PropertyChanged += OnCategoryCheckChanged;
+			}
+		}
+
+		private void UnsubscribeOnFineCategoryChanged()
+		{
+			foreach(var node in FineCategoryNodes)
+			{
+				node.PropertyChanged -= OnCategoryCheckChanged;
+			}
+		}
+
+		private void OnCategoryCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Update();
+		}
+
+		public void SelectAllFineCategories()
+		{
+			_fineTypeNodes.ForEach(x => x.Selected = true);
+			Update();
+		}
+
+		public void DeselectAllFineCategories()
+		{
+			_fineTypeNodes.ForEach(x => x.Selected = false);
+			Update();
+		}
+
 
 		public override void Dispose()
 		{

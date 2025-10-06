@@ -6,12 +6,17 @@ using QS.Report.ViewModels;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
@@ -25,6 +30,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		private bool _categoryDriver;
 		private bool _categoryForwarder;
 		private bool _categoryOffice;
+		private List<FineTypes> _selectedFineTypes = new List<FineTypes>();
 
 		public EmployeesFinesViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -44,6 +50,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			_employeeFilter.Status = EmployeeStatus.IsWorking;
 			_employeeJournalFactory.SetEmployeeFilterViewModel(_employeeFilter);
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+
+			AvailableFineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
+
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
@@ -99,6 +108,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		}
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
+
+		public GenericObservableList<EmployeeFineCategoryNode> AvailableFineCategories { get; private set; }
+
+		public List<FineTypes> SelectedFineCategory
+		{
+			get => _selectedFineTypes;
+			set => SetField(ref _selectedFineTypes, value);
+		}
 
 		protected override Dictionary<string, object> Parameters
 		{
@@ -174,6 +191,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			}
 
 			return cat;
+		}
+
+		public void SelectAllFineTypes()
+		{
+			SelectedFineCategory = AvailableFineCategories.ToList().Select(x => x.FineCategory).ToList();
+		}
+
+		public void DeselectAllFineTypes()
+		{
+			SelectedFineCategory.Clear();
 		}
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

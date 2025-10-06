@@ -25,6 +25,8 @@ using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Search;
+using Gamma.Utilities;
+
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -198,8 +200,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
+					.Select(() => fineAlias.FineType).WithAlias(() => resultAlias.FineCategory)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
@@ -241,6 +244,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.Id,
 								   row.Date,
 								   row.FinedEmployeesNames,
+								   FineTypeName = row.FineCategory.GetEnumTitle(),
 								   row.FineSum,
 								   row.FineReason,
 								   row.AuthorName,

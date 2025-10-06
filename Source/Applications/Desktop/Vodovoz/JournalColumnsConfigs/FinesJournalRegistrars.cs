@@ -12,6 +12,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			config.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 				.AddColumn("Сотрудники").AddTextRenderer(node => node.FinedEmployeesNames)
+				.AddColumn("Категория штрафа").AddEnumRenderer(node => node.FineCategory)
 				.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSum.ToString(CultureInfo.CurrentCulture))
 				.AddColumn("Причина штрафа")
 					.AddTextRenderer(node => node.FineReason)

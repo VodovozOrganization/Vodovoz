@@ -11,10 +11,10 @@ namespace Vodovoz.Journals.JournalNodes
 		public DateTime Date { get; set; }
 
 		public string FinedEmployeesNames { get; set; }
+		public FineTypes FineCategory { get; set; }
+		public decimal FineSum { get; set; }
 
 		public string FineReason { get; set; }
-
-		public decimal FineSum { get; set; }
 
 		public string AuthorName { get; set; }
 
