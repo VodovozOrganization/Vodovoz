@@ -42,7 +42,13 @@ FROM
 		-- Расчет зп
 		ROUND(drivers_info_and_wages.moneySum, 0) AS salary_fact,
 		ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) AS salary_fact_avg,
-		ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary
+		ROUND(drivers_info_and_wages.moneySum / drivers_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary,
+        (CASE
+            WHEN DATEDIFF(CURRENT_DATE(), drivers_info_and_wages.frlDate) &lt;= 60 THEN 'I'
+            WHEN DATEDIFF(CURRENT_DATE(), drivers_info_and_wages.frlDate) &lt;= 120 THEN 'II'
+            WHEN DATEDIFF(CURRENT_DATE(), drivers_info_and_wages.frlDate) &lt;= 365 THEN 'III'
+            ELSE 'IV'
+        END) AS driver_category
 	FROM
 		(SELECT
 			empl.id AS emplID,
@@ -262,7 +268,8 @@ FROM
 		#master.planDriverSum,
 		ROUND(forwarders_info_and_wages.moneySum, 0) AS salary_fact,
 		ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) AS salary_fact_avg,
-		ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary
+		ROUND(forwarders_info_and_wages.moneySum / forwarders_bottles_and_work_days.countWD, 0) * 22 AS estimated_salary,
+		'-' AS driver_category
 	FROM
 		(SELECT
 			empl.id AS emplID,
@@ -436,6 +443,10 @@ ORDER BY
           <DataField>empl_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="driver_category">
+          <DataField>driver_category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="empl_name">
           <DataField>empl_name</DataField>
           <TypeName>System.String</TypeName>
@@ -572,19 +583,22 @@ ORDER BY
             <Width>81.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.7pt</Width>
+            <Width>25pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.8pt</Width>
+            <Width>25pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.7pt</Width>
+            <Width>45pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.7pt</Width>
+            <Width>30pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
@@ -656,7 +670,7 @@ ORDER BY
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>6</ColSpan>
+                  <ColSpan>7</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -899,6 +913,24 @@ ORDER BY
                   <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>КС</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>КВ</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1232,6 +1264,24 @@ ORDER BY
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>=Fields!category.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>=Fields!driver_category.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
