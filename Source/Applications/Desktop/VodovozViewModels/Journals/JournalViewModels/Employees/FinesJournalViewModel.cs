@@ -164,6 +164,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
+			if(_filterViewModel.SelectedFineCategories != null)
+			{
+				query.WhereRestrictionOn(() => fineAlias.FineType).IsIn(_filterViewModel.SelectedFineCategories);
+			}	
+
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAliase = null;
 			Fine finesAlias = null;

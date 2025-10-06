@@ -158,10 +158,25 @@ namespace Vodovoz.FilterViewModels.Employees
 			set => SetField(ref _canEditAuthor, value);
 		}
 
+
 		public virtual Employee Author
 		{
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
+		}
+		public virtual FineTypes[] SelectedFineCategories
+		{
+			get => FineCategoryNodes.Where(x => x.Selected)
+				.Select(x => x.FineCategory)
+				.ToArray();
+			set
+			{
+				foreach(var category in _fineTypeNodes.Where(x => value.Contains(x.FineCategory)))
+				{
+					category.Selected = true;
+				}
+				OnPropertyChanged(nameof(SelectedFineCategories));
+			}
 		}
 
 		public List<EmployeeFineCategoryNode> FineCategoryNodes
