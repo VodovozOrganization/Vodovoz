@@ -1326,6 +1326,10 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
+      <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
+      <Name>ResourceLocker.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
       <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
       <Name>DateTimeHelpers</Name>
