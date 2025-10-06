@@ -26,6 +26,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
+			//Для возможности изменения пустых МЛ
+			ValidationContext.Items.Add(
+				Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders,
+				true);
 
 			TabName = $"Изменение макс. кол-ва заказов ДЗЧ для МЛ №{Entity.Id}";
 		}
