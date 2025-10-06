@@ -38,7 +38,6 @@ namespace Vodovoz.FilterViewModels.Employees
 
 		private List<EmployeeFineCategoryNode> _fineCategoryNodes = EnumHelper.GetValuesList<FineTypes>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
 
-
 		public FineFilterViewModel()
 		{
 			CanEditFilter = true;

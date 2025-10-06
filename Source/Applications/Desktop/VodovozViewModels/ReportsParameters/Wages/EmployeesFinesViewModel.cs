@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using MoreLinq;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
@@ -122,12 +123,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public GenericObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
 
-		public List<FineTypes> SelectedFineCategory
-		{
-			get => _selectedFineTypes;
-			set => SetField(ref _selectedFineTypes, value);
-		}
-
 		protected override Dictionary<string, object> Parameters
 		{
 			get
@@ -208,23 +203,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			return cat;
 		}
 
-		private void NoneStatus()
-		{
-			foreach(var fineCategory in FineCategories)
-			{
-				var item = fineCategory;
-				item.Selected = false;
-			}
-		}
+		private void AllStatus() => FineCategories.ForEach(x => x.Selected = true);
 
-		private void AllStatus()
-		{
-			foreach(var fineCategory in FineCategories)
-			{
-				var item = fineCategory;
-				item.Selected = true;
-			}
-		}
+		private void NoneStatus() => FineCategories.ForEach(x => x.Selected = false);
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
