@@ -641,17 +641,19 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure<IEnumerable<TrueMarkAnyCode>>(TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(instanceStatus.OwnerInn));
 				}
 
-				if(instanceStatus.GeneralPackageType == GeneralPackageType.Box)
+				switch (instanceStatus.GeneralPackageType)
 				{
-					newCodes.Add(_trueMarkTransportCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
-				}
-				else if(instanceStatus.GeneralPackageType == GeneralPackageType.Group)
-				{
-					newCodes.Add(_trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
-				}
-				else if(instanceStatus.GeneralPackageType == GeneralPackageType.Unit)
-				{
-					newCodes.Add(_trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+					case GeneralPackageType.Box:
+						newCodes.Add(_trueMarkTransportCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+						break;
+					case GeneralPackageType.Group:
+						newCodes.Add(_trueMarkWaterGroupCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+						break;
+					case GeneralPackageType.Unit:
+						newCodes.Add(_trueMarkWaterIdentificationCodeFactory.CreateFromProductInstanceStatus(instanceStatus));
+						break;
+					default:
+						return Result.Failure<IEnumerable<TrueMarkAnyCode>>(TrueMarkCodeErrors.UnknownPackageType);
 				}
 			}
 
