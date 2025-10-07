@@ -100,7 +100,7 @@ namespace Vodovoz.Application.TrueMark
 
 		public TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode)
 		{
-			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out TrueMarkWaterCode parsedCode);
+			var isScannedCodeValid = _trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode);
 
 			TrueMarkWaterIdentificationCode codeEntity;
 
@@ -348,7 +348,7 @@ namespace Vodovoz.Application.TrueMark
 			return TrueMarkCodeErrors.MissingPersistedTrueMarkCode;
 		}
 
-		public Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(IUnitOfWork uow, TrueMarkWaterCode parsedCode)
+		private Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(IUnitOfWork uow, TrueMarkWaterCode parsedCode)
 		{
 			return TryGetSavedTrueMarkCodeByGtinAndSerialNumber(uow, parsedCode.Gtin, parsedCode.SerialNumber);
 		}
@@ -415,8 +415,8 @@ namespace Vodovoz.Application.TrueMark
 			try
 			{
 				var requestCode = parsedCode is null ? scannedCode : _trueMarkWaterCodeParser.GetWaterIdentificationCode(parsedCode);
-
-				productInstanceInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(new string[] { requestCode }, cancellationToken);
+				
+				productInstanceInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(new[] { requestCode }, cancellationToken);
 
 				if(!(productInstanceInfo.InstanceStatuses?.FirstOrDefault() is ProductInstanceStatus productInstanceStatus))
 				{
@@ -443,7 +443,7 @@ namespace Vodovoz.Application.TrueMark
 				return Result.Failure<TrueMarkAnyCode>(Errors.TrueMarkApi.ErrorResponse);
 			}
 
-			ProductInstanceStatus instanceStatus = productInstanceInfo.InstanceStatuses.FirstOrDefault();
+			var instanceStatus = productInstanceInfo.InstanceStatuses.FirstOrDefault();
 
 			if(instanceStatus == null)
 			{
@@ -464,11 +464,13 @@ namespace Vodovoz.Application.TrueMark
 				case GeneralPackageType.Unit:
 					trueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromParsedCode(parsedCode);
 					break;
+				default:
+					return Result.Failure<TrueMarkAnyCode>(TrueMarkCodeErrors.UnknownPackageType);
 			}
 
 			if(trueMarkAnyCode.IsTrueMarkWaterGroupCode || trueMarkAnyCode.IsTrueMarkTransportCode)
 			{
-				var createCodesResult = await CreateCodesAsync(_trueMarkApiClient, new ProductInstanceStatus[] { instanceStatus }, cancellationToken);
+				var createCodesResult = await CreateCodesAsync(_trueMarkApiClient, new[] { instanceStatus }, cancellationToken);
 
 				if(createCodesResult.IsFailure)
 				{
@@ -607,8 +609,8 @@ namespace Vodovoz.Application.TrueMark
 
 			ProductInstanceStatus[] innerCodesCheckResults = null;
 
-			List<TrueMarkAnyCode> newCodes = new List<TrueMarkAnyCode>();
-			List<TrueMarkAnyCode> newInnerCodes = new List<TrueMarkAnyCode>();
+			var newCodes = new List<TrueMarkAnyCode>();
+			var newInnerCodes = new List<TrueMarkAnyCode>();
 
 			try
 			{
