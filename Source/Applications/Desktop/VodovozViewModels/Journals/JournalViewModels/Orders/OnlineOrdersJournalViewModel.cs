@@ -294,6 +294,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == _filterViewModel.GeographicGroup.Id));
 			}
 
+			if(_filterViewModel.WithoutDeliverySchedule)
+			{
+				query.Where(() => onlineOrderAlias.DeliverySchedule.Id == null);
+			}
+
 			#endregion
 
 			query.Where(_filterViewModel.SearchByAddressViewModel?.GetSearchCriterion(
@@ -382,7 +387,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null
-				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+				|| _filterViewModel.WithoutDeliverySchedule)
 			{
 				query.Where(r => r.Id == null);
 			}
