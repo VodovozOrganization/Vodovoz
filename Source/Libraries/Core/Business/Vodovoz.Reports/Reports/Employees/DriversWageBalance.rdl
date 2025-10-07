@@ -1882,7 +1882,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>Водители фургонов компании</Value>
+                      <Value>Водители Transit Mini компании</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
