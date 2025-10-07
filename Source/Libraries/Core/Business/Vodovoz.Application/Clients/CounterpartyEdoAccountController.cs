@@ -22,17 +22,11 @@ namespace Vodovoz.Application.Clients
 		{
 			if(!organizationId.HasValue)
 			{
-				return client.DefaultEdoAccount(_organizationSettings.VodovozOrganizationId);
+				return GetDefaultEmptyEdoAccount(client);
 			}
 			
 			var counterpartyEdoAccount = client.DefaultEdoAccount(organizationId.Value);
-
-			if(counterpartyEdoAccount is null)
-			{
-				counterpartyEdoAccount = client.DefaultEdoAccount(_organizationSettings.VodovozOrganizationId);
-			}
-			
-			return counterpartyEdoAccount;
+			return counterpartyEdoAccount ?? GetDefaultEmptyEdoAccount(client);
 		}
 		
 		public void AddDefaultEdoAccountsToCounterparty(Counterparty client)
@@ -66,5 +60,8 @@ namespace Vodovoz.Application.Clients
 				client.CounterpartyEdoAccounts.Add(edoAccount);
 			}
 		}
+		
+		private CounterpartyEdoAccount GetDefaultEmptyEdoAccount(Counterparty client) =>
+			CounterpartyEdoAccount.Create(client, null, null, 0, true);
 	}
 }

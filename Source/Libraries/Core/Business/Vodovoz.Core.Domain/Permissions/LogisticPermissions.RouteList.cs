@@ -68,6 +68,14 @@ namespace Vodovoz.Core.Domain.Permissions
 				Name = "Логистика. Создание МЛ. Создание МЛ без заказов",
 				Description = "Пользователь может создавать МЛ без заказов")]
 			public static string CanCreateRouteListWithoutOrders => "can_create_route_list_without_orders";
+
+			/// <summary>
+			/// Возможность изменять водителя в диалоге создания МЛ
+			/// </summary>
+			[Display(
+				Name = "Возможность изменять водителя в диалоге создания МЛ",
+				Description = "Пользователь может изменить водителя в новом МЛ")]
+			public static string CanChangeDriverInRouteList => "can_change_driver_in_route_list";
 		}
 	}
 }

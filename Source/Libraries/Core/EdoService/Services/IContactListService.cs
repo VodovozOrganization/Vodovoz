@@ -11,7 +11,8 @@ namespace EdoService.Library.Services
 	{
 		Task<ContactList> CheckContragentAsync(IUnitOfWork uow, int organizationId, string inn, string kpp);
 		Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, int organizationId, DateTime dateLastRequest, ContactStateCode? status = null);
-		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, int organizationId, string inn, string kpp, string email, string edxClientId);
+		Task<ResultDto> SendContactsAsync(
+			IUnitOfWork uow, int organizationId, string inn, string kpp, string email, string edxClientId, string organizationName);
 		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, int organizationId, ContactList invitationsList);
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
 		Task<ResultDto> SendContactsForManualInvitationAsync(

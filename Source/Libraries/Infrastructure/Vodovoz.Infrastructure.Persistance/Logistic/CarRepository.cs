@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
@@ -364,12 +363,31 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		public async Task<IDictionary<int, string>> GetDriversNamesByCars(
 			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
 		{
+			var carsQuery = unitOfWork.Session.Query<Car>()
+				.Where(car => carsIds.Contains(car.Id));
+
+			var routeListsQuery = unitOfWork.Session.Query<RouteList>()
+				.Where(rl => carsIds.Contains(rl.Car.Id));
+
 			var driversNames =
-				from car in unitOfWork.Session.Query<Car>()
+				from car in carsQuery
 				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
 				from driver in drivers.DefaultIfEmpty()
-				where carsIds.Contains(car.Id)
-				select new { CarId = car.Id, DriverName = driver == null ? "-" : driver.ShortName };
+				let lastRouteListDriver = (
+					from rl in routeListsQuery
+					where rl.Car.Id == car.Id
+					orderby rl.Date descending
+					select rl.Driver
+				).FirstOrDefault()
+				select new
+				{
+					CarId = car.Id,
+					DriverName = driver != null
+						? driver.ShortName
+						: lastRouteListDriver != null
+							? $"МЛ: {lastRouteListDriver.ShortName}"
+							: "Нет МЛ"
+				};
 
 			return (await driversNames.ToListAsync(cancellationToken))
 				.GroupBy(g => g.CarId)
@@ -400,6 +418,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				);
 
 			return carVersionsData;
+		}
+
+		public void ArchiveCar(IUnitOfWork uow, Car car, ArchivingReason reason)
+		{
+			if(car == null)
+			{
+				throw new ArgumentNullException(nameof(car));
+			}
+
+			car.IsArchive = true;
+			car.ArchivingDate = DateTime.Now;
+			car.ArchivingReason = reason;
+			uow.Save(car);
 		}
 
 		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>

@@ -284,7 +284,10 @@ namespace Vodovoz.ViewModels.Logistic
 			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
 			&& CanSave;
 
-		public bool CanChangeDriver => CanAccept
+		public bool CanChangeDriver => 
+			_currentPermissionService.ValidatePresetPermission(
+				Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeDriverInRouteList)
+			&& CanAccept
 			&& Entity.Car != null;
 
 		public bool CanChangeForwarder => CanAccept
@@ -443,13 +446,25 @@ namespace Vodovoz.ViewModels.Logistic
 		public void OnCarChangedByUser(object sender, EventArgs e)
 		{
 			var isCompanyCar = Entity.GetCarVersion?.IsCompanyCar ?? false;
-
+			 
 			Entity.Driver = Entity.Car?.Driver != null
 				&& Entity.Car?.Driver.Status != EmployeeStatus.IsFired
 					? Entity.Car?.Driver
 					: null;
 
 			DriverViewModel.IsEditable = Entity.Driver == null || isCompanyCar;
+
+			if(!CanChangeDriver 
+				&& Entity.Car != null 
+				&& Entity.Car.Driver == null)
+			{
+				Entity.Car = null;
+
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"К выбранному автомобилю не прикреплен водитель. Необходимо прикрепить водителя вручную.",
+					"Предупреждение");
+			}
 
 			if(!isCompanyCar
 				|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
@@ -834,7 +849,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				{ "NewStatus", RouteListStatus.Confirmed },
 				{ nameof(IRouteListItemRepository), _routeListItemRepository },
-				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
+				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(routeList, null, contextItems);
@@ -843,7 +858,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
- 
+
 			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
 
 			//Строим маршрут для МЛ.

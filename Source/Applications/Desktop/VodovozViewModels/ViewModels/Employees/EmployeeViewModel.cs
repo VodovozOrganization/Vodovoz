@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using NLog;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -53,7 +52,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
@@ -71,6 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly ICarRepository _carRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
@@ -99,7 +98,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private TerminalManagementViewModel _terminalManagementViewModel;
 		private DateTime? _selectedRegistrationDate;
 		private EmployeeRegistrationVersion _selectedRegistrationVersion;
-		private bool _showWarehouseAppCredentials;
 		private bool _counterpartyChangedByUser;
 		private bool _statusChangedByUser;
 
@@ -138,6 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IValidationContextFactory validationContextFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
+			ICarRepository carRepository,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
@@ -168,6 +167,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
@@ -1212,7 +1212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_validationContext.ServiceContainer.AddService(typeof(IEmployeeRepository), _employeeRepository);
 			_validationContext.ServiceContainer.AddService(typeof(IUserRepository), _userRepository);
 		}
-		
+
 		public void SaveAndClose()
 		{
 			if(!HasChanges)
@@ -1221,6 +1221,20 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				return;
 			}
 
+			if(Entity.Category == EmployeeCategory.driver
+				&& Entity.Status == EmployeeStatus.IsFired 
+				&& Entity.DriverOfCarOwnType == Domain.Logistic.Cars.CarOwnType.Driver)
+			{
+				var car = _carRepository.GetCarByDriver(UoW, Entity);
+				if(car != null && _interactiveService.Question(
+					$"К этому сотруднику привязан автомобиль:\n{car.FullTitle}"
+					+ "\n\nАрхивировать данный автомобиль?",
+					"Подтверждение"))
+				{
+					_carRepository.ArchiveCar(UoW, car, Domain.Logistic.Cars.ArchivingReason.Hired);
+				}
+			}
+			
 			if(Save())
 			{
 				EntitySaved?.Invoke(this, new EntitySavedEventArgs(UoW.RootObject));

@@ -66,6 +66,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
 				.AddColumn("Код документооборота")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)

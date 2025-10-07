@@ -24,7 +24,8 @@ namespace Vodovoz.Core.Domain.Clients
 			NominativePlural = "контрагенты",
 			Nominative = "контрагент",
 			Accusative = "контрагента",
-			Genitive = "контрагента"
+			Genitive = "контрагента",
+			GenitivePlural = "контрагентов"
 		)
 	]
 	[HistoryTrace]

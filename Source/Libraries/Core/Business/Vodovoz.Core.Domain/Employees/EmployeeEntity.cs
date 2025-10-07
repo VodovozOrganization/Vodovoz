@@ -13,7 +13,8 @@ namespace Vodovoz.Core.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
-		Nominative = "сотрудник")]
+		Nominative = "сотрудник",
+		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class EmployeeEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto

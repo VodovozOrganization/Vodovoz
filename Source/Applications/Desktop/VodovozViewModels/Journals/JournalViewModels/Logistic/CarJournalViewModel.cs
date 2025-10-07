@@ -301,6 +301,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(Restrictions.IsNull(Projections.Property(() => currentCarVersion.CarOwnerOrganization.Id)));
 			}
 
+			if(!(_filterViewModel.IsUsedInDelivery && _filterViewModel.IsNotUsedInDelivery))
+			{
+				var isUsedInDeliveryRestirctions = Restrictions.Disjunction();
+
+				if(_filterViewModel.IsUsedInDelivery)
+				{
+					isUsedInDeliveryRestirctions.Add(Restrictions.Eq(Projections.Property(() => carAlias.IsUsedInDelivery), true));
+				}
+
+				if(_filterViewModel.IsNotUsedInDelivery)
+				{
+					isUsedInDeliveryRestirctions.Add(Restrictions.Eq(Projections.Property(() => carAlias.IsUsedInDelivery), false));
+				}
+				query.Where(isUsedInDeliveryRestirctions);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,

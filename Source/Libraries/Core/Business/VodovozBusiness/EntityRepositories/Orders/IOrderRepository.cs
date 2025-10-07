@@ -184,6 +184,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetAllocationsToOrdersWithAnotherClient(
+			IUnitOfWork uow, int counterpartyId, string counterpartyInn, IEnumerable<int> exceptOrderIds);
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);

@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -26,6 +31,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// Тип авто
 			/// </summary>
 			public string CarType { get; set; }
+			
+			/// <summary>
+			/// Принадлежность авто
+			/// </summary>
+			public string CarOwnType{ get; set; }
 
 			/// <summary>
 			/// Тип авто с географической группой
@@ -41,6 +51,35 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// время / описание поломки
 			/// </summary>
 			public string TimeAndBreakdownReason { get; set; }
+
+			/// <summary>
+			/// Зона ответственности
+			/// </summary>
+			public List<AreaOfResponsibility?> AreasOfResponsibility { get; set; } = new List<AreaOfResponsibility?>();
+
+			/// <summary>
+			/// Короткое имя зоны ответственности для отчёта/UI
+			/// </summary>
+			public string AreasOfResponsibilityShortNames
+			{
+				get
+				{
+					return AreasOfResponsibility == null || !AreasOfResponsibility.Any()
+						? "Простой"
+						: string.Join(", ",
+						AreasOfResponsibility
+							.Where(a => a.HasValue)
+							.Select(a =>
+							{
+								var member = typeof(AreaOfResponsibility).GetMember(a.Value.ToString()).FirstOrDefault();
+								var displayAttr = member?.GetCustomAttribute<DisplayAttribute>();
+								return !string.IsNullOrWhiteSpace(displayAttr?.ShortName)
+									? displayAttr.ShortName
+									: a.Value.ToString();
+							})
+					);
+				}
+			}
 
 			/// <summary>
 			/// Планируемая дата выпуска автомобиля на линию

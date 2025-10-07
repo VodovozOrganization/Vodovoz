@@ -42,6 +42,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 
 		/// <summary>
+		/// Архивирование автомобиля с указанием причины
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="car"></param>
+		/// <param name="reason"></param>
+		void ArchiveCar(IUnitOfWork uow, Car car, ArchivingReason reason);
+
+		/// <summary>
 		/// Получение типов использования автомобилей за указанный период
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

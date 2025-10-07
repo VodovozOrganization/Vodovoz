@@ -116,7 +116,13 @@ namespace EdoService.Library.Services
 		}
 
 		public async Task<ResultDto> SendContactsAsync(
-			IUnitOfWork uow, int organizationId, string inn, string kpp, string email, string edxClientId)
+			IUnitOfWork uow,
+			int organizationId,
+			string inn,
+			string kpp,
+			string email,
+			string edxClientId,
+			string organizationName)
 		{
 			var invitationsList = new ContactList
 			{
@@ -128,7 +134,7 @@ namespace EdoService.Library.Services
 						Kpp = kpp,
 						Email = email,
 						EdxClientId = Regex.Replace(edxClientId, @"\s+", string.Empty),
-						Comment = "Компания Весёлый водовоз приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+						Comment = $"{organizationName} приглашает Вас к электронному обмену документами"
 					}
 				}
 			};
@@ -160,7 +166,7 @@ namespace EdoService.Library.Services
 						OperatorId = operatorId,
 						ScanFilename = scanFileName,
 						Scan = Convert.ToBase64String(scanFile),
-						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену по типу продукции \"Питьевая вода.\""
+						Comment = $"Компания {organizationName} приглашает Вас к электронному обмену документами"
 					}
 				}
 			};
