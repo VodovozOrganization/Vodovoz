@@ -35,6 +35,7 @@
                 employees.patronymic)) AS employee,
     money,
     fines.date,
+    fines.fine_type as category,
     CASE
         WHEN
             store_inventory_item.id IS NOT NULL
@@ -89,9 +90,10 @@ FROM
         OR store_writeoff_document_items.nomenclature_id = nomenclature.id
         OR store_regrading_of_goods_items.nomenclature_old_id = nomenclature.id
 WHERE
-    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND (@category = '-1' OR employees.category = @category)) OR
-    (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)) OR
-    (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
+    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND (@category = '-1' OR employees.category = @category)) 
+    AND (@fineCategories = '' OR fines.fine_type IN(@fineCategories))
+    OR (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)) 
+    OR (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
 GROUP BY fines_items.id
 ORDER BY employee , date</CommandText>
         <QueryParameters>
@@ -132,6 +134,10 @@ ORDER BY employee , date</CommandText>
         </Field>
         <Field Name="comment">
           <DataField>comment</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -610,6 +616,13 @@ ORDER BY employee , date</CommandText>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="fineCategories">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

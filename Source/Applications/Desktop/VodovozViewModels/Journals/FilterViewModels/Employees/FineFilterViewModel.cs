@@ -36,7 +36,7 @@ namespace Vodovoz.FilterViewModels.Employees
 		private Employee _author;
 		private bool _canEditAuthor;
 
-		private List<EmployeeFineCategoryNode> _fineCategoryNodes = EnumHelper.GetValuesList<FineTypes>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
+		private List<EmployeeFineCategoryNode> _fineCategoryNodes = EnumHelper.GetValuesList<FineCategory>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
 
 		public FineFilterViewModel()
 		{
@@ -163,7 +163,7 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
-		public virtual FineTypes[] SelectedFineCategories
+		public virtual FineCategory[] SelectedFineCategories
 		{
 			get => FineCategoryNodes.Where(x => x.Selected)
 				.Select(x => x.FineCategory)

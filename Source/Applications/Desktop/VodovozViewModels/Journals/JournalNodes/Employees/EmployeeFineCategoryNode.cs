@@ -13,11 +13,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 			set => SetField(ref _selected, value);
 		}
 
-		public FineTypes FineCategory { get; }
+		public FineCategory FineCategory { get; }
 
 		public string Title => FineCategory.GetEnumTitle();
 
-		public EmployeeFineCategoryNode(FineTypes finecategory)
+		public EmployeeFineCategoryNode(FineCategory finecategory)
 		{
 			FineCategory = finecategory;
 		}

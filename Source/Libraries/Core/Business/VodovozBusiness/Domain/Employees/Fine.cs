@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.Employees
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private FineTypes _fineType;
+		private FineCategory? _fineCategory;
 		private DateTime _date = DateTime.Today;
 		private decimal _totalMoney;
 		private decimal _litersOverspending;
@@ -49,6 +50,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _fineType;
 			set => SetField(ref _fineType, value);
+		}
+
+		[Display(Name = "Категория штрафа")]
+		public virtual FineCategory? FineCategory
+		{
+			get => _fineCategory;
+			set => SetField(ref _fineCategory, value);
 		}
 
 		[Display(Name = "Дата")]
@@ -412,6 +420,11 @@ namespace Vodovoz.Domain.Employees
 			if(FineType == FineTypes.FuelOverspending && RouteList == null)
 			{
 				yield return new ValidationResult(string.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
+			}
+
+			if(!FineCategory.HasValue)
+			{
+				yield return new ValidationResult(string.Format("Невозможно сохранить изменения. Не выбрана категория штрафа"));
 			}
 
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines") && Id > 0)

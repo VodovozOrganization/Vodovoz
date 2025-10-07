@@ -166,7 +166,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 			if(_filterViewModel.SelectedFineCategories != null)
 			{
-				query.WhereRestrictionOn(() => fineAlias.FineType).IsIn(_filterViewModel.SelectedFineCategories);
+				query.WhereRestrictionOn(() => fineAlias.FineCategory).IsIn(_filterViewModel.SelectedFineCategories);
 			}	
 
 			CarEvent carEventAlias = null;
@@ -205,7 +205,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineType).WithAlias(() => resultAlias.FineCategory)
+					.Select(() => fineAlias.FineCategory).WithAlias(() => resultAlias.FineCategory)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
@@ -249,7 +249,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.Id,
 								   row.Date,
 								   row.FinedEmployeesNames,
-								   FineTypeName = row.FineCategory.GetEnumTitle(),
+								   FineCategoryName = row.FineCategory.GetEnumTitle(),
 								   row.FineSum,
 								   row.FineReason,
 								   row.AuthorName,

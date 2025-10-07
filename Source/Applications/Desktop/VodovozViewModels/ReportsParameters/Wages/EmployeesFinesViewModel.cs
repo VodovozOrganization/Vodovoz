@@ -7,19 +7,15 @@ using QS.Report.ViewModels;
 using QS.Validation;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
-using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
@@ -33,7 +29,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		private bool _categoryDriver;
 		private bool _categoryForwarder;
 		private bool _categoryOffice;
-		private List<FineTypes> _selectedFineTypes = new List<FineTypes>();
 
 		public EmployeesFinesViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -60,9 +55,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 			FineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
 
-			foreach(var fine in Enum.GetValues(typeof(FineTypes)))
+			foreach(var fine in Enum.GetValues(typeof(FineCategory)))
 			{
-				var fineNode = new EmployeeFineCategoryNode((FineTypes)fine) { Selected = true };
+				var fineNode = new EmployeeFineCategoryNode((FineCategory)fine) { Selected = true };
 				FineCategories.Add(fineNode);
 			}
 		}
