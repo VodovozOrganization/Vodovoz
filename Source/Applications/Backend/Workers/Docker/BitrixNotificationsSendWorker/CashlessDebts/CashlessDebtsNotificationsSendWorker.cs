@@ -1,4 +1,5 @@
 ﻿using BitrixNotificationsSend.Library.Options;
+using BitrixNotificationsSend.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,14 +32,14 @@ namespace BitrixNotificationsSendWorker.CashlessDebts
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
-
+			var notificationsSendService = scope.ServiceProvider.GetService<CashlessDebtsNotificationsSendService>();
 			var zabbixSender = scope.ServiceProvider.GetService<IZabbixSender>();
 
 			_logger.LogInformation("Запуск отправки данных по компаниям с долгом по безналу");
 
 			try
 			{
-
+				await notificationsSendService.SendNotifications(stoppingToken);
 			}
 			catch(Exception ex)
 			{

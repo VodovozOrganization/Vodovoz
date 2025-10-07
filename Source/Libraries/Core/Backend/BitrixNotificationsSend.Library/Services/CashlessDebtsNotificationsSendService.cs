@@ -1,11 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace BitrixNotificationsSend.Library.Services
 {
@@ -18,8 +22,8 @@ namespace BitrixNotificationsSend.Library.Services
 			ILogger<CashlessDebtsNotificationsSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task SendNotifications(CancellationToken cancellationToken)
@@ -33,6 +37,17 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
+				var query =
+					from order in uow.Session.Query<OrderEntity>()
+					join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
+					where
+						order.OrderPaymentStatus != OrderPaymentStatus.Paid
+						&& order.PaymentType == PaymentType.Cashless
+						&& client.PersonType == PersonType.legal
+					select order;
+
+				var orders = await query.ToListAsync(cancellationToken);
+
 				return Enumerable.Empty<CounterpartyCashlessDebtData>();
 			}
 		}
