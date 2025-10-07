@@ -32,16 +32,16 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.CategoryOffice, w => w.Active)
 				.InitializeFromSource();
 			
-			ytreeviewFineTypes.ColumnsConfig = FluentColumnsConfig<EmployeeFineCategoryNode>.Create()
+			ytreeviewFineCategory.ColumnsConfig = FluentColumnsConfig<EmployeeFineCategoryNode>.Create()
 				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategory.GetEnumTitle())
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 
-			ytreeviewFineTypes.Binding
+			ytreeviewFineCategory.Binding
 				.AddBinding(ViewModel, x => x.FineCategories, x => x.ItemsDataSource)
 				.InitializeFromSource();
 
-			ytreeviewFineTypes.HeadersVisible = false;
+			ytreeviewFineCategory.HeadersVisible = false;
 
 			buttonStatusNone.Clicked += (sender, args) => ViewModel.NoneStatusCommand.Execute();
 

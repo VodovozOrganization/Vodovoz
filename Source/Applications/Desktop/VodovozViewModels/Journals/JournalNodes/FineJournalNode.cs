@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
+using Gamma.Utilities;
 
 namespace Vodovoz.Journals.JournalNodes
 {
@@ -11,7 +12,15 @@ namespace Vodovoz.Journals.JournalNodes
 		public DateTime Date { get; set; }
 
 		public string FinedEmployeesNames { get; set; }
-		public FineTypes FineCategory { get; set; }
+		public FineCategory? FineCategory { get; set; }
+
+		public string FineCategoryName
+		{
+			get => FineCategory != null
+				? FineCategory.GetEnumTitle()
+				: "";
+		}
+
 		public decimal FineSum { get; set; }
 
 		public string FineReason { get; set; }

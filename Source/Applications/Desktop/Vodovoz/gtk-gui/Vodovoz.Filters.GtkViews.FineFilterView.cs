@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewFineCategories;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFineCategory;
 
 		private global::Gamma.GtkWidgets.yVBox yvbox1;
 
@@ -34,7 +34,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelFineTypes;
+		private global::Gamma.GtkWidgets.yLabel ylabelFineCategory;
 
 		protected virtual void Build()
 		{
@@ -118,17 +118,17 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table1.Gtk.Table+TableChild
 			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox1.Name = "yhbox1";
-			this.yhbox1.Spacing = 6;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewFineCategories = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewFineCategories.CanFocus = true;
-			this.ytreeviewFineCategories.Name = "ytreeviewFineTypes";
-			this.ytreeviewFineCategories.HeadersVisible = false;
-			this.GtkScrolledWindow.Add(this.ytreeviewFineCategories);
+			this.ytreeviewFineCategory = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFineCategory.CanFocus = true;
+			this.ytreeviewFineCategory.Name = "ytreeviewFineCategory";
+			this.ytreeviewFineCategory.HeadersVisible = false;
+			this.GtkScrolledWindow.Add(this.ytreeviewFineCategory);
 			this.yhbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.GtkScrolledWindow]));
 			w8.Position = 0;
@@ -194,11 +194,11 @@ namespace Vodovoz.Filters.GtkViews
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelFineTypes = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelFineTypes.Name = "ylabelFineTypes";
-			this.ylabelFineTypes.LabelProp = global::Mono.Unix.Catalog.GetString("Тип штрафа:");
-			this.table1.Add(this.ylabelFineTypes);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelFineTypes]));
+			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFineCategory.Name = "ylabelFineCategory";
+			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория:");
+			this.table1.Add(this.ylabelFineCategory);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelFineCategory]));
 			w15.TopAttach = ((uint)(1));
 			w15.BottomAttach = ((uint)(2));
 			w15.LeftAttach = ((uint)(2));

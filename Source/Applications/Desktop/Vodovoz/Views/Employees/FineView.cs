@@ -69,6 +69,8 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 			ybuttonDivideByAll.Clicked += (sender, e) => ViewModel.DivideByAllCommand.Execute();
 
+			yenumcomboboxFineCategory.ItemsEnum = typeof(FineCategory);
+
 			yentryFineReasonString.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.FineReasonString, w => w.Text)

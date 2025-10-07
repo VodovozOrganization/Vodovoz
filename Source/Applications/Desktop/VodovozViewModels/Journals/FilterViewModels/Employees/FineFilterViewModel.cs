@@ -165,12 +165,12 @@ namespace Vodovoz.FilterViewModels.Employees
 		}
 		public virtual FineCategory[] SelectedFineCategories
 		{
-			get => FineCategoryNodes.Where(x => x.Selected)
-				.Select(x => x.FineCategory)
+			get => FineCategoryNodes.Where(x => x.Selected && x.FineCategory.HasValue)
+				.Select(x => x.FineCategory.Value)
 				.ToArray();
 			set
 			{
-				foreach(var category in _fineCategoryNodes.Where(x => value.Contains(x.FineCategory)))
+				foreach(var category in _fineCategoryNodes.Where(x => x.FineCategory.HasValue && value.Contains(x.FineCategory.Value)))
 				{
 					category.Selected = true;
 				}
