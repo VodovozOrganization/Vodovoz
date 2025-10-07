@@ -301,7 +301,6 @@ namespace Vodovoz.Filters.GtkViews
 			this.chkOnlyWithoutDeliverySchedule.UseUnderline = true;
 			this.hboxCheckBoxFilters.Add(this.chkOnlyWithoutDeliverySchedule);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxCheckBoxFilters[this.chkOnlyWithoutDeliverySchedule]));
-			w16.PackType = ((global::Gtk.PackType)(1));
 			w16.Position = 6;
 			w16.Expand = false;
 			w16.Fill = false;
