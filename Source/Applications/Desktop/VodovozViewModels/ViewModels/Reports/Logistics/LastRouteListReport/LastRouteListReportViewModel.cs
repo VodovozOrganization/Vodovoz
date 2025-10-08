@@ -81,6 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				CarTypesOfUseForInclude = new[]
 				{
 					CarTypeOfUse.Largus,
+					CarTypeOfUse.Minivan,
 					CarTypeOfUse.GAZelle,
 					CarTypeOfUse.Truck
 

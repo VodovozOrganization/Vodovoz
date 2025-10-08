@@ -567,30 +567,31 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			int maxTransactionsCount;
 			decimal maxDailyFuelLimit;
 
-			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
+			switch (FuelDocument.Car?.CarModel?.CarTypeOfUse)
 			{
-				maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
-			{
-				maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
-			{
-				maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
-			{
-				maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
-			}
-			else
-			{
-				throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
-					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
+				case CarTypeOfUse.Largus:
+					maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.GAZelle:
+					maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Truck:
+					maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Loader:
+					maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Minivan:
+					maxTransactionsCount = _fuelControlSettings.MinivanFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.MinivanMaxDailyFuelLimit;
+					break;
+				default:
+					throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
+					                                    "Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
 			}
 
 			_fuelLimitMaxTransactionsCount = maxTransactionsCount;
