@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>fastpayment.api</ContainerRepository>
+  </PropertyGroup>
+</Project>
