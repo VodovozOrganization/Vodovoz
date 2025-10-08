@@ -36,7 +36,8 @@ namespace Vodovoz.FilterViewModels.Employees
 		private bool _canEditFilter;
 		private Employee _author;
 		private bool _canEditAuthor;
-		private IUnitOfWork _uow;
+
+		private readonly IUnitOfWork _uow;
 
 		private List<EmployeeFineCategoryNode> _fineCategoryNodes;
 
