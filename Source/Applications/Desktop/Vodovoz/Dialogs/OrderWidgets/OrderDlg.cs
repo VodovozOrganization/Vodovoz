@@ -576,7 +576,7 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true)
+				.CopyOrderItems(false, true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
@@ -609,6 +609,16 @@ namespace Vodovoz
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			SetLogisticsRequirementsCheckboxes();
+
+			var isCopiedOrderHasDiscountsWithoutPromosets =
+				copying.OrderItemsFromCopiedOrderHavingDiscountsWithoutPromosets
+				.Any(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
+
+			if(isCopiedOrderHasDiscountsWithoutPromosets)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					"Внимание!\nСкидки из исходного заказа не были скопированы.\nПри необходимости установите скидки заново");
+			}
 		}
 
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов

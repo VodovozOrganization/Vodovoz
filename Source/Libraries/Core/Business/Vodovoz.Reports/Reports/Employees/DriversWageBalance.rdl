@@ -33,7 +33,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>524.6pt</Height>
+    <Height>542.4pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>DriverBalance</DataSetName>
@@ -466,7 +466,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>6pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -493,7 +493,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>253.2pt</Top>
+        <Top>286.8pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_largus">
@@ -766,7 +766,7 @@
           </TableRows>
         </Details>
         <Left>1.6pt</Left>
-        <Top>329.4pt</Top>
+        <Top>358.2pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_forwarder">
@@ -875,7 +875,7 @@
           </TableColumn>
         </TableColumns>
         <Left>1.2pt</Left>
-        <Top>470.9pt</Top>
+        <Top>489.3pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="total">
@@ -1177,7 +1177,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>6pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1204,7 +1204,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>405.6pt</Top>
+        <Top>424.0pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_raskat">
@@ -1473,7 +1473,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>174.5pt</Top>
+        <Top>151.3pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_gazelle">
@@ -1745,7 +1745,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>94.9pt</Top>
+        <Top>83.7pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_truck">
@@ -1823,6 +1823,275 @@
                           </Style>
                           <Value>=sum({balance})</Value>
                           <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+      </Table>
+      <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>MinivanDriverBalance</DataSetName>
+        <NoRows>Водители ларгусов компании: Нет записей</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>30.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>220.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>224.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>77.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>Водители Transit Mini компании</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>Баланс</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>=Fields!driver.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox81">
+                      <Value>={comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>={balance}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>217.6pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="TableGroupGroup1">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox83">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>4</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox84">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox85">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
+                          </Style>
+                          <Value>=sum({balance})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1978,6 +2247,60 @@ WHERE wages_movement_operations.operation_time &lt;= @date
   AND wages_movement_operations.employee_id IN (@drivers)
   AND employees.category = 'driver'
   AND employees.driver_of_car_type_of_use = 'Largus'
+  AND employees.driver_of_car_own_type = 'Company'
+GROUP BY wages_movement_operations.employee_id
+HAVING balance &lt;&gt; 0
+ORDER BY driver;
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="drivers">
+            <Value>=Parameters!drivers</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="MinivanDriverBalance">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
+    employees.comment as comment,
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category,
+    IFNULL(geo_groups.name, 'Не указано') as parent_subdivision
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geo_groups ON geo_groups.id = subdivisions.geo_group_id
+WHERE wages_movement_operations.operation_time &lt;= @date
+  AND wages_movement_operations.employee_id IN (@drivers)
+  AND employees.category = 'driver'
+  AND employees.driver_of_car_type_of_use = 'Minivan'
   AND employees.driver_of_car_own_type = 'Company'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0

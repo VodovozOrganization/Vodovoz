@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -652,7 +652,8 @@ SELECT * FROM
         WHEN car_own_type = 'Driver' THEN 'ТС водителей'
         WHEN car_own_type = 'Raskat' THEN 'ТС в раскате'
         WHEN car_own_type = 'Company' AND car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
         WHEN car_own_type = 'Company' AND car_type_of_use = 'Truck' THEN 'Фуры компании'
         ELSE 'Топливные карты не привязанные к авто'
     END as car_type,
@@ -673,6 +674,7 @@ GROUP BY
     car_own_type,
     (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
     (car_type_of_use = 'Largus' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Minivan' AND car_own_type = 'Company'),
     (car_type_of_use = 'Truck' AND car_own_type = 'Company')
 UNION ALL
 SELECT
@@ -680,7 +682,8 @@ SELECT
         WHEN car_own_type = 'Driver' THEN 'ТС водителей'
         WHEN car_own_type = 'Raskat' THEN 'ТС в раскате'
         WHEN car_own_type = 'Company' AND car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
         WHEN car_own_type = 'Company' AND car_type_of_use = 'Truck' THEN 'Фуры компании'
         ELSE 'Топливные карты не привязанные к авто'
     END as car_type,
@@ -701,6 +704,7 @@ GROUP BY
     car_own_type,
     (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
     (car_type_of_use = 'Largus' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Minivan' AND car_own_type = 'Company'),
     (car_type_of_use = 'Truck' AND car_own_type = 'Company'),
     gazprom_product_id
 HAVING fuel_received_quantity &gt; 0

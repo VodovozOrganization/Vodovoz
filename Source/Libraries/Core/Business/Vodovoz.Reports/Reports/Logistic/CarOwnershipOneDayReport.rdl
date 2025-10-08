@@ -784,7 +784,8 @@
         <Timeout>60</Timeout>
         <CommandText>SELECT 
 CASE t.car_type_of_use
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая (Ларгус)'
+	WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
@@ -858,7 +859,8 @@ FROM
 (
 	SELECT 
 	CASE cm.car_type_of_use
-		WHEN 'Largus' THEN 'Фургон (Ларгус)'
+		WHEN 'Largus' THEN 'Легковая'
+		WHEN 'Minivan' THEN 'Фургон'
 		WHEN 'Truck' THEN 'Фура'
 		WHEN 'GAZelle' THEN 'Грузовой'
 		WHEN 'Loader' THEN 'Погрузчик'

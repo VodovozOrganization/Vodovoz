@@ -824,7 +824,7 @@ def WinRemoveOldJenkinsTempFiles() {
     node(NODE_WIN_BUILD){
     	RunPowerShell("""
         Get-ChildItem 'C:\\Users\\jenkins\\AppData\\Local\\Temp\\Containers\\Content' -File |
-        Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-14) } |
+        Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-7) } |
         ForEach-Object { Remove-Item \$file.FullName -Force }
         """)
     }
