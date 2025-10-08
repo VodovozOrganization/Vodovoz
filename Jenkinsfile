@@ -601,8 +601,10 @@ def DecompressArtifact(destPath, artifactName) {
 def DeleteCompressedArtifact(artifactName) {
 	def workspacePath = GetWorkspacePath()
 	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
-	echo "Deleting artifact ${archive_file}"
-	WinRemoveDirectory("${workspacePath}/${archive_file}");
+	if (fileExists(archive_file)) {
+		echo "Deleting artifact ${archive_file}"
+		WinRemoveDirectory("${workspacePath}/${archive_file}");
+	}
 }
 
 // 305	Фукнции. Доставка
