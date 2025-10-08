@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>customer-app.api</ContainerRepository>
+  </PropertyGroup>
+</Project>
