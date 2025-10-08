@@ -1624,7 +1624,8 @@ SELECT
 	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent,
     IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification,
     IFNULL(ps.name, 'Без промонабора')  as promotional_set,
-    IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name
+    IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name,
+    IFNULL(CONCAT(e.last_name,  ' ', e.name, ' ', e.patronymic), ' Без автора заказа')  as order_author_name
 FROM
     order_items oi
     LEFT JOIN
@@ -1768,8 +1769,8 @@ WHERE
 				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
          )
        AND (
-             (0 IN (@Employee_include) OR (o.author_employee_id IN (@Employee_include)))
-				AND NOT (o.author_employee_id IN (@Employee_exclude))
+             (0 IN (@OrderAuthor_include) OR (o.author_employee_id IN (@OrderAuthor_include)))
+				AND NOT (o.author_employee_id IN (@OrderAuthor_exclude))
          )
       AND (
              (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
@@ -1911,11 +1912,11 @@ WHERE
           <QueryParameter Name="Counterparty_exclude">
             <Value>={?Counterparty_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>={?Employee_include}</Value>
+          <QueryParameter Name="OrderAuthor_include">
+            <Value>={?OrderAuthor_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>={?Employee_exclude}</Value>
+          <QueryParameter Name="OrderAuthor_exclude">
+            <Value>={?OrderAuthor_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="SalesManager_include">
             <Value>={?SalesManager_include}</Value>
@@ -2206,6 +2207,10 @@ WHERE
           <DataField>sales_manager_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="order_author_name">
+          <DataField>order_author_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -2342,7 +2347,7 @@ WHERE
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_include">
+    <ReportParameter Name="OrderAuthor_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -2350,7 +2355,7 @@ WHERE
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_exclude">
+    <ReportParameter Name="OrderAuthor_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
