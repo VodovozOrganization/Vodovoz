@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name {
-			get { return String.Format("Акт приемо-передачи оборудования"); }
+			get { return String.Format("Акт приема-передачи оборудования"); }
 		}
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
@@ -39,10 +39,10 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		int copiesToPrint = 2;
+		private int _copiesToPrint = 2;
 		public override int CopiesToPrint {
-			get => copiesToPrint;
-			set => copiesToPrint = value;
+			get => _copiesToPrint;
+			set => _copiesToPrint = value;
 		}
 	}
 }
