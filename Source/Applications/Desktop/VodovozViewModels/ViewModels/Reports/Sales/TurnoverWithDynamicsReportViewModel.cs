@@ -628,7 +628,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
 			var excludedSubdivisions = subdivisionsFilter.GetExcluded().ToArray();
 
-			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>();
+			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>("OrderAuthor");
 			var includedEmployees = employeesFilter.GetIncluded().ToArray();
 			var excludedEmployees = employeesFilter.GetExcluded().ToArray();
 			
@@ -1250,6 +1250,29 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			
 			#endregion
 
+			#region OrderAuthor
+			
+			var fullNameOrderAuthorProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' ', ?2, ' ', ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => authorAlias.LastName),
+				Projections.Property(() => authorAlias.Name),
+				Projections.Property(() => authorAlias.Patronymic)
+			);
+
+			var orderAuthorNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => authorAlias.LastName)),
+				fullNameOrderAuthorProjection,
+				Projections.Constant("Без автора заказа")
+			);
+
+			var orderAuthorIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => authorAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => authorAlias.Id));
+
+			#endregion
+			
 			#region GeoGroups
 
 			if(includedGeoGroups.Any())
@@ -1507,7 +1530,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(promotinalSetIdProjection).WithAlias(() => resultNodeAlias.PromotionalSetId)
 						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName)
 						.Select(salesManagerIdProjection).WithAlias(() => resultNodeAlias.SalesManagerId)
-						.Select(salesManagerNameProjection).WithAlias(() => resultNodeAlias.SalesManagerName))
+						.Select(salesManagerNameProjection).WithAlias(() => resultNodeAlias.SalesManagerName)
+						.Select(orderAuthorIdProjection).WithAlias(() => resultNodeAlias.OrderAuthorId)
+						.Select(orderAuthorNameProjection).WithAlias(() => resultNodeAlias.OrderAuthorName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
 				.List<TurnoverWithDynamicsReport.OrderItemNode>();
