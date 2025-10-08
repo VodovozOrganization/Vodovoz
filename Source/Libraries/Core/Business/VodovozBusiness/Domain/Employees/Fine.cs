@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Employees
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private FineTypes _fineType;
-		private FineCategory? _fineCategory;
+		private FineCategory _fineCategory;
 		private DateTime _date = DateTime.Today;
 		private decimal _totalMoney;
 		private decimal _litersOverspending;
@@ -53,7 +53,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Категория штрафа")]
-		public virtual FineCategory? FineCategory
+		public virtual FineCategory FineCategory
 		{
 			get => _fineCategory;
 			set => SetField(ref _fineCategory, value);
@@ -422,7 +422,7 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult(string.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
 			}
 
-			if(!FineCategory.HasValue)
+			if(FineCategory == null)
 			{
 				yield return new ValidationResult(string.Format("Невозможно сохранить изменения. Не выбрана категория штрафа"));
 			}

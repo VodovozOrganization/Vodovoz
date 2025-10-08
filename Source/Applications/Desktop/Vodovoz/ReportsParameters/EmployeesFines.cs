@@ -33,7 +33,7 @@ namespace Vodovoz.Reports
 				.InitializeFromSource();
 			
 			ytreeviewFineCategory.ColumnsConfig = FluentColumnsConfig<EmployeeFineCategoryNode>.Create()
-				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategory.GetEnumTitle())
+				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategoryName)
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 

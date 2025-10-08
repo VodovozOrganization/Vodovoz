@@ -164,9 +164,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
-			if(_filterViewModel.SelectedFineCategories != null)
+			if(_filterViewModel.SelectedFineCategoryNames != null)
 			{
-				query.WhereRestrictionOn(() => fineAlias.FineCategory).IsIn(_filterViewModel.SelectedFineCategories);
+				query.WhereRestrictionOn(() => fineAlias.FineCategory).IsIn(_filterViewModel.SelectedFineCategoryNames);
 			}	
 
 			CarEvent carEventAlias = null;
@@ -249,7 +249,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.Id,
 								   row.Date,
 								   row.FinedEmployeesNames,
-								   FineCategoryName = row.FineCategory.GetEnumTitle(),
+								   row.FineCategoryName,
 								   row.FineSum,
 								   row.FineReason,
 								   row.AuthorName,

@@ -1,15 +1,12 @@
-﻿using Gamma.Utilities;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Employees;
-using Gamma.Utilities;
+﻿using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {
 	public class EmployeeFineCategoryNode : PropertyChangedBase
 	{
-		public EmployeeFineCategoryNode(FineCategory finecategory)
+		public EmployeeFineCategoryNode(string fineCategoryName)
 		{
-			FineCategory = finecategory;
+			FineCategoryName = fineCategoryName;
 		}
 
 		private bool _selected;
@@ -19,13 +16,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 			set => SetField(ref _selected, value);
 		}
 
-		public FineCategory? FineCategory { get; }
-
-		public string FineCategoryName 
-		{ 
-			get => FineCategory != null 
-				? FineCategory.GetEnumTitle() 
-				: ""; 
-		}
+		public string FineCategoryName { get; }
 	}
 }

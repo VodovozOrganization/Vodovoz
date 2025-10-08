@@ -430,6 +430,7 @@
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
@@ -687,6 +688,7 @@
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
     <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Common\AddOrRemoveIDomainObjectView.cs" />
+    <Compile Include="Views\Employees\FineCategoryView.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />

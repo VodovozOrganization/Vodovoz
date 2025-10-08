@@ -1,16 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Domain.Employees
 {
-	public enum FineCategory
+	public class FineCategory : FineCategoryEntity, IArchivable, IValidatableObject
 	{
-		[Display(Name = "Административный")]
+		/*[Display(Name = "Административный")]
 		Administrative,
 		[Display(Name = "ГИБДД")]
 		GIBDD,
 		[Display(Name = "Кассовая дисциплина")]
 		CashDiscipline,
 		[Display(Name = "Ущерб компании")]
-		CompanyDamage
+		CompanyDamage*/
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(Name))
+			{
+				yield return new ValidationResult(
+					"Название должно быть заполнено.", new[] { nameof(Name) });
+			}
+		}
 	}
 }

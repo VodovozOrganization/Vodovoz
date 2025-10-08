@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MoreLinq.Extensions;
+using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Utilities.Enums;
 using QS.ViewModels.Control.EEVM;
@@ -35,11 +36,19 @@ namespace Vodovoz.FilterViewModels.Employees
 		private bool _canEditFilter;
 		private Employee _author;
 		private bool _canEditAuthor;
+		private IUnitOfWork _uow;
 
-		private List<EmployeeFineCategoryNode> _fineCategoryNodes = EnumHelper.GetValuesList<FineCategory>().Select(x => new EmployeeFineCategoryNode(x) { Selected = true }).ToList();
+		private List<EmployeeFineCategoryNode> _fineCategoryNodes;
 
-		public FineFilterViewModel()
+		public FineFilterViewModel(IUnitOfWork uow)
 		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+
+			var categories = uow.GetAll<FineCategory>().ToList();
+			_fineCategoryNodes = categories
+				.Select(cat => new EmployeeFineCategoryNode(cat.Name) { Selected = true })
+				.ToList();
+
 			CanEditFilter = true;
 		}
 
@@ -163,18 +172,18 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
-		public virtual FineCategory[] SelectedFineCategories
+		public virtual string[] SelectedFineCategoryNames
 		{
-			get => FineCategoryNodes.Where(x => x.Selected && x.FineCategory.HasValue)
-				.Select(x => x.FineCategory.Value)
+			get => FineCategoryNodes.Where(x => x.Selected && !string.IsNullOrWhiteSpace(x.FineCategoryName))
+				.Select(x => x.FineCategoryName)
 				.ToArray();
 			set
 			{
-				foreach(var category in _fineCategoryNodes.Where(x => x.FineCategory.HasValue && value.Contains(x.FineCategory.Value)))
+				foreach(var category in _fineCategoryNodes.Where(x => !string.IsNullOrWhiteSpace(x.FineCategoryName) && value.Contains(x.FineCategoryName)))
 				{
 					category.Selected = true;
 				}
-				OnPropertyChanged(nameof(SelectedFineCategories));
+				OnPropertyChanged(nameof(SelectedFineCategoryNames));
 			}
 		}
 

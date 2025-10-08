@@ -30,7 +30,7 @@ namespace Vodovoz.Filters.GtkViews
 			ydateperiodpickerRouteList.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListDate, w => w.Sensitive).InitializeFromSource();
 
 			ytreeviewFineCategory.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<EmployeeFineCategoryNode>.Create()
-				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategory.GetEnumTitle())
+				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategoryName)
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 			ytreeviewFineCategory.ItemsDataSource = ViewModel.FineCategoryNodes;

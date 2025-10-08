@@ -1,4 +1,5 @@
 ﻿using MoreLinq;
+using NLog;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -55,10 +56,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 			FineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
 
-			foreach(var fine in Enum.GetValues(typeof(FineCategory)))
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
-				var fineNode = new EmployeeFineCategoryNode((FineCategory)fine) { Selected = true };
-				FineCategories.Add(fineNode);
+				var categories = uow.GetAll<FineCategory>().ToList();
+				foreach(var category in categories)
+				{
+					var fineNode = new EmployeeFineCategoryNode(category.Name) { Selected = true };
+					FineCategories.Add(fineNode);
+				}
 			}
 		}
 
@@ -148,7 +153,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				parameters.Add("category", GetCategory());
 
 				parameters.Add("fineCategories", FineCategories.Any(x => x.Selected) 
-					? string.Join(",", FineCategories.Where(x => x.Selected).Select(x => x.FineCategory)) 
+					? string.Join(",", FineCategories.Where(x => x.Selected).Select(x => x.FineCategoryName)) 
 					: "");
 
 				return parameters;
