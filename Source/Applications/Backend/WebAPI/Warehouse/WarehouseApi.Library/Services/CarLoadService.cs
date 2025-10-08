@@ -635,7 +635,7 @@ namespace WarehouseApi.Library.Services
 					continue;
 				}
 
-				await RemoveSingleCode(_uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+				await RemoveSingleCode(orderId, _uow, userLogin, codeToRemove.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
 			}
 
 			foreach(var oldCodeToRemoveFromDatabase in oldTrueMarkAnyCodesList)
@@ -818,7 +818,21 @@ namespace WarehouseApi.Library.Services
 					continue;
 				}
 
-				await RemoveSingleCode(_uow, userLogin, codeToDelete.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+				var resultDeleting = await RemoveSingleCode(orderId, _uow, userLogin, codeToDelete.TrueMarkWaterIdentificationCode, allWaterOrderItems, itemsHavingRequiredNomenclature, cancellationToken);
+				
+				if(resultDeleting.IsT0)
+				{
+					var otherFailureResult = resultDeleting.AsT0;
+					
+					return RequestProcessingResult.CreateFailure(
+						Result.Failure<DeleteOrderCodeResponse>(otherFailureResult.Result.Errors),
+						new DeleteOrderCodeResponse
+						{
+							Nomenclature = otherFailureResult.FailureData.Nomenclature,
+							Result = otherFailureResult.FailureData.Result,
+							Error = otherFailureResult.FailureData.Error,
+						});
+				}
 			}
 
 			foreach(var deleteCodeToRemoveFromDatabase in deleteTrueMarkAnyCodesList)
@@ -896,6 +910,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private async Task<OneOf<RequestProcessingResult<ChangeOrderCodeResponse>, CarLoadDocumentItemEntity>> RemoveSingleCode(
+			int orderId,
 			IUnitOfWork unitOfWork,
 			string userLogin,
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode,
@@ -930,6 +945,19 @@ namespace WarehouseApi.Library.Services
 				pickerEmployee,
 				CarLoadDocumentLoadingProcessActionType.ChangeTrueMarkCode);
 
+			var resultCanDeleted = await _documentErrorsChecker.IsTrueMarkCodesCanBeDeleted(orderId, documentItemToEdit);
+			
+			if(resultCanDeleted.IsFailure)
+			{
+				var error = checkResult.Errors.FirstOrDefault();
+				
+				failureResponse.Error = error != null ? error.Message : "Не известная ошибка";
+				
+				var result = Result.Failure<ChangeOrderCodeResponse>(error);
+				
+				return RequestProcessingResult.CreateFailure(result, failureResponse);
+			}
+			
 			var resultOfRemoving = RemoveTrueMarkCodeInCarLoadDocumentItem(unitOfWork, documentItemToEdit, oldTrueMarkWaterCode);
 
 			if(resultOfRemoving.IsFailure)
@@ -1113,11 +1141,9 @@ namespace WarehouseApi.Library.Services
 			TrueMarkWaterIdentificationCode oldTrueMarkWaterCode)
 		{
 			var codeToRemove = carLoadDocumentItem.TrueMarkCodes
-				.Where(x =>
-					x.SourceCode.Gtin == oldTrueMarkWaterCode.Gtin
-					&& x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
-					&& x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode)
-				.FirstOrDefault();
+				.FirstOrDefault(x => x.SourceCode.Gtin == oldTrueMarkWaterCode.Gtin
+				                     && x.SourceCode.SerialNumber == oldTrueMarkWaterCode.SerialNumber
+				                     && x.SourceCode.CheckCode == oldTrueMarkWaterCode.CheckCode);
 
 			if(codeToRemove is null)
 			{
