@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using MoreLinq.Extensions;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Filter;
-using QS.Utilities.Enums;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
@@ -47,7 +42,7 @@ namespace Vodovoz.FilterViewModels.Employees
 
 			var categories = uow.GetAll<FineCategory>().ToList();
 			_fineCategoryNodes = categories
-				.Select(cat => new EmployeeFineCategoryNode(cat.Name) { Selected = true })
+				.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
 				.ToList();
 
 			CanEditFilter = true;
@@ -173,18 +168,18 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
-		public virtual string[] SelectedFineCategoryNames
+		public virtual int[] SelectedFineCategoryIds
 		{
-			get => FineCategoryNodes.Where(x => x.Selected && !string.IsNullOrWhiteSpace(x.FineCategoryName))
-				.Select(x => x.FineCategoryName)
+			get => FineCategoryNodes.Where(x => x.Selected)
+				.Select(x => x.FineCategoryId)
 				.ToArray();
 			set
 			{
-				foreach(var category in _fineCategoryNodes.Where(x => !string.IsNullOrWhiteSpace(x.FineCategoryName) && value.Contains(x.FineCategoryName)))
+				foreach(var category in _fineCategoryNodes.Where(x => value.Contains(x.FineCategoryId)))
 				{
 					category.Selected = true;
 				}
-				OnPropertyChanged(nameof(SelectedFineCategoryNames));
+				OnPropertyChanged(nameof(SelectedFineCategoryIds));
 			}
 		}
 

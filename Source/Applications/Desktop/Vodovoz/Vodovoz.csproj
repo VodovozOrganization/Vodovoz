@@ -443,6 +443,7 @@
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProblemJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProcessJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FineCategoryJournalRegistars.cs" />
     <Compile Include="JournalColumnsConfigs\GroupGtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />

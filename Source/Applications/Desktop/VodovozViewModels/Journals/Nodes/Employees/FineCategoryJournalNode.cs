@@ -1,6 +1,11 @@
-﻿namespace Vodovoz.ViewModels.Journals.Nodes.Employees
+﻿using QS.Project.Journal;
+using Vodovoz.Domain.Employees;
+
+namespace Vodovoz.ViewModels.Journals.Nodes.Employees
 {
-	public class FineCategoryJournalNode
+	public class FineCategoryJournalNode : JournalEntityNodeBase<FineCategory>
 	{
+		public override string Title => "Что это?";
+		public string FineCategoryName { get; set; }
 	}
 }

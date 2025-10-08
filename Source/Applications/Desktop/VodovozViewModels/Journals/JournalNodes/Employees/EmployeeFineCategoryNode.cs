@@ -1,12 +1,13 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {
 	public class EmployeeFineCategoryNode : PropertyChangedBase
 	{
-		public EmployeeFineCategoryNode(string fineCategoryName)
+		public EmployeeFineCategoryNode(FineCategory fineCategory)
 		{
-			FineCategoryName = fineCategoryName;
+			FineCategory = fineCategory;
 		}
 
 		private bool _selected;
@@ -15,7 +16,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 			get => _selected;
 			set => SetField(ref _selected, value);
 		}
-
-		public string FineCategoryName { get; }
+		public FineCategory FineCategory { get; }
+		public string FineCategoryName { get => FineCategory.Name; }
+		public int FineCategoryId { get => FineCategory.Id; }
 	}
 }

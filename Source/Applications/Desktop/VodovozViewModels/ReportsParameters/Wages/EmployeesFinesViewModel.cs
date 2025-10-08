@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				var categories = uow.GetAll<FineCategory>().ToList();
 				foreach(var category in categories)
 				{
-					var fineNode = new EmployeeFineCategoryNode(category.Name) { Selected = true };
+					var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
 					FineCategories.Add(fineNode);
 				}
 			}
