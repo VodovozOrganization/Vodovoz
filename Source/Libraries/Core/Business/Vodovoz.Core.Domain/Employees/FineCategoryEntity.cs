@@ -1,12 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Employees
 {
@@ -62,7 +58,5 @@ namespace Vodovoz.Core.Domain.Employees
 		}
 
 		public virtual IUnitOfWork UoW { set; get; }
-
-		public IObservableList<NomenclatureFileInformation> AttachedFileInformations => throw new NotImplementedException();
 	}
 }

@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Ущерб компании")]
 		CompanyDamage*/
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrEmpty(Name))
 			{
