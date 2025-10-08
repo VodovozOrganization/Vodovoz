@@ -585,7 +585,7 @@ CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name,
 (SELECT car_own_type
     FROM car_versions WHERE car_id = c2.id ORDER BY start_date DESC LIMIT 1) AS previous_car_own_type
 FROM cars c2
-JOIN car_versions cv2 ON cv2.car_id = c2.id
+JOIN car_versions cv2 ON cv2.car_id = c2.id and cv2.start_date &lt;= c2.archiving_date and (cv2.end_date &gt;= c2.archiving_date or cv2.end_date is null)
 JOIN car_models cm2 ON c2.model_id = cm2.id 
 LEFT JOIN employees e2 ON c2.driver_id = e2.id 
 WHERE 
