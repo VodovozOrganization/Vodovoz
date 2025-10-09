@@ -1661,9 +1661,26 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool CanAddForwarder => GetGeneralSettingsSettings.GetCanAddForwardersToLargus
-			|| Car?.CarModel.CarTypeOfUse != CarTypeOfUse.Largus
-			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
+		public virtual bool CanAddForwarder
+		{
+			get
+			{
+				if(GetCarVersion?.CarOwnType != CarOwnType.Company)
+				{
+					return true;
+				}
+
+				switch(Car.CarModel.CarTypeOfUse)
+				{
+					case CarTypeOfUse.Largus:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToLargus;
+					case CarTypeOfUse.Minivan:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToMinivan;
+					default:
+						return true;
+				}
+			}
+		}
 
 		public static void SetGeneralSettingsSettingsGap(
 			IGeneralSettings generalSettingsSettingsGap)
@@ -2822,7 +2839,29 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual long TimeOnLoadMinuts =>
-			GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
+			GetTimeOnLoadMinuts();
+
+		private int GetTimeOnLoadMinuts()
+		{
+			var defaultTimeOnLoad = 30;
+			var companyLargusTimeOnLoad = 15;
+			var companyMinivanTimeOnLoad = 20;
+
+			if(GetCarVersion.CarOwnType == CarOwnType.Company)
+			{
+				if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus)
+				{
+					return companyLargusTimeOnLoad;
+				}
+
+				if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan)
+				{
+					return companyMinivanTimeOnLoad;
+				}
+			}
+
+			return defaultTimeOnLoad;
+		}
 
 		public virtual long[] GenerateHashPointsOfRoute()
 		{
@@ -2881,6 +2920,7 @@ namespace Vodovoz.Domain.Logistic
 			return Car != null
 				&& (carVersion.CarOwnType == CarOwnType.Raskat
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.GAZelle)
 				&& Car.CarModel.MaxWeight < GetTotalWeight();
 		}
