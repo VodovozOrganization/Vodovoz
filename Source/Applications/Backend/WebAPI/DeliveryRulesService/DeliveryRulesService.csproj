@@ -30,6 +30,7 @@
 		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 		<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
 		<PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="106.15.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
