@@ -69,6 +69,13 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 			ybuttonDivideByAll.Clicked += (sender, e) => ViewModel.DivideByAllCommand.Execute();
 
+			ySpecialListComboBoxFineCategory.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.FineCategories, w => w.ItemsList)
+				.AddBinding(vm => vm.SelectedFineCategory, w => w.SelectedItem)
+				.InitializeFromSource();
+			ySpecialListComboBoxFineCategory.SetRenderTextFunc<FineCategory>(x => x.Name);
+
 			yentryFineReasonString.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.FineReasonString, w => w.Text)

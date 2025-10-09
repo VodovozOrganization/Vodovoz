@@ -1,9 +1,14 @@
-﻿using QS.Project.Filter;
+﻿using QS.DomainModel.UoW;
+using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -27,8 +32,19 @@ namespace Vodovoz.FilterViewModels.Employees
 		private Employee _author;
 		private bool _canEditAuthor;
 
-		public FineFilterViewModel()
+		private readonly IUnitOfWork _uow;
+
+		private List<EmployeeFineCategoryNode> _fineCategoryNodes;
+
+		public FineFilterViewModel(IUnitOfWork uow)
 		{
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+
+			var categories = uow.GetAll<FineCategory>().ToList();
+			_fineCategoryNodes = categories
+				.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
+				.ToList();
+
 			CanEditFilter = true;
 		}
 
@@ -146,11 +162,71 @@ namespace Vodovoz.FilterViewModels.Employees
 			set => SetField(ref _canEditAuthor, value);
 		}
 
+
 		public virtual Employee Author
 		{
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
+		public virtual int[] SelectedFineCategoryIds
+		{
+			get => FineCategoryNodes.Where(x => x.Selected)
+				.Select(x => x.FineCategoryId)
+				.ToArray();
+			set
+			{
+				foreach(var category in _fineCategoryNodes.Where(x => value.Contains(x.FineCategoryId)))
+				{
+					category.Selected = true;
+				}
+				OnPropertyChanged(nameof(SelectedFineCategoryIds));
+			}
+		}
+
+		public List<EmployeeFineCategoryNode> FineCategoryNodes
+		{
+			get => _fineCategoryNodes;
+			set
+			{
+				UnsubscribeOnFineCategoryChanged();
+				_fineCategoryNodes = value;
+				SubscribeOnFineCategoryChanged();
+			}
+		}
+
+		private void SubscribeOnFineCategoryChanged()
+		{
+			foreach(var node in FineCategoryNodes)
+			{
+				node.PropertyChanged += OnCategoryCheckChanged;
+			}
+		}
+
+		private void UnsubscribeOnFineCategoryChanged()
+		{
+			foreach(var node in FineCategoryNodes)
+			{
+				node.PropertyChanged -= OnCategoryCheckChanged;
+			}
+		}
+
+		private void OnCategoryCheckChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Update();
+		}
+
+		public void SelectAllFineCategories()
+		{
+			_fineCategoryNodes.ForEach(x => x.Selected = true);
+			Update();
+		}
+
+		public void DeselectAllFineCategories()
+		{
+			_fineCategoryNodes.ForEach(x => x.Selected = false);
+			Update();
+		}
+
 
 		public override void Dispose()
 		{

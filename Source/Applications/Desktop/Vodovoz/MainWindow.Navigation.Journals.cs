@@ -1,4 +1,4 @@
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -770,6 +770,16 @@ public partial class MainWindow
 	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Категории штрафов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction92Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
 	}
 
 	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)

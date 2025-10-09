@@ -1,4 +1,6 @@
-﻿using QS.Commands;
+﻿using MoreLinq;
+using NLog;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
@@ -7,11 +9,14 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
@@ -46,9 +51,25 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			AllStatusCommand = new DelegateCommand(AllStatus);
+			NoneStatusCommand = new DelegateCommand(NoneStatus);
+
+			FineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
+
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				var categories = uow.GetAll<FineCategory>().ToList();
+				foreach(var category in categories)
+				{
+					var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
+					FineCategories.Add(fineNode);
+				}
+			}
 		}
 
 		public DelegateCommand GenerateReportCommand;
+		public DelegateCommand AllStatusCommand;
+		public DelegateCommand NoneStatusCommand;
 
 		public virtual DateTime? StartDate
 		{
@@ -100,6 +121,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 
+		public GenericObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
+
 		protected override Dictionary<string, object> Parameters
 		{
 			get
@@ -128,6 +151,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				parameters.Add("showbottom", false);
 				parameters.Add("routelist", 0);
 				parameters.Add("category", GetCategory());
+
+				parameters.Add("fineCategories", FineCategories.Any(x => x.Selected) 
+					? string.Join(",", FineCategories.Where(x => x.Selected).Select(x => x.FineCategoryName)) 
+					: "");
 
 				return parameters;
 			}
@@ -175,6 +202,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 			return cat;
 		}
+
+		private void AllStatus() => FineCategories.ForEach(x => x.Selected = true);
+
+		private void NoneStatus() => FineCategories.ForEach(x => x.Selected = false);
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

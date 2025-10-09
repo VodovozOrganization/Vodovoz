@@ -18,13 +18,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Search;
+
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -162,6 +162,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
+			if(_filterViewModel.SelectedFineCategoryIds != null)
+			{
+				query.WhereRestrictionOn(() => fineAlias.FineCategory).IsIn(_filterViewModel.SelectedFineCategoryIds);
+			}	
+
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAliase = null;
 			Fine finesAlias = null;
@@ -198,8 +203,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
+					.Select(() => fineAlias.FineCategory.Name).WithAlias(() => resultAlias.FineCategoryName)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
@@ -241,6 +247,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.Id,
 								   row.Date,
 								   row.FinedEmployeesNames,
+								   row.FineCategoryName,
 								   row.FineSum,
 								   row.FineReason,
 								   row.AuthorName,

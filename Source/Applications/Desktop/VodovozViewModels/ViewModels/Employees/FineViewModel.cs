@@ -14,6 +14,8 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -26,6 +28,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
@@ -43,6 +46,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
+		private FineCategory _selectedFineCategory;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -72,6 +76,7 @@ namespace Vodovoz.ViewModels.Employees
 			ConfigureEntityPropertyChanges();
 
 			RouteListViewModel = BuildRouteListEntityViewModel();
+			FineCategories = UoW.GetAll<FineCategory>().ToList();
 
 			ConfigureCarEvent(carEventRepository);
 		}
@@ -86,6 +91,21 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
+		public List<FineCategory> FineCategories { get; private set; }
+
+		public FineCategory SelectedFineCategory
+		{
+			get => _selectedFineCategory;
+			set
+			{
+				if(_selectedFineCategory != value)
+				{
+					_selectedFineCategory = value;
+					Entity.FineCategory = value;
+					OnPropertyChanged();
+				}
+			}
+		}
 		public Employee CurrentEmployee
 		{
 			get
