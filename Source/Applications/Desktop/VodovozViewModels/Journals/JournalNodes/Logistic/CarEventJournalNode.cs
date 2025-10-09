@@ -36,6 +36,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 					case CarTypeOfUse.GAZelle:
 						str = "Г";
 						break;
+					case CarTypeOfUse.Minivan:
+						str = "Т";
+						break;
 					case CarTypeOfUse.Largus:
 						str = "Л";
 						break;
