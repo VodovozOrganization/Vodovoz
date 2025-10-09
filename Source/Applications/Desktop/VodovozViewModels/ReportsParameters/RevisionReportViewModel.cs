@@ -16,13 +16,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 
@@ -40,6 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private bool _counterpartySelected;
 		private bool _canRunReport;
 		private Counterparty _counterparty;
+		private Organization _organization;
 		private IList<Email> _emails;
 		private Email _selectedEmail;
 		private string _source;
@@ -166,11 +165,19 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 		}
+
+		public Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
+
 		public bool ReportIsLoaded
 		{
 			get => _reportIsLoaded;
 			set => SetField(ref _reportIsLoaded, value);
 		}
+
 		public bool CounterpartyIsSelected
 		{
 			get => _counterpartySelected;
@@ -221,7 +228,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
-			{ "CounterpartyID", Counterparty?.Id }
+			{ "CounterpartyId", Counterparty?.Id },
+			{ "OrganizationId", Organization?.Id }
 		};
 
 		public void Dispose()
