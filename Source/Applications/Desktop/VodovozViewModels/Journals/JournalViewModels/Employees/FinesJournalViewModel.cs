@@ -203,7 +203,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineCategory).WithAlias(() => resultAlias.FineCategory)
+					.Select(() => fineAlias.FineCategory.Name).WithAlias(() => resultAlias.FineCategoryName)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),

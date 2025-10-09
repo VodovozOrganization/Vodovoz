@@ -12,14 +12,8 @@ namespace Vodovoz.Journals.JournalNodes
 		public DateTime Date { get; set; }
 
 		public string FinedEmployeesNames { get; set; }
-		public FineCategory FineCategory { get; set; }
 
-		public string FineCategoryName
-		{
-			get => FineCategory != null
-				? FineCategory.Name
-				: "";
-		}
+		public string FineCategoryName { get; set; }
 
 		public decimal FineSum { get; set; }
 
