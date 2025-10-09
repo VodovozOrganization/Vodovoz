@@ -147,7 +147,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.Total = decimal.Parse(data[1], culture);
 					break;
 				case "КвитанцияДата":
-					doc.ReceiptDate = DateTime.Parse(data[1], culture);
+					doc.ReceiptDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
 					break;
 				case "ПлательщикСчет":
 					doc.PayerAccount = data[1];
