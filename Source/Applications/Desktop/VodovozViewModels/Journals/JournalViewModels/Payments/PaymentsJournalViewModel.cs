@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using DateTimeHelpers;
 using DynamicData;
 using NHibernate;

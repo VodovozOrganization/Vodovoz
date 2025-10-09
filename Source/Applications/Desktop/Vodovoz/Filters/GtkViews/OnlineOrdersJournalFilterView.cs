@@ -136,6 +136,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictFastDelivery, w => w.Active)
 				.InitializeFromSource();
 			
+			chkOnlyWithoutDeliverySchedule.Binding
+				.AddBinding(ViewModel, vm => vm.WithoutDeliverySchedule, w => w.Active)
+				.InitializeFromSource();
+			
 			yenumСmbboxOrderPaymentStatus.ShowSpecialStateAll = true;
 			yenumСmbboxOrderPaymentStatus.ItemsEnum = typeof(OnlineOrderPaymentStatus);
 			yenumСmbboxOrderPaymentStatus.Binding

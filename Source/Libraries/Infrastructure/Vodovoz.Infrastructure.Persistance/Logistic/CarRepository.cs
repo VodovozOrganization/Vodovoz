@@ -360,7 +360,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			.Select(c => new { CarId = c.Id, GeoGroups = string.Join(", ", c.GeographicGroups.Select(g => g.Name)) })
 			.ToDictionary(c => c.CarId, c => c.GeoGroups);
 
-		public async Task<IDictionary<int, string>> GetDriversNamesByCars(
+		public async Task<IDictionary<int, (Employee Driver, bool IsLastRouteListDriver)>> GetDriversByCars(
 			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
 		{
 			var carsQuery = unitOfWork.Session.Query<Car>()
@@ -369,7 +369,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			var routeListsQuery = unitOfWork.Session.Query<RouteList>()
 				.Where(rl => carsIds.Contains(rl.Car.Id));
 
-			var driversNames =
+			var driversData =
 				from car in carsQuery
 				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
 				from driver in drivers.DefaultIfEmpty()
@@ -382,16 +382,20 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				select new
 				{
 					CarId = car.Id,
-					DriverName = driver != null
-						? driver.ShortName
-						: lastRouteListDriver != null
-							? $"МЛ: {lastRouteListDriver.ShortName}"
-							: "Нет МЛ"
+					Driver = driver,
+					LastRouteListDriver = lastRouteListDriver
 				};
 
-			return (await driversNames.ToListAsync(cancellationToken))
-				.GroupBy(g => g.CarId)
-				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+			var list = await driversData.ToListAsync(cancellationToken);
+
+			return list.ToDictionary(
+				x => x.CarId,
+				x => x.Driver != null
+					? (x.Driver, false)
+					: x.LastRouteListDriver != null
+						? (x.LastRouteListDriver, true)
+						: ((Employee)null, false)
+			);
 		}
 
 		public async Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(

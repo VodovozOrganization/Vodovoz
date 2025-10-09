@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
 
 			SetupFilter();
 
