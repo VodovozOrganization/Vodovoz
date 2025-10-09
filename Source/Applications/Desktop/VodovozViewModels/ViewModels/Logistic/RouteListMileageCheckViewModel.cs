@@ -284,7 +284,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
-						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Minivan, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
 
 			AskSaveOnClose = CanEdit;
 

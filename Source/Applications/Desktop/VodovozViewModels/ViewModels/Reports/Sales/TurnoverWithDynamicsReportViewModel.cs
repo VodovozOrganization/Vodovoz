@@ -120,7 +120,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
 
 			_canViewReportSalesWithCashReceipts =
 				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);

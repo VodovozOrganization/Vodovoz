@@ -142,7 +142,7 @@
           <TableColumn>
             <Width>23pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>23pt</Width>
           </TableColumn>
         </TableColumns>
@@ -933,7 +933,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
                       <Value>Экспресс доставка с опозданием</Value>
@@ -960,7 +960,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>53.8pt</Height>
+              <Height>60.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1666,7 +1666,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
                       <Value>={FastDeliveryWithLateSuburb}</Value>
@@ -1723,13 +1723,14 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
 (SELECT
         wdlrs.name AS name,
         CASE wdlr.car_type_of_use
-            WHEN 'Largus' THEN 'Фургон (Ларгус)'
+            WHEN 'Largus' THEN 'Легковая (Ларгус)'
+            WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
             WHEN 'GAZelle' THEN 'Грузовой (Газель)'
             ELSE wdlr.car_type_of_use
         END as car_type_of_use,
@@ -1775,7 +1776,8 @@ union
 select
         wdlrs.name AS name,
         CASE wdlr.car_type_of_use
-            WHEN 'Largus' THEN 'Фургон (Ларгус)'
+            WHEN 'Largus' THEN 'Легковая (Ларгус)'
+            WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
             WHEN 'GAZelle' THEN 'Грузовой (Газель)'
             ELSE wdlr.car_type_of_use
         END as car_type_of_use,
@@ -1821,7 +1823,8 @@ union
 SELECT
        wdlrs.name AS name,
        CASE wdlr.car_type_of_use
-           WHEN 'Largus' THEN 'Фургон (Ларгус)'
+            WHEN 'Largus' THEN 'Легковая (Ларгус)'
+            WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
            WHEN 'GAZelle' THEN 'Грузовой (Газель)'
            ELSE wdlr.car_type_of_use
        END as car_type_of_use,
@@ -1865,7 +1868,7 @@ where wdlrs.id in (@wageIds)
 group by wdlrs.id, name, car_type_of_use) AS T
 ORDER BY
     T.name,
-    T.car_type_of_use = 'Фургон (Ларгус)' DESC,
+    T.car_type_of_use = 'Легковая (Ларгус)' DESC,
     T.with_out_forwarder = 'С экспедитором' DESC,
     T.with_out_forwarder = 'Без экспедитора' DESC
 ;</CommandText>
@@ -1881,7 +1884,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

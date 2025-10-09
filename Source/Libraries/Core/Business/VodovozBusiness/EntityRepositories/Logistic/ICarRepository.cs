@@ -38,7 +38,22 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IQueryable<Car> GetCarsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListIds);
 		IQueryable<OdometerReading> GetOdometerReadingByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 		IDictionary<int, string> GetCarsGeoGroups(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
-		Task<IDictionary<int, string>> GetDriversNamesByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение водителей по идентификаторам автомобилей с информацией о том, является ли водитель последним водителем в маршрутном листе
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="carsIds"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task<IDictionary<int, (Employee Driver, bool IsLastRouteListDriver)>> GetDriversByCars(IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение массива автомобилей по их идентификаторам
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="carsIds"></param>
+		/// <returns></returns>
 		IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds);
 
 		/// <summary>
