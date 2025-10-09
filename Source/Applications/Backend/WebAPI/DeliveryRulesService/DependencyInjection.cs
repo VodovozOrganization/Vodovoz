@@ -7,6 +7,7 @@ using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using Microsoft.OpenApi.Models;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -22,6 +23,10 @@ namespace DeliveryRulesService
 		public static IServiceCollection AddDeliveryRulesService(this IServiceCollection services)
 		{
 			services
+				.AddSwaggerGen(c =>
+				{
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "DeliveryRulesService", Version = "v1" });
+				})
 				.AddMvc()
 				.AddControllersAsServices();
 
