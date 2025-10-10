@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.Dialog;
 using System;
 using System.Collections.Generic;
@@ -82,7 +82,8 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
-						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle())
+						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
+						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)
 					);
 
 					salesElement.Add(rowElement);

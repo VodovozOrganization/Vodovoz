@@ -64,6 +64,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			if(comboDriverOfCarTypeOfUse.SelectedItemOrNull == null)
 			{
 				carTypesOfUse.Add(CarTypeOfUse.GAZelle);
+				carTypesOfUse.Add(CarTypeOfUse.Minivan);
 				carTypesOfUse.Add(CarTypeOfUse.Largus);
 			}
 			else

@@ -293,7 +293,8 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanChangeForwarder => CanAccept
 			&& ((Entity.Car is null || Entity.Date == default)
 				|| (!Entity.GetCarVersion.IsCompanyCar
-					|| Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| (Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+						|| Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan)
 					&& Entity.CanAddForwarder));
 
 		public bool CanChangeFixedPrice => Entity.HasFixedShippingPrice
@@ -467,7 +468,8 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			if(!isCompanyCar
-				|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+				|| (Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| Entity.Car?.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan)
 				&& Entity.CanAddForwarder)
 			{
 				Entity.Forwarder = Entity.Forwarder;
