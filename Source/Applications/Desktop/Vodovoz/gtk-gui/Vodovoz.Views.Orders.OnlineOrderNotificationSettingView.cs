@@ -89,7 +89,7 @@ namespace Vodovoz.Views.Orders
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumcmbExternalOrderStatus = global::Gtk.ComboBox.NewText();
+			this.yenumcmbExternalOrderStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcmbExternalOrderStatus.Name = "yenumcmbExternalOrderStatus";
 			this.yenumcmbExternalOrderStatus.ShowSpecialStateAll = false;
 			this.yenumcmbExternalOrderStatus.ShowSpecialStateNot = false;

@@ -1180,7 +1180,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction47Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		//NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		
+		// ДОБАВИТЬ В МЕНЮ (ЕЩЁ НЕ ДЕЛАЛ ДЛЯ ЭТОЙ ЗАДАЧИ!!!!!!!
+		
+		NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Помощники
