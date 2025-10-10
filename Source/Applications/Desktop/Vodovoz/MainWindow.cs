@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using MassTransit;
 using NLog;
 using Pacs.Core;
@@ -391,4 +391,7 @@ public partial class MainWindow : Gtk.Window
 	protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
 	{
 	}
+    protected void OnActionCallCenterMotivationCoefficientActivated(object sender, EventArgs e)
+    {
+    }
 }
