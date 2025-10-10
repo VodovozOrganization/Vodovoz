@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 {

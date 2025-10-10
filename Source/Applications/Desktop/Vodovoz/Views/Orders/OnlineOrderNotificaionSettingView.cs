@@ -1,12 +1,30 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.ViewModels.ViewModels.Orders;
+
 namespace Vodovoz.Views.Orders
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OnlineOrderNotificationSettingView : Gtk.Bin
+	public partial class OnlineOrderNotificationSettingView : TabViewBase<OnlineOrderNotificationSettingViewModel>
 	{
-		public OnlineOrderNotificationSettingView()
+		public OnlineOrderNotificationSettingView(OnlineOrderNotificationSettingViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			yenumcmbExternalOrderStatus.ItemsEnum = typeof(ExternalOrderStatus); 
+			yenumcmbExternalOrderStatus.Binding
+				.AddBinding(ViewModel.Entity, e => e.ExternalOrderStatus, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yentryNotificationText.Binding
+				.AddBinding(ViewModel.Entity, e => e.NotificationText, w => w.Text)
+				.InitializeFromSource();
+
+			buttonSave.BindCommand(ViewModel.SaveCommand);
+			buttonCancel.BindCommand(ViewModel.CloseCommand);
 		}
 	}
 }
