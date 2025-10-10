@@ -51,6 +51,18 @@ namespace WarehouseApi.Library.Services
 		Task<RequestProcessingResult<ChangeOrderCodeResponse>> ChangeOrderCode(int orderId, int nomenclatureId, string oldScannedCode, string newScannedCode, string userLogin, CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Замена кода ЧЗ в талоне погрузки
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="nomenclatureId">Номер номенклатуры</param>
+		/// <param name="deletedScannedCode">Строка удаляемого кода ЧЗ</param>
+		/// <param name="userLogin">Логин пользователя мобильного приложения</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns>Результ выполнения запроса и данные строки талона погрузки</returns>
+		Task<RequestProcessingResult<DeleteOrderCodeResponse>> DeleteOrderCode(int orderId, int nomenclatureId, string deletedScannedCode, string userLogin, CancellationToken cancellationToken);
+
+		
+		/// <summary>
 		/// Окончание погрузки талона погруки
 		/// </summary>
 		/// <param name="documentId">Номер талона погрузки</param>
