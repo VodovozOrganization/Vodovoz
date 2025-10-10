@@ -13,6 +13,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
@@ -140,6 +141,16 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
+		/// <summary>
+		/// Получение списка идентификаторов неоплаченных заказов контрагента за указанный период
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="counterpartyId"></param>
+		/// <param name="startDate"></param>
+		/// <param name="endDate"></param>
+		/// <param name="organizationId"></param>
+		/// <returns></returns>
+		IList<int> GetUnpaidOrdersIds(IUnitOfWork uow, int counterpartyId, DateTime? startDate, DateTime? endDate, Organization organization = null);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
 		/// <summary>

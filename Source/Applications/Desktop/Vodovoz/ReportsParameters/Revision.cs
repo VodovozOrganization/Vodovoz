@@ -2,6 +2,7 @@
 using QS.Views;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ReportsParameters;
 
 namespace Vodovoz.Reports
@@ -32,6 +33,18 @@ namespace Vodovoz.Reports
 					.ForProperty(x => x.Counterparty)
 					.UseTdiDialog<CounterpartyDlg>()
 					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+					.Finish();
+
+			entryOrganization.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(
+					ViewModel.RdlViewerViewModel,
+					ViewModel.TdiTab,
+					ViewModel,
+					ViewModel.UnitOfWork,
+					ViewModel.NavigationManager,
+					ViewModel.LifetimeScope)
+					.ForProperty(x => x.Organization)
+					.UseTdiDialog<OrganizationViewModel>()
+					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 					.Finish();
 
 			speciallistcomboboxEmail.SetRenderTextFunc<Email>(s => s.Address);

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -90,6 +90,9 @@ WHERE
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -329,6 +332,9 @@ WHERE
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
@@ -461,17 +467,21 @@ WHERE stored_resource.id = @id1</CommandText>
     <DataSet Name="Stamp">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT sr.binary_file as image
-FROM orders o 
-LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-LEFT JOIN organizations org ON cc.organization_id = org.id 
-LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
-WHERE o.id IN (@order_id)
-LIMIT 1
-</CommandText>
+        <CommandText>
+        SELECT DISTINCT sr.binary_file as image
+        FROM orders o 
+        LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+        LEFT JOIN organizations org ON cc.organization_id = org.id 
+        LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
+        WHERE org.id = @organization_id
+        LIMIT 1
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -485,49 +495,55 @@ LIMIT 1
     <DataSet Name="Signatures">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	(SELECT binary_file FROM stored_resource WHERE id = 
-		(SELECT 
-			 ov.signature_leader_id
-		FROM
-		    orders
-		        LEFT JOIN
-		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-		        LEFT JOIN
-		    organizations ON organizations.id = counterparty_contract.organization_id
-		        LEFT JOIN    
-		    organization_versions ov
-		        ON
-		            organizations.id = ov.organization_id 
-		        AND
-		            ov.start_date &lt;= orders.bill_date 
-		        AND
-		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-		    WHERE
-		    	orders.id IN (@order_id) LIMIT 1)) as chief,
-	(SELECT binary_file FROM stored_resource WHERE id = 
-		(SELECT 
-			 ov.signature_accountant_id
-		FROM
-		    orders
-		        LEFT JOIN
-		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-		        LEFT JOIN
-		    organizations ON organizations.id = counterparty_contract.organization_id
-		        LEFT JOIN    
-		    organization_versions ov
-		        ON
-		            organizations.id = ov.organization_id 
-		        AND
-		            ov.start_date &lt;= orders.bill_date 
-		        AND
-		            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
-		    WHERE
-		    	orders.id IN (@order_id) LIMIT 1)) as bookkeeper
-;</CommandText>
+        <CommandText>
+        SELECT 
+        (SELECT binary_file FROM stored_resource WHERE id = 
+          (SELECT DISTINCT
+            ov.signature_leader_id
+          FROM
+              orders
+                  LEFT JOIN
+              counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+                  LEFT JOIN
+              organizations ON organizations.id = counterparty_contract.organization_id
+                  LEFT JOIN    
+              organization_versions ov
+                  ON
+                      organizations.id = ov.organization_id 
+                  AND
+                      ov.start_date &lt;= orders.bill_date 
+                  AND
+                    (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+              WHERE
+                ov.signature_accountant_id IS NOT NULL
+                AND organizations.id = @organization_id LIMIT 1)) as chief,
+        (SELECT binary_file FROM stored_resource WHERE id = 
+          (SELECT DISTINCT
+            ov.signature_accountant_id
+          FROM
+              orders
+                  LEFT JOIN
+              counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+                  LEFT JOIN
+              organizations ON organizations.id = counterparty_contract.organization_id
+                  LEFT JOIN    
+              organization_versions ov
+                  ON
+                      organizations.id = ov.organization_id 
+                  AND
+                      ov.start_date &lt;= orders.bill_date 
+                  AND
+                      (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+              WHERE
+                ov.signature_accountant_id IS NOT NULL
+                AND organizations.id = @organization_id LIMIT 1)) as bookkeeper;
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2202,6 +2218,13 @@ Iif(
       <MultiValue>true</MultiValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_id">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">

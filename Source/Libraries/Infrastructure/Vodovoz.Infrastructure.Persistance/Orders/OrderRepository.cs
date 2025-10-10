@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
@@ -9,11 +10,16 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -32,19 +38,12 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
-using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
+using VodovozBusiness.Domain.Operations;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Order = Vodovoz.Domain.Orders.Order;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -1134,6 +1133,61 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					);
 
 			return query.List();
+		}
+
+		public IList<int> GetUnpaidOrdersIds(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime? startDate,
+			DateTime? endDate,
+			Organization organization = null)
+		{
+			VodovozOrder orderAlias = null;
+			Organization ourOrganizationAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization contractOrganizationAlias = null;
+
+			var defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OurOrganization, () => ourOrganizationAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
+				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid);
+
+			if(organization == null)
+			{
+				query.Where(
+					Restrictions.Or(
+						Restrictions.And(
+							Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
+							Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), defaultOurOrganizationId)
+						),
+						Restrictions.IsNull(Projections.Property(() => ourOrganizationAlias.Id))
+					)
+				);
+			}
+			else
+			{
+				query.Where(
+					Restrictions.Or(
+						Restrictions.And(
+							Restrictions.IsNotNull(Projections.Property(() => ourOrganizationAlias.Id)),
+							Restrictions.Eq(Projections.Property(() => ourOrganizationAlias.Id), organization.Id)
+						),
+						Restrictions.And(
+							Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
+							Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
+						)
+					)
+				);
+			}
+
+			return query
+				.Select(x => x.Id)
+				.List<int>();
 		}
 
 		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
