@@ -16,18 +16,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly int _defaultOurOrganizationId;
 		private ITdiTab _tdiTab;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -46,7 +47,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly EmailDirectSender _emailDirectSender;
-		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -57,7 +59,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IInteractiveService interactiveService,
 			IEmailSettings emailSettings,
 			EmailDirectSender emailDirectSender,
-			IGenericRepository<Order> orderRepository
+			IOrderRepository orderRepository,
+			IOrganizationSettings organizationSettings
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -68,6 +71,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 
 			SendByEmailCommand = new DelegateCommand(SendByEmail, () => ReportIsLoaded);
 			SendByEmailCommand.CanExecuteChangedWith(this, vm => vm.ReportIsLoaded);
@@ -79,6 +83,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			},
 			() => CanRunReport);
 			RunCommand.CanExecuteChangedWith(this, vm => vm.CanRunReport);
+			_defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
@@ -229,7 +234,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
 			{ "CounterpartyId", Counterparty?.Id },
-			//{ "OrganizationId", Organization?.Id ?? 1 } // Получать откуда-то Id нашей организации
+			{ "OrganizationId", Organization?.Id ?? _defaultOurOrganizationId }
 		};
 
 		public void Dispose()
@@ -316,30 +321,23 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendBillsForNotPaidOrder)
 			{
-				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
-					o => o.Client.Id == Counterparty.Id 
-					&& o.DeliveryDate >= StartDate 
-					&& o.DeliveryDate <= EndDate 
-					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OurOrganization.Id == Organization.Id
-					|| o.OurOrganization == null))
-					.Select(o => o.Id)
-					.ToArray();
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization);
 
-				var pdfArray = new byte[unpaidOrdersId.Length][];
-
-				if(pdfArray.Length == 0)
+				if(unpaidOrdersId.Count == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет неоплаченных заказов для формирования счетов.");
 					return attachments;
 				}
 
-				for(int i = 0; i < unpaidOrdersId.Length; i++)
+				var pdfArray = new byte[unpaidOrdersId.Count][];
+
+				for(int i = 0; i < unpaidOrdersId.Count; i++)
 				{
 					var billParameters = new Dictionary<string, object>
 					{
 						{ "order_id", unpaidOrdersId[i] },
-						{ "hide_signature", false }
+						{ "hide_signature", false },
+						{ "organization_id", Organization?.Id ?? _defaultOurOrganizationId }
 					};
 					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
 					byte[] billPdf = GenerateReport(billReportSource, billParameters);
@@ -357,22 +355,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendGeneralBill)
 			{
-				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
-					o => o.Client.Id == Counterparty.Id
-					&& o.DeliveryDate >= StartDate
-					&& o.DeliveryDate <= EndDate
-					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (
-						(Organization == null && (o.OurOrganization.Id == 1 || o.OurOrganization == null))
-						||
-						(Organization != null && (
-							o.OurOrganization.Id == Organization.Id
-							|| (o.Contract != null && o.Contract.Organization != null && o.Contract.Organization.Id == Organization.Id)
-						))))
-					.Select(o => o.Id)
-					.ToArray();
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization);
 
-				if (unpaidOrdersId.Length == 0)
+				if (unpaidOrdersId.Count == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов для формирования общего счета.");
 					return attachments;
@@ -381,7 +366,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				var generalBillParameters = new Dictionary<string, object>
 				{
 					{ "order_id", unpaidOrdersId },
-					{ "hide_signature", false }
+					{ "hide_signature", false },
+					{ "organization_id", Organization?.Id ?? _defaultOurOrganizationId }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);
