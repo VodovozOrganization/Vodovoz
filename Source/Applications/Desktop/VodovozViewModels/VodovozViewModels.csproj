@@ -99,10 +99,13 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
@@ -232,7 +235,6 @@
     <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
-    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.StatusAndTypeComparer.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\ServiceDistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\ServiceDistrictsSetJournalNode.cs" />
@@ -951,6 +953,7 @@
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
+    <Compile Include="ViewModels\Reports\Payments\PaymentsFromBankClientReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
@@ -1456,6 +1459,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
+    <Folder Include="Journals\JournalNodes\Accounts\" />
+    <Folder Include="Journals\JournalViewModels\Accounts\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Services\RouteOptimization\README.md" />

@@ -437,6 +437,7 @@
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\BanksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
@@ -2074,6 +2075,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
     <Compile Include="Views\Logistic\ExportTo1CView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
+    <Compile Include="Filters\GtkViews\BanksJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BanksJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
