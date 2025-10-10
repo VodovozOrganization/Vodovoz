@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Payments
 		public Payment(TransferDocument doc, Organization org, Counterparty counterparty)
 		{
 			PaymentNum = int.Parse(doc.DocNum);
-			Date = doc.Date;
+			Date = doc.ReceiptDate ?? doc.Date;
 			Total = doc.Total;
 			CounterpartyInn = doc.PayerInn;
 			CounterpartyKpp = doc.PayerKpp;
@@ -56,8 +56,9 @@ namespace Vodovoz.Domain.Payments
 
 			if(org != null)
 			{
+				var account = string.IsNullOrWhiteSpace(doc.RecipientCurrentAccount) ? doc.RecipientAccount : doc.RecipientCurrentAccount;
 				Organization = org;
-				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == doc.RecipientCurrentAccount);
+				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == account);
 			}
 
 			if(counterparty != null)

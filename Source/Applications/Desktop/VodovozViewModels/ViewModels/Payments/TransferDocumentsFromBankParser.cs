@@ -146,6 +146,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				case "Сумма":
 					doc.Total = decimal.Parse(data[1], culture);
 					break;
+				case "КвитанцияДата":
+					doc.ReceiptDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
+					break;
 				case "ПлательщикСчет":
 					doc.PayerAccount = data[1];
 					break;
@@ -192,7 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.RecipientAccount = data[1];
 					break;
 				case "ДатаПоступило":
-					doc.ReceiptDate = DateTime.Parse(data[1], culture);
+					doc.ReceivedDate = DateTime.Parse(data[1], culture);
 					break;
 				case "Получатель1":
 					if(data[1].Contains("р/с") && !string.IsNullOrWhiteSpace(data[1].Substring(0, data[1].IndexOf("р/с"))))
