@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Payments
 		public Payment(TransferDocument doc, Organization org, Counterparty counterparty)
 		{
 			PaymentNum = int.Parse(doc.DocNum);
-			Date = doc.ReceiptDate ?? doc.Date;
+			Date = doc.ReceivedDate ?? doc.Date;
 			Total = doc.Total;
 			CounterpartyInn = doc.PayerInn;
 			CounterpartyKpp = doc.PayerKpp;

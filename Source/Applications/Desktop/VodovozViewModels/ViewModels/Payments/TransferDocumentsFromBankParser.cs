@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.PayerAccount = data[1];
 					break;
 				case "ДатаСписано":
-					doc.WriteOffDate = DateTime.Parse(data[1], culture);
+					doc.WriteOffDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
 					break;
 				case "Плательщик1":
 					if(data[1].Contains("р/с") && !string.IsNullOrWhiteSpace(data[1].Substring(0, data[1].IndexOf("р/с"))))
@@ -195,7 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.RecipientAccount = data[1];
 					break;
 				case "ДатаПоступило":
-					doc.ReceivedDate = DateTime.Parse(data[1], culture);
+					doc.ReceivedDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
 					break;
 				case "Получатель1":
 					if(data[1].Contains("р/с") && !string.IsNullOrWhiteSpace(data[1].Substring(0, data[1].IndexOf("р/с"))))
