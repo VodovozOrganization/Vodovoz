@@ -48,15 +48,16 @@
             END as payment_status,
             o.order_status as order_status
           FROM orders o
+          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
           WHERE
               o.client_id = @counterparty_id
               AND o.order_payment_status != 'Paid'
               AND o.payment_type = 'Cashless'
               AND (
-                  (@organization_id IS NULL AND (o.our_organization_id = 1 OR o.our_organization_id IS NULL))
-                  OR
-                  (@organization_id IS NOT NULL AND o.our_organization_id = @organization_id)
-              )
+                (@organization_id IS NULL AND (o.our_organization_id = 1 OR o.our_organization_id IS NULL))
+                OR
+                (@organization_id IS NOT NULL AND (o.our_organization_id = @organization_id OR cc.organization_id = @organization_id))
+            )
           HAVING
             debt &gt; 0
           UNION ALL
@@ -75,13 +76,14 @@
             payment_items pi ON o.id = pi.order_id
           INNER JOIN 
             payments_from_bank_client p ON pi.payment_id = p.id
+          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
           WHERE
             o.client_id = @counterparty_id
             AND pi.payment_item_status != 'Cancelled'
             AND (
                 (@organization_id IS NULL AND (o.our_organization_id = 1 OR o.our_organization_id IS NULL))
                 OR
-                (@organization_id IS NOT NULL AND o.our_organization_id = @organization_id)
+                (@organization_id IS NOT NULL AND (o.our_organization_id = @organization_id OR cc.organization_id = @organization_id))
             )
           UNION ALL
           SELECT # Депозит, кредит
@@ -164,9 +166,13 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
-full_name
- from organizations 
-where id =@organization_id</CommandText>
+        o.full_name
+        from organizations o
+        where
+          (@organization_id IS NULL AND o.id = 1)
+          OR
+          (@organization_id IS NOT NULL AND o.id = @organization_id)
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="organization_id">
             <Value>=Parameters!OrganizationId</Value>
@@ -231,7 +237,11 @@ WHERE
           FROM 
               cashless_movement_operations cmo 
           WHERE
-              cmo.counterparty_id = @counterparty_id) as T
+              cmo.counterparty_id = @counterparty_id
+              AND (
+                (@organization_id IS NULL AND (cmo.organization_id = 1 OR cmo.organization_id IS NULL))
+                OR
+                (@organization_id IS NOT NULL AND cmo.organization_id = @organization_id))) as T
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -242,6 +252,9 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="date_end">
             <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!OrganizationId</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>

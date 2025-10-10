@@ -229,7 +229,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
 			{ "CounterpartyId", Counterparty?.Id },
-			{ "OrganizationId", Organization?.Id }
+			//{ "OrganizationId", Organization?.Id ?? 1 } // Получать откуда-то Id нашей организации
 		};
 
 		public void Dispose()
@@ -321,7 +321,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					&& o.DeliveryDate >= StartDate 
 					&& o.DeliveryDate <= EndDate 
 					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OurOrganization.Id == 1
+					&& (o.OurOrganization.Id == Organization.Id
 					|| o.OurOrganization == null))
 					.Select(o => o.Id)
 					.ToArray();
@@ -362,8 +362,13 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					&& o.DeliveryDate >= StartDate
 					&& o.DeliveryDate <= EndDate
 					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OurOrganization.Id == 1
-					|| o.OurOrganization == null))
+					&& (
+						(Organization == null && (o.OurOrganization.Id == 1 || o.OurOrganization == null))
+						||
+						(Organization != null && (
+							o.OurOrganization.Id == Organization.Id
+							|| (o.Contract != null && o.Contract.Organization != null && o.Contract.Organization.Id == Organization.Id)
+						))))
 					.Select(o => o.Id)
 					.ToArray();
 
