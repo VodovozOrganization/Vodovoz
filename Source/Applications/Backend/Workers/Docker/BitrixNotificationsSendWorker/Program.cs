@@ -11,6 +11,7 @@ using OpenTelemetry.Trace;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 
@@ -39,17 +40,23 @@ namespace BitrixNotificationsSendWorker
 							typeof(QS.Banks.Domain.Bank).Assembly,
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-							typeof(AssemblyFinder).Assembly,
-							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
-						)
+							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly)
 						.AddDatabaseConnection()
-						.AddNHibernateConventions()
 						.AddCore()
 						.AddRepositories()
 						.AddTrackedUoW()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddBitrixNotificationsSendServices()
 						.ConfigureZabbixSenderFromDataBase(nameof(CashlessDebtsNotificationsSendWorker));
+
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+						});
+
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services
 						.AddOpenTelemetry()

@@ -7,11 +7,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
+using VodovozBusiness.Domain.Operations;
 
 namespace BitrixNotificationsSend.Library.Services
 {
@@ -56,13 +57,13 @@ namespace BitrixNotificationsSend.Library.Services
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
 				var query =
-					from order in uow.Session.Query<OrderEntity>()
-					join counterparty in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals counterparty.Id
-					join contract in uow.Session.Query<CounterpartyContractEntity>() on order.Contract.Id equals contract.Id
-					join organization in uow.Session.Query<OrganizationEntity>() on contract.Organization.Id equals organization.Id
+					from order in uow.Session.Query<Order>()
+					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+					join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
+					join organization in uow.Session.Query<Organization>() on contract.Organization.Id equals organization.Id
 
 					let counterpartyIncomeSum =
-					(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperationEntity>()
+					(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
 							   where
 							   cashlessMovementOperations.Counterparty.Id == counterparty.Id
 							   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
@@ -70,8 +71,8 @@ namespace BitrixNotificationsSend.Library.Services
 							   .Sum() ?? 0
 
 					let counterpartyPaymentItemsSum =
-					(decimal?)(from paymentItem in uow.Session.Query<PaymentItemEntity>()
-							   join payment in uow.Session.Query<PaymentEntity>() on paymentItem.Payment.Id equals payment.Id
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join payment in uow.Session.Query<Payment>() on paymentItem.Payment.Id equals payment.Id
 							   where
 							   payment.Counterparty.Id == counterparty.Id
 							   && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
@@ -79,16 +80,17 @@ namespace BitrixNotificationsSend.Library.Services
 							   .Sum() ?? 0
 
 					let notPaidOrdersSum =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItemEntity>()
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
 							   where
 							   orderItem.Order.Id == order.Id
 							   select
-							   orderItem.Price * (orderItem.ActualCount ?? orderItem.Count) - orderItem.DiscountMoney)
+							   orderItem.ActualSum)
+							   //orderItem.Price * (orderItem.ActualCount ?? orderItem.Count) - orderItem.DiscountMoney)
 							   .Sum() ?? 0
 
 					let patrialPaidOrdersSum =
-					(decimal?)(from paymentItem in uow.Session.Query<PaymentItemEntity>()
-							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperationEntity>()
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
 									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
 							   where
 							   paymentItem.Order.Id == order.Id
@@ -100,7 +102,6 @@ namespace BitrixNotificationsSend.Library.Services
 						order.DeliveryDate != null
 						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) <= today
 
-
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
 						&& _orderStatuses.Contains(order.OrderStatus)
@@ -108,7 +109,7 @@ namespace BitrixNotificationsSend.Library.Services
 						&& counterparty.PersonType == PersonType.legal
 						&& _counterpartyTypes.Contains(counterparty.CounterpartyType)
 						//&& isExpired
-					
+
 					select new CounterpartyCashlessDebtData
 					{
 						OrderId = order.Id,
