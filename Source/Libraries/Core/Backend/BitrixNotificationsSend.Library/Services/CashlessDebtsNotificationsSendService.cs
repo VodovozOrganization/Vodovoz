@@ -85,7 +85,6 @@ namespace BitrixNotificationsSend.Library.Services
 							   orderItem.Order.Id == order.Id
 							   select
 							   orderItem.ActualSum)
-							   //orderItem.Price * (orderItem.ActualCount ?? orderItem.Count) - orderItem.DiscountMoney)
 							   .Sum() ?? 0
 
 					let patrialPaidOrdersSum =
@@ -108,7 +107,7 @@ namespace BitrixNotificationsSend.Library.Services
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
 						&& _counterpartyTypes.Contains(counterparty.CounterpartyType)
-						//&& isExpired
+						&& isExpired
 
 					select new CounterpartyCashlessDebtData
 					{
