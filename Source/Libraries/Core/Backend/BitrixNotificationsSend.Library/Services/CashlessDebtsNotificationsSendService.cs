@@ -9,10 +9,14 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.Payments;
 
 namespace BitrixNotificationsSend.Library.Services
 {
@@ -34,13 +38,16 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private readonly ILogger<CashlessDebtsNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public CashlessDebtsNotificationsSendService(
 			ILogger<CashlessDebtsNotificationsSendService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOrganizationSettings organizationSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public async Task SendNotifications(CancellationToken cancellationToken)
@@ -56,28 +63,37 @@ namespace BitrixNotificationsSend.Library.Services
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
-				var query =
+				var notPaidOrdersData = await GetNotPaidOrdersData(
+					uow,
+					_organizationSettings.VodovozOrganizationId,
+					cancellationToken);
+
+				var counterpartyPaymentsData = await GetCounterpatyPaymentsData(
+					uow,
+					notPaidOrdersData.Keys,
+					_organizationSettings.VodovozOrganizationId,
+					cancellationToken);
+
+				return Enumerable.Empty<CounterpartyCashlessDebtData>();
+			}
+		}
+
+		private async Task<IDictionary<int, OrderData[]>> GetNotPaidOrdersData(
+			IUnitOfWork uow,
+			int organizationId,
+			CancellationToken cancellationToken)
+		{
+			var today = DateTime.Today;
+
+			var ordersDataQuery =
 					from order in uow.Session.Query<Order>()
 					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-					join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
-					join organization in uow.Session.Query<Organization>() on contract.Organization.Id equals organization.Id
-
-					let counterpartyIncomeSum =
-					(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
-							   where
-							   cashlessMovementOperations.Counterparty.Id == counterparty.Id
-							   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   select cashlessMovementOperations.Income)
-							   .Sum() ?? 0
-
-					let counterpartyPaymentItemsSum =
-					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
-							   join payment in uow.Session.Query<Payment>() on paymentItem.Payment.Id equals payment.Id
-							   where
-							   payment.Counterparty.Id == counterparty.Id
-							   && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
-							   select paymentItem.Sum)
-							   .Sum() ?? 0
+					join cc in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals cc.Id into contacts
+					from contract in contacts.DefaultIfEmpty()
+					join o in uow.Session.Query<Organization>() on contract.Organization.Id equals o.Id into organizations
+					from organization in organizations.DefaultIfEmpty()
+					join ccf in uow.Session.Query<ClientCameFrom>() on counterparty.CameFrom.Id equals ccf.Id into camefroms
+					from clientCameFrom in camefroms.DefaultIfEmpty()
 
 					let notPaidOrdersSum =
 					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
@@ -97,9 +113,55 @@ namespace BitrixNotificationsSend.Library.Services
 							   select cashlessMovementOpetation.Expense)
 							   .Sum() ?? 0
 
+					let overdueDebtorDebt =
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+							   where
+							   orderItem.Order.Id == order.Id
+							   && order.DeliveryDate != null
+							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+							   select
+							   orderItem.ActualSum)
+							   .Sum() ?? 0
+
+					let orderSum =
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+							   where
+							   orderItem.Order.Id == order.Id
+							   select
+							   orderItem.ActualSum)
+							   .Sum() ?? 0
+
+					let bottlesDelivered =
+					(int?)(from bottleMovementOperation in uow.Session.Query<BottlesMovementOperation>()
+						   where
+						   bottleMovementOperation.Counterparty.Id == counterparty.Id
+						   select
+						   bottleMovementOperation.Delivered)
+						   .Sum() ?? 0
+
+					let bottlesReturned =
+					(int?)(from bottleMovementOperation in uow.Session.Query<BottlesMovementOperation>()
+						   where
+						   bottleMovementOperation.Counterparty.Id == counterparty.Id
+						   select
+						   bottleMovementOperation.Returned)
+						   .Sum() ?? 0
+
+					let counterpartyPhones =
+					from phone in uow.Session.Query<Phone>()
+					where phone.Counterparty.Id == counterparty.Id
+					select phone
+
+					let counterpartyOrdersContactPhones =
+					from order in uow.Session.Query<Order>()
+					join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
+					where
+					order.Client.Id == counterparty.Id
+					select phone
+
 					let isExpired =
 						order.DeliveryDate != null
-						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) <= today
+						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
@@ -107,40 +169,130 @@ namespace BitrixNotificationsSend.Library.Services
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
 						&& _counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& organization.Id == organizationId
+						&& counterparty.CloseDeliveryDebtType == null
+						&& order.DeliveryDate != null
+						&& orderSum > 0
+						&& (clientCameFrom == null || clientCameFrom.Name != "Тендер")
+						&& !counterparty.IsChainStore
 						&& isExpired
 
-					select new CounterpartyCashlessDebtData
+					select new OrderData
 					{
 						OrderId = order.Id,
-						CounterpartyName = counterparty.Name,
-						CounterpartyInn = counterparty.INN,
-						PhoneNumber = string.Empty,
-						Organization = organization.FullName,
-						UnallocatedBalance = counterpartyIncomeSum - counterpartyPaymentItemsSum,
-						UnpaidOrdersSum = notPaidOrdersSum,
-						PatrialPaidOrdersSum = patrialPaidOrdersSum
-						//WriteOffSum = counterparty.WriteOffSum,
-						//TotalDebt = counterparty.Debt,
-						//DebtorDebt = counterparty.Debt > 0 ? counterparty.Debt : 0,
-						//OverdueDebtorDebt = counterparty.OverdueDebt > 0 ? counterparty.OverdueDebt : 0,
-						//DelayDaysForCounterparty = counterparty.DelayDaysForCounterparty,
-						//MaxDelayDays = uow.Session.Query<OrderEntity>()
-						//	.Where(o => o.Client.Id == counterparty.Id && o.DeliveryDate < DateTime.Now && o.OrderPaymentStatus != OrderPaymentStatus.Paid)
-						//	.Select(o => (int?)(DateTime.Now - o.DeliveryDate).Days)
-						//	.Max() ?? 0,
-						//TypeDebt = counterparty.Debt > 0 ? (counterparty.OverdueDebt > 0 ? "Просроченная" : "Текущая") : "Отсутствует",
-						//LiquidationStatus = counterparty.LiquidationStatus.GetEnumTitle(),
-						//UnloadingDate = DateTime.Now,
-						//BottlesDebt = counterparty.BottlesDebt,
-						//EmailAdresses = string.Join(", ", counterparty.Emails)
+						CounterpartyId = counterparty.Id,
+						OrganizationId = organization.Id,
+						OrganizationName = organization.FullName,
+						NotPaidSum = notPaidOrdersSum,
+						PartialPaidSum = patrialPaidOrdersSum,
+						OverdueDebtorDebt = overdueDebtorDebt,
+						OrderDeliveryDate = order.DeliveryDate,
+						BottlesDelivered = bottlesDelivered,
+						BottlesReturned = bottlesReturned
 					};
 
-				var orders = await query.ToListAsync(cancellationToken);
+			var notPaidOrdersData =
+				(await ordersDataQuery.ToListAsync(cancellationToken))
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(
+					x => x.Key,
+					x => x.ToArray());
 
-				return Enumerable.Empty<CounterpartyCashlessDebtData>();
-			}
+			return notPaidOrdersData;
+		}
+
+		private async Task<IDictionary<int, CounterpartyPaymentsData[]>> GetCounterpatyPaymentsData(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties,
+			int organizationId,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from counterparty in uow.Session.Query<Counterparty>()
+
+				let counterpartyIncomeSum =
+				(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
+						   where
+						   cashlessMovementOperations.Counterparty.Id == counterparty.Id
+						   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						   && cashlessMovementOperations.Organization.Id == organizationId
+						   select cashlessMovementOperations.Income)
+						   .Sum() ?? 0
+
+				let counterpartyPaymentItemsSum =
+				(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+						   join payment in uow.Session.Query<Payment>() on paymentItem.Payment.Id equals payment.Id
+						   where
+						   payment.Counterparty.Id == counterparty.Id
+						   && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+						   && payment.Organization.Id == organizationId
+						   select paymentItem.Sum)
+						   .Sum() ?? 0
+
+				let paymentsWriteOffSum =
+				(decimal?)(from paymentWriteOff in uow.Session.Query<PaymentWriteOff>()
+						   join cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
+								on paymentWriteOff.CashlessMovementOperation.Id equals cashlessMovementOperations.Id
+						   where
+							   paymentWriteOff.CounterpartyId == counterparty.Id
+							   && paymentWriteOff.OrganizationId != null
+							   && organizationId == paymentWriteOff.OrganizationId.Value
+							   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						   select paymentWriteOff.Sum)
+						   .Sum() ?? 0
+
+				where counterparties.Contains(counterparty.Id)
+
+				select new CounterpartyPaymentsData
+				{
+					CounterpartyId = counterparty.Id,
+					CounterpartyName = counterparty.Name,
+					CounterpartyInn = counterparty.INN,
+					IncomeSum = counterpartyIncomeSum,
+					PaymentItemsSum = counterpartyPaymentItemsSum,
+					WriteOffSum = paymentsWriteOffSum,
+					DelayDaysForCounterparty = counterparty.DelayDaysForBuyers,
+					IsLiquidating = counterparty.IsLiquidating,
+				};
+
+			var counterpartyPaymentsData =
+				(await query.ToListAsync(cancellationToken))
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(
+					x => x.Key,
+					x => x.ToArray());
+
+			return counterpartyPaymentsData;
 		}
 	}
+
+	public class OrderData
+	{
+		public int OrderId { get; set; }
+		public int CounterpartyId { get; set; }
+		public int OrganizationId { get; set; }
+		public string OrganizationName { get; set; }
+		public decimal NotPaidSum { get; set; }
+		public decimal PartialPaidSum { get; set; }
+		public decimal OverdueDebtorDebt { get; set; }
+		public DateTime? OrderDeliveryDate { get; set; }
+		public int BottlesDelivered { get; set; }
+		public int BottlesReturned { get; set; }
+	}
+
+	public class CounterpartyPaymentsData
+	{
+		public int CounterpartyId { get; set; }
+		public string CounterpartyName { get; set; }
+		public string CounterpartyInn { get; set; }
+		public decimal IncomeSum { get; set; }
+		public decimal PaymentItemsSum { get; set; }
+		public decimal UnallocatedBalance => IncomeSum - PaymentItemsSum;
+		public decimal WriteOffSum { get; set; }
+		public int DelayDaysForCounterparty { get; set; }
+		public bool IsLiquidating { get; set; }
+	}
+
 
 	/// <summary>
 	/// Представляет данные о контрагенте и его финансовых показателях
@@ -148,6 +300,8 @@ namespace BitrixNotificationsSend.Library.Services
 	public class CounterpartyCashlessDebtData
 	{
 		public int OrderId { get; set; }
+		public int OrganizationId { get; set; }
+		public int CounterpartyId { get; set; }
 		/// <summary>
 		/// Наименование контрагента
 		/// </summary>
@@ -158,10 +312,15 @@ namespace BitrixNotificationsSend.Library.Services
 		/// </summary>
 		public string CounterpartyInn { get; set; }
 
+		public IEnumerable<Phone> CounterpartyPhones { get; set; } = Enumerable.Empty<Phone>();
+		public IEnumerable<Phone> CounterpartyOrdersContactPhones { get; set; } = Enumerable.Empty<Phone>();
+
 		/// <summary>
 		/// Номер телефона контрагента
 		/// </summary>
-		public string PhoneNumber { get; set; }
+		public string PhoneNumber => CounterpartyPhones.Any()
+			? string.Join(", ", CounterpartyPhones.Select(x => x.Number))
+			: string.Join(", ", CounterpartyOrdersContactPhones.Select(x => x.Number));
 
 		/// <summary>
 		/// Наименование организации
@@ -176,12 +335,12 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <summary>
 		/// Сумма неоплаченных заказов
 		/// </summary>
-		public decimal UnpaidOrdersSum { get; set; }
+		public decimal NotPaidOrdersSum { get; set; }
 
 		/// <summary>
 		/// Сумма частичной оплаты
 		/// </summary>
-		public decimal PatrialPaidOrdersSum { get; set; }
+		public decimal PartialPaidOrdersSum { get; set; }
 
 		/// <summary>
 		/// Возвращенный баланс
@@ -191,12 +350,12 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <summary>
 		/// Общий долг
 		/// </summary>
-		public decimal TotalDebt { get; set; }
+		public decimal TotalDebt => NotPaidOrdersSum - UnallocatedBalance - PartialPaidOrdersSum;
 
 		/// <summary>
 		/// Дебиторская задолженность
 		/// </summary>
-		public decimal DebtorDebt { get; set; }
+		public decimal DebtorDebt => NotPaidOrdersSum - UnallocatedBalance - PartialPaidOrdersSum - OverdueDebtorDebt;
 
 		/// <summary>
 		/// Просроченная дебиторская задолженность
@@ -209,14 +368,17 @@ namespace BitrixNotificationsSend.Library.Services
 		public int DelayDaysForCounterparty { get; set; }
 
 		/// <summary>
-		/// Максимальное количество дней просрочки
+		/// Дата доставки заказа
 		/// </summary>
-		public int MaxDelayDays { get; set; }
+		public DateTime? OrderDeliveryDate { get; set; }
 
 		/// <summary>
-		/// Тип задолженности
+		/// Максимальное количество дней просрочки
 		/// </summary>
-		public string TypeDebt { get; set; }
+		public int MaxDelayDays =>
+			OrderDeliveryDate.HasValue
+			? (DateTime.Now - OrderDeliveryDate.Value).Days
+			: 0;
 
 		/// <summary>
 		/// Статус ликвидации организации
@@ -226,12 +388,16 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <summary>
 		/// Дата и время выгрузки данных
 		/// </summary>
-		public DateTime UnloadingDate { get; set; }
+		public DateTime UnloadingDate =>
+			DateTime.Today;
+
+		public int BottlesDelivered { get; set; }
+		public int BottlesReturned { get; set; }
 
 		/// <summary>
 		/// Долг по бутылям
 		/// </summary>
-		public int BottlesDebt { get; set; }
+		public int BottlesDebt => BottlesDelivered - BottlesReturned;
 
 		/// <summary>
 		/// Email адреса
