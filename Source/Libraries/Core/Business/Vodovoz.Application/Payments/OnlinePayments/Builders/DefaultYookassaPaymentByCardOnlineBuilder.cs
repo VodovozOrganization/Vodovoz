@@ -99,8 +99,8 @@ namespace Vodovoz.Application.Payments.OnlinePayments.Builders
 		{
 			switch (registerData.Columns)
 			{
-				case MbnYookassaOnlinePaymentRegisterColumns _:
-					return new MbnYookassaPaymentByCardOnlineBuilder(registerData);
+				case BwYookassaOnlinePaymentRegisterColumns _:
+					return new BwYookassaPaymentByCardOnlineBuilder(registerData);
 				case VvEastYookassaOnlinePaymentRegisterColumns _:
 					return new VvEastYookassaPaymentByCardOnlineBuilder(registerData);
 				default:

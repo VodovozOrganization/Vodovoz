@@ -2,7 +2,9 @@
 
 namespace Vodovoz.Application.Payments.OnlinePayments
 {
-	/// <inheritdoc/>
+	/// <summary>
+	/// Колонки выписки ВВ Восток, которые выгружаются в онлайн платеж <see cref="PaymentByCardOnline"/>
+	/// </summary>
 	public class VvEastYookassaOnlinePaymentRegisterColumns : IOnlinePaymentRegisterColumns
 	{
 		public int PaymentSumColumn => 1;

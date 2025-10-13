@@ -43,7 +43,7 @@ namespace Vodovoz.Application.Payments.OnlinePayments
 		/// </summary>
 		private const string _shopKulerSale = "kuler-sale.ru";
 		/// <summary>
-		/// Выписка Мира безалкагольных напитков
+		/// Выписка Мира напитков
 		/// </summary>
 		private const string _yookassaBeveragesWorld = "НЭК.338376.01";
 		/// <summary>
@@ -112,7 +112,7 @@ namespace Vodovoz.Application.Payments.OnlinePayments
 			switch(data)
 			{
 				case _yookassaBeveragesWorld:
-					return (MbnYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
+					return (BwYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
 				case _yookassaVvEast:
 					return (VvEastYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
 				case _vodovozString:

@@ -4,11 +4,11 @@ using VodovozBusiness.Domain.Payments;
 namespace Vodovoz.Application.Payments.OnlinePayments.Builders
 {
 	/// <summary>
-	/// Билдер для выписки по МБН
+	/// Билдер для выписки по МН(мир напитков)
 	/// </summary>
-	public class MbnYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
+	public class BwYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
 	{
-		public MbnYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
+		public BwYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
 			: base(registerData)
 		{
 		}
