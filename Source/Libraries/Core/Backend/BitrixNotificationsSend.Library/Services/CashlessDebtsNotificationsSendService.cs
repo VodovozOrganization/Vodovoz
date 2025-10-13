@@ -65,15 +65,19 @@ namespace BitrixNotificationsSend.Library.Services
 
 		public async Task SendNotifications(CancellationToken cancellationToken)
 		{
+			_logger.LogInformation("Начало формирования данных по компаниям с долгом по безналу");
+
 			var cashlessDebts = await GetCashlessDebts(cancellationToken);
+
+			_logger.LogInformation(
+				"Окончание формирования данных по компаниям с долгом по безналу. Количество компаний: {0}",
+				cashlessDebts.Count());
 
 			await Task.CompletedTask;
 		}
 
 		private async Task<IEnumerable<CounterpartyCashlessDebtData>> GetCashlessDebts(CancellationToken cancellationToken)
 		{
-			var today = DateTime.Today;
-
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
 				return await GetGetCashlessDebtsByOrganization(uow, _organizationSettings.VodovozOrganizationId, cancellationToken);
