@@ -150,7 +150,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="endDate"></param>
 		/// <param name="organizationId"></param>
 		/// <returns></returns>
-		IList<int> GetUnpaidOrdersIds(IUnitOfWork uow, int counterpartyId, DateTime? startDate, DateTime? endDate, Organization organization = null);
+		IList<int> GetUnpaidOrdersIds(IUnitOfWork uow, int counterpartyId, DateTime? startDate, DateTime? endDate, int organizationId);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
 		/// <summary>

@@ -1140,7 +1140,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int counterpartyId,
 			DateTime? startDate,
 			DateTime? endDate,
-			Organization organization)
+			int organizationId)
 		{
 			VodovozOrder orderAlias = null;
 			CounterpartyContract contractAlias = null;
@@ -1152,14 +1152,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.Client.Id == counterpartyId)
 				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
 				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
-				.Where(() => orderAlias.PaymentType == PaymentType.Cashless);
-
-			query.Where(
-				Restrictions.And(
-					Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias)),
-					Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
-				)
-			);
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => contractAlias.Organization.Id == organizationId);
 
 			return query
 				.Select(x => x.Id)

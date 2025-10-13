@@ -288,6 +288,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			UnitOfWork?.Dispose();
 			UnitOfWork = null;
 		}
+
 		private void SendByEmail()
 		{
 			if(!IsEmailDataValid())
@@ -365,7 +366,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendBillsForNotPaidOrder)
 			{
-				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization);
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization.Id);
 
 				if(unpaidOrdersId.Count == 0)
 				{
@@ -399,7 +400,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendGeneralBill)
 			{
-				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization);
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization.Id);
 
 				if (unpaidOrdersId.Count == 0)
 				{
