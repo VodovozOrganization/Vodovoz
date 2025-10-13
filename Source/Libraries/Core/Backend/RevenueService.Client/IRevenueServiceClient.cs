@@ -1,7 +1,7 @@
-﻿using Dadata.Model;
-using RevenueService.Client.Dto;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Dadata.Model;
+using RevenueService.Client.Dto;
 
 namespace RevenueService.Client
 {
@@ -9,5 +9,6 @@ namespace RevenueService.Client
 	{
 		Task<RevenueServiceResponseDto> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
 		Task<PartyStatus> GetCounterpartyStatus(string inn, string kpp, CancellationToken cancellationToken);
+		Task<SuggestResponse<Party>> GetFullCounterpartyInfoAsync(string inn, string kpp, CancellationToken cancellationToken);
 	}
 }

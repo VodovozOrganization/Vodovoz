@@ -1,13 +1,13 @@
-﻿using Dadata;
-using Dadata.Model;
-using NLog;
-using RevenueService.Client.Dto;
-using RevenueService.Client.Parsers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dadata;
+using Dadata.Model;
+using NLog;
+using RevenueService.Client.Dto;
+using RevenueService.Client.Parsers;
 
 namespace RevenueService.Client
 {
@@ -22,10 +22,46 @@ namespace RevenueService.Client
 			_accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
 		}
 
+		public async Task<SuggestResponse<Party>> GetFullCounterpartyInfoAsync(
+			string inn,
+			string kpp,
+			CancellationToken cancellationToken)
+		{
+			var query = new DadataRequestDto
+			{
+				Inn = inn,
+				Kpp = kpp
+			};
+
+			var api = new SuggestClientAsync(_accessToken);
+
+			var request = string.IsNullOrEmpty(query.Kpp)
+				? new FindPartyRequest(query.Inn, count: _queryCount)
+				: new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
+
+			SuggestResponse<Party> response = null;
+
+			try
+			{
+				response = await api.FindParty(request, cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(ex, "Ошибка при загрузке реквизитов контрагента.");
+				
+				throw;
+			}
+
+			return response;
+		}
+
 		public async Task<RevenueServiceResponseDto> GetCounterpartyInfoAsync(DadataRequestDto query, CancellationToken cancellationToken)
 		{
 			var api = new SuggestClientAsync(_accessToken);
-			var request = string.IsNullOrEmpty(query.Kpp) ? new FindPartyRequest(query.Inn, count: _queryCount) : new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
+
+			var request = string.IsNullOrEmpty(query.Kpp)
+				? new FindPartyRequest(query.Inn, count: _queryCount)
+				: new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
 
 			var suggestionList = new List<CounterpartyRevenueServiceDto>();
 
@@ -112,12 +148,12 @@ namespace RevenueService.Client
 				return counterpartyDetails.State;
 			}
 			catch(InvalidOperationException ex) when(ex.Message == "Последовательность содержит более одного элемента"
-							&& ex.TargetSite.Name == "Single")
+			                                         && ex.TargetSite.Name == "Single")
 			{
 				throw new InvalidOperationException($"Найдено несколько записей в ФНС с ИНН: \"{inn}\" и КПП: \"{kpp}\"", ex);
 			}
 			catch(InvalidOperationException ex) when(ex.Message == "Последовательность не содержит элементов"
-				&& ex.TargetSite.Name == "Single")
+			                                         && ex.TargetSite.Name == "Single")
 			{
 				throw new InvalidOperationException($"Не найдено ни одной записи в ФНС с ИНН: \"{inn}\" и КПП: \"{kpp}\"", ex);
 			}
