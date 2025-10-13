@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -17,5 +18,13 @@ namespace Vodovoz.EntityRepositories.Operations
 		int GetBottlesDebtAtCounterpartyAndDeliveryPoint(IUnitOfWork uow, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before);
 		int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, Order order, int? excludeDocument = null);
 		int GetBottleDebtBySelfDelivery(IUnitOfWork uow, Counterparty counterparty);
+
+		/// <summary>
+		/// Возвращает задолженность по бутылям для списка контрагентов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartiesIds">Список Id контрагентов</param>
+		/// <returns>Задолженности по бутылям контрагентов</returns>
+		IDictionary<int, BottlesBalanceQueryResult> GetCounterpartiesBottlesDebtData(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,16 +6,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.Payments;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace BitrixNotificationsSend.Library.Services
 {
@@ -39,15 +37,30 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly ILogger<CashlessDebtsNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly ICounterpartySettings _counterpartySettings;
+		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IPaymentsRepository _paymentsRepository;
 
 		public CashlessDebtsNotificationsSendService(
 			ILogger<CashlessDebtsNotificationsSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOrganizationSettings organizationSettings)
+			IOrganizationSettings organizationSettings,
+			ICounterpartySettings counterpartySettings,
+			ICounterpartyRepository counterpartyRepository,
+			IBottlesRepository bottlesRepository,
+			IOrderRepository orderRepository,
+			IPaymentsRepository paymentsRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 		}
 
 		public async Task SendNotifications(CancellationToken cancellationToken)
@@ -74,18 +87,34 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var counterpartiesDebtData = new List<CounterpartyCashlessDebtData>();
 
-			var counterpartyNotPaidOrdersData = await GetNotPaidOrdersData(
+			var counterpartiesNotPaidOrdersData = await GetNotPaidCashlessOrdersData(
 				uow,
 				organizationId,
 				cancellationToken);
 
-			var counterpartiesPaymentsData = await GetCounterpatyPaymentsData(
+			var counterpartiesPaymentsData = await GetCounterpatiesPaymentsData(
 				uow,
-				counterpartyNotPaidOrdersData.Keys,
+				counterpartiesNotPaidOrdersData.Keys,
 				organizationId,
 				cancellationToken);
 
-			foreach(var counterpartyOrdersData in counterpartyNotPaidOrdersData)
+			var counterpartiesBottlesDebtData = GetCounterpartiesBottlesDebtData(
+				uow,
+				counterpartiesNotPaidOrdersData.Keys);
+
+			var counterpartiesEmails = GetCounterpartiesEmails(
+				uow,
+				counterpartiesNotPaidOrdersData.Keys);
+
+			var counterpartiesPhones = GetCounterpartyiesPhones(
+				uow,
+				counterpartiesNotPaidOrdersData.Keys);
+
+			var counterpartiesOrdersContactPhones = GetCounterpartiesOrdersContactPhones(
+				uow,
+				counterpartiesNotPaidOrdersData.Keys);
+
+			foreach(var counterpartyOrdersData in counterpartiesNotPaidOrdersData)
 			{
 				var counterpartyId = counterpartyOrdersData.Key;
 				var ordersData = counterpartyOrdersData.Value;
@@ -94,6 +123,14 @@ namespace BitrixNotificationsSend.Library.Services
 				counterpartiesPaymentsData.TryGetValue(counterpartyId, out var counterpartyPaymentsData);
 				var counterpartyPayments = counterpartyPaymentsData?.FirstOrDefault();
 
+				counterpartiesBottlesDebtData.TryGetValue(counterpartyId, out var counterpartyBottlesDebtData);
+
+				counterpartiesEmails.TryGetValue(counterpartyId, out var counterpartyEmails);
+
+				counterpartiesPhones.TryGetValue(counterpartyId, out var counterpartyPhones);
+
+				counterpartiesOrdersContactPhones.TryGetValue(counterpartyId, out var counterpartyOrdersContactPhones);
+
 				var couterpartyDebtData = new CounterpartyCashlessDebtData
 				{
 					OrganizationId = organizationId,
@@ -101,8 +138,8 @@ namespace BitrixNotificationsSend.Library.Services
 					CounterpartyId = counterpartyId,
 					CounterpartyName = counterpartyPayments?.CounterpartyName,
 					CounterpartyInn = counterpartyPayments?.CounterpartyInn,
-					CounterpartyPhones = Enumerable.Empty<Phone>(),
-					CounterpartyOrdersContactPhones = Enumerable.Empty<Phone>(),
+					CounterpartyPhones = counterpartyPhones ?? Enumerable.Empty<Phone>(),
+					CounterpartyOrdersContactPhones = counterpartyOrdersContactPhones ?? Enumerable.Empty<Phone>(),
 					UnallocatedBalance = counterpartyPayments?.UnallocatedBalance ?? default,
 					NotPaidOrdersSum = ordersData.Sum(x => x.NotPaidSum),
 					PartialPaidOrdersSum = ordersData.Sum(x => x.PartialPaidSum),
@@ -111,9 +148,9 @@ namespace BitrixNotificationsSend.Library.Services
 					DelayDaysForCounterparty = counterpartyPayments?.DelayDaysForCounterparty ?? default,
 					OrderMinDeliveryDate = ordersData.Min(x => x.OrderDeliveryDate),
 					IsCounterpartyLiquidating = counterpartyPayments?.IsLiquidating ?? default,
-					BottlesDelivered = 0,
-					BottlesReturned = 0,
-					EmailAdresses = string.Empty
+					BottlesDelivered = counterpartyBottlesDebtData?.Delivered ?? 0,
+					BottlesReturned = counterpartyBottlesDebtData?.Returned ?? 0,
+					Emails = counterpartyEmails ?? Enumerable.Empty<Email>()
 				};
 
 				counterpartiesDebtData.Add(couterpartyDebtData);
@@ -122,219 +159,44 @@ namespace BitrixNotificationsSend.Library.Services
 			return counterpartiesDebtData;
 		}
 
-		private async Task<IDictionary<int, OrderData[]>> GetNotPaidOrdersData(
+		private async Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
 			IUnitOfWork uow,
 			int organizationId,
-			CancellationToken cancellationToken)
-		{
-			var today = DateTime.Today;
+			CancellationToken cancellationToken) =>
+			await _orderRepository.GetNotPaidCashlessOrdersData(
+				uow,
+				organizationId,
+				_orderStatuses,
+				_counterpartyTypes,
+				_counterpartySettings.CounterpartyFromTenderId,
+				cancellationToken);
 
-			var ordersDataQuery =
-					from order in uow.Session.Query<Order>()
-					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-					join cc in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals cc.Id into contacts
-					from contract in contacts.DefaultIfEmpty()
-					join o in uow.Session.Query<Organization>() on contract.Organization.Id equals o.Id into organizations
-					from organization in organizations.DefaultIfEmpty()
-					join ccf in uow.Session.Query<ClientCameFrom>() on counterparty.CameFrom.Id equals ccf.Id into camefroms
-					from clientCameFrom in camefroms.DefaultIfEmpty()
-
-					let notPaidOrdersSum =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
-							   where
-							   orderItem.Order.Id == order.Id
-							   select
-							   orderItem.ActualSum)
-							   .Sum() ?? 0
-
-					let patrialPaidOrdersSum =
-					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
-							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
-									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
-							   where
-							   paymentItem.Order.Id == order.Id
-							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   select cashlessMovementOpetation.Expense)
-							   .Sum() ?? 0
-
-					let overdueDebtorDebt =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
-							   where
-							   orderItem.Order.Id == order.Id
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
-							   select
-							   orderItem.ActualSum)
-							   .Sum() ?? 0
-
-					let orderSum =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
-							   where
-							   orderItem.Order.Id == order.Id
-							   select
-							   orderItem.ActualSum)
-							   .Sum() ?? 0
-
-					let bottlesDelivered =
-					(int?)(from bottleMovementOperation in uow.Session.Query<BottlesMovementOperation>()
-						   where
-						   bottleMovementOperation.Counterparty.Id == counterparty.Id
-						   select
-						   bottleMovementOperation.Delivered)
-						   .Sum() ?? 0
-
-					let bottlesReturned =
-					(int?)(from bottleMovementOperation in uow.Session.Query<BottlesMovementOperation>()
-						   where
-						   bottleMovementOperation.Counterparty.Id == counterparty.Id
-						   select
-						   bottleMovementOperation.Returned)
-						   .Sum() ?? 0
-
-					let counterpartyPhones =
-					from phone in uow.Session.Query<Phone>()
-					where phone.Counterparty.Id == counterparty.Id
-					select phone
-
-					let counterpartyOrdersContactPhones =
-					from order in uow.Session.Query<Order>()
-					join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
-					where
-					order.Client.Id == counterparty.Id
-					select phone
-
-					let isExpired =
-						order.DeliveryDate != null
-						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
-
-					where
-						order.OrderPaymentStatus != OrderPaymentStatus.Paid
-						&& _orderStatuses.Contains(order.OrderStatus)
-						&& order.PaymentType == PaymentType.Cashless
-						&& counterparty.PersonType == PersonType.legal
-						&& _counterpartyTypes.Contains(counterparty.CounterpartyType)
-						&& organization.Id == organizationId
-						&& counterparty.CloseDeliveryDebtType == null
-						&& order.DeliveryDate != null
-						&& orderSum > 0
-						&& (clientCameFrom == null || clientCameFrom.Name != "Тендер")
-						&& !counterparty.IsChainStore
-						&& isExpired
-
-					select new OrderData
-					{
-						OrderId = order.Id,
-						CounterpartyId = counterparty.Id,
-						OrganizationId = organization.Id,
-						OrganizationName = organization.FullName,
-						NotPaidSum = notPaidOrdersSum,
-						PartialPaidSum = patrialPaidOrdersSum,
-						OverdueDebtorDebt = overdueDebtorDebt,
-						OrderDeliveryDate = order.DeliveryDate,
-						BottlesDelivered = bottlesDelivered,
-						BottlesReturned = bottlesReturned
-					};
-
-			var notPaidOrdersData =
-				(await ordersDataQuery.ToListAsync(cancellationToken))
-				.GroupBy(x => x.CounterpartyId)
-				.ToDictionary(
-					x => x.Key,
-					x => x.ToArray());
-
-			return notPaidOrdersData;
-		}
-
-		private async Task<IDictionary<int, CounterpartyPaymentsData[]>> GetCounterpatyPaymentsData(
+		private async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties,
 			int organizationId,
-			CancellationToken cancellationToken)
-		{
-			var query =
-				from counterparty in uow.Session.Query<Counterparty>()
+			CancellationToken cancellationToken) =>
+			await _paymentsRepository.GetCounterpatiesPaymentsData(uow, counterparties, organizationId, cancellationToken);
 
-				let counterpartyIncomeSum =
-				(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
-						   where
-						   cashlessMovementOperations.Counterparty.Id == counterparty.Id
-						   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-						   && cashlessMovementOperations.Organization.Id == organizationId
-						   select cashlessMovementOperations.Income)
-						   .Sum() ?? 0
+		private IDictionary<int, BottlesBalanceQueryResult> GetCounterpartiesBottlesDebtData(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			_bottlesRepository.GetCounterpartiesBottlesDebtData(uow, counterparties);
 
-				let counterpartyPaymentItemsSum =
-				(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
-						   join payment in uow.Session.Query<Payment>() on paymentItem.Payment.Id equals payment.Id
-						   where
-						   payment.Counterparty.Id == counterparty.Id
-						   && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
-						   && payment.Organization.Id == organizationId
-						   select paymentItem.Sum)
-						   .Sum() ?? 0
+		private IDictionary<int, Email[]> GetCounterpartiesEmails(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			_counterpartyRepository.GetCounterpartyEmails(uow, counterparties);
 
-				let paymentsWriteOffSum =
-				(decimal?)(from paymentWriteOff in uow.Session.Query<PaymentWriteOff>()
-						   join cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
-								on paymentWriteOff.CashlessMovementOperation.Id equals cashlessMovementOperations.Id
-						   where
-							   paymentWriteOff.CounterpartyId == counterparty.Id
-							   && paymentWriteOff.OrganizationId != null
-							   && organizationId == paymentWriteOff.OrganizationId.Value
-							   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-						   select paymentWriteOff.Sum)
-						   .Sum() ?? 0
+		private IDictionary<int, Phone[]> GetCounterpartyiesPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			_counterpartyRepository.GetCounterpartyPhones(uow, counterparties);
 
-				where counterparties.Contains(counterparty.Id)
-
-				select new CounterpartyPaymentsData
-				{
-					CounterpartyId = counterparty.Id,
-					CounterpartyName = counterparty.Name,
-					CounterpartyInn = counterparty.INN,
-					IncomeSum = counterpartyIncomeSum,
-					PaymentItemsSum = counterpartyPaymentItemsSum,
-					WriteOffSum = paymentsWriteOffSum,
-					DelayDaysForCounterparty = counterparty.DelayDaysForBuyers,
-					IsLiquidating = counterparty.IsLiquidating,
-				};
-
-			var counterpartyPaymentsData =
-				(await query.ToListAsync(cancellationToken))
-				.GroupBy(x => x.CounterpartyId)
-				.ToDictionary(
-					x => x.Key,
-					x => x.ToArray());
-
-			return counterpartyPaymentsData;
-		}
-	}
-
-	public class OrderData
-	{
-		public int OrderId { get; set; }
-		public int CounterpartyId { get; set; }
-		public int OrganizationId { get; set; }
-		public string OrganizationName { get; set; }
-		public decimal NotPaidSum { get; set; }
-		public decimal PartialPaidSum { get; set; }
-		public decimal OverdueDebtorDebt { get; set; }
-		public DateTime? OrderDeliveryDate { get; set; }
-		public int BottlesDelivered { get; set; }
-		public int BottlesReturned { get; set; }
-	}
-
-	public class CounterpartyPaymentsData
-	{
-		public int CounterpartyId { get; set; }
-		public string CounterpartyName { get; set; }
-		public string CounterpartyInn { get; set; }
-		public decimal IncomeSum { get; set; }
-		public decimal PaymentItemsSum { get; set; }
-		public decimal UnallocatedBalance => IncomeSum - PaymentItemsSum;
-		public decimal WriteOffSum { get; set; }
-		public int DelayDaysForCounterparty { get; set; }
-		public bool IsLiquidating { get; set; }
+		private IDictionary<int, Phone[]> GetCounterpartiesOrdersContactPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			_counterpartyRepository.GetCounterpartyOrdersContactPhones(uow, counterparties);
 	}
 
 
@@ -463,6 +325,6 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <summary>
 		/// Email адреса
 		/// </summary>
-		public string EmailAdresses { get; set; }
+		public IEnumerable<Email> Emails { get; set; }
 	}
 }
