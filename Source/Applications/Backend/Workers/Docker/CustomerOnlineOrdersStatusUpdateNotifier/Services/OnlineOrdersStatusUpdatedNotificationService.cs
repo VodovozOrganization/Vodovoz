@@ -4,8 +4,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
 using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
@@ -13,25 +14,17 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 	public class OnlineOrdersStatusUpdatedNotificationService : IOnlineOrdersStatusUpdatedNotificationService
 	{
 		private readonly HttpClient _httpClient;
+		private readonly NotifierOptions _options;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
-		private readonly IConfigurationSection _mobileAppSection;
-		private readonly IConfigurationSection _vodovozSiteSection;
 
 		public OnlineOrdersStatusUpdatedNotificationService(
 			HttpClient client,
-			IConfiguration configuration,
+			IOptionsSnapshot<NotifierOptions> options,
 			JsonSerializerOptions jsonSerializerOptions)
 		{
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
+			_options = (options ?? throw new ArgumentNullException(nameof(options))).Value;
 			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
-
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-			
-			_mobileAppSection = configuration.GetSection("MobileApp");
-			_vodovozSiteSection = configuration.GetSection("VodovozSite");
 		}
 
 		public async Task<int> NotifyOfOnlineOrderStatusUpdatedAsync(
@@ -47,9 +40,9 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			switch(source)
 			{
 				case Source.MobileApp:
-					return $"{_mobileAppSection["BaseUrl"]}{_mobileAppSection["NotificationAddress"]}";
+					return $"{_options.MobileAppUriOptions.BaseUrl}{_options.MobileAppUriOptions.NotificationAddress}";
 				case Source.VodovozWebSite:
-					return $"{_vodovozSiteSection["BaseUrl"]}{_vodovozSiteSection["NotificationAddress"]}";
+					return $"{_options.VodovozWebSiteUriOptions.BaseUrl}{_options.VodovozWebSiteUriOptions.NotificationAddress}";
 				default:
 					throw new ArgumentOutOfRangeException(nameof(Source), source, null);
 			}

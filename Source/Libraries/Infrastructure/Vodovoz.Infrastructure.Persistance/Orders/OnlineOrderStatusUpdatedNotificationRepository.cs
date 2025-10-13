@@ -9,7 +9,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class OnlineOrderStatusUpdatedNotificationRepository : IOnlineOrderStatusUpdatedNotificationRepository
 	{
-		public IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(IUnitOfWork uow, int days)
+		public IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(
+			IUnitOfWork uow, int days, int notificationCount)
 		{
 			var validCodes = new[] { 204, 200 };
 
@@ -17,9 +18,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from notification in uow.Session.Query<OnlineOrderStatusUpdatedNotification>()
 				where (notification.HttpCode == null || !validCodes.Contains(notification.HttpCode.Value))
 					&& notification.CreationDate >= DateTime.Today.AddDays(-days)
+				orderby notification.HttpCode
 				select notification;
 
-			return notifications.ToList();
+			return notifications
+				.Take(notificationCount)
+				.ToList();
 		}
 	}
 }
