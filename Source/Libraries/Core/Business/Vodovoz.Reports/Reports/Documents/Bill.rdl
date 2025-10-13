@@ -315,7 +315,7 @@ FROM
         LEFT JOIN
     phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE
-    orders.id = @order_id;</CommandText>
+    orders.id = @order_id LIMIT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
