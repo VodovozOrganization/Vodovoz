@@ -7,10 +7,10 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static class Sales
 		{
 			/// <summary>
-			/// Разрешено формировать отчеты по продажам с контактами
+			/// Разрешено формировать отчеты с контактами
 			/// </summary>
-			[Display(Name = "Разрешено формировать отчеты по продажам с контактами")]
-			public static string CanGetContactsInSalesReports => "contacts_in_sales_reports";
+			[Display(Name = "Разрешено формировать отчеты с контактами")]
+			public static string CanGetContactsInReports => "contacts_in_reports";
 
 			/// <summary>
 			/// Доступ к финансовой отчетности компании

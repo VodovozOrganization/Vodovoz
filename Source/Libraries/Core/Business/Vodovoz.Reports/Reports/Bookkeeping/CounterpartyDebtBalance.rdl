@@ -133,7 +133,7 @@
                   </ReportItems>
                   <ColSpan>10</ColSpan>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
@@ -1160,7 +1160,12 @@
     (SELECT
         c.inn AS inn,
         c.name AS counterparty_name,
-        (SELECT GROUP_CONCAT(DISTINCT CONCAT('+7', client_phones.digits_number) SEPARATOR ',\n') FROM phones client_phones WHERE client_phones.counterparty_id = o.client_id) AS phones,
+        IF
+        (
+	        EXISTS(SELECT 1 FROM phones p WHERE p.counterparty_id = o.client_id AND p.digits_number IS NOT NULL),
+	        (SELECT GROUP_CONCAT(DISTINCT CONCAT('+7', p.digits_number) SEPARATOR ',\n') FROM phones p WHERE p.counterparty_id = o.client_id ORDER BY p.id DESC),
+	        GROUP_CONCAT(DISTINCT (SELECT CONCAT('+7', p.digits_number) FROM phones p WHERE p.id = o.contact_phone_id ORDER BY p.id DESC) SEPARATOR ',\n')	        
+	    ) AS phones,
         org.name AS org_name,
         (
             (SELECT IFNULL(SUM(cmo.income), 0)

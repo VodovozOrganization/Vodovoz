@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			GenerateNotPaidOrdersReportCommand = new DelegateCommand(GenerateNotPaidOrdersReport);
 			GenerateCounterpartyDebtDetailsReportCommand = new DelegateCommand(GenerateCounterpartyDebtDetailsReport);
 
-			CanShowPhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInSalesReports);
+			CanShowPhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
 		}
 
 		#region Properties
@@ -452,6 +452,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _counterpartyRepository);
 				
 			AddSalesManagerFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddOrderAuthorFilter(unitOfWork, includeExludeFiltersViewModel);
 			
 			var statusesToSelect = new[]
 			{
@@ -546,6 +547,52 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			});
 		}
 		
+		private void AddOrderAuthorFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
+			{
+				config.Title = "Автор заказа";
+				config.DefaultName = "OrderAuthor";
+				config.RefreshFunc = filter =>
+				{
+					Expression<Func<Employee, bool>> specificationExpression = null;
+
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
+
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+					}
+
+					var elementsToAdd = _employeeRepository.Get(
+							unitOfWork,
+							specificationExpression,
+							limit: IncludeExludeFiltersViewModel.DefaultLimit)
+						.Select(x => new IncludeExcludeElement<int, Employee>
+						{
+							Id = x.Id,
+							Title = $"{x.LastName} {x.Name} {x.Patronymic}",
+						});
+
+					filter.FilteredElements.Clear();
+
+					foreach(var element in elementsToAdd)
+					{
+						filter.FilteredElements.Add(element);
+					}
+				};
+			});
+		}
 		public void Dispose()
 		{
 			_unitOfWork?.Dispose();

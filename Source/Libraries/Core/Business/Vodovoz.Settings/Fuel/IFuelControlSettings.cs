@@ -55,7 +55,7 @@ namespace Vodovoz.Settings.Fuel
 		string RubleCurrencyId { get; }
 
 		/// <summary>
-		/// Максимальный суточный лимит на топливо для авто типа Фургон, л.
+		/// Максимальный суточный лимит на топливо для авто типа Легковая (Ларгус), л.
 		/// </summary>
 		int LargusMaxDailyFuelLimit { get; }
 
@@ -73,9 +73,14 @@ namespace Vodovoz.Settings.Fuel
 		/// Максимальный суточный лимит на топливо для авто типа Погрузчик, л.
 		/// </summary>
 		int LoaderMaxDailyFuelLimit { get; }
+		
+		/// <summary>
+		/// Максимальный суточный лимит на топливо для авто типа Фургон (Transit Mini), л.
+		/// </summary>
+		int MinivanMaxDailyFuelLimit { get; }
 
 		/// <summary>
-		/// Максимальный число транзакций в топливном лимите для авто типа Фургон
+		/// Максимальный число транзакций в топливном лимите для авто типа Легковая (Ларгус)
 		/// </summary>
 		int LargusFuelLimitMaxTransactionsCount { get; }
 
@@ -93,6 +98,11 @@ namespace Vodovoz.Settings.Fuel
 		/// Максимальный число транзакций в топливном лимите для авто типа Погрузчик
 		/// </summary>
 		int LoaderFuelLimitMaxTransactionsCount { get; }
+		
+		/// <summary>
+		/// Максимальный число транзакций в топливном лимите для авто типа Фургон (Transit Mini)
+		/// </summary>
+		int MinivanFuelLimitMaxTransactionsCount { get; }
 
 		/// <summary>
 		/// Дата последнего обновления стоимости топлива
@@ -130,6 +140,11 @@ namespace Vodovoz.Settings.Fuel
 		/// Установка значения максимального суточного лимита на топливо для авто типа Погрузчик
 		/// </summary>
 		void SetLoaderMaxDailyFuelLimit(int value);
+		
+		/// <summary>
+		/// Установка значения максимального суточного лимита на топливо для авто типа Фургон (Transit Mini)
+		/// </summary>
+		void SetMinivanMaxDailyFuelLimit(int value);
 
 		/// <summary>
 		/// Установка значения даты последнего обновления стоимости топлива

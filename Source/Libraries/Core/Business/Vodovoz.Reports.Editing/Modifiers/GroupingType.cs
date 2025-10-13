@@ -50,5 +50,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		OrderTransferType,
 		[Display(Name = "Менеджер КА")]
 		CounterpartyManager,
+		[Display(Name = "Автор заказа")]
+		OrderAuthor,
 	}
 }
