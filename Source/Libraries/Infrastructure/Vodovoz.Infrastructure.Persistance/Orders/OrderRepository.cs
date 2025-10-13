@@ -1158,33 +1158,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless);
 
-			if(organization == null)
-			{
-				query.Where(
-					Restrictions.Or(
-						Restrictions.And(
-							Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
-							Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), defaultOurOrganizationId)
-						),
-						Restrictions.IsNull(Projections.Property(() => ourOrganizationAlias.Id))
+			query.Where(
+				Restrictions.Or(
+					Restrictions.And(
+						Restrictions.IsNotNull(Projections.Property(() => ourOrganizationAlias.Id)),
+						Restrictions.Eq(Projections.Property(() => ourOrganizationAlias.Id), organization.Id)
+					),
+					Restrictions.And(
+						Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
+						Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
 					)
-				);
-			}
-			else
-			{
-				query.Where(
-					Restrictions.Or(
-						Restrictions.And(
-							Restrictions.IsNotNull(Projections.Property(() => ourOrganizationAlias.Id)),
-							Restrictions.Eq(Projections.Property(() => ourOrganizationAlias.Id), organization.Id)
-						),
-						Restrictions.And(
-							Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
-							Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
-						)
-					)
-				);
-			}
+				)
+			);
 
 			return query
 				.Select(x => x.Id)

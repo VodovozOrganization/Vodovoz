@@ -7,9 +7,11 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Journal;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -33,12 +36,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private ITdiTab _tdiTab;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private JournalViewModelBase _journal;
 		private bool _sendRevision;
 		private bool _sendBillsForNotPaidOrder;
 		private bool _sendGeneralBill;
 		private bool _reportIsLoaded;
 		private bool _counterpartySelected;
-		private bool _canRunReport;
 		private Counterparty _counterparty;
 		private Organization _organization;
 		private IList<Email> _emails;
@@ -87,6 +90,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			},
 			() => CanRunReport);
 			RunCommand.CanExecuteChangedWith(this, vm => vm.CanRunReport);
+
 			_defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
 			Organization = _organizationRepository.GetOrganizationById(UnitOfWork, _defaultOurOrganizationId);
 
@@ -102,8 +106,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _startDate, value))
 				{
-					CanRunReport = CounterpartyIsSelected && value.HasValue && EndDate.HasValue;
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
@@ -114,11 +118,27 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _endDate, value))
 				{
-					CanRunReport = CounterpartyIsSelected && StartDate.HasValue && value.HasValue;
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
+
+		/*public JournalViewModelBase Journal
+		{
+			get => _journal;
+			set
+			{
+				if(SetField(ref _journal, value) && value != null)
+				{
+					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
+						.ForProperty(x => x.Tag)
+						.UseViewModelJournalAndAutocompleter<TagJournalViewModel>()
+						.UseViewModelDialog<TagViewModel>()
+						.Finish();
+				}
+			}
+		}*/
 
 		public ITdiTab TdiTab
 		{
@@ -172,6 +192,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					CounterpartyIsSelected = value != null;
 					Emails = value?.Emails ?? new List<Email>();
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
@@ -179,7 +200,15 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public Organization Organization
 		{
 			get => _organization;
-			set => SetField(ref _organization, value);
+			set
+			{ 
+				if(SetField(ref _organization, value))
+				{
+					OrganizationIsSelected = value != null;
+					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
+				}
+			}
 		}
 
 		public bool ReportIsLoaded
@@ -195,26 +224,41 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _counterpartySelected, value))
 				{
-					CanRunReport = value && StartDate.HasValue && EndDate.HasValue;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
-		public bool CanRunReport
+
+		public bool OrganizationIsSelected
 		{
-			get => _canRunReport;
-			set => SetField(ref _canRunReport, value);
+			get => _counterpartySelected;
+			set
+			{
+				if(SetField(ref _counterpartySelected, value))
+				{
+					OnPropertyChanged(nameof(CanRunReport));
+				}
+			}
 		}
+
+		public bool CanRunReport =>
+			OrganizationIsSelected
+			&& CounterpartyIsSelected
+			&& StartDate.HasValue
+			&& EndDate.HasValue;
 
 		public IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
 		}
+
 		public Email SelectedEmail
 		{
 			get => _selectedEmail;
 			set => SetField(ref _selectedEmail, value);
 		}
+
 		public override ReportInfo ReportInfo
 		{
 			get
@@ -226,6 +270,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
+		public IEntityEntryViewModel OrganizationViewModel => new CommonEEVMBuilderFactory<RevisionReportViewModel>(
+			RdlViewerViewModel, 
+			this, 
+			UnitOfWork, 
+			NavigationManager, 
+			LifetimeScope)
+		.ForProperty(x => x.Organization)
+		.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+		.Finish();
+
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public ILifetimeScope LifetimeScope { get; private set; }
 		public INavigationManager NavigationManager { get; }
@@ -233,6 +287,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public DelegateCommand SendByEmailCommand { get; }
 		public DelegateCommand ShowInfoCommand { get; }
 		public DelegateCommand RunCommand { get; }
+
 		#endregion
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
@@ -416,6 +471,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			if(StartDate == null || StartDate == default(DateTime))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+			}
+
+			if(Organization == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана организация");
 			}
 
 			_source = GetReportSource();
