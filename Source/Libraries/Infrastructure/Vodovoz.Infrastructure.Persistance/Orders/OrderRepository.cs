@@ -1155,7 +1155,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyId)
 				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
-				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid);
+				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless);
 
 			if(organization == null)
 			{

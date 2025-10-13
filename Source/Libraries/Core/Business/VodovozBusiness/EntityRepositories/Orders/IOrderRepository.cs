@@ -142,7 +142,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
 		/// <summary>
-		/// Получение списка идентификаторов неоплаченных заказов контрагента за указанный период
+		/// Получение списка идентификаторов неоплаченных безналичных заказов контрагента за указанный период
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="counterpartyId"></param>

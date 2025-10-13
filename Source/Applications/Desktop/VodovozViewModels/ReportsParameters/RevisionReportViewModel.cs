@@ -20,6 +20,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IEmailSettings _emailSettings;
 		private readonly EmailDirectSender _emailDirectSender;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 
 		public RevisionReportViewModel(
@@ -60,6 +62,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmailSettings emailSettings,
 			EmailDirectSender emailDirectSender,
 			IOrderRepository orderRepository,
+			IOrganizationRepository organizationRepository,
 			IOrganizationSettings organizationSettings
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
@@ -71,6 +74,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 
 			SendByEmailCommand = new DelegateCommand(SendByEmail, () => ReportIsLoaded);
@@ -84,6 +88,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			() => CanRunReport);
 			RunCommand.CanExecuteChangedWith(this, vm => vm.CanRunReport);
 			_defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
+			Organization = _organizationRepository.GetOrganizationById(UnitOfWork, _defaultOurOrganizationId);
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
@@ -234,7 +239,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
 			{ "CounterpartyId", Counterparty?.Id },
-			{ "OrganizationId", Organization?.Id ?? _defaultOurOrganizationId }
+			{ "OrganizationId", Organization?.Id }
 		};
 
 		public void Dispose()
@@ -337,7 +342,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					{
 						{ "order_id", unpaidOrdersId[i] },
 						{ "hide_signature", false },
-						{ "organization_id", Organization?.Id ?? _defaultOurOrganizationId }
+						{ "organization_id", Organization?.Id }
 					};
 					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
 					byte[] billPdf = GenerateReport(billReportSource, billParameters);
@@ -367,7 +372,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{
 					{ "order_id", unpaidOrdersId },
 					{ "hide_signature", false },
-					{ "organization_id", Organization?.Id ?? _defaultOurOrganizationId }
+					{ "organization_id", Organization ?.Id }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);

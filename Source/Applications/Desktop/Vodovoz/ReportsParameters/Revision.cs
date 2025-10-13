@@ -30,22 +30,20 @@ namespace Vodovoz.Reports
 					ViewModel.UnitOfWork,
 					ViewModel.NavigationManager,
 					ViewModel.LifetimeScope)
-					.ForProperty(x => x.Counterparty)
-					.UseTdiDialog<CounterpartyDlg>()
-					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-					.Finish();
+			.ForProperty(x => x.Counterparty)
+			.UseTdiDialog<CounterpartyDlg>()
+			.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+			.Finish();
 
-			entryOrganization.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(
-					ViewModel.RdlViewerViewModel,
-					ViewModel.TdiTab,
-					ViewModel,
-					ViewModel.UnitOfWork,
-					ViewModel.NavigationManager,
-					ViewModel.LifetimeScope)
-					.ForProperty(x => x.Organization)
-					.UseTdiDialog<OrganizationViewModel>()
-					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-					.Finish();
+			entryOrganization.ViewModel = new CommonEEVMBuilderFactory<RevisionReportViewModel>(
+				ViewModel.RdlViewerViewModel,
+				ViewModel,
+				ViewModel.UnitOfWork,
+				ViewModel.NavigationManager,
+				ViewModel.LifetimeScope)
+			.ForProperty(x => x.Organization)
+			.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+			.Finish();
 
 			speciallistcomboboxEmail.SetRenderTextFunc<Email>(s => s.Address);
 			speciallistcomboboxEmail.Binding
