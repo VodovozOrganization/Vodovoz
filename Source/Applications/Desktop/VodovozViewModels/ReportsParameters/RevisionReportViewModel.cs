@@ -471,11 +471,19 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			if(StartDate == null || StartDate == default(DateTime))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+				return;
+			}
+
+			if(Counterparty == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент");
+				return;
 			}
 
 			if(Organization == null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана организация");
+				return;
 			}
 
 			_source = GetReportSource();
