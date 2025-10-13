@@ -7,7 +7,6 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Journal;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Tdi;
@@ -36,7 +35,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private ITdiTab _tdiTab;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private JournalViewModelBase _journal;
 		private bool _sendRevision;
 		private bool _sendBillsForNotPaidOrder;
 		private bool _sendGeneralBill;
@@ -111,6 +109,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 		}
+
 		public DateTime? EndDate
 		{
 			get => _endDate;
@@ -123,22 +122,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 		}
-
-		/*public JournalViewModelBase Journal
-		{
-			get => _journal;
-			set
-			{
-				if(SetField(ref _journal, value) && value != null)
-				{
-					TagViewModel = new CommonEEVMBuilderFactory<CounterpartyJournalFilterViewModel>(_journal, this, _journal.UoW, _journal.NavigationManager, _lifetimeScope)
-						.ForProperty(x => x.Tag)
-						.UseViewModelJournalAndAutocompleter<TagJournalViewModel>()
-						.UseViewModelDialog<TagViewModel>()
-						.Finish();
-				}
-			}
-		}*/
 
 		public ITdiTab TdiTab
 		{
