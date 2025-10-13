@@ -1140,7 +1140,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int counterpartyId,
 			DateTime? startDate,
 			DateTime? endDate,
-			Organization organization = null)
+			Organization organization)
 		{
 			VodovozOrder orderAlias = null;
 			CounterpartyContract contractAlias = null;
@@ -1156,7 +1156,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			query.Where(
 				Restrictions.And(
-					Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
+					Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias)),
 					Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
 				)
 			);
