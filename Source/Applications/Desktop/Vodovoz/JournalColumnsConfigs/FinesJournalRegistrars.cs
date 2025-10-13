@@ -17,7 +17,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.FineReason)
 					.WrapMode(WrapMode.Word)
 					.WrapWidth(600)
-				.AddColumn("Категория штрафа").AddTextRenderer(node => node.FineCategoryName ?? string.Empty)
+				.AddColumn("Категория штрафа").AddTextRenderer(node => node.FineCategoryName)
 				.AddColumn("Автор штрафа").AddTextRenderer(node => node.AuthorName)
 				.AddColumn("Подразделения сотрудников").AddTextRenderer(node => node.FinedEmployeesSubdivisions)
 				.AddColumn("Взыскано по событию ТС").AddTextRenderer(node => node.CarEvent)

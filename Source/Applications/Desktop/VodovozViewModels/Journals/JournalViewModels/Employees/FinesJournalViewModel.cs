@@ -110,12 +110,14 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
+			FineCategory fineCategoryAlias = null;
 			Employee finedEmployeeAlias = null;
 			Subdivision finedEmployeeSubdivision = null;
 			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
 			var query = unitOfWork.Session.QueryOver(() => fineAlias)
+				.Left.JoinAlias(() => fineAlias.FineCategory, () => fineCategoryAlias)
 				.Left.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
 				.Left.JoinAlias(f => f.Items, () => fineItemAlias)
 				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
@@ -164,7 +166,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 			if(_filterViewModel.SelectedFineCategoryIds != null)
 			{
-				query.WhereRestrictionOn(() => fineAlias.FineCategory).IsIn(_filterViewModel.SelectedFineCategoryIds);
+				query.WhereRestrictionOn(() => fineCategoryAlias.Id).IsIn(_filterViewModel.SelectedFineCategoryIds);
 			}	
 
 			CarEvent carEventAlias = null;
@@ -203,7 +205,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineCategory.Name).WithAlias(() => resultAlias.FineCategoryName)
+					.Select(() => fineCategoryAlias.Name).WithAlias(() => resultAlias.FineCategoryName)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
