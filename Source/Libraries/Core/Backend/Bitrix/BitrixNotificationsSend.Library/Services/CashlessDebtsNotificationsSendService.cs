@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using BitrixNotificationsSend.Contracts.Dto;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace BitrixNotificationsSend.Library.Services
 			await Task.CompletedTask;
 		}
 
-		private async Task<IEnumerable<CounterpartyCashlessDebtData>> GetCashlessDebts(CancellationToken cancellationToken)
+		private async Task<IEnumerable<CounterpartyCashlessDebtDto>> GetCashlessDebts(CancellationToken cancellationToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
@@ -84,12 +85,12 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 		}
 
-		private async Task<IEnumerable<CounterpartyCashlessDebtData>> GetGetCashlessDebtsByOrganization(
+		private async Task<IEnumerable<CounterpartyCashlessDebtDto>> GetGetCashlessDebtsByOrganization(
 			IUnitOfWork uow,
 			int organizationId,
 			CancellationToken cancellationToken)
 		{
-			var counterpartiesDebtData = new List<CounterpartyCashlessDebtData>();
+			var counterpartiesDebtData = new List<CounterpartyCashlessDebtDto>();
 
 			var counterpartiesNotPaidOrdersData = await GetNotPaidCashlessOrdersData(
 				uow,
@@ -135,15 +136,15 @@ namespace BitrixNotificationsSend.Library.Services
 
 				counterpartiesOrdersContactPhones.TryGetValue(counterpartyId, out var counterpartyOrdersContactPhones);
 
-				var couterpartyDebtData = new CounterpartyCashlessDebtData
+				var couterpartyDebtData = new CounterpartyCashlessDebtDto
 				{
 					OrganizationId = organizationId,
 					OrganizationName = firstOrderData?.OrganizationName,
 					CounterpartyId = counterpartyId,
 					CounterpartyName = counterpartyPayments?.CounterpartyName,
 					CounterpartyInn = counterpartyPayments?.CounterpartyInn,
-					CounterpartyPhones = counterpartyPhones ?? Enumerable.Empty<Phone>(),
-					CounterpartyOrdersContactPhones = counterpartyOrdersContactPhones ?? Enumerable.Empty<Phone>(),
+					CounterpartyPhones = counterpartyPhones?.Select(x => x.Number).Distinct() ?? Enumerable.Empty<string>(),
+					CounterpartyOrdersContactPhones = counterpartyOrdersContactPhones?.Select(x => x.Number).Distinct() ?? Enumerable.Empty<string>(),
 					UnallocatedBalance = counterpartyPayments?.UnallocatedBalance ?? default,
 					NotPaidOrdersSum = ordersData.Sum(x => x.NotPaidSum),
 					PartialPaidOrdersSum = ordersData.Sum(x => x.PartialPaidSum),
@@ -154,7 +155,7 @@ namespace BitrixNotificationsSend.Library.Services
 					IsCounterpartyLiquidating = counterpartyPayments?.IsLiquidating ?? default,
 					BottlesDelivered = counterpartyBottlesDebtData?.Delivered ?? 0,
 					BottlesReturned = counterpartyBottlesDebtData?.Returned ?? 0,
-					Emails = counterpartyEmails ?? Enumerable.Empty<Email>()
+					Emails = counterpartyEmails?.Select(x => x.Address).Distinct() ?? Enumerable.Empty<string>()
 				};
 
 				counterpartiesDebtData.Add(couterpartyDebtData);
@@ -201,134 +202,5 @@ namespace BitrixNotificationsSend.Library.Services
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			_counterpartyRepository.GetCounterpartyOrdersContactPhones(uow, counterparties);
-	}
-
-
-	/// <summary>
-	/// Представляет данные о контрагенте и его финансовых показателях
-	/// </summary>
-	public class CounterpartyCashlessDebtData
-	{
-		/// <summary>
-		/// Id организации
-		/// </summary>
-		public int OrganizationId { get; set; }
-
-		/// <summary>
-		/// Наименование организации
-		/// </summary>
-		public string OrganizationName { get; set; }
-
-		/// <summary>
-		/// Id контрагента
-		/// </summary>
-		public int CounterpartyId { get; set; }
-
-		/// <summary>
-		/// Наименование контрагента
-		/// </summary>
-		public string CounterpartyName { get; set; }
-
-		/// <summary>
-		/// ИНН контрагента
-		/// </summary>
-		public string CounterpartyInn { get; set; }
-
-		public IEnumerable<Phone> CounterpartyPhones { get; set; } = Enumerable.Empty<Phone>();
-		public IEnumerable<Phone> CounterpartyOrdersContactPhones { get; set; } = Enumerable.Empty<Phone>();
-
-		/// <summary>
-		/// Номер телефона контрагента
-		/// </summary>
-		public string PhoneNumber => CounterpartyPhones.Any()
-			? string.Join(", ", CounterpartyPhones.Select(x => x.Number))
-			: string.Join(", ", CounterpartyOrdersContactPhones.Select(x => x.Number));
-
-		/// <summary>
-		/// Нераспределенный баланс
-		/// </summary>
-		public decimal UnallocatedBalance { get; set; }
-
-		/// <summary>
-		/// Сумма неоплаченных заказов
-		/// </summary>
-		public decimal NotPaidOrdersSum { get; set; }
-
-		/// <summary>
-		/// Сумма частичной оплаты
-		/// </summary>
-		public decimal PartialPaidOrdersSum { get; set; }
-
-		/// <summary>
-		/// Возвращенный баланс
-		/// </summary>
-		public decimal WriteOffSum { get; set; }
-
-		/// <summary>
-		/// Общий долг
-		/// </summary>
-		public decimal TotalDebt => NotPaidOrdersSum - UnallocatedBalance - PartialPaidOrdersSum;
-
-		/// <summary>
-		/// Дебиторская задолженность
-		/// </summary>
-		public decimal DebtorDebt => NotPaidOrdersSum - UnallocatedBalance - PartialPaidOrdersSum - OverdueDebtorDebt;
-
-		/// <summary>
-		/// Просроченная дебиторская задолженность
-		/// </summary>
-		public decimal OverdueDebtorDebt { get; set; }
-
-		/// <summary>
-		/// Отсрочка по оплате для контрагента в днях
-		/// </summary>
-		public int DelayDaysForCounterparty { get; set; }
-
-		/// <summary>
-		/// Дата доставки самого давнего заказа
-		/// </summary>
-		public DateTime? OrderMinDeliveryDate { get; set; }
-
-		/// <summary>
-		/// Максимальное количество дней просрочки
-		/// </summary>
-		public int MaxDelayDays =>
-			OrderMinDeliveryDate.HasValue
-			? (DateTime.Now - OrderMinDeliveryDate.Value).Days
-			: 0;
-
-		/// <summary>
-		/// Контрагент в статусе ликвидации
-		/// </summary>
-		public bool IsCounterpartyLiquidating { get; set; }
-
-		/// <summary>
-		/// Контрагент в статусе ликвидации
-		/// "Да" - если ликвидирован
-		/// "Нет" - если не ликвидирован
-		/// </summary>
-		public string LiquidationStatus =>
-			IsCounterpartyLiquidating
-			? "Да"
-			: "Нет";
-
-		/// <summary>
-		/// Дата и время выгрузки данных
-		/// </summary>
-		public DateTime UnloadingDate =>
-			DateTime.Today;
-
-		public int BottlesDelivered { get; set; }
-		public int BottlesReturned { get; set; }
-
-		/// <summary>
-		/// Долг по бутылям
-		/// </summary>
-		public int BottlesDebt => BottlesDelivered - BottlesReturned;
-
-		/// <summary>
-		/// Email адреса
-		/// </summary>
-		public IEnumerable<Email> Emails { get; set; }
 	}
 }
