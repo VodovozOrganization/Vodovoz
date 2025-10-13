@@ -1143,12 +1143,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			Organization organization = null)
 		{
 			VodovozOrder orderAlias = null;
-			Organization ourOrganizationAlias = null;
 			CounterpartyContract contractAlias = null;
 			Organization contractOrganizationAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
-				.Left.JoinAlias(() => orderAlias.OurOrganization, () => ourOrganizationAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyId)
@@ -1157,15 +1155,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless);
 
 			query.Where(
-				Restrictions.Or(
-					Restrictions.And(
-						Restrictions.IsNotNull(Projections.Property(() => ourOrganizationAlias.Id)),
-						Restrictions.Eq(Projections.Property(() => ourOrganizationAlias.Id), organization.Id)
-					),
-					Restrictions.And(
-						Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
-						Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
-					)
+				Restrictions.And(
+					Restrictions.IsNotNull(Projections.Property(() => contractOrganizationAlias.Id)),
+					Restrictions.Eq(Projections.Property(() => contractOrganizationAlias.Id), organization.Id)
 				)
 			);
 
