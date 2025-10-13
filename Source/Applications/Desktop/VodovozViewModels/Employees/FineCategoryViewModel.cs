@@ -1,4 +1,5 @@
 ﻿using NHibernate.Type;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,18 +16,20 @@ namespace Vodovoz.ViewModels.Employees
 	public class FineCategoryViewModel : EntityTabViewModelBase<FineCategory>, IAskSaveOnCloseViewModel
 	{
 		private readonly IEntityUoWBuilder _uowBuilder;
+
 		public FineCategoryViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
-			Type entityType,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null)
+			INavigationManager navigation)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_uowBuilder = entityUoWBuilder ?? throw new ArgumentNullException(nameof(entityUoWBuilder));
 
-			TabName = entityType.GetCustomAttribute<AppellativeAttribute>(true)?.Nominative;
+			TabName = IsNew ? "Новая категория штрафа" : Entity.Name;
 		}
+
+		public bool IsNew => Entity.Id == 0;
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate);
 		public bool AskSaveOnClose => CanEdit;
 	}
