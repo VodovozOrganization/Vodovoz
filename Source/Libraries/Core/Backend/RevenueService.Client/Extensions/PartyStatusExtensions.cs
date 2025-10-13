@@ -8,15 +8,15 @@ namespace RevenueService.Client.Extensions
 		{
 			switch(status)
 			{
-				case Dadata.Model.PartyStatus.ACTIVE:
+				case PartyStatus.ACTIVE:
 					return "Действующий";
-				case Dadata.Model.PartyStatus.LIQUIDATING:
+				case PartyStatus.LIQUIDATING:
 					return "Ликвидируется";
-				case Dadata.Model.PartyStatus.LIQUIDATED:
+				case PartyStatus.LIQUIDATED:
 					return "Ликвидирован";
-				case Dadata.Model.PartyStatus.REORGANIZING:
+				case PartyStatus.REORGANIZING:
 					return "Банкротство";
-				case Dadata.Model.PartyStatus.BANKRUPT:
+				case PartyStatus.BANKRUPT:
 					return "в процессе присоединения к другому юрлицу, с последующей ликвидацией";
 				default:
 					return "Неизвестно";
