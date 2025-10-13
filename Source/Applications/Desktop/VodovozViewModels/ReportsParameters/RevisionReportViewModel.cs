@@ -78,6 +78,16 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 
+			OrganizationViewModel = new CommonEEVMBuilderFactory<RevisionReportViewModel>(
+				RdlViewerViewModel,
+				this,
+				UnitOfWork,
+				NavigationManager,
+				LifetimeScope)
+			.ForProperty(x => x.Organization)
+			.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+			.Finish();
+
 			SendByEmailCommand = new DelegateCommand(SendByEmail, () => ReportIsLoaded);
 			SendByEmailCommand.CanExecuteChangedWith(this, vm => vm.ReportIsLoaded);
 			ShowInfoCommand = new DelegateCommand(() => ShowInfo());
@@ -253,18 +263,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		public IEntityEntryViewModel OrganizationViewModel => new CommonEEVMBuilderFactory<RevisionReportViewModel>(
-			RdlViewerViewModel, 
-			this, 
-			UnitOfWork, 
-			NavigationManager, 
-			LifetimeScope)
-		.ForProperty(x => x.Organization)
-		.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-		.Finish();
-
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public ILifetimeScope LifetimeScope { get; private set; }
+		public IEntityEntryViewModel OrganizationViewModel { get; }
 		public INavigationManager NavigationManager { get; }
 		public RdlViewerViewModel RdlViewerViewModel { get; }
 		public DelegateCommand SendByEmailCommand { get; }
