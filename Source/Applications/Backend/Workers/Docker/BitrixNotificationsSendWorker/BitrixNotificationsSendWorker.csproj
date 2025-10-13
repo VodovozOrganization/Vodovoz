@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\BitrixNotificationsSend.Library\BitrixNotificationsSend.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Bitrix\BitrixNotificationsSend.Library\BitrixNotificationsSend.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />

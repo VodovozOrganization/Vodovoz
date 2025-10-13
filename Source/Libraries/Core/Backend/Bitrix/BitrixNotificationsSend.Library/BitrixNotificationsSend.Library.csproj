@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
-    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+    <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
 </Project>
