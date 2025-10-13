@@ -1147,8 +1147,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyContract contractAlias = null;
 			Organization contractOrganizationAlias = null;
 
-			var defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
-
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OurOrganization, () => ourOrganizationAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
