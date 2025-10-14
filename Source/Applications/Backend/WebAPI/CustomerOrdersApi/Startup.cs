@@ -35,15 +35,7 @@ namespace CustomerOrdersApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen(c =>
-				{
-					c.SwaggerDoc("v1", new OpenApiInfo
-					{
-						Title = "CustomerOrdersApi",
-						Version = "v1"
-					});
-				})
-
+			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
