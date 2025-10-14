@@ -1,7 +1,7 @@
-﻿using FluentNHibernate.Data;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Employees;
 namespace Vodovoz.Views.Employees
 {
@@ -27,8 +27,10 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonSave.Sensitive = ViewModel.CanEdit;
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 

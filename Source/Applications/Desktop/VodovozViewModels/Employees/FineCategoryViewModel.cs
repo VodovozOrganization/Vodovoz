@@ -1,14 +1,10 @@
-﻿using NHibernate.Type;
-using QS.Commands;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
-using System.Reflection;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModels.Employees
