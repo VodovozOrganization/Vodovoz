@@ -258,12 +258,12 @@ namespace VodovozFiasWidgets
 			var house = (HouseDTO)houseRow[0];
 
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-			culture.NumberFormat.NumberDecimalSeparator = ",";
+			culture.NumberFormat.NumberDecimalSeparator = ".";
 
 			if(!string.IsNullOrEmpty(house.Longitude) && !string.IsNullOrEmpty(house.Latitude))
 			{
-				longitude = decimal.Parse(house.Longitude, culture);
-				latitude = decimal.Parse(house.Latitude, culture);
+				longitude = decimal.Parse(house.Longitude.Replace(",", "."), culture);
+				latitude = decimal.Parse(house.Latitude.Replace(",", "."), culture);
 			}
 		}
 	}
