@@ -30,6 +30,7 @@ namespace Vodovoz.Views.Employees
 			// Widget Vodovoz.Views.Employees.FineCategoryView
 			this.Name = "Vodovoz.Views.Employees.FineCategoryView";
 			// Container child Vodovoz.Views.Employees.FineCategoryView.Gtk.Container+ContainerChild
+			global::Stetic.BinContainer.Attach(this);
 			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvbox1.Name = "yvbox1";
 			this.yvbox1.Spacing = 6;

@@ -6,7 +6,7 @@ using Vodovoz.ViewModels.Employees;
 namespace Vodovoz.Views.Employees
 {
 	[ToolboxItem(true)]
-	public partial class FineCategoryView : TabViewBase<FineCategoryViewModel>
+	public partial class FineCategoryView : EntityTabViewBase<FineCategoryViewModel, FineCategory>
 	{
 		public FineCategoryView(FineCategoryViewModel viewModel) : base(viewModel)
 		{
@@ -24,6 +24,7 @@ namespace Vodovoz.Views.Employees
 			ycheckbuttonIsArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				//.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Sensetive)
 				//.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
@@ -35,7 +36,7 @@ namespace Vodovoz.Views.Employees
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 
 			btnCopyEntityId.Binding
-				//.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
+				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
 			btnCopyEntityId.Clicked += (sender, e) => OnBtnCopyEntityIdClicked(sender, e);
