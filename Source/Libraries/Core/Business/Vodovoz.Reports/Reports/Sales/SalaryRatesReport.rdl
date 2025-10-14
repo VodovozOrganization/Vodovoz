@@ -94,7 +94,7 @@
           <TableColumn>
             <Width>22pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
@@ -610,7 +610,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
                       <Value>Экспресс доставка</Value>
@@ -1337,7 +1337,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
                       <Value>={FastDeliveryCity}</Value>
@@ -1916,7 +1916,11 @@ where wdlrs.id in (@wageIds)
 group by wdlrs.id, name, car_type_of_use) AS T
 ORDER BY
     T.name,
-    T.car_type_of_use = 'Легковая (Ларгус)' DESC,
+    CASE car_type_of_use
+        WHEN 'Легковая (Ларгус)' THEN 1
+        WHEN 'Фургон (Transit Mini)' THEN 2
+        WHEN 'Грузовой (Газель)' THEN 3
+    END,
     T.with_out_forwarder = 'С экспедитором' DESC,
     T.with_out_forwarder = 'Без экспедитора' DESC
 ;</CommandText>
