@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Employees
 			ycheckbuttonIsArchieve.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
+				//.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
 			buttonSave.Binding
@@ -35,7 +35,7 @@ namespace Vodovoz.Views.Employees
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 
 			btnCopyEntityId.Binding
-				.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
+				//.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
 			btnCopyEntityId.Clicked += (sender, e) => OnBtnCopyEntityIdClicked(sender, e);

@@ -27,9 +27,9 @@ namespace Vodovoz.Views.Employees
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Views.Employees.FineCategoryView1
+			// Widget Vodovoz.Views.Employees.FineCategoryView
 			this.Name = "Vodovoz.Views.Employees.FineCategoryView";
-			// Container child Vodovoz.Views.Employees.FineCategoryView1.Gtk.Container+ContainerChild
+			// Container child Vodovoz.Views.Employees.FineCategoryView.Gtk.Container+ContainerChild
 			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvbox1.Name = "yvbox1";
 			this.yvbox1.Spacing = 6;
