@@ -56,94 +56,97 @@
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23pt</Width>
+            <Width>22pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -214,7 +217,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>15</ColSpan>
+                  <ColSpan>16</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -607,10 +610,30 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>Экспресс доставка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Lighter</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <WritingMode>tb-lr</WritingMode>
+                        <FontStyle>Italic</FontStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox102">
-                      <Value>Экспресс доставка</Value>
+                      <Value>Экспресс доставка с опозданием</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1314,10 +1337,32 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>={FastDeliveryCity}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor></BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>6pt</FontSize>
+                        <PaddingLeft>0pt</PaddingLeft>
+                        <PaddingRight>0pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>={FastDeliveryCity}</Value>
+                      <Value>={FastDeliveryWithLateCity}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1723,7 +1768,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="GetSalaryRates">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
 (SELECT
@@ -1750,6 +1795,7 @@
        SUM(IF(wr.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as ContractCancelationCity,
        SUM(IF(wr.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as FastDeliveryCity,
+       SUM(IF(wr.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @cityId, wr.for_driver_with_forwarder, 0)) as FastDeliveryWithLateCity,       
        SUM(IF(wr.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr.for_driver_with_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1797,6 +1843,7 @@ select
        SUM(IF(wr2.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr2.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as ContractCancelationCity,
        SUM(IF(wr2.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as FastDeliveryCity,
+       SUM(IF(wr2.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @cityId, wr2.for_driver_without_forwarder, 0)) as FastDeliveryWithLateCity,       
        SUM(IF(wr2.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr2.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr2.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr2.for_driver_without_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1844,6 +1891,7 @@ SELECT
        SUM(IF(wr3.wage_rate_type = 'ForeignAddress' and wd.id = @cityId, wr3.for_forwarder, 0)) as ForeignAddressCity,
        SUM(IF(wr3.wage_rate_type = 'ContractCancelation' and wd.id = @cityId, wr3.for_forwarder, 0)) as ContractCancelationCity,
        SUM(IF(wr3.wage_rate_type = 'FastDelivery' and wd.id = @cityId, wr3.for_forwarder, 0)) as FastDeliveryCity,
+       SUM(IF(wr3.wage_rate_type = 'FastDeliveryWithLate' and wd.id = @cityId, wr3.for_forwarder, 0)) as FastDeliveryWithLateCity,
        SUM(IF(wr3.wage_rate_type = 'PhoneCompensation' and wd.id = @suburbId, wr3.for_forwarder, 0)) as PhoneCompensationSuburb,
        SUM(IF(wr3.wage_rate_type = 'Bottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as Bottle19LSuburb,
        SUM(IF(wr3.wage_rate_type = 'EmptyBottle19L' and wd.id = @suburbId, wr3.for_forwarder, 0)) as EmptyBottle19LSuburb,
@@ -1884,7 +1932,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -2019,6 +2067,10 @@ ORDER BY
         </Field>
         <Field Name="FastDeliveryWithLateSuburb">
           <DataField>FastDeliveryWithLateSuburb</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="FastDeliveryWithLateCity">
+          <DataField>FastDeliveryWithLateCity</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
