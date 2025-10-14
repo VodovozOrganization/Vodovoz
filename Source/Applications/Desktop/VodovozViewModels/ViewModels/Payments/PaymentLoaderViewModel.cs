@@ -214,8 +214,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				foreach(var doc in transferDocsByOrganization.Value)
 				{
+					var docDate = doc.ReceivedDate ?? doc.Date;
+
 					var curDoc = ObservablePayments.SingleOrDefault(
-						x => x.Date == doc.Date
+						x => x.Date == docDate
 							&& x.PaymentNum == int.Parse(doc.DocNum)
 							&& x.Organization.INN == doc.RecipientInn
 							&& x.CounterpartyInn == doc.PayerInn
@@ -224,7 +226,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 					if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 						UoW,
-						doc.Date,
+						docDate,
 						int.Parse(doc.DocNum),
 						doc.RecipientInn,
 						doc.PayerInn,
