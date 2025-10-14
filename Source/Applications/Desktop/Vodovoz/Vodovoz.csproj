@@ -2077,6 +2077,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
     <Compile Include="Filters\GtkViews\BanksJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BanksJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ProfitCategoriesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProfitCategoriesJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
