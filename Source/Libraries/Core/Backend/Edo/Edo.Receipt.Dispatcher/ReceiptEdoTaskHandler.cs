@@ -141,7 +141,7 @@ namespace Edo.Receipt.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
 			var sourceCodes = productCodes
 				.Where(x => x.SourceCode != null)

@@ -103,7 +103,7 @@ namespace Edo.Docflow.Factories
 				BasisShipment = GetBasisShipmentInfo(transferOrder),
 				Payments = GetPayments(transferOrder),
 				Products = products,
-				AdditionalInformation = GettAdditionalInformation(transferOrder)
+				AdditionalInformation = GetAdditionalInformation(transferOrder)
 			};
 
 			return document;
@@ -135,7 +135,7 @@ namespace Edo.Docflow.Factories
 		private IEnumerable<PaymentInfo> GetPayments(TransferOrder transferOrder) =>
 			new List<PaymentInfo>();
 
-		private IEnumerable<UpdAdditionalInfo> GettAdditionalInformation(TransferOrder transferOrder) =>
+		private IEnumerable<UpdAdditionalInfo> GetAdditionalInformation(TransferOrder transferOrder) =>
 			new List<UpdAdditionalInfo>();
 
 		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization)

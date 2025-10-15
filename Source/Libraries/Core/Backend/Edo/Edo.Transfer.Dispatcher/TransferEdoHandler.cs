@@ -131,24 +131,20 @@ namespace Edo.Transfer.Dispatcher
 				return;
 			}
 
-			var requests = await _uow.Session.QueryOver<TransferEdoRequest>()
+			//QUESTION мб стоит убрать если это не нужно как предзагрузка кеша какого-то
+			await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
 				.Fetch(SelectMode.Fetch, x => x.Iteration.OrderEdoTask)
-				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
-				.ListAsync();
-
-			await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.TransferedItems)
 				.Where(x => x.TransferEdoTask.Id == document.TransferTaskId)
-				.ListAsync();
-
+				.ListAsync(cancellationToken);
+			
 			var orderTaskIds = transferTask.TransferEdoRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
 			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
@@ -205,32 +201,43 @@ namespace Edo.Transfer.Dispatcher
 
 		private async Task UpdateIterationsAndNotifyOnCompleted(TransferEdoTask transferTask, CancellationToken cancellationToken)
 		{
-			var messages = new List<TransferCompleteEvent>();
-
-			var transferIterations = transferTask.TransferEdoRequests.Select(x => x.Iteration).Distinct();
+			var transferIterations = transferTask.TransferEdoRequests.Select(x => x.Iteration)
+				.Distinct()
+				.ToList();
+			var completedIterations = new List<TransferEdoRequestIteration>();
+			
 			foreach(var transferIteration in transferIterations)
 			{
 				var iterationCompleted = await _transferTaskRepository.IsTransferIterationCompletedAsync(
 					_uow, transferIteration.Id, cancellationToken);
 
-				if(!iterationCompleted)
+				if(iterationCompleted)
 				{
-					continue;
+					completedIterations.Add(transferIteration);
 				}
-
-				transferIteration.Status = TransferEdoRequestIterationStatus.Completed;
-				await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
-
-				messages.Add(new TransferCompleteEvent
-				{
-					TransferIterationId = transferIteration.Id,
-					TransferInitiator = transferIteration.Initiator
-				});
 			}
+			
+			transferIterations.RemoveAll(x => completedIterations.Contains(x));
 
+			var hql = @"UPDATE TransferEdoRequestIteration 
+                     SET Status = :status 
+                     WHERE Id IN (:iterationIds)";
+			
+			await _uow.Session.CreateQuery(hql)
+				.SetParameter("status", TransferEdoRequestIterationStatus.Completed)
+				.SetParameterList("iterationIds", transferIterations.Select(x => x.Id).ToArray())
+				.ExecuteUpdateAsync(cancellationToken);
+			
 			await _uow.CommitAsync(cancellationToken);
-
+			
+			var messages = transferIterations.Select(iteration => new TransferCompleteEvent
+			{
+				TransferIterationId = iteration.Id,
+				TransferInitiator = transferIterations.First(i => i.Id == iteration.Id).Initiator
+			}).ToList();
+			
 			var notificationTasks = messages.Select(message => _messageBus.Publish(message, cancellationToken));
+			
 			await Task.WhenAll(notificationTasks);
 		}
 
