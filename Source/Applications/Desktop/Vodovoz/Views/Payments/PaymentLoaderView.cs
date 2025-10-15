@@ -142,7 +142,7 @@ namespace Vodovoz.Views
 			{
 				try
 				{
-					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot("Загрузка выписки"))
 					{
 						if(payment.Status == PaymentState.distributed)
 						{

@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
+		private readonly IGenericRepository<ProfitCategory> _profitCategoryRepository;
 		private readonly IResourceLocker _resourceLocker;
 		private IReadOnlyDictionary<string, Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
@@ -54,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository,
 			IGenericRepository<Organization> organizationRepository,
+			IGenericRepository<ProfitCategory> profitCategoryRepository,
 			IResourceLockerFactory resourceLockerFactory,
 			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
@@ -70,8 +72,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_profitCategoryRepository = profitCategoryRepository ?? throw new ArgumentNullException(nameof(profitCategoryRepository));
 
 			InteractiveService = commonServices.InteractiveService;
+			UnitOfWorkFactory = unitOfWorkFactory;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
 			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
 			
@@ -86,10 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					"Не удалось открыть диалог",
 					ImportanceLevel.Warning);
 			}
-			
-			UnitOfWorkFactory = unitOfWorkFactory;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			
+
 			TabName = "Выгрузка выписки из банк-клиента";
 
 			GetOrganisations();
@@ -153,7 +155,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			CreateParseCommand();
 		}
 
-		private void GetProfitCategories() => ProfitCategories = UoW.GetAll<ProfitCategory>().ToList();
+		private void GetProfitCategories() => ProfitCategories = _profitCategoryRepository
+			.Get(UoW, x => x.IsArchive == false)
+			.ToList();
 
 		#region Команды
 
