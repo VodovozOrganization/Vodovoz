@@ -48,7 +48,7 @@ namespace BitrixNotificationsSendWorker.CashlessDebts
 
 			await zabbixSender.SendIsHealthyAsync(stoppingToken);
 
-			_logger.LogInformation("Окончание отправки данных по компаниям с долгом по безналу\"");
+			_logger.LogInformation("Окончание отправки данных по компаниям с долгом по безналу");
 		}
 	}
 }
