@@ -6,15 +6,13 @@ namespace Vodovoz.Views.Employees
 	{
 		private global::Gamma.GtkWidgets.yVBox yvbox1;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
 
 		private global::Gamma.GtkWidgets.yButton buttonSave;
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gamma.GtkWidgets.yButton btnCopyEntityId;
-
-		private global::Gtk.VSeparator vseparator1;
+		private global::Gamma.GtkWidgets.yButton buttonCopy;
 
 		private global::Gamma.GtkWidgets.yTable ytable2;
 
@@ -28,31 +26,31 @@ namespace Vodovoz.Views.Employees
 		{
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Views.Employees.FineCategoryView
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Employees.FineCategoryView";
 			// Container child Vodovoz.Views.Employees.FineCategoryView.Gtk.Container+ContainerChild
-			global::Stetic.BinContainer.Attach(this);
 			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvbox1.Name = "yvbox1";
 			this.yvbox1.Spacing = 6;
 			// Container child yvbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
 			this.buttonSave.Image = w1;
-			this.hbox1.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSave]));
+			this.yhbox1.Add(this.buttonSave);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.buttonSave]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
@@ -61,45 +59,35 @@ namespace Vodovoz.Views.Employees
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
 			this.buttonCancel.Image = w3;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
+			this.yhbox1.Add(this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.buttonCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gamma.GtkWidgets.yButton();
-			this.btnCopyEntityId.CanFocus = true;
-			this.btnCopyEntityId.Name = "btnCopyEntityId";
-			this.btnCopyEntityId.UseUnderline = true;
-			this.btnCopyEntityId.Xalign = 1F;
-			this.btnCopyEntityId.Label = global::Mono.Unix.Catalog.GetString("Копировать №");
+			w4.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.buttonCopy = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCopy.CanFocus = true;
+			this.buttonCopy.Name = "buttonCopy";
+			this.buttonCopy.UseUnderline = true;
+			this.buttonCopy.Label = global::Mono.Unix.Catalog.GetString("Копировать №");
 			global::Gtk.Image w5 = new global::Gtk.Image();
 			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
-			this.btnCopyEntityId.Image = w5;
-			this.hbox1.Add(this.btnCopyEntityId);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCopyEntityId]));
-			w6.PackType = ((global::Gtk.PackType)(1));
+			this.buttonCopy.Image = w5;
+			this.yhbox1.Add(this.buttonCopy);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.buttonCopy]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.vseparator1 = new global::Gtk.VSeparator();
-			this.vseparator1.Name = "vseparator1";
-			this.hbox1.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
-			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 3;
+			this.yvbox1.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhbox1]));
+			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.yvbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.hbox1]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
 			// Container child yvbox1.Gtk.Box+BoxChild
 			this.ytable2 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable2.Name = "ytable2";
 			this.ytable2.NRows = ((uint)(2));
-			this.ytable2.NColumns = ((uint)(2));
+			this.ytable2.NColumns = ((uint)(3));
 			this.ytable2.RowSpacing = ((uint)(6));
 			this.ytable2.ColumnSpacing = ((uint)(6));
 			// Container child ytable2.Gtk.Table+TableChild
@@ -110,11 +98,11 @@ namespace Vodovoz.Views.Employees
 			this.ycheckbuttonIsArchieve.DrawIndicator = true;
 			this.ycheckbuttonIsArchieve.UseUnderline = true;
 			this.ytable2.Add(this.ycheckbuttonIsArchieve);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ycheckbuttonIsArchieve]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ycheckbuttonIsArchieve]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.yentryFineCategoryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryFineCategoryName.CanFocus = true;
@@ -122,30 +110,30 @@ namespace Vodovoz.Views.Employees
 			this.yentryFineCategoryName.IsEditable = true;
 			this.yentryFineCategoryName.InvisibleChar = '•';
 			this.ytable2.Add(this.yentryFineCategoryName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yentryFineCategoryName]));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yentryFineCategoryName]));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelFineCategoryName = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFineCategoryName.Name = "ylabelFineCategoryName";
 			this.ylabelFineCategoryName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.ytable2.Add(this.ylabelFineCategoryName);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelFineCategoryName]));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelFineCategoryName]));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvbox1.Add(this.ytable2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.ytable2]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.ytable2]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.Show();
+			this.Hide();
 		}
 	}
 }

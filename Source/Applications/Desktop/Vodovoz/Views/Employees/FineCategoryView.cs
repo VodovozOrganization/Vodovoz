@@ -35,11 +35,11 @@ namespace Vodovoz.Views.Employees
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 
-			btnCopyEntityId.Binding
+			buttonCopy.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
-			btnCopyEntityId.Clicked += (sender, e) => OnBtnCopyEntityIdClicked(sender, e);
+			buttonCopy.Clicked += (sender, e) => OnBtnCopyEntityIdClicked(sender, e);
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
