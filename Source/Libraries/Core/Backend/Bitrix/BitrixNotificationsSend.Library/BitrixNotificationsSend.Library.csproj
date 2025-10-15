@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\BitrixNotificationsSend.Client\BitrixNotificationsSend.Client.csproj" />
     <ProjectReference Include="..\BitrixNotificationsSend.Contracts\BitrixNotificationsSend.Contracts.csproj" />
   </ItemGroup>
 

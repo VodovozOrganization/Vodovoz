@@ -1,4 +1,5 @@
-﻿using BitrixNotificationsSend.Contracts.Dto;
+﻿using BitrixNotificationsSend.Client;
+using BitrixNotificationsSend.Contracts.Dto;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -37,6 +38,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private readonly ILogger<CashlessDebtsNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IBitrixNotificationsSendClient _bitrixNotificationsSendClient;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly ICounterpartyRepository _counterpartyRepository;
@@ -47,6 +49,7 @@ namespace BitrixNotificationsSend.Library.Services
 		public CashlessDebtsNotificationsSendService(
 			ILogger<CashlessDebtsNotificationsSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IBitrixNotificationsSendClient bitrixNotificationsSendClient,
 			IOrganizationSettings organizationSettings,
 			ICounterpartySettings counterpartySettings,
 			ICounterpartyRepository counterpartyRepository,
@@ -56,6 +59,7 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_bitrixNotificationsSendClient = bitrixNotificationsSendClient ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendClient));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
@@ -68,11 +72,27 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			_logger.LogInformation("Начало формирования данных по компаниям с долгом по безналу");
 
-			var cashlessDebts = await GetCashlessDebts(cancellationToken);
+			var cashlessDebts =
+				await GetCashlessDebts(cancellationToken);
 
 			_logger.LogInformation(
 				"Окончание формирования данных по компаниям с долгом по безналу. Количество компаний: {0}",
 				cashlessDebts.Count());
+
+			_logger.LogInformation("Начало отправки уведомлений по долгам по безналу в Битрикс24");
+
+			var sendNotificationResult =
+				await _bitrixNotificationsSendClient.SendCounterpartiesCashlessDebtsNotification(cashlessDebts, cancellationToken);
+
+			if(sendNotificationResult.IsSuccess)
+			{
+				_logger.LogInformation("Уведомления по долгам по безналу успешно отправлены в Битрикс24");
+			}
+			else
+			{
+				var message = sendNotificationResult.Errors.FirstOrDefault()?.Message;
+				_logger.LogError(message);
+			}
 
 			await Task.CompletedTask;
 		}

@@ -15,5 +15,8 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public TimeSpan CashlessDebtsNotificationsSendInterval =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}{nameof(CashlessDebtsNotificationsSendInterval)}");
+
+		public string BitrixBaseUrl =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(BitrixBaseUrl)}");
 	}
 }

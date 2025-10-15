@@ -11,5 +11,10 @@ namespace Vodovoz.Settings.Notifications
 		/// Интервал отправки уведомлений по долгам по безналу в Битрикс24
 		/// </summary>
 		TimeSpan CashlessDebtsNotificationsSendInterval { get; }
+
+		/// <summary>
+		/// Адрес базового URL Битрикс24
+		/// </summary>
+		string BitrixBaseUrl { get; }
 	}
 }
