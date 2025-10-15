@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			FineCategoryViewModel,
 			FineCategoryJournalNode>
 	{
+		private readonly ICurrentPermissionService _currentPermissionService;
 		public FineCategoryJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -31,7 +32,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+
 			TabName = $"Журнал {typeof(FineCategory).GetClassUserFriendlyName().GenitivePlural}";
+
+			VisibleCreateAction = false;
+			VisibleEditAction = false;
+			VisibleDeleteAction = false;
 		}
 
 		protected override IQueryOver<FineCategory> ItemsQuery(IUnitOfWork uow)

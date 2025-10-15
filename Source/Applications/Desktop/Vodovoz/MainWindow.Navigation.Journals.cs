@@ -777,7 +777,7 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	protected void OnAction92Activated(object sender, EventArgs e)
+	protected void OnActionFineCategoryJournalActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
 	}

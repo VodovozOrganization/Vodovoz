@@ -385,6 +385,9 @@ namespace Vodovoz
 				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
 
+			DeleteConfig.AddHibernateDeleteInfo<FineCategory>()
+				.AddClearDependence<Fine>(x => x.FineCategory);
+
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)
 				.AddDeleteCascadeDependence(item => item.FuelOutlayedOperation);
