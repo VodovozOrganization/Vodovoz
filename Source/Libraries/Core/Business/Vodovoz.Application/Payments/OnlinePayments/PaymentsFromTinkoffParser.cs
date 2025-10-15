@@ -3,24 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Payments;
+using VodovozBusiness.Domain.Payments;
 
-namespace Vodovoz.ServiceDialogs
+namespace Vodovoz.Application.Payments.OnlinePayments
 {
-	public class PaymentsFromTinkoffParser
+	/// <summary>
+	/// Парсер выписок банка Тинькоф
+	/// </summary>
+	public class PaymentsFromTinkoffParser : IPaymentByCardOnlineParser
 	{
-		public string DocumentPath { get; private set; }
-		public List<PaymentByCardOnline> PaymentsFromTinkoff { get; set; }
+		public IEnumerable<PaymentByCardOnline> ParsedPayments { get; private set; }
 
-		public PaymentsFromTinkoffParser(string documentPath)
-		{
-			DocumentPath = documentPath;
-		}
-
-		public void Parse()
+		public void Parse(string fileName)
 		{
 			try
 			{
-				PaymentsFromTinkoff = File.ReadAllLines(DocumentPath)
+				ParsedPayments = File.ReadAllLines(fileName)
 					.Skip(1)
 					.Select(x => x.Split(';'))
 					.Select(x => new PaymentByCardOnline(

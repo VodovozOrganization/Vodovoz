@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Vodovoz.Domain.Payments;
+using VodovozBusiness.Domain.Payments;
 
-namespace Vodovoz.Domain.Payments
+namespace Vodovoz.Application.Payments.OnlinePayments
 {
-	public class PaymentsFromCloudPaymentsParser
+	/// <summary>
+	/// Парсер выписок CloudPayments
+	/// </summary>
+	public class PaymentsFromCloudPaymentsParser : IPaymentByCardOnlineParser
 	{
-		private readonly string docPath;
+		private readonly IList<PaymentByCardOnline> _parsedPayments = new List<PaymentByCardOnline>();
 
-		public List<PaymentByCardOnline> PaymentsFromCloudPayments { get; set; } = new List<PaymentByCardOnline>();
+		public IEnumerable<PaymentByCardOnline> ParsedPayments => _parsedPayments;
 
-		public PaymentsFromCloudPaymentsParser(string docPath)
+		public void Parse(string fileName)
 		{
-			this.docPath = docPath;
-		}
-
-		public void Parse()
-		{
-			using(var reader = new StreamReader(docPath, Encoding.GetEncoding(1251)))
+			using(var reader = new StreamReader(fileName, Encoding.GetEncoding(1251)))
 			{
 				string line;
 				var paymentByCardFrom = PaymentByCardOnlineFrom.FromCloudPayments;
@@ -48,7 +48,7 @@ namespace Vodovoz.Domain.Payments
 					}
 
 					var payment = new PaymentByCardOnline(data, paymentByCardFrom);
-					PaymentsFromCloudPayments.Add(payment);
+					_parsedPayments.Add(payment);
 				}
 			}
 		}

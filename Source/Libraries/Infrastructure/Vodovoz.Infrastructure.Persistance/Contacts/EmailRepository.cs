@@ -164,24 +164,23 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 					equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
 					into edoAccountsByOrder
 				from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
-				join defaultVodovozEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
-					on new { a = order.Client.Id, b = (int?)_organizationSettings.VodovozOrganizationId, c = true }
-					equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 				where
 					order.Id == currentOrder.Id
-					&& (
+					&&
+					(
 						order.IsFastDelivery
 						||
 						address.Status != RouteListItemStatus.Transfered
 							&& address.AddressTransferType == AddressTransferType.FromFreeBalance
 						||
 						(
-							isForBill && (!order.Client.NeedSendBillByEdo
+							(
+								(isForBill && !order.Client.NeedSendBillByEdo)
 								|| edoAccountByOrder.ConsentForEdoStatus != ConsentForEdoStatus.Agree
-								|| defaultVodovozEdoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							)
+							&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 						)
-						&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-						)
+					)
 				select order.Id)
 			.Any();
 

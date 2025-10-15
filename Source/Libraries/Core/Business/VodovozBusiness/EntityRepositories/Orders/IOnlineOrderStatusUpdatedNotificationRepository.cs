@@ -6,6 +6,7 @@ namespace Vodovoz.EntityRepositories.Orders
 {
 	public interface IOnlineOrderStatusUpdatedNotificationRepository
 	{
-		IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(IUnitOfWork uow, int days);
+		IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(
+			IUnitOfWork uow, int days, int notificationCount);
 	}
 }

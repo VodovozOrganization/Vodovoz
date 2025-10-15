@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
 using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Orders;
@@ -25,8 +27,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 		private readonly IOnlineOrderStatusUpdatedNotificationRepository _notificationRepository;
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IOptionsMonitor<NotifierOptions> _options;
 		private readonly IZabbixSender _zabbixSender;
-		private int _delayInSec = 10;
 
 		public OnlineOrdersStatusUpdatedNotifier(
 			IUserService userService,
@@ -36,6 +38,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
 			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IServiceScopeFactory serviceScopeFactory,
+			IOptionsMonitor<NotifierOptions> options,
 			IZabbixSender zabbixSender
 			)
 		{
@@ -46,6 +49,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			_externalOrderStatusConverter =
 				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
@@ -54,11 +58,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			while(!stoppingToken.IsCancellationRequested)
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-				var pastDaysForSend = _configuration.GetValue<int>("PastDaysForSend");
 
 				try
 				{
-					await NotifyAsync(pastDaysForSend);
+					await NotifyAsync();
 
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}
@@ -67,11 +70,11 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 					throw;
 				}
 				
-				await Task.Delay(1000 * _delayInSec, stoppingToken);
+				await Task.Delay(TimeSpan.FromSeconds(_options.CurrentValue.DelayInSeconds), stoppingToken);
 			}
 		}
 
-		private async Task NotifyAsync(int pastDaysForSend)
+		private async Task NotifyAsync()
 		{
 			_logger.LogInformation("Запущен метод отправки уведомлений");
 
@@ -79,8 +82,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			{
 				_logger.LogInformation("Получение списка уведомлений для отправки");
 
+				var currentOptions = _options.CurrentValue;
 				var notificationsToSend =
-					_notificationRepository.GetNotificationsForSend(uow, pastDaysForSend);
+					_notificationRepository.GetNotificationsForSend(
+						uow, currentOptions.PastDaysForSend, currentOptions.NotificationCountInSession);
 
 				if(!notificationsToSend.Any())
 				{

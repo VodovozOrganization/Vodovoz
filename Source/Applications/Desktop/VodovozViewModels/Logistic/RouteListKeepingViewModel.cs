@@ -1,9 +1,14 @@
-﻿using Gamma.Utilities;
+﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
+using Edo.Transport;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -19,16 +24,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
-using Edo.Transport;
-using Microsoft.Extensions.Logging;
-using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -37,24 +38,26 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Vodovoz.ViewModels.TrueMark;
-using VodovozBusiness.Controllers;
-using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz
 {
@@ -72,6 +75,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IPermissionResult _permissionResult;
+		private readonly IOrderContractUpdater _orderContractUpdater;
 
 		private Employee _previousForwarder = null;
 
@@ -115,7 +119,8 @@ namespace Vodovoz
 			IEdoSettings edoSettings,
 			MessageService messageService,
 			ICounterpartyEdoAccountController edoAccountController,
-			IRouteListChangesNotificationSender routeListChangesNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
+			IOrderContractUpdater orderContractUpdater)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -140,6 +145,7 @@ namespace Vodovoz
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -217,7 +223,16 @@ namespace Vodovoz
 			}
 		}
 
-		public string BottlesInfo { get; private set; }
+        public Enum[] ExcludedPaymentTypes =
+        {
+            PaymentType.Barter,
+            PaymentType.Cashless,
+            PaymentType.ContractDocumentation,
+            PaymentType.PaidOnline,
+            PaymentType.SmsQR
+        };
+
+        public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
 		#region EEVMs
@@ -691,7 +706,15 @@ namespace Vodovoz
 			try
 			{
 				IsCanClose = false;
-				
+
+				foreach(var node in Items.Where(x => x.PaymentTypeHasChanged))
+				{
+					var order = node.RouteListItem.Order;
+					var newPaymentType = node.PaymentType;
+					order.Contract = null;
+					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
+				}
+
 				UoWGeneric.Save();
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
