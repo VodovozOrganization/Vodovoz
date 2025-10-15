@@ -152,9 +152,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				parameters.Add("routelist", 0);
 				parameters.Add("category", GetCategory());
 
-				parameters.Add("fineCategories", FineCategories.Any(x => x.Selected) 
-					? string.Join(",", FineCategories.Where(x => x.Selected).Select(x => x.FineCategoryName)) 
-					: "");
+				parameters.Add("fineCategories", FineCategories.Select(x => x.FineCategoryId).ToArray());
 
 				return parameters;
 			}
