@@ -22,10 +22,9 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			ycheckbuttonIsArchieve.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				//.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Sensetive)
-				//.AddBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
 			buttonSave.Binding

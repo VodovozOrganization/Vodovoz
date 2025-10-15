@@ -46,7 +46,6 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
-		private FineCategory _selectedFineCategory;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -93,19 +92,6 @@ namespace Vodovoz.ViewModels.Employees
 
 		public List<FineCategory> FineCategories { get; private set; }
 
-		public FineCategory SelectedFineCategory
-		{
-			get => _selectedFineCategory;
-			set
-			{
-				if(_selectedFineCategory != value)
-				{
-					_selectedFineCategory = value;
-					Entity.FineCategory = value;
-					OnPropertyChanged();
-				}
-			}
-		}
 		public Employee CurrentEmployee
 		{
 			get
