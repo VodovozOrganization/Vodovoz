@@ -15,24 +15,29 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IEntityUoWBuilder _uowBuilder;
 		private readonly ICommonServices _commonServices;
 		private readonly IGenericRepository<FineCategory> _fineCategoryRepository;
+		private readonly bool _canWorkWithFineCategories;
 
 		public FineCategoryViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGenericRepository<FineCategory> genericRepository)
+			IGenericRepository<FineCategory> genericRepository,
+			ICurrentPermissionService currentPermissionService)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_uowBuilder = entityUoWBuilder ?? throw new ArgumentNullException(nameof(entityUoWBuilder));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_fineCategoryRepository = genericRepository ?? throw new ArgumentNullException(nameof(genericRepository));
 
+			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(
+				Core.Domain.Permissions.EmployeePermissions.CanWorkWithFineCategories);
+
 			TabName = IsNew ? "Новая категория штрафа" : $"Категория штрафа: {Entity.Name}";
 		}
 
 		public bool IsNew => Entity.Id == 0;
-		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate);
+		public bool CanEdit => _canWorkWithFineCategories;
 		public bool AskSaveOnClose => CanEdit;
 
 		protected override bool BeforeSave()

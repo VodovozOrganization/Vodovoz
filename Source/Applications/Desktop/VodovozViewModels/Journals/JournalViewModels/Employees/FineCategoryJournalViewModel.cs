@@ -57,7 +57,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(editAction);
 
 			if(SelectionMode == JournalSelectionMode.None)
+			{
 				RowActivatedAction = editAction;
+			}
 
 			var deleteAction = new JournalAction("Удалить",
 					(selected) => _canWorkWithFineCategories && selected.Any(),
