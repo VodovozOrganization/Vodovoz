@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1136,6 +1136,31 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					);
 
 			return query.List();
+		}
+
+		public IList<int> GetUnpaidOrdersIds(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime? startDate,
+			DateTime? endDate,
+			int organizationId)
+		{
+			VodovozOrder orderAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization contractOrganizationAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
+				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => contractAlias.Organization.Id == organizationId);
+
+			return query
+				.Select(x => x.Id)
+				.List<int>();
 		}
 
 		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
