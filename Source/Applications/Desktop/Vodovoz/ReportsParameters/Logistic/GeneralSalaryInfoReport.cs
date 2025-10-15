@@ -64,6 +64,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			if(comboDriverOfCarTypeOfUse.SelectedItemOrNull == null)
 			{
 				carTypesOfUse.Add(CarTypeOfUse.GAZelle);
+				carTypesOfUse.Add(CarTypeOfUse.Minivan);
 				carTypesOfUse.Add(CarTypeOfUse.Largus);
 			}
 			else
@@ -222,7 +223,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			var info = "Сокращения отчета:\n" +
 				"<b>КТС</b>: категория транспортного средства. \n\tСокращения столбца: " +
-				"<b>К</b>: ТС компании , <b>В</b>: ТС водителя, <b>Р</b>: ТС в раскате, <b>Л</b>: Фургон (Ларгус), <b>Г</b>: Грузовой (Газель).\n" +
+				"<b>К</b>: ТС компании , <b>В</b>: ТС водителя, <b>Р</b>: ТС в раскате, <b>Л</b>: Легковая (Ларгус), <b>Т</b>: Фургон (Transit Mini), <b>Г</b>: Грузовой (Газель).\n" +
 				"Столбцы отчета:\n" +
 				"<b>№</b>: порядковый номер\n" +
 				"<b>Код</b>: код сотрудника\n" +

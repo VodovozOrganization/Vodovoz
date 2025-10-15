@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using NLog;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -23,13 +26,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
-		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<PaymentLoaderViewModel> _logger;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
+		private readonly IResourceLocker _resourceLocker;
 		private IReadOnlyDictionary<string, Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
 		private readonly string[] _excludeInnPayers = new []{ "2465037737", "7750005725" };
@@ -40,6 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private bool _isSavingState;
 
 		public PaymentLoaderViewModel(
+			ILogger<PaymentLoaderViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
@@ -48,7 +53,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository,
-			IGenericRepository<Organization> organizationRepository) 
+			IGenericRepository<Organization> organizationRepository,
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -56,6 +63,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
@@ -64,7 +72,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
 			InteractiveService = commonServices.InteractiveService;
+			
+			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
+			
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
 
+			if(!lockResult.IsSuccess)
+			{
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Диалог уже открыт пользователем {ownerUser?.Name}",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
+			}
+			
 			UnitOfWorkFactory = unitOfWorkFactory;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
@@ -184,8 +206,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					continue;
 				}
 
+				var docDate = doc.ReceivedDate ?? doc.Date;
+
 				var curDoc = ObservablePayments.SingleOrDefault(
-					x => x.Date == doc.Date
+					x => x.Date == docDate
 						&& x.PaymentNum == int.Parse(doc.DocNum)
 						&& x.Organization.INN == doc.RecipientInn
 						&& x.CounterpartyInn == doc.PayerInn
@@ -194,7 +218,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 					UoW,
-					doc.Date,
+					docDate,
 					int.Parse(doc.DocNum),
 					doc.RecipientInn,
 					doc.PayerInn,
@@ -273,6 +297,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				$" из них не загружено дублей: {countDuplicates} и неизвестных ИНН: {countUnknownInn}", _progress = 1);
 
 			IsNotAutoMatchingMode = true;
+		}
+		
+		public override void Dispose()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
+			base.Dispose();
 		}
 	}
 }

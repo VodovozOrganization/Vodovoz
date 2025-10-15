@@ -265,6 +265,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
 			{
 				config.Title = "Авторы заказов";
+				config.DefaultName = "OrderAuthor";
 				config.GenitivePluralTitle = "Авторов заказов";
 
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>

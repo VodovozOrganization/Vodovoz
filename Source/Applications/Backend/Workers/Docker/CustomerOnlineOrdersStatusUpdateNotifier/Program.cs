@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
+using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
 using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
 using DriverApi.Notifications.Client;
+using Microsoft.Extensions.Options;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -52,6 +54,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
+						.Configure<NotifierOptions>(hostContext.Configuration.GetSection(NotifierOptions.Path))
 
 						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 						.AddSingleton(_ => new JsonSerializerOptions
@@ -61,9 +64,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 
 						.AddHostedService<OnlineOrdersStatusUpdatedNotifier>()
 						.AddHttpClient<IOnlineOrdersStatusUpdatedNotificationService, OnlineOrdersStatusUpdatedNotificationService>(
-							client =>
+							(provider, client) =>
 							{
-								client.Timeout = TimeSpan.FromSeconds(15);
+								var timeout = provider.GetRequiredService<IOptionsSnapshot<NotifierOptions>>().Value.SendingTimeoutInSeconds;
+								client.Timeout = TimeSpan.FromSeconds(timeout);
 							});
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

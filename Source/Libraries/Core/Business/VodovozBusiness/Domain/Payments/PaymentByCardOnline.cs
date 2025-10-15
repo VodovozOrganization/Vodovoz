@@ -2,8 +2,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -30,9 +28,6 @@ namespace Vodovoz.Domain.Payments
 			{
 				case PaymentByCardOnlineFrom.FromCloudPayments:
 					CreateInstanceFromCloudPayment(data, paymentFrom);
-					break;
-				default:
-					CreateInstanceFromYookassa(data, paymentFrom, newFormat);
 					break;
 			}
 		}
@@ -75,41 +70,6 @@ namespace Vodovoz.Domain.Payments
 			Email = data[6];
 
 			Phone = data[7];
-		}
-		
-		void CreateInstanceFromYookassa(string[] data, PaymentByCardOnlineFrom paymentFrom, bool newFormat = false)
-		{
-			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
-			culture.NumberFormat.NumberDecimalSeparator = ".";
-
-			if(!decimal.TryParse(data[1].Trim(), NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
-				paymentRUR = 0m;
-
-			DateAndTime = ParseDate(newFormat ? data[5].Trim() : data[4].Trim());
-
-			if(newFormat)
-			{
-				int.TryParse(GetNumberFromDescription(data[7], ref paymentFrom), out paymentNr);
-			}
-			else
-			{
-				int.TryParse(GetNumberFromDescription(data[6], ref paymentFrom), out paymentNr);
-			}
-
-			//Проверяем дополнительно здесь, т.к. по одной из касс прилетают оплаты трех форматов
-			if(paymentNr < 1000000 && paymentFrom == PaymentByCardOnlineFrom.FromSMS)
-			{
-				paymentFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
-			}
-
-			PaymentByCardFrom = paymentFrom;
-
-			PaymentStatus = PaymentStatus.CONFIRMED;
-
-			if(!newFormat)
-			{
-				Email = GetEmailFromDescription(data[6]);
-			}
 		}
 
 		void CreateInstanceFromCloudPayment(string[] data, PaymentByCardOnlineFrom paymentFrom)
@@ -228,73 +188,6 @@ namespace Vodovoz.Domain.Payments
 		public virtual bool Selectable { get; set; }
 		public virtual bool IsDuplicate { get; set; }
 		public virtual string Color { get; set; }
-		
-		private string GetNumberFromDescription(string description, ref PaymentByCardOnlineFrom paymentFrom)
-		{
-			var pattern1 = @"№([0-9]{1,})";
-			var pattern2 = @"№[\s|-]([0-9]{1,})";
-			var pattern3 = @"[\s|-]([0-9]{1,})";
-
-			MatchCollection matches;
-
-			switch(paymentFrom)
-			{
-				case PaymentByCardOnlineFrom.FromEShop:
-					matches = Regex.Matches(description, pattern1);
-					return matches[matches.Count - 1].Groups[1].Value;
-				case PaymentByCardOnlineFrom.FromVodovozWebSite:
-					matches = Regex.Matches(description, pattern3);
-					return matches[0].Groups[1].Value;
-				case PaymentByCardOnlineFrom.FromMobileApp:
-					matches = Regex.Matches(description, pattern2);
-					return matches[0].Groups[1].Value;
-				case PaymentByCardOnlineFrom.FromSMS:
-					matches = Regex.Matches(description, pattern2); // Проверяем по паттерну (№ заказа)
-
-					if(matches.Count != 0)
-					{
-						return matches[matches.Count - 1].Groups[1].Value;
-					}
-
-					// Если нет - проверяем по 1 паттерну(№заказа)
-					matches = Regex.Matches(description, pattern1);
-
-					if(matches.Count != 0)
-					{
-						paymentFrom = PaymentByCardOnlineFrom.FromEShop;
-						return matches[matches.Count - 1].Groups[1].Value;
-					}
-					
-					// Если снова нет - проверяем по 3 паттерну(число_пробел_число, оплата с сайта, берем первое число)
-					matches = Regex.Matches(description, pattern3);
-					paymentFrom = PaymentByCardOnlineFrom.FromVodovozWebSite;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-			return matches[0].Groups[1].Value;
-		}
-
-		private string GetEmailFromDescription(string description)
-		{
-			string pattern = @"[0-9a-zA-Z]+[\.a-zA-Z0-9_-]*[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]+";
-
-			var matches = Regex.Matches(description, pattern);
-
-			if (matches.Count > 0)
-			{
-				string[] str = new string[matches.Count];
-
-				for (int i = 0; i < matches.Count; i++)
-				{
-					str[i] = matches[i].Value;
-				}
-
-				return str.FirstOrDefault();
-			}
-
-			return string.Empty;
-		}
 	}
 
 	/// <summary>

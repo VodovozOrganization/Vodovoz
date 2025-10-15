@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			row.AppendChild(GetNumericCell(node.Id));
 			row.AppendChild(GetNumericCell(node.PaymentNum));
 			row.AppendChild(GetStringCell(node.Date.ToShortDateString()));
-			row.AppendChild(GetStringCurrencyFormatCell(node.Total));
+			row.AppendChild(GetFloatingPointCell(node.Total));
 			row.AppendChild(GetStringCell(node.Orders));
 			row.AppendChild(GetStringCell(node.PayerName));
 			row.AppendChild(GetStringCell(node.CounterpartyName));
@@ -186,7 +186,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			row.AppendChild(GetStringCell(node.PaymentPurpose));
 			row.AppendChild(GetStringCell(node.ProfitCategory));
 			row.AppendChild(GetStringCell(node.IsManualCreated.ConvertToYesOrNo()));
-			row.AppendChild(GetStringCurrencyFormatCell(node.UnAllocatedSum));
+			row.AppendChild(GetFloatingPointCell(node.UnAllocatedSum));
 			row.AppendChild(GetStringCell(node.EntityType.GetClassUserFriendlyName().Nominative.CapitalizeSentence()));
 
 			return row;

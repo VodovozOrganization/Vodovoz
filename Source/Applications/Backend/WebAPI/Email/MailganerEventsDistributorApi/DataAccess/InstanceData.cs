@@ -30,7 +30,7 @@ namespace MailganerEventsDistributorApi.DataAccess
 				"	i.port AS Port\n" +
 				"FROM instances i\n" +
 				$"WHERE i.database_id = { Id };"
-				).ToList().FirstOrDefault();
+				).ToList().LastOrDefault();
 
 			return output;
 		}
