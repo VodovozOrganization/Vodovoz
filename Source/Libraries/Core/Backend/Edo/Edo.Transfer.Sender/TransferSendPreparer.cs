@@ -23,7 +23,7 @@ namespace Edo.Transfer.Sender
 {
 	public class TransferSendPreparer : IDisposable, IBulkOperationSupport<TransferOrderTrueMarkCode>
 	{
-		private const int BULK_TRESHOLD = 500;
+		private const int BULK_TRESHOLD = 1000;
 		
 		private readonly ILogger<TransferSendPreparer> _logger;
 		private readonly IUnitOfWork _uow;
