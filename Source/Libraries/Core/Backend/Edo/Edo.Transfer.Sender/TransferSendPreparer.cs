@@ -488,7 +488,7 @@ namespace Edo.Transfer.Sender
 						parameters.Add(new MySqlParameter($"{paramNamePrefix}qty", batch[j].Quantity));
 					}
 
-					var sql = $@"INSERT INTO edo_transfer_order_items 
+					var sql = $@"INSERT INTO edo_transfer_order_codes 
             						(transfer_order_id, individual_code_id, group_code_id, nomenclature_id, quantity)
             					 VALUES {string.Join(", ", valueTuples)}";
 
@@ -507,7 +507,7 @@ namespace Edo.Transfer.Sender
 				.Select(i => $"(@transferOrderId{i}, @individualCodeId{i}, @groupCodeId{i}, @nomenclatureId{i}, @quantity{i})")
 				.ToArray();
 
-			var sql = $@"INSERT INTO edo_transfer_order_items 
+			var sql = $@"INSERT INTO edo_transfer_order_codes 
         					(transfer_order_id, individual_code_id, group_code_id, nomenclature_id, quantity)
         				VALUES {string.Join(", ", values)}";
 
