@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -92,7 +92,7 @@ FROM
 WHERE
     (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND fine_categories.id IN (@fineCategories))
     OR (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND fine_categories.id IN (@fineCategories)) 
-    OR (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
+    OR (employees.id = @drivers AND @startDate = '0' AND @endDate = '0' AND fine_categories.id IN (@fineCategories))
 GROUP BY fines_items.id
 ORDER BY employee , date</CommandText>
         <QueryParameters>
@@ -168,10 +168,11 @@ ORDER BY employee , date</CommandText>
             OR (e.id = @drivers
               AND f.date &gt;= @startDate
               AND f.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-                AND fc.id IN (@fineCategories))
+              AND fc.id IN (@fineCategories))
             OR (e.id = @drivers
               AND @startDate = '0'
-              AND @endDate = '0')
+              AND @endDate = '0'
+              AND fc.id IN (@fineCategories))
           GROUP BY
             fc.name
           ORDER BY
