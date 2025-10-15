@@ -447,6 +447,7 @@
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />

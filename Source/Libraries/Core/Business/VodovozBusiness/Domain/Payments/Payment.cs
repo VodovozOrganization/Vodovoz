@@ -237,6 +237,15 @@ namespace Vodovoz.Domain.Payments
 			CounterpartyKpp = Counterparty.KPP;
 			CounterpartyName = Counterparty.Name;
 		}
+		
+		/// <summary>
+		/// Платеж не для распределения(платежи межу нашими компаниями, приходы от физ лиц)
+		/// </summary>
+		public virtual void OtherIncome(ProfitCategory profitCategory)
+		{
+			ProfitCategory = profitCategory;
+			Status = PaymentState.undistributed;
+		}
 
 		/// <summary>
 		/// Отмена распределения

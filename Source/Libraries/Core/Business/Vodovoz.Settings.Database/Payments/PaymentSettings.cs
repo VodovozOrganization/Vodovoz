@@ -12,6 +12,7 @@ namespace Vodovoz.Settings.Database.Payments
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
-		public int DefaultProfitCategory => _settingsController.GetIntValue("default_profit_category_id");
+		public int DefaultProfitCategoryId => _settingsController.GetIntValue("default_profit_category_id");
+		public int OtherProfitCategoryId => _settingsController.GetIntValue("Payment.OtherProfitCategoryId");
 	}
 }
