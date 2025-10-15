@@ -4,7 +4,6 @@ using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Edo.Transfer.Extensions.ExtensionInterfaces;
 using MySqlConnector;
-using QS.DomainModel.Entity;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
@@ -463,7 +461,7 @@ namespace Edo.Transfer.Sender
 
 		public async Task BulkInsertItemsWithParent(int parentId, IEnumerable<TransferOrderTrueMarkCode> domainObjects, CancellationToken cancellationToken)
 		{
-			const int batchSize = 1000; // MariaDB имеет лимит на длину запроса (~1M по умолчанию)
+			const int batchSize = 500;
 			var itemList = domainObjects.ToList();
 			
 			var connectionString = _uow.Session.Connection.ConnectionString;
