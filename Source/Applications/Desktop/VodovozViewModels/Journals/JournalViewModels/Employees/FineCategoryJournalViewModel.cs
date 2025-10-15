@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
@@ -19,26 +20,52 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			FineCategoryViewModel,
 			FineCategoryJournalNode>
 	{
-		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly bool _canWorkWithFineCategories;
+
 		public FineCategoryJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			IDeleteEntityService deleteEntityService = null,
-			ICurrentPermissionService currentPermissionService = null) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IDeleteEntityService deleteEntityService = null) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(
+				Core.Domain.Permissions.EmployeePermissions.CanWorkWithFineCategories);
 
 			TabName = $"Журнал {typeof(FineCategory).GetClassUserFriendlyName().GenitivePlural}";
+		}
+		protected override void CreateNodeActions()
+		{
+			var addAction = new JournalAction("Добавить",
+					(selected) => _canWorkWithFineCategories,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateEntityDialog(),
+					"Insert"
+					);
+			NodeActionsList.Add(addAction);
 
-			VisibleCreateAction = false;
-			VisibleEditAction = false;
-			VisibleDeleteAction = false;
+			var editAction = new JournalAction("Изменить",
+					(selected) => _canWorkWithFineCategories && selected.Any(),
+					(selected) => VisibleEditAction,
+					(selected) => selected.Cast<FineCategoryJournalNode>().ToList().ForEach(base.EditEntityDialog)
+					);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+				RowActivatedAction = editAction;
+
+			var deleteAction = new JournalAction("Удалить",
+					(selected) => _canWorkWithFineCategories && selected.Any(),
+					(selected) => VisibleDeleteAction,
+					(selected) => DeleteEntities(selected.Cast<FineCategoryJournalNode>().ToArray()),
+					"Delete"
+					);
+			NodeActionsList.Add(deleteAction);
 		}
 
 		protected override IQueryOver<FineCategory> ItemsQuery(IUnitOfWork uow)
