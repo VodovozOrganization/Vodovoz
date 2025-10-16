@@ -1,19 +1,19 @@
-﻿using QS.DomainModel.UoW;
+﻿using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.Windows.Input;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModels.Employees
 {
 	public class FineCategoryViewModel : EntityTabViewModelBase<FineCategory>, IAskSaveOnCloseViewModel
 	{
-		private readonly IEntityUoWBuilder _uowBuilder;
-		private readonly ICommonServices _commonServices;
 		private readonly IGenericRepository<FineCategory> _fineCategoryRepository;
 		private readonly bool _canWorkWithFineCategories;
 
@@ -26,15 +26,40 @@ namespace Vodovoz.ViewModels.Employees
 			ICurrentPermissionService currentPermissionService)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_uowBuilder = entityUoWBuilder ?? throw new ArgumentNullException(nameof(entityUoWBuilder));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			if(entityUoWBuilder == null)
+			{
+				throw new ArgumentNullException(nameof(entityUoWBuilder));
+			}
+			if(unitOfWorkFactory == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+			if(commonServices == null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+			if(currentPermissionService == null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+			if(navigation == null)
+			{
+				throw new ArgumentNullException(nameof(navigation));
+			}
+
 			_fineCategoryRepository = genericRepository ?? throw new ArgumentNullException(nameof(genericRepository));
 
 			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(
 				Core.Domain.Permissions.EmployeePermissions.CanWorkWithFineCategories);
 
 			TabName = IsNew ? "Новая категория штрафа" : $"Категория штрафа: {Entity.Name}";
+
+			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
 		}
+
+		public ICommand SaveCommand { get; }
+		public ICommand CancelCommand { get; }
 
 		public bool IsNew => Entity.Id == 0;
 		public bool CanEdit => _canWorkWithFineCategories;
@@ -47,7 +72,7 @@ namespace Vodovoz.ViewModels.Employees
 
 			if(duplicate != null)
 			{
-				_commonServices.InteractiveService.ShowMessage(
+				CommonServices.InteractiveService.ShowMessage(
 					QS.Dialog.ImportanceLevel.Warning,
 					$"Категория с названием \"{Entity.Name}\" уже существует."
 				);

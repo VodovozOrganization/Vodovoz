@@ -1,7 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.ViewModels.Employees;
 namespace Vodovoz.Views.Employees
 {
@@ -30,9 +30,10 @@ namespace Vodovoz.Views.Employees
 			buttonSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+			buttonSave.BindCommand(ViewModel.SaveCommand);
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.BindCommand(ViewModel.CancelCommand);
 
 			buttonCopy.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)

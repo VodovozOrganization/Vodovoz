@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -249,9 +250,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.Id,
 								   row.Date,
 								   row.FinedEmployeesNames,
-								   row.FineCategoryName,
 								   row.FineSum,
 								   row.FineReason,
+								   row.FineCategoryName,
 								   row.AuthorName,
 								   row.FinedEmployeesSubdivisions
 							   };
@@ -260,7 +261,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 					{
 						var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 						var ws = wb.Worksheets.Add(sheetName);
-						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Автор штрафа", "Подразделения сотрудников" };
+						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Категория штрафа", "Автор штрафа", "Подразделения сотрудников" };
 						var index = 1;
 
 						foreach(var name in columnNames)

@@ -43,9 +43,9 @@ namespace Vodovoz.Reports
 
 			ytreeviewFineCategory.HeadersVisible = false;
 
-			buttonStatusNone.Clicked += (sender, args) => ViewModel.NoneStatusCommand.Execute();
+			buttonStatusNone.BindCommand(ViewModel.NoneStatusCommand);
 
-			buttonStatusAll.Clicked += (sender, args) => ViewModel.AllStatusCommand.Execute();
+			buttonStatusAll.BindCommand(ViewModel.AllStatusCommand);
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddSource(ViewModel)

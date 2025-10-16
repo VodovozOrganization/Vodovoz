@@ -1,10 +1,11 @@
 ﻿using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -32,19 +33,11 @@ namespace Vodovoz.FilterViewModels.Employees
 		private Employee _author;
 		private bool _canEditAuthor;
 
-		private readonly IUnitOfWork _uow;
 
-		private List<EmployeeFineCategoryNode> _fineCategoryNodes;
+		private ObservableList<EmployeeFineCategoryNode> _fineCategoryNodes;
 
-		public FineFilterViewModel(IUnitOfWork uow)
+		public FineFilterViewModel()
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-
-			var categories = uow.GetAll<FineCategory>().ToList();
-			_fineCategoryNodes = categories
-				.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
-				.ToList();
-
 			CanEditFilter = true;
 		}
 
@@ -183,30 +176,32 @@ namespace Vodovoz.FilterViewModels.Employees
 			}
 		}
 
-		public List<EmployeeFineCategoryNode> FineCategoryNodes
+		private void FineCategoryNodes_PropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
 		{
-			get => _fineCategoryNodes;
+			if(e.PropertyName == nameof(EmployeeFineCategoryNode.Selected))
+			{
+				Update();
+			}
+		}
+
+		public ObservableList<EmployeeFineCategoryNode> FineCategoryNodes
+		{
+			get
+			{
+				if(_fineCategoryNodes == null)
+				{
+					var categories = UoW.GetAll<FineCategory>().ToList();
+					_fineCategoryNodes = new ObservableList<EmployeeFineCategoryNode>(
+						categories.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
+					);
+
+					_fineCategoryNodes.PropertyOfElementChanged += FineCategoryNodes_PropertyOfElementChanged;
+				}
+				return _fineCategoryNodes;
+			}
 			set
 			{
-				UnsubscribeOnFineCategoryChanged();
 				_fineCategoryNodes = value;
-				SubscribeOnFineCategoryChanged();
-			}
-		}
-
-		private void SubscribeOnFineCategoryChanged()
-		{
-			foreach(var node in FineCategoryNodes)
-			{
-				node.PropertyChanged += OnCategoryCheckChanged;
-			}
-		}
-
-		private void UnsubscribeOnFineCategoryChanged()
-		{
-			foreach(var node in FineCategoryNodes)
-			{
-				node.PropertyChanged -= OnCategoryCheckChanged;
 			}
 		}
 
@@ -218,18 +213,21 @@ namespace Vodovoz.FilterViewModels.Employees
 		public void SelectAllFineCategories()
 		{
 			_fineCategoryNodes.ForEach(x => x.Selected = true);
-			Update();
 		}
 
 		public void DeselectAllFineCategories()
 		{
 			_fineCategoryNodes.ForEach(x => x.Selected = false);
-			Update();
 		}
 
 
 		public override void Dispose()
 		{
+			if(_fineCategoryNodes != null)
+			{
+				_fineCategoryNodes.PropertyOfElementChanged -= FineCategoryNodes_PropertyOfElementChanged;
+			}
+
 			_journalViewModel = null;
 			base.Dispose();
 		}

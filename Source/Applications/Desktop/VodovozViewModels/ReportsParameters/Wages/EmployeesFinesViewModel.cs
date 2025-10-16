@@ -1,7 +1,6 @@
-﻿using MoreLinq;
-using NLog;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -9,7 +8,6 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
@@ -54,7 +52,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			AllStatusCommand = new DelegateCommand(AllStatus);
 			NoneStatusCommand = new DelegateCommand(NoneStatus);
 
-			FineCategories = new GenericObservableList<EmployeeFineCategoryNode>();
+			FineCategories = new ObservableList<EmployeeFineCategoryNode>();
 
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
@@ -121,7 +119,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 
-		public GenericObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
+		public ObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
 
 		protected override Dictionary<string, object> Parameters
 		{

@@ -8,7 +8,7 @@ using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.Nodes.Employees;
@@ -29,9 +29,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			ICurrentPermissionService currentPermissionService,
 			IDeleteEntityService deleteEntityService = null) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+			if(interactiveService is null)
+			{
+				throw new ArgumentNullException(nameof(interactiveService));
+			}
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
+			}
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
 			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(

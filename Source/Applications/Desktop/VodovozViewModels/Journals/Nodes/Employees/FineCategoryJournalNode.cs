@@ -1,12 +1,11 @@
-﻿using QS.DomainModel.Entity;
-using QS.Project.Journal;
-using Vodovoz.Domain.Employees;
+﻿using QS.Project.Journal;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.ViewModels.Journals.Nodes.Employees
 {
 	public class FineCategoryJournalNode : JournalEntityNodeBase<FineCategory>
 	{
-		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+		public override string Title => FineCategoryName;
 
 		public string FineCategoryName { get; set; }
 	}

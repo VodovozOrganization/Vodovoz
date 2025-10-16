@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Employees
 {
-	public class FineCategoryMap : ClassMap<FineCategoryEntity>
+	public class FineCategoryMap : ClassMap<FineCategory>
 	{
 		public FineCategoryMap()
 		{

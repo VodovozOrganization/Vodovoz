@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Employees
 {

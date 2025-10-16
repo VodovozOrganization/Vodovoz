@@ -1,8 +1,9 @@
-﻿using QS.Views.GtkUI;
+﻿using Gamma.Utilities;
+using QS.Views.GtkUI;
+using System;
 using System.ComponentModel;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
-using Gamma.Utilities;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -35,17 +36,20 @@ namespace Vodovoz.Filters.GtkViews
 				.Finish();
 			ytreeviewFineCategory.ItemsDataSource = ViewModel.FineCategoryNodes;
 
-			buttonCategoryAll.Clicked += (sender, args) =>
-			{
-				ViewModel.SelectAllFineCategories();
-				ytreeviewFineCategory.YTreeModel.EmitModelChanged();
-			};
+			buttonCategoryAll.Clicked += OnCategoryAllClicked;
+			buttonCategoryNone.Clicked += OnCategoryNoneClicked;
+		}
 
-			buttonCategoryNone.Clicked += (sender, args) =>
-			{
-				ViewModel.DeselectAllFineCategories();
-				ytreeviewFineCategory.YTreeModel.EmitModelChanged();
-			};
+		private void OnCategoryAllClicked(object sender, EventArgs args)
+		{
+			ViewModel.SelectAllFineCategories();
+			ytreeviewFineCategory.YTreeModel.EmitModelChanged();
+		}
+
+		private void OnCategoryNoneClicked(object sender, EventArgs args)
+		{
+			ViewModel.DeselectAllFineCategories();
+			ytreeviewFineCategory.YTreeModel.EmitModelChanged();
 		}
 	}
 }

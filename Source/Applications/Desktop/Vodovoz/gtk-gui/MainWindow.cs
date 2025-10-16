@@ -701,8 +701,6 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionFineCategoryJournal;
 
-	private global::Gtk.Action Action93;
-
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1825,12 +1823,9 @@ public partial class MainWindow
 		this.ActionTrueMark.Group = this.ActionLogistics.Group;
 		this.ActionTrueMark.ShortLabel = global::Mono.Unix.Catalog.GetString("Маркировка");
 		w1.Add(this.ActionTrueMark, null);
-		this.ActionFineCategoryJournal = new global::Gtk.Action("Action94", global::Mono.Unix.Catalog.GetString("Категории штрафов"), null, null);
+		this.ActionFineCategoryJournal = new global::Gtk.Action("ActionFineCategoryJournal", global::Mono.Unix.Catalog.GetString("Категории штрафов"), null, null);
 		this.ActionFineCategoryJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории штрафов");
 		w1.Add(this.ActionFineCategoryJournal, null);
-		this.Action93 = new global::Gtk.Action("Action93", global::Mono.Unix.Catalog.GetString("Категории штрафов"), null, null);
-		this.Action93.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории штрафов");
-		w1.Add(this.Action93, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1938,7 +1933,7 @@ public partial class MainWindow
 				"anceByDateAction\'/><menuitem name=\'BusinessActivitiesAction\' action=\'BusinessAct" +
 				"ivitiesAction\'/><menuitem name=\'BusinesAccountsAction\' action=\'BusinesAccountsAc" +
 				"tion\'/><menuitem name=\'FundsAction\' action=\'FundsAction\'/></menu><menuitem name=" +
-				"\'Action94\' action=\'Action94\'/></menu><menu name=\'ActionCounterparty1\' action=\'Ac" +
+				"\'ActionFineCategoryJournal\' action=\'ActionFineCategoryJournal\'/></menu><menu name=\'ActionCounterparty1\' action=\'Ac" +
 				"tionCounterparty1\'><menuitem name=\'ActionCounterpartyHandbook\' action=\'ActionCou" +
 				"nterpartyHandbook\'/><menuitem name=\'ActionDeliveryPoints\' action=\'ActionDelivery" +
 				"Points\'/><menuitem name=\'ActionCameFrom\' action=\'ActionCameFrom\'/><menuitem name" +
