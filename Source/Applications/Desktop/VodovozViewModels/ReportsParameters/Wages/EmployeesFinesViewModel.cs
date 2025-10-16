@@ -28,6 +28,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		private bool _categoryDriver;
 		private bool _categoryForwarder;
 		private bool _categoryOffice;
+		private bool _showArchive;
+		private ObservableList<EmployeeFineCategoryNode> _fineCategories;
 
 		public EmployeesFinesViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -51,18 +53,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
 			AllStatusCommand = new DelegateCommand(AllStatus);
 			NoneStatusCommand = new DelegateCommand(NoneStatus);
-
-			FineCategories = new ObservableList<EmployeeFineCategoryNode>();
-
-			using(var uow = uowFactory.CreateWithoutRoot())
-			{
-				var categories = uow.GetAll<FineCategory>().ToList();
-				foreach(var category in categories)
-				{
-					var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
-					FineCategories.Add(fineNode);
-				}
-			}
 		}
 
 		public DelegateCommand GenerateReportCommand;
@@ -117,9 +107,36 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			}
 		}
 
+		public bool ShowArchive
+		{
+			get => _showArchive;
+			set
+			{
+				if(_showArchive != value)
+				{
+					_showArchive = value;
+					UpdateFineCategories();
+				}
+			}
+		}
+
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 
-		public ObservableList<EmployeeFineCategoryNode> FineCategories { get; private set; }
+		public ObservableList<EmployeeFineCategoryNode> FineCategories 
+		{
+			get
+			{
+				if(_fineCategories == null)
+				{
+					var categories = UoW.GetAll<FineCategory>().Where(x => !x.IsArchive).ToList();
+					_fineCategories = new ObservableList<EmployeeFineCategoryNode>(
+						categories.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
+						);
+				}
+
+				return _fineCategories;
+			}
+		}
 
 		protected override Dictionary<string, object> Parameters
 		{
@@ -204,6 +221,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		private void AllStatus() => FineCategories.ForEach(x => x.Selected = true);
 
 		private void NoneStatus() => FineCategories.ForEach(x => x.Selected = false);
+
+		private void UpdateFineCategories()
+		{
+			FineCategories.Clear();
+			var categories = UoW.GetAll<FineCategory>()
+				.Where(x => ShowArchive || !x.IsArchive)
+				.ToList();
+
+			foreach(var category in categories)
+			{
+				var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
+				FineCategories.Add(fineNode);
+			}
+		}
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

@@ -1,5 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
+﻿using QS.Extensions.Observable.Collections.List;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -32,6 +31,7 @@ namespace Vodovoz.FilterViewModels.Employees
 		private bool _canEditFilter;
 		private Employee _author;
 		private bool _canEditAuthor;
+		private bool _showArchive;
 
 
 		private ObservableList<EmployeeFineCategoryNode> _fineCategoryNodes;
@@ -155,6 +155,18 @@ namespace Vodovoz.FilterViewModels.Employees
 			set => SetField(ref _canEditAuthor, value);
 		}
 
+		public bool ShowArchive
+		{
+			get => _showArchive;
+			set
+			{
+				if(_showArchive != value)
+				{
+					_showArchive = value;
+					UpdateFineCategories();
+				}
+			}
+		}
 
 		public virtual Employee Author
 		{
@@ -185,13 +197,27 @@ namespace Vodovoz.FilterViewModels.Employees
 			}
 		}
 
+		private void UpdateFineCategories()
+		{
+			FineCategoryNodes.Clear();
+			var categories = UoW.GetAll<FineCategory>()
+				.Where(x => ShowArchive || !x.IsArchive)
+				.ToList();
+
+			foreach(var category in categories)
+			{
+				var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
+				FineCategoryNodes.Add(fineNode);
+			}
+		}
+
 		public ObservableList<EmployeeFineCategoryNode> FineCategoryNodes
 		{
 			get
 			{
 				if(_fineCategoryNodes == null)
 				{
-					var categories = UoW.GetAll<FineCategory>().ToList();
+					var categories = UoW.GetAll<FineCategory>().Where(x => !x.IsArchive).ToList();
 					_fineCategoryNodes = new ObservableList<EmployeeFineCategoryNode>(
 						categories.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
 					);
@@ -199,10 +225,6 @@ namespace Vodovoz.FilterViewModels.Employees
 					_fineCategoryNodes.PropertyOfElementChanged += FineCategoryNodes_PropertyOfElementChanged;
 				}
 				return _fineCategoryNodes;
-			}
-			set
-			{
-				_fineCategoryNodes = value;
 			}
 		}
 

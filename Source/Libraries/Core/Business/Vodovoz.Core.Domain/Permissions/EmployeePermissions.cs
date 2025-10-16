@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Extensions;
-using static NHibernate.Engine.TransactionHelper;
 
 namespace Vodovoz.Core.Domain.Permissions
 {

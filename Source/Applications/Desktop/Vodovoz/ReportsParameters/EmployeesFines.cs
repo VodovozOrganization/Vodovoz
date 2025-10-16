@@ -41,9 +41,13 @@ namespace Vodovoz.Reports
 
 			ytreeviewFineCategory.HeadersVisible = false;
 
-			buttonStatusNone.BindCommand(ViewModel.NoneStatusCommand);
+			buttonCategoryNone.BindCommand(ViewModel.NoneStatusCommand);
 
-			buttonStatusAll.BindCommand(ViewModel.AllStatusCommand);
+			buttonCategoryAll.BindCommand(ViewModel.AllStatusCommand);
+
+			ycheckbuttonShowArchieve.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)
+				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddSource(ViewModel)

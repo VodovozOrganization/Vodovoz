@@ -24,17 +24,19 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yRadioButton radioCatOffice;
 
-		private global::Gamma.GtkWidgets.yHBox yhbox1;
+		private global::Gamma.GtkWidgets.yHBox yhbox3;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewFineCategory;
 
-		private global::Gamma.GtkWidgets.yVBox yvbox1;
+		private global::Gamma.GtkWidgets.yVBox yvbox6;
 
-		private global::Gamma.GtkWidgets.yButton buttonStatusAll;
+		private global::Gamma.GtkWidgets.yButton buttonCategoryAll;
 
-		private global::Gamma.GtkWidgets.yButton buttonStatusNone;
+		private global::Gamma.GtkWidgets.yButton buttonCategoryNone;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchieve;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
@@ -86,8 +88,8 @@ namespace Vodovoz.Reports
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
-			w3.TopAttach = ((uint)(6));
-			w3.BottomAttach = ((uint)(7));
+			w3.TopAttach = ((uint)(5));
+			w3.BottomAttach = ((uint)(6));
 			w3.LeftAttach = ((uint)(1));
 			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -177,9 +179,10 @@ namespace Vodovoz.Reports
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
-			this.yhbox1.Name = "yhbox1";
-			// Container child yhbox1.Gtk.Box+BoxChild
+			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox3.Name = "yhbox3";
+			this.yhbox3.Spacing = 6;
+			// Container child yhbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -190,69 +193,81 @@ namespace Vodovoz.Reports
 			this.ytreeviewFineCategory.Name = "ytreeviewFineCategory";
 			this.ytreeviewFineCategory.HeadersVisible = false;
 			this.GtkScrolledWindow.Add(this.ytreeviewFineCategory);
-			this.yhbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.GtkScrolledWindow]));
+			this.yhbox3.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.GtkScrolledWindow]));
 			w11.Position = 0;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox1.Name = "yvbox1";
-			this.yvbox1.Spacing = 6;
-			// Container child yvbox1.Gtk.Box+BoxChild
-			this.buttonStatusAll = new global::Gamma.GtkWidgets.yButton();
-			this.buttonStatusAll.CanFocus = true;
-			this.buttonStatusAll.Name = "buttonStatusAll";
-			this.buttonStatusAll.UseUnderline = true;
-			this.buttonStatusAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать все");
-			this.yvbox1.Add(this.buttonStatusAll);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.buttonStatusAll]));
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.yvbox6 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox6.Name = "yvbox6";
+			this.yvbox6.Spacing = 6;
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.buttonCategoryAll = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCategoryAll.CanFocus = true;
+			this.buttonCategoryAll.Name = "buttonCategoryAll";
+			this.buttonCategoryAll.UseUnderline = true;
+			this.buttonCategoryAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать все");
+			this.yvbox6.Add(this.buttonCategoryAll);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryAll]));
 			w12.Position = 0;
 			w12.Expand = false;
 			w12.Fill = false;
-			// Container child yvbox1.Gtk.Box+BoxChild
-			this.buttonStatusNone = new global::Gamma.GtkWidgets.yButton();
-			this.buttonStatusNone.CanFocus = true;
-			this.buttonStatusNone.Name = "buttonStatusNone";
-			this.buttonStatusNone.UseUnderline = true;
-			this.buttonStatusNone.Label = global::Mono.Unix.Catalog.GetString("Снять выбор");
-			this.yvbox1.Add(this.buttonStatusNone);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.buttonStatusNone]));
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.buttonCategoryNone = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCategoryNone.CanFocus = true;
+			this.buttonCategoryNone.Name = "buttonCategoryNone";
+			this.buttonCategoryNone.UseUnderline = true;
+			this.buttonCategoryNone.Label = global::Mono.Unix.Catalog.GetString("Снять выбор");
+			this.yvbox6.Add(this.buttonCategoryNone);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryNone]));
 			w13.Position = 1;
 			w13.Expand = false;
 			w13.Fill = false;
-			this.yhbox1.Add(this.yvbox1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yvbox1]));
-			w14.Position = 1;
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.ycheckbuttonShowArchieve = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowArchieve.CanFocus = true;
+			this.ycheckbuttonShowArchieve.Name = "ycheckbuttonShowArchieve";
+			this.ycheckbuttonShowArchieve.Label = global::Mono.Unix.Catalog.GetString("Показывать архивные");
+			this.ycheckbuttonShowArchieve.DrawIndicator = true;
+			this.ycheckbuttonShowArchieve.UseUnderline = true;
+			this.yvbox6.Add(this.ycheckbuttonShowArchieve);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.ycheckbuttonShowArchieve]));
+			w14.Position = 2;
 			w14.Expand = false;
 			w14.Fill = false;
-			this.table1.Add(this.yhbox1);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox1]));
-			w15.TopAttach = ((uint)(5));
-			w15.BottomAttach = ((uint)(6));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yhbox3.Add(this.yvbox6);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yvbox6]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.table1.Add(this.yhbox3);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yhbox3]));
+			w16.TopAttach = ((uint)(6));
+			w16.BottomAttach = ((uint)(7));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.Xalign = 1F;
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.table1.Add(this.ylabel2);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
-			w16.TopAttach = ((uint)(6));
-			w16.BottomAttach = ((uint)(7));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelFineCategory.Name = "ylabelFineCategory";
-			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория штрафа:");
-			this.table1.Add(this.ylabelFineCategory);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelFineCategory]));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
 			w17.TopAttach = ((uint)(5));
 			w17.BottomAttach = ((uint)(6));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFineCategory.Name = "ylabelFineCategory";
+			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категории штрафа:");
+			this.table1.Add(this.ylabelFineCategory);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelFineCategory]));
+			w18.TopAttach = ((uint)(6));
+			w18.BottomAttach = ((uint)(7));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

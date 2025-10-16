@@ -392,7 +392,7 @@ namespace Vodovoz.Additions.Logistic
 				{ "endDate", routeList.Date },
 				{ "routelist", routeList.Id },
 				{ "showbottom", true},
-				{ "fineCategories", uow.GetAll<FineCategory>().Select(x => x.Id).ToList() }
+				{ "fineCategories", uow.GetAll<FineCategory>().Where(x => !x.IsArchive).Select(x => x.Id).ToList() }
 			};
 			return reportInfo;
 		}

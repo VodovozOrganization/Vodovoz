@@ -1,5 +1,4 @@
-﻿using Gamma.Utilities;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.FilterViewModels.Employees;
@@ -35,6 +34,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
 				.Finish();
 			ytreeviewFineCategory.ItemsDataSource = ViewModel.FineCategoryNodes;
+
+			ycheckbuttonShowArchieve.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)
+				.InitializeFromSource();
 
 			buttonCategoryAll.Clicked += OnCategoryAllClicked;
 			buttonCategoryNone.Clicked += OnCategoryNoneClicked;
