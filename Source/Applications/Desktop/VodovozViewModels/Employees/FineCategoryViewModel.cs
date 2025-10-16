@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Employees
 		protected override bool BeforeSave()
 		{
 			var duplicate = _fineCategoryRepository
-				.GetFirstOrDefault(UoW, x => x.Name == Entity.Name);
+				.GetFirstOrDefault(UoW, x => x.Name == Entity.Name && x.Id != Entity.Id);
 
 			if(duplicate != null)
 			{

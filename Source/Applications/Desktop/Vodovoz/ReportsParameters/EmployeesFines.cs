@@ -2,10 +2,8 @@
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Views;
-using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
-using Gamma.Utilities;
 
 namespace Vodovoz.Reports
 {

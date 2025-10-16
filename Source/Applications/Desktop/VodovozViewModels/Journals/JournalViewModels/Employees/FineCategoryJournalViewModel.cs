@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			FineCategoryViewModel,
 			FineCategoryJournalNode>
 	{
-		private readonly bool _canWorkWithFineCategories;
+		private readonly IPermissionResult _permissionResult;
 
 		public FineCategoryJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -46,15 +46,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(
-				Core.Domain.Permissions.EmployeePermissions.CanWorkWithFineCategories);
+			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(FineCategory));
 
 			TabName = $"Журнал {typeof(FineCategory).GetClassUserFriendlyName().GenitivePlural}";
 		}
 		protected override void CreateNodeActions()
 		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+
 			var addAction = new JournalAction("Добавить",
-					(selected) => _canWorkWithFineCategories,
+					(selected) => _permissionResult.CanCreate,
 					(selected) => VisibleCreateAction,
 					(selected) => CreateEntityDialog(),
 					"Insert"
@@ -62,7 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(addAction);
 
 			var editAction = new JournalAction("Изменить",
-					(selected) => _canWorkWithFineCategories && selected.Any(),
+					(selected) => _permissionResult.CanUpdate && selected.Any(),
 					(selected) => VisibleEditAction,
 					(selected) => selected.Cast<FineCategoryJournalNode>().ToList().ForEach(base.EditEntityDialog)
 					);
@@ -74,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			}
 
 			var deleteAction = new JournalAction("Удалить",
-					(selected) => _canWorkWithFineCategories && selected.Any(),
+					(selected) => _permissionResult.CanDelete && selected.Any(),
 					(selected) => VisibleDeleteAction,
 					(selected) => DeleteEntities(selected.Cast<FineCategoryJournalNode>().ToArray()),
 					"Delete"

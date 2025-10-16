@@ -43,9 +43,15 @@ namespace Vodovoz.Domain.Employees
 
 		#region Свойства
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		[Display(Name = "Идентификатор")]
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Тип штрафа
+		/// </summary>
 		[Display(Name = "Тип штрафа")]
 		public virtual FineTypes FineType
 		{
@@ -53,6 +59,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _fineType, value);
 		}
 
+		/// <summary>
+		/// Категория штрафа
+		/// </summary>
 		[Display(Name = "Категория штрафа")]
 		public virtual FineCategory FineCategory
 		{
@@ -60,6 +69,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _fineCategory, value);
 		}
 
+		/// <summary>
+		/// Дата
+		/// </summary>
 		[Display(Name = "Дата")]
 		public virtual DateTime Date
 		{
@@ -67,6 +79,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _date, value);
 		}
 
+		/// <summary>
+		/// Всего денег
+		/// </summary>
 		[Display(Name = "Всего денег")]
 		public virtual decimal TotalMoney
 		{
@@ -85,6 +100,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _litersOverspending, value);
 		}
 
+		/// <summary>
+		/// Причина штрафа
+		/// </summary>
 		[Display(Name = "Причина штрафа")]
 		public virtual string FineReasonString
 		{
@@ -92,6 +110,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _fineReasonString, value);
 		}
 
+		/// <summary>
+		/// Маршрутный лист
+		/// </summary>
 		[Display(Name = "Маршрутный лист")]
 		public virtual RouteList RouteList
 		{
@@ -99,6 +120,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _routeList, value);
 		}
 
+		/// <summary>
+		/// Недовоз
+		/// </summary>
 		[Display(Name = "Недовоз")]
 		public virtual UndeliveredOrder UndeliveredOrder
 		{
@@ -117,6 +141,9 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		/// <summary>
+		/// Автор штрафа
+		/// </summary>
 		[Display(Name = "Автор штрафа")]
 		public virtual Employee Author
 		{
@@ -124,6 +151,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _author, value);
 		}
 
+		/// <summary>
+		/// Строки
+		/// </summary>
 		[Display(Name = "Строки")]
 		public virtual IList<FineItem> Items
 		{
@@ -149,6 +179,9 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
 		public virtual IList<FineNomenclature> Nomenclatures
 		{
@@ -156,6 +189,9 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _nomenclatures, value);
 		}
 
+		/// <summary>
+		/// Адрес МЛ
+		/// </summary>
 		[Display(Name = "Адрес МЛ")]
 		public virtual IList<RouteListItem> RouteListItems
 		{
