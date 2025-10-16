@@ -42,7 +42,8 @@ namespace BitrixApi.Library.Services
 
 		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId)
 		{
-			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId);
+			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId)
+				?? throw new InvalidOperationException("Не удалось получить информацию по отчету акта сверки");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
 			return CreateEmailPdfAttachment(pdfBytes, _revisionFileName);
@@ -55,7 +56,8 @@ namespace BitrixApi.Library.Services
 
 			foreach(var orderId in notPaidOrdersIds)
 			{
-				var reportInfo = GetOrderBillReportInfo(orderId, organizationId);
+				var reportInfo = GetOrderBillReportInfo(orderId, organizationId)
+					?? throw new InvalidOperationException("Не удалось получить информацию по счету по заказу");
 				var pdfBytes = CreatePdfReportBytes(reportInfo);
 
 				pdfs.Add(pdfBytes);
@@ -69,7 +71,8 @@ namespace BitrixApi.Library.Services
 		public IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId)
 		{
 			var notPaidOrdersIds = GetNotPaidOrdersIds(counterpartyId, organizationId);
-			var reportInfo = GetGeneralBillReportInfo(notPaidOrdersIds, organizationId);
+			var reportInfo = GetGeneralBillReportInfo(notPaidOrdersIds, organizationId)
+				?? throw new InvalidOperationException("Не удалось получить информацию по общему счету");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
 			return CreateEmailPdfAttachment(pdfBytes, _generalBillFileName);
