@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using BitrixApi.Library;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,8 @@ namespace BitrixApi
 				)
 				.AddDatabaseConnection()
 				.AddCore()
-				.AddNotTrackedUoW();
+				.AddNotTrackedUoW()
+				.AddBitrixApiServices();
 
 			services
 				.AddSecurity(_configuration)
