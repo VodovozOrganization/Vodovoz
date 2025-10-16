@@ -161,6 +161,7 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
+
 		public virtual int[] SelectedFineCategoryIds
 		{
 			get => FineCategoryNodes.Where(x => x.Selected)
@@ -205,11 +206,6 @@ namespace Vodovoz.FilterViewModels.Employees
 			}
 		}
 
-		private void OnCategoryCheckChanged(object sender, PropertyChangedEventArgs e)
-		{
-			Update();
-		}
-
 		public void SelectAllFineCategories()
 		{
 			_fineCategoryNodes.ForEach(x => x.Selected = true);
@@ -219,7 +215,6 @@ namespace Vodovoz.FilterViewModels.Employees
 		{
 			_fineCategoryNodes.ForEach(x => x.Selected = false);
 		}
-
 
 		public override void Dispose()
 		{

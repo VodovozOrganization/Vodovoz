@@ -15,7 +15,6 @@ namespace Vodovoz.ViewModels.Employees
 	public class FineCategoryViewModel : EntityTabViewModelBase<FineCategory>, IAskSaveOnCloseViewModel
 	{
 		private readonly IGenericRepository<FineCategory> _fineCategoryRepository;
-		private readonly bool _canWorkWithFineCategories;
 
 		public FineCategoryViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
@@ -49,9 +48,6 @@ namespace Vodovoz.ViewModels.Employees
 
 			_fineCategoryRepository = genericRepository ?? throw new ArgumentNullException(nameof(genericRepository));
 
-			_canWorkWithFineCategories = currentPermissionService.ValidatePresetPermission(
-				Core.Domain.Permissions.EmployeePermissions.CanWorkWithFineCategories);
-
 			TabName = IsNew ? "Новая категория штрафа" : $"Категория штрафа: {Entity.Name}";
 
 			SaveCommand = new DelegateCommand(() => SaveAndClose());
@@ -62,7 +58,7 @@ namespace Vodovoz.ViewModels.Employees
 		public ICommand CancelCommand { get; }
 
 		public bool IsNew => Entity.Id == 0;
-		public bool CanEdit => _canWorkWithFineCategories;
+		public bool CanEdit => PermissionResult.CanCreate && IsNew || PermissionResult.CanUpdate;
 		public bool AskSaveOnClose => CanEdit;
 
 		protected override bool BeforeSave()

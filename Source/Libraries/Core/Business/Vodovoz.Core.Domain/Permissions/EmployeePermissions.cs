@@ -66,13 +66,5 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Работа с документами сотрудников ограничена только водителями и экспедиторами",
 			Description = "Если включено, то можно просматривать/редактировать/создавать только документы у водителей и экспедиторов")]
 		public static string CanWorkWithOnlyDriverDocuments => "work_with_only_driver_documents";
-
-		/// <summary>
-		/// Ограничение работы только с категориями штрафов
-		/// </summary>
-		[Display(
-			Name = "Работа с категориями штрафов",
-			Description = "Если включено, то можно создавать/редактировать/удалять категории штрафов")]
-		public static string CanWorkWithFineCategories => "work_with_fine_categories";
 	}
 }
