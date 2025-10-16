@@ -18,5 +18,8 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public string BitrixBaseUrl =>
 			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(BitrixBaseUrl)}");
+
+		public string BitrixToken =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{nameof(BitrixToken)}");
 	}
 }

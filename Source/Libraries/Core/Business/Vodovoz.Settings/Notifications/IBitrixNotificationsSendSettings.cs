@@ -16,5 +16,10 @@ namespace Vodovoz.Settings.Notifications
 		/// Адрес базового URL Битрикс24
 		/// </summary>
 		string BitrixBaseUrl { get; }
+
+		/// <summary>
+		/// Токен для доступа к API Битрикс24
+		/// </summary>
+		string BitrixToken { get; }
 	}
 }

@@ -9,16 +9,23 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Settings.Notifications;
 
 namespace BitrixNotificationsSend.Client
 {
 	public class BitrixNotificationsSendClient : IBitrixNotificationsSendClient
 	{
 		private readonly HttpClient _httpClient;
+		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 
-		public BitrixNotificationsSendClient(HttpClient httpClient)
+		public BitrixNotificationsSendClient(
+			HttpClient httpClient,
+			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings)
 		{
-			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+			_httpClient = httpClient
+				?? throw new ArgumentNullException(nameof(httpClient));
+			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings 
+				?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 		}
 
 		public async Task<Result> SendCounterpartiesCashlessDebtsNotification(IEnumerable<CounterpartyCashlessDebtDto> counterpartiesCashlessDebts, CancellationToken cancellationToken)
@@ -34,7 +41,7 @@ namespace BitrixNotificationsSend.Client
 			var result = await retryPolicy.ExecuteAndCaptureAsync(
 				async (innerCancellationToken) =>
 				{
-					var response = await _httpClient.PostAsync("bitrix", httpContent, innerCancellationToken);
+					var response = await _httpClient.PostAsync($"handler.php?token={_bitrixNotificationsSendSettings.BitrixToken}", httpContent, innerCancellationToken);
 					var responseResult =
 						response.IsSuccessStatusCode
 						? Result.Success()
