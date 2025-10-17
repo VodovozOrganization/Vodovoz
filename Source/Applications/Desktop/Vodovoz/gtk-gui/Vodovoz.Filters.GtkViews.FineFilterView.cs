@@ -4,6 +4,10 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class FineFilterView
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox1;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox2;
+
 		private global::Gtk.Table table1;
 
 		private global::QS.Views.Control.EntityEntry entryAuthor;
@@ -22,6 +26,22 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
+		private global::Gamma.GtkWidgets.yVBox yvbox5;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFineCategory;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchieve;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFineCategory;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox6;
+
+		private global::Gamma.GtkWidgets.yButton buttonCategoryAll;
+
+		private global::Gamma.GtkWidgets.yButton buttonCategoryNone;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -29,6 +49,14 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.FineFilterView";
 			// Container child Vodovoz.Filters.GtkViews.FineFilterView.Gtk.Container+ContainerChild
+			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox1.Name = "yvbox1";
+			this.yvbox1.Spacing = 6;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox2.Name = "yhbox2";
+			this.yhbox2.Spacing = 6;
+			// Container child yhbox2.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
@@ -123,7 +151,93 @@ namespace Vodovoz.Filters.GtkViews
 			w8.BottomAttach = ((uint)(3));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add(this.table1);
+			this.yhbox2.Add(this.table1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.table1]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.yvbox5 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox5.Name = "yvbox5";
+			this.yvbox5.Spacing = 6;
+			// Container child yvbox5.Gtk.Box+BoxChild
+			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFineCategory.Name = "ylabelFineCategory";
+			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категории:");
+			this.yvbox5.Add(this.ylabelFineCategory);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.ylabelFineCategory]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child yvbox5.Gtk.Box+BoxChild
+			this.ycheckbuttonShowArchieve = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowArchieve.CanFocus = true;
+			this.ycheckbuttonShowArchieve.Name = "ycheckbuttonShowArchieve";
+			this.ycheckbuttonShowArchieve.Label = global::Mono.Unix.Catalog.GetString("Показывать архивные");
+			this.ycheckbuttonShowArchieve.DrawIndicator = true;
+			this.ycheckbuttonShowArchieve.UseUnderline = true;
+			this.yvbox5.Add(this.ycheckbuttonShowArchieve);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.ycheckbuttonShowArchieve]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.yhbox2.Add(this.yvbox5);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yvbox5]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeviewFineCategory = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFineCategory.CanFocus = true;
+			this.ytreeviewFineCategory.Name = "ytreeviewFineCategory";
+			this.ytreeviewFineCategory.HeadersVisible = false;
+			this.GtkScrolledWindow.Add(this.ytreeviewFineCategory);
+			this.yhbox2.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.GtkScrolledWindow]));
+			w14.Position = 2;
+			w14.Expand = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.yvbox6 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox6.Name = "yvbox6";
+			this.yvbox6.Spacing = 6;
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.buttonCategoryAll = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCategoryAll.CanFocus = true;
+			this.buttonCategoryAll.Name = "buttonCategoryAll";
+			this.buttonCategoryAll.UseUnderline = true;
+			this.buttonCategoryAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать все");
+			this.yvbox6.Add(this.buttonCategoryAll);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryAll]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.buttonCategoryNone = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCategoryNone.CanFocus = true;
+			this.buttonCategoryNone.Name = "buttonCategoryNone";
+			this.buttonCategoryNone.UseUnderline = true;
+			this.buttonCategoryNone.Label = global::Mono.Unix.Catalog.GetString("Снять выбор");
+			this.yvbox6.Add(this.buttonCategoryNone);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryNone]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
+			this.yhbox2.Add(this.yvbox6);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yvbox6]));
+			w17.Position = 3;
+			w17.Expand = false;
+			w17.Fill = false;
+			this.yvbox1.Add(this.yhbox2);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhbox2]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
+			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

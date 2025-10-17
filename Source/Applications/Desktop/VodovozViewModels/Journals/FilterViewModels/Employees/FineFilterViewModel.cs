@@ -1,12 +1,20 @@
-﻿using QS.Project.Filter;
+﻿using QS.Commands;
+using QS.Extensions.Observable.Collections.List;
+using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.FilterViewModels.Employees
 {
@@ -26,6 +34,10 @@ namespace Vodovoz.FilterViewModels.Employees
 		private bool _canEditFilter;
 		private Employee _author;
 		private bool _canEditAuthor;
+		private bool _showArchive;
+
+
+		private ObservableList<EmployeeFineCategoryNode> _fineCategoryNodes;
 
 		public FineFilterViewModel()
 		{
@@ -58,8 +70,14 @@ namespace Vodovoz.FilterViewModels.Employees
 					.Finish();
 
 				AuthorViewModel.IsEditable = CanEditAuthor;
+
+				AllCategoriesCommand = new DelegateCommand(SelectAllFineCategories);
+				NoneCategoriesCommand = new DelegateCommand(DeselectAllFineCategories);
 			}
 		}
+
+		public DelegateCommand AllCategoriesCommand;
+		public DelegateCommand NoneCategoriesCommand;
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 
@@ -146,14 +164,96 @@ namespace Vodovoz.FilterViewModels.Employees
 			set => SetField(ref _canEditAuthor, value);
 		}
 
+		public bool ShowArchive
+		{
+			get => _showArchive;
+			set
+			{
+				if(_showArchive != value)
+				{
+					_showArchive = value;
+					UpdateFineCategories();
+				}
+			}
+		}
+
 		public virtual Employee Author
 		{
 			get => _author;
 			set => UpdateFilterField(ref _author, value);
 		}
 
+		public virtual int[] SelectedFineCategoryIds
+		{
+			get => FineCategoryNodes.Where(x => x.Selected)
+				.Select(x => x.FineCategoryId)
+				.ToArray();
+			set
+			{
+				foreach(var category in _fineCategoryNodes.Where(x => value.Contains(x.FineCategoryId)))
+				{
+					category.Selected = true;
+				}
+				OnPropertyChanged(nameof(SelectedFineCategoryIds));
+			}
+		}
+
+		private void FineCategoryNodes_PropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(EmployeeFineCategoryNode.Selected))
+			{
+				Update();
+			}
+		}
+
+		private void UpdateFineCategories()
+		{
+			FineCategoryNodes.Clear();
+			var categories = UoW.GetAll<FineCategory>()
+				.Where(x => ShowArchive || !x.IsArchive)
+				.ToList();
+
+			foreach(var category in categories)
+			{
+				var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
+				FineCategoryNodes.Add(fineNode);
+			}
+		}
+
+		public ObservableList<EmployeeFineCategoryNode> FineCategoryNodes
+		{
+			get
+			{
+				if(_fineCategoryNodes == null)
+				{
+					var categories = UoW.GetAll<FineCategory>().Where(x => !x.IsArchive).ToList();
+					_fineCategoryNodes = new ObservableList<EmployeeFineCategoryNode>(
+						categories.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
+					);
+
+					_fineCategoryNodes.PropertyOfElementChanged += FineCategoryNodes_PropertyOfElementChanged;
+				}
+				return _fineCategoryNodes;
+			}
+		}
+
+		public void SelectAllFineCategories()
+		{
+			_fineCategoryNodes.ForEach(x => x.Selected = true);
+		}
+
+		public void DeselectAllFineCategories()
+		{
+			_fineCategoryNodes.ForEach(x => x.Selected = false);
+		}
+
 		public override void Dispose()
 		{
+			if(_fineCategoryNodes != null)
+			{
+				_fineCategoryNodes.PropertyOfElementChanged -= FineCategoryNodes_PropertyOfElementChanged;
+			}
+
 			_journalViewModel = null;
 			base.Dispose();
 		}

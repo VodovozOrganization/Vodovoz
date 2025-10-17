@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
   <DataSources>
@@ -35,6 +33,7 @@
                 employees.patronymic)) AS employee,
     money,
     fines.date,
+    fine_categories.name as fineCategory,
     CASE
         WHEN
             store_inventory_item.id IS NOT NULL
@@ -74,6 +73,8 @@ FROM
         LEFT JOIN
     fines ON fines.id = fines_items.fine_id
         LEFT JOIN
+    fine_categories ON fine_categories.id = fines.fine_category_id
+      LEFT JOIN
     store_inventory_item ON store_inventory_item.fine_id = fines.id
         LEFT JOIN
     store_writeoff_document_items ON store_writeoff_document_items.fine_id = fines.id
@@ -89,9 +90,9 @@ FROM
         OR store_writeoff_document_items.nomenclature_id = nomenclature.id
         OR store_regrading_of_goods_items.nomenclature_old_id = nomenclature.id
 WHERE
-    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND (@category = '-1' OR employees.category = @category)) OR
-    (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)) OR
-    (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
+    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1 AND fine_categories.id IN (@fineCategories))
+    OR (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND fine_categories.id IN (@fineCategories)) 
+    OR (employees.id = @drivers AND @startDate = '0' AND @endDate = '0' AND fine_categories.id IN (@fineCategories))
 GROUP BY fines_items.id
 ORDER BY employee , date</CommandText>
         <QueryParameters>
@@ -106,6 +107,9 @@ ORDER BY employee , date</CommandText>
           </QueryParameter>
           <QueryParameter Name="category">
             <Value>={?category}</Value>
+          </QueryParameter>
+          <QueryParameter Name="fineCategories">
+            <Value>={?fineCategories}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -132,6 +136,73 @@ ORDER BY employee , date</CommandText>
         </Field>
         <Field Name="comment">
           <DataField>comment</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="fineCategory">
+          <DataField>fineCategory</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="SummaryByCategory">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
+        <CommandText>
+          SELECT
+            SUM(fi.money) as totalFine,
+            fc.name as fineCategory
+          FROM
+            fines_items fi
+          LEFT JOIN employees e ON
+            e.id = fi.employee_id
+          LEFT JOIN fines f ON
+            f.id = fi.fine_id
+          LEFT JOIN fine_categories fc ON
+            fc.id = f.fine_category_id
+          WHERE
+            (f.date &gt;= @startDate
+              AND f.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                AND @drivers = -1
+                AND fc.id IN (@fineCategories))
+            OR (e.id = @drivers
+              AND f.date &gt;= @startDate
+              AND f.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+              AND fc.id IN (@fineCategories))
+            OR (e.id = @drivers
+              AND @startDate = '0'
+              AND @endDate = '0'
+              AND fc.id IN (@fineCategories))
+          GROUP BY
+            fc.name
+          ORDER BY
+            fc.id
+        </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>={?startDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>={?endDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="drivers">
+            <Value>={?drivers}</Value>
+          </QueryParameter>
+          <QueryParameter Name="category">
+            <Value>={?category}</Value>
+          </QueryParameter>
+          <QueryParameter Name="fineCategories">
+            <Value>={?fineCategories}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="totalFine">
+          <DataField>totalFine</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="fineCategory">
+          <DataField>fineCategory</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -178,10 +249,13 @@ ORDER BY employee , date</CommandText>
             <Width>103.1pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>114.4pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>124.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>190.3pt</Width>
+            <Width>105.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>59.7pt</Width>
@@ -242,6 +316,22 @@ ORDER BY employee , date</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Категория</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox5">
                       <Value>Комментарий</Value>
                       <Style>
@@ -285,7 +375,7 @@ ORDER BY employee , date</CommandText>
                   <Height>12pt</Height>
                   <TableCells>
                     <TableCell>
-                      <ColSpan>4</ColSpan>
+                      <ColSpan>5</ColSpan>
                       <ReportItems>
                         <Textbox Name="Textbox9">
                           <Value>=Fields.employee.Value</Value>
@@ -355,7 +445,7 @@ ORDER BY employee , date</CommandText>
                         <Format>d</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -388,8 +478,25 @@ ORDER BY employee , date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingBottom >=Len({nomenclature_info}) / 3 + "pt"</PaddingBottom>
-                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom>=Len({nomenclature_info}) / 3 + "pt"</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="fineCategory">
+                      <Value>=Fields!fineCategory.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingBottom>=Len({nomenclature_info}) / 3 + "pt"</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -406,7 +513,7 @@ ORDER BY employee , date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingBottom >=Len({comment}) / 3 + "pt"</PaddingBottom>
+                        <PaddingBottom>=Len({comment}) / 3 + "pt"</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -444,8 +551,7 @@ ORDER BY employee , date</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -457,8 +563,7 @@ ORDER BY employee , date</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -470,8 +575,19 @@ ORDER BY employee , date</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -513,6 +629,72 @@ ORDER BY employee , date</CommandText>
         <Left>0.0pt</Left>
         <Top>20.1pt</Top>
       </Table>
+      <Table Name="SummaryTable">
+        <DataSetName>SummaryByCategory</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>128.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>100.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!fineCategory.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!totalFine.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>91.1pt</Top>
+      </Table>
     </ReportItems>
     <Height>153.6pt</Height>
     <Columns>1</Columns>
@@ -540,7 +722,7 @@ ORDER BY employee , date</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -551,8 +733,7 @@ ORDER BY employee , date</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
@@ -564,32 +745,28 @@ ORDER BY employee , date</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="drivers">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="showbottom">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="routelist">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="category">
       <DataType>String</DataType>
@@ -601,8 +778,7 @@ ORDER BY employee , date</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="driverName">
       <DataType>String</DataType>
@@ -610,6 +786,13 @@ ORDER BY employee , date</CommandText>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="fineCategories">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

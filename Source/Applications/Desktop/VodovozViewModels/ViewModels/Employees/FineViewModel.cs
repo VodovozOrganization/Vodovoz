@@ -14,6 +14,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.Employees
 			ConfigureEntityPropertyChanges();
 
 			RouteListViewModel = BuildRouteListEntityViewModel();
+			FineCategories = UoW.GetAll<FineCategory>().ToList();
 
 			ConfigureCarEvent(carEventRepository);
 		}
@@ -85,6 +87,8 @@ namespace Vodovoz.ViewModels.Employees
 				CarEvent = $"Взыскано по событию ТС: {string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}";
 			}
 		}
+
+		public List<FineCategory> FineCategories { get; private set; }
 
 		public Employee CurrentEmployee
 		{

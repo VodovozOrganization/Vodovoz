@@ -16,15 +16,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Search;
+
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -110,12 +111,14 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
+			FineCategory fineCategoryAlias = null;
 			Employee finedEmployeeAlias = null;
 			Subdivision finedEmployeeSubdivision = null;
 			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
 			var query = unitOfWork.Session.QueryOver(() => fineAlias)
+				.Left.JoinAlias(() => fineAlias.FineCategory, () => fineCategoryAlias)
 				.Left.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
 				.Left.JoinAlias(f => f.Items, () => fineItemAlias)
 				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
@@ -162,6 +165,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
+			if(_filterViewModel.SelectedFineCategoryIds != null)
+			{
+				query.WhereRestrictionOn(() => fineCategoryAlias.Id).IsIn(_filterViewModel.SelectedFineCategoryIds);
+			}	
+
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAliase = null;
 			Fine finesAlias = null;
@@ -198,8 +206,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
+					.Select(() => fineCategoryAlias.Name).WithAlias(() => resultAlias.FineCategoryName)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
@@ -243,6 +252,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.FinedEmployeesNames,
 								   row.FineSum,
 								   row.FineReason,
+								   row.FineCategoryName,
 								   row.AuthorName,
 								   row.FinedEmployeesSubdivisions
 							   };
@@ -251,7 +261,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 					{
 						var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 						var ws = wb.Worksheets.Add(sheetName);
-						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Автор штрафа", "Подразделения сотрудников" };
+						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Категория штрафа", "Автор штрафа", "Подразделения сотрудников" };
 						var index = 1;
 
 						foreach(var name in columnNames)
