@@ -1604,7 +1604,8 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void UpdatePaymentByCardFrom(
 			PaymentFrom paymentByCardFrom,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(_paymentByCardFrom == paymentByCardFrom)
 			{
@@ -1612,12 +1613,17 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			PaymentByCardFrom = paymentByCardFrom;
-			orderContractUpdater.UpdateContract(UoW, this);
+
+			if(needUpdateContract)
+			{
+				orderContractUpdater.UpdateContract(UoW, this);
+			}
 		}
 
 		public virtual void UpdatePaymentType(
 			PaymentType paymentType,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(paymentType == _paymentType)
 			{
@@ -1641,7 +1647,10 @@ namespace Vodovoz.Domain.Orders
 				PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 			}
 
-			UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			if(needUpdateContract)
+			{
+				UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			}
 		}
 
 		public virtual void UpdateClient(Counterparty counterparty, IOrderContractUpdater orderContractUpdater, out string message)
