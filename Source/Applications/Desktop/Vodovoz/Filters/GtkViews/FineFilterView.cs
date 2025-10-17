@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Filters.GtkViews
 {

@@ -21,8 +21,7 @@ namespace Vodovoz.ViewModels.Employees
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGenericRepository<FineCategory> genericRepository,
-			ICurrentPermissionService currentPermissionService)
+			IGenericRepository<FineCategory> genericRepository)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(entityUoWBuilder == null)
@@ -36,10 +35,6 @@ namespace Vodovoz.ViewModels.Employees
 			if(commonServices == null)
 			{
 				throw new ArgumentNullException(nameof(commonServices));
-			}
-			if(currentPermissionService == null)
-			{
-				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 			if(navigation == null)
 			{

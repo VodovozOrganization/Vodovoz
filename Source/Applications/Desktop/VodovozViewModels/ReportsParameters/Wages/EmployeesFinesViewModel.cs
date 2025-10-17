@@ -14,7 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {

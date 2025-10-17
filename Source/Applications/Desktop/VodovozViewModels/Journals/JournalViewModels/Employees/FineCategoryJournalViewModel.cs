@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(addAction);
 
 			var editAction = new JournalAction("Изменить",
-					(selected) => _permissionResult.CanUpdate && selected.Any(),
+					(selected) => _permissionResult.CanRead && selected.Any(),
 					(selected) => VisibleEditAction,
 					(selected) => selected.Cast<FineCategoryJournalNode>().ToList().ForEach(base.EditEntityDialog)
 					);

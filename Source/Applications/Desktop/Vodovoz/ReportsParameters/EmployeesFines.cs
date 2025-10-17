@@ -2,8 +2,8 @@
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Views;
-using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.ReportsParameters.Wages;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Reports
 {
