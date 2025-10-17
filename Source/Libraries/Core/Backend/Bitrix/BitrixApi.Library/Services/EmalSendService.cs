@@ -55,7 +55,7 @@ namespace BitrixApi.Library.Services
 				throw new InvalidOperationException($"Некорректный email адрес {request.EmailAdress}");
 			}
 
-			var counterparty = GetCounterpartyFullName(request.CounterpartyInn.ToString());
+			var counterparty = GetCounterparty(request.CounterpartyInn.ToString());
 
 			if(counterparty == null)
 			{
@@ -152,7 +152,7 @@ namespace BitrixApi.Library.Services
 			return instanceId;
 		}
 
-		private CounterpartyEntity GetCounterpartyFullName(string counterpartyInn) =>
+		private CounterpartyEntity GetCounterparty(string counterpartyInn) =>
 			_counterpartyRepository
 			.GetFirstOrDefault(
 				_uow,

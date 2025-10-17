@@ -99,11 +99,11 @@ namespace BitrixApi.Library.Services
 			using(var stream = ReportExporter.ExportToMemoryStream(
 				reportInfo.GetReportUri(),
 				reportInfo.GetParametersString(),
-				_connectionString,
+				reportInfo.ConnectionString,
 				OutputPresentationType.PDF,
 				true))
 			{
-				return stream.ToArray();
+				return stream.GetBuffer();
 			}
 		}
 

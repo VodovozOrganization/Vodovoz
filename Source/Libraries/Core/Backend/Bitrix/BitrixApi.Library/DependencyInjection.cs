@@ -15,7 +15,7 @@ namespace BitrixApi.Library
 				.AddInfrastructure()
 				.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
 				.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>()
-				.AddMailganerApiClient()
+				.AddMailganerApiClientUsingDbParameters()
 				.AddScoped<EmailDirectSender>()
 				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(BitrixApi)))
 				.AddScoped<EmalSendService>();

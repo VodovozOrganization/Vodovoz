@@ -8685,6 +8685,7 @@ Global
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{43ae78d9-23bd-4f1e-acee-b492d111da9f}*SharedItemsImports = 5
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{491c53c5-f200-4627-ac92-d8a4789922cc}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
 		Libraries\Core\Backend\CashReceipt\CashReceipt.Grpc\CashReceipt.Grpc.projitems*{99ff1ce2-f4dc-438f-9c3b-aec9dd11f9e2}*SharedItemsImports = 13
 		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13

@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.FeatureManagement;
 using QS.HistoryLog;
 using QS.Project.Core;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Core.Domain;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
@@ -18,6 +19,11 @@ namespace BitrixApi
 	public class Startup
 	{
 		private readonly IConfiguration _configuration;
+
+		static Startup()
+		{
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+		}
 
 		public Startup(IConfiguration configuration)
 		{
@@ -45,6 +51,7 @@ namespace BitrixApi
 				.AddBitrixApiServices();
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+			services.AddStaticHistoryTracker();
 
 			services
 				.AddSecurity(_configuration)

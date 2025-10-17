@@ -7,6 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+	  <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+	  <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14">
+		  <TreatAsUsed>true</TreatAsUsed>
+	  </PackageReference>
+	  <PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
+	  <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,5 +22,7 @@
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
   </ItemGroup>
+
+  <Import Project="..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 
 </Project>

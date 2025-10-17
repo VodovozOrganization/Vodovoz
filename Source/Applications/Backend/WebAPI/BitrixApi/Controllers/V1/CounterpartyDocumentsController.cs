@@ -37,7 +37,7 @@ namespace BitrixApi.Controllers.V1
 			try
 			{
 				await _emalSendService.SendDocumentByEmail(request, cancellationToken);
-				return Ok();
+				return NoContent();
 			}
 			catch(Exception ex)
 			{
