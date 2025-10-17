@@ -63,7 +63,14 @@ namespace CustomerOrdersApi.Library.Default.Factories
 
 			if(!order.SelfDelivery)
 			{
-				orderInfo.DeliveryAddress = order.DeliveryPoint?.ShortAddress;
+				var deliveryPoint = order.DeliveryPoint;
+				
+				if (deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+				
 				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: order.DeliverySchedule?.DeliveryTime;
@@ -88,7 +95,14 @@ namespace CustomerOrdersApi.Library.Default.Factories
 
 			if(!onlineOrder.IsSelfDelivery)
 			{
-				orderInfo.DeliveryAddress = onlineOrder.DeliveryPoint?.ShortAddress;
+				var deliveryPoint = onlineOrder.DeliveryPoint;
+				
+				if (deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+				
 				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: onlineOrder.DeliverySchedule?.DeliveryTime;

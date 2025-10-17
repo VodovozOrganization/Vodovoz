@@ -2,7 +2,7 @@
 
 namespace CustomerOrdersApi.Library.V4.Factories
 {
-	public interface IInfoMassageFactory
+	public interface IInfoMessageFactory
 	{
 		InfoMessage CreateNeedPayOrderInfoMessage();
 		InfoMessage CreateNotPaidOrderInfoMessage();

@@ -73,23 +73,23 @@ namespace Vodovoz.EntityRepositories.Orders
 				from onlineOrderRating in orderRatings.DefaultIfEmpty()
 				where onlineOrder.Counterparty.Id == counterpartyId
 					&& !onlineOrder.Orders.Any()
-				
+
 				let address = onlineOrder.DeliveryPoint != null ? onlineOrder.DeliveryPoint.ShortAddress : null
-				
+
 				let deliverySchedule =
 					onlineOrder.DeliverySchedule != null && onlineOrder.IsFastDelivery
 						? DeliverySchedule.FastDelivery
 						: onlineOrder.DeliverySchedule != null 
 							? onlineOrder.DeliverySchedule.DeliveryTime
 							: null
-				
+
 				let orderStatus =
 					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed
 						? ExternalOrderStatus.OrderPerformed
 						: onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
 							? ExternalOrderStatus.Canceled
 							: ExternalOrderStatus.OrderProcessing
-							
+
 				let ratingAvailable =
 					onlineOrder.Created >= ratingAvailableFrom
 					&& onlineOrderRating == null
@@ -97,11 +97,14 @@ namespace Vodovoz.EntityRepositories.Orders
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
 
+				let payTime = onlineOrder.IsFastDelivery
+					? (int)timer.PayTimeWithFastDelivery.TotalSeconds
+					: (int)timer.PayTimeWithoutFastDelivery.TotalSeconds
+
 				let isNeedPay =
-					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
-					|| (onlineOrder.IsFastDelivery
-						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
-						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
+					onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+					&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+					&& (DateTime.Now - onlineOrder.Created).TotalSeconds < payTime
 
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{

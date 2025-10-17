@@ -14,15 +14,15 @@ namespace CustomerOrdersApi.Library.V4.Factories
 	public class CustomerOrderFactory : ICustomerOrderFactory
 	{
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
-		private readonly IInfoMassageFactory _infoMassageFactory;
+		private readonly IInfoMessageFactory _infoMessageFactory;
 
 		public CustomerOrderFactory(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
-			IInfoMassageFactory infoMassageFactory)
+			IInfoMessageFactory infoMassageFactory)
 		{
 			_externalOrderStatusConverter =
 				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));
-			_infoMassageFactory = infoMassageFactory ?? throw new ArgumentNullException(nameof(infoMassageFactory));
+			_infoMessageFactory = infoMassageFactory ?? throw new ArgumentNullException(nameof(infoMassageFactory));
 		}
 		
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
@@ -77,7 +77,14 @@ namespace CustomerOrdersApi.Library.V4.Factories
 
 			if(!order.SelfDelivery)
 			{
-				orderInfo.DeliveryAddress = order.DeliveryPoint?.ShortAddress;
+				var deliveryPoint = order.DeliveryPoint;
+
+				if(deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+				
 				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: order.DeliverySchedule?.DeliveryTime;
@@ -116,11 +123,11 @@ namespace CustomerOrdersApi.Library.V4.Factories
 				{
 					orderInfo.TimerForPaySeconds = payTime;
 					orderInfo.IsNeedPay = true;
-					orderInfo.InfoMessages = new[] { _infoMassageFactory.CreateNeedPayOrderInfoMessage() };
+					orderInfo.InfoMessages = new[] { _infoMessageFactory.CreateNeedPayOrderInfoMessage() };
 				}
 				else if(onlineOrder.IsNeedOnlinePaymentButTimeIsUp(payTime, toManualProcessingTime))
 				{
-					orderInfo.InfoMessages = new[] { _infoMassageFactory.CreateNotPaidOrderInfoMessage() };
+					orderInfo.InfoMessages = new[] { _infoMessageFactory.CreateNotPaidOrderInfoMessage() };
 				}
 				else
 				{
@@ -130,7 +137,14 @@ namespace CustomerOrdersApi.Library.V4.Factories
 
 			if(!onlineOrder.IsSelfDelivery)
 			{
-				orderInfo.DeliveryAddress = onlineOrder.DeliveryPoint?.ShortAddress;
+				var deliveryPoint = onlineOrder.DeliveryPoint;
+
+				if(deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+				
 				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: onlineOrder.DeliverySchedule?.DeliveryTime;
