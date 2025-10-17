@@ -33,14 +33,18 @@ namespace VodovozBusiness.Services.TrueMark
 		
 		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
 		{
-			if((trueMarkCodeResult.IsTrueMarkTransportCode
-					&& trueMarkCodeResult.TrueMarkTransportCode?.ParentTransportCodeId != null)
-				|| (trueMarkCodeResult.IsTrueMarkWaterGroupCode
-					&& (trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
-						|| trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null))
-				|| (trueMarkCodeResult.IsTrueMarkWaterIdentificationCode
-					&& (trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentTransportCodeId != null
-						|| trueMarkCodeResult.TrueMarkWaterIdentificationCode?.ParentWaterGroupCodeId != null)))
+			// Разрешаем индивидуальные коды, даже если они имеют родителей
+			if (trueMarkCodeResult.IsTrueMarkWaterIdentificationCode)
+			{
+				return Result.Success();
+			}
+
+			// Блокируем только группы и транспортные коды, если они сами входят в агрегацию
+			if ((trueMarkCodeResult.IsTrueMarkTransportCode
+			     && trueMarkCodeResult.TrueMarkTransportCode?.ParentTransportCodeId != null)
+			    || (trueMarkCodeResult.IsTrueMarkWaterGroupCode
+			        && (trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentTransportCodeId != null
+			            || trueMarkCodeResult.TrueMarkWaterGroupCode?.ParentWaterGroupCodeId != null)))
 			{
 				return Result.Failure(TrueMarkCodeErrors.AggregatedCode);
 			}
