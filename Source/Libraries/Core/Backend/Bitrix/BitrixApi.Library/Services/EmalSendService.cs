@@ -72,20 +72,24 @@ namespace BitrixApi.Library.Services
 			}
 
 			IEnumerable<EmailAttachment> attachments = Enumerable.Empty<EmailAttachment>();
+			var messageText = string.Empty;
 
 			switch(request.ReportType)
 			{
 				case ReportTypeDto.ReconciliationStatement:
 					attachments =
 						_emailAttachmentsCreateService.CreateRevisionAttachments(counterparty.Id, organization.Id);
+					messageText = "Акт сверки";
 					break;
 				case ReportTypeDto.UnpaidOrdersAccount:
 					attachments =
 						_emailAttachmentsCreateService.CreateNotPaidOrdersBillAttachments(counterparty.Id, organization.Id);
+					messageText = "Счета по неоплаченным заказам";
 					break;
 				case ReportTypeDto.TotalAccount:
 					attachments =
 						_emailAttachmentsCreateService.CreateGeneralBillAttachments(counterparty.Id, organization.Id);
+					messageText = "Общий счет";
 					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип отчета {request.ReportType}");
@@ -93,19 +97,24 @@ namespace BitrixApi.Library.Services
 
 			if(attachments.Count() == 0)
 			{
+				_logger.LogError("Не удалось создать вложения для письма");
 				throw new InvalidOperationException("Не удалось создать вложения для письма");
 			}
 
-			var emailMessage = CreateEmailMessage(counterparty, request.EmailAdress, attachments);
+			var emailMessage =
+				CreateEmailMessage(counterparty, request.EmailAdress, messageText, attachments);
 
 			await SendEmail(emailMessage);
 		}
 
-		private SendEmailMessage CreateEmailMessage(CounterpartyEntity counterparty, string email, IEnumerable<EmailAttachment> attachments)
+		private SendEmailMessage CreateEmailMessage(
+			CounterpartyEntity counterparty,
+			string email,
+			string messageText,
+			IEnumerable<EmailAttachment> attachments)
 		{
 			var instanceId = GetCurrentDatabaseId();
 
-			string messageText = "Акт сверки";
 			var emailMessage = new SendEmailMessage
 			{
 				From = new EmailContact
@@ -121,7 +130,7 @@ namespace BitrixApi.Library.Services
 						Email = email
 					}
 				},
-				Subject = "Акт сверки",
+				Subject = messageText,
 				TextPart = messageText,
 				HTMLPart = messageText,
 				Payload = new EmailPayload
