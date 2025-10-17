@@ -1,13 +1,16 @@
-﻿using QS.Extensions.Observable.Collections.List;
+﻿using QS.Commands;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -67,8 +70,14 @@ namespace Vodovoz.FilterViewModels.Employees
 					.Finish();
 
 				AuthorViewModel.IsEditable = CanEditAuthor;
+
+				AllCategoriesCommand = new DelegateCommand(SelectAllFineCategories);
+				NoneCategoriesCommand = new DelegateCommand(DeselectAllFineCategories);
 			}
 		}
+
+		public DelegateCommand AllCategoriesCommand;
+		public DelegateCommand NoneCategoriesCommand;
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
 

@@ -41,9 +41,9 @@ namespace Vodovoz.Reports
 
 			ytreeviewFineCategory.HeadersVisible = false;
 
-			buttonCategoryNone.BindCommand(ViewModel.NoneStatusCommand);
+			buttonCategoryNone.BindCommand(ViewModel.NoneCategoriesCommand);
 
-			buttonCategoryAll.BindCommand(ViewModel.AllStatusCommand);
+			buttonCategoryAll.BindCommand(ViewModel.AllCategoriesCommand);
 
 			ycheckbuttonShowArchieve.Binding
 				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)

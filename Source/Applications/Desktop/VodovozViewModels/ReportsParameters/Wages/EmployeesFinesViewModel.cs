@@ -51,13 +51,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
-			AllStatusCommand = new DelegateCommand(AllStatus);
-			NoneStatusCommand = new DelegateCommand(NoneStatus);
+			AllCategoriesCommand = new DelegateCommand(AllStatus);
+			NoneCategoriesCommand = new DelegateCommand(NoneStatus);
 		}
 
 		public DelegateCommand GenerateReportCommand;
-		public DelegateCommand AllStatusCommand;
-		public DelegateCommand NoneStatusCommand;
+		public DelegateCommand AllCategoriesCommand;
+		public DelegateCommand NoneCategoriesCommand;
 
 		public virtual DateTime? StartDate
 		{
