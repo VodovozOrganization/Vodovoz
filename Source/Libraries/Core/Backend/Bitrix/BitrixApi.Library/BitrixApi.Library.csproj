@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Report\QS.Report.csproj" />
+    <ProjectReference Include="..\..\..\..\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
   </ItemGroup>

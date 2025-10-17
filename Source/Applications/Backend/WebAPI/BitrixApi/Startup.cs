@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -25,6 +26,9 @@ namespace BitrixApi
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services
+				.AddFeatureManagement();
+
 			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
