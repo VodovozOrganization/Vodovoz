@@ -13,6 +13,8 @@ namespace CustomerOrdersApi.Library.Converters
 					return ExternalOrderStatus.OrderProcessing;
 				case OnlineOrderStatus.OrderPerformed:
 					return ExternalOrderStatus.OrderPerformed;
+				case OnlineOrderStatus.WaitingForPayment:
+					return ExternalOrderStatus.WaitingForPayment;
 				default:
 					return ExternalOrderStatus.Canceled;
 			}
