@@ -301,7 +301,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			CounterpartyEdoOperator edoAccountAlias = null;
-			
+
 			return uow.Session.QueryOver<Counterparty>()
 				.JoinAlias(c => c.CounterpartyEdoAccounts, () => edoAccountAlias)
 				.Where(() => edoAccountAlias.PersonalAccountIdInEdo == edxClientId)

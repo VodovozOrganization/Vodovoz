@@ -12,7 +12,10 @@
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Report\QS.Report.csproj" />
     <ProjectReference Include="..\..\..\..\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\Email\Mailganer.Api.Client\Mailganer.Api.Client.csproj" />
     <ProjectReference Include="..\..\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+    <ProjectReference Include="..\BitrixApi.Contracts\BitrixApi.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

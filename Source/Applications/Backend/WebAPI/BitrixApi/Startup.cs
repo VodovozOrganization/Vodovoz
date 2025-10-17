@@ -41,8 +41,10 @@ namespace BitrixApi
 				)
 				.AddDatabaseConnection()
 				.AddCore()
-				.AddNotTrackedUoW()
+				.AddTrackedUoW()
 				.AddBitrixApiServices();
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services
 				.AddSecurity(_configuration)
@@ -55,7 +57,6 @@ namespace BitrixApi
 				.AddVersioning();
 		}
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.UseSwagger();

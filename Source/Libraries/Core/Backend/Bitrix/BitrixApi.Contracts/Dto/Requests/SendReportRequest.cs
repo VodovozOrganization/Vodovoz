@@ -27,6 +27,7 @@ namespace BitrixApi.Contracts.Dto.Requests
 		/// Тип отчета
 		/// </summary>
 		[JsonPropertyName("reportType")]
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public ReportTypeDto ReportType { get; set; }
 	}
 }
