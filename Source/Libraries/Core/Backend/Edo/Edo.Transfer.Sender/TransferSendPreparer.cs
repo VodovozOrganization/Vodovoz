@@ -4,13 +4,14 @@ using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Transfer.Extensions.ExtensionInterfaces;
+using MySqlConnector;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
@@ -20,8 +21,10 @@ using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Transfer.Sender
 {
-	public class TransferSendPreparer : IDisposable
+	public class TransferSendPreparer : IDisposable, IBulkOperationSupport<TransferOrderTrueMarkCode>
 	{
+		private const int BULK_TRESHOLD = 1000;
+		
 		private readonly ILogger<TransferSendPreparer> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly TransferTaskRepository _transferTaskRepository;
@@ -150,24 +153,23 @@ namespace Edo.Transfer.Sender
 			var transferRequests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
 				.Where(x => x.TransferEdoTask.Id == transferEdoTask.Id)
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
 			var orderTaskIds = transferRequests.Select(x => x.Iteration.OrderEdoTask.Id);
 
 			await _uow.Session.QueryOver<IUpdEnventPositionsTask>()
 				.Fetch(SelectMode.Fetch, x => x.UpdInventPositions)
 				.WhereRestrictionOn(x => x.Id).IsIn(orderTaskIds.ToArray())
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
 			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
-				.ListAsync();
+				.ListAsync(cancellationToken);
 
 			var sourceCodes = taskItems
 				.Where(x => x.ProductCode.SourceCode != null)
@@ -181,6 +183,8 @@ namespace Edo.Transfer.Sender
 
 			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 
+			var codesToSave = new List<TransferOrderTrueMarkCode>(); 
+			
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
 				foreach(var transferedItem in transferEdoRequest.TransferedItems)
@@ -234,11 +238,35 @@ namespace Edo.Transfer.Sender
 					}
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;
-					transferOrder.Items.Add(transferOrderTrueMarkCode);
-					await _uow.SaveAsync(transferOrderTrueMarkCode, cancellationToken: cancellationToken);
+					codesToSave.Add(transferOrderTrueMarkCode);
 				}
 			}
 
+			if(codesToSave.Count < BULK_TRESHOLD)
+			{
+				foreach (var code in codesToSave)
+				{
+					code.TransferOrder = transferOrder;
+					transferOrder.Items.Add(code);
+				}
+				await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
+			}
+			else
+			{
+				await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
+				
+				await BulkInsertItemsWithParent(transferOrder.Id, codesToSave, cancellationToken);
+				
+				foreach(var code in codesToSave)
+				{
+					code.TransferOrder = transferOrder;
+					transferOrder.Items.Add(code);
+					await _uow.Session.EvictAsync(code, cancellationToken);
+				}
+			}
+			
+			await _uow.CommitAsync(cancellationToken);
+			
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 		}
 		
@@ -261,14 +289,16 @@ namespace Edo.Transfer.Sender
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
-				var quantity = groupCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Count();
+				var quantity = groupCode
+					.GetAllCodes()
+					.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
-				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
-				transferOrderTrueMarkCode.GroupCode = groupCode;
-				transferOrderTrueMarkCode.Nomenclature = groupCodeNomenclature;
-				transferOrderTrueMarkCode.Quantity = quantity;
+				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode
+				{
+					GroupCode = groupCode,
+					Nomenclature = groupCodeNomenclature,
+					Quantity = quantity
+				};
 
 				return transferOrderTrueMarkCode;
 			}
@@ -276,10 +306,12 @@ namespace Edo.Transfer.Sender
 			var individualCode = edoTaskItem.ProductCode.ResultCode;
 			var nomenclature = GetNomenclatureForTaskItem(edoTask, individualCode, gtins);
 
-			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
-			transferOrderTrueMarkCode.IndividualCode = individualCode;
-			transferOrderTrueMarkCode.Nomenclature = nomenclature;
-			transferOrderTrueMarkCode.Quantity = 1;
+			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode
+			{
+				IndividualCode = individualCode,
+				Nomenclature = nomenclature,
+				Quantity = 1
+			};
 
 			return transferOrderTrueMarkCode;
 		}
@@ -344,14 +376,16 @@ namespace Edo.Transfer.Sender
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
-				var quantity = groupCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Count();
+				var quantity = groupCode
+					.GetAllCodes()
+					.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
-				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
-				transferOrderTrueMarkCode.GroupCode = groupCode;
-				transferOrderTrueMarkCode.Nomenclature = groupCodeNomenclature;
-				transferOrderTrueMarkCode.Quantity = quantity;
+				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode
+				{
+					GroupCode = groupCode,
+					Nomenclature = groupCodeNomenclature,
+					Quantity = quantity
+				};
 
 				return transferOrderTrueMarkCode;
 			}
@@ -359,10 +393,12 @@ namespace Edo.Transfer.Sender
 			var individualCode = edoTaskItem.ProductCode.ResultCode;
 			var nomenclature = GetNomenclatureForTaskItem(edoTask, edoTaskItem, gtins);
 
-			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
-			transferOrderTrueMarkCode.IndividualCode = individualCode;
-			transferOrderTrueMarkCode.Nomenclature = nomenclature;
-			transferOrderTrueMarkCode.Quantity = 1;
+			transferOrderTrueMarkCode = new TransferOrderTrueMarkCode
+			{
+				IndividualCode = individualCode,
+				Nomenclature = nomenclature,
+				Quantity = 1
+			};
 
 			return transferOrderTrueMarkCode;
 
@@ -416,6 +452,66 @@ namespace Edo.Transfer.Sender
 		public void Dispose()
 		{
 			_uow?.Dispose();
+		}
+
+		public async Task BulkInsertItems(IEnumerable<TransferOrderTrueMarkCode> domainObjects, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task BulkInsertItemsWithParent(int parentId, IEnumerable<TransferOrderTrueMarkCode> domainObjects, CancellationToken cancellationToken)
+		{
+			const int batchSize = 500;
+			var itemList = domainObjects.ToList();
+			
+			var connectionString = _uow.Session.Connection.ConnectionString;
+
+			using(var connection = new MySqlConnection(connectionString))
+			{
+				await connection.OpenAsync(cancellationToken);
+				
+				for (var i = 0; i < itemList.Count; i += batchSize)
+				{
+					var batch = itemList.Skip(i).Take(batchSize).ToList();
+					var valueTuples = new List<string>();
+					var parameters = new List<MySqlParameter>();
+
+					for (var j = 0; j < batch.Count; j++)
+					{
+						var paramNamePrefix = $"p{j}_";
+						valueTuples.Add($"(@{paramNamePrefix}toId, @{paramNamePrefix}indId, @{paramNamePrefix}grpId, @{paramNamePrefix}nomId, @{paramNamePrefix}qty)");
+
+						parameters.Add(new MySqlParameter($"{paramNamePrefix}toId", parentId));
+						parameters.Add(new MySqlParameter($"{paramNamePrefix}indId", batch[j].IndividualCode?.Id ?? (object)DBNull.Value));
+						parameters.Add(new MySqlParameter($"{paramNamePrefix}grpId", batch[j].GroupCode?.Id ?? (object)DBNull.Value));
+						parameters.Add(new MySqlParameter($"{paramNamePrefix}nomId", batch[j].Nomenclature?.Id ?? (object)DBNull.Value));
+						parameters.Add(new MySqlParameter($"{paramNamePrefix}qty", batch[j].Quantity));
+					}
+
+					var sql = $@"INSERT INTO edo_transfer_order_codes 
+            						(transfer_order_id, individual_code_id, group_code_id, nomenclature_id, quantity)
+            					 VALUES {string.Join(", ", valueTuples)}";
+
+					using(var cmd = new MySqlCommand(sql, connection))
+					{
+						cmd.Parameters.AddRange(parameters.ToArray());
+						await cmd.ExecuteNonQueryAsync(cancellationToken);
+					}
+				}
+			}
+		}
+
+		public string BuildInsertSql(int rowCount)
+		{
+			var values = Enumerable.Range(0, rowCount)
+				.Select(i => $"(@transferOrderId{i}, @individualCodeId{i}, @groupCodeId{i}, @nomenclatureId{i}, @quantity{i})")
+				.ToArray();
+
+			var sql = $@"INSERT INTO edo_transfer_order_codes 
+        					(transfer_order_id, individual_code_id, group_code_id, nomenclature_id, quantity)
+        				VALUES {string.Join(", ", values)}";
+
+			return sql;
 		}
 	}
 }
