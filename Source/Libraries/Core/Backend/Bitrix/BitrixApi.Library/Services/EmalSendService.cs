@@ -55,6 +55,12 @@ namespace BitrixApi.Library.Services
 				throw new InvalidOperationException($"Некорректный email адрес: {request.EmailAdress}");
 			}
 
+			if(!IsValidInn(request.CounterpartyInn))
+			{
+				_logger.LogError("Некорректный ИНН контрагента: {CounterpartyInn}", request.CounterpartyInn);
+				throw new InvalidOperationException($"Некорректный ИНН контрагента: {request.CounterpartyInn}");
+			}
+
 			var counterparty = GetCounterparty(request.CounterpartyInn.ToString());
 
 			if(counterparty == null)
@@ -192,6 +198,13 @@ namespace BitrixApi.Library.Services
 			}
 
 			return false;
+		}
+
+		private bool IsValidInn(string inn)
+		{
+			var innPattern = @"^\d{10}$|^\d{12}$";
+			var isValidInn = Regex.IsMatch(inn, innPattern);
+			return isValidInn;
 		}
 	}
 }
