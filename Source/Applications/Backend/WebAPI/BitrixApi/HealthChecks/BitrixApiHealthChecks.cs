@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
@@ -42,15 +43,15 @@ namespace BitrixApi.HealthChecks
 
 			var sendReportRequest = new SendReportRequest
 			{
-				CounterpartyInn = "00000000",
-				OrganizationId = 1,
+				CounterpartyInn = "0000000000",
+				OrganizationId = 111111,
 				EmailAdress = "super_mega_test_email@vodovoz-spb.ru",
 				ReportType = ReportTypeDto.ReconciliationStatement
 			};
 
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-			var responseMessage = await _httpClient.PostAsJsonAsync($"{baseAddress}/api/v1/CounterpartyDocuments", sendReportRequest);
+			var responseMessage = await _httpClient.PostAsJsonAsync($"{baseAddress}/api/v1/SendDocumentByEmail", sendReportRequest);
 
 			var healthResult = new VodovozHealthResultDto
 			{

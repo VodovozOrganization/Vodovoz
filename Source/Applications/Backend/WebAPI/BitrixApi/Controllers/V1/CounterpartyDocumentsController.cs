@@ -28,11 +28,11 @@ namespace BitrixApi.Controllers.V1
 		/// <param name="request">Dto запроса на отправку отчета контрагенту</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		[HttpPost]
+		[HttpPost("SendDocumentByEmail")]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> SendDocument(SendReportRequest request, CancellationToken cancellationToken)
+		public async Task<IActionResult> SendDocumentByEmail(SendReportRequest request, CancellationToken cancellationToken)
 		{
 			try
 			{

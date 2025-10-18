@@ -9,7 +9,7 @@ namespace BitrixApi.Controllers.V1
 	/// Базовый контроллер с версией
 	/// </summary>
 	[ApiVersion("1.0")]
-	[Route("api/v{version:apiVersion}/[controller]")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class VersionedController : ApiControllerBase
