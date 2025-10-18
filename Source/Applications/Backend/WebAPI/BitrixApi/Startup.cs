@@ -1,4 +1,5 @@
 ﻿using BitrixApi.Library;
+using Infrastructure.WebApi.Telemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -48,7 +49,8 @@ namespace BitrixApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddBitrixApiServices();
+				.AddBitrixApiServices()
+				.AddApiOpenTelemetry("bitrix.api");
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();

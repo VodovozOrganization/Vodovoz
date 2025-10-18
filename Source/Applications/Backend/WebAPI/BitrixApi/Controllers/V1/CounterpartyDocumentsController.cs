@@ -36,6 +36,16 @@ namespace BitrixApi.Controllers.V1
 		{
 			try
 			{
+				_logger.LogInformation("Поступил запрос на отправку документа. " +
+					"INN: {CounterpartyInn}. " +
+					"OrganizationId: {OrganizationId}. " +
+					"Email: {Email}. " +
+					"ReportType: {}ReportType",
+					request.CounterpartyInn,
+					request.OrganizationId,
+					request.EmailAdress,
+					request.ReportType);
+
 				await _emalSendService.SendDocumentByEmail(request, cancellationToken);
 				return NoContent();
 			}
