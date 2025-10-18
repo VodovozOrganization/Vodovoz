@@ -3,7 +3,7 @@ using BitrixApi.Library.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
+using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,10 +39,14 @@ namespace BitrixApi.Controllers.V1
 				await _emalSendService.SendDocumentByEmail(request, cancellationToken);
 				return NoContent();
 			}
-			catch(Exception ex)
+			catch(KeyNotFoundException ex)
 			{
-				_logger.LogError(ex, "При обработке запроса отправки документа возникла ошибка");
-				return Problem(ex.Message, statusCode: 500, title: "При обработке запроса отправки документа возникла ошибка");
+				_logger.LogCritical(ex, "Запрашиваемый объект не найден: {ExceptionMessage}", ex.Message);
+				return Problem(
+					ex.Message,
+					statusCode: StatusCodes.Status404NotFound,
+					title: "Запрашиваемый объект не найден",
+					instance: Request.Path);
 			}
 		}
 	}

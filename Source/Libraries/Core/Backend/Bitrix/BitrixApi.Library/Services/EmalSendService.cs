@@ -51,8 +51,8 @@ namespace BitrixApi.Library.Services
 		{
 			if(!IsValidEmail(request.EmailAdress))
 			{
-				_logger.LogError("Некорректный email адрес {Email}", request.EmailAdress);
-				throw new InvalidOperationException($"Некорректный email адрес {request.EmailAdress}");
+				_logger.LogError("Некорректный email адрес: {Email}", request.EmailAdress);
+				throw new InvalidOperationException($"Некорректный email адрес: {request.EmailAdress}");
 			}
 
 			var counterparty = GetCounterparty(request.CounterpartyInn.ToString());
@@ -60,15 +60,15 @@ namespace BitrixApi.Library.Services
 			if(counterparty == null)
 			{
 				_logger.LogError("Контрагент с ИНН {CounterpartyInn} не найден", request.CounterpartyInn);
-				throw new InvalidOperationException($"Контрагент с ИНН {request.CounterpartyInn} не найден");
+				throw new KeyNotFoundException($"Контрагент с ИНН {request.CounterpartyInn} не найден");
 			}
 
 			var organization = GetOrganizationById(request.OrganizationId);
 
 			if(organization == null)
 			{
-				_logger.LogError("Организация с Id {OrganizationId} не найдена", request.OrganizationId);
-				throw new InvalidOperationException($"Организация с Id {request.OrganizationId} не найдена");
+				_logger.LogError("Организация с Id={OrganizationId} не найдена", request.OrganizationId);
+				throw new KeyNotFoundException($"Организация с Id={request.OrganizationId} не найдена");
 			}
 
 			IEnumerable<EmailAttachment> attachments = Enumerable.Empty<EmailAttachment>();

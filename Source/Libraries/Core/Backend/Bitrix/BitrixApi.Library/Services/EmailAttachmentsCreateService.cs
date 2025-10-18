@@ -1,7 +1,6 @@
 ﻿using fyiReporting.RDL;
 using iTextSharp.text.pdf;
 using Mailjet.Api.Abstractions;
-using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Report;
 using RdlEngine;
@@ -22,21 +21,17 @@ namespace BitrixApi.Library.Services
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
 
-		private readonly string _connectionString;
+		private readonly IUnitOfWork _uow;
 		private readonly IReportInfoFactory _reportInfoFactory;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 
 		public EmailAttachmentsCreateService(
-			MySqlConnectionStringBuilder connectionStringBuilder,
+			IUnitOfWork uow,
 			IReportInfoFactory reportInfoFactory,
-			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository)
 		{
-			_connectionString = (connectionStringBuilder ?? throw new ArgumentNullException(nameof(connectionStringBuilder)))
-				.ConnectionString;
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
@@ -176,12 +171,7 @@ namespace BitrixApi.Library.Services
 			}
 		}
 
-		private IEnumerable<int> GetNotPaidOrdersIds(int counterpartyId, int organizationId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(EmailAttachmentsCreateService)))
-			{
-				return _orderRepository.GetUnpaidOrdersIds(uow, counterpartyId, DateTime.MinValue, DateTime.Today, organizationId);
-			}
-		}
+		private IEnumerable<int> GetNotPaidOrdersIds(int counterpartyId, int organizationId) =>
+			_orderRepository.GetUnpaidOrdersIds(_uow, counterpartyId, DateTime.MinValue, DateTime.Today, organizationId);
 	}
 }
