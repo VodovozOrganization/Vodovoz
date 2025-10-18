@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Bitrix\BitrixApi.Contracts\BitrixApi.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Bitrix\BitrixApi.Library\BitrixApi.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\WebApi\Telemetry\Telemetry.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />

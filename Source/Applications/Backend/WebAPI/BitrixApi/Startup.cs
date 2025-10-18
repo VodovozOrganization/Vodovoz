@@ -1,4 +1,5 @@
-﻿using BitrixApi.Library;
+﻿using BitrixApi.HealthChecks;
+using BitrixApi.Library;
 using Infrastructure.WebApi.Telemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
+using VodovozHealthCheck;
 
 namespace BitrixApi
 {
@@ -34,7 +36,8 @@ namespace BitrixApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
-				.AddFeatureManagement();
+				.AddFeatureManagement()
+				.ConfigureHealthCheckService<BitrixApiHealthChecks>();
 
 			services
 				.AddMappingAssemblies(
@@ -103,6 +106,8 @@ namespace BitrixApi
 			{
 				endpoints.MapControllers();
 			});
+
+			app.ConfigureHealthCheckApplicationBuilder();
 		}
 	}
 }
