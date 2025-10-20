@@ -44,6 +44,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
+		private List<FineCategory> _fineCategories;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -73,7 +74,6 @@ namespace Vodovoz.ViewModels.Employees
 			ConfigureEntityPropertyChanges();
 
 			RouteListViewModel = BuildRouteListEntityViewModel();
-			FineCategories = UoW.GetAll<FineCategory>().ToList();
 
 			ConfigureCarEvent(carEventRepository);
 		}
@@ -88,7 +88,19 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
-		public List<FineCategory> FineCategories { get; private set; }
+		public List<FineCategory> FineCategories
+		{
+			get
+			{
+				if(_fineCategories == null)
+				{
+					_fineCategories = UoW.GetAll<FineCategory>()
+										.Where(x => !x.IsArchive)
+										.ToList();
+				}
+				return _fineCategories;
+			}
+		}
 
 		public Employee CurrentEmployee
 		{

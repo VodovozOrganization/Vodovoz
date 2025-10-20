@@ -237,6 +237,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 		private void CreateXLExportAction()
 		{
+			const int fineReasonIdx = 5;
+
 			var xlExportAction = new JournalAction("Экспорт в Excel",
 				(selected) => true,
 				(selected) => true,
@@ -267,11 +269,42 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						foreach(var name in columnNames)
 						{
 							ws.Cell(1, index).Value = name;
+							ws.Cell(1, index).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 							index++;
 						}
 
 						ws.Cell(2, 1).InsertData(rows);
+
+						const double maxColumnWidth = 120.0;
+
 						ws.Columns().AdjustToContents();
+
+						foreach(var column in ws.Columns())
+						{
+							if(column.Width > maxColumnWidth)
+							{
+								column.Width = maxColumnWidth;
+							}
+						}
+
+						int lastRow = ws.LastRowUsed().RowNumber();
+						int lastColumn = ws.LastColumnUsed().ColumnNumber();
+
+						for(int col = 1; col <= lastColumn; col++)
+						{
+							var alignment = col == fineReasonIdx
+								? XLAlignmentHorizontalValues.Left
+								: XLAlignmentHorizontalValues.Center;
+
+							for(int row = 2; row <= lastRow; row++)
+							{
+								var cell = ws.Cell(row, col);
+								cell.Style.Alignment.WrapText = true;
+								cell.Style.Alignment.Horizontal = alignment;
+								cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+							}
+						}
+
 
 						var extension = ".xlsx";
 						var dialogSettings = new DialogSettings

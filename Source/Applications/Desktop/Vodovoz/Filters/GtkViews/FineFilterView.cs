@@ -39,8 +39,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)
 				.InitializeFromSource();
 
-			buttonCategoryAll.BindCommand(ViewModel.AllCategoriesCommand);
-			buttonCategoryNone.BindCommand(ViewModel.NoneCategoriesCommand);
+			buttonCategoryNone.Clicked += OnCategoryNoneClicked;
+
+			buttonCategoryAll.Clicked += OnCategoryAllClicked;
 		}
 
 		private void OnCategoryAllClicked(object sender, EventArgs args)
