@@ -1,13 +1,11 @@
 ﻿using fyiReporting.RDL;
 using iTextSharp.text.pdf;
 using Mailjet.Api.Abstractions;
-using QS.DomainModel.UoW;
 using QS.Report;
 using RdlEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Vodovoz.EntityRepositories.Orders;
 
 namespace BitrixApi.Library.Services
 {
@@ -21,18 +19,11 @@ namespace BitrixApi.Library.Services
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
 
-		private readonly IUnitOfWork _uow;
 		private readonly IReportInfoFactory _reportInfoFactory;
-		private readonly IOrderRepository _orderRepository;
 
-		public EmailAttachmentsCreateService(
-			IUnitOfWork uow,
-			IReportInfoFactory reportInfoFactory,
-			IOrderRepository orderRepository)
+		public EmailAttachmentsCreateService(IReportInfoFactory reportInfoFactory)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId)
@@ -44,12 +35,11 @@ namespace BitrixApi.Library.Services
 			return CreateEmailPdfAttachment(pdfBytes, _revisionFileName);
 		}
 
-		public IEnumerable<EmailAttachment> CreateNotPaidOrdersBillAttachments(int counterpartyId, int organizationId)
+		public IEnumerable<EmailAttachment> CreateNotPaidOrdersBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
 		{
 			var pdfs = new List<byte[]>();
-			var notPaidOrdersIds = GetNotPaidOrdersIds(counterpartyId, organizationId);
 
-			foreach(var orderId in notPaidOrdersIds)
+			foreach(var orderId in orderIds)
 			{
 				var reportInfo = GetOrderBillReportInfo(orderId, organizationId)
 					?? throw new InvalidOperationException("Не удалось получить информацию по счету по заказу");
@@ -63,10 +53,9 @@ namespace BitrixApi.Library.Services
 			return CreateEmailPdfAttachment(mergedPdf, _notPaidOrdersBillFileName);
 		}
 
-		public IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId)
+		public IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
 		{
-			var notPaidOrdersIds = GetNotPaidOrdersIds(counterpartyId, organizationId);
-			var reportInfo = GetGeneralBillReportInfo(notPaidOrdersIds, organizationId)
+			var reportInfo = GetGeneralBillReportInfo(orderIds, organizationId)
 				?? throw new InvalidOperationException("Не удалось получить информацию по общему счету");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
@@ -102,22 +91,22 @@ namespace BitrixApi.Library.Services
 			}
 		}
 
-		private ReportInfo GetRevisionReportInfo(int counterpartyId, int organizationId)
+		private ReportInfo GetRevisionReportInfo(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null)
 		{
 			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Title = _revisionFileName;
 			reportInfo.Identifier = _revisionReportIdentifier;
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				{ "StartDate", DateTime.MinValue },
-				{ "EndDate", DateTime.Today },
+				{ "StartDate", startDate ?? DateTime.MinValue },
+				{ "EndDate", endDate ?? DateTime.MaxValue },
 				{ "CounterpartyId", counterpartyId },
 				{ "OrganizationId", organizationId }
 			};
 			return reportInfo;
 		}
 
-		private ReportInfo GetOrderBillReportInfo(int orderId, int organizationId)
+		private ReportInfo GetOrderBillReportInfo(int orderId, int organizationId, bool hideSignature = false)
 		{
 			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Title = _notPaidOrdersBillFileName;
@@ -125,13 +114,13 @@ namespace BitrixApi.Library.Services
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
 				{ "order_id", orderId },
-				{ "hide_signature", false },
+				{ "hide_signature", hideSignature },
 				{ "organization_id", organizationId }
 			};
 			return reportInfo;
 		}
 
-		private ReportInfo GetGeneralBillReportInfo(IEnumerable<int> ordersIds, int organizationId)
+		private ReportInfo GetGeneralBillReportInfo(IEnumerable<int> ordersIds, int organizationId, bool hideSignature = false)
 		{
 			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Title = _generalBillFileName;
@@ -139,13 +128,13 @@ namespace BitrixApi.Library.Services
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
 				{ "order_id", ordersIds },
-				{ "hide_signature", false },
+				{ "hide_signature", hideSignature },
 				{ "organization_id", organizationId }
 			};
 			return reportInfo;
 		}
 
-		public byte[] MergePdfs(IEnumerable<byte[]> pdfs)
+		private byte[] MergePdfs(IEnumerable<byte[]> pdfs)
 		{
 			using(var mergedPdf = new MemoryStream())
 			{
@@ -170,8 +159,5 @@ namespace BitrixApi.Library.Services
 				return mergedPdf.ToArray();
 			}
 		}
-
-		private IEnumerable<int> GetNotPaidOrdersIds(int counterpartyId, int organizationId) =>
-			_orderRepository.GetUnpaidOrdersIds(_uow, counterpartyId, DateTime.MinValue, DateTime.Today, organizationId);
 	}
 }

@@ -5,9 +5,8 @@ namespace BitrixApi.Library.Services
 {
 	public interface IEmailAttachmentsCreateService
 	{
-		IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId);
-		IEnumerable<EmailAttachment> CreateNotPaidOrdersBillAttachments(int counterpartyId, int organizationId);
+		IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds);
+		IEnumerable<EmailAttachment> CreateNotPaidOrdersBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds);
 		IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId);
-		byte[] MergePdfs(IEnumerable<byte[]> pdfs);
 	}
 }

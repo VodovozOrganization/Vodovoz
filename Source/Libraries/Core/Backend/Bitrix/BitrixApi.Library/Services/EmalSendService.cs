@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 
 namespace BitrixApi.Library.Services
@@ -27,6 +28,7 @@ namespace BitrixApi.Library.Services
 		private readonly IEmailSettings _emailSettings;
 		private readonly IGenericRepository<CounterpartyEntity> _counterpartyRepository;
 		private readonly IGenericRepository<OrganizationEntity> _organizationRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly EmailDirectSender _emailDirectSender;
 
 		public EmalSendService(
@@ -36,6 +38,7 @@ namespace BitrixApi.Library.Services
 			IEmailSettings emailSettings,
 			IGenericRepository<CounterpartyEntity> counterpartyRepository,
 			IGenericRepository<OrganizationEntity> organizationRepository,
+			IOrderRepository orderRepository,
 			EmailDirectSender emailDirectSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,6 +47,7 @@ namespace BitrixApi.Library.Services
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 		}
 
@@ -78,6 +82,7 @@ namespace BitrixApi.Library.Services
 			}
 
 			IEnumerable<EmailAttachment> attachments = Enumerable.Empty<EmailAttachment>();
+			var notpaidOrderIds = Enumerable.Empty<int>();
 			var messageText = string.Empty;
 
 			switch(request.ReportType)
@@ -88,13 +93,15 @@ namespace BitrixApi.Library.Services
 					messageText = "Акт сверки";
 					break;
 				case ReportTypeDto.UnpaidOrdersAccount:
+					notpaidOrderIds = GetNotPaidOrderIds(counterparty.Id, organization.Id);
 					attachments =
-						_emailAttachmentsCreateService.CreateNotPaidOrdersBillAttachments(counterparty.Id, organization.Id);
+						_emailAttachmentsCreateService.CreateNotPaidOrdersBillAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
 					messageText = "Счета по неоплаченным заказам";
 					break;
 				case ReportTypeDto.TotalAccount:
+					notpaidOrderIds = GetNotPaidOrderIds(counterparty.Id, organization.Id);
 					attachments =
-						_emailAttachmentsCreateService.CreateGeneralBillAttachments(counterparty.Id, organization.Id);
+						_emailAttachmentsCreateService.CreateGeneralBillAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
 					messageText = "Общий счет";
 					break;
 				default:
@@ -178,6 +185,9 @@ namespace BitrixApi.Library.Services
 			.GetFirstOrDefault(
 				_uow,
 				x => x.Id == organizationId);
+
+		private IEnumerable<int> GetNotPaidOrderIds(int counterpartyId, int organizationId) =>
+			_orderRepository.GetUnpaidOrdersIds(_uow, counterpartyId, DateTime.MinValue, DateTime.MaxValue, organizationId);
 
 		private bool IsValidEmail(string email)
 		{
