@@ -26,21 +26,21 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.GtkWidgets.yVBox yvbox5;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelFineCategory;
-
-		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchieve;
+		private global::Gamma.GtkWidgets.yTable ytable1;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewFineCategory;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelFineCategory;
 
 		private global::Gamma.GtkWidgets.yVBox yvbox6;
 
 		private global::Gamma.GtkWidgets.yButton buttonCategoryAll;
 
 		private global::Gamma.GtkWidgets.yButton buttonCategoryNone;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchieve;
 
 		protected virtual void Build()
 		{
@@ -57,7 +57,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.yhbox2.Name = "yhbox2";
 			this.yhbox2.Spacing = 6;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -67,8 +67,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryAuthor.Name = "entryAuthor";
 			this.table1.Add(this.entryAuthor);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryAuthor]));
-			w1.LeftAttach = ((uint)(3));
-			w1.RightAttach = ((uint)(4));
+			w1.TopAttach = ((uint)(3));
+			w1.BottomAttach = ((uint)(4));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -88,8 +90,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelAuthor.LabelProp = global::Mono.Unix.Catalog.GetString("Автор:");
 			this.table1.Add(this.labelAuthor);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.labelAuthor]));
-			w3.LeftAttach = ((uint)(2));
-			w3.RightAttach = ((uint)(3));
+			w3.TopAttach = ((uint)(3));
+			w3.BottomAttach = ((uint)(4));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -157,36 +159,13 @@ namespace Vodovoz.Filters.GtkViews
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child yhbox2.Gtk.Box+BoxChild
-			this.yvbox5 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox5.Name = "yvbox5";
-			this.yvbox5.Spacing = 6;
-			// Container child yvbox5.Gtk.Box+BoxChild
-			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelFineCategory.Name = "ylabelFineCategory";
-			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категории:");
-			this.yvbox5.Add(this.ylabelFineCategory);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.ylabelFineCategory]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child yvbox5.Gtk.Box+BoxChild
-			this.ycheckbuttonShowArchieve = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckbuttonShowArchieve.CanFocus = true;
-			this.ycheckbuttonShowArchieve.Name = "ycheckbuttonShowArchieve";
-			this.ycheckbuttonShowArchieve.Label = global::Mono.Unix.Catalog.GetString("Показывать архивные");
-			this.ycheckbuttonShowArchieve.DrawIndicator = true;
-			this.ycheckbuttonShowArchieve.UseUnderline = true;
-			this.yvbox5.Add(this.ycheckbuttonShowArchieve);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.ycheckbuttonShowArchieve]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			this.yhbox2.Add(this.yvbox5);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yvbox5]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
+			this.ytable1.Name = "ytable1";
+			this.ytable1.NRows = ((uint)(2));
+			this.ytable1.NColumns = ((uint)(2));
+			this.ytable1.RowSpacing = ((uint)(6));
+			this.ytable1.ColumnSpacing = ((uint)(6));
+			// Container child ytable1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -197,11 +176,22 @@ namespace Vodovoz.Filters.GtkViews
 			this.ytreeviewFineCategory.Name = "ytreeviewFineCategory";
 			this.ytreeviewFineCategory.HeadersVisible = false;
 			this.GtkScrolledWindow.Add(this.ytreeviewFineCategory);
-			this.yhbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.GtkScrolledWindow]));
-			w14.Position = 2;
-			w14.Expand = false;
-			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ytable1.Add(this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytable1[this.GtkScrolledWindow]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.ylabelFineCategory = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelFineCategory.Name = "ylabelFineCategory";
+			this.ylabelFineCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категории");
+			this.ylabelFineCategory.Justify = ((global::Gtk.Justification)(2));
+			this.ytable1.Add(this.ylabelFineCategory);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelFineCategory]));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
 			this.yvbox6 = new global::Gamma.GtkWidgets.yVBox();
 			this.yvbox6.Name = "yvbox6";
 			this.yvbox6.Spacing = 6;
@@ -212,10 +202,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.buttonCategoryAll.UseUnderline = true;
 			this.buttonCategoryAll.Label = global::Mono.Unix.Catalog.GetString("Выбрать все");
 			this.yvbox6.Add(this.buttonCategoryAll);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryAll]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryAll]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child yvbox6.Gtk.Box+BoxChild
 			this.buttonCategoryNone = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCategoryNone.CanFocus = true;
@@ -223,13 +213,33 @@ namespace Vodovoz.Filters.GtkViews
 			this.buttonCategoryNone.UseUnderline = true;
 			this.buttonCategoryNone.Label = global::Mono.Unix.Catalog.GetString("Снять выбор");
 			this.yvbox6.Add(this.buttonCategoryNone);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryNone]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
-			this.yhbox2.Add(this.yvbox6);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.yvbox6]));
-			w17.Position = 3;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.buttonCategoryNone]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child yvbox6.Gtk.Box+BoxChild
+			this.ycheckbuttonShowArchieve = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowArchieve.CanFocus = true;
+			this.ycheckbuttonShowArchieve.Name = "ycheckbuttonShowArchieve";
+			this.ycheckbuttonShowArchieve.Label = global::Mono.Unix.Catalog.GetString("Показывать архивные");
+			this.ycheckbuttonShowArchieve.DrawIndicator = true;
+			this.ycheckbuttonShowArchieve.UseUnderline = true;
+			this.yvbox6.Add(this.ycheckbuttonShowArchieve);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvbox6[this.ycheckbuttonShowArchieve]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.ytable1.Add(this.yvbox6);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytable1[this.yvbox6]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yhbox2.Add(this.ytable1);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ytable1]));
+			w17.Position = 1;
 			w17.Expand = false;
 			w17.Fill = false;
 			this.yvbox1.Add(this.yhbox2);
