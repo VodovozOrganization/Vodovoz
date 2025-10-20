@@ -15,7 +15,7 @@ namespace BitrixNotificationsSend.Client
 					client.BaseAddress = new Uri(bitrixSettings.BitrixBaseUrl);
 					client.DefaultRequestHeaders.Accept.Clear();
 				})
-				.SetHandlerLifetime(TimeSpan.FromMinutes(5));
+				.SetHandlerLifetime(TimeSpan.FromMinutes(2));
 
 			return services;
 		}
