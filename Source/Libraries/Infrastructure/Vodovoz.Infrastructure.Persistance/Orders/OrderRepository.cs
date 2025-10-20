@@ -1145,6 +1145,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			DateTime? endDate,
 			int organizationId)
 		{
+			OrderStatus[] excludedOrderStatuses =
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
 			VodovozOrder orderAlias = null;
 			CounterpartyContract contractAlias = null;
 			Organization contractOrganizationAlias = null;
@@ -1154,9 +1161,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyId)
 				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
-				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.UnPaid)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.Where(() => contractAlias.Organization.Id == organizationId);
+				.Where(() => contractAlias.Organization.Id == organizationId)
+				.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), excludedOrderStatuses)));
 
 			return query
 				.Select(x => x.Id)
