@@ -44,9 +44,6 @@ namespace Mailganer.Api.Client
 				config.GetSection("MailganerSettings").Bind(options);
 			});
 
-			services.AddTransient<MailganerClientV1>();
-			services.AddTransient<MailganerClientV2>();
-
 			services.AddHttpClient<MailganerClientV2>((sp, httpClient) =>
 			{
 				var settingsController = sp.GetRequiredService<ISettingsController>();
