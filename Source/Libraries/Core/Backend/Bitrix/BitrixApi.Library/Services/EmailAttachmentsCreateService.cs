@@ -35,7 +35,7 @@ namespace BitrixApi.Library.Services
 			return CreateEmailPdfAttachment(pdfBytes, _revisionFileName);
 		}
 
-		public IEnumerable<EmailAttachment> CreateNotPaidOrdersBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
+		public IEnumerable<EmailAttachment> CreateOrdersBillsAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
 		{
 			var pdfs = new List<byte[]>();
 

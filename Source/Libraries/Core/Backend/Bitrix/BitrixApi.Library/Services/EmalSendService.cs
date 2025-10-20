@@ -95,7 +95,7 @@ namespace BitrixApi.Library.Services
 				case ReportTypeDto.UnpaidOrdersAccount:
 					notpaidOrderIds = GetNotPaidOrderIds(counterparty.Id, organization.Id);
 					attachments =
-						_emailAttachmentsCreateService.CreateNotPaidOrdersBillAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
+						_emailAttachmentsCreateService.CreateOrdersBillsAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
 					messageText = "Счета по неоплаченным заказам";
 					break;
 				case ReportTypeDto.TotalAccount:
