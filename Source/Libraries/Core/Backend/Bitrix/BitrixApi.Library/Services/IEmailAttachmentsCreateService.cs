@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace BitrixApi.Library.Services
 {
+	/// <summary>
+	/// Сервис для создания вложений писем
+	/// </summary>
 	public interface IEmailAttachmentsCreateService
 	{
 		/// <summary>

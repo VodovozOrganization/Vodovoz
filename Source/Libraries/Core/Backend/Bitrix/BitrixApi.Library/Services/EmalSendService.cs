@@ -20,7 +20,7 @@ using Vodovoz.Settings.Common;
 
 namespace BitrixApi.Library.Services
 {
-	public class EmalSendService
+	public class EmalSendService : IEmalSendService
 	{
 		private readonly ILogger<EmalSendService> _logger;
 		private readonly IUnitOfWork _uow;

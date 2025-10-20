@@ -3,6 +3,7 @@ using BitrixApi.Library.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading;
@@ -12,14 +13,14 @@ namespace BitrixApi.Controllers.V1
 {
 	public class CounterpartyDocumentsController : VersionedController
 	{
-		private readonly EmalSendService _emalSendService;
+		private readonly IEmalSendService _emalSendService;
 
 		public CounterpartyDocumentsController(
 			ILogger<CounterpartyDocumentsController> logger,
-			EmalSendService emalSendService)
+			IEmalSendService emalSendService)
 			: base(logger)
 		{
-			_emalSendService = emalSendService ?? throw new System.ArgumentNullException(nameof(emalSendService));
+			_emalSendService = emalSendService ?? throw new ArgumentNullException(nameof(emalSendService));
 		}
 
 		/// <summary>
