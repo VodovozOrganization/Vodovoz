@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
-		private readonly OsrmClient _osrmClient;
+		private readonly IOsrmClient _osrmClient;
 		private RouteList _routeListFrom;
 		private RouteListItem _routeListItemToTransfer;
 
@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IWageParameterService wageParameterService,
 			ITrackRepository trackRepository,
-			OsrmClient osrmClient,
+			IOsrmClient osrmClient,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			IAddressTransferController addressTransferController,

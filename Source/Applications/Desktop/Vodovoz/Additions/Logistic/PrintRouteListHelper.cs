@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
@@ -21,6 +21,7 @@ using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using QS.Osrm;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -332,8 +333,9 @@ namespace Vodovoz.Additions.Logistic
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
 			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
-			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings, cachedDistanceRepository))
+			var osrmSettings = ScopeProvider.Scope.Resolve<IOsrmSettings>();
+			var osrmClient = ScopeProvider.Scope.Resolve<IOsrmClient>();
+			using(var calc = new RouteGeometryCalculator(uowFactory, osrmSettings, osrmClient, cachedDistanceRepository))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}

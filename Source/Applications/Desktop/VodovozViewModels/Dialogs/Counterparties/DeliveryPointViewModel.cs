@@ -7,6 +7,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -77,10 +78,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		private readonly PanelViewType[] _infoWidgets = new[] { PanelViewType.DeliveryPricePanelView };
 		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly IGlobalSettings _globalSettings;
+		private readonly IOsrmSettings _globalSettings;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly INomenclatureFixedPriceRepository _fixedPriceRepository;
 		private readonly IGeoCoderApiClient _geoCoderApiClient;
+		private readonly IOsrmClient _osrmClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private bool _isInformationActive;
 		private bool _isFixedPricesActive;
@@ -110,10 +112,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			ICoordinatesParser coordinatesParser,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IDeliveryRepository deliveryRepository,
-			IGlobalSettings globalSettings,
+			IOsrmSettings globalSettings,
 			IPhoneTypeSettings phoneTypeSettings,
 			INomenclatureFixedPriceRepository fixedPriceRepository,
 			IGeoCoderApiClient geoCoderApiClient,
+			IOsrmClient osrmClient,
 			Domain.Client.Counterparty client = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -156,6 +159,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_fixedPriceRepository = fixedPriceRepository ?? throw new ArgumentNullException(nameof(fixedPriceRepository));
 			_geoCoderApiClient = geoCoderApiClient ?? throw new ArgumentNullException(nameof(geoCoderApiClient));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -470,7 +474,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				return;
 			}
 
-			Entity.SetСoordinates(latitude, longitude, _deliveryRepository, _globalSettings, UoW);
+			Entity.SetСoordinates(latitude, longitude, _deliveryRepository, _globalSettings, _osrmClient, UoW);
 			Entity.СoordsLastChangeUser = _currentUser ?? (_currentUser = _userRepository.GetCurrentUser(UoW));
 		}
 
