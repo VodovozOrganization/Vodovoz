@@ -56,7 +56,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddApplicationOrderServices()
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
-						
+
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
@@ -64,10 +64,10 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<OnlineOrderRegisterFaultConsumer, OnlineOrderRegisterFaultConsumerDefinition>();
 
 							busConf.ConfigureRabbitMq();
-						})
+						});
 
-						.AddStaticScopeForEntity()
-						.AddStaticHistoryTracker();
+					services.AddStaticScopeForEntity();
+					services.AddStaticHistoryTracker();
 				});
 	}
 }
