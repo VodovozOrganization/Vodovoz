@@ -63,6 +63,11 @@ namespace Vodovoz.Core.Domain.Employees
 				yield return new ValidationResult(
 					"Название должно быть заполнено.", new[] { nameof(Name) });
 			}
+			if(!string.IsNullOrEmpty(Name) && Name.Length > 127)
+			{
+				yield return new ValidationResult(
+					"Длина названия не должна превышать 127 символов.", new[] { nameof(Name) });
+			}
 		}
 	}
 }
