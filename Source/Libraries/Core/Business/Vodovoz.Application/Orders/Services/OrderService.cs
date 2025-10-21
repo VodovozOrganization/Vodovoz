@@ -909,47 +909,5 @@ namespace Vodovoz.Application.Orders.Services
 				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
 			}
 		}
-
-		public void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum)
-		{
-			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
-
-			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
-		}
-
-		public async Task UpdateCashlessOrderPaymentStatusAsync(
-			IUnitOfWork uow,
-			Order order,
-			decimal canceledSum,
-			CancellationToken cancellationToken
-			)
-		{
-			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
-
-			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
-		}
-
-		private void UpdateCashlessOrderPaymentStatusByAllocatedSum(
-			Order order,
-			decimal canceledSum,
-			decimal allocatedSum
-			)
-		{
-			var isUnpaid = allocatedSum == 0 || allocatedSum - canceledSum == 0;
-			var isPaid = allocatedSum - canceledSum > order.OrderSum;
-
-			if(isUnpaid)
-			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-			else if(isPaid)
-			{
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-			}
-			else
-			{
-				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-			}
-		}
 	}
 }

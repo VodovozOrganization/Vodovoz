@@ -1,6 +1,9 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 
@@ -18,5 +21,7 @@ namespace VodovozBusiness.Services
 		void CancelAllocationWithUpdateOrderPayments(IUnitOfWork uow, PaymentItem paymentItem);
 		Result DistributeByClientIdAndOrganizationId(IUnitOfWork unitOfWork, int counterpartyId, int organizationId, bool distributeCompletedPayments = false);
 		Result<IEnumerable<UnallocatedBalancesJournalNode>> GetAllUnallocatedBalancesForAutomaticDistribution(IUnitOfWork unitOfWork);
+		Task UpdateCashlessOrderPaymentStatusAsync(IUnitOfWork uow, Order order, decimal canceledSum, CancellationToken cancellationToken);
+		void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum);
 	}
 }

@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -30,20 +32,20 @@ namespace Vodovoz.Application.Payments
 
 		private readonly IGenericRepository<Payment> _paymentRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly IOrderService _orderService;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IOrderService orderService,
-			IDeliveryScheduleSettings deliveryScheduleSettings
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IPaymentItemsRepository paymentItemsRepository
 			)
 		{
 			_paymentRepository = paymentRepository
 				?? throw new ArgumentNullException(nameof(paymentRepository));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
-			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
 					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
@@ -365,7 +367,49 @@ namespace Vodovoz.Application.Payments
 		public void CancelAllocationWithUpdateOrderPayments(IUnitOfWork uow, PaymentItem paymentItem)
 		{
 			paymentItem.CancelAllocation();
-			_orderService.UpdateCashlessOrderPaymentStatus(uow, paymentItem.Order, paymentItem.Sum);
+			UpdateCashlessOrderPaymentStatus(uow, paymentItem.Order, paymentItem.Sum);
+		}
+
+		public void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum)
+		{
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		public async Task UpdateCashlessOrderPaymentStatusAsync(
+			IUnitOfWork uow,
+			Order order,
+			decimal canceledSum,
+			CancellationToken cancellationToken
+			)
+		{
+			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		private void UpdateCashlessOrderPaymentStatusByAllocatedSum(
+			Order order,
+			decimal canceledSum,
+			decimal allocatedSum
+			)
+		{
+			var isUnpaid = allocatedSum == 0 || allocatedSum - canceledSum == 0;
+			var isPaid = allocatedSum - canceledSum > order.OrderSum;
+
+			if(isUnpaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(isPaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
 		}
 	}
 }

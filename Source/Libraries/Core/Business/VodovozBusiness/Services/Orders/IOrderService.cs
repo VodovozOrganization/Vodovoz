@@ -52,8 +52,6 @@ namespace VodovozBusiness.Services.Orders
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
 		void UpdatePaymentStatus(IUnitOfWork uow, Order order);
-		Task UpdateCashlessOrderPaymentStatusAsync(IUnitOfWork uow, Order order, decimal canceledSum, CancellationToken cancellationToken);
-		void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum);
 		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, CancellationToken cancellationToken);
 	}
 }
