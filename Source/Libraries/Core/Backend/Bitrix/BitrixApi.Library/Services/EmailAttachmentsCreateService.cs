@@ -9,6 +9,7 @@ using System.IO;
 
 namespace BitrixApi.Library.Services
 {
+	/// <inheritdoc/>
 	public class EmailAttachmentsCreateService : IEmailAttachmentsCreateService
 	{
 		private const string _revisionReportIdentifier = "Client.Revision";
@@ -26,6 +27,7 @@ namespace BitrixApi.Library.Services
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId)
 		{
 			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId)
@@ -35,6 +37,7 @@ namespace BitrixApi.Library.Services
 			return CreateEmailPdfAttachment(pdfBytes, _revisionFileName);
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<EmailAttachment> CreateOrdersBillsAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
 		{
 			var pdfs = new List<byte[]>();
@@ -53,6 +56,7 @@ namespace BitrixApi.Library.Services
 			return CreateEmailPdfAttachment(mergedPdf, _notPaidOrdersBillFileName);
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds)
 		{
 			var reportInfo = GetGeneralBillReportInfo(orderIds, organizationId)

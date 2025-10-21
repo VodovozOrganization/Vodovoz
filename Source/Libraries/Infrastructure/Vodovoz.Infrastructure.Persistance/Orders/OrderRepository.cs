@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2435,14 +2435,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					join ccf in uow.Session.Query<ClientCameFrom>() on counterparty.CameFrom.Id equals ccf.Id into camefroms
 					from clientCameFrom in camefroms.DefaultIfEmpty()
 
-					let notPaidOrdersSum =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
-							   where
-							   orderItem.Order.Id == order.Id
-							   select
-							   orderItem.ActualSum)
-							   .Sum() ?? 0
-
 					let patrialPaidOrdersSum =
 					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
 							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
@@ -2507,7 +2499,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						CounterpartyId = counterparty.Id,
 						OrganizationId = organization.Id,
 						OrganizationName = organization.FullName,
-						NotPaidSum = notPaidOrdersSum,
+						NotPaidSum = orderSum,
 						PartialPaidSum = patrialPaidOrdersSum,
 						OverdueDebtorDebt = overdueDebtorDebt,
 						OrderDeliveryDate = order.DeliveryDate

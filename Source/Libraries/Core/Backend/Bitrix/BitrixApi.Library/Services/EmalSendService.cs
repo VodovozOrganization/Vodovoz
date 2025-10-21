@@ -20,6 +20,7 @@ using Vodovoz.Settings.Common;
 
 namespace BitrixApi.Library.Services
 {
+	/// <inheritdoc/>
 	public class EmalSendService : IEmalSendService
 	{
 		private readonly ILogger<EmalSendService> _logger;
@@ -51,6 +52,7 @@ namespace BitrixApi.Library.Services
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 		}
 
+		/// <inheritdoc/>
 		public async Task SendDocumentByEmail(SendReportRequest request, CancellationToken cancellationToken)
 		{
 			if(!IsValidEmail(request.EmailAdress))
