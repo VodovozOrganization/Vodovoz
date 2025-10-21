@@ -1324,7 +1324,7 @@ namespace Vodovoz
 		void PrintFines()
 		{
 			{
-				var document = Additions.Logistic.PrintRouteListHelper.GetRDLFine(Entity);
+				var document = Additions.Logistic.PrintRouteListHelper.GetRDLFine(Entity, UoW);
 				this.TabParent.OpenTab(
 					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
 					() => new QSReport.ReportViewDlg(document));
