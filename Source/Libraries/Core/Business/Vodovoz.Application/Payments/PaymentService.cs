@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Services;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Payments
 {
@@ -22,21 +25,25 @@ namespace Vodovoz.Application.Payments
 	/// </summary>
 	internal sealed class PaymentService : IPaymentService
 	{
+		private const int _commentLimit = 300;
 		private int _closingDocumentDeliveryScheduleId;
 
 		private readonly IGenericRepository<Payment> _paymentRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IOrderService _orderService;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IOrderService orderService,
+			IDeliveryScheduleSettings deliveryScheduleSettings
+			)
 		{
 			_paymentRepository = paymentRepository
 				?? throw new ArgumentNullException(nameof(paymentRepository));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
-
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
 					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
@@ -328,5 +335,37 @@ namespace Vodovoz.Application.Payments
 							  && cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
 						  select cashlessMovementOperation.Income - cashlessMovementOperation.Expense)
 					.Sum() ?? 0m;
+
+		public void CancelAllocation(
+			IUnitOfWork uow,
+			Payment payment,
+			string cancellationReason,
+			bool isByUserRequest
+			)
+		{
+			if(payment.IsRefundPayment || isByUserRequest)
+			{
+				payment.Status = PaymentState.Cancelled;
+				payment.Comment += string.IsNullOrWhiteSpace(payment.Comment) 
+					? $"{cancellationReason}" 
+					: $"\n{cancellationReason}";
+
+				if(payment.Comment.Length > _commentLimit)
+				{
+					payment.Comment = payment.Comment.Remove(_commentLimit);
+				}
+			}
+
+			foreach(var paymentItem in payment.Items)
+			{
+				CancelAllocationWithUpdateOrderPayments(uow, paymentItem);
+			}
+		}
+
+		public void CancelAllocationWithUpdateOrderPayments(IUnitOfWork uow, PaymentItem paymentItem)
+		{
+			paymentItem.CancelAllocation();
+			_orderService.UpdateCashlessOrderPaymentStatus(uow, paymentItem.Order, paymentItem.Sum);
+		}
 	}
 }

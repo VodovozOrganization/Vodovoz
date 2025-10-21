@@ -1,9 +1,11 @@
-﻿using Gamma.Utilities;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
@@ -20,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Services.Orders;
@@ -66,6 +69,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IGenericRepository<Nomenclature> _nomenclatureGenericRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -91,7 +95,9 @@ namespace Vodovoz.Application.Orders.Services
 			IGenericRepository<DeliverySchedule> deliveryScheduleRepository,
 			IGenericRepository<Nomenclature> nomenclatureGenericRepository,
 			IOrderContractUpdater orderContractUpdater,
-			IOrderConfirmationService orderConfirmationService)
+			IOrderConfirmationService orderConfirmationService,
+			IPaymentItemsRepository paymentItemsRepository
+			)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -121,6 +127,7 @@ namespace Vodovoz.Application.Orders.Services
 			_nomenclatureGenericRepository = nomenclatureGenericRepository ?? throw new ArgumentNullException(nameof(nomenclatureGenericRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -596,7 +603,11 @@ namespace Vodovoz.Application.Orders.Services
 			order.LogisticsRequirements = GetLogisticsRequirements(order);
 		}
 
-		public int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder)
+		public async Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(
+			IUnitOfWork uow, 
+			OnlineOrder onlineOrder,
+			CancellationToken cancellationToken
+		)
 		{
 			if(onlineOrder.IsNeedConfirmationByCall)
 			{
@@ -614,34 +625,49 @@ namespace Vodovoz.Application.Orders.Services
 			switch(onlineOrder.Source)
 			{
 				case Source.MobileApp:
-					employee = uow.GetById<Employee>(_employeeSettings.MobileAppEmployee);
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.MobileAppEmployee, cancellationToken);
 					break;
 				case Source.VodovozWebSite:
-					employee = uow.GetById<Employee>(_employeeSettings.VodovozWebSiteEmployee);
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.VodovozWebSiteEmployee, cancellationToken);
 					break;
 				case Source.KulerSaleWebSite:
-					employee = uow.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
 					break;
 			}
 
+			// Необходимо сделать асинхронным
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
+			// Необходимо сделать асинхронным
 			UpdateDeliveryCost(uow, order);
+
+			// Необходимо сделать асинхронным
 			AddLogisticsRequirements(order);
+
 			order.AddDeliveryPointCommentToOrder();
+
+			// Необходимо сделать асинхронным
 			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater);
 
-			uow.Save(onlineOrder);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 
-			if(_orderConfirmationService.TryAcceptOrderCreatedByOnlineOrder(uow, employee, order).IsFailure)
+			var acceptResult = await _orderConfirmationService.TryAcceptOrderCreatedByOnlineOrderAsync(
+				uow,
+				employee,
+				order,
+				cancellationToken
+			);
+
+			if(acceptResult.IsFailure)
 			{
 				return 0;
 			}
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
 			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-			uow.Save(notification);
-			uow.Commit();
+
+			await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			return order.Id;
 		}
@@ -827,6 +853,103 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
+		}
+
+		public void UpdatePaymentStatus(IUnitOfWork uow, Order order)
+		{
+			if(order.PaymentType != PaymentType.Cashless)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				return;
+			}
+
+			if(order.Id == 0)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				return;
+			}
+
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
+			UpdatePaymentStatusByAllocatedSum(order, allocatedSum);
+		}
+
+		public async Task UpdatePaymentStatusAsync(IUnitOfWork uow, Order order, CancellationToken cancellationToken)
+		{
+			if(order.PaymentType != PaymentType.Cashless)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				return;
+			}
+
+			if(order.Id == 0)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				return;
+			}
+
+			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
+			UpdatePaymentStatusByAllocatedSum(order, allocatedSum);
+		}
+
+		private void UpdatePaymentStatusByAllocatedSum(Order order, decimal allocatedSum)
+		{
+			var isUnpaid = allocatedSum == default;
+			var isPaid = allocatedSum >= order.OrderSum;
+
+			if(isUnpaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(isPaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
+		}
+
+		public void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum)
+		{
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		public async Task UpdateCashlessOrderPaymentStatusAsync(
+			IUnitOfWork uow,
+			Order order,
+			decimal canceledSum,
+			CancellationToken cancellationToken
+			)
+		{
+			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		private void UpdateCashlessOrderPaymentStatusByAllocatedSum(
+			Order order,
+			decimal canceledSum,
+			decimal allocatedSum
+			)
+		{
+			var isUnpaid = allocatedSum == 0 || allocatedSum - canceledSum == 0;
+			var isPaid = allocatedSum - canceledSum > order.OrderSum;
+
+			if(isUnpaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(isPaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
 		}
 	}
 }
