@@ -2,12 +2,14 @@
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library;
+using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
@@ -16,7 +18,6 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using DriverApi.Notifications.Client;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -54,6 +55,8 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddInfrastructure()
 						.AddDependenciesGroup()
 						.AddApplicationOrderServices()
+						.AddOsrm()
+
 
 						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 
