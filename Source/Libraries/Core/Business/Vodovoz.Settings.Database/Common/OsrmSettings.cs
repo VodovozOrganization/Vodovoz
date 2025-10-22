@@ -12,7 +12,7 @@ namespace Vodovoz.Settings.Database.Common
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
-		public string OsrmServiceUrl => _settingsController.GetStringValue("osrm_url_delivery_rule");
+		public string OsrmServiceUrl => _settingsController.GetStringValue("osrm_url");
 		public bool ExcludeToll => _settingsController.GetBoolValue("osrm_exclude_toll");
 	}
 }
