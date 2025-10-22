@@ -217,7 +217,9 @@ namespace Edo.Docflow.Factories
 				}
 
 				var sum = price * quantity;
-				var includeVat = Math.Round(sum * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
+				var includeVat = !transferOrder.Seller.WithoutVAT 
+					? Math.Round(sum * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2) 
+					: 0;
 
 				var product = new ProductInfo
 				{
