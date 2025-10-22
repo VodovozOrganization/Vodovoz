@@ -523,7 +523,7 @@ namespace Vodovoz
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(oldOrderId: rli.RouteListItem.Order.Id);
+						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
 					}
 					).ViewModel;
 
