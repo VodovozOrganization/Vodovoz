@@ -124,26 +124,23 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.Select(c => c.Id)
 				.ToArray();
 
-			var routeListItemNodDeliveredStatuses = RouteListItem.GetNotDeliveredStatuses();
-
-			var carsWithLastRouteLists =
-				await (from car in unitOfWork.Session.Query<Car>()
-					   let lastRouteListDate =
-						  (DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
-									  join routeListItem in unitOfWork.Session.Query<RouteListItem>()
-										  on routeList.Id equals routeListItem.RouteList.Id
-									  where routeList.Car.Id == car.Id
-										  && routeList.Date <= date.LatestDayTime()
-										  && !routeListItemNodDeliveredStatuses.Contains(routeListItem.Status)
-									  orderby routeList.Date descending
-									  select routeList.Date)
-						  .FirstOrDefault()
-					   where carIds.Contains(car.Id)
-					   select new
-					   {
-						   car,
-						   lastRouteListDate
-					   })
+			var carsWithLastRouteLists = await (
+				from car in unitOfWork.Session.Query<Car>()
+				let lastRouteListDate = (DateTime?)
+					(
+						from routeList in unitOfWork.Session.Query<RouteList>()
+						where routeList.Car.Id == car.Id
+							&& routeList.Date <= date.LatestDayTime()
+							&& RouteList.EnRouteAndDeliveredStatuses.Contains(routeList.Status)
+						orderby routeList.Date descending
+						select routeList.Date
+					).FirstOrDefault()
+				where carIds.Contains(car.Id)
+				select new
+				{
+					car,
+					lastRouteListDate
+				})
 				.ToListAsync(cancellationToken);
 
 			var carIdsWithoutRouteListsAfterStartDate = cars
@@ -199,11 +196,6 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var rows = new List<Row>();
 			var carTransferRows = new List<CarTransferRow>();
 			var carReceptionRows = new List<CarReceptionRow>();
-
-			var carsModels = events
-				.Select(fe => fe.Car.CarModel.Id)
-				.Distinct()
-				.ToArray();
 
 			var rowsHavingEvents = new List<Row>();
 			var rowsWithoutEvents = new List<Row>();
