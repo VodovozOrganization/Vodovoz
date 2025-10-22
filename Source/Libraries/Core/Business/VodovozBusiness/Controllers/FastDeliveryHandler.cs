@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
@@ -59,13 +61,14 @@ namespace Vodovoz.Controllers
 					return Result.Failure(fastDeliveryValidationResult.Errors);
 				}
 				
-				FastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
+				FastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDeliveryForOrder(
 					uow,
 					(double)order.DeliveryPoint.Latitude.Value,
 					(double)order.DeliveryPoint.Longitude.Value,
 					isGetClosestByRoute: true,
 					order.GetAllGoodsToDeliver(),
-					order.DeliveryPoint.District.TariffZone.Id
+					order.DeliveryPoint.District.TariffZone.Id,
+					order
 				);
 
 				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
@@ -81,6 +84,53 @@ namespace Vodovoz.Controllers
 				}
 			}
 			
+			return Result.Success();
+		}
+
+		public async Task<Result> CheckFastDeliveryAsync(
+			IUnitOfWork uow, 
+			Order order, 
+			CancellationToken cancellationToken
+		)
+		{
+			RouteListToAddFastDeliveryOrder = null;
+			FastDeliveryAvailabilityHistory = null;
+
+			if(order.IsFastDelivery)
+			{
+				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(order);
+
+				if(fastDeliveryValidationResult.IsFailure)
+				{
+					return Result.Failure(fastDeliveryValidationResult.Errors);
+				}
+
+				FastDeliveryAvailabilityHistory = await _deliveryRepository.GetRouteListsForFastDeliveryAsync(
+					uow,
+					(double)order.DeliveryPoint.Latitude.Value,
+					(double)order.DeliveryPoint.Longitude.Value,
+					isGetClosestByRoute: true,
+					order.GetAllGoodsToDeliver(),
+					order.DeliveryPoint.District.TariffZone.Id,
+					cancellationToken
+				);
+
+				var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
+				await fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistoryAsync(
+					FastDeliveryAvailabilityHistory,
+					cancellationToken
+				);
+
+				RouteListToAddFastDeliveryOrder = FastDeliveryAvailabilityHistory.Items
+					.FirstOrDefault(x => x.IsValidToFastDelivery)
+					?.RouteList;
+
+				if(RouteListToAddFastDeliveryOrder is null)
+				{
+					return Result.Failure(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryIsMissing);
+				}
+			}
+
 			return Result.Success();
 		}
 

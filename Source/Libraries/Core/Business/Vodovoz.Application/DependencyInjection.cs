@@ -54,7 +54,6 @@ namespace Vodovoz.Application
 			.AddSingleton<OperatorService>()
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<IPaymentService, PaymentService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -71,6 +70,7 @@ namespace Vodovoz.Application
 		
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<IPaymentService, PaymentService>()
 			.AddOrderServicesDependencies()
 			;
 

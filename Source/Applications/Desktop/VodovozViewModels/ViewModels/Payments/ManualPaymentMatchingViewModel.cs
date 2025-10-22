@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -38,6 +38,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -61,6 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly IPaymentService _paymentService;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
@@ -75,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrderRepository orderRepository,
 			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository,
+			IPaymentService paymentService,
 			IDialogsFactory dialogsFactory,
 			IOrganizationRepository organizationRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -100,6 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
@@ -376,7 +380,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
-			paymentItem.CancelAllocation(true);
+			_paymentService.CancelAllocationWithUpdateOrderPayments(UoW, paymentItem);
 
 			UoW.Save();
 

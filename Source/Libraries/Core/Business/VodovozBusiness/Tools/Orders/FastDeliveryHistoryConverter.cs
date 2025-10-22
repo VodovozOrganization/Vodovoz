@@ -108,7 +108,9 @@ namespace Vodovoz.Tools.Orders
 		}
 
 		public IList<FastDeliveryOrderItemHistory> ConvertNomenclatureAmountNodesToOrderItemsHistory(
-			IEnumerable<NomenclatureAmountNode> nomenclatureNodes, FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
+			IEnumerable<NomenclatureAmountNode> nomenclatureNodes, 
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory
+			)
 		{
 			return nomenclatureNodes
 				.Select(x => new FastDeliveryOrderItemHistory

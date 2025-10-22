@@ -15,6 +15,7 @@ using Vodovoz.Models;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
+using Osrm;
 
 namespace DeliveryRulesService
 {
@@ -56,6 +57,7 @@ namespace DeliveryRulesService
 				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
 				.AddHttpClient()
 				.AddFiasClient()
+				.AddOsrm()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
