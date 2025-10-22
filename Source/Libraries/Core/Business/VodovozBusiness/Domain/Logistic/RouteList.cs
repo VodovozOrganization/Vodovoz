@@ -3457,5 +3457,14 @@ namespace Vodovoz.Domain.Logistic
 		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 
 		public static RouteListStatus[] DeliveredRouteListStatuses { get; } = { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Closed };
+		
+		public static RouteListStatus[] EnRouteAndDeliveredStatuses { get; } =
+		{
+			RouteListStatus.EnRoute,
+			RouteListStatus.Delivered,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 	}
 }
