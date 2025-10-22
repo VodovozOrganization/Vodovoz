@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -58,6 +59,7 @@ namespace FastDeliveryLateWorker
 						.AddSingleton<IOrderSettings, OrderSettings>()
 						.AddSingleton<IEmailService, EmailService>()
 						.AddScoped<OrderStateKey>()
+						.AddOsrm()
 						;
 
 					services.ConfigureZabbixSenderFromDataBase(nameof(FastDeliveryLateWorker));
