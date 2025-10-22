@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -56,5 +58,28 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(IUnitOfWork unitOfWork, OrderStatus[] orderStatuses, int counterpartyId = default, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns);
 
+		/// <summary>
+		/// Возвращает email контрагентов по их Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterparties">Id контрагентов</param>
+		/// <returns>Email адреса контрагента</returns>
+		IDictionary<int, Email[]> GetCounterpartyEmails(IUnitOfWork uow, IEnumerable<int> counterparties);
+
+		/// <summary>
+		/// Возвращает телефоны контрагентов по их Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartiesIds">Id контрагентов</param>
+		/// <returns>Телефоны контрагента</returns>
+		IDictionary<int, Phone[]> GetCounterpartyPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
+
+		/// <summary>
+		/// Возвращает телефоны для связи по заказам контрагентов по их Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartiesIds">Id контрагентов</param>
+		/// <returns>Телефоны, указанные как контактные, в заказах контрагента</returns>
+		IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
 	}
 }

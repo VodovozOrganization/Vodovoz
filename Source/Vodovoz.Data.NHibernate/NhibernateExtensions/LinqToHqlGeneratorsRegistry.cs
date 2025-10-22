@@ -8,6 +8,7 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 		public LinqToHqlGeneratorsRegistry() : base()
 		{
 			this.Merge(new CustomOrderItemActualSumGenerator());
+			this.Merge(new CustomAddDaysMethodGenerator());
 		}
 	}
 }

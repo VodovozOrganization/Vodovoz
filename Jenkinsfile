@@ -315,6 +315,9 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/BitrixApi/BitrixApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/BitrixNotificationsSendWorker/BitrixNotificationsSendWorker.csproj")
+
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-kuler-service")
