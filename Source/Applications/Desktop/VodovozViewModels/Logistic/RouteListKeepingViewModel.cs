@@ -525,7 +525,7 @@ namespace Vodovoz
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						vm.Initialize(oldOrderId: rli.RouteListItem.Order.Id);
 					}
 					).ViewModel;
 
@@ -643,6 +643,8 @@ namespace Vodovoz
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
+			UoW.Session.Refresh(address.RouteListItem.Order);
+
 			var notificationRequest = new NotificationRouteListChangesRequest
 			{
 				OrderId = e.UndeliveredOrder.OldOrder.Id ,
@@ -719,25 +721,44 @@ namespace Vodovoz
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
-				UoW.Save(Entity.RouteListProfitability);
+				//UoW.Save(Entity.RouteListProfitability);
 				
 				foreach(var keyPairValue in _createdOrderEdoRequests)
 				{
 					UoW.Save(keyPairValue.Value.Request);
 				}
 
-				UoW.Commit();
-
-				var changedList = Items
+				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
 
-				if(changedList.Count == 0)
+				if(changedItems.Count == 0)
 				{
 					return true;
 				}
 
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+				var changedItemsBackup = Items
+					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
+					.Select(item => new {
+						item.RouteListItem,
+						item.Status
+					})
+					.ToList();
+
+				UoW.Session.Refresh(Entity);
+
+				foreach(var item in changedItems)
+				{
+					var backup = changedItemsBackup.FirstOrDefault(b => b.RouteListItem.Id == item.RouteListItem.Id);
+
+					item.RouteListItem = backup.RouteListItem;
+					Entity.SetAddressStatusWithoutOrderChange(UoW, item.RouteListItem.Id, backup.Status);
+					UoW.Save(item.RouteListItem);
+				}
+
+				UoW.Commit();
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 				if(currentEmployee == null)
 				{
@@ -800,7 +821,7 @@ namespace Vodovoz
 
 			if(!hasChanges || _interactiveService.Question("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
-				UoWGeneric.Session.Refresh(Entity);
+				UoW.Session.Refresh(Entity);
 				UpdateNodes();
 			}
 		}
