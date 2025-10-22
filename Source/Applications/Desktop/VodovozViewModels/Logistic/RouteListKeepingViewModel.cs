@@ -641,8 +641,6 @@ namespace Vodovoz
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
-			UoW.Session.Refresh(address.RouteListItem.Order);
-
 			var notificationRequest = new NotificationRouteListChangesRequest
 			{
 				OrderId = e.UndeliveredOrder.OldOrder.Id ,
@@ -719,7 +717,7 @@ namespace Vodovoz
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
-				//UoW.Save(Entity.RouteListProfitability);
+				UoW.Save(Entity.RouteListProfitability);
 				
 				foreach(var keyPairValue in _createdOrderEdoRequests)
 				{
@@ -733,25 +731,6 @@ namespace Vodovoz
 				if(changedItems.Count == 0)
 				{
 					return true;
-				}
-
-				var changedItemsBackup = Items
-					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
-					.Select(item => new {
-						item.RouteListItem,
-						item.Status
-					})
-					.ToList();
-
-				UoW.Session.Refresh(Entity);
-
-				foreach(var item in changedItems)
-				{
-					var backup = changedItemsBackup.FirstOrDefault(b => b.RouteListItem.Id == item.RouteListItem.Id);
-
-					item.RouteListItem = backup.RouteListItem;
-					Entity.SetAddressStatusWithoutOrderChange(UoW, item.RouteListItem.Id, backup.Status);
-					UoW.Save(item.RouteListItem);
 				}
 
 				UoW.Commit();
