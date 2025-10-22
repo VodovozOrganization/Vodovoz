@@ -99,14 +99,9 @@ namespace Vodovoz.Domain.Payments
 		/// Отмена распределения
 		/// </summary>
 		/// <param name="needUpdateOrderPaymentStatus">Нужно обновлять статус оплаты заказа</param>
-		public virtual void CancelAllocation(bool needUpdateOrderPaymentStatus = false)
+		public virtual void CancelAllocation()
 		{
 			UpdateStatuses(AllocationStatus.Cancelled);
-
-			if(needUpdateOrderPaymentStatus)
-			{
-				Order.UpdateCashlessOrderPaymentStatus(Sum);
-			}
 		}
 
 		/// <summary>

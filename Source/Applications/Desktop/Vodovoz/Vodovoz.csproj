@@ -2430,6 +2430,10 @@
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj">
+      <Project>{a5f80464-7222-44c8-adf7-23e9daae4e34}</Project>
+      <Name>Osrm</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj">
       <Project>{B216B4C1-5285-4784-AC06-C57EE23178F3}</Project>
       <Name>Pacs.Admin.Client</Name>

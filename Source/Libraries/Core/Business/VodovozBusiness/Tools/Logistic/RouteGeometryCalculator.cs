@@ -22,7 +22,8 @@ namespace Vodovoz.Tools.Logistic
 	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
-		private readonly IGlobalSettings _globalSettings;
+		private readonly IOsrmSettings _osrmSettings;
+		private readonly IOsrmClient _osrmClient;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUnitOfWork _uow;
 
@@ -34,10 +35,16 @@ namespace Vodovoz.Tools.Logistic
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
 
-		public RouteGeometryCalculator(IUnitOfWorkFactory uowFactory, IGlobalSettings globalSettings, ICachedDistanceRepository cachedDistanceRepository)
+		public RouteGeometryCalculator(
+			IUnitOfWorkFactory uowFactory,
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient,
+			ICachedDistanceRepository cachedDistanceRepository
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_uow = _uowFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 		}
@@ -301,7 +308,7 @@ namespace Vodovoz.Tools.Logistic
 			CachedDistance.GetLatLon(distance.ToGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
-			var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var result = _osrmClient.GetRoute(points, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			ok = result?.Code == "Ok";
 			if(ok && result.Routes.Any()) {
 				distance.DistanceMeters = result.Routes.First().TotalDistance;
