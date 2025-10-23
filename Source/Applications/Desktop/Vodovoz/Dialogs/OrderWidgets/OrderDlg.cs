@@ -148,6 +148,7 @@ using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Utils;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
@@ -204,6 +205,7 @@ namespace Vodovoz
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
 		private int _fastDeliveryNomenclatureId;
+		private int _advancedPaymentNomenclatureId;
 
 		private IOrderSettings _orderSettings;
 		private IOrganizationSettings _organizationSettings;
