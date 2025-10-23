@@ -14,6 +14,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -43,6 +44,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
+		private List<FineCategory> _fineCategories;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -83,6 +85,20 @@ namespace Vodovoz.ViewModels.Employees
 			if(carEvents.Any())
 			{
 				CarEvent = $"Взыскано по событию ТС: {string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}";
+			}
+		}
+
+		public List<FineCategory> FineCategories
+		{
+			get
+			{
+				if(_fineCategories == null)
+				{
+					_fineCategories = UoW.GetAll<FineCategory>()
+										.Where(x => !x.IsArchive)
+										.ToList();
+				}
+				return _fineCategories;
 			}
 		}
 

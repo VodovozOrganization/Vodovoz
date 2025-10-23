@@ -20,8 +20,6 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private IGlobalSettings _globalSettings => ScopeProvider.Scope
-			.Resolve<IGlobalSettings>();
 
 		public virtual int Id { get; set; }
 
@@ -116,7 +114,10 @@ namespace Vodovoz.Domain.Logistic
 			Distance = new MapRoute(points, "").Distance;
 		}
 
-		public virtual RouteResponse CalculateDistanceToBase()
+		public virtual RouteResponse CalculateDistanceToBase(
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient
+			)
 		{
 			var lastAddress = RouteList.Addresses
 				.Where(x => x.Status == RouteListItemStatus.Completed)
@@ -147,7 +148,7 @@ namespace Vodovoz.Domain.Logistic
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
+			var response = osrmClient.GetRoute(points, false, GeometryOverview.Simplified, osrmSettings.ExcludeToll);
 			if(response.Code == "Ok") {
 				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else

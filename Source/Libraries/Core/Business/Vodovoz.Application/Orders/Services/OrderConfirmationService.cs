@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Results;
@@ -34,20 +36,27 @@ namespace Vodovoz.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 		}
 
-		public Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
+		public async Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(
+			IUnitOfWork uow,
+			Employee employee,
+			Order order,
+			CancellationToken cancellationToken
+		)
 		{
 			if(!order.SelfDelivery)
 			{
-				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
+				var fastDeliveryResult = await _fastDeliveryHandler.CheckFastDeliveryAsync(uow, order, cancellationToken);
 
 				if(fastDeliveryResult.IsFailure)
 				{
 					return fastDeliveryResult;
 				}
 
+				// Необходимо сделать асинхронным
 				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
 			}
 
+			// Необходимо сделать асинхронным
 			AcceptOrder(uow, employee, order);
 
 			return Result.Success();
@@ -57,7 +66,13 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			order.AcceptOrder(employee, _callTaskWorker);
 			order.SaveEntity(
-				uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController, needUpdateContract);
+				uow, 
+				_orderContractUpdater, 
+				employee, 
+				_orderDailyNumberController, 
+				_paymentFromBankClientController, 
+				needUpdateContract
+			);
 		}
 	}
 }

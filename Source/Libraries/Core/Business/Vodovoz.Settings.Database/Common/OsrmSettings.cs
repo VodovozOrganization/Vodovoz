@@ -4,11 +4,11 @@ using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Settings.Database.Common
 {
-	public class GlobalSettings : IGlobalSettings
+	public class OsrmSettings : IOsrmSettings
 	{
 		private readonly ISettingsController _settingsController;
 
-		public GlobalSettings(ISettingsController settingsController)
+		public OsrmSettings(ISettingsController settingsController)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}

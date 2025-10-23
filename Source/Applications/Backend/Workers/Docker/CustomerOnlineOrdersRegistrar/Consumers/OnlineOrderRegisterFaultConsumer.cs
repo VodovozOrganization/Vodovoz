@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -36,15 +36,15 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		{
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
 			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{

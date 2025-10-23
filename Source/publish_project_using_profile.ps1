@@ -158,7 +158,7 @@ if (-not (Test-Path $pubProfilesPath)) {
     exit 1
 }
 
-$profiles = Get-ChildItem -Path $pubProfilesPath -Filter *.pubxml | Select-Object -ExpandProperty BaseName
+$profiles = @(Get-ChildItem -Path $pubProfilesPath -Filter *.pubxml | Select-Object -ExpandProperty BaseName)
 if ($profiles.Count -eq 0) {
     Write-Error "Не найдено ни одного профиля публикации в $pubProfilesPath"
     exit 1

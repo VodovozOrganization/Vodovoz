@@ -99,6 +99,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
@@ -108,6 +109,8 @@
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\Nodes\Employees\FineCategoryJournalNode.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />

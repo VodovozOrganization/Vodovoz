@@ -1,5 +1,6 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Report.ViewModels;
@@ -7,11 +8,13 @@ using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.Reports;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Wages
 {
@@ -25,6 +28,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 		private bool _categoryDriver;
 		private bool _categoryForwarder;
 		private bool _categoryOffice;
+		private bool _showArchive;
+		private ObservableList<EmployeeFineCategoryNode> _fineCategories;
 
 		public EmployeesFinesViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
@@ -46,9 +51,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			AllCategoriesCommand = new DelegateCommand(AllStatus);
+			NoneCategoriesCommand = new DelegateCommand(NoneStatus);
 		}
 
 		public DelegateCommand GenerateReportCommand;
+		public DelegateCommand AllCategoriesCommand;
+		public DelegateCommand NoneCategoriesCommand;
 
 		public virtual DateTime? StartDate
 		{
@@ -98,7 +107,36 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			}
 		}
 
+		public bool ShowArchive
+		{
+			get => _showArchive;
+			set
+			{
+				if(_showArchive != value)
+				{
+					_showArchive = value;
+					UpdateFineCategories();
+				}
+			}
+		}
+
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
+
+		public ObservableList<EmployeeFineCategoryNode> FineCategories 
+		{
+			get
+			{
+				if(_fineCategories == null)
+				{
+					var categories = UoW.GetAll<FineCategory>().Where(x => !x.IsArchive).ToList();
+					_fineCategories = new ObservableList<EmployeeFineCategoryNode>(
+						categories.Select(category => new EmployeeFineCategoryNode(category) { Selected = true })
+						);
+				}
+
+				return _fineCategories;
+			}
+		}
 
 		protected override Dictionary<string, object> Parameters
 		{
@@ -128,6 +166,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 				parameters.Add("showbottom", false);
 				parameters.Add("routelist", 0);
 				parameters.Add("category", GetCategory());
+
+				parameters.Add("fineCategories", FineCategories.Where(x => x.Selected)
+												   .Select(x => x.FineCategoryId)
+												   .ToArray());
 
 				return parameters;
 			}
@@ -174,6 +216,24 @@ namespace Vodovoz.ViewModels.ReportsParameters.Wages
 			}
 
 			return cat;
+		}
+
+		private void AllStatus() => FineCategories.ForEach(x => x.Selected = true);
+
+		private void NoneStatus() => FineCategories.ForEach(x => x.Selected = false);
+
+		private void UpdateFineCategories()
+		{
+			FineCategories.Clear();
+			var categories = UoW.GetAll<FineCategory>()
+				.Where(x => ShowArchive || !x.IsArchive)
+				.ToList();
+
+			foreach(var category in categories)
+			{
+				var fineNode = new EmployeeFineCategoryNode(category) { Selected = true };
+				FineCategories.Add(fineNode);
+			}
 		}
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Goods
 			CanEdit = commonServices.CurrentPermissionService
 				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanUpdate;
 			
-			FastDeliveryMaxDistance = _deliveryRepository.MaxDistanceToLatestTrackPointKm;
+			FastDeliveryMaxDistance = _deliveryRepository.GetGetMaxDistanceToLatestTrackPointKm();
 			MaxFastOrdersPerSpecificTime = _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 
 			FlyerAdditionEnabled = _deliveryRulesSettings.AdditionalLoadingFlyerAdditionEnabled;
