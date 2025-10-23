@@ -673,7 +673,8 @@ namespace EdoDocumentsPreparer
 			var edoAccount =
 				_edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(edoContainer.Counterparty, organizationId);
 
-			if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
+			if(edoAccount is null
+				|| string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
 				|| edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			{
 				await TrySaveContainerByErrorState(

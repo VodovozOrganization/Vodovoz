@@ -15,8 +15,9 @@ using Vodovoz.Settings.Orders;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "место, откуда проведены оплаты",
-		Nominative = "место, откуда проведена оплата")]
+		NominativePlural = "Источники оплат",
+		GenitivePlural = "Источников оплат",
+		Nominative = "Источник оплаты")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class PaymentFrom : PaymentFromEntity, IValidatableObject

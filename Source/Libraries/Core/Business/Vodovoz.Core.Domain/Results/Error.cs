@@ -17,11 +17,20 @@ namespace Vodovoz.Core.Domain.Results
 			Code = code;
 			Message = message;
 		}
+		
+		public Error(string code, string message, Type type)
+		{
+			Code = code;
+			Message = message;
+			Type = type;
+		}
 
 		public Error(Type type, string fieldName, string message)
-			: this(GenerateCode(type, fieldName), message) { }
+			: this(GenerateCode(type, fieldName), message, type) { }
 
 		public string Code { get; set; }
+		
+		public Type Type { get; }
 
 		public string Message { get; set; }
 

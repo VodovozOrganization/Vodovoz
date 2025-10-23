@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ICurrentPermissionService _currentPermissionService;
 
 		public RouteListMileageCheckViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -85,7 +86,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
-			IRouteListProfitabilityController routeListProfitabilityController)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			ICurrentPermissionService currentPermissionService)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -110,8 +112,10 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_currentPermissionService = currentPermissionService;
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 
 			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -145,6 +149,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool CanCreateRouteListWithoutOrders { get; }
 		public IList<DeliveryShift> DeliveryShifts { get; }
 		public IList<RouteListKeepingNode> RouteListItems { get; }
 
@@ -279,7 +284,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
-						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Minivan, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
 
 			AskSaveOnClose = CanEdit;
 
@@ -304,7 +309,8 @@ namespace Vodovoz.ViewModels.Logistic
 				new Dictionary<object, object>
 					{
 						{nameof(IRouteListRepository), _routeListRepository},
-						{nameof(IRouteListItemRepository), _routeListItemRepository}
+						{nameof(IRouteListItemRepository), _routeListItemRepository},
+						{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 					});
 		}
 

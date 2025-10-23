@@ -61,6 +61,15 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
 				.InitializeFromSource();
 
+			btnSaveCanAddForwardersToMinivan.Clicked += (sender, args) => ViewModel.SaveCanAddForwardersToMinivanCommand.Execute();
+			btnSaveCanAddForwardersToMinivan.Binding.AddBinding(ViewModel, vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckCanAddForwardersToMinivan.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanAddForwardersToMinivan, w => w.Active)
+				.AddBinding(vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
+				.InitializeFromSource();
+
 			yspinbuttonRouteListsCount.Binding
 				.AddBinding(ViewModel, vm => vm.DriversUnclosedRouteListsHavingDebtCount, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -570,6 +579,10 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
 				.InitializeFromSource();
 
+			yspinbuttonMinivanMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.MinivanMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 

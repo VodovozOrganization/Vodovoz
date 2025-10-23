@@ -1,4 +1,4 @@
-using DriverApi.Notifications.Client;
+﻿using DriverApi.Notifications.Client;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Services;
 using Edo.Transport;
@@ -34,6 +34,7 @@ using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
 using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
+using Osrm;
 
 namespace DriverAPI.Library
 {
@@ -67,7 +68,9 @@ namespace DriverAPI.Library
 			services.AddVersion5();
 			services.AddVersion6();
 
-			services.AddScoped<IGlobalSettings, GlobalSettings>()
+			services
+				.AddOsrm()
+				.AddScoped<IOsrmSettings, OsrmSettings>()
 				.AddScoped<ILogisticsEventsService, DriverWarehouseEventsService>();
 
 			services.AddBusiness(configuration)

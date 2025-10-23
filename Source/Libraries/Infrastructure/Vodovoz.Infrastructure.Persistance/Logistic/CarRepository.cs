@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Employees;
@@ -303,7 +302,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					carsQuery.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => carModelAlias.Id), excludedCarModelIds)));
 				}
 
-				return carsQuery.List<Car>();
+				return carsQuery.TransformUsing(Transformers.DistinctRootEntity).List<Car>();
 			},
 			cancellationToken);
 		}
@@ -361,19 +360,42 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			.Select(c => new { CarId = c.Id, GeoGroups = string.Join(", ", c.GeographicGroups.Select(g => g.Name)) })
 			.ToDictionary(c => c.CarId, c => c.GeoGroups);
 
-		public async Task<IDictionary<int, string>> GetDriversNamesByCars(
+		public async Task<IDictionary<int, (Employee Driver, bool IsLastRouteListDriver)>> GetDriversByCars(
 			IUnitOfWork unitOfWork, IEnumerable<int> carsIds, CancellationToken cancellationToken)
 		{
-			var driversNames =
-				from car in unitOfWork.Session.Query<Car>()
+			var carsQuery = unitOfWork.Session.Query<Car>()
+				.Where(car => carsIds.Contains(car.Id));
+
+			var routeListsQuery = unitOfWork.Session.Query<RouteList>()
+				.Where(rl => carsIds.Contains(rl.Car.Id));
+
+			var driversData =
+				from car in carsQuery
 				join d in unitOfWork.Session.Query<Employee>() on car.Driver.Id equals d.Id into drivers
 				from driver in drivers.DefaultIfEmpty()
-				where carsIds.Contains(car.Id)
-				select new { CarId = car.Id, DriverName = driver == null ? "-" : driver.ShortName };
+				let lastRouteListDriver = (
+					from rl in routeListsQuery
+					where rl.Car.Id == car.Id
+					orderby rl.Date descending
+					select rl.Driver
+				).FirstOrDefault()
+				select new
+				{
+					CarId = car.Id,
+					Driver = driver,
+					LastRouteListDriver = lastRouteListDriver
+				};
 
-			return (await driversNames.ToListAsync(cancellationToken))
-				.GroupBy(g => g.CarId)
-				.ToDictionary(g => g.Key, g => g.FirstOrDefault().DriverName);
+			var list = await driversData.ToListAsync(cancellationToken);
+
+			return list.ToDictionary(
+				x => x.CarId,
+				x => x.Driver != null
+					? (x.Driver, false)
+					: x.LastRouteListDriver != null
+						? (x.LastRouteListDriver, true)
+						: ((Employee)null, false)
+			);
 		}
 
 		public async Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(
@@ -400,6 +422,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				);
 
 			return carVersionsData;
+		}
+
+		public void ArchiveCar(IUnitOfWork uow, Car car, ArchivingReason reason)
+		{
+			if(car == null)
+			{
+				throw new ArgumentNullException(nameof(car));
+			}
+
+			car.IsArchive = true;
+			car.ArchivingDate = DateTime.Now;
+			car.ArchivingReason = reason;
+			uow.Save(car);
 		}
 
 		public IQueryable<Car> GetCarsByIds(IUnitOfWork unitOfWork, IEnumerable<int> carsIds) =>

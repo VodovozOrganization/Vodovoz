@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using Osrm;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -68,6 +69,7 @@ namespace CustomerAppsApi
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 				.AddHttpClient()
 				.AddCustomerApiLibrary()
+				.AddOsrm()
 				.AddRabbitConfig(Configuration)
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())

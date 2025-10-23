@@ -632,7 +632,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Count != count)
 			{
-				Count = count;
+				Count = count < 0 ? 0 : count;
 				Order?.RecalculateItemsPrice();
 				RecalculateDiscount();
 				RecalculateVAT();

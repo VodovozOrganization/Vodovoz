@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TrueMark.Library;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -454,7 +455,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			else
 			{
-				inventPosition.Vat = FiscalVat.Vat20;
+				inventPosition.Vat = orderItem.Nomenclature.VAT.ToFiscalVat();
 			}
 
 			return inventPosition;

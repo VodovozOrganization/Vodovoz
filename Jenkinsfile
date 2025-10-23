@@ -262,15 +262,13 @@ stage('Web'){
 				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
 			}
 			stage('Web.Build'){
-				// IIS
-				PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
-				PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-				PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
-
 				// Docker
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
+
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
@@ -317,12 +315,19 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/BitrixApi/BitrixApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/BitrixNotificationsSendWorker/BitrixNotificationsSendWorker.csproj")
+
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-kuler-service")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-non-alcoholic-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-north")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-south")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-chiruk")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-east")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vasileva")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj", "registry-prod-kuler-service")
@@ -334,6 +339,10 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-non-alcoholic-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-north")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-south")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-chiruk")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-east")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vasileva")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-beverages-world")
@@ -342,6 +351,10 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-north")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-south")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-chiruk")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-east")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vasileva")
 			}
 		}
 		else if(CAN_BUILD_WEB)
@@ -367,13 +380,6 @@ stage('Web'){
 stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
-
-		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
-		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
-		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
-		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
-		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") }
 	)
 }
 
@@ -387,14 +393,6 @@ stage('Delivery'){
 		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(NODE_VOD5, DESKTOP_VOD5_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(NODE_VOD7, DESKTOP_VOD7_DELIVERY_PATH) },
 		"Desktop ${NODE_VOD13}" : { DeliveryDesktopArtifact(NODE_VOD13, DESKTOP_VOD13_DELIVERY_PATH) },
-
-		// IIS
-		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
-		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
-		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
-		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
-		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") }
 	)
 }
 
@@ -413,13 +411,6 @@ stage('Publish'){
 		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
 		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
 		"Desktop ${NODE_VOD13}" : { PublishDesktop(NODE_VOD13) },
-
-		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
-		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
-		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
-		"RoboatsService" : { PublishWeb("RoboatsService") },
-		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") }
 	)
 }
 
@@ -432,14 +423,6 @@ stage('CleanUp'){
 		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
-
-		// IIS
-		"FastPaymentsAPI" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD,"FastPaymentsAPI") },
-		"MailjetEventsDistributorAPI" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "MailjetEventsDistributorAPI") },
-		"UnsubscribePage" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "UnsubscribePage") },
-		"DeliveryRulesService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "DeliveryRulesService") },
-		"RoboatsService" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "RoboatsService") },
-		"CustomerAppsApi" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "CustomerAppsApi") }
 	)
 
 	if(IS_RELEASE){
@@ -603,8 +586,10 @@ def DecompressArtifact(destPath, artifactName) {
 def DeleteCompressedArtifact(artifactName) {
 	def workspacePath = GetWorkspacePath()
 	def archive_file = "${artifactName}_${ARTIFACT_DATE_TIME}${ARCHIVE_EXTENTION}"
-	echo "Deleting artifact ${archive_file}"
-	WinRemoveDirectory("${workspacePath}/${archive_file}");
+	if (fileExists(archive_file)) {
+		echo "Deleting artifact ${archive_file}"
+		WinRemoveDirectory("${workspacePath}/${archive_file}");
+	}
 }
 
 // 305	Фукнции. Доставка
@@ -854,7 +839,7 @@ def WinRemoveOldJenkinsTempFiles() {
     node(NODE_WIN_BUILD){
     	RunPowerShell("""
         Get-ChildItem 'C:\\Users\\jenkins\\AppData\\Local\\Temp\\Containers\\Content' -File |
-        Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-14) } |
+        Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-7) } |
         ForEach-Object { Remove-Item \$file.FullName -Force }
         """)
     }

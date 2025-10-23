@@ -1,7 +1,10 @@
-﻿using QS.DomainModel.UoW;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -14,6 +17,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Services;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Payments
 {
@@ -22,21 +27,25 @@ namespace Vodovoz.Application.Payments
 	/// </summary>
 	internal sealed class PaymentService : IPaymentService
 	{
+		private const int _commentLimit = 300;
 		private int _closingDocumentDeliveryScheduleId;
 
 		private readonly IGenericRepository<Payment> _paymentRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IPaymentItemsRepository paymentItemsRepository
+			)
 		{
 			_paymentRepository = paymentRepository
 				?? throw new ArgumentNullException(nameof(paymentRepository));
 			_orderRepository = orderRepository
 				?? throw new ArgumentNullException(nameof(orderRepository));
-
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
 					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
@@ -328,5 +337,79 @@ namespace Vodovoz.Application.Payments
 							  && cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
 						  select cashlessMovementOperation.Income - cashlessMovementOperation.Expense)
 					.Sum() ?? 0m;
+
+		public void CancelAllocation(
+			IUnitOfWork uow,
+			Payment payment,
+			string cancellationReason,
+			bool isByUserRequest
+			)
+		{
+			if(payment.IsRefundPayment || isByUserRequest)
+			{
+				payment.Status = PaymentState.Cancelled;
+				payment.Comment += string.IsNullOrWhiteSpace(payment.Comment) 
+					? $"{cancellationReason}" 
+					: $"\n{cancellationReason}";
+
+				if(payment.Comment.Length > _commentLimit)
+				{
+					payment.Comment = payment.Comment.Remove(_commentLimit);
+				}
+			}
+
+			foreach(var paymentItem in payment.Items)
+			{
+				CancelAllocationWithUpdateOrderPayments(uow, paymentItem);
+			}
+		}
+
+		public void CancelAllocationWithUpdateOrderPayments(IUnitOfWork uow, PaymentItem paymentItem)
+		{
+			paymentItem.CancelAllocation();
+			UpdateCashlessOrderPaymentStatus(uow, paymentItem.Order, paymentItem.Sum);
+		}
+
+		public void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum)
+		{
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		public async Task UpdateCashlessOrderPaymentStatusAsync(
+			IUnitOfWork uow,
+			Order order,
+			decimal canceledSum,
+			CancellationToken cancellationToken
+			)
+		{
+			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		private void UpdateCashlessOrderPaymentStatusByAllocatedSum(
+			Order order,
+			decimal canceledSum,
+			decimal allocatedSum
+			)
+		{
+			var isUnpaid = allocatedSum == 0 || allocatedSum - canceledSum == 0;
+			var isPaid = allocatedSum - canceledSum > order.OrderSum;
+
+			if(isUnpaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(isPaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
+		}
 	}
 }

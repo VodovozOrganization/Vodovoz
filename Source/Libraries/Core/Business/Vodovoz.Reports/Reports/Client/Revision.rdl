@@ -48,12 +48,13 @@
             END as payment_status,
             o.order_status as order_status
           FROM orders o
+          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
           WHERE
               o.client_id = @counterparty_id
               AND o.order_payment_status != 'Paid'
               AND o.payment_type = 'Cashless'
-              AND (o.our_organization_id = 1
-	            OR o.our_organization_id IS NULL)
+              AND cc.organization_id = @organization_id
+              AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
           HAVING
             debt &gt; 0
           UNION ALL
@@ -72,11 +73,12 @@
             payment_items pi ON o.id = pi.order_id
           INNER JOIN 
             payments_from_bank_client p ON pi.payment_id = p.id
+          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
           WHERE
             o.client_id = @counterparty_id
             AND pi.payment_item_status != 'Cancelled'
-            AND (o.our_organization_id = 1
-	          OR o.our_organization_id IS NULL)
+            AND cc.organization_id = @organization_id
+            AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
           UNION ALL
           SELECT # Депозит, кредит
             p.payment_num as num,
@@ -89,9 +91,12 @@
             '' as order_status
           FROM payments_from_bank_client p
             LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
-            INNER JOIN organizations org ON p.organization_id = org.id
+            INNER JOIN organizations o ON p.organization_id = o.id
           WHERE
-                  p.counterparty_id = @counterparty_id) as t
+            p.counterparty_id = @counterparty_id
+            AND (
+              p.organization_id = @organization_id
+            )) as t
           WHERE 
             t.`date` &gt;= @date_start
           AND 
@@ -101,13 +106,16 @@
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
-            <Value>=Parameters!CounterpartyID</Value>
+            <Value>=Parameters!CounterpartyId</Value>
           </QueryParameter>
           <QueryParameter Name="date_start">
             <Value>=Parameters!StartDate</Value>
           </QueryParameter>
           <QueryParameter Name="date_end">
             <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!OrganizationId</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -150,9 +158,15 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
-full_name
- from organizations 
-where id = (select str_value from base_parameters where name = "cashless_organization_id")</CommandText>
+        o.full_name
+        from organizations o
+        where o.id = @organization_id
+        </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!OrganizationId</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
       <Fields>
         <Field Name="org_name">
@@ -182,7 +196,7 @@ WHERE
             name = 'cashless_organization_id')</CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
-            <Value>=Parameters!CounterpartyID</Value>
+            <Value>=Parameters!CounterpartyId</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -212,17 +226,21 @@ WHERE
           FROM 
               cashless_movement_operations cmo 
           WHERE
-              cmo.counterparty_id = @counterparty_id) as T
+              cmo.counterparty_id = @counterparty_id
+              AND cmo.organization_id = @organization_id) as T
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
-            <Value>=Parameters!CounterpartyID</Value>
+            <Value>=Parameters!CounterpartyId</Value>
           </QueryParameter>
           <QueryParameter Name="date_start">
             <Value>=Parameters!StartDate</Value>
           </QueryParameter>
           <QueryParameter Name="date_end">
             <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!OrganizationId</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1163,10 +1181,17 @@ First({total_string}, 'Initial')
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="CounterpartyID">
+    <ReportParameter Name="CounterpartyId">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+      <ReportParameter Name="OrganizationId">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>

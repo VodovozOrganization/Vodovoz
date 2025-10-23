@@ -23,6 +23,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			/// Тип авто
 			/// </summary>
 			public string CarTypeWithGeographicalGroup { get; set; }
+			
+			/// <summary>
+			/// Принадлежность авто
+			/// </summary>
+			public string CarOwnType { get; set; }
 
 			/// <summary>
 			/// Госномер

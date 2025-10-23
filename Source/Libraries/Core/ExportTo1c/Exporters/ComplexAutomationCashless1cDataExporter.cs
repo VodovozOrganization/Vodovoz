@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.Dialog;
 using System;
 using System.Collections.Generic;
@@ -70,9 +70,6 @@ namespace ExportTo1c.Library.Exporters
 
 				foreach(var item in items)
 				{
-					var isService = item.Nomenclature.Category == NomenclatureCategory.master
-						|| item.Nomenclature.Category == NomenclatureCategory.service;
-
 					var rowElement = new XElement
 					(
 						"Строка",
@@ -85,7 +82,8 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
-						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар")
+						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
+						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)
 					);
 
 					salesElement.Add(rowElement);

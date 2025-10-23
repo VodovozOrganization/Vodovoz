@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -11,6 +11,8 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -47,18 +49,24 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 		}
 		
-		protected virtual void TryRegisterOnlineOrder(OnlineOrderInfoDto message)
+		protected virtual async Task TryRegisterOnlineOrderAsync(OnlineOrderInfoDto message, CancellationToken cancellationToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}"))
 			{
+				// Необходимо сделать асинхронным
 				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
 					uow,
 					message,
 					_deliveryRulesSettings.FastDeliveryScheduleId,
-					_discountReasonSettings.GetSelfDeliveryDiscountReasonId);
+					_discountReasonSettings.GetSelfDeliveryDiscountReasonId
+				);
 
-				var clientOnlineOrdersDuplicates =
-					_onlineOrderRepository.GetOnlineOrdersDuplicates(uow, onlineOrder, DateTime.Today);
+				// Необходимо сделать асинхронным
+				var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
+					uow, 
+					onlineOrder, 
+					DateTime.Today
+				);
 
 				var externalOrderId = message.ExternalOrderId;
 				
@@ -66,48 +74,71 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				{
 					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					onlineOrder.OnlineOrderCancellationReason =
-						uow.GetById<OnlineOrderCancellationReason>(_onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId);
+					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
+					onlineOrder.OnlineOrderCancellationReason = await uow.Session
+						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
 					
 					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					uow.Save(notification);
+					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
 				}
 
-				uow.Save(onlineOrder);
-				uow.Commit();
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 
 				if(clientOnlineOrdersDuplicates.Any())
 				{
 					return;
 				}
 
-				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId}", externalOrderId);
+				Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+					" клиента {ClientId} с контактным номером {ContactPhone}",
+					externalOrderId,
+					message.ExternalCounterpartyId,
+					message.CounterpartyErpId,
+					message.ContactPhone);
+				
 				var orderId = 0;
 				
 				try
 				{
-					orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
+					orderId = await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
+						uow,
+						onlineOrder,
+						cancellationToken
+					);
 				}
 				catch(Exception e)
 				{
 					Logger.LogError(
 						e,
-						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId}",
-						externalOrderId);
+						"Возникла ошибка при подтверждении заказа на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+						" клиента {ClientId} с контактным номером {ContactPhone}",
+						externalOrderId,
+						message.ExternalCounterpartyId,
+						message.CounterpartyErpId,
+						message.ContactPhone);
 				}
 				finally
 				{
 					if(orderId == default)
 					{
 						Logger.LogInformation(
-							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} отправляем на ручное...",
-							externalOrderId);
+							"Не удалось оформить заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+							" клиента {ClientId} с контактным номером {ContactPhone} отправляем на ручное...",
+							externalOrderId,
+							message.ExternalCounterpartyId,
+							message.CounterpartyErpId,
+							message.ContactPhone);
 					}
 					else
 					{
 						Logger.LogInformation(
-							"Онлайн заказ {ExternalOrderId} оформлен в заказ {OrderId}",
+							"Онлайн заказ {ExternalOrderId} от пользователя {ExternalCounterpartyId} клиента {ClientId}" +
+							" с контактным номером {ContactPhone} оформлен в заказ {OrderId}",
 							externalOrderId,
+							message.ExternalCounterpartyId,
+							message.CounterpartyErpId,
+							message.ContactPhone,
 							orderId);
 					}
 				}

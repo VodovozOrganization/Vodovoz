@@ -10,26 +10,28 @@ using QS.Navigation;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly int _defaultOurOrganizationId;
 		private ITdiTab _tdiTab;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -38,8 +40,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private bool _sendGeneralBill;
 		private bool _reportIsLoaded;
 		private bool _counterpartySelected;
-		private bool _canRunReport;
 		private Counterparty _counterparty;
+		private Organization _organization;
 		private IList<Email> _emails;
 		private Email _selectedEmail;
 		private string _source;
@@ -47,7 +49,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly EmailDirectSender _emailDirectSender;
-		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -58,7 +62,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IInteractiveService interactiveService,
 			IEmailSettings emailSettings,
 			EmailDirectSender emailDirectSender,
-			IGenericRepository<Order> orderRepository
+			IOrderRepository orderRepository,
+			IOrganizationRepository organizationRepository,
+			IOrganizationSettings organizationSettings
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -69,6 +75,18 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailDirectSender = emailDirectSender ?? throw new ArgumentNullException(nameof(emailDirectSender));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+
+			OrganizationViewModel = new CommonEEVMBuilderFactory<RevisionReportViewModel>(
+				RdlViewerViewModel,
+				this,
+				UnitOfWork,
+				NavigationManager,
+				LifetimeScope)
+			.ForProperty(x => x.Organization)
+			.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+			.Finish();
 
 			SendByEmailCommand = new DelegateCommand(SendByEmail, () => ReportIsLoaded);
 			SendByEmailCommand.CanExecuteChangedWith(this, vm => vm.ReportIsLoaded);
@@ -80,6 +98,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			},
 			() => CanRunReport);
 			RunCommand.CanExecuteChangedWith(this, vm => vm.CanRunReport);
+
+			_defaultOurOrganizationId = _organizationSettings.GetCashlessOrganisationId;
+			Organization = _organizationRepository.GetOrganizationById(UnitOfWork, _defaultOurOrganizationId);
 
 			Title = "Акт сверки";
 			Identifier = "Client.Revision";
@@ -93,11 +114,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _startDate, value))
 				{
-					CanRunReport = CounterpartyIsSelected && value.HasValue && EndDate.HasValue;
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
+
 		public DateTime? EndDate
 		{
 			get => _endDate;
@@ -105,8 +127,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _endDate, value))
 				{
-					CanRunReport = CounterpartyIsSelected && StartDate.HasValue && value.HasValue;
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
@@ -163,14 +185,31 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					CounterpartyIsSelected = value != null;
 					Emails = value?.Emails ?? new List<Email>();
 					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
+
+		public Organization Organization
+		{
+			get => _organization;
+			set
+			{ 
+				if(SetField(ref _organization, value))
+				{
+					OrganizationIsSelected = value != null;
+					ReportIsLoaded = false;
+					OnPropertyChanged(nameof(CanRunReport));
+				}
+			}
+		}
+
 		public bool ReportIsLoaded
 		{
 			get => _reportIsLoaded;
 			set => SetField(ref _reportIsLoaded, value);
 		}
+
 		public bool CounterpartyIsSelected
 		{
 			get => _counterpartySelected;
@@ -178,26 +217,41 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				if(SetField(ref _counterpartySelected, value))
 				{
-					CanRunReport = value && StartDate.HasValue && EndDate.HasValue;
+					OnPropertyChanged(nameof(CanRunReport));
 				}
 			}
 		}
-		public bool CanRunReport
+
+		public bool OrganizationIsSelected
 		{
-			get => _canRunReport;
-			set => SetField(ref _canRunReport, value);
+			get => _counterpartySelected;
+			set
+			{
+				if(SetField(ref _counterpartySelected, value))
+				{
+					OnPropertyChanged(nameof(CanRunReport));
+				}
+			}
 		}
+
+		public bool CanRunReport =>
+			OrganizationIsSelected
+			&& CounterpartyIsSelected
+			&& StartDate.HasValue
+			&& EndDate.HasValue;
 
 		public IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
 		}
+
 		public Email SelectedEmail
 		{
 			get => _selectedEmail;
 			set => SetField(ref _selectedEmail, value);
 		}
+
 		public override ReportInfo ReportInfo
 		{
 			get
@@ -211,17 +265,20 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public IUnitOfWork UnitOfWork { get; private set; }
 		public ILifetimeScope LifetimeScope { get; private set; }
+		public IEntityEntryViewModel OrganizationViewModel { get; }
 		public INavigationManager NavigationManager { get; }
 		public RdlViewerViewModel RdlViewerViewModel { get; }
 		public DelegateCommand SendByEmailCommand { get; }
 		public DelegateCommand ShowInfoCommand { get; }
 		public DelegateCommand RunCommand { get; }
+
 		#endregion
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
 			{ "StartDate", StartDate },
 			{ "EndDate", EndDate },
-			{ "CounterpartyID", Counterparty?.Id }
+			{ "CounterpartyId", Counterparty?.Id },
+			{ "OrganizationId", Organization?.Id }
 		};
 
 		public void Dispose()
@@ -231,6 +288,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			UnitOfWork?.Dispose();
 			UnitOfWork = null;
 		}
+
 		private void SendByEmail()
 		{
 			if(!IsEmailDataValid())
@@ -308,30 +366,23 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendBillsForNotPaidOrder)
 			{
-				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
-					o => o.Client.Id == Counterparty.Id 
-					&& o.DeliveryDate >= StartDate 
-					&& o.DeliveryDate <= EndDate 
-					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OurOrganization.Id == 1
-					|| o.OurOrganization == null))
-					.Select(o => o.Id)
-					.ToArray();
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization.Id);
 
-				var pdfArray = new byte[unpaidOrdersId.Length][];
-
-				if(pdfArray.Length == 0)
+				if(unpaidOrdersId.Count == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет неоплаченных заказов для формирования счетов.");
 					return attachments;
 				}
 
-				for(int i = 0; i < unpaidOrdersId.Length; i++)
+				var pdfArray = new byte[unpaidOrdersId.Count][];
+
+				for(int i = 0; i < unpaidOrdersId.Count; i++)
 				{
 					var billParameters = new Dictionary<string, object>
 					{
 						{ "order_id", unpaidOrdersId[i] },
-						{ "hide_signature", false }
+						{ "hide_signature", false },
+						{ "organization_id", Organization?.Id }
 					};
 					string billReportSource = GetReportFromDocumentsSource("Bill.rdl");
 					byte[] billPdf = GenerateReport(billReportSource, billParameters);
@@ -349,17 +400,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(IsSendGeneralBill)
 			{
-				var unpaidOrdersId = _orderRepository.Get(UnitOfWork,
-					o => o.Client.Id == Counterparty.Id
-					&& o.DeliveryDate >= StartDate
-					&& o.DeliveryDate <= EndDate
-					&& o.OrderPaymentStatus == OrderPaymentStatus.UnPaid
-					&& (o.OurOrganization.Id == 1
-					|| o.OurOrganization == null))
-					.Select(o => o.Id)
-					.ToArray();
+				var unpaidOrdersId = _orderRepository.GetUnpaidOrdersIds(UnitOfWork, Counterparty.Id, StartDate, EndDate, Organization.Id);
 
-				if (unpaidOrdersId.Length == 0)
+				if (unpaidOrdersId.Count == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет заказов для формирования общего счета.");
 					return attachments;
@@ -368,7 +411,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				var generalBillParameters = new Dictionary<string, object>
 				{
 					{ "order_id", unpaidOrdersId },
-					{ "hide_signature", false }
+					{ "hide_signature", false },
+					{ "organization_id", Organization ?.Id }
 				};
 				var generalReportSource = GetReportFromDocumentsSource("GeneralBill.rdl");
 				var generalBillPdf = GenerateReport(generalReportSource, generalBillParameters);
@@ -412,6 +456,19 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			if(StartDate == null || StartDate == default(DateTime))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
+				return;
+			}
+
+			if(Counterparty == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент");
+				return;
+			}
+
+			if(Organization == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не выбрана организация");
+				return;
 			}
 
 			_source = GetReportSource();

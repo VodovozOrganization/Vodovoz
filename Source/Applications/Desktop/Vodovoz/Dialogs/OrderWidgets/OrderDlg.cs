@@ -182,7 +182,6 @@ namespace Vodovoz
 
 		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
 
-		private IOrderService _orderService;
 		private IEdoService _edoService;
 		private IEmailService _emailService;
 		private string _lastDeliveryPointComment;
@@ -229,6 +228,12 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+
+		private IOrderService _orderService => ScopeProvider.Scope
+			.Resolve<IOrderService>();
+		private IPaymentService _paymentService => ScopeProvider.Scope
+			.Resolve<IPaymentService>();
+
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
 
@@ -579,7 +584,7 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true)
+				.CopyOrderItems(false, true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
@@ -612,6 +617,16 @@ namespace Vodovoz
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			SetLogisticsRequirementsCheckboxes();
+
+			var isCopiedOrderHasDiscountsWithoutPromosets =
+				copying.OrderItemsFromCopiedOrderHavingDiscountsWithoutPromosets
+				.Any(x => x.Nomenclature.Id != _paidDeliveryNomenclatureId);
+
+			if(isCopiedOrderHasDiscountsWithoutPromosets)
+			{
+				MessageDialogHelper.RunWarningDialog(
+					"Внимание!\nСкидки из исходного заказа не были скопированы.\nПри необходимости установите скидки заново");
+			}
 		}
 
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -646,7 +661,7 @@ namespace Vodovoz
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
-			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
 			_fastDeliveryHandler = _lifetimeScope.Resolve<IFastDeliveryHandler>();
 			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
@@ -678,8 +693,12 @@ namespace Vodovoz
 
 			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
-			_paymentFromBankClientController =
-				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
+			_paymentFromBankClientController = new PaymentFromBankClientController(
+				_paymentItemsRepository, 
+				_orderRepository, 
+				_paymentsRepository,
+				_paymentService
+			);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
@@ -1744,7 +1763,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
+			var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDeliveryForOrder(
 				UoW,
 				(double)DeliveryPoint.Latitude.Value,
 				(double)DeliveryPoint.Longitude.Value,
@@ -2493,7 +2512,7 @@ namespace Vodovoz
 
 				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Обновление статуса оплаты из карточки заказа"))
 				{
-					Entity.UpdatePaymentStatus(uow);
+					_orderService.UpdatePaymentStatus(uow, Entity);
 				}
 
 				if(_orderItemEquipmentCountHasChanges)

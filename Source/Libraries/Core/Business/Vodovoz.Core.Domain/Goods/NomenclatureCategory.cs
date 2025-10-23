@@ -8,7 +8,8 @@ namespace Vodovoz.Core.Domain.Goods
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Типы номенклатур",
-		Nominative = "Тип номенклатур")]
+		Nominative = "Тип номенклатуры",
+		GenitivePlural = "Типов номенклатур")]
 	public enum NomenclatureCategory
 	{
 		/// <summary>

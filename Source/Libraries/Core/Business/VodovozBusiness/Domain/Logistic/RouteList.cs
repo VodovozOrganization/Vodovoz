@@ -97,8 +97,10 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<ICarLoadDocumentRepository>();
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
 			.Resolve<IOrderRepository>();
-		private IGlobalSettings _globalSettings => ScopeProvider.Scope
-			.Resolve<IGlobalSettings>();
+		private IOsrmSettings _osrmSettings => ScopeProvider.Scope
+			.Resolve<IOsrmSettings>();
+		private IOsrmClient _osrmClient => ScopeProvider.Scope
+			.Resolve<IOsrmClient>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
@@ -1661,9 +1663,26 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool CanAddForwarder => GetGeneralSettingsSettings.GetCanAddForwardersToLargus
-			|| Car?.CarModel.CarTypeOfUse != CarTypeOfUse.Largus
-			|| GetCarVersion?.CarOwnType != CarOwnType.Company;
+		public virtual bool CanAddForwarder
+		{
+			get
+			{
+				if(GetCarVersion?.CarOwnType != CarOwnType.Company)
+				{
+					return true;
+				}
+
+				switch(Car.CarModel.CarTypeOfUse)
+				{
+					case CarTypeOfUse.Largus:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToLargus;
+					case CarTypeOfUse.Minivan:
+						return GetGeneralSettingsSettings.GetCanAddForwardersToMinivan;
+					default:
+						return true;
+				}
+			}
+		}
 
 		public static void SetGeneralSettingsSettingsGap(
 			IGeneralSettings generalSettingsSettingsGap)
@@ -1815,17 +1834,19 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var routeList = validationContext.ObjectInstance as RouteList;
 			bool cashOrderClose = false;
 			bool canSaveRouteListWithoutOrders = false;
-			
+			var routeList = validationContext.ObjectInstance as RouteList;
+
 			if(validationContext.Items.ContainsKey("cash_order_close"))
 			{
 				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
 			}
+
 			if(validationContext.Items.ContainsKey(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders))
 			{
-				canSaveRouteListWithoutOrders = (bool)validationContext.Items[Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders];
+				canSaveRouteListWithoutOrders =
+					(bool)validationContext.Items[Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders];
 			}
 
 			if(validationContext.Items.ContainsKey("NewStatus"))
@@ -1836,10 +1857,7 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.New:
 					case RouteListStatus.Confirmed:
 					case RouteListStatus.InLoading:
-					case RouteListStatus.Closed:
-					case RouteListStatus.EnRoute:
-					case RouteListStatus.OnClosing: 
-						break;
+					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
 						var orderSettings = validationContext.GetService<IOrderSettings>();
 						var deliveryRulesSettings = validationContext.GetService<IDeliveryRulesSettings>();
@@ -1887,20 +1905,12 @@ namespace Vodovoz.Domain.Logistic
 							{
 								yield return result;
 							}
-
-
 						}
+
 						break;
+					case RouteListStatus.EnRoute: break;
+					case RouteListStatus.OnClosing: break;
 				}
-			}
-			
-			if(routeList != null
-			   && routeList.Status == RouteListStatus.New
-			   && ObservableAddresses.Count == 0 
-			   && !canSaveRouteListWithoutOrders)
-			{
-				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
-					new[] { nameof(ObservableAddresses) });
 			}
 
 			validationContext.Items.TryGetValue(nameof(IRouteListItemRepository), out var rliRepositoryObject);
@@ -1938,9 +1948,9 @@ namespace Vodovoz.Domain.Logistic
 			if(!GeographicGroups.Any())
 			{
 				yield return new ValidationResult(
-						"Необходимо указать район",
-						new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
-					);
+					"Необходимо указать район",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.GeographicGroups) }
+				);
 			}
 
 			if(Driver == null)
@@ -1973,7 +1983,7 @@ namespace Vodovoz.Domain.Logistic
 					yield return new ValidationResult("Нет данных о версии автомобиля на выбранную дату доставки.",
 						new[] { nameof(Car.CarVersions) });
 				}
-				
+
 				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
 				{
 					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
@@ -1995,7 +2005,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
 			{
-				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.",
 					new[] { nameof(GeographicGroups) });
 			}
 
@@ -2014,8 +2024,26 @@ namespace Vodovoz.Domain.Logistic
 
 			if(ConfirmedDistance > ConfirmedDistanceLimit)
 			{
-				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}", 
+				yield return new ValidationResult($"Подтверждённое расстояние не может быть больше {ConfirmedDistanceLimit}",
 					new[] { nameof(ConfirmedDistance) });
+			}
+
+			var banStatuses = new[]
+			{
+				RouteListStatus.EnRoute,
+				RouteListStatus.Delivered,
+				RouteListStatus.Closed,
+				RouteListStatus.OnClosing,
+				RouteListStatus.MileageCheck
+			};
+			
+			if(routeList != null
+			   && banStatuses.Contains(routeList.Status)
+			   && ObservableAddresses.Count == 0
+			   && !canSaveRouteListWithoutOrders)
+			{
+				yield return new ValidationResult($"В маршрутном листе нет заказов. Добавьте заказы для подтверждения",
+					new[] { nameof(ObservableAddresses) });
 			}
 		}
 
@@ -2056,7 +2084,7 @@ namespace Vodovoz.Domain.Logistic
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
-				track.CalculateDistanceToBase();
+				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 				UoW.Save(track);
 			}
 
@@ -2075,7 +2103,7 @@ namespace Vodovoz.Domain.Logistic
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
-				track.CalculateDistanceToBase();
+				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 				UoW.Save(track);
 			}
 
@@ -2813,7 +2841,29 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual long TimeOnLoadMinuts =>
-			GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
+			GetTimeOnLoadMinuts();
+
+		private int GetTimeOnLoadMinuts()
+		{
+			var defaultTimeOnLoad = 30;
+			var companyLargusTimeOnLoad = 15;
+			var companyMinivanTimeOnLoad = 20;
+
+			if(GetCarVersion.CarOwnType == CarOwnType.Company)
+			{
+				if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus)
+				{
+					return companyLargusTimeOnLoad;
+				}
+
+				if(Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan)
+				{
+					return companyMinivanTimeOnLoad;
+				}
+			}
+
+			return defaultTimeOnLoad;
+		}
 
 		public virtual long[] GenerateHashPointsOfRoute()
 		{
@@ -2872,6 +2922,7 @@ namespace Vodovoz.Domain.Logistic
 			return Car != null
 				&& (carVersion.CarOwnType == CarOwnType.Raskat
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Largus
+					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Minivan
 					|| carVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.GAZelle)
 				&& Car.CarModel.MaxWeight < GetTotalWeight();
 		}
@@ -3020,11 +3071,11 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+				var recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 
 				if(recalculatedTrackResponse.Routes is null)
 				{
-					recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+					recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
 				}
 				
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
@@ -3052,7 +3103,7 @@ namespace Vodovoz.Domain.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
 			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
@@ -3408,5 +3459,14 @@ namespace Vodovoz.Domain.Logistic
 		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 
 		public static RouteListStatus[] DeliveredRouteListStatuses { get; } = { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Closed };
+		
+		public static RouteListStatus[] EnRouteAndDeliveredStatuses { get; } =
+		{
+			RouteListStatus.EnRoute,
+			RouteListStatus.Delivered,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 	}
 }

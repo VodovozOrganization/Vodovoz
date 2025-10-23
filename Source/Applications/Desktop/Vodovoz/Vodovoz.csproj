@@ -430,6 +430,7 @@
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
@@ -437,11 +438,13 @@
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\BanksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProblemJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProcessJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FineCategoryJournalRegistars.cs" />
     <Compile Include="JournalColumnsConfigs\GroupGtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
@@ -687,6 +690,7 @@
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
     <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Common\AddOrRemoveIDomainObjectView.cs" />
+    <Compile Include="Views\Employees\FineCategoryView.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -2074,6 +2078,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SelfDeliveringOrderEditView.cs" />
     <Compile Include="Views\Logistic\ExportTo1CView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
+    <Compile Include="Filters\GtkViews\BanksJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BanksJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2427,6 +2433,10 @@
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>Mango.Grpc.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj">
+      <Project>{a5f80464-7222-44c8-adf7-23e9daae4e34}</Project>
+      <Name>Osrm</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj">
       <Project>{B216B4C1-5285-4784-AC06-C57EE23178F3}</Project>
       <Name>Pacs.Admin.Client</Name>
@@ -2522,6 +2532,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
+      <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
+      <Name>ResourceLocker.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
       <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>

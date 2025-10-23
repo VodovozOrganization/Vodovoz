@@ -1,7 +1,7 @@
 ﻿using EdoService.Library.Dto;
+using QS.DomainModel.UoW;
 using System;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Core.Domain.Clients;
 
@@ -9,14 +9,15 @@ namespace EdoService.Library.Services
 {
 	public interface IContactListService
 	{
-		void SetOrganizationId(int organizationId);
-		Task<ContactList> CheckContragentAsync(IUnitOfWork uow, string inn, string kpp);
-		Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, DateTime dateLastRequest, ContactStateCode? status = null);
-		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, string inn, string kpp, string email, string edxClientId);
-		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, ContactList invitationsList);
+		Task<ContactList> CheckContragentAsync(IUnitOfWork uow, int organizationId, string inn, string kpp);
+		Task<ContactList> GetContactListUpdatesAsync(IUnitOfWork uow, int organizationId, DateTime dateLastRequest, ContactStateCode? status = null);
+		Task<ResultDto> SendContactsAsync(
+			IUnitOfWork uow, int organizationId, string inn, string kpp, string email, string edxClientId, string organizationName);
+		Task<ResultDto> SendContactsAsync(IUnitOfWork uow, int organizationId, ContactList invitationsList);
 		ConsentForEdoStatus ConvertStateToConsentForEdoStatus(ContactStateCode stateCode);
 		Task<ResultDto> SendContactsForManualInvitationAsync(
 			IUnitOfWork uow,
+			int organizationId,
 			string inn,
 			string kpp,
 			string organizationName,
@@ -27,6 +28,7 @@ namespace EdoService.Library.Services
 
 		Task<ContactListItem> GetLastChangeOnDate(
 			IUnitOfWork uow,
+			int organizationId,
 			DateTime dateLastRequest,
 			string inn,
 			string kpp,

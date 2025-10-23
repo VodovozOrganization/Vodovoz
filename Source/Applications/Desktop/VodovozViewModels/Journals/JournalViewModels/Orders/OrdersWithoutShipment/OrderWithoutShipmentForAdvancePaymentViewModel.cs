@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
@@ -40,6 +41,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Organizations;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -66,6 +68,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
+		private bool _canSetOrganization = true;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -86,7 +89,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEmailRepository emailRepository,
 			IEdoService edoService,
 			IOrganizationSettings organizationSettings,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -110,6 +114,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
+			OrganizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+			
 			SetPermissions();
 			
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -154,7 +166,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
+		public bool CanSetOrganization
+		{
+			get => _canSetOrganization;
+			set => SetField(ref _canSetOrganization, value);
+		}
+
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		
+		public IEntityEntryViewModel OrganizationViewModel { get; }
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -165,7 +185,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			get => _selectedItem;
 			set => SetField(ref _selectedItem, value);
 		}
-
+		
 		public IList<DiscountReason> DiscountReasons { get; private set; }
 		public IOrderDiscountsController DiscountsController { get; }
 		public bool CanChangeDiscountValue { get; private set; }
@@ -274,12 +294,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		protected override bool BeforeSave()
 		{
-			var organizationId = IsOnlineStoreOrderWithoutShipment(Entity)
-				? _organizationSettings.VodovozNorthOrganizationId
-				: _organizationSettings.VodovozOrganizationId;
+			if(Entity.Organization != null)
+			{
+				return true;
+			}
 
-			Entity.Organization = UoW.GetById<Organization>(organizationId);
-			return true;
+			ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+				
+			return false;
 		}
 
 		private void InitializeCommands()
@@ -346,8 +368,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OpenBillCommand = new DelegateCommand(
 				() =>
 				{
-					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+					var whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
+					if(Entity.Organization == null)
+					{
+						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+						return;
+					}
+					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 					{
 						if(Save(false))

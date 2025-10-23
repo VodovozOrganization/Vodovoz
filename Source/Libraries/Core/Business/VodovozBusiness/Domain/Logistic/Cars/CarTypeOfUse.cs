@@ -9,26 +9,34 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 	[Appellative(
 		Nominative = "Тип модели авто",
-		NominativePlural = "Типы моделей авто")]
+		NominativePlural = "Типы моделей авто",
+		Genitive = "Типа модели авто",
+		GenitivePlural = "Типов моделей авто")]
 	public enum CarTypeOfUse
 	{
 		/// <summary>
-		/// Фургон (Ларгус)
+		/// Легковая (Ларгус)
 		/// </summary>
-		[Display(Name = "Фургон (Ларгус)")]
+		[Display(Name = "Легковая (Ларгус)")]
 		Largus,
 
 		/// <summary>
-		/// Фура
+		/// Фургон (Transit Mini)
 		/// </summary>
-		[Display(Name = "Фура")]
-		Truck,
+		[Display(Name = "Фургон (Transit Mini)")]
+		Minivan,
 
 		/// <summary>
 		/// Грузовой
 		/// </summary>
 		[Display(Name = "Грузовой")]
 		GAZelle,
+
+		/// <summary>
+		/// Фура
+		/// </summary>
+		[Display(Name = "Фура")]
+		Truck,
 
 		/// <summary>
 		/// Погрузчик

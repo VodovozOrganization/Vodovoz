@@ -41,7 +41,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			{
 				IdSv = new UchastnikTipIdSv
 				{
-					Item = GetLegalCounterpartyInfo(org.Inn, org.Kpp, org.Name)
+					Item = GetSellerInfo(org)
 				},
 				Adres = new AdresTip
 				{
@@ -79,6 +79,24 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 				return new SvIPTip
 				{
 					FIO = FillFIOTip(consignee.CargoReceiver ?? clientName),
+					INNFL = clientInn
+				};
+			}
+
+			return GetLegalCounterpartyInfo(clientInn, clientKpp, clientName);
+		}
+		
+		private object GetSellerInfo(OrganizationInfo org)
+		{
+			var clientInn = org.Inn;
+			var clientName = org.Name;
+			var clientKpp = org.Kpp;
+			
+			if(clientInn.Length == 12)
+			{
+				return new SvIPTip
+				{
+					FIO = FillFIOTip(clientName),
 					INNFL = clientInn
 				};
 			}

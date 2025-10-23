@@ -128,8 +128,9 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.CarTypeWithGeographicalGroup)
 				.WrapWidth(200)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f)
-				.RowCells().AddSetter<CellRenderer>(
+				.XAlign(0.05f)
+				.RowCells()
+					.AddSetter<CellRenderer>(
 				(cell, node) =>
 				{
 					var color = _defaultColor;
@@ -149,6 +150,35 @@ namespace Vodovoz.Logistic.Reports
 
 					cell.CellBackgroundGdk = color;
 				});
+			
+			columnsConfig
+				.AddColumn("П")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.CarOwnType)
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells()
+					.AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						var color = _defaultColor;
+
+						if(node.IsMainRow || node.IsCatTransferRow || node.IsCarReceptionRow)
+						{
+							color = _carModelTypeColor;
+						}
+						else if(node.IsSubtableNameRow)
+						{
+							color = _subtableNameColor;
+						}
+						else if(node.IsSubtableHeadereRow)
+						{
+							color = _subtableHeadersColor;
+						}
+
+						cell.CellBackgroundGdk = color;
+					});
 
 			columnsConfig
 				.AddColumn("Госномер")
@@ -184,7 +214,7 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.TimeAndBreakdownReason)
 				.WrapWidth(200)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f)
+				.XAlign(0.05f)
 				.RowCells().AddSetter<CellRenderer>(
 				(cell, node) =>
 				{
@@ -203,6 +233,14 @@ namespace Vodovoz.Logistic.Reports
 				});
 
 			columnsConfig
+				.AddColumn("Зона ответственности")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.IsMainRow ? x.AreasOfResponsibilityShortNames : "")
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f);
+
+			columnsConfig
 				.AddColumn("Планируемая дата\nвыпуска автомобиля\nна линию")
 				.HeaderAlignment(.5f)
 				.AddTextRenderer(x => x.PlannedReturnToLineDateString)
@@ -216,7 +254,7 @@ namespace Vodovoz.Logistic.Reports
 				.AddTextRenderer(x => x.PlannedReturnToLineDateAndReschedulingReason)
 				.WrapWidth(300)
 				.WrapMode(WrapMode.Word)
-				.XAlign(0.5f);
+				.XAlign(0.01f);
 
 			ytreeReportRows.ColumnsConfig = columnsConfig.Finish();
 
