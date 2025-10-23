@@ -255,9 +255,10 @@ namespace Vodovoz.ViewModels.Orders
 				var routeLists = _orderRepository.GetAllRLForOrder(UoW, order);
 				foreach(var routeList in routeLists)
 				{
-					if(routeList != null)
+					var address = routeList.Addresses.FirstOrDefault(x => x.Order?.Id == order.Id);
+					if(address != null)
 					{
-						UoW.Session.Refresh(routeList);
+						UoW.Session.Refresh(address);
 					}
 				}
 			}

@@ -724,6 +724,8 @@ namespace Vodovoz
 					UoW.Save(keyPairValue.Value.Request);
 				}
 
+				UoW.Commit();
+
 				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
@@ -732,8 +734,6 @@ namespace Vodovoz
 				{
 					return true;
 				}
-
-				UoW.Commit();
 
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
