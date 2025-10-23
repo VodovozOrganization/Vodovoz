@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -287,14 +288,14 @@ namespace Vodovoz.Tools.Orders
 		(	
 			ConditionForUPD(key)
 			&& !key.HaveSpecialFields
-			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
+			&& !key.Order.OrderItems.All(x => x.Nomenclature.Category == NomenclatureCategory.deposit)
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
 		(
 			ConditionForUPD(key)
 			&& key.HaveSpecialFields
-			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
+			&& !key.Order.OrderItems.All(x => x.Nomenclature.Category == NomenclatureCategory.deposit)
 		);
 
 		static bool GetConditionForBill(OrderStateKey key) =>
