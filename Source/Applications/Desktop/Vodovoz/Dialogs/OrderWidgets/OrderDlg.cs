@@ -9,7 +9,6 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
-using NHibernate;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -54,7 +53,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
@@ -72,7 +70,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -141,7 +138,6 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
-using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Models.Orders;
@@ -180,7 +176,6 @@ namespace Vodovoz
 
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
-		private readonly INomenclatureService _nomenclatureService = ScopeProvider.Scope.Resolve<INomenclatureService>();
 
 		private IFastDeliveryValidator _fastDeliveryValidator;
 
@@ -306,7 +301,17 @@ namespace Vodovoz
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
-		public bool IsStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+		public bool IsStatusForEditGoodsInRouteList => 
+			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+
+		private bool HasDepositItems() =>
+			Entity.OrderItems.Any(x => 
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		private bool HasNonPaidDeliveryItems() =>
+			Entity.OrderItems.Any(x => 
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -3572,6 +3577,25 @@ namespace Vodovoz
 				return;
 			}
 
+			if(PaymentType == PaymentType.Cashless)
+			{
+				if(nomenclature.Category == NomenclatureCategory.deposit
+					&& !HasDepositItems()
+					&& HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
+					return;
+				}
+
+				if(nomenclature.Category != NomenclatureCategory.deposit 
+					&& HasDepositItems()
+					&& HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
+					return;
+				}
+			}
+
 			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master)
 			{
@@ -4598,6 +4622,7 @@ namespace Vodovoz
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 
 			UpdateClientSecondOrderDiscount();
+			UpdateUIState();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -4629,6 +4654,7 @@ namespace Vodovoz
 			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
 
 			UpdateClientSecondOrderDiscount();
+			UpdateUIState();
 		}
 
 		private void ObservableOrderDocuments_ListChanged(object aList)
@@ -4836,10 +4862,8 @@ namespace Vodovoz
 			ChangeGoodsSensitive(val
 				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
-			enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
-
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
+
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = _canSetContractCloser && val && !Entity.SelfDelivery;
@@ -4856,6 +4880,19 @@ namespace Vodovoz
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
+
+			if(PaymentType == PaymentType.Cashless 
+				&& HasNonPaidDeliveryItems())
+			{
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && HasDepositItems();
+
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !HasDepositItems();
+			}
+			else
+			{
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
+			}
 		}
 
 		private void ChangeOrderEditable(bool val)
@@ -5571,17 +5608,17 @@ namespace Vodovoz
 			{
 				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
 			}
-			var interactiveService = ServicesConfig.InteractiveService;
+
 			if(equipmentNomenclature == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0)
 			{
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				if(!_interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
 				{
 					return;
 				}
@@ -5661,17 +5698,16 @@ namespace Vodovoz
 
 		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
 		{
-			var interactiveService = ServicesConfig.InteractiveService;
 			if(equipmentNomenclature == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0)
 			{
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				if(!_interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
 				{
 					return;
 				}
