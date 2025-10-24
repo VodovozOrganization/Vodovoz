@@ -42,7 +42,6 @@ using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -56,7 +55,6 @@ using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
-using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
@@ -728,11 +726,11 @@ namespace Vodovoz
 
 				UoW.Commit();
 
-				var changedList = Items
+				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
 
-				if(changedList.Count == 0)
+				if(changedItems.Count == 0)
 				{
 					return true;
 				}
@@ -746,6 +744,15 @@ namespace Vodovoz
 				}
 
 				Entity.CalculateWages(_wageParameterService);
+			}
+			catch(NHibernate.Exceptions.GenericADOException ex) when(
+				ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true ||
+				ex.InnerException?.Message.Contains("Deadlock found when trying to get lock") == true)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Не удалось сохранить изменения, так как маршрутный лист редактируется другим пользователем. " +
+					"Пожалуйста, повторите попытку позже.");
+				return false;
 			}
 			finally
 			{
@@ -800,7 +807,7 @@ namespace Vodovoz
 
 			if(!hasChanges || _interactiveService.Question("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
-				UoWGeneric.Session.Refresh(Entity);
+				UoW.Session.Refresh(Entity);
 				UpdateNodes();
 			}
 		}
