@@ -12,6 +12,14 @@ namespace Vodovoz.Filters.Views
 
 		private global::Gamma.GtkWidgets.yLabel lblAccountMovementDate;
 
+		private global::Gamma.GtkWidgets.yLabel lblOrganizationAccount;
+
+		private global::Gamma.GtkWidgets.yLabel lblOrganizationBank;
+
+		private global::QS.Views.Control.EntityEntry organizationAccountEntry;
+
+		private global::QS.Views.Control.EntityEntry organizationBankEntry;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -22,7 +30,7 @@ namespace Vodovoz.Filters.Views
 			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
 			this.tableMain.NRows = ((uint)(3));
-			this.tableMain.NColumns = ((uint)(3));
+			this.tableMain.NColumns = ((uint)(4));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
 			// Container child tableMain.Gtk.Table+TableChild
@@ -59,6 +67,54 @@ namespace Vodovoz.Filters.Views
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblAccountMovementDate]));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOrganizationAccount = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrganizationAccount.Name = "lblOrganizationAccount";
+			this.lblOrganizationAccount.Xalign = 1F;
+			this.lblOrganizationAccount.LabelProp = global::Mono.Unix.Catalog.GetString("Р/сч организации:");
+			this.tableMain.Add(this.lblOrganizationAccount);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationAccount]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.LeftAttach = ((uint)(2));
+			w4.RightAttach = ((uint)(3));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblOrganizationBank = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrganizationBank.Name = "lblOrganizationBank";
+			this.lblOrganizationBank.Xalign = 1F;
+			this.lblOrganizationBank.LabelProp = global::Mono.Unix.Catalog.GetString("Банк организации:");
+			this.tableMain.Add(this.lblOrganizationBank);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationBank]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.organizationAccountEntry = new global::QS.Views.Control.EntityEntry();
+			this.organizationAccountEntry.Events = ((global::Gdk.EventMask)(256));
+			this.organizationAccountEntry.Name = "organizationAccountEntry";
+			this.tableMain.Add(this.organizationAccountEntry);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.organizationAccountEntry]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(3));
+			w6.RightAttach = ((uint)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(0));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.organizationBankEntry = new global::QS.Views.Control.EntityEntry();
+			this.organizationBankEntry.Events = ((global::Gdk.EventMask)(256));
+			this.organizationBankEntry.Name = "organizationBankEntry";
+			this.tableMain.Add(this.organizationBankEntry);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.organizationBankEntry]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(0));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.tableMain);
 			if ((this.Child != null))
 			{
