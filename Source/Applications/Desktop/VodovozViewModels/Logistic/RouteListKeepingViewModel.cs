@@ -713,7 +713,7 @@ namespace Vodovoz
 					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
 				}
 
-			 UoWGeneric.Save();
+				UoWGeneric.Save();
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
@@ -735,7 +735,7 @@ namespace Vodovoz
 					return true;
 				}
 
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 
 				if(currentEmployee == null)
 				{
