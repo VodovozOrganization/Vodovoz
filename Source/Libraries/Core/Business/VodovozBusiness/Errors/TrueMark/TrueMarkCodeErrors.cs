@@ -173,5 +173,11 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCodeErrors),
 				nameof(CodeExpired),
 				"Истек срок годности товара");
+		
+		public static Error UnknownPackageType =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(CodeExpired),
+				"Не известный тип упаковки");
 	}
 }
