@@ -7,6 +7,7 @@ namespace Vodovoz.Filters.ViewModels
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private bool _onlyWithDiscrepancies;
 
 		public DateTime? StartDate
 		{
@@ -18,6 +19,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _endDate;
 			set => UpdateFilterField(ref _endDate, value);
+		}
+
+		public bool OnlyWithDiscrepancies
+		{
+			get => _onlyWithDiscrepancies;
+			set => UpdateFilterField(ref _onlyWithDiscrepancies, value);
 		}
 	}
 }
