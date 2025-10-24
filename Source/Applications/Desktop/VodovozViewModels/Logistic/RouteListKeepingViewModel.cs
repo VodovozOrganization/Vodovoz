@@ -745,7 +745,9 @@ namespace Vodovoz
 
 				Entity.CalculateWages(_wageParameterService);
 			}
-			catch(NHibernate.Exceptions.GenericADOException ex) when(ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true)
+			catch(NHibernate.Exceptions.GenericADOException ex) when(
+				ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true ||
+				ex.InnerException?.Message.Contains("Deadlock found when trying to get lock") == true)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning,
 					"Не удалось сохранить изменения, так как маршрутный лист редактируется другим пользователем. " +
