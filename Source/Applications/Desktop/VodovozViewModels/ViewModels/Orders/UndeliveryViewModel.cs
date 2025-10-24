@@ -249,20 +249,6 @@ namespace Vodovoz.ViewModels.Orders
 				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}
 
-			var order = Entity.OldOrder;
-			if(order != null)
-			{
-				var routeLists = _orderRepository.GetAllRLForOrder(UoW, order);
-				foreach(var routeList in routeLists)
-				{
-					var address = routeList.Addresses.FirstOrDefault(x => x.Order?.Id == order.Id);
-					if(address != null)
-					{
-						UoW.Session.Refresh(address);
-					}
-				}
-			}
-
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();
 
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ

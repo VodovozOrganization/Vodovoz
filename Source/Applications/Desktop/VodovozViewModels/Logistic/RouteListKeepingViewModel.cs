@@ -713,7 +713,7 @@ namespace Vodovoz
 					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
 				}
 
-				UoWGeneric.Save();
+			 UoWGeneric.Save();
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 
@@ -744,6 +744,13 @@ namespace Vodovoz
 				}
 
 				Entity.CalculateWages(_wageParameterService);
+			}
+			catch(NHibernate.Exceptions.GenericADOException ex) when(ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Не удалось сохранить изменения, так как маршрутный лист редактируется другим пользователем. " +
+					"Пожалуйста, повторите попытку позже.");
+				return false;
 			}
 			finally
 			{
