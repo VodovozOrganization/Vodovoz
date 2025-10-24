@@ -437,6 +437,7 @@
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\BankAccountsMovementsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BanksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />

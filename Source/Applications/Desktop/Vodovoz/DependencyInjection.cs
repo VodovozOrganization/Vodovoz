@@ -228,7 +228,7 @@ namespace Vodovoz
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
-				.AddVodovozDesktopResourceLocker()
+				.AddVodovozDesktopResourceLockerMock()
 				;
 
 			services.AddStaticHistoryTracker();

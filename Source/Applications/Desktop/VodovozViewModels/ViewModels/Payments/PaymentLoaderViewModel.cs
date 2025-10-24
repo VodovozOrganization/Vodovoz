@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using QS.Banks.Domain;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -11,8 +12,10 @@ using QS.Services;
 using QS.ViewModels;
 using ResourceLocker.Library;
 using ResourceLocker.Library.Factories;
+using Vodovoz.Application.Payments;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories;
@@ -34,6 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IGenericRepository<ProfitCategory> _profitCategoryRepository;
+		private readonly IGenericRepository<Account> _accountRepository;
+		private readonly IGenericRepository<BankAccountMovement> _accountMovementRepository;
 		private readonly IResourceLocker _resourceLocker;
 		private IReadOnlyDictionary<string, Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
@@ -41,8 +46,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private double _progress;
 		private int _saveAttempts;
-		private bool _isNotAutoMatchingMode = true;
+		private bool _isNotProcessingMode = true;
 		private bool _isSavingState;
+		private int _processedPayments;
+		private int _paymentDuplicates;
+		private int _paymentsWithNotOurOrganizationReceiver;
 
 		public PaymentLoaderViewModel(
 			ILogger<PaymentLoaderViewModel> logger,
@@ -56,6 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrderRepository orderRepository,
 			IGenericRepository<Organization> organizationRepository,
 			IGenericRepository<ProfitCategory> profitCategoryRepository,
+			IGenericRepository<Account> accountRepository,
+			IGenericRepository<BankAccountMovement> accountMovementRepository,
 			IResourceLockerFactory resourceLockerFactory,
 			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
@@ -73,6 +83,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_profitCategoryRepository = profitCategoryRepository ?? throw new ArgumentNullException(nameof(profitCategoryRepository));
+			_accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+			_accountMovementRepository = accountMovementRepository ?? throw new ArgumentNullException(nameof(accountMovementRepository));
 
 			InteractiveService = commonServices.InteractiveService;
 			UnitOfWorkFactory = unitOfWorkFactory;
@@ -103,20 +115,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
+		public IList<BankAccountMovement> BankAccountMovements = new List<BankAccountMovement>();
 		public event Action<string, double> UpdateProgress;
 		public IInteractiveService InteractiveService { get; }
 		
-		public bool IsNotAutoMatchingMode
+		public bool IsNotProcessingMode
 		{
-			get => _isNotAutoMatchingMode;
+			get => _isNotProcessingMode;
 			set
 			{
-				if(_isNotAutoMatchingMode == value)
+				if(_isNotProcessingMode == value)
 				{
 					return;
 				}
 
-				_isNotAutoMatchingMode = value;
+				_isNotProcessingMode = value;
 				OnPropertyChanged(nameof(CanSave));
 				OnPropertyChanged(nameof(CanCancel));
 				OnPropertyChanged(nameof(CanReadFile));
@@ -139,9 +152,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				OnPropertyChanged(nameof(CanReadFile));
 			}
 		}
-		public bool CanSave => IsNotAutoMatchingMode && !IsSavingState;
-		public bool CanCancel => IsNotAutoMatchingMode && !IsSavingState;
-		public bool CanReadFile => IsNotAutoMatchingMode && !IsSavingState;
+		public bool CanSave => IsNotProcessingMode && !IsSavingState;
+		public bool CanCancel => IsNotProcessingMode && !IsSavingState;
+		public bool CanReadFile => IsNotProcessingMode && !IsSavingState;
 
 		private void GetOrganisations()
 		{
@@ -152,7 +165,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void CreateCommands() 
 		{
-			CreateParseCommand();
+			ProcessBankDocumentCommand = new DelegateCommand<string>(
+				ProcessBankDocument,
+				docPath => !string.IsNullOrEmpty(docPath)
+			);
 		}
 
 		private void GetProfitCategories() => ProfitCategories = _profitCategoryRepository
@@ -161,15 +177,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		#region Команды
 
-		public DelegateCommand<string> ParseCommand { get; private set; }
-
-		private void CreateParseCommand()
-		{
-			ParseCommand = new DelegateCommand<string>(
-				Parse,
-				docPath => !string.IsNullOrEmpty(docPath)
-			);
-		}
+		public DelegateCommand<string> ProcessBankDocumentCommand { get; private set; }
 
 		#endregion Команды
 		
@@ -258,9 +266,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 		}
 
-		private void Parse(string docPath)
+		private void ProcessBankDocument(string docPath)
 		{
-			IsNotAutoMatchingMode = false;
+			IsNotProcessingMode = false;
 			_progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", _progress);
 			Parser = new TransferDocumentsFromBankParser(docPath);
@@ -279,28 +287,99 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
+			UpdateProgress?.Invoke("Обрабатываем данные по расчетным счетам...", _progress);
+			var resultProcessBankAccountMovement = ProcessBankAccountMovement();
+			
+			if(resultProcessBankAccountMovement.IsFailure)
+			{
+				IsNotProcessingMode = true;
+				UpdateProgress?.Invoke(resultProcessBankAccountMovement.Errors.First().Message, 1);
+				return;
+			}
+			
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
+			UpdateProgress?.Invoke("Сопоставляем данные по расчетным счетам...", _progress);
+			MatchBankAccountMovement();
+			
+			var paymentsSum = ObservablePayments.Sum(x => x.Total);
+			UpdateProgress?.Invoke(
+				$"Загрузка завершена. Обработано платежей {_processedPayments} на сумму: {paymentsSum}р." +
+				$" из них платежей не к нашим организациям или исходящих: {_paymentsWithNotOurOrganizationReceiver} и не загружено дублей: {_paymentDuplicates}",
+				_progress = 1);
+			
+			IsNotProcessingMode = true;
+		}
+
+		private Result ProcessBankAccountMovement()
+		{
+			BankAccountMovements.Clear();
+			var builder = BankAccountMovementBuilder.Create();
+			
+			foreach(var accountData in Parser.Accounts)
+			{
+				foreach(var data in accountData)
+				{
+					builder.AddData(data);
+				}
+				
+				var accountMovement = builder.Build();
+				var account = _accountRepository
+					.Get(UoW, x => x.Number == accountMovement.AccountNumber)
+					.FirstOrDefault();
+
+				if(account is null)
+				{
+					BankAccountMovements.Clear();
+					return Result.Failure(new Error(
+						"AccountNotFound",
+						$"Не найден расчетный счет {accountMovement.AccountNumber} у наших организаций. " +
+						"Добавьте этот р/сч к нужной организации через справочник организаций и повторно загрузите выписку"));
+				}
+				
+				accountMovement.Account = account;
+				accountMovement.Bank = account.InBank;
+				BankAccountMovements.Add(accountMovement);
+			}
+			
+			return Result.Success();
 		}
 
 		private void MatchPayments()
 		{
-			var count = 0;
-			var countDuplicates = 0;
-			var countUnknownInn = 0;
+			_processedPayments = 0;
+			_paymentDuplicates = 0;
+			_paymentsWithNotOurOrganizationReceiver = 0;
 			
 			var autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
 			var totalCount = Parser.TransferDocuments.Count;
 
 			_progress = 1d / totalCount;
-			Match(ref count, ref countDuplicates, ref countUnknownInn, totalCount, autoPaymentMatching, Parser.TransferDocuments);
+			Match(
+				ref _processedPayments,
+				ref _paymentDuplicates,
+				ref _paymentsWithNotOurOrganizationReceiver,
+				totalCount,
+				autoPaymentMatching,
+				Parser.TransferDocuments);
+		}
+		
+		private void MatchBankAccountMovement()
+		{
+			foreach(var bankAccountMovement in BankAccountMovements)
+			{
+				var accountMovementFromBase = _accountMovementRepository.Get(
+					UoW,
+					x => x.StartDate == bankAccountMovement.StartDate
+						&& x.EndDate == bankAccountMovement.EndDate
+						&& x.Account.Number == bankAccountMovement.Account.Number)
+					.FirstOrDefault();
 
-			var paymentsSum = ObservablePayments.Sum(x => x.Total);
-			UpdateProgress?.Invoke(
-				$"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р." +
-				$" из них не загружено дублей: {countDuplicates} и неизвестных ИНН: {countUnknownInn}", _progress = 1);
-
-			IsNotAutoMatchingMode = true;
+				if(accountMovementFromBase != null)
+				{
+					bankAccountMovement.Id = accountMovementFromBase.Id;
+				}
+			}
 		}
 		
 		public override void Dispose()

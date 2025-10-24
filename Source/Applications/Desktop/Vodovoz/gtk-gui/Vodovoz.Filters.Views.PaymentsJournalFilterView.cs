@@ -50,7 +50,7 @@ namespace Vodovoz.Filters.Views
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView treeViewProfitCategories;
 
 		private global::Gtk.Label GtkLabel19;
 
@@ -282,10 +282,10 @@ namespace Vodovoz.Filters.Views
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow.Add(this.ytreeview1);
+			this.treeViewProfitCategories = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewProfitCategories.CanFocus = true;
+			this.treeViewProfitCategories.Name = "treeViewProfitCategories";
+			this.GtkScrolledWindow.Add(this.treeViewProfitCategories);
 			this.GtkAlignment14.Add(this.GtkScrolledWindow);
 			this.frameProfitCategories.Add(this.GtkAlignment14);
 			this.GtkLabel19 = new global::Gtk.Label();
@@ -348,6 +348,7 @@ namespace Vodovoz.Filters.Views
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytable1[this.organizationBankEntry]));
 			w27.LeftAttach = ((uint)(3));
 			w27.RightAttach = ((uint)(4));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.organizationEntry = new global::QS.Views.Control.EntityEntry();

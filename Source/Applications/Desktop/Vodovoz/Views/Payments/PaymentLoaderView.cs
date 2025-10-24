@@ -51,7 +51,7 @@ namespace Vodovoz.Views
 
 			ViewModel.UpdateProgress += UpdateProgress;
 
-			btnReadFile.Clicked += (sender, e) => ViewModel.ParseCommand.Execute(fileChooserBtn.Filename);
+			btnReadFile.Clicked += (sender, e) => ViewModel.ProcessBankDocumentCommand.Execute(fileChooserBtn.Filename);
 			btnReadFile.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadFile, v => v.Sensitive)
 				.InitializeFromSource();
@@ -124,7 +124,7 @@ namespace Vodovoz.Views
 
 		private void Save()
 		{
-			if(!ViewModel.ObservablePayments.Any())
+			if(!ViewModel.BankAccountMovements.Any())
 			{
 				return;
 			}
@@ -137,6 +137,13 @@ namespace Vodovoz.Views
 			
 			var totalPayments = ViewModel.ObservablePayments.Count;
 			var progress = 1d / totalPayments;
+
+			foreach(var accountMovement in ViewModel.BankAccountMovements)
+			{
+				ViewModel.UoW.Save(accountMovement);
+			}
+			
+			ViewModel.UoW.Commit();
 
 			foreach(var payment in ViewModel.ObservablePayments)
 			{

@@ -21,6 +21,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
@@ -188,14 +189,16 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+		/*NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
 			filter =>
 			{
 				filter.StartDate = DateTime.Today.AddMonths(-2);
 				filter.EndDate = DateTime.Today;
 			},
-			OpenPageOptions.IgnoreHash);
+			OpenPageOptions.IgnoreHash);*/
+
+		NavigationManager.OpenViewModel<BankAccountsMovementsJournalViewModel>(null);
 	}
 
 	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)

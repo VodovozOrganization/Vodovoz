@@ -12,6 +12,9 @@ namespace Vodovoz.Core.Data.NHibernate.NhibernateExtensions
 		public MySQL57SpatialExtendedDialect()
 		{
 			RegisterFunction("DATE", new StandardSQLFunction("DATE", NHibernateUtil.Date));
+			/*RegisterFunction(
+				"DATE_ADD",
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "DATE_ADD(?1 INTERVAL ?2 ?3)"));*/
 			RegisterFunction("TIME", new StandardSQLFunction("TIME", NHibernateUtil.Time));
 
 			RegisterFunction("ROUND", new SQLFunctionTemplate
