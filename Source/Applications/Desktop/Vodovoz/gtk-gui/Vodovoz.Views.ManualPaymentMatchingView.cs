@@ -82,8 +82,6 @@ namespace Vodovoz.Views
 
 		private global::Gtk.Label label27;
 
-		private global::Gtk.HBox hboxSearch;
-
 		private global::Gamma.GtkWidgets.yTable ytable1;
 
 		private global::Gamma.GtkWidgets.yButton btnAddCounterparty;
@@ -95,6 +93,8 @@ namespace Vodovoz.Views
 		private global::Gtk.Label lblProfitCategory;
 
 		private global::QS.Views.Control.EntityEntry profitCategoryEntry;
+
+		private global::Gtk.HBox hboxSearch;
 
 		private global::Gtk.ScrolledWindow scrolledwindow1;
 
@@ -518,13 +518,9 @@ namespace Vodovoz.Views
 			w42.Expand = false;
 			w42.Fill = false;
 			// Container child vboxAllocation.Gtk.Box+BoxChild
-			this.hboxSearch = new global::Gtk.HBox();
-			this.hboxSearch.Name = "hboxSearch";
-			this.hboxSearch.Spacing = 6;
-			// Container child hboxSearch.Gtk.Box+BoxChild
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
-			this.ytable1.NRows = ((uint)(3));
+			this.ytable1.NRows = ((uint)(2));
 			this.ytable1.NColumns = ((uint)(3));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
@@ -548,7 +544,7 @@ namespace Vodovoz.Views
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.ytable1[this.counterpartyEntry]));
 			w44.LeftAttach = ((uint)(1));
 			w44.RightAttach = ((uint)(2));
-			w44.XOptions = ((global::Gtk.AttachOptions)(1));
+			w44.XOptions = ((global::Gtk.AttachOptions)(0));
 			w44.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.lblCounterparty = new global::Gtk.Label();
@@ -580,16 +576,20 @@ namespace Vodovoz.Views
 			w47.BottomAttach = ((uint)(2));
 			w47.LeftAttach = ((uint)(1));
 			w47.RightAttach = ((uint)(2));
-			w47.XOptions = ((global::Gtk.AttachOptions)(4));
+			w47.XOptions = ((global::Gtk.AttachOptions)(0));
 			w47.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.hboxSearch.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hboxSearch[this.ytable1]));
-			w48.Position = 0;
+			this.vboxAllocation.Add(this.ytable1);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vboxAllocation[this.ytable1]));
+			w48.Position = 4;
 			w48.Expand = false;
 			w48.Fill = false;
+			// Container child vboxAllocation.Gtk.Box+BoxChild
+			this.hboxSearch = new global::Gtk.HBox();
+			this.hboxSearch.Name = "hboxSearch";
+			this.hboxSearch.Spacing = 6;
 			this.vboxAllocation.Add(this.hboxSearch);
 			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vboxAllocation[this.hboxSearch]));
-			w49.Position = 4;
+			w49.Position = 5;
 			w49.Expand = false;
 			w49.Fill = false;
 			// Container child vboxAllocation.Gtk.Box+BoxChild
@@ -604,7 +604,7 @@ namespace Vodovoz.Views
 			this.scrolledwindow1.Add(this.ytreeviewOrdersAllocate);
 			this.vboxAllocation.Add(this.scrolledwindow1);
 			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vboxAllocation[this.scrolledwindow1]));
-			w51.Position = 5;
+			w51.Position = 6;
 			// Container child vboxAllocation.Gtk.Box+BoxChild
 			this.hbox9 = new global::Gtk.HBox();
 			this.hbox9.Name = "hbox9";
@@ -805,7 +805,7 @@ namespace Vodovoz.Views
 			w71.Fill = false;
 			this.vboxAllocation.Add(this.hbox9);
 			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vboxAllocation[this.hbox9]));
-			w72.Position = 6;
+			w72.Position = 7;
 			w72.Expand = false;
 			w72.Fill = false;
 			w10.Add(this.vboxAllocation);
