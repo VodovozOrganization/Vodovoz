@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Services
+﻿using System;
+
+namespace Vodovoz.Services
 {
 	public interface IPaymentSettings
 	{
@@ -14,5 +16,10 @@
 		int OtherProfitCategoryId { get; }
 
 		#endregion
+		
+		/// <summary>
+		/// Дата начала работы контрольной точки по платежам из выписки(для контроля приходов и разносов с 1С)
+		/// </summary>
+		DateTime ControlPointStartDate { get; }
 	}
 }

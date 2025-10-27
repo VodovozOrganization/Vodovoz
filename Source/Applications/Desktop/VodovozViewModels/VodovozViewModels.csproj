@@ -960,6 +960,7 @@
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
+    <Compile Include="ViewModels\Reports\Payments\BankAccountsMovementsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Payments\PaymentsFromBankClientReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />

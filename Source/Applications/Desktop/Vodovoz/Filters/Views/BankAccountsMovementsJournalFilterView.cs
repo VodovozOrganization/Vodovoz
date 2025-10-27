@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using QS.Views.GtkUI;
 using Vodovoz.Filters.ViewModels;
 
@@ -24,6 +23,14 @@ namespace Vodovoz.Filters.Views
 			chkOnlyWithDiscrepancies.Binding
 				.AddBinding(ViewModel, vm => vm.OnlyWithDiscrepancies, w => w.Active)
 				.InitializeFromSource();
+
+			ConfigureEntityEntries();
+		}
+
+		private void ConfigureEntityEntries()
+		{
+			organizationBankEntry.ViewModel = ViewModel.OrganizationBankEntryViewModel;
+			organizationAccountEntry.ViewModel = ViewModel.OrganizationAccountEntryViewModel;
 		}
 	}
 }

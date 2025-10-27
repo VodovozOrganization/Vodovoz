@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Infrastructure;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Tools;
+using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
-using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 {
-	[Appellative(Nominative = "Выгрузка журнала платежей")]
-	public class PaymentsFromBankClientReport
+	[Appellative(Nominative = "Выгрузка журнала движений средств по расчетным счетам")]
+	public class BankAccountsMovementsJournalReport
 	{
 		private const double _defaultColumnWidth = 12;
 		private uint _defaultCellFormatId;
 		private uint _tableHeadersCellFormatId;
 		private uint _tableTitleCellFormatId;
 
-		private readonly IEnumerable<PaymentJournalNode> _paymentsJournalNodes;
+		private readonly IEnumerable<BankAccountsMovementsJournalNode> _accountsMovementsJournalNodes;
 
-		public PaymentsFromBankClientReport(
+		public BankAccountsMovementsJournalReport(
 			DateTime startDate,
 			DateTime? endDate,
-			IEnumerable<PaymentJournalNode> paymentsJournalNodes)
+			IEnumerable<BankAccountsMovementsJournalNode> accountsMovementsJournalNodes)
 		{
-			_paymentsJournalNodes = paymentsJournalNodes ?? new List<PaymentJournalNode>();
+			_accountsMovementsJournalNodes = accountsMovementsJournalNodes ?? new List<BankAccountsMovementsJournalNode>();
 
 			StartDate = startDate;
 			EndDate = endDate;
@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 		public string Title =>
 			string.Join(
 				" ", 
-				"Список платежей/списаний за период",
+				"Список движений по р/сч за период",
 				!EndDate.HasValue
 					? $"с {StartDate:dd.MM.yyyy}"
 					: $"с {StartDate:dd.MM.yyyy} по {EndDate:dd.MM.yyyy}");
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 				sheetData.Append(GetBlankRow());
 				sheetData.Append(GetTableHeadersRow());
 
-				foreach(var node in _paymentsJournalNodes)
+				foreach(var node in _accountsMovementsJournalNodes)
 				{
 					sheetData.Append(GetTableDataRow(node));
 				}
@@ -77,7 +77,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 
 				worksheetPart.Worksheet.Save();
 
-				var sheet = new Sheet() { Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Платежи" };
+				var sheet = new Sheet
+				{
+					Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart),
+					SheetId = 1,
+					Name = "Движения по р/сч"
+				};
 				var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
 				sheets.AppendChild(sheet);
 
@@ -90,36 +95,26 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			var columns = new Columns();
 
 			var idColumn = CreateColumn(1, defaultColumnWidth);
-			var numberColumn = CreateColumn(2, defaultColumnWidth);
-			var dateColumn = CreateColumn(3, defaultColumnWidth);
-			var totalColumn = CreateColumn(4, defaultColumnWidth);
-			var ordersColumn = CreateColumn(5, defaultColumnWidth);
-			var payerColumn = CreateColumn(6, defaultColumnWidth * 3);
-			var counterpartyColumn = CreateColumn(7, defaultColumnWidth * 3);
-			var organizationColumn = CreateColumn(8, defaultColumnWidth * 2);
-			var organizationBankColumn = CreateColumn(9, defaultColumnWidth * 2);
-			var organizationAccountColumn = CreateColumn(10, defaultColumnWidth * 2);
-			var purposeColumn = CreateColumn(11, defaultColumnWidth * 5);
-			var profitCategoryColumn = CreateColumn(12, defaultColumnWidth);
-			var isManuallyCreatedColumn = CreateColumn(13, defaultColumnWidth);
-			var unAllocatedSumColumn = CreateColumn(14, defaultColumnWidth);
-			var documentTypeColumn = CreateColumn(15, defaultColumnWidth);
+			var startDateColumn = CreateColumn(2, defaultColumnWidth);
+			var endDateColumn = CreateColumn(3, defaultColumnWidth);
+			var accountColumn = CreateColumn(4, defaultColumnWidth * 2);
+			var bankColumn = CreateColumn(5, defaultColumnWidth * 3);
+			var dataTypeColumn = CreateColumn(6, defaultColumnWidth * 1.5);
+			var amountFromDocumentColumn = CreateColumn(7, defaultColumnWidth * 1.5);
+			var amountFromProgramColumn = CreateColumn(8, defaultColumnWidth * 1.5);
+			var discrepancyColumn = CreateColumn(9, defaultColumnWidth * 1.5);
+			var discrepancyDescriptionColumn = CreateColumn(10, defaultColumnWidth * 5);
 
 			columns.Append(idColumn);
-			columns.Append(numberColumn);
-			columns.Append(dateColumn);
-			columns.Append(totalColumn);
-			columns.Append(ordersColumn);
-			columns.Append(payerColumn);
-			columns.Append(counterpartyColumn);
-			columns.Append(organizationColumn);
-			columns.Append(organizationBankColumn);
-			columns.Append(organizationAccountColumn);
-			columns.Append(purposeColumn);
-			columns.Append(profitCategoryColumn);
-			columns.Append(isManuallyCreatedColumn);
-			columns.Append(unAllocatedSumColumn);
-			columns.Append(documentTypeColumn);
+			columns.Append(startDateColumn);
+			columns.Append(endDateColumn);
+			columns.Append(accountColumn);
+			columns.Append(bankColumn);
+			columns.Append(dataTypeColumn);
+			columns.Append(amountFromDocumentColumn);
+			columns.Append(amountFromProgramColumn);
+			columns.Append(discrepancyColumn);
+			columns.Append(discrepancyDescriptionColumn);
 
 			return columns;
 		}
@@ -150,44 +145,34 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 		{
 			var row = new Row();
 
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Id));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Number));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Date));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Total));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Orders));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Payer));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Counterparty));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Organization));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationBank));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationAccount));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Purpose));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.ProfitCategory));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.IsManuallyCreated));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.UnAllocatedSum));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.DocumentType));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Id));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.StartDate));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.EndDate));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Account));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Bank));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Empty));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.AmountFromDocument));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.AmountFromProgram));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Discrepancy));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.DiscrepancyDescription));
 
 			return row;
 		}
 
-		private Row GetTableDataRow(PaymentJournalNode node)
+		private Row GetTableDataRow(BankAccountsMovementsJournalNode node)
 		{
 			var row = new Row();
 
-			row.AppendChild(GetNumericCell(node.Id));
-			row.AppendChild(GetNumericCell(node.PaymentNum));
-			row.AppendChild(GetStringCell(node.Date.ToShortDateString()));
-			row.AppendChild(GetFloatingPointCell(node.Total));
-			row.AppendChild(GetStringCell(node.Orders));
-			row.AppendChild(GetStringCell(node.PayerName));
-			row.AppendChild(GetStringCell(node.CounterpartyName));
-			row.AppendChild(GetStringCell(node.Organization));
-			row.AppendChild(GetStringCell(node.OrganizationBank));
-			row.AppendChild(GetStringCell(node.OrganizationAccountNumber));
-			row.AppendChild(GetStringCell(node.PaymentPurpose));
-			row.AppendChild(GetStringCell(node.ProfitCategory));
-			row.AppendChild(GetStringCell(node.IsManualCreated.ConvertToYesOrNo()));
-			row.AppendChild(GetFloatingPointCell(node.UnAllocatedSum));
-			row.AppendChild(GetStringCell(node.EntityType.GetClassUserFriendlyName().Nominative.CapitalizeSentence()));
+			row.AppendChild(node.Id.HasValue ? GetNumericCell(node.Id.Value) : GetStringCell(null));
+			row.AppendChild(GetStringCell(node.StartDate.ToShortDateString()));
+			row.AppendChild(GetStringCell(node.EndDate.ToShortDateString()));
+			row.AppendChild(GetStringCell(node.Account));
+			row.AppendChild(GetStringCell(node.Bank));
+			row.AppendChild(GetStringCell(node.AccountMovementDataType.GetEnumDisplayName()));
+			row.AppendChild(node.Amount.HasValue ? GetFloatingPointCell(node.Amount.Value) : GetStringCell(StringConstants.NotSet));
+			row.AppendChild(node.AmountFromProgram.HasValue ? GetFloatingPointCell(node.AmountFromProgram.Value) : GetStringCell(null));
+			row.AppendChild(node.HasDiscrepancy ? GetFloatingPointCell(node.Difference.Value) : GetStringCell(null));
+			row.AppendChild(GetStringCell(node.GetDiscrepancyDescription()));
 
 			return row;
 		}
@@ -397,6 +382,5 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 
 			return font;
 		}
-	
 	}
 }

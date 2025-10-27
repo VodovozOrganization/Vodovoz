@@ -39,10 +39,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IGenericRepository<ProfitCategory> _profitCategoryRepository;
 		private readonly IGenericRepository<Account> _accountRepository;
 		private readonly IGenericRepository<BankAccountMovement> _accountMovementRepository;
+		private readonly IGenericRepository<NotAllocatedCounterparty> _notAllocatedCounterpartiesRepository;
 		private readonly IResourceLocker _resourceLocker;
 		private IReadOnlyDictionary<string, Organization> _allVodOrganisations;
-		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
-		private readonly string[] _excludeInnPayers = new []{ "2465037737", "7750005725" };
+		private IReadOnlyDictionary<string, NotAllocatedCounterparty> _allNotAllocatedCounterparties;
 
 		private double _progress;
 		private int _saveAttempts;
@@ -66,6 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IGenericRepository<ProfitCategory> profitCategoryRepository,
 			IGenericRepository<Account> accountRepository,
 			IGenericRepository<BankAccountMovement> accountMovementRepository,
+			IGenericRepository<NotAllocatedCounterparty> notAllocatedCounterpartiesRepository,
 			IResourceLockerFactory resourceLockerFactory,
 			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
@@ -85,6 +86,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_profitCategoryRepository = profitCategoryRepository ?? throw new ArgumentNullException(nameof(profitCategoryRepository));
 			_accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
 			_accountMovementRepository = accountMovementRepository ?? throw new ArgumentNullException(nameof(accountMovementRepository));
+			_notAllocatedCounterpartiesRepository =
+				notAllocatedCounterpartiesRepository ?? throw new ArgumentNullException(nameof(notAllocatedCounterpartiesRepository));
 
 			InteractiveService = commonServices.InteractiveService;
 			UnitOfWorkFactory = unitOfWorkFactory;
@@ -107,6 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			TabName = "Выгрузка выписки из банк-клиента";
 
 			GetOrganisations();
+			GetNotAllocatedCounterparties();
 			CreateCommands();
 			GetProfitCategories();
 		}
@@ -161,6 +165,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_allVodOrganisations = _organizationRepository.Get(UoW)
 				.ToList()
 				.ToDictionary(x => x.INN);
+		}
+
+		private void GetNotAllocatedCounterparties()
+		{
+			_allNotAllocatedCounterparties = _notAllocatedCounterpartiesRepository.Get(UoW)
+				.ToList()
+				.ToDictionary(x => x.Inn);
 		}
 
 		private void CreateCommands() 
@@ -246,10 +257,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 				var curPayment = new Payment(doc, _allVodOrganisations[doc.RecipientInn], counterparty);
 
-				if((_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allVodOrganisations.ContainsKey(doc.PayerInn))
-					|| (doc.RecipientInn == vodovozOrganization.INN && _excludeInnPayers.Contains(doc.PayerInn)))
+				if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allVodOrganisations.ContainsKey(doc.PayerInn))
 				{
 					curPayment.OtherIncome(otherProfitCategory);
+				}
+				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allNotAllocatedCounterparties.ContainsKey(doc.PayerInn))
+				{
+					var notAllocatedCounterparty = _allNotAllocatedCounterparties[doc.RecipientInn];
+					curPayment.OtherIncome(notAllocatedCounterparty.ProfitCategory);
 				}
 				else
 				{

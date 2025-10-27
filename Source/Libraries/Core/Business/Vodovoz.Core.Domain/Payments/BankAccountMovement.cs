@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz.Core.Domain.Payments
@@ -8,6 +9,7 @@ namespace Vodovoz.Core.Domain.Payments
 	/// <summary>
 	/// Движение средств по р/сч
 	/// </summary>
+	[EntityPermission]
 	public class BankAccountMovement : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _startDate;

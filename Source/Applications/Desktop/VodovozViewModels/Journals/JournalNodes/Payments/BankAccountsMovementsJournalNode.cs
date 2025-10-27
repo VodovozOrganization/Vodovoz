@@ -1,21 +1,21 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 {
 	public class BankAccountsMovementsJournalNode
 	{
-		public int Id { get; set; }
+		public int? Id { get; set; }
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public string Bank { get; set; }
 		public string Account { get; set; }
-		public string Name { get; set; }
 		public BankAccountMovementDataType AccountMovementDataType { get; set; }
-		public decimal Amount { get; set; }
+		public decimal? Amount { get; set; }
 		public decimal? AmountFromProgram { get; set; }
 		public decimal? Difference => Amount - AmountFromProgram;
-		public bool HasDiscrepancy => Difference.HasValue && Difference != 0;
+		public bool HasDiscrepancy => !Amount.HasValue || (Difference.HasValue && Difference != 0);
 		
 		public string GetDiscrepancyDescription()
 		{
@@ -62,6 +62,24 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 			}
 			
 			return null;
+		}
+
+		public static BankAccountsMovementsJournalNode NotLoaded(
+			DateTime startDate,
+			DateTime endDate,
+			string bank,
+			string account,
+			BankAccountMovementDataType accountMovementDataType
+			)
+		{
+			return new BankAccountsMovementsJournalNode
+			{
+				StartDate = startDate,
+				EndDate = endDate,
+				Bank = bank,
+				Account = account,
+				AccountMovementDataType = accountMovementDataType
+			};
 		}
 	}
 }

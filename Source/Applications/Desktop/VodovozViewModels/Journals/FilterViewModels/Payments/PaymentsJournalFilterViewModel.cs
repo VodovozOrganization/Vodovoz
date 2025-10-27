@@ -74,7 +74,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public ILifetimeScope Scope { get; }
 		public INavigationManager NavigationManager { get; }
-		public ITdiTab JournalTab { get; }
+		public ITdiTab JournalTab { get; private set; }
 
 		public IObservableList<SelectableNode<ProfitCategory>> ProfitCategories
 		{
@@ -294,6 +294,12 @@ namespace Vodovoz.Filters.ViewModels
 
 			organizationAccountViewModel.CanViewEntity = false;
 			OrganizationAccountEntryViewModel = organizationAccountViewModel;
+		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+			JournalTab = null;
 		}
 	}
 }
