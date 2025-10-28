@@ -53,7 +53,12 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				// Необходимо сделать асинхронным
-				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
+				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
+				
+				if(addingToRouteListResult.IsFailure)
+				{
+					return addingToRouteListResult;
+				}
 			}
 
 			// Необходимо сделать асинхронным
