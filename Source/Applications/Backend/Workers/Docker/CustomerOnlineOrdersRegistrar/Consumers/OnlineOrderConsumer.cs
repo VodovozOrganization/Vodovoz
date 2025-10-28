@@ -60,17 +60,11 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					_deliveryRulesSettings.FastDeliveryScheduleId,
 					_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 				);
-
-				// Необходимо сделать асинхронным
-				var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
-					uow, 
-					onlineOrder, 
-					DateTime.Today
-				);
-
-				var externalOrderId = message.ExternalOrderId;
 				
-				if(clientOnlineOrdersDuplicates.Any())
+				var externalOrderId = message.ExternalOrderId;
+				var needCancelOnlineOrder = NeedCancelOnlineOrder(uow, onlineOrder);
+
+				if(needCancelOnlineOrder)
 				{
 					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
@@ -85,7 +79,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
-				if(clientOnlineOrdersDuplicates.Any())
+				if(needCancelOnlineOrder)
 				{
 					return;
 				}
@@ -143,6 +137,19 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					}
 				}
 			}
+		}
+
+		private bool NeedCancelOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		{
+			// Необходимо сделать асинхронным
+			var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
+				uow, 
+				onlineOrder, 
+				DateTime.Today
+			);
+
+			return clientOnlineOrdersDuplicates.Any(duplicate =>
+				duplicate.OnlineOrderStatus is OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed);
 		}
 	}
 }
