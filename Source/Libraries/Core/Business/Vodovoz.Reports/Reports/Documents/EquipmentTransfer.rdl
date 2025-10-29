@@ -125,6 +125,7 @@ WHERE
             n.official_name AS deposit_name,
             ROUND(COALESCE(oi.actual_count, oi.count), 2) AS deposit_count,
             mu.name AS deposit_unit,
+            oi.include_nds as deposit_vat,
             oi.price AS deposit_price,
             ROUND(oi.count * oi.price, 2) AS deposit_sum
           FROM
@@ -248,8 +249,7 @@ WHERE
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.25pt</Height>
         <Width>152.63pt</Width>
-        <Value>="г.Санкт-Петербург
-"+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>=Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>0</ZIndex>
         <Left>357.2pt</Left>
         <Top>140.7pt</Top>
@@ -1162,11 +1162,11 @@ WHERE
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>216.1pt</Width>
+            <Width>166.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60pt</Width>
@@ -1174,19 +1174,22 @@ WHERE
           <TableColumn>
             <Width>36.3pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>53.1pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>80pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80pt</Width>
+            <Width>77.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>15pt</Height>
+              <Height>22.1pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="DepositRowNumberHeader">
                       <Value>№</Value>
@@ -1250,6 +1253,22 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="DepositVATHeader">
+                      <Value>Сумма НДС</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DepositPriceHeader">
@@ -1292,7 +1311,7 @@ WHERE
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="DepositRowNumber">
                       <Value>=RowNumber()</Value>
@@ -1336,6 +1355,19 @@ WHERE
                     <Textbox Name="DepositUnit">
                       <Value>={deposit_unit}</Value>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="DepositVAT">
+                      <Value>={deposit_vat}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
