@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -161,6 +161,10 @@ WHERE
         </Field>
         <Field Name="deposit_price">
           <DataField>deposit_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="deposit_vat">
+          <DataField>deposit_vat</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="deposit_sum">
@@ -1253,11 +1257,11 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
-                    <Textbox Name="DepositVATHeader">
-                      <Value>Сумма НДС</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="DepositPriceHeader">
+                      <Value>Цена</Value>
+                      <Style>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <FontFamily>Times New Roman</FontFamily>
@@ -1269,11 +1273,11 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="DepositPriceHeader">
-                      <Value>Цена</Value>
-                      <Style>
+                    <Textbox Name="DepositVATHeader">
+                      <Value>Сумма НДС</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <FontFamily>Times New Roman</FontFamily>
@@ -1363,11 +1367,11 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
-                    <Textbox Name="DepositVAT">
-                      <Value>={deposit_vat}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="DepositPrice">
+                      <Value>={deposit_price}</Value>
+                      <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1376,11 +1380,11 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="DepositPrice">
-                      <Value>={deposit_price}</Value>
-                      <Style>
+                    <Textbox Name="DepositVAT">
+                      <Value>={deposit_vat}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
