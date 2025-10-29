@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -11,6 +11,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.ViewModels.Control.EEVM;
@@ -168,6 +169,20 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+		}
+
+		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateEmails();
+		}
+
+		private void UpdateEmails()
+		{
+			var email = Entity.GetEmailAddressForBill();
+
+			SendDocViewModel.Update(Entity, email is null ? string.Empty : email.Address);
 		}
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
@@ -275,10 +290,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
+		public void OnCounterpartyEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
-			var email = Entity.GetEmailAddressForBill();
-			SendDocViewModel.Update(Entity, email != null ? email.Address : string.Empty);
+			UpdateEmails();
 		}
 
 		public override bool Save(bool close)
@@ -286,6 +300,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OnPropertyChanged(nameof(CanSendBillByEdo));
 
 			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
+			
+			base.Dispose();
 		}
 	}
 }
