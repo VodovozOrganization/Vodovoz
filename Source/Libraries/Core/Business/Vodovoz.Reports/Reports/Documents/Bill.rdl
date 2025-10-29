@@ -1825,10 +1825,9 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 + ', ИНН ' 
 + {inn} 
 + ', КПП ' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp}) 
++ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp})
 + '\n' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false,{special_delivery_address},{client_address} )
-+ ', ' 
++ Iif({use_special_doc_fields}  and {?special}, Iif(String.IsNullOrWhiteSpace({special_delivery_address}), '', ', ' + {special_delivery_address}), ', ' + {client_address} ) 
 +
 Iif(
     Iif(
@@ -1839,8 +1838,8 @@ Iif(
     '',
     Iif(
         {client_contact} = null,
-        {delivery_point_contact},
-        {client_contact}
+        ', ' + {delivery_point_contact},
+        ', ' + {client_contact}
     )
 )</Value>
                       <Style>
