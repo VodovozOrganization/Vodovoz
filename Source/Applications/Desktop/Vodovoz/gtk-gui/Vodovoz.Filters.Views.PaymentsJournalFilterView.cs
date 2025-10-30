@@ -290,7 +290,7 @@ namespace Vodovoz.Filters.Views
 			this.frameProfitCategories.Add(this.GtkAlignment14);
 			this.GtkLabel19 = new global::Gtk.Label();
 			this.GtkLabel19.Name = "GtkLabel19";
-			this.GtkLabel19.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Категории прихода</b>");
+			this.GtkLabel19.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Категории дохода</b>");
 			this.GtkLabel19.UseMarkup = true;
 			this.frameProfitCategories.LabelWidget = this.GtkLabel19;
 			this.ytable1.Add(this.frameProfitCategories);

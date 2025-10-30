@@ -2085,6 +2085,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Payments.ProfitCategoryView.cs" />
     <Compile Include="Filters\Views\BankAccountsMovementsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.BankAccountsMovementsJournalFilterView.cs" />
+    <Compile Include="Views\Payments\NotAllocatedCounterpartyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.NotAllocatedCounterpartyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
