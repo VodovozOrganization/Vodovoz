@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 	public class BankAccountsMovementsJournalViewModel : JournalViewModelBase
 	{
 		private readonly BankAccountsMovementsJournalFilterViewModel _filterViewModel;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IPaymentSettings _paymentSettings;
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		public BankAccountsMovementsJournalViewModel(
 			BankAccountsMovementsJournalFilterViewModel filterViewModel,
+			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
@@ -44,6 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IOrganizationRepository organizationRepository) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_interactiveService = interactiveService;
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
@@ -290,33 +294,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Нужно выбрать начальный период выгрузки");
 				return;
 			}
-			
-			var dialogSettings = new DialogSettings
-			{
-				Title = "Сохранить",
-				DefaultFileExtention = ".xlsx",
-				FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-			};
-
-			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
-			if(!saveDialogResul.Successful)
-			{
-				return;
-			}
 
 			IsExportToExcelInProcess = true;
 
-			await Task.Run(() =>
-			{
-				var nodes = GetReportData();
-
-				var ordersReport = new BankAccountsMovementsJournalReport(
+			var nodes = GetReportData();
+				var ordersReport = _lifetimeScope.Resolve<BankAccountsMovementsJournalReport>();
+				ordersReport.Export(
 					_filterViewModel.StartDate.Value,
 					_filterViewModel.EndDate,
 					nodes);
-
-				ordersReport.Export(saveDialogResul.Path);
-			});
 
 			IsExportToExcelInProcess = false;
 		}
