@@ -41,7 +41,6 @@ namespace Vodovoz.Views.Payments
 			global::Stetic.BinContainer.Attach(this);
 			this.WidthRequest = 0;
 			this.HeightRequest = 0;
-			this.Sensitive = false;
 			this.Name = "Vodovoz.Views.Payments.NotAllocatedCounterpartyView";
 			// Container child Vodovoz.Views.Payments.NotAllocatedCounterpartyView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();

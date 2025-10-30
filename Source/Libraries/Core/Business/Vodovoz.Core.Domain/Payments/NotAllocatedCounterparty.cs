@@ -11,6 +11,16 @@ namespace Vodovoz.Core.Domain.Payments
 	/// </summary>
 	[EntityPermission]
 	[HistoryTrace]
+	[
+		Appellative(
+			Gender = GrammaticalGender.Masculine,
+			NominativePlural = "контрагенты, которые не участвуют в распределении",
+			Nominative = "контрагент, который не участвует в распределении",
+			Accusative = "контрагента, который не участвует в распределении",
+			Genitive = "контрагента, который не участвует в распределении",
+			GenitivePlural = "контрагентов, которые не участвуют в распределени"
+		)
+	]
 	public class NotAllocatedCounterparty : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private const int _innMaxLenght = 12;
