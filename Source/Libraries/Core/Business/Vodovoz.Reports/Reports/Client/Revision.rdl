@@ -54,6 +54,7 @@
               AND o.order_payment_status != 'Paid'
               AND o.payment_type = 'Cashless'
               AND cc.organization_id = @organization_id
+              AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
           HAVING
             debt &gt; 0
           UNION ALL
@@ -77,6 +78,7 @@
             o.client_id = @counterparty_id
             AND pi.payment_item_status != 'Cancelled'
             AND cc.organization_id = @organization_id
+            AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
           UNION ALL
           SELECT # Депозит, кредит
             p.payment_num as num,

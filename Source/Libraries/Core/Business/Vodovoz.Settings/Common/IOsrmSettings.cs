@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.Settings.Common
 {
-	public interface IGlobalSettings
+	public interface IOsrmSettings
 	{
 		#region Open Source Routing Machine (OSRM)
 

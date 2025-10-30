@@ -430,6 +430,7 @@
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
@@ -444,6 +445,7 @@
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProblemJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProcessJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\FineCategoryJournalRegistars.cs" />
     <Compile Include="JournalColumnsConfigs\GroupGtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
@@ -691,6 +693,7 @@
     <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
     <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
     <Compile Include="Views\Common\AddOrRemoveIDomainObjectView.cs" />
+    <Compile Include="Views\Employees\FineCategoryView.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -2440,6 +2443,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj">
       <Project>{50993438-f358-4dcd-8e0a-ce1446c76487}</Project>
       <Name>Mango.Grpc.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj">
+      <Project>{a5f80464-7222-44c8-adf7-23e9daae4e34}</Project>
+      <Name>Osrm</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj">
       <Project>{B216B4C1-5285-4784-AC06-C57EE23178F3}</Project>

@@ -97,8 +97,10 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<ICarLoadDocumentRepository>();
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
 			.Resolve<IOrderRepository>();
-		private IGlobalSettings _globalSettings => ScopeProvider.Scope
-			.Resolve<IGlobalSettings>();
+		private IOsrmSettings _osrmSettings => ScopeProvider.Scope
+			.Resolve<IOsrmSettings>();
+		private IOsrmClient _osrmClient => ScopeProvider.Scope
+			.Resolve<IOsrmClient>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
@@ -2082,7 +2084,7 @@ namespace Vodovoz.Domain.Logistic
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
-				track.CalculateDistanceToBase();
+				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 				UoW.Save(track);
 			}
 
@@ -2101,7 +2103,7 @@ namespace Vodovoz.Domain.Logistic
 			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
 			if(track != null) {
 				track.CalculateDistance();
-				track.CalculateDistanceToBase();
+				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 				UoW.Save(track);
 			}
 
@@ -3069,11 +3071,11 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+				var recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 
 				if(recalculatedTrackResponse.Routes is null)
 				{
-					recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+					recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
 				}
 				
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
@@ -3101,7 +3103,7 @@ namespace Vodovoz.Domain.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
 			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
@@ -3457,5 +3459,14 @@ namespace Vodovoz.Domain.Logistic
 		public static RouteListStatus[] NotLoadedRouteListStatuses { get; } = { RouteListStatus.New, RouteListStatus.Confirmed, RouteListStatus.InLoading };
 
 		public static RouteListStatus[] DeliveredRouteListStatuses { get; } = { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck, RouteListStatus.Closed };
+		
+		public static RouteListStatus[] EnRouteAndDeliveredStatuses { get; } =
+		{
+			RouteListStatus.EnRoute,
+			RouteListStatus.Delivered,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 	}
 }

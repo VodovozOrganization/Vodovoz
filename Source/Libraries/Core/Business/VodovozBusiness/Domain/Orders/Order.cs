@@ -77,8 +77,6 @@ namespace Vodovoz.Domain.Orders
 
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
 			.Resolve<IOrderRepository>();
-		private IPaymentItemsRepository _paymentItemsRepository => ScopeProvider.Scope
-			.Resolve<IPaymentItemsRepository>();
 		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
 			.Resolve<IUndeliveredOrdersRepository>();
 		private IPaymentFromBankClientController _paymentFromBankClientController => ScopeProvider.Scope
@@ -1604,7 +1602,8 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void UpdatePaymentByCardFrom(
 			PaymentFrom paymentByCardFrom,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(_paymentByCardFrom == paymentByCardFrom)
 			{
@@ -1612,12 +1611,17 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			PaymentByCardFrom = paymentByCardFrom;
-			orderContractUpdater.UpdateContract(UoW, this);
+
+			if(needUpdateContract)
+			{
+				orderContractUpdater.UpdateContract(UoW, this);
+			}
 		}
 
 		public virtual void UpdatePaymentType(
 			PaymentType paymentType,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(paymentType == _paymentType)
 			{
@@ -1641,7 +1645,10 @@ namespace Vodovoz.Domain.Orders
 				PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 			}
 
-			UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			if(needUpdateContract)
+			{
+				UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			}
 		}
 
 		public virtual void UpdateClient(Counterparty counterparty, IOrderContractUpdater orderContractUpdater, out string message)
@@ -2951,49 +2958,6 @@ namespace Vodovoz.Domain.Orders
 				$"{string.Join("\n", errorStrings)}");
 		}
 
-		public virtual void UpdatePaymentStatus(IUnitOfWork uow = null)
-		{
-			if(PaymentType != PaymentType.Cashless)
-			{
-				OrderPaymentStatus = OrderPaymentStatus.None;
-				return;
-			}
-
-			if(Id == 0)
-			{
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-				return;
-			}
-			
-			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow ?? UoW, Id);
-			UpdatePaymentStatus(() => allocatedSum == default, () => allocatedSum >= OrderSum);
-		}
-
-		public virtual void UpdateCashlessOrderPaymentStatus(decimal canceledSum)
-		{
-			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
-
-			UpdatePaymentStatus(
-				() => allocatedSum == 0 || allocatedSum - canceledSum == 0,
-				() => allocatedSum - canceledSum > OrderSum);
-		}
-		
-		private void UpdatePaymentStatus(Func<bool> unPaidPredicate, Func<bool> paidPredicate)
-		{
-			if(unPaidPredicate.Invoke())
-			{
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-			else if(paidPredicate.Invoke())
-			{
-				OrderPaymentStatus = OrderPaymentStatus.Paid;
-			}
-			else
-			{
-				OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-			}
-		}
-
 		/// <summary>
 		/// Действия при закрытии заказа
 		/// </summary>
@@ -4073,7 +4037,8 @@ namespace Vodovoz.Domain.Orders
 			Employee currentEmployee,
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
-			bool needUpdateContract = true)
+			bool needUpdateContract = true
+		)
 		{
 			SetFirstOrder();
 

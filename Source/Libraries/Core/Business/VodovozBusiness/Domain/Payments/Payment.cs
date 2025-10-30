@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -245,31 +245,6 @@ namespace Vodovoz.Domain.Payments
 		{
 			ProfitCategory = profitCategory;
 			Status = PaymentState.undistributed;
-		}
-
-		/// <summary>
-		/// Отмена распределения
-		/// </summary>
-		/// <param name="cancellationReason">Причина отмены</param>
-		/// <param name="needUpdateOrderPaymentStatus">Необходимость обновления статуса оплаты заказа</param>
-		/// <param name="isByUserRequest">Пользовательский запрос или автоматика</param>
-		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false, bool isByUserRequest = false)
-		{
-			if(IsRefundPayment || isByUserRequest)
-			{
-				Status = PaymentState.Cancelled;
-				Comment += string.IsNullOrWhiteSpace(Comment) ? $"{cancellationReason}" : $"\n{cancellationReason}";
-
-				if(Comment.Length > _commentLimit)
-				{
-					Comment = Comment.Remove(_commentLimit);
-				}
-			}
-
-			foreach(var paymentItem in Items)
-			{
-				paymentItem.CancelAllocation(needUpdateOrderPaymentStatus);
-			}
 		}
 
 		/// <summary>

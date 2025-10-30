@@ -104,7 +104,7 @@ DESKTOP_VOD13_DELIVERY_PATH = "\\\\${NODE_VOD13}\\${WIN_DELIVERY_SHARED_FOLDER_N
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
 // 108	Настройки. Развертывание
-DEPLOY_PATH = "F:/WORK/_BUILDS"
+DEPLOY_PATH = "A:/WORK/_BUILDS"
 CAN_DEPLOY_FOR_TEST_DESKTOP = CAN_DELIVERY_DESKTOP && (GIT_BRANCH == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || IS_DEVELOP)
 CAN_DEPLOY_FOR_USERS_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 
@@ -315,6 +315,9 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
 
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/BitrixApi/BitrixApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/BitrixNotificationsSendWorker/BitrixNotificationsSendWorker.csproj")
+
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-kuler-service")
@@ -324,6 +327,7 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-chiruk")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vv-east")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoAutoSendReceiveWorker/EdoAutoSendReceiveWorker.csproj", "registry-prod-vasileva")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoContactsUpdater/EdoContactsUpdater.csproj", "registry-prod-kuler-service")
@@ -338,6 +342,7 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-chiruk")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vv-east")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vasileva")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-beverages-world")
@@ -349,6 +354,7 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-chiruk")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vv-east")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-deshic")
+				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-vasileva")
 			}
 		}
 		else if(CAN_BUILD_WEB)

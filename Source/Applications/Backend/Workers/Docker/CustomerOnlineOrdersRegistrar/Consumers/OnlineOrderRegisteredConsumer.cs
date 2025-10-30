@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -42,7 +42,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
 			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} от пользователя {ExternalCounterpartyId} клиента {ClientId} " +
@@ -54,21 +54,21 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{
 				if(e.FindExceptionTypeInInner<MySqlException>() is { ErrorCode: MySqlErrorCode.DuplicateKeyEntry })
 				{
 					Logger.LogInformation("Пришел дубль уже зарегистрированного заказа {ExternalOrderId}, пропускаем", message.ExternalOrderId);
-					return Task.CompletedTask;
+					return;
 				}
 				
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
-				_bus.Publish<OnlineOrderInfoDto>(message);
-				return Task.CompletedTask;
+				await _bus.Publish(message, context.CancellationToken);
+				return;
 			}
 		}
 	}

@@ -67,6 +67,11 @@ namespace Vodovoz.Core.Domain.Contacts
 		{
 			try
 			{
+				if(string.IsNullOrWhiteSpace(Address))
+				{
+					return false;
+				}
+				
 				if(Regex.IsMatch(Address, EmailRegEx, RegexOptions.None, _emailMatchingProcessTimeout))
 				{
 					return true;
