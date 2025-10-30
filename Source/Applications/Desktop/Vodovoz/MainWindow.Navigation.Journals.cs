@@ -1252,11 +1252,21 @@ public partial class MainWindow
 
 	#region Бухгалтерия
 
+	/// <summary>
+	/// Справочник контрагентов, которые не участвуют в распределени
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
 	protected void OnNotAllocatedCounterpartiesJournalActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<NotAllocatedCounterpartiesJournalViewModel>(null);
 	}
 
+	/// <summary>
+	/// Справочник категорий дохода
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
 	protected void OnProfitCategoriesJournalActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ProfitCategoriesJournalViewModel>(null);

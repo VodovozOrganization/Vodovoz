@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Domain.Payments
 		}
 		
 		/// <summary>
-		/// Инн контрагента
+		/// Архивный
 		/// </summary>
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive

@@ -189,16 +189,14 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		/*NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
 			filter =>
 			{
 				filter.StartDate = DateTime.Today.AddMonths(-2);
 				filter.EndDate = DateTime.Today;
 			},
-			OpenPageOptions.IgnoreHash);*/
-
-		NavigationManager.OpenViewModel<BankAccountsMovementsJournalViewModel>(null);
+			OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)

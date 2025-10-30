@@ -72,11 +72,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			
 			var query = uow.Session.QueryOver(() => notAllocatedCounterpartyAlias)
 				.JoinAlias(() => notAllocatedCounterpartyAlias.ProfitCategory, () => profitCategoryAlias);
+
+			query.Where(GetSearchCriterion(
+				() => notAllocatedCounterpartyAlias.Inn
+				));
 			
 			query.SelectList(list => list
 				.Select(() => notAllocatedCounterpartyAlias.Id).WithAlias(() => resultyAlias.Id)
 				.Select(() => notAllocatedCounterpartyAlias.Inn).WithAlias(() => resultyAlias.Inn)
 				.Select(() => notAllocatedCounterpartyAlias.Name).WithAlias(() => resultyAlias.Name)
+				.Select(() => notAllocatedCounterpartyAlias.IsArchive).WithAlias(() => resultyAlias.IsArchive)
 				.Select(() => profitCategoryAlias.Name).WithAlias(() => resultyAlias.ProfitCategory)
 			)
 			.TransformUsing(Transformers.AliasToBean<NotAllocatedCounterpartiesJournalNode>());

@@ -23,5 +23,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 		/// Категория дохода
 		/// </summary>
 		public string ProfitCategory { get; set; }
+		/// <summary>
+		/// Архивный
+		/// </summary>
+		public bool IsArchive { get; set; }
 	}
 }

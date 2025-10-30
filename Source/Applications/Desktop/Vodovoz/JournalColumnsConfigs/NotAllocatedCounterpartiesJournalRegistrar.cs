@@ -11,6 +11,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			.AddColumn("ИНН").AddTextRenderer(n => n.Inn)
 			.AddColumn("Название").AddTextRenderer(n => n.Name)
 			.AddColumn("Категория дохода").AddTextRenderer(n => n.ProfitCategory)
+			.AddColumn("Архивный").AddToggleRenderer(n => n.IsArchive).Editing(false)
 			.AddColumn("")
 			.Finish();
 
