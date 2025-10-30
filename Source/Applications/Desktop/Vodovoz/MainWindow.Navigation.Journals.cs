@@ -54,6 +54,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -1248,4 +1249,18 @@ public partial class MainWindow
 	}
 
 	#endregion Заказы
+
+	#region Бухгалтерия
+
+	protected void OnNotAllocatedCounterpartiesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NotAllocatedCounterpartiesJournalViewModel>(null);
+	}
+
+	protected void OnProfitCategoriesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ProfitCategoriesJournalViewModel>(null);
+	}
+
+	#endregion Бухгалтерия
 }
