@@ -230,7 +230,7 @@ namespace Vodovoz
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
-				.AddVodovozDesktopResourceLockerMock()
+				.AddVodovozDesktopResourceLocker()
 				.AddScoped<BankAccountsMovementsJournalReport>()
 				;
 

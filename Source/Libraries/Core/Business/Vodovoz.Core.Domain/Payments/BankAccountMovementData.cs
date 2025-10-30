@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Core.Domain.Payments
@@ -57,20 +56,5 @@ namespace Vodovoz.Core.Domain.Payments
 			decimal amount,
 			BankAccountMovementDataType accountMovementDataType) =>
 			new BankAccountMovementData(accountMovement, amount, accountMovementDataType);
-	}
-
-	/// <summary>
-	/// Тип данных из выписки
-	/// </summary>
-	public enum BankAccountMovementDataType
-	{
-		[Display(Name = "Входящий остаток")]
-		InitialBalance,
-		[Display(Name = "Кредит")]
-		TotalReceived,
-		[Display(Name = "Дебет")]
-		TotalWrittenOff,
-		[Display(Name = "Исходящий остаток")]
-		FinalBalance
 	}
 }

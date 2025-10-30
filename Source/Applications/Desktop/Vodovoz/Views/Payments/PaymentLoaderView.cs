@@ -40,23 +40,39 @@ namespace Vodovoz.Views
 			fileChooserBtn.AddFilter(txtFilter);
 			fileChooserBtn.AddFilter(allFilter);
 
-			btnUpload.Clicked += (sender, e) => Save();
+			btnUpload.Clicked += OnUploadClicked;
 			btnUpload.Binding
 				.AddBinding(ViewModel, v => v.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			
+			btnCancel.Clicked += OnCancelClicked;
 			btnCancel.Binding
 				.AddBinding(ViewModel, v => v.CanCancel, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ViewModel.UpdateProgress += UpdateProgress;
 
-			btnReadFile.Clicked += (sender, e) => ViewModel.ProcessBankDocumentCommand.Execute(fileChooserBtn.Filename);
+			btnReadFile.Clicked += OnReadFileClicked;
 			btnReadFile.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadFile, v => v.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureTree();
+		}
+		
+		private void OnUploadClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(false, CloseSource.Cancel);
+		}
+
+		private void OnReadFileClicked(object sender, EventArgs e)
+		{
+			ViewModel.ProcessBankDocumentCommand.Execute(fileChooserBtn.Filename);
 		}
 
 		private void ConfigureTree()
@@ -207,6 +223,9 @@ namespace Vodovoz.Views
 
 		public override void Destroy()
 		{
+			btnUpload.Clicked -= OnUploadClicked;
+			btnCancel.Clicked -= OnCancelClicked;
+			btnReadFile.Clicked -= OnReadFileClicked;
 			ViewModel.UpdateProgress -= UpdateProgress;
 			base.Destroy();
 		}
