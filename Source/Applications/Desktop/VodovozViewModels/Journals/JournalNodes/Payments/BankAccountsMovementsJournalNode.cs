@@ -10,6 +10,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public string Bank { get; set; }
+		public string Organization { get; set; }
 		public string Account { get; set; }
 		public BankAccountMovementDataType AccountMovementDataType { get; set; }
 		public decimal? Amount { get; set; }
@@ -30,6 +31,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 			switch(AccountMovementDataType)
 			{
 				case BankAccountMovementDataType.InitialBalance:
+					if(!Amount.HasValue)
+					{
+						return $"Загрузите файл выписки за {StartDate.ToShortDateString()}";
+					}
+					
 					if(StartDate == EndDate)
 					{
 						return string.Format(messageTemplateWithSimpleDates, "платежам", StartDate.ToShortDateString());
@@ -45,6 +51,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 					}
 					break;
 				case BankAccountMovementDataType.TotalReceived:
+					if(!Amount.HasValue)
+					{
+						return null;
+					}
+					
 					if(StartDate == EndDate)
 					{
 						return string.Format(messageTemplateWithSimpleDates, "остатку", StartDate.ToShortDateString());
@@ -69,6 +80,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 			DateTime endDate,
 			string bank,
 			string account,
+			string organization,
 			BankAccountMovementDataType accountMovementDataType
 			)
 		{
@@ -78,6 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 				EndDate = endDate,
 				Bank = bank,
 				Account = account,
+				Organization = organization,
 				AccountMovementDataType = accountMovementDataType
 			};
 		}

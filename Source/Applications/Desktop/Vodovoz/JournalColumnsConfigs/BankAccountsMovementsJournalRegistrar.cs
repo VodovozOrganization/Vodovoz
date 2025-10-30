@@ -21,11 +21,16 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn(BankAccountsMovementsJournalColumns.EndDate).AddTextRenderer(x => x.EndDate.ToShortDateString())
 				.AddColumn(BankAccountsMovementsJournalColumns.Account).AddTextRenderer(x => x.Account)
 				.AddColumn(BankAccountsMovementsJournalColumns.Bank).AddTextRenderer(x => x.Bank)
+				.AddColumn(BankAccountsMovementsJournalColumns.Organization).AddTextRenderer(x => x.Organization)
 				.AddColumn(BankAccountsMovementsJournalColumns.Empty)
 					.AddEnumRenderer(x => x.AccountMovementDataType)
 					.Editing(false)
 				.AddColumn(BankAccountsMovementsJournalColumns.AmountFromDocument)
 					.AddTextRenderer(x => x.Amount.HasValue ? x.Amount.ToString() : StringConstants.NotSet)
+					.AddSetter((c, n) =>
+					{
+						c.BackgroundGdk = n.Amount == null ? GdkColors.DangerBase : GdkColors.PrimaryBase;
+					})
 				.AddColumn(BankAccountsMovementsJournalColumns.AmountFromProgram).AddTextRenderer(x =>
 					x.AmountFromProgram.HasValue
 						? x.AmountFromProgram.ToString()

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -10,9 +11,11 @@ namespace Vodovoz.Core.Domain.Payments
 	/// </summary>
 	[EntityPermission]
 	[HistoryTrace]
-	public class NotAllocatedCounterparty : PropertyChangedBase, IDomainObject
+	public class NotAllocatedCounterparty : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _innMaxLenght = 12;
 		private string _inn;
+		private string _name;
 		private bool _isArchive;
 		private ProfitCategory _profitCategory;
 
@@ -22,17 +25,27 @@ namespace Vodovoz.Core.Domain.Payments
 		/// Инн контрагента
 		/// </summary>
 		[Display(Name = "Инн контрагента")]
-		public string Inn
+		public virtual string Inn
 		{
 			get => _inn;
 			set => SetField(ref _inn, value);
 		}
 		
 		/// <summary>
+		/// Название
+		/// </summary>
+		[Display(Name = "Название")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
+		
+		/// <summary>
 		/// Инн контрагента
 		/// </summary>
 		[Display(Name = "Архивный")]
-		public bool IsArchive
+		public virtual bool IsArchive
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
@@ -42,10 +55,27 @@ namespace Vodovoz.Core.Domain.Payments
 		/// Категория прихода, выставляемая в функционале загрузки платежей по умолчанию
 		/// </summary>
 		[Display(Name = "Категория прихода")]
-		public ProfitCategory ProfitCategory
+		public virtual ProfitCategory ProfitCategory
 		{
 			get => _profitCategory;
 			set => SetField(ref _profitCategory, value);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(ProfitCategory is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить категорию прихода");
+			}
+			
+			if(string.IsNullOrWhiteSpace(Inn))
+			{
+				yield return new ValidationResult("Необходимо заполнить инн контрагента");
+			}
+			else if(Inn.Length > _innMaxLenght)
+			{
+				yield return new ValidationResult($"Инн контрагента не может быть больше {_innMaxLenght}");
+			}
 		}
 	}
 }

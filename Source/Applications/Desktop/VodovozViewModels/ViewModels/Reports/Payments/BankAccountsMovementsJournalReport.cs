@@ -99,17 +99,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			var endDateColumn = CreateColumn(3, defaultColumnWidth);
 			var accountColumn = CreateColumn(4, defaultColumnWidth * 2);
 			var bankColumn = CreateColumn(5, defaultColumnWidth * 3);
-			var dataTypeColumn = CreateColumn(6, defaultColumnWidth * 1.5);
-			var amountFromDocumentColumn = CreateColumn(7, defaultColumnWidth * 1.5);
-			var amountFromProgramColumn = CreateColumn(8, defaultColumnWidth * 1.5);
-			var discrepancyColumn = CreateColumn(9, defaultColumnWidth * 1.5);
-			var discrepancyDescriptionColumn = CreateColumn(10, defaultColumnWidth * 5);
+			var organizationColumn = CreateColumn(6, defaultColumnWidth * 2);
+			var dataTypeColumn = CreateColumn(7, defaultColumnWidth * 1.5);
+			var amountFromDocumentColumn = CreateColumn(8, defaultColumnWidth * 1.5);
+			var amountFromProgramColumn = CreateColumn(9, defaultColumnWidth * 1.5);
+			var discrepancyColumn = CreateColumn(10, defaultColumnWidth * 1.5);
+			var discrepancyDescriptionColumn = CreateColumn(11, defaultColumnWidth * 5);
 
 			columns.Append(idColumn);
 			columns.Append(startDateColumn);
 			columns.Append(endDateColumn);
 			columns.Append(accountColumn);
 			columns.Append(bankColumn);
+			columns.Append(organizationColumn);
 			columns.Append(dataTypeColumn);
 			columns.Append(amountFromDocumentColumn);
 			columns.Append(amountFromProgramColumn);
@@ -150,6 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.EndDate));
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Account));
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Bank));
+			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Organization));
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.Empty));
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.AmountFromDocument));
 			row.AppendChild(GetTableHeaderStringCell(BankAccountsMovementsJournalColumns.AmountFromProgram));
@@ -168,10 +171,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 			row.AppendChild(GetStringCell(node.EndDate.ToShortDateString()));
 			row.AppendChild(GetStringCell(node.Account));
 			row.AppendChild(GetStringCell(node.Bank));
+			row.AppendChild(GetStringCell(node.Organization));
 			row.AppendChild(GetStringCell(node.AccountMovementDataType.GetEnumDisplayName()));
 			row.AppendChild(node.Amount.HasValue ? GetFloatingPointCell(node.Amount.Value) : GetStringCell(StringConstants.NotSet));
 			row.AppendChild(node.AmountFromProgram.HasValue ? GetFloatingPointCell(node.AmountFromProgram.Value) : GetStringCell(null));
-			row.AppendChild(node.HasDiscrepancy ? GetFloatingPointCell(node.Difference.Value) : GetStringCell(null));
+			row.AppendChild(node.Difference.HasValue && node.Difference != 0 ? GetFloatingPointCell(node.Difference.Value) : GetStringCell(null));
 			row.AppendChild(GetStringCell(node.GetDiscrepancyDescription()));
 
 			return row;

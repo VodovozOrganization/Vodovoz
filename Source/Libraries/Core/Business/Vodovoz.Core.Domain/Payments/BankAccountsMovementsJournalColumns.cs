@@ -10,6 +10,7 @@
 		public static string EndDate => "Дата окончания";
 		public static string Account => "Р/сч";
 		public static string Bank => "Банк";
+		public static string Organization => "Организация";
 		public static string Empty => "";
 		public static string AmountFromDocument => "Сумма из выгрузки";
 		public static string AmountFromProgram => "Сумма из ДВ";

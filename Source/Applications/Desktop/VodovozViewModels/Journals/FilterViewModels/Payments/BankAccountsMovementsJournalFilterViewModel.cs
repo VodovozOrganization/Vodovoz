@@ -14,8 +14,8 @@ namespace Vodovoz.Filters.ViewModels
 	{
 		private readonly ViewModelEEVMBuilder<Bank> _organizationBankViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Account> _organizationAccountViewModelBuilder;
-		private DateTime? _startDate;
-		private DateTime? _endDate;
+		private DateTime? _startDate = DateTime.Today.AddMonths(-1);
+		private DateTime? _endDate = DateTime.Today;
 		private bool _onlyWithDiscrepancies;
 		private Bank _organizationBank;
 		private Account _organizationAccount;

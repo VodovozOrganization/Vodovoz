@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Core.Infrastructure;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -15,9 +13,11 @@ using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
-using Vodovoz.Extensions;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IPaymentSettings _paymentSettings;
+		private readonly IOrganizationRepository _organizationRepository;
 		private bool _isExportToExcelInProcess;
 
 		public BankAccountsMovementsJournalViewModel(
@@ -39,12 +40,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
-			IPaymentSettings paymentSettings) : base(unitOfWorkFactory, interactiveService, navigation)
+			IPaymentSettings paymentSettings,
+			IOrganizationRepository organizationRepository) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_interactiveService = interactiveService;
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			Title = "Движения средств по расчетным счетам";
 
 			ConfigureLoader();
@@ -75,7 +78,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		{
 			var dataLoader = new ThreadDataLoader<BankAccountsMovementsJournalNode>(UnitOfWorkFactory);
 			dataLoader.AddQuery(GetLoadedAccountMovements);
-			dataLoader.PostLoadProcessingFunc = PostLoadProcessingFunc;
+			dataLoader.AddQuery(GetNotLoadedAccountMovements);
+			dataLoader.MergeInOrderBy(x => x.StartDate, true);
+			dataLoader.MergeInOrderBy(x => x.EndDate, true);
 			DataLoader = dataLoader;
 		}
 
@@ -92,22 +97,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			Refresh();
 		}
 
-		private IQueryOver<BankAccountMovement> GetLoadedAccountMovements(IUnitOfWork uow)
+		private IQueryOver<Organization> GetLoadedAccountMovements(IUnitOfWork uow)
 		{
 			BankAccountMovement accountMovementAlias = null;
 			BankAccountMovement subAccountMovementAlias = null;
 			BankAccountMovementData accountMovementDataAlias = null;
 			BankAccountMovementData subAccountMovementDataAlias = null;
 			Account accountAlias = null;
+			Organization organizationAlias = null;
 			Account paymentOrganizationAccountAlias = null;
 			Bank bankAlias = null;
 			Payment paymentAlias = null;
 			BankAccountsMovementsJournalNode resultAlias = null;
 			
-			var query = uow.Session.QueryOver(() => accountMovementAlias)
+			var query = uow.Session.QueryOver(() => organizationAlias)
+				.JoinAlias(() => organizationAlias.Accounts, () => accountAlias)
+				.JoinEntityAlias(() => accountMovementAlias, () => accountAlias.Id == accountMovementAlias.Account.Id)
 				.Left.JoinAlias(() => accountMovementAlias.BankAccountMovements, () => accountMovementDataAlias)
-				.Left.JoinAlias(() => accountMovementAlias.Bank, () => bankAlias)
-				.Left.JoinAlias(() => accountMovementAlias.Account, () => accountAlias);
+				.Left.JoinAlias(() => accountMovementAlias.Bank, () => bankAlias);
 			
 			var income = QueryOver.Of(() => paymentAlias)
 				.JoinAlias(() => paymentAlias.OrganizationAccount, () => paymentOrganizationAccountAlias)
@@ -155,19 +162,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(startDate.HasValue)
 			{
-				query.Where(x => x.StartDate >= startDate.Value);
+				query.Where(() => accountMovementAlias.StartDate >= startDate);
 			}
-			
+
 			if(endDate.HasValue)
 			{
-				query.Where(x => x.EndDate <= endDate.Value);
+				query.Where(() => accountMovementAlias.EndDate <= endDate);
 			}
 			
 			if(_filterViewModel.OnlyWithDiscrepancies)
 			{
-				query.Where(Restrictions.Conjunction()
-					.Add(Restrictions.Not(Restrictions.Eq(paymentsSubquery, 0)))
-					.Add(Restrictions.IsNotNull(paymentsSubquery)));
+				query.Where(
+					//Restrictions.Not(
+						Restrictions.NotEqProperty(
+							paymentsSubquery,
+							Projections.Property(() => accountMovementDataAlias.Amount)));
 			}
 
 			if(_filterViewModel.OrganizationAccount != null)
@@ -181,81 +190,58 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			}
 
 			query.SelectList(list => list
-					.Select(bam => bam.Id).WithAlias(() => resultAlias.Id)
-					.Select(bam => bam.StartDate).WithAlias(() => resultAlias.StartDate)
-					.Select(bam => bam.EndDate).WithAlias(() => resultAlias.EndDate)
+					.Select(() => accountMovementAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => accountMovementAlias.StartDate).WithAlias(() => resultAlias.StartDate)
+					.Select(() => accountMovementAlias.EndDate).WithAlias(() => resultAlias.EndDate)
 					.Select(() => accountAlias.Number).WithAlias(() => resultAlias.Account)
 					.Select(() => bankAlias.Name).WithAlias(() => resultAlias.Bank)
+					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
 					.Select(() => accountMovementDataAlias.AccountMovementDataType).WithAlias(() => resultAlias.AccountMovementDataType)
 					.Select(() => accountMovementDataAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(paymentsSubquery).WithAlias(() => resultAlias.AmountFromProgram)
 				)
 				.TransformUsing(Transformers.AliasToBean<BankAccountsMovementsJournalNode>())
-				.OrderBy(x => x.StartDate).Desc();
+				.OrderBy(() => accountMovementAlias.StartDate).Desc();
 			
 			return query;
 		}
 		
-		private void PostLoadProcessingFunc(IList items, uint addedSince)
+		private IQueryOver<CalendarEntity> GetNotLoadedAccountMovements(IUnitOfWork uow)
 		{
-			var startDateGeneration = _filterViewModel.StartDate ?? _paymentSettings.ControlPointStartDate;
-
-			var endDateGeneration = DateTime.Today;
-			
-			if(_filterViewModel.EndDate.HasValue && _filterViewModel.EndDate < endDateGeneration)
-			{
-				endDateGeneration = _filterViewModel.EndDate.Value;
-			}
-			
-			var dates = DateGenerator.GenerateDates(startDateGeneration, endDateGeneration);
-			var notLoadedData = new List<BankAccountsMovementsJournalNode>();
-			var loadedNodes = items
-				.Cast<BankAccountsMovementsJournalNode>()
-				.Skip((int)addedSince);
-
-			//var organizationsAccounts = ;
-
-			foreach(var date in dates)
-			{
-				//foreach(var account in organizationsAccounts)
-				//{
-					var loadedNode = loadedNodes.FirstOrDefault(x => (x.StartDate == date || x.EndDate == date));
-
-					if(loadedNode != null)
-					{
-						continue;
-					}
-
-					notLoadedData.AddRange(
-						Enum.GetValues(typeof(BankAccountMovementDataType))
-							.Cast<BankAccountMovementDataType>()
-							.Select(dateType => BankAccountsMovementsJournalNode.NotLoaded(date, date, null, null, dateType)));
-				//}
-			}
-
-			foreach(var node in notLoadedData)
-			{
-				items.Add(node);
-			}
-		}
-		
-		private IQueryOver<BankAccountMovement> GetNotLoadedAccountMovements(IUnitOfWork uow)
-		{
+			CalendarEntity calendarAlias = null;
 			BankAccountMovement accountMovementAlias = null;
 			BankAccountMovementData accountMovementDataAlias = null;
 			Account accountAlias = null;
+			Organization organizationAlias = null;
 			Bank bankAlias = null;
 			BankAccountsMovementsJournalNode resultAlias = null;
 			
-			var startDateGeneration = _filterViewModel.StartDate ?? _paymentSettings.ControlPointStartDate;
-			var endDateGeneration = _filterViewModel.EndDate ?? DateTime.Today;
+			var query = uow.Session.QueryOver(() => calendarAlias)
+				.JoinEntityAlias(() => accountMovementDataAlias, () => accountMovementDataAlias.AccountMovement == null)
+				.JoinEntityAlias(() => organizationAlias, () => organizationAlias.IsNeedCashlessMovementControl)
+				.JoinAlias(() => organizationAlias.Accounts, () => accountAlias)
+				.JoinAlias(() => accountAlias.InBank, () => bankAlias);
 			
-			var dates = DateGenerator.GenerateDates(startDateGeneration, endDateGeneration);
+			var loadedAccountMovements = QueryOver.Of(() => accountMovementAlias)
+				.Where(
+					CustomRestrictions.Between(
+						Projections.Property(() => calendarAlias.Date), 
+						Projections.Property(() => accountMovementAlias.StartDate),
+						Projections.Property(() => accountMovementAlias.EndDate)))
+				.Select(Projections.Property(() => accountMovementAlias.Id));
+
+			var startDate = _filterViewModel.StartDate ?? _paymentSettings.ControlPointStartDate;
+			//грузят выписки за прошлый день
+			var endDate = DateTime.Today.AddDays(-1);
 			
-			var query = uow.Session.QueryOver(() => accountMovementAlias)
-				.Left.JoinAlias(() => accountMovementAlias.BankAccountMovements, () => accountMovementDataAlias)
-				.Left.JoinAlias(() => accountMovementAlias.Bank, () => bankAlias)
-				.Left.JoinAlias(() => accountMovementAlias.Account, () => accountAlias);
+			if(_filterViewModel.EndDate.HasValue && _filterViewModel.EndDate < endDate)
+			{
+				endDate = _filterViewModel.EndDate.Value;
+			}
+
+			query.Where(() => calendarAlias.Date >= startDate)
+				.And(() => calendarAlias.Date <= endDate)
+				.WithSubquery.WhereNotExists(loadedAccountMovements);
 
 			if(_filterViewModel.OrganizationAccount != null)
 			{
@@ -268,15 +254,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			}
 
 			query.SelectList(list => list
-					.Select(bam => bam.Id).WithAlias(() => resultAlias.Id)
-					.Select(bam => bam.StartDate).WithAlias(() => resultAlias.StartDate)
-					.Select(bam => bam.EndDate).WithAlias(() => resultAlias.EndDate)
+					.Select(() => calendarAlias.Date).WithAlias(() => resultAlias.StartDate)
+					.Select(() => calendarAlias.Date).WithAlias(() => resultAlias.EndDate)
 					.Select(() => accountAlias.Number).WithAlias(() => resultAlias.Account)
 					.Select(() => bankAlias.Name).WithAlias(() => resultAlias.Bank)
+					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
 					.Select(() => accountMovementDataAlias.AccountMovementDataType).WithAlias(() => resultAlias.AccountMovementDataType)
+					.Select(() => accountMovementDataAlias.Amount).WithAlias(() => resultAlias.Amount)
 				)
 				.TransformUsing(Transformers.AliasToBean<BankAccountsMovementsJournalNode>())
-				.OrderBy(x => x.StartDate).Desc();
+				.OrderBy(() => calendarAlias.Date).Desc()
+				.OrderBy(() => organizationAlias.Id).Asc()
+				.OrderBy(() => accountAlias.Id).Asc()
+				.OrderBy(() => accountMovementDataAlias.Id).Asc()
+				;
 			
 			return query;
 		}
@@ -335,8 +326,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			var loadedMovements = GetLoadedAccountMovements(UoW).List<BankAccountsMovementsJournalNode>();
 			var notLoadedMovements = GetNotLoadedAccountMovements(UoW).List<BankAccountsMovementsJournalNode>();
 
-			var accountMovements = loadedMovements;
-				//.Concat(notLoadedMovements);
+			var accountMovements = loadedMovements
+				.Concat(notLoadedMovements)
+				.OrderByDescending(x => x.StartDate)
+				.ThenByDescending(x => x.EndDate);
 
 			return accountMovements;
 		}
