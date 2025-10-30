@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Spreadsheet;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -40,7 +40,7 @@ namespace Vodovoz.Application.Payments
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			IPaymentItemsRepository paymentItemsRepository
+			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentSettings paymentSettings)
 		{
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
