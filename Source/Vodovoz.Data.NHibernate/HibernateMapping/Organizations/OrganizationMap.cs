@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.OKPO).Column("OKPO");
 			Map(x => x.OKVED).Column("OKVED");
 			Map(x => x.Email).Column("email");
+			Map(x => x.EmailForMailing).Column("email_for_mailing");
 			Map(x => x.WithoutVAT).Column("without_vat");
 			Map(x => x.CashBoxId).Column("cash_box_id");
 			Map(x => x.AvangardShopId).Column("avangard_shop_id");

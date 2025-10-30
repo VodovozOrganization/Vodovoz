@@ -33,6 +33,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
+		private string _emailForMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private int? _avangardShopId;
@@ -53,6 +54,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
+			EmailForMailing = string.Empty;
 		}
 
 		/// <summary>
@@ -143,6 +145,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _email;
 			set => SetField(ref _email, value);
+		}
+
+		/// <summary>
+		/// E-mail адрес
+		/// </summary>
+		[Display(Name = "E-mail адреса")]
+		public virtual string EmailForMailing
+		{
+			get => _emailForMailing;
+			set => SetField(ref _emailForMailing, value);
 		}
 
 		/// <summary>

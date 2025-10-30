@@ -1,4 +1,4 @@
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using System.ComponentModel;
@@ -42,6 +42,11 @@ namespace Vodovoz.Organizations
 			validatedentryEmail.ValidationMode = ValidationType.Email;
 			validatedentryEmail.Binding
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
+				.InitializeFromSource();
+
+			validatedentryEmailForMailing.ValidationMode = ValidationType.DomainEmail;
+			validatedentryEmailForMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
 				.InitializeFromSource();
 
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
