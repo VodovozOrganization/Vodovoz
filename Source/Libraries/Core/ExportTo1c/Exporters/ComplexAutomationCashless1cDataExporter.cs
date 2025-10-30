@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog;
 using System;
 using System.Collections.Generic;
@@ -75,6 +75,7 @@ namespace ExportTo1c.Library.Exporters
 						"Строка",
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
+						new XAttribute("НоменклатураОфициальноеНазвание", item.Nomenclature.OfficialName),
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("ЕдиницаИзмерения", item.Nomenclature.Unit.Name),
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
