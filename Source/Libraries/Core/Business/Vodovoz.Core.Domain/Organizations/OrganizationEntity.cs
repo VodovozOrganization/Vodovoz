@@ -330,6 +330,21 @@ namespace Vodovoz.Core.Domain.Organizations
 					"Номера ОКВЭД не должны превышать 100 знаков.",
 					new[] { nameof(OKVED) });
 			}
+
+			if(string.IsNullOrWhiteSpace(Email))
+			{
+				yield return new ValidationResult(
+					"E-mail организации должен быть заполнен.",
+					new[] { nameof(Email) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(EmailForMailing) 
+				&& !Regex.IsMatch(EmailForMailing, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru$"))
+			{
+				yield return new ValidationResult(
+					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(Email) });
+			}
 		}
 
 		/// <summary>

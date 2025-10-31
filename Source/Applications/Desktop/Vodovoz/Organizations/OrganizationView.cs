@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using QS.Widgets;
+using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.ViewModels.Organizations;
@@ -44,7 +45,7 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.InitializeFromSource();
 
-			validatedentryEmailForMailing.ValidationMode = ValidationType.DomainEmail;
+			validatedentryEmailForMailing.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForMailing.Binding
 				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
 				.InitializeFromSource();
