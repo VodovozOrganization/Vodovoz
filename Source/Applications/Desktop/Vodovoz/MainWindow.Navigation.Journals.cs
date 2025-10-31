@@ -1180,13 +1180,19 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction47Activated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-		
-		// ДОБАВИТЬ В МЕНЮ (ЕЩЁ НЕ ДЕЛАЛ ДЛЯ ЭТОЙ ЗАДАЧИ!!!!!!!
-		
+		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
+	/// <summary>
+	/// Настройка текстов пуш-уведомлений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPushNotificationTextSettingsActivated(object sender, EventArgs e)
+	{
 		NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-
+	
 	#endregion Помощники
 
 	#region Заказы
