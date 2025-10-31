@@ -24,13 +24,15 @@ namespace Vodovoz.Controllers
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
 		private readonly IFastDeliveryOrderAddedNotificationSender _fastDeliveryOrderAddedNotificationSender;
+		private readonly IRouteListService _routeListService;
 
 		public FastDeliveryHandler(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRepository deliveryRepository,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator,
-			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender)
+			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender,
+			IRouteListService routeListService)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
@@ -38,6 +40,7 @@ namespace Vodovoz.Controllers
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
 			_fastDeliveryOrderAddedNotificationSender = fastDeliveryOrderAddedNotificationSender ?? throw new ArgumentNullException(nameof(fastDeliveryOrderAddedNotificationSender));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 		
 		public RouteList RouteListToAddFastDeliveryOrder { get; private set; }
@@ -143,8 +146,8 @@ namespace Vodovoz.Controllers
 					return Result.Failure(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryNotOnTheWay(
 						RouteListToAddFastDeliveryOrder.Id, RouteListToAddFastDeliveryOrder.Status));
 				}
-
-				fastDeliveryAddress = RouteListToAddFastDeliveryOrder.AddAddressFromOrder(order);
+				
+				_routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 				order.UpdateDocuments();
