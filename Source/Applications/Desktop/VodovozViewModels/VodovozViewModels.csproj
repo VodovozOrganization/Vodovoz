@@ -1217,6 +1217,7 @@
     <Compile Include="ViewModels\Goods\NomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="AboutViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1c\RetailSalesReportFor1c.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\NotAllocatedCounterpartiesJournalFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\GeoCoderApi.Client\GeoCoderApi.Client.csproj">

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -8,6 +9,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.ViewModels.Payments;
 
@@ -16,14 +18,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 	public class NotAllocatedCounterpartiesJournalViewModel
 		: EntityJournalViewModelBase<NotAllocatedCounterparty, NotAllocatedCounterpartyViewModel, NotAllocatedCounterpartiesJournalNode>
 	{
+		private readonly NotAllocatedCounterpartiesJournalFilterViewModel _filterViewModel;
+
 		public NotAllocatedCounterpartiesJournalViewModel(
+			NotAllocatedCounterpartiesJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			IDeleteEntityService deleteEntityService,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			Action<NotAllocatedCounterpartiesJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			JournalFilter = _filterViewModel;
+			_filterViewModel.OnFiltered += OnFilterFiltered;
+
+			if(filterParams != null)
+			{
+				_filterViewModel.ConfigureWithoutFiltering(filterParams);
+			}
+			
 			VisibleDeleteAction = false;
 		}
 
@@ -72,6 +87,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			
 			var query = uow.Session.QueryOver(() => notAllocatedCounterpartyAlias)
 				.JoinAlias(() => notAllocatedCounterpartyAlias.ProfitCategory, () => profitCategoryAlias);
+			
+			if(!_filterViewModel.ShowArchive)
+			{
+				query.Where(() => !profitCategoryAlias.IsArchive);
+			}
 
 			query.Where(GetSearchCriterion(
 				() => notAllocatedCounterpartyAlias.Inn
@@ -87,6 +107,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			.TransformUsing(Transformers.AliasToBean<NotAllocatedCounterpartiesJournalNode>());
 			
 			return query;
+		}
+		
+		private void OnFilterFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 	}
 }
