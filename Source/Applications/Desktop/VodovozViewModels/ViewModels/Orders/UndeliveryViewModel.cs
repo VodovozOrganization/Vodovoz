@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.Orders
 				return false;
 			}
 
-			if(Entity.Id == 0)
+			if(Entity.Id == 0 && !_isExternalUoW)
 			{
 				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}

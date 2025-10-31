@@ -1,7 +1,9 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Banks.Domain;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.EntityRepositories.Organizations
@@ -23,5 +25,16 @@ namespace Vodovoz.EntityRepositories.Organizations
 		/// <param name="uow"></param>
 		/// <returns></returns>
 		IList<Organization> GetOrganizations(IUnitOfWork uow);
+		/// <summary>
+		/// Получение активных р/сч для точки контроля безналичных передвижений 
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="startDate">Начальная дата</param>
+		/// <param name="endDate">Конечная дата</param>
+		/// <param name="bankId">Идентификатор банка</param>
+		/// <param name="accountId">Идентификатор аккаунта</param>
+		/// <returns></returns>
+		IEnumerable<(string OrganizationName, Account Account)> GetActiveAccountsOrganizationsWithCashlessControl(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, int? bankId, int? accountId);
 	}
 }

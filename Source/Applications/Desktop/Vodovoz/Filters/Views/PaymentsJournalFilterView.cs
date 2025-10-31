@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gamma.ColumnConfig;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QS.Widgets;
@@ -7,6 +8,7 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Tools;
 using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
@@ -75,6 +77,7 @@ namespace Vodovoz.Filters.Views
 				.InitializeFromSource();
 
 			ConfigureEntityEntries();
+			ConfigureTreeWidgets();
 		}
 
 		private void ConfigureEntityEntries()
@@ -90,6 +93,22 @@ namespace Vodovoz.Filters.Views
 			organizationEntry.ViewModel = ViewModel.OrganizationEntryViewModel;
 			organizationBankEntry.ViewModel = ViewModel.OrganizationBankEntryViewModel;
 			organizationAccountEntry.ViewModel = ViewModel.OrganizationAccountEntryViewModel;
+		}
+		
+		private void ConfigureTreeWidgets()
+		{
+			treeViewProfitCategories.ColumnsConfig = FluentColumnsConfig<SelectableNode<ProfitCategory>>.Create()
+				.AddColumn("✔️")
+					.AddToggleRenderer(x => x.Selected)
+				.AddColumn("Категория")
+					.AddTextRenderer(x => x.Value.Name)
+				.AddColumn("")
+				.Finish();
+			
+			treeViewProfitCategories.ItemsDataSource = ViewModel.ProfitCategories;
+			treeViewProfitCategories.HeightRequest = 100;
+			treeViewProfitCategories.WidthRequest = 200;
+			treeViewProfitCategories.HeadersClickable = true;
 		}
 	}
 }

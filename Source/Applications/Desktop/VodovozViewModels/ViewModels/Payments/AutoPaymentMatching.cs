@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly OrderStatus[] _orderUndeliveredStatuses;
-		private readonly HashSet<int> addedOrderIdsToAllocate = new HashSet<int>();
+		private readonly HashSet<int> _addedOrderIdsToAllocate = new HashSet<int>();
 
 		public AutoPaymentMatching(IUnitOfWork uow, IOrderRepository orderRepository)
 		{
@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				foreach(var order in orders)
 				{
-					if(addedOrderIdsToAllocate.Contains(order.Id))
+					if(_addedOrderIdsToAllocate.Contains(order.Id))
 					{
 						return false;
 					}
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					if(paymentSum >= order.OrderSum)
 					{
 						payment.AddPaymentItem(order);
-						addedOrderIdsToAllocate.Add(order.Id);
+						_addedOrderIdsToAllocate.Add(order.Id);
 						sb.AppendLine(order.Id.ToString());
 						paymentSum -= order.OrderSum;
 					}
@@ -82,18 +82,17 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
-			payment.NumOrders = sb.ToString().TrimEnd(new[] { '\r', '\n' });
+			payment.NumOrders = sb.ToString().TrimEnd('\r', '\n');
 			return true;
 		}
 
 		private ISet<int> ParsePaymentPurpose(string paymentPurpose)
 		{
-			string pattern = @"([0-9]{6,7})";
-
-			HashSet<int> uniqueOrderNumbers = new HashSet<int>();
+			var pattern = @"([0-9]{6,7})";
+			var uniqueOrderNumbers = new HashSet<int>();
 			var matches = Regex.Matches(paymentPurpose, pattern);
 
-			for(int i = 0; i < matches.Count; i++)
+			for(var i = 0; i < matches.Count; i++)
 			{
 				uniqueOrderNumbers.Add(int.Parse(matches[i].Groups[1].Value));
 			}

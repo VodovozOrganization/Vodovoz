@@ -2,22 +2,25 @@
 
 namespace Vodovoz.Core.Domain.Payments
 {
+	/// <summary>
+	/// Колонки журнала платежей
+	/// </summary>
 	public class PaymentsJournalColumns
 	{
-		public static string IdColumn => "Код";
-		public static string NumberColumn => "№";
-		public static string DateColumn => "Дата";
-		public static string TotalColumn => "Cумма";
-		public static string OrdersColumn => "Заказы";
-		public static string PayerColumn => "Плательщик";
-		public static string CounterpartyColumn => "Контрагент";
-		public static string OrganizationColumn => "Получатель\n/Организация списания";
-		public static string OrganizationBankColumn => "Банк";
-		public static string OrganizationAccountColumn => "Р/сч";
-		public static string PurposeColumn => "Назначение платежа\n/Причина списания";
-		public static string ProfitCategoryColumn => "Категория дохода/расхода\n/Статья расхода";
-		public static string IsManuallyCreatedColumn => "Создан вручную";
-		public static string UnAllocatedSumColumn => "Нераспределенная сумма";
-		public static string DocumentTypeColumn => "Тип документа";
+		public static string Id => "Код";
+		public static string Number => "№";
+		public static string Date => "Дата";
+		public static string Total => "Cумма";
+		public static string Orders => "Заказы";
+		public static string Payer => "Плательщик";
+		public static string Counterparty => "Контрагент";
+		public static string Organization => "Получатель\n/Организация списания";
+		public static string OrganizationBank => "Банк";
+		public static string OrganizationAccount => "Р/сч";
+		public static string Purpose => "Назначение платежа\n/Причина списания";
+		public static string ProfitCategory => "Категория дохода/расхода\n/Статья расхода";
+		public static string IsManuallyCreated => "Создан вручную";
+		public static string UnAllocatedSum => "Нераспределенная сумма";
+		public static string DocumentType => "Тип документа";
 	}
 }
