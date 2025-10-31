@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -37,6 +38,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -52,7 +54,8 @@ namespace DriverAPI.Library.V6.Services
 			IDomainRouteListService domainRouteListService,
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
-			IFastPaymentService fastPaymentService)
+			IFastPaymentService fastPaymentService,
+			ICallTaskWorker callTaskWorker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -68,6 +71,7 @@ namespace DriverAPI.Library.V6.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -238,7 +242,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState);
 			}
 			
-			_domainRouteListService.ChangeAddressStatus(_unitOfWork, routeListAddress.RouteList, routeListAddress.Id, RouteListItemStatus.EnRoute);
+			_domainRouteListService.ChangeAddressStatus(_unitOfWork, routeListAddress.RouteList, routeListAddress.Id, RouteListItemStatus.EnRoute, _callTaskWorker);
 
 			_unitOfWork.Save(routeListAddress.RouteList);
 			_unitOfWork.Save(routeListAddress);
