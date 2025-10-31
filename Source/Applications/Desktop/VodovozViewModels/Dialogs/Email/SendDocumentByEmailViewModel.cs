@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -202,7 +202,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+							&& ((OrderWithoutShipmentForDebt)Document).Organization != null;
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
@@ -210,7 +211,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+						    && ((OrderWithoutShipmentForAdvancePayment)Document).Organization != null;
 						break;
 					case OrderDocumentType.BillWSForPayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
@@ -218,7 +220,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+						    && ((OrderWithoutShipmentForPayment)Document).Organization != null;
 						break;
 					case OrderDocumentType.UPD:
 					case OrderDocumentType.SpecialUPD:
