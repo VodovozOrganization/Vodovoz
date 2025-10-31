@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -290,7 +290,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			if(!_routeListService.AcceptMileage(_uow, routeList, _validator))
+			if(!_routeListService.AcceptMileage(_uow, routeList, _validator, _callTaskWorker))
 			{
 				return false;
 			}
@@ -329,7 +329,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListService.ChangeStatusAndCreateTask(_uow,  routeList,
 				routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 					? RouteListStatus.MileageCheck
-					: RouteListStatus.OnClosing
+					: RouteListStatus.OnClosing,
+				_callTaskWorker
 			);
 		}
 

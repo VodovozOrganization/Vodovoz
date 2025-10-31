@@ -52,6 +52,8 @@ namespace Vodovoz
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
 		
+		private IWageParameterService _wageParameterService;
+		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
 		private IEventsQrPlacer _eventsQrPlacer;
 
@@ -115,6 +117,9 @@ namespace Vodovoz
 			_carUnloadRepository = _lifetimeScope.Resolve<ICarUnloadRepository>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			
+			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
+			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
@@ -294,7 +299,7 @@ namespace Vodovoz
 
 			if(Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				 _routeListService.CompleteRouteAndCreateTask(UoW, Entity.RouteList);
+				 _routeListService.CompleteRouteAndCreateTask(UoW, Entity.RouteList, _wageParameterService, _callTaskWorker);
 			}
 
 			_logger.LogInformation("Сохраняем разгрузочный талон...");

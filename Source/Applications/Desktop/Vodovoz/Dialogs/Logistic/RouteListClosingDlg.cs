@@ -67,6 +67,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Employees;
@@ -149,6 +150,8 @@ namespace Vodovoz
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private List<int> _ignoreReceiptsForOrderIds = new List<int>();
+		
+		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
 
@@ -217,6 +220,8 @@ namespace Vodovoz
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
 
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
+			
+			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
 			_contractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
@@ -781,6 +786,7 @@ namespace Vodovoz
 			var dlg = new OrderReturnsView(
 				UoW,
 				_orderDiscountsController,
+				CallTaskWorker,
 				_counterpartyService,
 				_currentPermissionService,
 				_interactiveService,
@@ -1107,7 +1113,8 @@ namespace Vodovoz
 				_routeListService.ChangeStatusAndCreateTask(UoW, Entity,
 					Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 						? RouteListStatus.MileageCheck
-						: RouteListStatus.OnClosing
+						: RouteListStatus.OnClosing,
+					CallTaskWorker
 				);
 			}
 
@@ -1225,7 +1232,7 @@ namespace Vodovoz
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
-					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck);
+					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
 					
 					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
@@ -1242,7 +1249,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
 			if(Entity.Status == RouteListStatus.OnClosing) {
-				_routeListService.AcceptCash(UoW, Entity);
+				_routeListService.AcceptCash(UoW, Entity, CallTaskWorker);
 				
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
@@ -1250,12 +1257,12 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
 				&& !Entity.DifferencesConfirmed) {
-					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.OnClosing);
+					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.OnClosing, CallTaskWorker);
 				} else {
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck) {
-						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck);
+						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
 					} else {
-						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.Closed);
+						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.Closed, CallTaskWorker);
 					}
 				}
 			}

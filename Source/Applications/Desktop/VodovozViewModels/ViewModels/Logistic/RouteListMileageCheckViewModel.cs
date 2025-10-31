@@ -186,7 +186,7 @@ namespace Vodovoz.ViewModels.Logistic
 					OnPropertyChanged(nameof(CanEdit));
 				}
 
-				if(!_routeListService.AcceptMileage(UoW, Entity, CommonServices.ValidationService))
+				if(!_routeListService.AcceptMileage(UoW, Entity, CommonServices.ValidationService, CallTaskWorker))
 				{
 					AskSaveOnClose = false;
 					return;
@@ -355,7 +355,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity,
 				Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 					? RouteListStatus.MileageCheck
-					: RouteListStatus.OnClosing
+					: RouteListStatus.OnClosing,
+				CallTaskWorker
 			);
 		}
 

@@ -18,8 +18,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var notifications =
 				from notification in uow.Session.Query<OnlineOrderStatusUpdatedNotification>()
 				where (notification.HttpCode == null || !validCodes.Contains(notification.HttpCode.Value))
-					//&& notification.CreationDate >= DateTime.Today.AddDays(-days)
-					//&& notification.Id == 2
+				      && notification.CreationDate >= DateTime.Today.AddDays(-days)
 				orderby notification.HttpCode
 				select notification;
 

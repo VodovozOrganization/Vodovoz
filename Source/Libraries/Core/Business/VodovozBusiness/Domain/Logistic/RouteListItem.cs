@@ -50,9 +50,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IRouteListItemRepository>();
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
-		
-		// private IOnlineOrderService _onlineOrderService => ScopeProvider.Scope
-		// 	.Resolve<IOnlineOrderService>();
 
 		private Order _order;
 		private RouteList _routeList;

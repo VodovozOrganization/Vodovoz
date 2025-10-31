@@ -3,6 +3,7 @@ using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
 {
@@ -100,10 +101,10 @@ namespace Vodovoz
 
 		#endregion Контроль отмены автоотмены автопереноса
 
-		public void UpdateStatus(IRouteListService routeListService, RouteListItemStatus value)
+		public void UpdateStatus(IRouteListService routeListService, RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			routeListService.ChangeAddressStatusAndCreateTask(uow, RouteListItem.RouteList, RouteListItem.Id, value);
+			routeListService.ChangeAddressStatusAndCreateTask(uow, RouteListItem.RouteList, RouteListItem.Id, value, callTaskWorker);
 
 			if(RouteListItem.Status == RouteListItemStatus.Overdue || RouteListItem.Status == RouteListItemStatus.Canceled)
 			{

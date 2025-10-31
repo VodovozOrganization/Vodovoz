@@ -70,6 +70,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteOptimizer _routeOptimizer;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 		private readonly IWageParameterService _wageParameterService;
@@ -101,6 +102,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IOrderRepository orderRepository,
 			IRouteOptimizer routeOptimizer,
+			ICallTaskWorker callTaskWorker,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			RouteGeometryCalculator routeGeometryCalculator,
 			IWageParameterService wageParameterService,
@@ -124,6 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeOptimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_routeGeometryCalculator = routeGeometryCalculator ?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
@@ -608,7 +611,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
-					Result result = _routeListService.TryChangeStatusToNew(UoW, Entity);
+					Result result = _routeListService.TryChangeStatusToNew(UoW, Entity, _wageParameterService, _callTaskWorker);
 
 					SetSensetivity(false);
 
@@ -858,7 +861,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
 			
-			_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Confirmed);
+			_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Confirmed, _callTaskWorker);
 
 			//Строим маршрут для МЛ.
 			if((!routeList.PrintsHistory?.Any() ?? true) || confirmRecalculateRoute)
@@ -909,7 +912,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(confirmSendOnClosing)
 				{
-					_routeListService.CompleteRouteAndCreateTask(unitOfWork, routeList);
+					_routeListService.CompleteRouteAndCreateTask(unitOfWork, routeList, _wageParameterService, _callTaskWorker);
 				}
 			}
 			else
@@ -935,11 +938,11 @@ namespace Vodovoz.ViewModels.Logistic
 							return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 						}
 
-						_routeListService.SendEnRoute(unitOfWork, routeList);
+						_routeListService.SendEnRoute(unitOfWork, routeList, _callTaskWorker);
 					}
 					else
 					{
-						_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.New);
+						_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.New, _callTaskWorker);
 					}
 				}
 			}

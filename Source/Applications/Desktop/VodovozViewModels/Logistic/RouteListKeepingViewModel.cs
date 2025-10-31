@@ -108,6 +108,7 @@ namespace Vodovoz
 			IWageParameterService wageParameterService,
 			IGeneralSettings generalSettings,
 			IServiceProvider serviceProvider,
+			ICallTaskWorker callTaskWorker,
 			IOrderRepository orderRepository,
 			ITrueMarkRepository trueMarkRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
@@ -132,6 +133,7 @@ namespace Vodovoz
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 
@@ -202,6 +204,7 @@ namespace Vodovoz
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
 		
+		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public IEnumerable<RouteListKeepingItemNode> SelectedRouteListAddresses
 		{
@@ -553,7 +556,7 @@ namespace Vodovoz
 				rli.RouteListItemStatusHasChangedToCompeteStatus = true;
 			}
 
-			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange);
+			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
 		}
 
@@ -638,7 +641,7 @@ namespace Vodovoz
 				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
 				.FirstOrDefault();
 
-			address.UpdateStatus(_routeListService,  _routeListItemStatusToChange);
+			address.UpdateStatus(_routeListService,  _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
@@ -866,7 +869,7 @@ namespace Vodovoz
 					continue;
 				}
 				
-				_routeListService.ChangeAddressStatusAndCreateTask(UoW, Entity, item.RouteListItem.Id, newStatus);
+				_routeListService.ChangeAddressStatusAndCreateTask(UoW, Entity, item.RouteListItem.Id, newStatus, CallTaskWorker);
 				TryUpdateCreatedEdoRequests(item, newStatus);
 			}
 

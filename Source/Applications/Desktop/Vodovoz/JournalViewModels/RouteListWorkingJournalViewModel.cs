@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -55,6 +55,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
@@ -87,6 +88,7 @@ namespace Vodovoz.JournalViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
@@ -493,7 +495,7 @@ namespace Vodovoz.JournalViewModels
 									isSlaveTabActive = true;
 									return;
 								}
-								_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing);
+								_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing, _callTaskWorker);
 								uowLocal.Save(routeList);
 								if(isSlaveTabActive)
 								{

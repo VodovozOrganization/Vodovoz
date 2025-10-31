@@ -28,7 +28,6 @@ namespace Vodovoz.Application.Logistics
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOnlineOrderService _onlineOrderService;
-		private readonly IWageParameterService _wageParameterService;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -60,7 +59,6 @@ namespace Vodovoz.Application.Logistics
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
-			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ??
 			                                             throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_financialCategoriesGroupsSettings =
@@ -69,8 +67,8 @@ namespace Vodovoz.Application.Logistics
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 
-		public Result<IEnumerable<string>> TransferAddressesFrom(
-			IUnitOfWork unitOfWork,
+		public Result<IEnumerable<string>> TransferAddressesFrom(IUnitOfWork unitOfWork,
+			IWageParameterService wageParameterService,
 			int sourceRouteListId,
 			int targetRouteListId,
 			IDictionary<int, AddressTransferType?> addressIdsAndTransferType)
@@ -100,7 +98,7 @@ namespace Vodovoz.Application.Logistics
 
 			foreach(var address in addressesToTransfer)
 			{
-				var result = TransferAddressFrom(unitOfWork, sourceRouteList, targetRouteList, address, addressIdsAndTransferType[address.Id]);
+				var result = TransferAddressFrom(unitOfWork, wageParameterService, sourceRouteList, targetRouteList, address, addressIdsAndTransferType[address.Id]);
 
 				if(result.IsSuccess)
 				{
@@ -119,11 +117,10 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
 
-		public Result<IEnumerable<string>> RevertTransferedAddressesFrom(
-			IUnitOfWork unitOfWork,
+		public Result<IEnumerable<string>> RevertTransferedAddressesFrom(IUnitOfWork unitOfWork,
 			int sourceRouteListId,
 			int? targetRouteListId,
-			IEnumerable<int> addressIds)
+			IEnumerable<int> addressIds, IWageParameterService wageParameterService)
 		{
 			var messages = new List<string>();
 			var errors = new List<string>();
@@ -179,7 +176,7 @@ namespace Vodovoz.Application.Logistics
 
 			foreach(var address in addressesToRevert)
 			{
-				var result = RevertTransferedAddressFrom(unitOfWork, sourceRouteList, targetRouteList, address);
+				var result = RevertTransferedAddressFrom(unitOfWork, wageParameterService, sourceRouteList, targetRouteList, address);
 
 				if(result.IsSuccess)
 				{
@@ -196,7 +193,7 @@ namespace Vodovoz.Application.Logistics
 				return Result.Failure<IEnumerable<string>>(revertErrors);
 			}
 
-			sourceRouteList.CalculateWages(_wageParameterService);
+			sourceRouteList.CalculateWages(wageParameterService);
 
 			// Сохранение данных в транзакцию
 
@@ -215,8 +212,8 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
 
-		private Result<string> TransferOrderTo(
-			IUnitOfWork unitOfWork,
+		private Result<string> TransferOrderTo(IUnitOfWork unitOfWork,
+			IWageParameterService wageParameterService,
 			RouteList targetRouteList,
 			Order order,
 			AddressTransferType? transferType)
@@ -243,13 +240,13 @@ namespace Vodovoz.Application.Logistics
 			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
 
 			targetRouteList.ObservableAddresses.Add(newRouteListItem);
-			targetRouteList.CalculateWages(_wageParameterService);
+			targetRouteList.CalculateWages(wageParameterService);
 
 			newRouteListItem.RecalculateTotalCash();
 
 			if(targetRouteList.ClosingFilled)
 			{
-				newRouteListItem.FirstFillClosing(_wageParameterService);
+				newRouteListItem.FirstFillClosing(wageParameterService);
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
@@ -268,8 +265,8 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success(string.Empty);
 		}
 
-		private Result<IEnumerable<string>> TransferAddressFrom(
-			IUnitOfWork unitOfWork,
+		private Result<IEnumerable<string>> TransferAddressFrom(IUnitOfWork unitOfWork,
+			IWageParameterService wageParameterService,
 			RouteList sourceRouteList,
 			RouteList targetRouteList,
 			RouteListItem address,
@@ -337,7 +334,7 @@ namespace Vodovoz.Application.Logistics
 				newAddress = transferredAddressFromRouteListTo;
 				newAddress.AddressTransferType = addressTransferType;
 				address.WasTransfered = false;
-				RevertTransferAddress(unitOfWork, targetRouteList, newAddress, address);
+				RevertTransferAddress(unitOfWork, targetRouteList, newAddress, address, wageParameterService);
 				TransferAddressTo(unitOfWork, sourceRouteList, address, newAddress);
 				newAddress.WasTransfered = true;
 			}
@@ -359,10 +356,10 @@ namespace Vodovoz.Application.Logistics
 
 			FlushSessionWithoutCommit(unitOfWork);
 
-			sourceRouteList.CalculateWages(_wageParameterService);
+			sourceRouteList.CalculateWages(wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, sourceRouteList);
 
-			targetRouteList.CalculateWages(_wageParameterService);
+			targetRouteList.CalculateWages(wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, targetRouteList);
 
 			address.RecalculateTotalCash();
@@ -370,7 +367,7 @@ namespace Vodovoz.Application.Logistics
 
 			if(targetRouteList.ClosingFilled)
 			{
-				newAddress.FirstFillClosing(_wageParameterService);
+				newAddress.FirstFillClosing(wageParameterService);
 			}
 
 			UpdateTransferDocuments(unitOfWork, address, newAddress, addressTransferType.Value);
@@ -391,8 +388,8 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success(messages.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
 
-		public Result<IEnumerable<string>> TransferOrdersTo(
-			IUnitOfWork unitOfWork,
+		public Result<IEnumerable<string>> TransferOrdersTo(IUnitOfWork unitOfWork,
+			IWageParameterService wageParameterService,
 			int targetRouteListId,
 			IDictionary<int, AddressTransferType?> ordersIdsAndTransferType)
 		{
@@ -412,7 +409,7 @@ namespace Vodovoz.Application.Logistics
 
 			foreach(var order in ordersToTransfer)
 			{
-				var result = TransferOrderTo(unitOfWork, targetRouteList, order, ordersIdsAndTransferType[order.Id]);
+				var result = TransferOrderTo(unitOfWork, wageParameterService, targetRouteList, order, ordersIdsAndTransferType[order.Id]);
 
 				if(result.IsFailure)
 				{
@@ -449,12 +446,13 @@ namespace Vodovoz.Application.Logistics
 		/// Возврат переноса
 		/// </summary>
 		/// <param name="unitOfWork"></param>
+		/// <param name="wageParameterService"></param>
 		/// <param name="sourceRouteList">Маршрутный лист из которого возвращаем перенос</param>
 		/// <param name="targetRouteList">Маршрутный лист куда возвращается перенос</param>
 		/// <param name="address"></param>
 		/// <returns></returns>
-		private Result<string> RevertTransferedAddressFrom(
-			IUnitOfWork unitOfWork,
+		private Result<string> RevertTransferedAddressFrom(IUnitOfWork unitOfWork,
+			IWageParameterService wageParameterService,
 			RouteList sourceRouteList,
 			RouteList targetRouteList,
 			RouteListItem address)
@@ -489,7 +487,7 @@ namespace Vodovoz.Application.Logistics
 
 				var pastPlaceAddressTransferType = pastPlace.TransferedTo.AddressTransferType;
 
-				RevertTransferAddress(unitOfWork, previousRouteList, pastPlace, address);
+				RevertTransferAddress(unitOfWork, previousRouteList, pastPlace, address, wageParameterService);
 				pastPlace.WasTransfered = true;
 				pastPlace.AddressTransferType = pastPlaceAddressTransferType;
 
@@ -500,7 +498,7 @@ namespace Vodovoz.Application.Logistics
 				address.WasTransfered = false;
 			}
 
-			address.RouteList.CalculateWages(_wageParameterService);
+			address.RouteList.CalculateWages(wageParameterService);
 			address.RecalculateTotalCash();
 
 			return Result.Success(string.Empty);
@@ -513,9 +511,9 @@ namespace Vodovoz.Application.Logistics
 		}
 
 		public void RevertTransferAddress(IUnitOfWork unitOfWork, RouteList routeList,
-			RouteListItem targetAddress, RouteListItem revertedAddress)
+			RouteListItem targetAddress, RouteListItem revertedAddress, IWageParameterService wageParameterService)
 		{
-			targetAddress.RevertTransferAddress(unitOfWork, _wageParameterService, revertedAddress);
+			targetAddress.RevertTransferAddress(unitOfWork, wageParameterService, revertedAddress);
 
 			_routeListService.UpdateStatus(unitOfWork, routeList);
 		}

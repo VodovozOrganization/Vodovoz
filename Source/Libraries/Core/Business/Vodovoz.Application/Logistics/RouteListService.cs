@@ -33,8 +33,6 @@ namespace Vodovoz.Application.Logistics
 		private readonly ILogger<RouteListService> _logger;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IWageParameterService _wageParameterService;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
@@ -53,8 +51,6 @@ namespace Vodovoz.Application.Logistics
 			ILogger<RouteListService> logger,
 			IRouteListRepository routeListRepository,
 			IDeliveryRepository deliveryRepository,
-			ICallTaskWorker callTaskWorker,
-			IWageParameterService wageParameterService,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
@@ -72,8 +68,6 @@ namespace Vodovoz.Application.Logistics
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
@@ -94,6 +88,7 @@ namespace Vodovoz.Application.Logistics
 		public bool TrySendEnRoute(
 			IUnitOfWork unitOfWork,
 			RouteList routeList,
+			ICallTaskWorker callTaskWorker,
 			out IList<GoodsInRouteListResult> notLoadedGoods,
 			CarLoadDocument withDocument = null)
 		{
@@ -156,7 +151,7 @@ namespace Vodovoz.Application.Logistics
 
 				if(RouteList.AvailableToSendEnRouteStatuses.Contains(routeList.Status))
 				{
-					SendEnRoute(unitOfWork, routeList);
+					SendEnRoute(unitOfWork, routeList, callTaskWorker);
 				}
 			}
 
@@ -165,7 +160,8 @@ namespace Vodovoz.Application.Logistics
 
 		public void SendEnRoute(
 			IUnitOfWork unitOfWork,
-			int routeListId)
+			int routeListId,
+			ICallTaskWorker callTaskWorker)
 		{
 			using(var transaction = unitOfWork.Session.BeginTransaction())
 			{
@@ -178,7 +174,7 @@ namespace Vodovoz.Application.Logistics
 					return;
 				}
 
-				SendEnRoute(unitOfWork, routeList);
+				SendEnRoute(unitOfWork, routeList, callTaskWorker);
 
 				transaction.Commit();
 			}
@@ -186,7 +182,8 @@ namespace Vodovoz.Application.Logistics
 
 		public void SendEnRoute(
 			IUnitOfWork unitOfWork,
-			RouteList routeList)
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList is null)
 			{
@@ -202,10 +199,10 @@ namespace Vodovoz.Application.Logistics
 				_routeListSpecialConditionsService.CreateSpecialConditionsFor(unitOfWork, routeList);
 			}
 
-			ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.EnRoute);
+			ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.EnRoute, callTaskWorker);
 		}
 
-		public Result TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList)
+		public Result TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.InLoading
 			   && routeList.Status != RouteListStatus.Confirmed)
@@ -218,14 +215,14 @@ namespace Vodovoz.Application.Logistics
 				return Result.Failure(RouteListErrors.HasCarLoadingDocuments);
 			}
 
-			ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.New);
+			ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.New, callTaskWorker);
 
-			RecalculateRouteList(unitOfWork, routeList);
+			RecalculateRouteList(unitOfWork, routeList, wageParameterService);
 
 			return Result.Success();
 		}
 
-		public void CompleteRoute(IUnitOfWork unitOfWork, RouteList routeList)
+		public void CompleteRoute(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService, ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(unitOfWork, routeList, RouteListStatus.Delivered);
 
@@ -237,21 +234,23 @@ namespace Vodovoz.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(_wageParameterService);
+			routeList.FirstFillClosing(wageParameterService);
 			unitOfWork.Save(routeList);
 		}
 
 		public void CompleteRouteAndCreateTask(
 			IUnitOfWork unitOfWork,
-			RouteList routeList)
+			RouteList routeList,
+			IWageParameterService wageParameterService,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.NeedMileageCheck)
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck, callTaskWorker);
 			}
 			else
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.OnClosing);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.OnClosing, callTaskWorker);
 			}
 
 			var track = _trackRepository.GetTrackByRouteListId(unitOfWork, routeList.Id);
@@ -262,11 +261,11 @@ namespace Vodovoz.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(_wageParameterService);
+			routeList.FirstFillClosing(wageParameterService);
 			unitOfWork.Save(routeList);
 		}
 
-		public void AcceptCash(IUnitOfWork unitOfWork, RouteList routeList)
+		public void AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing)
 			{
@@ -278,10 +277,10 @@ namespace Vodovoz.Application.Logistics
 				throw new InvalidOperationException("Должен быть заполнен кассир");
 			}
 
-			ConfirmAndClose(unitOfWork, routeList);
+			ConfirmAndClose(unitOfWork, routeList, callTaskWorker);
 		}
 
-		public bool AcceptMileage(IUnitOfWork unitOfWork, RouteList routeList, IValidator validator)
+		public bool AcceptMileage(IUnitOfWork unitOfWork, RouteList routeList, IValidator validator, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -295,7 +294,7 @@ namespace Vodovoz.Application.Logistics
 				return false;
 			}
 
-			ConfirmAndClose(unitOfWork, routeList);
+			ConfirmAndClose(unitOfWork, routeList, callTaskWorker);
 			return true;
 		}
 
@@ -468,7 +467,7 @@ namespace Vodovoz.Application.Logistics
 			routeList.UpdateClosedInformation();
 		}
 
-		public void ChangeStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus)
+		public void ChangeStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
 		{
 			if(newStatus == routeList.Status)
 			{
@@ -487,7 +486,7 @@ namespace Vodovoz.Application.Logistics
 						{
 							if(address.Order.OrderStatus == OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, _callTaskWorker);
+								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, callTaskWorker);
 							}
 						}
 					}
@@ -505,7 +504,7 @@ namespace Vodovoz.Application.Logistics
 						{
 							if(address.Order.OrderStatus < OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, _callTaskWorker);
+								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					}
@@ -523,7 +522,7 @@ namespace Vodovoz.Application.Logistics
 						{
 							if(item.Order.OrderStatus != OrderStatus.OnLoading)
 							{
-								item.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, _callTaskWorker);
+								item.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					}
@@ -593,7 +592,7 @@ namespace Vodovoz.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, _callTaskWorker);
+							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					}
 					else
@@ -609,7 +608,7 @@ namespace Vodovoz.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, _callTaskWorker);
+							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					}
 					else
@@ -624,7 +623,7 @@ namespace Vodovoz.Application.Logistics
 					   || routeList.Status == RouteListStatus.Delivered)
 					{
 						routeList.Status = newStatus;
-						CloseAddressesAndCreateTask(unitOfWork, routeList);
+						CloseAddressesAndCreateTask(unitOfWork, routeList, callTaskWorker);
 					}
 					else
 					{
@@ -640,9 +639,9 @@ namespace Vodovoz.Application.Logistics
 			routeList.UpdateClosedInformation();
 		}
 
-		private void RecalculateRouteList(IUnitOfWork unitOfWork, RouteList routeList)
+		private void RecalculateRouteList(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService)
 		{
-			routeList.CalculateWages(_wageParameterService);
+			routeList.CalculateWages(wageParameterService);
 
 			var commonFastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
@@ -651,7 +650,7 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(routeList.RouteListProfitability);
 		}
 
-		private void ConfirmAndClose(IUnitOfWork unitOfWork, RouteList routeList)
+		private void ConfirmAndClose(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing && routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -674,15 +673,15 @@ namespace Vodovoz.Application.Logistics
 			switch(routeList.Status)
 			{
 				case RouteListStatus.OnClosing:
-					CloseFromOnClosing(unitOfWork, routeList);
+					CloseFromOnClosing(unitOfWork, routeList, callTaskWorker);
 					break;
 				case RouteListStatus.MileageCheck:
-					CloseFromOnMileageCheck(unitOfWork, routeList);
+					CloseFromOnMileageCheck(unitOfWork, routeList, callTaskWorker);
 					break;
 			}
 		}
 
-		private void CloseFromOnMileageCheck(IUnitOfWork unitOfWork, RouteList routeList)
+		private void CloseFromOnMileageCheck(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -691,18 +690,18 @@ namespace Vodovoz.Application.Logistics
 
 			if(routeList.WasAcceptedByCashier && routeList.IsConsistentWithUnloadDocument() && !routeList.HasMoneyDiscrepancy)
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed, callTaskWorker);
 			}
 			else
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.OnClosing);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.OnClosing, callTaskWorker);
 			}
 		}
 
 		/// <summary>
 		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
 		/// </summary>
-		private void CloseFromOnClosing(IUnitOfWork unitOfWork, RouteList routeList)
+		private void CloseFromOnClosing(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing)
 			{
@@ -713,13 +712,13 @@ namespace Vodovoz.Application.Logistics
 			   && routeList.IsConsistentWithUnloadDocument()
 			   && _permissionRepository.HasAccessToClosingRoutelist(unitOfWork, _subdivisionRepository, _employeeRepository, _userService))
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
 
 			if(routeList.NeedMileageCheck && routeList.ConfirmedDistance <= 0)
 			{
-				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck);
+				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck, callTaskWorker);
 				return;
 			}
 		}
@@ -786,22 +785,6 @@ namespace Vodovoz.Application.Logistics
 
 		////////////------------------------------------------
 
-//
-// private readonly IOnlineOrderService _onlineOrderService;
-// 		private readonly IOrderService _orderService;
-// 		private readonly ICallTaskWorker _callTaskWorker;
-// 		
-// 		public RouteListService(
-// 			IOnlineOrderService onlineOrderService,
-// 			IOrderService orderService,
-// 			ICallTaskWorker callTaskWorker,
-// 			IRouteListService routeListService)
-// 		{
-// 			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
-// 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
-// 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-// 		}
-
 		public RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, Order order)
 		{
 			if(order == null) throw new ArgumentNullException(nameof(order));
@@ -841,17 +824,18 @@ namespace Vodovoz.Application.Logistics
 			return item;
 		}
 
-		public void ChangeAddressStatus(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid, RouteListItemStatus newAddressStatus)
+		public void ChangeAddressStatus(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid, RouteListItemStatus newAddressStatus, 
+			ICallTaskWorker callTaskWorker)
 		{
 			UpdateStatus(unitOfWork, routeList.Addresses.First(a => a.Id == routeListAddressid), newAddressStatus);
 			UpdateStatus(unitOfWork, routeList);
 		}
 
 		public void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
-			RouteListItemStatus newAddressStatus, bool isEditAtCashier = false)
+			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
 			routeList.Addresses.First(a => a.Id == routeListAddressid)
-				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, _callTaskWorker, _onlineOrderService, isEditAtCashier);
+				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, _onlineOrderService, isEditAtCashier);
 			UpdateStatus(unitOfWork, routeList);
 		}
 
@@ -946,7 +930,7 @@ namespace Vodovoz.Application.Logistics
 			}
 		}
 
-		public void CloseAddressesAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList)
+		public void CloseAddressesAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.Closed)
 			{
@@ -959,20 +943,20 @@ namespace Vodovoz.Application.Logistics
 				{
 					if(address.Status == RouteListItemStatus.EnRoute)
 					{
-						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, _callTaskWorker, _onlineOrderService);
+						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker, _onlineOrderService);
 					}
 
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, _callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Canceled)
 				{
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, _callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Overdue)
 				{
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, _callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 				}
 			}
 		}

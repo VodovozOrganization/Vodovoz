@@ -131,7 +131,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			}
 		}
 
-		private OnlineOrderStatusUpdatedDto GetOnlineOrderStatusUpdatedDto(IUnitOfWork uow,
+		private OnlineOrderStatusUpdatedDto GetOnlineOrderStatusUpdatedDto(
+			IUnitOfWork uow,
 			IOnlineOrdersStatusUpdatedNotificationService notificationService,
 			OnlineOrderStatusUpdatedNotification notification)
 		{

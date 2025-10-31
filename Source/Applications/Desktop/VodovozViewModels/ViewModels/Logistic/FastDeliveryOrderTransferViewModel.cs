@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoreLinq;
 using NHibernate;
 using QS.Commands;
@@ -195,7 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				newItem = transferredAddressFromRouteListTo;
 				newItem.AddressTransferType = AddressTransferType.FromFreeBalance;
 				address.WasTransfered = false;
-				_routeListTransferService.RevertTransferAddress(_unitOfWork, routeListTo, newItem, address);
+				_routeListTransferService.RevertTransferAddress(_unitOfWork, routeListTo, newItem, address, (WageParameterService)_wageParameterService);
 				_routeListTransferService.TransferAddressTo(_unitOfWork, routeListFrom, address, newItem);
 				newItem.WasTransfered = true;
 			}

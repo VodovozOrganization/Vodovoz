@@ -45,6 +45,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -94,6 +95,8 @@ namespace Vodovoz
 		private int? _oldCounterpartyId;
 
 		public IUnitOfWork UoW { get; }
+		
+		public ICallTaskWorker CallTaskWorker { get; }
 		
 		private Order BaseOrder { get; set; }
 		
@@ -157,6 +160,7 @@ namespace Vodovoz
 		public OrderReturnsView(
 			IUnitOfWork unitOfWork,
 			IOrderDiscountsController orderDiscountsController,
+			ICallTaskWorker callTaskWorker,
 			ICounterpartyService counterpartyService,
 			ICurrentPermissionService currentPermissionService,
 			IInteractiveService interactiveService,
@@ -631,7 +635,8 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, _routeListItemStatusToChange,true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, _routeListItemStatusToChange, 
+				CallTaskWorker, true);
 			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 			_routeListItem.BottlesReturned = 0;
 			UpdateButtonsState();
@@ -646,7 +651,8 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
+				CallTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();

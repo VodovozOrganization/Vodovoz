@@ -23,6 +23,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Errors.Common;
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
+		private readonly IWageParameterService _wageParameterService;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -115,7 +117,8 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListChangesNotificationSender routeListChangesNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
+			IWageParameterService wageParameterService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -150,6 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender
 				?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -582,6 +586,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					Result<IEnumerable<string>> ordersTransferResult = _routeListTransferService.TransferOrdersTo(
 						unitOfWork,
+						_wageParameterService,
 						TargetRouteListId.Value,
 						ordersIdsWithTransferTypesWithoutRouteList);
 
@@ -604,6 +609,7 @@ namespace Vodovoz.ViewModels.Logistic
 						addressesTransferResult =
 							_routeListTransferService.TransferAddressesFrom(
 								unitOfWork,
+								_wageParameterService,
 								SourceRouteListId.Value,
 								TargetRouteListId.Value,
 								routeListAddressesWithTransferTypes);
@@ -768,7 +774,8 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
-					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, addressesToRevertIds);
+					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, 
+						addressesToRevertIds, _wageParameterService);
 
 					if(result.IsSuccess)
 					{
