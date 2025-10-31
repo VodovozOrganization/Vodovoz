@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -63,16 +63,15 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListService _routeListService;
+		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
 		private readonly IAdditionalLoadingModel _additionalLoadingModel;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteOptimizer _routeOptimizer;
-		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
-		private readonly ITrackRepository _trackRepository;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private bool _canClose = true;
@@ -95,16 +94,15 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListService routeListService,
+			IRouteListSpecialConditionsService routeListSpecialConditionsService,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IAdditionalLoadingModel additionalLoadingModel,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IOrderRepository orderRepository,
 			IRouteOptimizer routeOptimizer,
-			ICallTaskWorker callTaskWorker,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			RouteGeometryCalculator routeGeometryCalculator,
-			ITrackRepository trackRepository,
 			IWageParameterService wageParameterService,
 			IDeliveryRepository deliveryRepository
 			)
@@ -119,17 +117,16 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListSpecialConditionsService = routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository ?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
 			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			_additionalLoadingModel = additionalLoadingModel ?? throw new ArgumentNullException(nameof(additionalLoadingModel));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeOptimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_routeGeometryCalculator = routeGeometryCalculator ?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 
@@ -169,7 +166,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			DeliveryShiftsCache = _deliveryShiftRepository.ActiveShifts(UoW).ToList();
 
-			SpecialConditions = _routeListService.GetSpecialConditionsFor(UoW, Entity.Id);
+			SpecialConditions = _routeListSpecialConditionsService.GetSpecialConditionsFor(UoW, Entity.Id);
 
 			var specialConditionsTypesIds = SpecialConditions.Select(x => x.RouteListSpecialConditionTypeId);
 
@@ -860,8 +857,8 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				return Result.Failure<IEnumerable<string>>(Vodovoz.Errors.Logistics.RouteListErrors.ValidationFailure);
 			}
-
-			routeList.ChangeStatusAndCreateTask(RouteListStatus.Confirmed, _callTaskWorker);
+			
+			_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Confirmed);
 
 			//Строим маршрут для МЛ.
 			if((!routeList.PrintsHistory?.Any() ?? true) || confirmRecalculateRoute)
@@ -912,7 +909,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(confirmSendOnClosing)
 				{
-					routeList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
+					_routeListService.CompleteRouteAndCreateTask(unitOfWork, routeList);
 				}
 			}
 			else
@@ -942,7 +939,7 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						routeList.ChangeStatusAndCreateTask(RouteListStatus.New, _callTaskWorker);
+						_routeListService.ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.New);
 					}
 				}
 			}

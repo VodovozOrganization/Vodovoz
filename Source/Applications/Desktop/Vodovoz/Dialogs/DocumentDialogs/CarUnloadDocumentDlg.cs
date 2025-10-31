@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -37,6 +38,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewWidgets.Store;
 
+
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
@@ -46,18 +48,15 @@ namespace Vodovoz
 		private INomenclatureSettings _nomenclatureSettings;
 
 		private IEmployeeRepository _employeeRepository;
-		private ITrackRepository _trackRepository;
-		private IEquipmentRepository _equipmentRepository;
 		private ICarUnloadRepository _carUnloadRepository;
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
-
-		private IWageParameterService _wageParameterService;
-		private ICallTaskWorker _callTaskWorker;
+		
 		private ILifetimeScope _lifetimeScope;
 		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
+		private IRouteListService _routeListService;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -113,17 +112,14 @@ namespace Vodovoz
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
-			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
-			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
 			_carUnloadRepository = _lifetimeScope.Resolve<ICarUnloadRepository>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 
-			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
-			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
-
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
+			
+			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 		}
 
 		private void ConfigureNewDoc()
@@ -298,7 +294,7 @@ namespace Vodovoz
 
 			if(Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				Entity.RouteList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
+				 _routeListService.CompleteRouteAndCreateTask(UoW, Entity.RouteList);
 			}
 
 			_logger.LogInformation("Сохраняем разгрузочный талон...");

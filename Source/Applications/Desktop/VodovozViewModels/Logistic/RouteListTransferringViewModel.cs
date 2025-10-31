@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly IRouteListService _routeListService;
+		private readonly IRouteListTransferService _routeListTransferService;
 		private readonly IUserService _userService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
-			IRouteListService routeListService,
+			IRouteListTransferService routeListTransferService,
 			IUserService userService,
 			IEmployeeService employeeService,
 			IGtkTabsOpener gtkTabsOpener,
@@ -130,8 +130,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
-			_routeListService = routeListService
-				?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListTransferService = routeListTransferService
+				?? throw new ArgumentNullException(nameof(routeListTransferService));
 			_userService = userService
 				?? throw new ArgumentNullException(nameof(userService));
 			_employeeService = employeeService
@@ -580,7 +580,7 @@ namespace Vodovoz.ViewModels.Logistic
 							x => x.OrderId,
 							x => x.AddressTransferType);
 
-					Result<IEnumerable<string>> ordersTransferResult = _routeListService.TransferOrdersTo(
+					Result<IEnumerable<string>> ordersTransferResult = _routeListTransferService.TransferOrdersTo(
 						unitOfWork,
 						TargetRouteListId.Value,
 						ordersIdsWithTransferTypesWithoutRouteList);
@@ -602,7 +602,7 @@ namespace Vodovoz.ViewModels.Logistic
 					if(IsSourceRouteListSelected)
 					{
 						addressesTransferResult =
-							_routeListService.TransferAddressesFrom(
+							_routeListTransferService.TransferAddressesFrom(
 								unitOfWork,
 								SourceRouteListId.Value,
 								TargetRouteListId.Value,
@@ -768,7 +768,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
-					var result = _routeListService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, addressesToRevertIds);
+					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, addressesToRevertIds);
 
 					if(result.IsSuccess)
 					{

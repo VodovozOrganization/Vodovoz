@@ -27,6 +27,7 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -49,6 +50,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IDomainRouteListService _domainRouteListService;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -65,7 +67,8 @@ namespace DriverAPI.Library.V5.Services
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IDomainRouteListService domainRouteListService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -82,6 +85,7 @@ namespace DriverAPI.Library.V5.Services
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 		}
 
 		/// <summary>
@@ -339,8 +343,8 @@ namespace DriverAPI.Library.V5.Services
 			SaveScannedCodes(actionTime, completeOrderInfo);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
-
-			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
+			
+			_domainRouteListService.ChangeAddressStatus(_uow, routeList, routeListAddress.Id, RouteListItemStatus.Completed);
 
 			CreateComplaintIfNeeded(driverComplaintInfo, vodovozOrder, driver, actionTime);
 

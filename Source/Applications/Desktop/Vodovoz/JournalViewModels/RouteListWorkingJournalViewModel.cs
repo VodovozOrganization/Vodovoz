@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Fuel;
@@ -54,14 +55,11 @@ namespace Vodovoz.JournalViewModels
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
-		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IExpenseSettings _expenseSettings;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
-		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IRouteListService _routeListService;
 		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
@@ -81,6 +79,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IOrganizationRepository organizationRepository,
 			INavigationManager navigationManager,
+			IRouteListService routeListService,
 			Action<RouteListJournalFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -88,14 +87,11 @@ namespace Vodovoz.JournalViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -497,7 +493,7 @@ namespace Vodovoz.JournalViewModels
 									isSlaveTabActive = true;
 									return;
 								}
-								routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
+								_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing);
 								uowLocal.Save(routeList);
 								if(isSlaveTabActive)
 								{

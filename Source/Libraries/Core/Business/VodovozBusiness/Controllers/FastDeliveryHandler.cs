@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
@@ -11,8 +10,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Models;
 using Vodovoz.NotificationSenders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Database.Logistics;
-using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
 
@@ -22,7 +21,6 @@ namespace Vodovoz.Controllers
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IDeliveryRepository _deliveryRepository;
-		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
 		private readonly IFastDeliveryOrderAddedNotificationSender _fastDeliveryOrderAddedNotificationSender;
@@ -30,14 +28,12 @@ namespace Vodovoz.Controllers
 		public FastDeliveryHandler(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRepository deliveryRepository,
-			IDriverApiSettings driverApiSettings,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator,
 			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
-			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_routeListAddressKeepingDocumentController =
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));

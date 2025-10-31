@@ -16,6 +16,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
+using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
@@ -23,6 +25,8 @@ namespace DriverAPI.Library.V5.Services
 	internal class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
+		private readonly IDomainRouteListSpecialConditionsService _domainRouteListSpecialConditionsService;
+		private readonly IDomainRouteListTransferService _domainRouteListTransferService;
 		private readonly IDomainRouteListService _domainRouteListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -43,6 +47,8 @@ namespace DriverAPI.Library.V5.Services
 			IGenericRepository<Employee> employeeGenericRepository,
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
 			IUnitOfWork unitOfWork,
+			IDomainRouteListSpecialConditionsService domainRouteListSpecialConditionsService,
+			IDomainRouteListTransferService domainRouteListTransferService,
 			IDomainRouteListService domainRouteListService,
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
@@ -56,6 +62,8 @@ namespace DriverAPI.Library.V5.Services
 			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
 			_routeListAddressesRepository = routeListAddressesRepository ?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_domainRouteListSpecialConditionsService = domainRouteListSpecialConditionsService ?? throw new ArgumentNullException(nameof(domainRouteListSpecialConditionsService));
+			_domainRouteListTransferService = domainRouteListTransferService ?? throw new ArgumentNullException(nameof(domainRouteListTransferService));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
@@ -71,7 +79,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
@@ -90,7 +98,7 @@ namespace DriverAPI.Library.V5.Services
 
 					if(!routeList.SpecialConditionsAccepted)
 					{
-						spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
@@ -229,8 +237,8 @@ namespace DriverAPI.Library.V5.Services
 			{
 				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState);
 			}
-
-			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
+			
+			_domainRouteListService.ChangeAddressStatus(_unitOfWork, routeListAddress.RouteList, routeListAddress.Id, RouteListItemStatus.EnRoute);
 
 			_unitOfWork.Save(routeListAddress.RouteList);
 			_unitOfWork.Save(routeListAddress);
@@ -254,7 +262,7 @@ namespace DriverAPI.Library.V5.Services
 					address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
-			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+			var sourceResult = _domainRouteListTransferService.FindTransferSource(_unitOfWork, address);
 
 			if(sourceResult.IsFailure)
 			{
@@ -298,7 +306,7 @@ namespace DriverAPI.Library.V5.Services
 					|| address.Order.OrderStatus == OrderStatus.Shipped))
 				.FirstOrDefault();
 
-			var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+			var targetAddressResult = _domainRouteListTransferService.FindTransferTarget(_unitOfWork, address);
 
 			if(targetAddressResult.IsFailure)
 			{
@@ -362,7 +370,7 @@ namespace DriverAPI.Library.V5.Services
 
 			foreach (var address in outgoingAddresses)
 			{
-				var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+				var targetAddressResult = _domainRouteListTransferService.FindTransferTarget(_unitOfWork, address);
 
 				if(targetAddressResult.IsFailure)
 				{
@@ -400,7 +408,7 @@ namespace DriverAPI.Library.V5.Services
 
 			foreach(var address in incomingAddresses)
 			{
-				var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+				var sourceResult = _domainRouteListTransferService.FindTransferSource(_unitOfWork, address);
 
 				if(sourceResult.IsSuccess)
 				{

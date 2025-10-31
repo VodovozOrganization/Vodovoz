@@ -1,10 +1,11 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Controllers

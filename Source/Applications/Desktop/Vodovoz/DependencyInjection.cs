@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -45,6 +45,7 @@ using Vodovoz.Additions;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
@@ -81,6 +82,7 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
@@ -175,9 +177,14 @@ namespace Vodovoz
 				.AddSlaveDbPreferredReportsCore()
 
 				.AddScoped<IScanDialogService, ScanDialogService>()
-
+				
 				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<IRouteListTransferService, RouteListTransferService>()
+				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+				
 				.AddScoped<RouteGeometryCalculator>()
+				.AddScoped<IOnlineOrderService, OnlineOrderService>()
+				.AddScoped<IOrderService, OrderService>()
 				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
