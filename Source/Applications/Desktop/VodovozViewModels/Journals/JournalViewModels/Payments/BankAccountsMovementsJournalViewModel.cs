@@ -228,10 +228,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			
 			var loadedAccountMovements = QueryOver.Of(() => accountMovementAlias)
 				.Where(
-					CustomRestrictions.Between(
-						Projections.Property(() => calendarAlias.Date), 
-						Projections.Property(() => accountMovementAlias.StartDate),
-						Projections.Property(() => accountMovementAlias.EndDate)))
+					Restrictions.Conjunction()
+						.Add(() => accountMovementAlias.Account.Id == accountAlias.Id)
+						.Add(CustomRestrictions.Between(
+							Projections.Property(() => calendarAlias.Date), 
+							Projections.Property(() => accountMovementAlias.StartDate),
+							Projections.Property(() => accountMovementAlias.EndDate)))
+					)
 				.Select(Projections.Property(() => accountMovementAlias.Id));
 
 			var startDate = _filterViewModel.StartDate ?? _paymentSettings.ControlPointStartDate;

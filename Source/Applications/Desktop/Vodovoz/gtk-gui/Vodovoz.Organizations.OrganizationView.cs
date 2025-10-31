@@ -179,7 +179,7 @@ namespace Vodovoz.Organizations
 			this.chkIsNeedCashlessMovementControl = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkIsNeedCashlessMovementControl.CanFocus = true;
 			this.chkIsNeedCashlessMovementControl.Name = "chkIsNeedCashlessMovementControl";
-			this.chkIsNeedCashlessMovementControl.Label = global::Mono.Unix.Catalog.GetString("Требуется контроль движения вредств по безналу");
+			this.chkIsNeedCashlessMovementControl.Label = global::Mono.Unix.Catalog.GetString("Требуется контроль движения средств по безналу");
 			this.chkIsNeedCashlessMovementControl.DrawIndicator = true;
 			this.chkIsNeedCashlessMovementControl.UseUnderline = true;
 			this.datatableMain.Add(this.chkIsNeedCashlessMovementControl);

@@ -214,14 +214,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.DefaultProfitCategoryId);
 			var otherProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.OtherProfitCategoryId);
-			
-			var vodovozOrganization = _organizationRepository
-				.Get(UoW, x => x.Id == _organizationSettings.VodovozOrganizationId)
-				.FirstOrDefault();
 
 			foreach(var doc in parsedDocuments)
 			{
-				if(!_allVodOrganisations.ContainsKey(doc.RecipientInn))
+				if(string.IsNullOrWhiteSpace(doc.RecipientInn) || !_allVodOrganisations.ContainsKey(doc.RecipientInn))
 				{
 					count++;
 					countUnknownInn++;
