@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -36,6 +37,44 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			{
 				_filterViewModel.ConfigureWithoutFiltering(filterParams);
 			}
+
+			VisibleDeleteAction = false;
+		}
+		
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+
+			var canCreate = CurrentPermissionService.ValidateEntityPermission(typeof(ProfitCategory)).CanCreate;
+			var canRead = CurrentPermissionService.ValidateEntityPermission(typeof(ProfitCategory)).CanUpdate;
+			var canDelete = CurrentPermissionService.ValidateEntityPermission(typeof(ProfitCategory)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+				(selected) => canCreate,
+				(selected) => VisibleCreateAction,
+				(selected) => CreateEntityDialog(),
+				"Insert"
+			);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+				(selected) => canRead && selected.Any(),
+				(selected) => VisibleEditAction,
+				(selected) => selected.Cast<ProfitCategoriesJournalNode>().ToList().ForEach(EditEntityDialog)
+			);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+				RowActivatedAction = editAction;
+
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => canDelete && selected.Any(),
+				(selected) => VisibleDeleteAction,
+				(selected) => DeleteEntities(selected.Cast<ProfitCategoriesJournalNode>().ToArray()),
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
 		}
 
 		protected override IQueryOver<ProfitCategory> ItemsQuery(IUnitOfWork uow)

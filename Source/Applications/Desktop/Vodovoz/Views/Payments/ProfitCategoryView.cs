@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Payments
 			
 			entryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.IsEditable)
 				.InitializeFromSource();
 			
 			yChkIsArchive.Binding
