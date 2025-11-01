@@ -46,12 +46,16 @@ namespace Vodovoz.ViewModels.Organizations
 				() => Close(CanEdit, CloseSource.Cancel),
 				() => CanEdit
 			);
+
+			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
 
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
+
+		public string RegexForEmailForMailing { get; }
 
 		public bool CanRead => PermissionResult.CanRead;
 
