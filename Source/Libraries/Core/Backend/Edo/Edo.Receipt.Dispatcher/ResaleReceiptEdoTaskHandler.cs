@@ -470,6 +470,7 @@ namespace Edo.Receipt.Dispatcher
 
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
+			var allUpdatedPositions = new List<FiscalInventPosition>(); 
 
 			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
 			{
@@ -535,13 +536,42 @@ namespace Edo.Receipt.Dispatcher
 					isValid = false;
 					continue;
 				}
+				
+				var inventPositionIds = result.Codes
+					.Select(codeResult => codesToCheck1260[codeResult.Cis].Id)
+					.ToList();
 
+				if(!inventPositionIds.Any())
+				{
+					continue;
+				}
+
+				var hql = @"UPDATE FiscalInventPosition 
+                			SET IndustryRequisiteData = :requisiteData,
+                    			RegulatoryDocument = :regulatoryDocument
+                			WHERE Id IN (:positionIds)";
+
+				await _uow.Session.CreateQuery(hql)
+					.SetParameter("requisiteData", $"UUID={result.ReqId}&Time={result.ReqTimestamp}")
+					.SetParameter("regulatoryDocument", regulatoryDocument)
+					.SetParameterList("positionIds", inventPositionIds)
+					.ExecuteUpdateAsync(cancellationToken);
+				
+				//QUESTION хз пока нужно ли обновлять сущности в кеше
 				foreach(var codeResult in result.Codes)
 				{
 					var inventPosition = codesToCheck1260[codeResult.Cis];
-					inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
-					inventPosition.RegulatoryDocument = regulatoryDocument;
-					await _uow.SaveAsync(inventPosition, cancellationToken: cancellationToken);
+
+					await _uow.Session.EvictAsync(inventPosition, cancellationToken);
+					
+					var updatedPosition = await _uow.Session.GetAsync<FiscalInventPosition>(inventPosition.Id, cancellationToken);
+					
+					var index = fiscalDocument.InventPositions.IndexOf(inventPosition);
+					
+					if(index >= 0)
+					{
+						fiscalDocument.InventPositions[index] = updatedPosition;
+					}
 				}
 			}
 
