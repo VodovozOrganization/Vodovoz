@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 	{
 		public OnlineOrderNotificationSettingMap()
 		{
-			Table("online_order_notification_setting");
+			Table("online_order_notification_settings");
 
 			Id(x => x.Id)
 				.Column("id")

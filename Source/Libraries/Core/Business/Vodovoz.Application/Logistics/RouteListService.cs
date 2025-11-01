@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -84,6 +84,8 @@ namespace Vodovoz.Application.Logistics
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 		}
+
+		#region Статусы МЛ
 
 		public bool TrySendEnRoute(
 			IUnitOfWork unitOfWork,
@@ -265,19 +267,19 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(routeList);
 		}
 
-		public void AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		public Result AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing)
 			{
-				return;
+				return Result.Failure(RouteListErrors.IncorrectStatusForClose());
 			}
 
 			if(routeList.Cashier == null)
 			{
-				throw new InvalidOperationException("Должен быть заполнен кассир");
+				return Result.Failure(RouteListErrors.CashierIsEmpty);
 			}
 
-			ConfirmAndClose(unitOfWork, routeList, callTaskWorker);
+			return ConfirmAndClose(unitOfWork, routeList, callTaskWorker);
 		}
 
 		public bool AcceptMileage(IUnitOfWork unitOfWork, RouteList routeList, IValidator validator, ICallTaskWorker callTaskWorker)
@@ -650,12 +652,12 @@ namespace Vodovoz.Application.Logistics
 			unitOfWork.Save(routeList.RouteListProfitability);
 		}
 
-		private void ConfirmAndClose(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		private Result ConfirmAndClose(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing && routeList.Status != RouteListStatus.MileageCheck)
 			{
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}",
-					RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
+				return Result.Failure(RouteListErrors.IncorrectStatusForClose(
+					"Закрыть маршрутный лист можно только если он находится в статусе {RouteListStatus.OnClosing} или  {RouteListStatus.MileageCheck}"));
 			}
 
 			if(routeList.Driver != null && routeList.Driver.FirstWorkDay == null)
@@ -679,6 +681,8 @@ namespace Vodovoz.Application.Logistics
 					CloseFromOnMileageCheck(unitOfWork, routeList, callTaskWorker);
 					break;
 			}
+
+			return Result.Success();
 		}
 
 		private void CloseFromOnMileageCheck(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
@@ -782,8 +786,10 @@ namespace Vodovoz.Application.Logistics
 			return Result.Success();
 		}
 
+		#endregion Статусы МЛ
 
-		////////////------------------------------------------
+
+		#region Адреса в МЛ
 
 		public RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, Order order)
 		{
@@ -960,5 +966,7 @@ namespace Vodovoz.Application.Logistics
 				}
 			}
 		}
+
+		#endregion Адреса в МЛ
 	}
 }

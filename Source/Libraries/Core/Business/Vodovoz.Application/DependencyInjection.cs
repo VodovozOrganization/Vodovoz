@@ -1,4 +1,4 @@
-using DriverApi.Notifications.Client;
+﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
@@ -51,6 +51,9 @@ namespace Vodovoz.Application
 			.AddScoped<IRouteListService, RouteListService>()
 			.AddScoped<IRouteListTransferService, RouteListTransferService>()
 			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+			.AddScoped<IOnlineOrderService, OnlineOrderService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -97,6 +100,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
+			.AddScoped<IRouteListService, RouteListService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

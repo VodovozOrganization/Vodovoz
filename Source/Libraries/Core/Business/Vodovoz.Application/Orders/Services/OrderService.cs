@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Office2010.Excel;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -40,7 +40,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public sealed class OrderService : IOrderService
+	internal sealed class OrderService : IOrderService
 	{
 		private const string _employeeRequiredForServiceError =
 			"Требуется сотрудник. " +

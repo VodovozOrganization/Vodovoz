@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			TabName = "Настройка уведомления для онлайн заказов";
 
-			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			SaveCommand = new DelegateCommand(SaveAndClose);
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 

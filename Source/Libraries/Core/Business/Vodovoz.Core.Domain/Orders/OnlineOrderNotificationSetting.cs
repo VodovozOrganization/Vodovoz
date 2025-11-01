@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.Orders
 			set => _id = value;
 		}
 
-		[Display(Name = "Статус онлайн заказа")]
+		[Display(Name = "Статус онлайн заказа для ИПЗ")]
 		public virtual ExternalOrderStatus ExternalOrderStatus
 		{
 			get => _externalOrderStatus;

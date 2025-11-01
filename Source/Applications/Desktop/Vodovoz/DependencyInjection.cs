@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -177,14 +177,9 @@ namespace Vodovoz
 				.AddSlaveDbPreferredReportsCore()
 
 				.AddScoped<IScanDialogService, ScanDialogService>()
-				
-				.AddScoped<IRouteListService, RouteListService>()
-				.AddScoped<IRouteListTransferService, RouteListTransferService>()
-				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				
+
 				.AddScoped<RouteGeometryCalculator>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>()
-				.AddScoped<IOrderService, OrderService>()
+		
 				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()

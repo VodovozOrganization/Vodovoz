@@ -10,7 +10,7 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OnlineOrderNotificationSettingJournalNode> config) =>
 			config.AddColumn("Номер").AddNumericRenderer(node => node.Id)
-				.AddColumn("Статус онлайн заказ").AddTextRenderer(node => node.ExternalOrderStatus.GetEnumDisplayName(false))
+				.AddColumn("Статус онлайн заказа").AddTextRenderer(node => node.ExternalOrderStatus.GetEnumDisplayName(false))
 				.AddColumn("Текст уведомления").AddTextRenderer(node => node.NotificationText)
 				.AddColumn("")
 				.Finish();

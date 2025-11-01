@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Core.Domain.Results;
@@ -41,7 +41,7 @@ namespace Vodovoz.Services.Logistics
 			IWageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker);
 
-		void AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker);
+		Result AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker);
 		bool AcceptMileage(IUnitOfWork unitOfWork, RouteList routeList, IValidator validator, ICallTaskWorker callTaskWorker);
 		void ChangeStatus(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus);
 		void ChangeStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus, ICallTaskWorker callTaskWorker);

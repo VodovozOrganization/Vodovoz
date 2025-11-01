@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
@@ -55,7 +55,7 @@ namespace Vodovoz.Application.Orders.Services
 				}
 
 				// Необходимо сделать асинхронным
-				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
+				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, routeListService, _callTaskWorker);
 				
 				if(addingToRouteListResult.IsFailure)
 				{
