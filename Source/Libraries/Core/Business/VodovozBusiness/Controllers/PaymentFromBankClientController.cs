@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Services;
 using VodovozBusiness.Services;
 
 namespace Vodovoz.Controllers
@@ -20,19 +21,22 @@ namespace Vodovoz.Controllers
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IPaymentService _paymentService;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly object _lockObject = new object();
 
 		public PaymentFromBankClientController(
 			IPaymentItemsRepository paymentItemsRepository,
 			IOrderRepository orderRepository,
 			IPaymentsRepository paymentsRepository,
-			IPaymentService paymentService
+			IPaymentService paymentService,
+			IPaymentSettings paymentSettings
 			)
 		{
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 		}
 		
 		/// <summary>
@@ -252,8 +256,9 @@ namespace Vodovoz.Controllers
 					? OrderPaymentStatus.UnPaid
 					: OrderPaymentStatus.None;
 			}
-			
-			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason);
+
+			var profitCategory = uow.GetById<ProfitCategory>(_paymentSettings.OtherProfitCategoryId);
+			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason, profitCategory);
 			uow.Save(newPayment);
 		}
 	}

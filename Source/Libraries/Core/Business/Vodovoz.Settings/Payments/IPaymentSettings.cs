@@ -14,6 +14,10 @@ namespace Vodovoz.Services
 		/// Категория Прочий доход
 		/// </summary>
 		int OtherProfitCategoryId { get; }
+		/// <summary>
+		/// Категория Возврат при отмене заказа
+		/// </summary>
+		int RefundCancelOrderProfitCategoryId { get; }
 
 		#endregion
 		

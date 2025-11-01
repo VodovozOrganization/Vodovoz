@@ -14,6 +14,7 @@ namespace Vodovoz.Settings.Database.Payments
 
 		public int DefaultProfitCategoryId => _settingsController.GetIntValue("default_profit_category_id");
 		public int OtherProfitCategoryId => _settingsController.GetIntValue("Payment.OtherProfitCategoryId");
+		public int RefundCancelOrderProfitCategoryId => _settingsController.GetIntValue("Payment.RefundCancelOrderProfitCategoryId");
 		public DateTime ControlPointStartDate => _settingsController.GetDateTimeValue("Payment.ControlPointStartDate");
 	}
 }

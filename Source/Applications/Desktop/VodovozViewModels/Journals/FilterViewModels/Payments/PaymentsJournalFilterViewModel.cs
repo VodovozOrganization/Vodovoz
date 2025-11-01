@@ -249,7 +249,8 @@ namespace Vodovoz.Filters.ViewModels
 					
 			foreach(var node in selectableNodes)
 			{
-				if(node.Value.Id == _paymentSettings.DefaultProfitCategoryId)
+				if(node.Value.Id == _paymentSettings.DefaultProfitCategoryId
+					|| node.Value.Id == _paymentSettings.RefundCancelOrderProfitCategoryId)
 				{
 					node.Selected = true;
 				}
