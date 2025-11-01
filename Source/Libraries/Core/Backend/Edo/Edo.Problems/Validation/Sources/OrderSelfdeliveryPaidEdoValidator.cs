@@ -75,9 +75,13 @@ namespace Edo.Problems.Validation.Sources
 				{
 					return Task.FromResult(EdoValidationResult.Invalid(this));
 				}
+				else 
+				{ 
+					return Task.FromResult(EdoValidationResult.Valid(this));
+				}
 			}
 
-			return Task.FromResult(EdoValidationResult.Valid(this));
+			return Task.FromResult(EdoValidationResult.Invalid(this));
 		}
 	}
 }
