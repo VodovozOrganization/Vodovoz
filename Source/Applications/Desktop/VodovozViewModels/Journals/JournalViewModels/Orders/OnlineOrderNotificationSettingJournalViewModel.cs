@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -19,13 +20,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			IDeleteEntityService deleteEntityService
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService
 			)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService)
 		{
 			TabName = "Журнал настроек уведомлений для онлайн заказов";
 
 			UpdateOnChanges(typeof(OnlineOrderNotificationSetting));
+
+			var canChangeOnlineOrderNotificationSettings = currentPermissionService.ValidatePresetPermission(
+				Core.Domain.Permissions.PushNotificationPermissions.CanChangeOnlineOrderNotificationSettings);
+
+			if(!canChangeOnlineOrderNotificationSettings)
+			{
+				AbortOpening("Недостаточно прав для просмотра настроек уведомлений для онлайн заказов");
+			}
 		}
 
 		protected override IQueryOver<OnlineOrderNotificationSetting> ItemsQuery(IUnitOfWork uow)
