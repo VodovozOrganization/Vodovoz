@@ -257,7 +257,7 @@ namespace Vodovoz.Controllers
 					: OrderPaymentStatus.None;
 			}
 
-			var profitCategory = uow.GetById<ProfitCategory>(_paymentSettings.OtherProfitCategoryId);
+			var profitCategory = uow.GetById<ProfitCategory>(_paymentSettings.RefundCancelOrderProfitCategoryId);
 			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason, profitCategory);
 			uow.Save(newPayment);
 		}
