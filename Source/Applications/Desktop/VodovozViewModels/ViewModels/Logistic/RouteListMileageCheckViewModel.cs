@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Employee;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -65,6 +66,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeService _employeeService;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IRouteListService _routeListService;
 
 		public RouteListMileageCheckViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -87,7 +89,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IRouteListService routeListService)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -113,6 +116,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_currentPermissionService = currentPermissionService;
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
@@ -182,7 +186,7 @@ namespace Vodovoz.ViewModels.Logistic
 					OnPropertyChanged(nameof(CanEdit));
 				}
 
-				if(!Entity.AcceptMileage(CallTaskWorker, CommonServices.ValidationService))
+				if(!_routeListService.AcceptMileage(UoW, Entity, CommonServices.ValidationService, CallTaskWorker))
 				{
 					AskSaveOnClose = false;
 					return;
@@ -346,7 +350,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void ChangeStatusAndCreateTaskFromDelivered()
 		{
-			Entity.ChangeStatusAndCreateTask(
+			_routeListService.ChangeStatusAndCreateTask(
+				UoW,
+				Entity,
 				Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 					? RouteListStatus.MileageCheck
 					: RouteListStatus.OnClosing,

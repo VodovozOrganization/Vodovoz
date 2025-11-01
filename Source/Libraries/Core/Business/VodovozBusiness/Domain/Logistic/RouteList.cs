@@ -1,6 +1,5 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -49,6 +48,7 @@ using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -58,6 +58,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -232,7 +233,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get => status;
-			protected set
+			set
 			{
 				if(SetField(ref status, value))
 				{
@@ -826,37 +827,6 @@ namespace Vodovoz.Domain.Logistic
 			return carDiff || driverDiff;
 		}
 
-		public virtual RouteListItem AddAddressFromOrder(Order order)
-		{
-			if(order == null) throw new ArgumentNullException(nameof(order));
-
-			if(order.DeliveryPoint == null)
-				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
-			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute) {
-				WithForwarder = Forwarder != null
-			};
-			ObservableAddresses.Add(item);
-			return item;
-		}
-
-		public virtual RouteListItem AddAddressFromOrder(int orderId)
-		{
-			var order = UoW.GetById<Order>(orderId);
-			if(order == null)
-			{
-				throw new NullReferenceException($"Ошибка добавления заказа в маршрутный лист. Заказ с номером {orderId} не найден.");
-			}
-
-			if(order.DeliveryPoint == null)
-				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
-			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute)
-			{
-				WithForwarder = Forwarder != null
-			};
-			ObservableAddresses.Add(item);
-			return item;
-		}
-
 		public virtual bool TryRemoveAddress(RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
 		{
 			if(routeListItemRepository == null)
@@ -1197,297 +1167,7 @@ namespace Vodovoz.Domain.Logistic
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
 		}
 
-		public virtual void ChangeStatusAndCreateTask(RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
-		{
-			if(newStatus == Status)
-				return;
-
-			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
-
-			switch(newStatus) {
-				case RouteListStatus.New:
-					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
-						Status = RouteListStatus.New;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus == OrderStatus.OnLoading) {
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, callTaskWorker);
-							}
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Confirmed:
-					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
-						Status = RouteListStatus.Confirmed;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-							}
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.InLoading:
-					if(Status == RouteListStatus.EnRoute) {
-						Status = RouteListStatus.InLoading;
-						foreach(var item in Addresses) {
-							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
-								item.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
-							}
-						}
-					} else if(Status == RouteListStatus.Confirmed) {
-						Status = RouteListStatus.InLoading;
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed
-					|| Status == RouteListStatus.Delivered) {
-						if(Status != RouteListStatus.Delivered) {
-							foreach(var address in Addresses) {
-								if(address.Status == RouteListItemStatus.Transfered)
-								{
-									continue;
-								}
-
-								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(address.Order.OrderStatus);
-
-								if(!isInvalidStatus)
-								{
-									address.Order.OrderStatus = OrderStatus.OnTheWay;
-								}
-							}
-						}
-						Status = RouteListStatus.EnRoute;
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Delivered:
-					if(Status == RouteListStatus.EnRoute)
-					{
-						Status = newStatus;
-					}
-					else
-					{
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.OnClosing:
-					if(
-						(Status == RouteListStatus.Delivered
-							&& (GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
-								|| Driver.VisitingMaster || !NeedMileageCheckByWage))
-						|| (Status == RouteListStatus.Confirmed
-							&& (GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck))
-						|| Status == RouteListStatus.MileageCheck || Status == RouteListStatus.Delivered
-						|| Status == RouteListStatus.Closed)
-					{
-						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
-						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Closed:
-					if(Status == RouteListStatus.OnClosing
-					|| Status == RouteListStatus.MileageCheck
-					|| Status == RouteListStatus.Delivered) {
-						Status = newStatus;
-						CloseAddressesAndCreateTask(callTaskWorker);
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				default:
-					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
-			}
-
-			UpdateDeliveryDocuments(UoW);
-			UpdateClosedInformation();
-		}
-
-		public virtual void ChangeStatus(RouteListStatus newStatus)
-		{
-			if(newStatus == Status)
-				return;
-
-			string exceptionMessage = $"Некорректная операция. Не предусмотрена смена статуса с {Status} на {newStatus}";
-
-			switch(newStatus) {
-				case RouteListStatus.New:
-					if(Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading) {
-						Status = RouteListStatus.New;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus == OrderStatus.OnLoading) {
-								address.Order.ChangeStatus(OrderStatus.InTravelList);
-							}
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Confirmed:
-					if(Status == RouteListStatus.New || Status == RouteListStatus.InLoading) {
-						Status = RouteListStatus.Confirmed;
-						foreach(var address in Addresses) {
-							if(address.Order.OrderStatus < OrderStatus.OnLoading) {
-								address.Order.ChangeStatus(OrderStatus.OnLoading);
-							}
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.InLoading:
-					if(Status == RouteListStatus.EnRoute) {
-						Status = RouteListStatus.InLoading;
-						foreach(var item in Addresses) {
-							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
-								item.Order.ChangeStatus(OrderStatus.OnLoading);
-							}
-						}
-					} else if(Status == RouteListStatus.Confirmed) {
-						Status = RouteListStatus.InLoading;
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.EnRoute:
-					if(Status == RouteListStatus.InLoading
-					   || Status == RouteListStatus.Confirmed
-					   || Status == RouteListStatus.Delivered) {
-						foreach(var item in Addresses) {
-							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
-
-							if(!isInvalidStatus)
-								item.Order.OrderStatus = OrderStatus.OnTheWay;
-						}
-						Status = RouteListStatus.EnRoute;
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Delivered:
-					if(Status == RouteListStatus.EnRoute) {
-						DeliveredAt = DateTime.Now;
-						Status = newStatus;
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.OnClosing:
-					if(
-						(Status == RouteListStatus.EnRoute
-							&& (GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
-								|| Driver.VisitingMaster || !NeedMileageCheckByWage))
-						|| (Status == RouteListStatus.Confirmed && (GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck))
-						|| Status == RouteListStatus.MileageCheck
-						|| Status == RouteListStatus.Delivered
-						|| Status == RouteListStatus.Closed)
-					{
-						if(DeliveredAt is null)
-						{
-							DeliveredAt = DateTime.Now;
-						}
-
-						Status = newStatus;
-						foreach(var item in Addresses.Where(x =>
-									x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
-						{
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
-						}
-					}
-					else
-					{
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.MileageCheck:
-					if(Status == RouteListStatus.Delivered || Status == RouteListStatus.OnClosing) {
-						Status = newStatus;
-						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
-						}
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				case RouteListStatus.Closed:
-					if(Status == RouteListStatus.OnClosing
-					   || Status == RouteListStatus.MileageCheck
-					   || Status == RouteListStatus.Delivered) {
-						Status = newStatus;
-						CloseAddresses();
-					} else {
-						throw new InvalidOperationException(exceptionMessage);
-					}
-					break;
-				default:
-					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
-			}
-
-			UpdateDeliveryDocuments(UoW);
-			UpdateClosedInformation();
-		}
-
-		public virtual void ChangeAddressStatus(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
-		{
-			Addresses.First(a => a.Id == routeListAddressid).UpdateStatus(uow, newAddressStatus);
-			UpdateStatus();
-		}
-
-		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus,
-			ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
-		{
-			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker, isEditAtCashier);
-			UpdateStatus();
-		}
-
-		public virtual void SetAddressStatusWithoutOrderChange(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, bool needCreateDeliveryFreeBalanceOperation = true)
-		{
-			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(uow, newAddressStatus, needCreateDeliveryFreeBalanceOperation);
-			UpdateStatus();
-		}
-
-		public virtual void UpdateStatus(bool isIgnoreAdditionalLoadingDocument = false)
-		{
-			if(isIgnoreAdditionalLoadingDocument ? CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument : CanChangeStatusToDelivered)
-			{
-				ChangeStatus(RouteListStatus.Delivered);
-			}
-		}
-
-		public virtual void TransferAddressTo(IUnitOfWork uow, RouteListItem transferringAddress, RouteListItem targetAddress)
-		{
-			transferringAddress.TransferTo(uow, targetAddress);
-			UpdateStatus();
-		}
-
-		public virtual void RevertTransferAddress(
-			IWageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
-		{
-			targetAddress.RevertTransferAddress(UoW, wageParameterService, revertedAddress);
-
-			UpdateStatus();
-		}
-
-		private void UpdateClosedInformation()
+		public virtual void UpdateClosedInformation()
 		{
 			if(Status == RouteListStatus.Closed)
 			{
@@ -1505,53 +1185,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CloseAddressesAndCreateTask(ICallTaskWorker callTaskWorker)
-		{
-			if(Status != RouteListStatus.Closed) {
-				return;
-			}
 
-			foreach(var address in Addresses) {
-				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
-					if(address.Status == RouteListItemStatus.EnRoute) {
-						address.UpdateStatusAndCreateTask(UoW, RouteListItemStatus.Completed, callTaskWorker);
-					}
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
-				}
-
-				if(address.Status == RouteListItemStatus.Canceled) {
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-				}
-
-				if(address.Status == RouteListItemStatus.Overdue) {
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-				}
-			}
-		}
-
-		private void CloseAddresses()
-		{
-			if(Status != RouteListStatus.Closed) {
-				return;
-			}
-
-			foreach(var address in Addresses) {
-				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
-					if(address.Status == RouteListItemStatus.EnRoute) {
-						address.UpdateStatus(UoW, RouteListItemStatus.Completed);
-					}
-					address.Order.ChangeStatus(OrderStatus.Closed);
-				}
-
-				if(address.Status == RouteListItemStatus.Canceled) {
-					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-				}
-
-				if(address.Status == RouteListItemStatus.Overdue) {
-					address.Order.ChangeStatus(OrderStatus.NotDelivered);
-				}
-			}
-		}
 
 		public virtual void AddPrintHistory()
 		{
@@ -2056,7 +1690,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Проверка по установленным вариантам расчета зарплаты, должен ли водитель на данном автомобилей проходить проверку километража
 		/// </summary>
-		private bool NeedMileageCheckByWage {
+		public virtual bool NeedMileageCheckByWage {
 			get {
 				if(GetCarVersion.CarOwnType == CarOwnType.Company) {
 					return true;
@@ -2064,51 +1698,6 @@ namespace Vodovoz.Domain.Logistic
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
 				return actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.RatesLevel;
 			}
-		}
-
-		public virtual void CompleteRouteAndCreateTask(
-			IWageParameterService wageParameterService,
-			ICallTaskWorker callTaskWorker,
-			ITrackRepository trackRepository)
-		{
-			if(wageParameterService == null) {
-				throw new ArgumentNullException(nameof(wageParameterService));
-			}
-
-			if(NeedMileageCheck) {
-				ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, callTaskWorker);
-			} else {
-				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
-			}
-
-			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
-			if(track != null) {
-				track.CalculateDistance();
-				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
-				UoW.Save(track);
-			}
-
-			FirstFillClosing(wageParameterService);
-			UoW.Save(this);
-		}
-
-		public virtual void CompleteRoute(WageParameterService wageParameterService, ITrackRepository trackRepository)
-		{
-			if(wageParameterService == null) {
-				throw new ArgumentNullException(nameof(wageParameterService));
-			}
-
-			ChangeStatus(RouteListStatus.Delivered);
-
-			var track = trackRepository.GetTrackByRouteListId(UoW, Id);
-			if(track != null) {
-				track.CalculateDistance();
-				track.CalculateDistanceToBase(_osrmSettings, _osrmClient);
-				UoW.Save(track);
-			}
-
-			FirstFillClosing(wageParameterService);
-			UoW.Save(this);
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
@@ -2277,98 +1866,6 @@ namespace Vodovoz.Domain.Logistic
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
 			expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);
 			return (message);
-		}
-
-		private void ConfirmAndClose(ICallTaskWorker callTaskWorker)
-		{
-			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck) {
-				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
-			}
-
-			if(Driver != null && Driver.FirstWorkDay == null) {
-				Driver.FirstWorkDay = Date;
-				UoW.Save(Driver);
-			}
-
-			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
-				Forwarder.FirstWorkDay = Date;
-				UoW.Save(Forwarder);
-			}
-
-			switch(Status) {
-				case RouteListStatus.OnClosing:
-					CloseFromOnClosing(callTaskWorker);
-					break;
-				case RouteListStatus.MileageCheck:
-					CloseFromOnMileageCheck(callTaskWorker);
-					break;
-			}
-		}
-
-		private void CloseFromOnMileageCheck(ICallTaskWorker callTaskWorker)
-		{
-			if(Status != RouteListStatus.MileageCheck) {
-				return;
-			}
-
-			if(WasAcceptedByCashier && IsConsistentWithUnloadDocument() && !HasMoneyDiscrepancy) {
-				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
-			}
-			else {
-				ChangeStatusAndCreateTask(RouteListStatus.OnClosing, callTaskWorker);
-			}
-		}
-
-		/// <summary>
-		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
-		/// </summary>
-		private void CloseFromOnClosing(ICallTaskWorker callTaskWorker)
-		{
-			if(Status != RouteListStatus.OnClosing) {
-				return;
-			}
-
-			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()
-				&& _permissionRepository.HasAccessToClosingRoutelist(
-					UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService)) {
-				ChangeStatusAndCreateTask(RouteListStatus.Closed, callTaskWorker);
-				return;
-			}
-
-			if(NeedMileageCheck && ConfirmedDistance <= 0) {
-				ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, callTaskWorker);
-				return;
-			}
-		}
-
-		public virtual void AcceptCash(ICallTaskWorker callTaskWorker)
-		{
-			if(Status != RouteListStatus.OnClosing) {
-				return;
-			}
-
-			if(cashier == null) {
-				throw new InvalidOperationException("Должен быть заполнен кассир");
-			}
-
-			ConfirmAndClose(callTaskWorker);
-		}
-
-		public virtual bool AcceptMileage(ICallTaskWorker callTaskWorker, IValidator validator)
-		{
-			if(Status != RouteListStatus.MileageCheck) {
-				return true;
-			}
-
-			RecalculateFuelOutlay();
-
-			if(!TryValidateFuelOperation(validator))
-			{
-				return false;
-			}
-			
-			ConfirmAndClose(callTaskWorker);
-			return true;
 		}
 
 		public virtual bool TryValidateFuelOperation(IValidator validator)

@@ -1,10 +1,11 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services.Logistics;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -52,6 +53,6 @@ namespace VodovozBusiness.Services.Orders
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
 		void UpdatePaymentStatus(IUnitOfWork uow, Order order);
-		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, CancellationToken cancellationToken);
+		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, IRouteListService routeListService, CancellationToken cancellationToken);
 	}
 }

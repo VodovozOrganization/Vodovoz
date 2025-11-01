@@ -105,7 +105,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						
 						try
 						{
-							var dto = GetOnlineOrderStatusUpdatedDto(notification);
+							var dto = GetOnlineOrderStatusUpdatedDto(uow, notificationService, notification);
 
 							_logger.LogInformation("Отправляем данные в ИПЗ по онлайн заказу {OnlineOrderId}: {@Notification}",
 								onlineOrderId,
@@ -131,9 +131,19 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			}
 		}
 
-		private OnlineOrderStatusUpdatedDto GetOnlineOrderStatusUpdatedDto(OnlineOrderStatusUpdatedNotification notification)
+		private OnlineOrderStatusUpdatedDto GetOnlineOrderStatusUpdatedDto(
+			IUnitOfWork uow,
+			IOnlineOrdersStatusUpdatedNotificationService notificationService,
+			OnlineOrderStatusUpdatedNotification notification)
 		{
 			var onlineOrder = notification.OnlineOrder;
+
+			var notificationText = notificationService.GetPushText(
+				uow,
+				_notificationRepository,
+				_externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder),
+				onlineOrder.Id,
+				onlineOrder.DeliverySchedule?.From);
 
 			return new OnlineOrderStatusUpdatedDto
 			{
@@ -141,7 +151,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				OnlineOrderId = onlineOrder.Id,
 				DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : null,
 				DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
-				OrderStatus = _externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder)
+				OrderStatus = _externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder),
+				PushText = notificationText
 			};
 		}
 		

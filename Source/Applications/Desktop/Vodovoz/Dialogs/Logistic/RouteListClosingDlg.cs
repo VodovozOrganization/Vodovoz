@@ -1,4 +1,11 @@
-﻿using Autofac;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -11,19 +18,19 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
+using QSOrmProject.UpdateNotification;
 using QSProjectsLib;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+using QSReport;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -52,6 +59,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Fuel;
@@ -71,11 +79,12 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
+using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
 {
-	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
+	public partial class RouteListClosingDlg : EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
 		private ILifetimeScope _lifetimeScope;
@@ -111,7 +120,7 @@ namespace Vodovoz
 		private IOrderContractUpdater _contractUpdater;
 
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
 		private bool _canEditCar;
 		private bool _canEditDriver;
 		private bool _canEditExpeditor;
@@ -141,7 +150,7 @@ namespace Vodovoz
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private List<int> _ignoreReceiptsForOrderIds = new List<int>();
-
+		
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
@@ -211,11 +220,13 @@ namespace Vodovoz
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
 
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
-
+			
 			CallTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
 			_contractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
+			
+			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 		}
 
 		private void ConfigureDlg()
@@ -255,7 +266,7 @@ namespace Vodovoz
 			                         || Entity.Status == RouteListStatus.Closed);
 			_canEditCar = _canEdit 
 			              && (isEditableStatus 
-			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditCarOnCloseRouteList));
+			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
 			
@@ -263,7 +274,7 @@ namespace Vodovoz
 			
 			_canEditDriver = _canEdit
 			                && (isEditableStatus
-			                || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditDriverOnCloseRouteList));
+			                || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditDriverOnCloseRouteList));
 			
 			evmeDriver.SetEntityAutocompleteSelectorFactory(
 				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
@@ -273,9 +284,9 @@ namespace Vodovoz
 			
 			_canEditExpeditor =  _canEdit 
 			                     && (isEditableStatus
-			                     || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.RouteListPermissions.CanEditExpeditorOnCloseRouteList));
+			                     || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditExpeditorOnCloseRouteList));
 			
-			_canCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			_canCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			
 			previousForwarder = Entity.Forwarder;
 			
@@ -572,7 +583,7 @@ namespace Vodovoz
 			UpdateFuelDocumentsColumns();
 		}
 
-		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void Entity_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.Car) 
 				&& Entity.Car != null 
@@ -634,7 +645,7 @@ namespace Vodovoz
 
 		protected virtual bool CanEditFuelCardNumber => _canEditFuelCardNumber
 			?? (_canEditFuelCardNumber =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber)).Value;
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber)).Value;
 
 		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
@@ -661,7 +672,7 @@ namespace Vodovoz
 			return result;
 		}
 
-		void OnCalUnloadUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
+		void OnCalUnloadUpdated(object sender, OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
 		{
 			if(e.UpdatedSubjects.Any(x => x.RouteList.Id == Entity.Id))
 				ReloadDiscrepancies();
@@ -702,7 +713,7 @@ namespace Vodovoz
 			Entity.Forwarder != null
 			&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null;
 
-		void EnummenuRLActions_EnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
+		void EnummenuRLActions_EnumItemClicked(object sender, EnumItemClickedEventArgs e)
 		{
 			switch((RouteListActions)e.ItemEnum) {
 				case RouteListActions.CreateNewFine:
@@ -790,7 +801,8 @@ namespace Vodovoz
 				_flyerRepository,
 				NavigationManager,
 				_lifetimeScope,
-				_contractUpdater);
+				_contractUpdater,
+				_routeListService);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
@@ -922,6 +934,7 @@ namespace Vodovoz
 		private IOrderRepository _orderRepository;
 		private IDiscountReasonRepository _discountReasonRepository;
 		private INomenclatureOnlineSettings _nomenclatureOnlineSettings;
+		private IRouteListService _routeListService;
 
 		Nomenclature DefaultBottle {
 			get {
@@ -1044,7 +1057,7 @@ namespace Vodovoz
 			buttonBottleAddEditFine.Sensitive = totalSumOfDamage != 0;
 			buttonBottleDelFine.Sensitive = Entity.BottleFine != null;
 			if(buttonFineEditState != (Entity.BottleFine != null)) {
-				(buttonBottleAddEditFine.Image as Image).Pixbuf = new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(),
+				(buttonBottleAddEditFine.Image as Image).Pixbuf = new Gdk.Pixbuf(Assembly.GetExecutingAssembly(),
 					Entity.BottleFine != null ? "Vodovoz.icons.buttons.edit.png" : "Vodovoz.icons.buttons.add.png"
 				);
 				buttonFineEditState = Entity.BottleFine != null;
@@ -1074,7 +1087,7 @@ namespace Vodovoz
 			{
 				{nameof(IRouteListItemRepository), _routeListItemRepository},
 				{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed},
-				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
+				{LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
@@ -1097,7 +1110,7 @@ namespace Vodovoz
 
 			if(Entity.Status == RouteListStatus.Delivered)
 			{
-				Entity.ChangeStatusAndCreateTask(
+				_routeListService.ChangeStatusAndCreateTask(UoW, Entity,
 					Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 						? RouteListStatus.MileageCheck
 						: RouteListStatus.OnClosing,
@@ -1171,7 +1184,7 @@ namespace Vodovoz
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition},
 					{RouteList.ValidationKeyIgnoreReceiptsForOrders, _ignoreReceiptsForOrderIds},
-					{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
+					{LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, _canCreateRouteListWithoutOrders},
 				});
 			validationContext.ServiceContainer.AddService(_orderSettings);
 			validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
@@ -1219,7 +1232,7 @@ namespace Vodovoz
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
-					Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
 					
 					PerformanceHelper.AddTimePoint("Статус сменен на 'проверка километража' и создано задание");
 				}
@@ -1236,7 +1249,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
 			if(Entity.Status == RouteListStatus.OnClosing) {
-				Entity.AcceptCash(CallTaskWorker);
+				_routeListService.AcceptCash(UoW, Entity, CallTaskWorker);
 				
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
@@ -1244,12 +1257,12 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.Delivered) {
 				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
 				&& !Entity.DifferencesConfirmed) {
-					Entity.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, CallTaskWorker);
+					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.OnClosing, CallTaskWorker);
 				} else {
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck) {
-						Entity.ChangeStatusAndCreateTask(RouteListStatus.MileageCheck, CallTaskWorker);
+						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
 					} else {
-						Entity.ChangeStatusAndCreateTask(RouteListStatus.Closed, CallTaskWorker);
+						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.Closed, CallTaskWorker);
 					}
 				}
 			}
@@ -1306,11 +1319,11 @@ namespace Vodovoz
 		void PrintRouteList()
 		{
 			{
-				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
-				var reportDlg = new QSReport.ReportViewDlg(document);
+				var document = PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				var reportDlg = new ReportViewDlg(document);
 				reportDlg.ReportPrinted += SavePrintTime;
 				this.TabParent.OpenTab(
-					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					GenerateHashName<ReportViewDlg>(),
 					() => reportDlg);
 			}
 		}
@@ -1324,10 +1337,10 @@ namespace Vodovoz
 		void PrintFines()
 		{
 			{
-				var document = Additions.Logistic.PrintRouteListHelper.GetRDLFine(Entity, UoW);
+				var document = PrintRouteListHelper.GetRDLFine(Entity, UoW);
 				this.TabParent.OpenTab(
-					QS.Dialog.Gtk.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document));
+					GenerateHashName<ReportViewDlg>(),
+					() => new ReportViewDlg(document));
 			}
 		}
 
@@ -1361,14 +1374,14 @@ namespace Vodovoz
 			}
 		}
 
-		void FineDlgNew_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
+		void FineDlgNew_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			Entity.BottleFine = e.Entity as Fine;
 			CalculateTotal();
 			UpdateButtonState();
 		}
 
-		void FineDlgExist_EntitySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
+		void FineDlgExist_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(Entity.BottleFine);
 			CalculateTotal();

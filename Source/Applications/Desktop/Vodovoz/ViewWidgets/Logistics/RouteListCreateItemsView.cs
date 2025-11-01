@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -8,8 +8,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Services;
-using QS.Tdi;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -28,6 +26,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services.Logistics;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -38,6 +37,7 @@ namespace Vodovoz
 		private IRouteColumnRepository _routeColumnRepository;
 		private IOrderRepository _orderRepository;
 		private IRouteListItemRepository _routeListItemRepository;
+		private IRouteListService _routeListService;
 
 		private int _goodsColumnsCount = -1;
 		private bool _isEditable = true;
@@ -102,6 +102,7 @@ namespace Vodovoz
 			_routeColumnRepository = ScopeProvider.Scope.Resolve<IRouteColumnRepository>();
 			_orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
 			_routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+			_routeListService = ScopeProvider.Scope.Resolve<IRouteListService>();
 		}
 
 		public void SubscribeOnChanges()
@@ -426,7 +427,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				RouteListUoW.Root.AddAddressFromOrder(order);
+				_routeListService.AddAddressFromOrder(RouteListUoW, RouteListUoW.Root, order);
 			}
 		}
 
@@ -451,7 +452,7 @@ namespace Vodovoz
 					{
 						if(RouteListUoW.Root.ObservableAddresses.All(a => a.Order.Id != order.Id))
 						{
-							RouteListUoW.Root.AddAddressFromOrder(order);
+							_routeListService.AddAddressFromOrder(RouteListUoW, RouteListUoW.Root, order);
 						}
 					}
 				}

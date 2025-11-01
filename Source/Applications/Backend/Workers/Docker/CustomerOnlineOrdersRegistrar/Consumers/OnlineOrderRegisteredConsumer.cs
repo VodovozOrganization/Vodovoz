@@ -8,6 +8,7 @@ using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -28,6 +29,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService,
 			IBus bus)
 				: base(
 					logger,
@@ -37,7 +39,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					discountReasonSettings,
 					onlineOrderRepository,
 					onlineOrderCancellationReasonSettings,
-					orderService)
+					orderService,
+					routeListService)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}

@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -606,6 +607,7 @@ namespace Vodovoz.Application.Orders.Services
 		public async Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(
 			IUnitOfWork uow, 
 			OnlineOrder onlineOrder,
+			IRouteListService routeListService,
 			CancellationToken cancellationToken
 		)
 		{
@@ -655,6 +657,7 @@ namespace Vodovoz.Application.Orders.Services
 				uow,
 				employee,
 				order,
+				routeListService,
 				cancellationToken
 			);
 

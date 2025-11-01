@@ -43,6 +43,8 @@ using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -68,6 +70,8 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly IDomainRouteListService _domainRouteListService;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -87,7 +91,9 @@ namespace DriverAPI.Library.V6.Services
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IOrderContractUpdater contractUpdater,
-			ICounterpartyEdoAccountController edoAccountController
+			ICounterpartyEdoAccountController edoAccountController,
+			IDomainRouteListService domainRouteListService,
+			ICallTaskWorker callTaskWorker
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -108,6 +114,8 @@ namespace DriverAPI.Library.V6.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		/// <summary>
@@ -374,8 +382,8 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
-
-			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
+			
+			_domainRouteListService.ChangeAddressStatus(_uow, routeList, routeListAddress.Id, RouteListItemStatus.Completed, _callTaskWorker);
 
 			CreateComplaintIfNeeded(driverComplaintInfo, vodovozOrder, driver, actionTime);
 

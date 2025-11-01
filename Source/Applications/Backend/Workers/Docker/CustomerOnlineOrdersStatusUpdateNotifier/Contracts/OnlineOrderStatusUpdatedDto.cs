@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using System.Text.Json.Serialization;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 {
@@ -34,5 +34,10 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 		/// Id времени доставки из ДВ
 		/// </summary>
 		public int? DeliveryScheduleId { get; set; }
+
+		/// <summary>
+		/// Текст уведомления
+		/// </summary>
+		public string PushText { get; set; }
 	}
 }

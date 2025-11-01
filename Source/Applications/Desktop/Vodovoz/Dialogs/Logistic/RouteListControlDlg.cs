@@ -14,6 +14,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -26,6 +27,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
@@ -39,6 +41,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
+			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
 
 		public RouteListControlDlg(RouteList sub) : this(sub.Id) { }
@@ -105,7 +108,7 @@ namespace Vodovoz.Dialogs.Logistic
 			//FIXME пока не можем найти причину бага с несменой статуса на в пути при полной отгрузке, позволяем логистам отправлять МЛ в путь из этого диалога
 			bool fullyLoaded = false;
 
-			if(_routeListService.TrySendEnRoute(UoW, Entity, out _))
+			if(_routeListService.TrySendEnRoute(UoW, Entity, _callTaskWorker, out _))
 			{
 				fullyLoaded = true;
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
@@ -118,7 +121,7 @@ namespace Vodovoz.Dialogs.Logistic
 					"Оптправить в путь?",
 					$"{Entity.Title} погружен <span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">НЕ ПОЛНОСТЬЮ</span> и будет переведён в статус \"{RouteListStatus.EnRoute.GetEnumTitle()}\". После сохранения изменений откат этого действия будет невозможен.\nВы уверены что хотите отправить МЛ в путь?"))
 			{
-				_routeListService.SendEnRoute(UoW, Entity.Id);
+				_routeListService.SendEnRoute(UoW, Entity.Id, _callTaskWorker);
 				Entity.NotFullyLoaded = true;
 			}
 			else if(!fullyLoaded && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route"))

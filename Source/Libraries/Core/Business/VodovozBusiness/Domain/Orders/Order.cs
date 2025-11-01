@@ -58,7 +58,9 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
+using Vodovoz.Services.Logistics;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -2822,7 +2824,8 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IRouteListService routeListService,
+			INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
 			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
 		{
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
@@ -2835,7 +2838,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+					routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2846,12 +2849,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					}
 					break;
 			}

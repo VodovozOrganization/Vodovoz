@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
+		private readonly IRouteListService _routeListService;
 
 		private IUnitOfWork UoW;
 		
@@ -95,6 +97,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IOrderRepository orderRepository,
 			IRouteListItemRepository routeListItemRepository,
 			ICallTaskRepository callTaskRepository,
+			IRouteListService routeListService,
 			int count = 5)
 		{
 			Client = client;
@@ -110,6 +113,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -278,7 +282,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 				_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
 					null,
-					OpenPageOptions.AsSlave,
+					OpenPageOptions.None,
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
@@ -296,12 +300,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void OnUndeliveryViewModelSaved(object sender, EventArgs e)
 		{
-			SelectedOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker);
+			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder/*order*/);
 			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)
 			{
-				routeListItem.RouteList.SetAddressStatusWithoutOrderChange(UoW, routeListItem.Id, RouteListItemStatus.Canceled);
+				_routeListService.SetAddressStatusWithoutOrderChange(UoW,  routeListItem.RouteList, routeListItem.Id, RouteListItemStatus.Canceled);
 				routeListItem.StatusLastUpdate = DateTime.Now;
 				routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UoW.Save(routeListItem.RouteList);
