@@ -1,6 +1,7 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Stores
@@ -42,6 +43,12 @@ namespace Vodovoz.Errors.Stores
 				typeof(CarLoadDocumentErrors),
 				nameof(OrderNotFound),
 				$"Заказ #{id} не найден");
+		
+		public static Error CreateOrderBadStatus(int? id, OrderStatus status) =>
+			id is null ? DocumentNotFound : new Error(
+				typeof(CarLoadDocumentErrors),
+				nameof(OrderNotFound),
+				$"Заказ #{id} не может быть изменен в статусе {status}");
 
 		public static Error OrderNoNeedIndividualSetOnLoad =>
 			new Error(
