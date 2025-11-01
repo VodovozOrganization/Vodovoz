@@ -100,7 +100,6 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
-			.AddScoped<IRouteListService, RouteListService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)
