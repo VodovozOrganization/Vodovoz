@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Organizations
 				() => CanEdit
 			);
 
-			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru$";
+			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
