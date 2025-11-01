@@ -338,12 +338,26 @@ namespace Vodovoz.Core.Domain.Organizations
 					new[] { nameof(Email) });
 			}
 
+			if(Email.EndsWith("\n") || Email.EndsWith(Environment.NewLine))
+			{
+				yield return new ValidationResult(
+					"E-mail не должен заканчиваться символом переноса строки.",
+					new[] { nameof(Email) });
+			}
+
 			if(!string.IsNullOrWhiteSpace(EmailForMailing) 
 				&& !Regex.IsMatch(EmailForMailing, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru$"))
 			{
 				yield return new ValidationResult(
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
 					new[] { nameof(Email) });
+			}
+
+			if(EmailForMailing.EndsWith("\n") || EmailForMailing.EndsWith(Environment.NewLine))
+			{
+				yield return new ValidationResult(
+					"E-mail для рассылки не должен заканчиваться символом переноса строки.",
+					new[] { nameof(EmailForMailing) });
 			}
 		}
 
