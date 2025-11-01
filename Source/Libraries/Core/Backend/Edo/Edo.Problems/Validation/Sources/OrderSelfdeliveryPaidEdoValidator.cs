@@ -65,28 +65,16 @@ namespace Edo.Problems.Validation.Sources
 				return Task.FromResult(EdoValidationResult.Valid(this));
 			}
 
-			switch(orderEdoRequest.Order.PaymentType)
+			if(orderEdoRequest.Order.PaymentType == PaymentType.Cashless)
 			{
-				case PaymentType.Cash:
-				case PaymentType.Terminal:
-				case PaymentType.DriverApplicationQR:
-				case PaymentType.SmsQR:
-				case PaymentType.PaidOnline:
-				case PaymentType.Barter:
-				case PaymentType.ContractDocumentation:
-					if(!orderEdoRequest.Order.IsSelfDeliveryPaid)
-					{
-						return Task.FromResult(EdoValidationResult.Invalid(this));
-					}
-					break;
-				case PaymentType.Cashless:
-					if(orderEdoRequest.Order.OrderPaymentStatus != OrderPaymentStatus.Paid)
-					{
-						return Task.FromResult(EdoValidationResult.Invalid(this));
-					}
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(orderEdoRequest.Order.PaymentType));
+				if(orderEdoRequest.Order.PayAfterShipment)
+				{
+					return Task.FromResult(EdoValidationResult.Valid(this));
+				}
+				else if(orderEdoRequest.Order.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				{
+					return Task.FromResult(EdoValidationResult.Invalid(this));
+				}
 			}
 
 			return Task.FromResult(EdoValidationResult.Valid(this));
