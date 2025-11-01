@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\QSProjects\Binding\Gamma.Utilities\Gamma.Utilities.csproj" />
+    <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
   </ItemGroup>
 

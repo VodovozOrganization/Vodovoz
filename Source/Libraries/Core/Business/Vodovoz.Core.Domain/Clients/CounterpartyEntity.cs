@@ -110,6 +110,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
+		private RevenueStatus? _revenueStatus;
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
@@ -298,6 +299,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isLiquidating;
 			set => SetField(ref _isLiquidating, value);
+		}
+		
+		/// <summary>
+		/// Статус в налоговой
+		/// </summary>
+		[Display(Name = "Статус в налоговой")]
+		public virtual RevenueStatus? RevenueStatus
+		{
+			get => _revenueStatus;
+			set => SetField(ref _revenueStatus, value);
 		}
 
 		/// <summary>

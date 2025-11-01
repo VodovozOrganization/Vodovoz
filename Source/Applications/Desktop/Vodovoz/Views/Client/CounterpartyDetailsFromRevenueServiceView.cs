@@ -5,6 +5,8 @@ using Gtk;
 using QS.Navigation;
 using QS.Views.Dialog;
 using RevenueService.Client.Dto;
+using RevenueService.Client.Extensions;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using WrapMode = Pango.WrapMode;
@@ -54,7 +56,7 @@ namespace Vodovoz.Views.Client
 				.AddColumn("ФИО").AddTextRenderer(n => n.TitlePersonFullName)
 				.AddColumn("Адрес").AddTextRenderer(n => n.Address).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("Головная/\nФилиал").AddTextRenderer(n => n.BranchTypeString)
-				.AddColumn("Статус\n(действующая/нет)").AddTextRenderer(n => n.IsActive ? "Да" : "Нет")
+				.AddColumn("Статус\n(действующая/нет)").AddTextRenderer(n => n.RevenueStatusName)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? Color.Zero : _redColor)
 				.Finish();

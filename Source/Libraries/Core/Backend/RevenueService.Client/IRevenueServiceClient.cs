@@ -9,6 +9,5 @@ namespace RevenueService.Client
 	{
 		Task<RevenueServiceResponseDto> GetCounterpartyInfoAsync(DadataRequestDto dadataRequest, CancellationToken cancellationToken);
 		Task<PartyStatus> GetCounterpartyStatus(string inn, string kpp, CancellationToken cancellationToken);
-		Task<SuggestResponse<Party>> GetFullCounterpartyInfoAsync(string inn, string kpp, CancellationToken cancellationToken);
 	}
 }

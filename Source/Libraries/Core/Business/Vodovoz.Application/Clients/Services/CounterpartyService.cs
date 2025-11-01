@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Extensions;
 using Vodovoz.Services;
 
 namespace Vodovoz.Application.Clients.Services
@@ -79,11 +80,13 @@ namespace Vodovoz.Application.Clients.Services
 
 			var status = await _revenueServiceClient
 				.GetCounterpartyStatus(counterparty.INN, counterparty.KPP, cancellationToken);
+			
+			counterparty.RevenueStatus = status.ConvertToRevenueStatus();
 
 			if(status != PartyStatus.ACTIVE)
 			{
 				counterparty.IsLiquidating = true;
-				StopShipmentsIfNeeded(counterparty, employee, true, status.GetUserFriendlyName());
+				StopShipmentsIfNeeded(counterparty, employee, true, status.ConvertToRevenueStatus().GetEnumDisplayName());
 			}
 		}
 

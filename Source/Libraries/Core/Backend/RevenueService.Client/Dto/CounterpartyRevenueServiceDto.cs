@@ -1,8 +1,10 @@
-﻿using Dadata.Model;
+﻿using System.ComponentModel.DataAnnotations;
+using Dadata.Model;
 using Gamma.Utilities;
 using RevenueService.Client.Enums;
-using System.ComponentModel.DataAnnotations;
+using RevenueService.Client.Extensions;
 using VodovozInfrastructure.Attributes;
+using CounterpartyType = RevenueService.Client.Enums.CounterpartyType;
 
 namespace RevenueService.Client.Dto
 {
@@ -86,6 +88,9 @@ namespace RevenueService.Client.Dto
 
 		[Display(Name = "Статус")]
 		public PartyStatus State { get; set; }
+
+		[Display(Name = "Название статуса в налоговой")]
+		public string RevenueStatusName => State.ConvertToRevenueStatus().GetEnumTitle();
 
 		[ReportExportIgnore]
 		[Display(Name = "Активен")]

@@ -2289,7 +2289,9 @@ namespace Vodovoz
 					Entity.IsLiquidating = true;
 				}
 
-				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
+				Entity.RevenueStatus = a.State.ConvertToRevenueStatus();
+
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.ConvertToRevenueStatus().GetEnumDisplayName());
 			};
 		}
 
