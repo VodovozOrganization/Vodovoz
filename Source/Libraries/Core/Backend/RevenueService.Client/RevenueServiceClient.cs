@@ -22,39 +22,6 @@ namespace RevenueService.Client
 			_accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
 		}
 
-		public async Task<SuggestResponse<Party>> GetFullCounterpartyInfoAsync(
-			string inn,
-			string kpp,
-			CancellationToken cancellationToken)
-		{
-			var query = new DadataRequestDto
-			{
-				Inn = inn,
-				Kpp = kpp
-			};
-
-			var api = new SuggestClientAsync(_accessToken);
-
-			var request = string.IsNullOrEmpty(query.Kpp)
-				? new FindPartyRequest(query.Inn, count: _queryCount)
-				: new FindPartyRequest(query.Inn, query.Kpp, _queryCount);
-
-			SuggestResponse<Party> response = null;
-
-			try
-			{
-				response = await api.FindParty(request, cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex, "Ошибка при загрузке реквизитов контрагента.");
-				
-				throw;
-			}
-
-			return response;
-		}
-
 		public async Task<RevenueServiceResponseDto> GetCounterpartyInfoAsync(DadataRequestDto query, CancellationToken cancellationToken)
 		{
 			var api = new SuggestClientAsync(_accessToken);

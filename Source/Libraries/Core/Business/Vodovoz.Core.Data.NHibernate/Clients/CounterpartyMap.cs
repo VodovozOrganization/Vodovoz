@@ -56,6 +56,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Map(x => x.IsLiquidating)
 				.Column("is_liquidating");
+			
+			Map(x => x.RevenueStatus)
+				.Column("revenue_status");
 
 			Map(x => x.OGRN)
 				.Column("ogrn");
