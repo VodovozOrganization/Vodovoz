@@ -3,14 +3,15 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
@@ -19,20 +20,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		<DeliveryPoint, DeliveryPointViewModel, DeliveryPointJournalNode, DeliveryPointJournalFilterViewModel>
 	{
 		private readonly bool _canDeleteClientAndDp;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
+		private readonly INavigationManager _navigationManager;
 
 		public DeliveryPointJournalViewModel(
-			IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
 			DeliveryPointJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			bool hideJournalForOpen,
-			bool hideJournalForCreate)
+			INavigationManager navigationManager,
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
 		{
-			_deliveryPointViewModelFactory =
-			deliveryPointViewModelFactory ?? throw new ArgumentNullException(nameof(_deliveryPointViewModelFactory));
-
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			TabName = "Журнал точек доставки";
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -86,11 +85,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)
@@ -217,6 +212,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () => throw new NotImplementedException();
 
 		protected override Func<DeliveryPointJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
-			_deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(node.Id);
+			_navigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 	}
 }

@@ -23,6 +23,20 @@ namespace VodovozHealthCheck.Helpers
 			return (T)responseMessage;
 		}
 
+		public static async Task<object> GetByUri(string requestUri, IHttpClientFactory httpClientFactory, string accessToken = null)
+		{
+			var httpClient = httpClientFactory.CreateClient();
+
+			if(accessToken != null)
+			{
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+			}
+
+			var responseMessage = await httpClient.GetAsync(requestUri);
+
+			return responseMessage;
+		}
+
 		public static async Task<TResponseDto> PostJsonByUri<TRequestDto, TResponseDto>(string requestUri, IHttpClientFactory httpClientFactory,
 			TRequestDto requestDto, string accessToken = null)
 		{

@@ -7,12 +7,14 @@ using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Goods;
+using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {
 	public partial class EquipmentGenerator : Gtk.Bin, ITdiDialog
 	{
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
+		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 		bool isDupSet;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;

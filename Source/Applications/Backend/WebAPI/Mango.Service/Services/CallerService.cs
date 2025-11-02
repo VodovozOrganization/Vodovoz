@@ -1,9 +1,7 @@
 ﻿using Mango.Service.Calling;
 using Mango.Service.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using NLog;
 using Polly;
 using System;
 using System.Collections.Concurrent;
@@ -16,28 +14,14 @@ namespace Mango.Service.Services
 	public class CallerService : ICallerService
 	{
 		private readonly ILogger<CallerService> _logger;
+		private readonly MySqlConnectionStringBuilder _connectionStringBuilder;
 		private readonly ConcurrentDictionary<string, CallerInfoCache> _externalCallers;
-		private readonly string _connectionString;
 
-		public CallerService(ILogger<CallerService> logger, IConfiguration configuration)
+		public CallerService(ILogger<CallerService> logger, MySqlConnectionStringBuilder connectionStringBuilder)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_connectionStringBuilder = connectionStringBuilder ?? throw new ArgumentNullException(nameof(connectionStringBuilder));
 			_externalCallers = new ConcurrentDictionary<string, CallerInfoCache>();
-
-			var dbSection = configuration.GetSection("DomainDB");
-			if(!dbSection.Exists())
-			{
-				throw new ArgumentException("Не найдена секция DomainDB в конфигурации");
-			}
-			var connectionStringBuilder = new MySqlConnectionStringBuilder();
-			connectionStringBuilder.Server = dbSection["Server"];
-			connectionStringBuilder.Port = uint.Parse(dbSection["Port"]);
-			connectionStringBuilder.Database = dbSection["Database"];
-			connectionStringBuilder.UserID = dbSection["UserID"];
-			connectionStringBuilder.Password = dbSection["Password"];
-			connectionStringBuilder.SslMode = MySqlSslMode.None;
-			connectionStringBuilder.DefaultCommandTimeout = 5;
-			_connectionString = connectionStringBuilder.ConnectionString;
 		}
 
 		public Task RemoveOutDated()
@@ -91,7 +75,7 @@ namespace Mango.Service.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
 
-				using var connection = new MySqlConnection(_connectionString);
+				using var connection = new MySqlConnection(_connectionStringBuilder.ConnectionString);
 
 				var list = (await connection.QueryAsyncWithRetry<PhoneWithDetailsResponseNode>(sql, retryPolicy, new { digits })).ToList();
 

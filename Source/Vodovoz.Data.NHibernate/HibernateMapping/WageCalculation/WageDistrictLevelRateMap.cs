@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
@@ -12,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.CarTypeOfUse).Column("car_type_of_use").CustomType<CarTypeOfUseStringType>();
+			Map(x => x.CarTypeOfUse).Column("car_type_of_use");
 
 			References(x => x.WageDistrict).Column("wage_district_id");
 			References(x => x.WageDistrictLevelRates).Column("wage_district_level_rates_id");

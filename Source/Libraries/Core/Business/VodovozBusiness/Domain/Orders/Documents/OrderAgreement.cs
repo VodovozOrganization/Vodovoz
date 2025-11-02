@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Autofac;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -12,7 +14,7 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class OrderAgreement : PrintableOrderDocument, IPrintableOdtDocument, ITemplateOdtDocument
 	{
-		private readonly IWaterPricesRepository _waterPricesRepository = new WaterPricesRepository();
+		private IWaterPricesRepository _waterPricesRepository => ScopeProvider.Scope.Resolve<IWaterPricesRepository>();
 		
 		#region implemented abstract members of OrderDocument
 

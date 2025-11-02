@@ -16,14 +16,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
     public class EmployeePostsJournalViewModel : SingleEntityJournalViewModelBase<EmployeePost, EmployeePostViewModel, EmployeePostJournalNode>
     {
-        private readonly ICommonServices _commonServices;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ICommonServices _commonServices;
 
         public EmployeePostsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices)
             : base(unitOfWorkFactory, commonServices)
         {
-            _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
             TabName = "Журнал должностей";
         }
@@ -47,12 +49,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
         protected override Func<EmployeePostViewModel> CreateDialogFunction => () => new EmployeePostViewModel(
             EntityUoWBuilder.ForCreate(),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			_unitOfWorkFactory,
             _commonServices);
 
         protected override Func<EmployeePostJournalNode, EmployeePostViewModel> OpenDialogFunction => (node) => new EmployeePostViewModel(
             EntityUoWBuilder.ForOpen(node.Id),
-            QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+			_unitOfWorkFactory,
             _commonServices
         );
 

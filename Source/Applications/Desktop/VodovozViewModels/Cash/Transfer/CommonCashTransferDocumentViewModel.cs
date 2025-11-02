@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -14,6 +15,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -21,6 +23,9 @@ using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Cash.Transfer
 {
@@ -31,6 +36,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IReportViewOpener _reportViewOpener;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 
@@ -51,7 +57,9 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IReportViewOpener reportViewOpener,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(financialCategoriesGroupsSettings is null)
@@ -64,6 +72,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -90,6 +99,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
 				() => FinancialIncomeCategory);
+
+			CarEntryViewModel = BuildCarEntryViewModel();
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
@@ -154,6 +165,26 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				.Finish();
 
 			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
 
 			return viewModel;
 		}
@@ -259,12 +290,10 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			PrintCommand = new DelegateCommand(
 				() =>
 				{
-					var reportInfo = new QS.Report.ReportInfo
-					{
-						Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}",
-						Identifier = "Documents.CommonCashTransfer",
-						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
-					};
+					var reportInfo = _reportInfoFactory.Create();
+					reportInfo.Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}";
+					reportInfo.Identifier = "Documents.CommonCashTransfer";
+					reportInfo.Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } };
 
 					_reportViewOpener.OpenReport(TabParent, reportInfo);
 				},

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using DeliveryRulesService.Constants;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace DeliveryRulesService.DTO
 {
@@ -21,6 +21,8 @@ namespace DeliveryRulesService.DTO
 
 		public string Message { get; set; }
 		public string Status { get; set; }
+		public int? PaidDeliveryId { get; set; }
+		public int? FastDeliveryId { get; set; }
 		public decimal? FastDeliveryPrice { get; set; }
 		public IList<ExtendedWeekDayDeliveryRuleDto> WeekDayDeliveryRules { get; set; }
 

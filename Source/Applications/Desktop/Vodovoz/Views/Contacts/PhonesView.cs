@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
@@ -9,13 +6,17 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSWidgetLib;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Views.Contacts
 {
@@ -26,8 +27,8 @@ namespace Vodovoz.Views.Contacts
 		private GenericObservableList<Phone> phonesList;
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
-		private IPhoneRepository phoneRepository;
-		private static readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private IPhoneRepository phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
+		private static readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 
 		private bool isReadOnly;
 		public bool IsReadOnly {
@@ -126,13 +127,12 @@ namespace Vodovoz.Views.Contacts
 		public PhonesView()
 		{
 			this.Build();
-			phoneRepository = new PhoneRepository();
 			datatablePhones.NRows = RowNum = 0;
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var phone = new Phone().Init(_contactsParameters);
+			var phone = new Phone().Init(_contactsSettings);
 			phone.Counterparty = Counterparty;
 			PhonesList.Add(phone);
 		}
@@ -143,7 +143,8 @@ namespace Vodovoz.Views.Contacts
 
 			var phoneViewModel = new PhoneViewModel(newPhone,
 				ServicesConfig.CommonServices,
-				new PhoneTypeSettings(new ParametersProvider()));
+				ScopeProvider.Scope.Resolve<IPhoneTypeSettings>()
+			);
 
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;
@@ -264,7 +265,7 @@ namespace Vodovoz.Views.Contacts
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.DigitsNumber.Length < _contactsParameters.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < _contactsSettings.MinSavePhoneLength)
 				.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 	}

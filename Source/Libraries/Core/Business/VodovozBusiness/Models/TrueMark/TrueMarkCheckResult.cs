@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.TrueMark;
+﻿using System;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -11,7 +12,19 @@ namespace Vodovoz.Models.TrueMark
 		/// </summary>
 		public bool Introduced { get; set; }
 
+		/// <summary>
+		/// ИНН владельца кода
+		/// </summary>
 		public string OwnerInn { get; set; }
+
+		/// <summary>
+		/// Имя владельца кода
+		/// </summary>
 		public string OwnerName { get; set; }
+
+		/// <summary>
+		/// Дата окончания срока годности
+		/// </summary>
+		public DateTime? ExpirationDate { get; set; }
 	}
 }

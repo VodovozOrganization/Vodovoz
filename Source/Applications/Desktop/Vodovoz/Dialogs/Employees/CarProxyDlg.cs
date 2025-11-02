@@ -1,17 +1,21 @@
-﻿using System;
-using System.Linq;
-using NLog;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Validation;
+using QS.Navigation;
+using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
+using System;
+using System.Linq;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using QS.Project.Services;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Autofac;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Organizations;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -25,7 +29,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarProxyDocument>();
 			Entity.Date = DateTime.Now;
 			TabName = "Новая доверенность на ТС";
 			ConfigureDlg();
@@ -38,7 +42,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			ResolveDependencies();
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CarProxyDocument>(id);
 			TabName = "Изменение доверенности на ТС";
 			ConfigureDlg();
 		}
@@ -57,24 +61,28 @@ namespace Vodovoz.Dialogs.Employees
 
 			ylabelNumber.Binding.AddBinding(Entity, x => x.Title, x => x.LabelProp).InitializeFromSource();
 
-			var orgFactory = new OrganizationJournalFactory();
-			evmeOrganisation.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
-			evmeOrganisation.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			evmeOrganisation.Changed += (sender, e) => UpdateStates();
+			var organizationViewModel = new LegacyEEVMBuilderFactory<CarProxyDocument>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope)
+				.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
 
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			organizationViewModel.Changed += (sender, e) => UpdateStates();
+
+			entryOrganization.ViewModel = organizationViewModel;
+
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
+			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(_lifetimeScope));
-			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
+			entityentryCar.ViewModel = BuildCarEntryViewModel();
+			entityentryCar.ViewModel.Changed += (sender, e) => UpdateStates();
 
 			RefreshParserRootObject();
 
@@ -84,6 +92,23 @@ namespace Vodovoz.Dialogs.Employees
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;
 
 			UpdateStates();
+		}
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var navigationManager = _lifetimeScope.BeginLifetimeScope().Resolve<INavigationManager>();
+
+			var viewModel = new LegacyEEVMBuilderFactory<CarProxyDocument>(this, Entity, UoW, navigationManager, _lifetimeScope)
+				.ForProperty(x => x.Car)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+				})
+				.UseViewModelDialog<CarViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
 		}
 
 		void GetDocument()
@@ -140,9 +165,9 @@ namespace Vodovoz.Dialogs.Employees
 		void UpdateStates()
 		{
 			bool isNewDoc = !(Entity.Id > 0);
-			evmeOrganisation.Sensitive = isNewDoc;
+			entryOrganization.Sensitive = isNewDoc;
 			evmeDriver.Sensitive = isNewDoc;
-			entityviewmodelentryCar.Sensitive = isNewDoc;
+			entityentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null 
 				|| Entity.Car == null 
 				|| Entity.Driver == null
@@ -155,7 +180,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

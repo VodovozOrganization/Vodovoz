@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -14,23 +16,21 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
-				Title = Name,
-				//Identifier = "Documents.EquipmentMovement",
-				//FIXME Когда доделаем навороченый акт I-1200 вернуть
-				Identifier = "Documents.EquipmentTransfer",
-				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = Name;
+			reportInfo.Identifier = "Documents.EquipmentTransfer";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id",  Order.Id }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
 		public override string Name {
 			get { return String.Format("Акт приемо-передачи оборудования"); }
-			//FIXME Когда доделаем навороченый акт I-1200 вернуть
-			//get { return String.Format ("Акт движения оборудования"); }
 		}
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;

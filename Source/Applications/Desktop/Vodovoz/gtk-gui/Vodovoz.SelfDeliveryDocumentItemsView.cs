@@ -14,7 +14,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		protected virtual void Build()
 		{
@@ -54,7 +54,7 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;

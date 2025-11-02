@@ -20,6 +20,8 @@ using QS.Tdi;
 using QS.Utilities.Enums;
 using QS.Utilities.Text;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -64,6 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
+			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Loader);
 
 			TabName = "Выгрузка по водителям";
 			Items = new GenericObservableList<DriverInfoNode>();

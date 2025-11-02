@@ -40,7 +40,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gtk.Label labelCar;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::Gtk.HBox hboxTransferInfo;
 
@@ -274,6 +274,8 @@ namespace Vodovoz.Dialogs.Fuel
 			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.entryDriver.Name = "entryDriver";
 			this.entryDriver.CanEditReference = false;
+			this.entryDriver.CanDisposeEntitySelectorFactory = false;
+			this.entryDriver.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entryDriver);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryDriver]));
 			w18.Position = 1;
@@ -288,12 +290,11 @@ namespace Vodovoz.Dialogs.Fuel
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entryCar.Name = "entryCar";
-			this.entryCar.CanEditReference = false;
-			this.hbox2.Add(this.entryCar);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.hbox2.Add(this.entityentryCar);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryCar]));
 			w20.Position = 3;
 			this.vboxDialog.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hbox2]));

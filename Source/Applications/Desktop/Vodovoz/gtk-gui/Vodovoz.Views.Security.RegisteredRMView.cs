@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Security
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -32,9 +32,9 @@ namespace Vodovoz.Views.Security
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonAddUser;
+		private global::Gamma.GtkWidgets.yButton buttonAddUser;
 
-		private global::Gtk.Button buttonDeleteUser;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteUser;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -55,7 +55,7 @@ namespace Vodovoz.Views.Security
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -69,7 +69,7 @@ namespace Vodovoz.Views.Security
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -182,7 +182,7 @@ namespace Vodovoz.Views.Security
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonAddUser = new global::Gtk.Button();
+			this.buttonAddUser = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddUser.CanFocus = true;
 			this.buttonAddUser.Name = "buttonAddUser";
 			this.buttonAddUser.UseUnderline = true;
@@ -196,7 +196,7 @@ namespace Vodovoz.Views.Security
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonDeleteUser = new global::Gtk.Button();
+			this.buttonDeleteUser = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteUser.CanFocus = true;
 			this.buttonDeleteUser.Name = "buttonDeleteUser";
 			this.buttonDeleteUser.UseUnderline = true;

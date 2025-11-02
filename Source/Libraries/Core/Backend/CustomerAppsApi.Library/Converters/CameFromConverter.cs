@@ -1,6 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Counterparty;
 
 namespace CustomerAppsApi.Library.Converters
 {

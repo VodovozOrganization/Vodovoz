@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MoreLinq;
+﻿using MoreLinq;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Cash
@@ -20,16 +22,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 		private DelegateCommand _selectAllCommand;
 		private DelegateCommand _generateReportCommand;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private DateTime? _startDateTime = DateTime.Today;
 
 		public DayOfSalaryGiveoutReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
-			ICommonServices commonServices
-		) : base(rdlViewerViewModel)
+			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
+			IReportInfoFactory reportInfoFactory
+		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Дата выдачи ЗП водителей и экспедиторов";
 			Identifier = "Cash.DayOfSalaryGiveout";
 
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_interactiveService = (commonServices ?? throw new ArgumentNullException(nameof(commonServices))).InteractiveService;
 			var hasAccess = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
 
@@ -38,7 +44,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Cash
 				throw new AbortCreatingPageException("Нет права на просмотр этого отчета", "Недостаточно прав");
 			}
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				EmployeeNode resultAlias = null;
 				Employee employeeAlias = null;

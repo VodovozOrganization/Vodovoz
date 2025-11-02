@@ -18,13 +18,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers.CashFlowDetailReports;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -33,6 +34,7 @@ namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUowTabBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -54,17 +56,27 @@ namespace Vodovoz.Reports
 
 		public CashFlow(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IReportInfoFactory reportInfoFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IFileDialogService fileDialogService)
+			IFileDialogService fileDialogService
+			)
 		{
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
 			Build();
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
@@ -79,18 +91,11 @@ namespace Vodovoz.Reports
 			dateStart.Binding.AddBinding(this, dlg => dlg.StartDate, w => w.Date).InitializeFromSource();
 			dateEnd.Binding.AddBinding(this, dlg => dlg.EndDate, w => w.Date).InitializeFromSource();
 
-			var officeFilter = new EmployeeFilterViewModel();
-
-			officeFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.office);
-
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
-
-			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			evmeCashier.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(true));
 			evmeCashier.CanOpenWithoutTabParent = true;
 
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.CanOpenWithoutTabParent = true;
 
 			UserSubdivisions = GetSubdivisionsForUser();
@@ -106,7 +111,7 @@ namespace Vodovoz.Reports
 			int currentUserId = commonServices.UserService.CurrentUserId;
 
 			_canGenerateCashReportsForOrganisations =
-				commonServices.PermissionService.ValidateUserPresetPermission(Permissions.Cash.CanGenerateCashReportsForOrganizations, currentUserId);
+				commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CanGenerateCashReportsForOrganizations, currentUserId);
 
 			checkOrganisations.Visible = _canGenerateCashReportsForOrganisations;
 			checkOrganisations.Toggled += CheckOrganisationsToggled;
@@ -301,10 +306,7 @@ namespace Vodovoz.Reports
 								  .Select(x => x.Name)
 								  .SingleOrDefault();
 
-			var reportInfo = new ReportInfo
-			{
-				Source = source,
-				Parameters = new Dictionary<string, object> {
+			var parameters = new Dictionary<string, object> {
 					{ "StartDate", dateStart.DateOrNull.Value },
 					{ "EndDate", dateEnd.DateOrNull.Value },
 					{ "IncomeCategory", inCat },
@@ -314,26 +316,31 @@ namespace Vodovoz.Reports
 					{ "Employee", employeeId },
 					{ "CasherName", casherName },
 					{ "EmployeeName", employeeName }
-				}
-			};
+				};
 
 			if(checkOrganisations.Active)
 			{
-				reportInfo.Parameters.Add("organisations", organisations);
-				reportInfo.Parameters.Add("organisation_name",
+				parameters.Add("organisations", organisations);
+				parameters.Add("organisation_name",
 					(specialListCmbOrganisations.SelectedItem as Organization) != null
 						? (specialListCmbOrganisations.SelectedItem as Organization).Name
 						: "Все организации");
 			}
 			else
 			{
-				reportInfo.Parameters.Add("cash_subdivisions", cashSubdivisions);
-				reportInfo.Parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
+				parameters.Add("cash_subdivisions", cashSubdivisions);
+				parameters.Add("cash_subdivisions_name", cashSubdivisionsName);
 			}
 
-			var cashCategoryParametersProvider = new OrganizationCashTransferDocumentParametersProvider(new ParametersProvider());
-			reportInfo.Parameters.Add("cash_income_category_transfer_id", cashCategoryParametersProvider.CashIncomeCategoryTransferId);
-			reportInfo.Parameters.Add("cash_expense_category_transfer_id", cashCategoryParametersProvider.CashExpenseCategoryTransferId);
+			var cashCategorySettings = _lifetimeScope.Resolve<IOrganizationCashTransferDocumentSettings>();
+
+			parameters.Add("cash_income_category_transfer_id", cashCategorySettings.CashIncomeCategoryTransferId);
+			parameters.Add("cash_expense_category_transfer_id", cashCategorySettings.CashExpenseCategoryTransferId);
+
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Parameters = parameters;
+			reportInfo.Source = source;
+			reportInfo.Title = Title;
 
 			return reportInfo;
 		}

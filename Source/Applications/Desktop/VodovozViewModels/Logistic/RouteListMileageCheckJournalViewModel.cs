@@ -13,12 +13,15 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
@@ -37,34 +40,40 @@ namespace Vodovoz.ViewModels.Logistic
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider,
+			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			IUserSettings userSettings,
+			IUserSettingsService userSettings,
 			IStoreDocumentHelper storeDocumentHelper,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			IEventsQrPlacer eventsQrPlacer,
+			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(
-				  filterViewModel,
-				  routeListRepository,
-				  subdivisionRepository,
-				  unitOfWorkFactory,
-				  navigationManager,
-				  callTaskWorker,
-				  warehouseRepository,
-				  employeeRepository,
-				  gtkTabsOpener,
-				  stockRepository,
-				  reportPrinter,
-				  terminalNomenclatureProvider,
-				  commonServices,
-				  routeListProfitabilitySettings,
-				  warehousePermissionService,
-				  routeListDailyNumberProvider,
-				  userSettings,
-				  storeDocumentHelper,
-				  routeListService)
+				filterViewModel,
+				routeListRepository,
+				subdivisionRepository,
+				unitOfWorkFactory,
+				navigationManager,
+				callTaskWorker,
+				warehouseRepository,
+				employeeRepository,
+				gtkTabsOpener,
+				stockRepository,
+				nomenclatureSettings,
+				commonServices,
+				routeListProfitabilitySettings,
+				warehousePermissionService,
+				routeListDailyNumberProvider,
+				userSettings,
+				storeDocumentHelper,
+				routeListService,
+				eventsQrPlacer,
+				carLoadDocumentsPrinter,
+				reportInfoFactory)
 		{
 			TabName = "Контроль за километражем.";
 

@@ -11,12 +11,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 	public class WageParameterService : IWageParameterService
 	{
 		private readonly IWageCalculationRepository wageCalculationRepository;
-		private readonly IWageParametersProvider wageParametersProvider;
+		private readonly IWageSettings wageSettings;
 
-		public WageParameterService(IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider)
+		public WageParameterService(IWageCalculationRepository wageCalculationRepository, IWageSettings wageSettings)
 		{
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
-			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
+			this.wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 		}
 
 		public IRouteListWageCalculationService ActualizeWageParameterAndGetCalculationService(IUnitOfWork uow, Employee employee, IRouteListWageCalculationSource source)
@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(source == null) throw new ArgumentNullException(nameof(source));
 
 			//Не пересчитывать зарплату для МЛ до этой даты
-			if(source.RouteListDate <= wageParametersProvider.DontRecalculateWagesForRouteListsBefore)
+			if(source.RouteListDate <= wageSettings.DontRecalculateWagesForRouteListsBefore)
 			{
 				return new WageCalculationServiceForOldRouteLists(source);
 			}
@@ -48,7 +48,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) return;
 
 			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
-			int daysWorkedNeeded = wageParametersProvider.GetDaysWorkedForMinRatesLevel();
+			int daysWorkedNeeded = wageSettings.DaysWorkedForMinRatesLevel;
 
 			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) return;
 

@@ -1,20 +1,21 @@
 ﻿using ClosedXML.Excel;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.SqlCommand;
-using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.TrueMark;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
@@ -22,7 +23,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 	[Appellative(Nominative = "Отчет о сканировании водителями маркировки ЧЗ")]
 	public partial class ProductCodesScanningReport
 	{
-		public ProductCodesScanningReport(DateTime createDateFrom, DateTime createDateTo, IList<Row> rows)
+		public ProductCodesScanningReport(
+			DateTime createDateFrom,
+			DateTime createDateTo,
+			IList<Row> rows)
 		{
 			CreateDateFrom = createDateFrom;
 			CreateDateTo = createDateTo;
@@ -40,107 +44,134 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 		public IList<Row> Rows { get; set; }
 
-		public static async Task<ProductCodesScanningReport> GenerateAsync(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
+		public static async Task<ProductCodesScanningReport> GenerateAsync(
+			IUnitOfWork unitOfWork, IOrganizationSettings organizationSettings, DateTime createDateFrom, DateTime createDateTo)
 		{
-			var report = await Task.Run(() => Generate(unitOfWork, createDateFrom, createDateTo));
+			var report = await Task.Run(() => Generate(unitOfWork, organizationSettings, createDateFrom, createDateTo));
 			return report;
 		}
 
-		public static ProductCodesScanningReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
+		public static ProductCodesScanningReport Generate(
+			IUnitOfWork unitOfWork, IOrganizationSettings organizationSettings, DateTime createDateFrom, DateTime createDateTo)
 		{
-			CashReceipt cashReceiptAlias = null;
-			CashReceiptProductCode cashReceiptProductCodeAlias = null;
-			RouteListItem routeListItemAlias = null;
-			RouteList routeListAlias = null;
-			Employee driverAlias = null;
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCodeAlias = null;
-			Subdivision subdivisionAlias = null;
-			GeoGroup geoGroupAlias = null;
-			ScannedCodeInfo resultAlias = null;
+			var scannedCodesData = 
+				(
+					from routeList in unitOfWork.Session.Query<RouteList>()
+					join routeListItem in unitOfWork.Session.Query<RouteListItem>() on routeList.Id equals routeListItem.RouteList.Id
+					join order in unitOfWork.Session.Query<Domain.Orders.Order>() on routeListItem.Order.Id equals order.Id
+					join contract in unitOfWork.Session.Query<CounterpartyContract>()
+						on order.Contract.Id equals contract.Id
+					join client in unitOfWork.Session.Query<Domain.Client.Counterparty>() on order.Client.Id equals client.Id
+					join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
+					join sd in unitOfWork.Session.Query<Subdivision>() on driver.Subdivision.Id equals sd.Id into subdivisions
+					from subdivision in subdivisions.DefaultIfEmpty()
+					join gg in unitOfWork.Session.Query<GeoGroup>() on subdivision.GeographicGroup.Id equals gg.Id into geoGroups
+					from geoGroup in geoGroups.DefaultIfEmpty()
+					join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals sc.RouteListItem.Id into scannedCodes
+					from scannedCode in scannedCodes.DefaultIfEmpty()
+					join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
+					from identificationCode in identificationCodes.DefaultIfEmpty()
+					join defaultEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }
+						equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+					into edoAccountsByOrder
+					from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+					join defaultVodovozEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)organizationSettings.VodovozOrganizationId, c = true }
+						equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 
-			var driverFioProjection = CustomProjections.Concat_WS(
-				" ",
-				Projections.Property(() => driverAlias.LastName),
-				Projections.Property(() => driverAlias.Name),
-				Projections.Property(() => driverAlias.Patronymic)
-			);
+					let markedProductsInOrderCount =
+						(int?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+							join Nomenclature in unitOfWork.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals Nomenclature.Id
+							where
+								orderItem.Order.Id == order.Id
+								&& Nomenclature.IsAccountableInTrueMark
+							select orderItem.ActualCount)
+							.Sum() ?? 0
 
-			var isProductCodeSingleDuplicatedProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount <= 1),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+					where
+						routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
+						&& routeListItem.Status == RouteListItemStatus.Completed
+						&& !(order.PaymentType == Domain.Client.PaymentType.Cashless
+							&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+								|| defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+							&& client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+						&& markedProductsInOrderCount > 0
 
-			var isProductCodeMultiplyDuplicatedProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode)
-					.Add(() => cashReceiptProductCodeAlias.DuplicatesCount > 1),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
+					select new ScannedCodeInfo
+					{
+						 DriverId = driver.Id,
+						 DriverFIO = driver.FullName,
+						 CarOwnType = driver.DriverOfCarOwnType,
+						 DriverSubdivisionGeoGroup = geoGroup.Name,
+						 OrderId = order.Id,
+						 MarkedProdictsInOrderCount = markedProductsInOrderCount,
+						 ScannedCodeData = scannedCode == null
+							? default
+							: new ScannedCodeData
+								{
+									 Problem = scannedCode.Problem,
+									 DuplicatesCount = scannedCode.DuplicatesCount,
+									 IsInvalid = identificationCode == null ? false : identificationCode.IsInvalid
+								}
+					})
+					.ToList();
 
-			var isInvalidSourceCodeProjection = Projections.Conditional(
-				Restrictions.Conjunction()
-					.Add(() => trueMarkWaterIdentificationCodeAlias != null)
-					.Add(() => trueMarkWaterIdentificationCodeAlias.IsInvalid),
-				Projections.Constant(true),
-				Projections.Constant(false)
-				);
-
-			var codesScannedByDrivers = unitOfWork.Session.QueryOver(() => cashReceiptAlias)
-				.JoinEntityAlias(() => cashReceiptProductCodeAlias, () => cashReceiptProductCodeAlias.CashReceipt.Id == cashReceiptAlias.Id, JoinType.InnerJoin)
-				.Left.JoinAlias(() => cashReceiptProductCodeAlias.SourceCode, () => trueMarkWaterIdentificationCodeAlias)
-				.JoinEntityAlias(() => routeListItemAlias, () => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id, JoinType.InnerJoin)
-				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
-				.Left.JoinAlias(() => driverAlias.Subdivision, () => subdivisionAlias)
-				.Left.JoinAlias(() => subdivisionAlias.GeographicGroup, () => geoGroupAlias)
-				.Where(() => cashReceiptAlias.CreateDate >= createDateFrom
-					&& cashReceiptAlias.CreateDate < createDateTo.AddDays(1)
-					&& !cashReceiptAlias.WithoutMarks)
-				.SelectList(list => list
-					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
-					.Select(driverFioProjection).WithAlias(() => resultAlias.DriverFIO)
-					.Select(() => driverAlias.DriverOfCarOwnType).WithAlias(() => resultAlias.CarOwnType)
-					.Select(() => geoGroupAlias.Name).WithAlias(() => resultAlias.DriverSubdivisionGeoGroup)
-					.Select(() => cashReceiptProductCodeAlias.SourceCode.Id).WithAlias(() => resultAlias.SourceCodeId)
-					.Select(() => cashReceiptProductCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateSourceCode)
-					.Select(isProductCodeSingleDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeSingleDuplicated)
-					.Select(isProductCodeMultiplyDuplicatedProjection).WithAlias(() => resultAlias.IsProductCodeMultiplyDuplicated)
-					.Select(() => cashReceiptProductCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedSourceCode)
-					.Select(() => cashReceiptProductCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveSourceCode)
-					.Select(() => trueMarkWaterIdentificationCodeAlias.IsInvalid).WithAlias(() => resultAlias.IsInvalidSourceCode))
-				.TransformUsing(Transformers.AliasToBean<ScannedCodeInfo>())
-				.List<ScannedCodeInfo>()
-				.ToList();
-
-			var groupedByDriverCodes = codesScannedByDrivers
+			var groupedByDriverCodesData = scannedCodesData
 				.GroupBy(c => new { c.DriverId, c.DriverFIO, c.CarOwnType, c.DriverSubdivisionGeoGroup })
-				.ToDictionary(g => g.Key, g => g.ToList());
+				.ToDictionary(
+					g => g.Key,
+					g => g.Select(x => new { x.OrderId, x.MarkedProdictsInOrderCount, x.ScannedCodeData }).ToList());
 
 			var rows = new List<Row>();
 			var counter = 1;
 
-			foreach(var item in groupedByDriverCodes)
+			foreach(var driverCodesData in groupedByDriverCodesData)
 			{
-				var driver = item.Key.DriverFIO;
-				var carOwnType = item.Key.CarOwnType;
-				var driverSubdivisionGeoGroup = item.Key.DriverSubdivisionGeoGroup;
-				var codes = item.Value;
+				var driver = driverCodesData.Key.DriverFIO;
+				var carOwnType = driverCodesData.Key.CarOwnType;
+				var driverSubdivisionGeoGroup = driverCodesData.Key.DriverSubdivisionGeoGroup;
+
+				var codes = driverCodesData.Value
+					.Where(x => x.ScannedCodeData != null)
+					.Select(x => x.ScannedCodeData)
+					.ToList();
+
+				var codesByOrders = driverCodesData.Value
+					.GroupBy(x => new { x.OrderId, x.MarkedProdictsInOrderCount })
+					.ToDictionary(g => g.Key, g => g.ToList());
+
+				var markedProductsInOrdersCount = codesByOrders.Select(x => x.Key.MarkedProdictsInOrderCount).Sum();
+
+				var scannedCodesCount = codes.Count;
+				var unscannedCodesCount = markedProductsInOrdersCount - scannedCodesCount;
+
+				var validCodes = codes.Where(x => !x.IsInvalid).ToList();
+				var inValidCodes = codes.Where(x => x.IsInvalid).ToList();
 
 				var row = new Row();
 
 				row.DriverFIO = driver;
-				row.CarOwnTypeString = carOwnType.GetEnumDisplayName();
+				row.CarOwnTypeString = carOwnType == null ? string.Empty : carOwnType.Value.GetEnumDisplayName();
 				row.DriverSubdivisionGeoGroup = driverSubdivisionGeoGroup;
-				row.TotalCodesCount = codes.Count;
-				row.SuccessfullyScannedCodesCount = GetSuccessfullyScannedCodesCount(codes);
-				row.UnscannedCodesCount = GetUnscannedCodesCount(codes);
-				row.SingleDuplicatedCodesCount = GetSingleDuplicatedCodesCount(codes);
-				row.MultiplyDuplicatedCodesCount = GetMultiplyDuplicatedCodesCount(codes);
-				row.InvalidCodesCount = GetInvalidCodesCount(codes);
+
+				row.TotalCodesCount = markedProductsInOrdersCount;
+
+				row.SuccessfullyScannedCodesCount =
+					validCodes
+					.Count(x => x.Problem != ProductCodeProblem.Duplicate);
+
+				row.UnscannedCodesCount = unscannedCodesCount >= 0 ? unscannedCodesCount : 0;
+
+				row.SingleDuplicatedCodesCount =
+					validCodes
+					.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount <= 1);
+
+				row.MultiplyDuplicatedCodesCount =
+					validCodes
+					.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount > 1);
+
+				row.InvalidCodesCount = inValidCodes.Count();
 
 				rows.Add(row);
 				counter++;
@@ -149,34 +180,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			rows = rows.OrderBy(r => r.SuccessfullyScannedCodesPercent).ToList();
 			return new ProductCodesScanningReport(createDateFrom, createDateTo, rows);
 		}
-
-		private static int GetSuccessfullyScannedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => !c.IsDuplicateSourceCode
-				&& !c.IsUnscannedSourceCode
-				&& !c.IsInvalidSourceCode
-				&& c.SourceCodeId != null)
-			.Count();
-
-		private static int GetUnscannedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsUnscannedSourceCode)
-			.Count();
-
-		private static int GetSingleDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsProductCodeSingleDuplicated && !c.IsInvalidSourceCode)
-			.Count();
-
-		private static int GetMultiplyDuplicatedCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsProductCodeMultiplyDuplicated && !c.IsInvalidSourceCode)
-			.Count();
-
-		private static int GetInvalidCodesCount(List<ScannedCodeInfo> codes) =>
-			codes
-			.Where(c => c.IsInvalidSourceCode)
-			.Count();
 
 		#region Export report to Excel
 

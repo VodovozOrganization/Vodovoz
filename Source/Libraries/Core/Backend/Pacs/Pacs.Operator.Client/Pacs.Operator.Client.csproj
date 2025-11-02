@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Pacs.Operators.Client</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\Pacs.Calls\Pacs.Calls.csproj" />
+    <ProjectReference Include="..\Pacs.Core\Pacs.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -27,5 +27,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId);
 
 		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
+		IEnumerable<DeliveryPointForSendNode> GetActiveDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId);
+		bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId);
 	}
 }

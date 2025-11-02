@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.FuelDocuments;
-using QS.Views.GtkUI;
-using QS.Permissions;
 
 namespace Vodovoz
 {
@@ -14,56 +14,92 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			yspeccomboboxSubdivision.Sensitive = ViewModel.FuelDocument.FuelExpenseOperation == null && ViewModel.IsNewEditable;
-			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel, w => w.AvailableSubdivisionsForUser, e => e.ItemsList).InitializeFromSource();
 			yspeccomboboxSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
-			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel.FuelDocument, w => w.Subdivision, e => e.SelectedItem).InitializeFromSource();
 
-			ydatepicker.Binding.AddBinding(ViewModel.FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
+			yspeccomboboxSubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.AvailableSubdivisionsForUser, e => e.ItemsList)
+				.AddBinding(ViewModel.FuelDocument, w => w.Subdivision, e => e.SelectedItem)
+				.InitializeFromSource();
+
+			ydatepicker.Binding
+				.AddBinding(ViewModel.FuelDocument, e => e.Date, w => w.Date)
+				.AddBinding(ViewModel, vm => vm.CanChangeDate, w => w.Sensitive)
+				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelector);
 			evmeDriver.Binding.AddBinding(ViewModel.FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarAutocompleteSelector);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.Car, x => x.Subject).InitializeFromSource();
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
-			yentryfuel.SubjectType = typeof(FuelType);
-			yentryfuel.Binding.AddBinding(ViewModel.FuelDocument, e => e.Fuel, w => w.Subject).InitializeFromSource();
+			entityentryFuelType.ViewModel = ViewModel.FuelTypeEntryViewModel;
 
-			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
+			yspinFuelLimitsLiters.Binding
+				.AddBinding(ViewModel.FuelDocument, e => e.FuelLimitLitersAmount, w => w.ValueAsDecimal)
+				.InitializeFromSource();
 
-			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
+			ycheckbuttonOnlyDocumentsCreation.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyDocumentsCreation, w => w.Active)
+				.InitializeFromSource();
 
-			labelResultInfo.Binding.AddBinding(ViewModel, e => e.ResultInfo, w => w.Text).InitializeFromSource();
-			labelAvalilableFuel.Binding.AddBinding(ViewModel, e => e.BalanceState, w => w.Text).InitializeFromSource();
-			labelExpenseInfo.Binding.AddBinding(ViewModel, e => e.CashExpenseInfo, w => w.Text).InitializeFromSource();
+			SetTransactionsCountRange();
+			yspinTransactionsCount.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.FuelLimitTransactionsCount, w => w.ValueAsInt)
+				.AddFuncBinding(vm => vm.IsFuelLimitsCanBeEdited, w => w.Sensitive)
+				.InitializeFromSource();
 
-			disablespinMoney.Binding.AddBinding(ViewModel, e => e.FuelInMoney, w => w.Active).InitializeFromSource();
+			yhboxGivedLimits.Binding
+				.AddFuncBinding(ViewModel, vm => vm.IsFuelLimitsCanBeEdited, w => w.Sensitive)
+				.InitializeFromSource();
 
-			ytextviewFuelInfo.Binding.AddBinding(ViewModel, e => e.FuelInfo, w => w.Buffer.Text).InitializeFromSource();
+			labelResultInfo.Binding.AddBinding(ViewModel, vm => vm.ResultInfo, w => w.Text).InitializeFromSource();
+
+			labelExpenseInfo.Binding.AddBinding(ViewModel, vm => vm.CashExpenseInfo, w => w.Text).InitializeFromSource();
+
+			ytextviewFuelInfo.Binding.AddBinding(ViewModel, vm => vm.FuelInfo, w => w.Buffer.Text).InitializeFromSource();
 
 			yenumcomboboxPaymentType.ItemsEnum = typeof(FuelPaymentType);
 			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel.FuelDocument, e => e.FuelPaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			buttonSave.Binding.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-			buttonOpenExpense.Binding.AddBinding(ViewModel, e => e.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
-			spinFuelPrice.Binding.AddBinding(ViewModel, e => e.FuelInMoney, w => w.Sensitive).InitializeFromSource();
-			ydatepicker.Binding.AddBinding(ViewModel, e => e.CanChangeDate, w => w.Sensitive).InitializeFromSource();
-			yspinFuelTicketLiters.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
-			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+			buttonSave.Binding.AddBinding(ViewModel, vm => vm.IsDocumentCanBeSaved, w => w.Sensitive).InitializeFromSource();
+			buttonOpenExpense.Binding.AddBinding(ViewModel, vm => vm.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
 
-			spinFuelPrice.Binding.AddBinding(ViewModel.FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
+			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, vm => vm.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 
-			if(ViewModel?.FuelDocument?.FuelOperation?.PayedLiters > 0m)
-				disablespinMoney.Active = true; // Перенести в VM
-			
+			spinFuelPrice.Binding
+				.AddBinding(ViewModel, vm => vm.IsGiveFuelInMoneySelected, w => w.Sensitive)
+				.AddBinding(ViewModel.FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
 
-			disablespinMoney.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinMoney.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsGiveFuelInMoneySelected, w => w.Active)
+				.AddFuncBinding(vm => vm.IsFuelInMoneyCanBeEdited, w => w.Sensitive)
+				.InitializeFromSource();
+
+			disablespinMoney.ActiveChanged += (s, e) => ViewModel.SetFuelDocumentTodayDateIfNeedCommand.Execute();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
-		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.FuelLimitTransactionsCountMaxValue))
+			{
+				SetTransactionsCountRange();
+			}
+		}
+
+		private void SetTransactionsCountRange()
+		{
+			yspinTransactionsCount.SetRange(1, ViewModel.FuelLimitTransactionsCountMaxValue);
+		}
+
+		protected void OnDisablespinMoneyValueChanged(object sender, EventArgs e)
 		{
 			ViewModel.UpdateInfo();
 		}

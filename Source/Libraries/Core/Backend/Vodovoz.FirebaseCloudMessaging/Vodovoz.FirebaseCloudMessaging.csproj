@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+  </ItemGroup>
+
+</Project>

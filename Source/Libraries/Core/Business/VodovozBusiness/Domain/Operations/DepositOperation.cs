@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.Utilities;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -68,20 +68,6 @@ namespace Vodovoz.Domain.Operations
 					CurrencyWorks.GetShortCurrencyString(ReceivedDeposit)
 				);
 			}
-		}
-	}
-
-	public enum DepositType
-	{
-		[Display(Name = "Отсутствует")] None,
-		[Display(Name = "Тара")] Bottles,
-		[Display(Name = "Оборудование")] Equipment
-	}
-
-	public class DepositTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DepositTypeStringType() : base(typeof(DepositType))
-		{
 		}
 	}
 }

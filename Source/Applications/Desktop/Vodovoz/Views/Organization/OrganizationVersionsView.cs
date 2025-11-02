@@ -2,10 +2,8 @@
 using Pango;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Domain.Logistic.Organizations;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Organizations;
 using Color = Gdk.Color;
@@ -25,6 +23,8 @@ namespace Vodovoz.Views.Organization
 
 		protected override void ConfigureWidget()
 		{
+			hbox5.Sensitive = ViewModel.IsButtonsAvailable;
+
 			yvboxVersionEdit.Binding.AddBinding(ViewModel, vm => vm.IsEditVisible, w => w.Visible).InitializeFromSource();
 
 			datepickerVersionDate.Binding.AddSource(ViewModel)

@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gtk;
-using QSOrmProject;
-using Vodovoz.Domain.Client;
 using QS.Project.Services;
 using QS.Services;
+using QS.Utilities;
+using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
-using Autofac;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class DeliveryPointsManagementView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private Counterparty _counterparty;
@@ -21,10 +24,11 @@ namespace Vodovoz
 		private readonly IPermissionResult _permissionResult;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly bool _canDeleteByPresetPermission;
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
+		private IDeliveryPointRepository _deliveryPointRepository;
 
 		public DeliveryPointsManagementView()
 		{
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 			Build();
 
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
@@ -65,7 +69,7 @@ namespace Vodovoz
 				UpdateNodes();
 			}
 		}
-		
+
 		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			var selected = treeDeliveryPoints.Selection.CountSelectedRows() > 0;
@@ -100,7 +104,8 @@ namespace Vodovoz
 			var dpId = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>().Id;
 			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(dpId);
 			MyTab.TabParent.AddSlaveTab(MyTab, dpViewModel);
-			dpViewModel.EntitySaved += (o, args) => UpdateNodes();
+
+			dpViewModel.EntitySaved += (o, args) => UpdateNodesAndSelectEditedRow();
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
@@ -118,8 +123,56 @@ namespace Vodovoz
 			treeDeliveryPoints.SetItemsSource(result);
 		}
 
+		private void UpdateNodesAndSelectEditedRow()
+		{
+			Gtk.Application.Invoke((s, arg) =>
+			{
+				var selectedDeliveryPoint = treeDeliveryPoints.GetSelectedObject<DeliveryPoint>();
+				var scrollPosition = GtkScrolledWindow?.Vadjustment?.Value ?? 0;
+
+				UpdateNodes();
+
+				GtkHelper.WaitRedraw();
+
+				MoveScrollToPosition(scrollPosition);
+
+				if(selectedDeliveryPoint != null)
+				{
+					SelectDeliveryPointRow(selectedDeliveryPoint);
+				}
+			});
+		}
+
+		private void SelectDeliveryPointRow(DeliveryPoint deliveryPoint)
+		{
+			if(treeDeliveryPoints.ItemsDataSource is IList<DeliveryPoint> deliveryPoints)
+			{
+				if(treeDeliveryPoints.Model == null)
+				{
+					return;
+				}
+
+				treeDeliveryPoints.SelectedRow =
+						deliveryPoints.Any(dp => dp.Id == deliveryPoint.Id)
+						? deliveryPoint
+						: null;
+			}
+		}
+
+		private void MoveScrollToPosition(double scrollPosition)
+		{
+			if(GtkScrolledWindow?.Vadjustment != null)
+			{
+				GtkScrolledWindow.Vadjustment.Value =
+					scrollPosition > GtkScrolledWindow.Vadjustment.Upper
+					? GtkScrolledWindow.Vadjustment.Upper
+					: scrollPosition;
+			}
+		}
+
 		public override void Destroy()
 		{
+			_deliveryPointRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

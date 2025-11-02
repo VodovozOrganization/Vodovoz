@@ -2,7 +2,7 @@
 using Pango;
 using QS.Views.GtkUI;
 using QSProjectsLib;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
@@ -28,12 +28,15 @@ namespace Vodovoz.Views.Logistic
 
 			yvboxMain.Visible = ViewModel.DialogVisibility;
 
+			entityentrySubdivision.ViewModel = ViewModel.FilterSubdivisionEntityEntryViewModel;
+
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterEmployeeStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			yenumcomboCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			yenumcomboCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			yenumcomboCarTypeOfUse.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterCarTypeOfUse, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

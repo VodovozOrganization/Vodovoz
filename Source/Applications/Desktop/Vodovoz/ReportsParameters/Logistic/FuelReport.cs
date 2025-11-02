@@ -2,58 +2,56 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services;
 using QS.Report;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Reports
 {
-	public partial class FuelReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class FuelReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private ITdiTab _parentTab;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
+		private readonly IReportInfoFactory _reportFactory;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly INavigationManager _navigationManager;
+		private Car _car;
 
 		public FuelReport(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IReportInfoFactory reportFactory,
 			ILifetimeScope lifetimeScope,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
-			if(lifetimeScope is null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
+			_reportFactory = reportFactory ?? throw new ArgumentNullException(nameof(reportFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filterDriver = new EmployeeFilterViewModel();
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			var driverFactory = new EmployeeJournalFactory(navigationManager, filterDriver);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory(lifetimeScope));
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-
-			var officeFilter = new EmployeeFilterViewModel();
-			officeFilter.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.Status = EmployeeStatus.IsWorking
-			);
-			var officeFactory = new EmployeeJournalFactory(navigationManager, officeFilter);
-			evmeAuthor.SetEntityAutocompleteSelectorFactory(officeFactory.CreateEmployeeAutocompleteSelectorFactory());
+			
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			
+			evmeDriver.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory(true));
+			
+			evmeAuthor.SetEntityAutocompleteSelectorFactory(
+				employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(true));
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 
@@ -63,11 +61,59 @@ namespace Vodovoz.Reports
 			var carModelSelectionFilterView = new CarModelSelectionFilterView(_carModelSelectionFilterViewModel);
 			yhboxCarModelContainer.Add(carModelSelectionFilterView);
 			carModelSelectionFilterView.Show();
+
+			radioDriver.Visible = false;
+			radioCar.Active = true;
+		}
+
+		public Car Car 
+		{
+			get => _car;
+			set
+			{
+				if (_car != value)
+				{
+					_car = value;
+
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Car)));
+				}
+			}
+		}
+
+		public ITdiTab ParentTab
+		{
+			get => _parentTab;
+			set
+			{
+				_parentTab = value;
+
+				if(entityentryCar.ViewModel == null)
+				{
+					entityentryCar.ViewModel = BuildCarEntryViewModel();
+				}
+			}
+		}
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<FuelReport>(ParentTab, this, UoW, _navigationManager, _lifetimeScope)
+			.ForProperty(x => x.Car)
+			.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+				filter =>
+				{
+				})
+			.UseViewModelDialog<CarViewModel>()
+			.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Title => "Отчет по выдаче топлива";
 
@@ -84,6 +130,7 @@ namespace Vodovoz.Reports
 			var carTypesOfUse = new List<CarTypeOfUse>
 			{
 				CarTypeOfUse.GAZelle,
+				CarTypeOfUse.Minivan,
 				CarTypeOfUse.Largus,
 				CarTypeOfUse.Truck
 			};
@@ -107,29 +154,26 @@ namespace Vodovoz.Reports
 			}
 
 			if(radioCar.Active) {
-				parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id);
+				parameters.Add("car_id", Car?.Id);
 				parameters.Add("driver_id", -1);
 				parameters.Add("include_car_models", new int[] { 0 });
 				parameters.Add("exclude_car_models", new int[] { 0 });
 			}
+
+			string reportName = "Logistic.FuelReport";
 
 			if(radioSumm.Active) {
 				parameters.Add("author", (evmeAuthor.Subject as Employee)?.Id ?? -1);
 				parameters.Add("include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 });
 				parameters.Add("exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 });
 
-				return new ReportInfo {
-					Identifier = yCheckButtonDatailedSummary.Active?"Logistic.FuelReportSummaryDetailed":"Logistic.FuelReportSummaryBasic",
-					UseUserVariables = true,
-					Parameters = parameters
-				};
+				reportName = yCheckButtonDatailedSummary.Active ? "Logistic.FuelReportSummaryDetailed" : "Logistic.FuelReportSummaryBasic";
 			}
-			 
-			return new ReportInfo {
-				Identifier = "Logistic.FuelReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportFactory.Create(reportName, Title, parameters);
+			reportInfo.UseUserVariables = true;
+
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
@@ -137,13 +181,14 @@ namespace Vodovoz.Reports
 			string errorString = string.Empty;
 
 			if(radioDriver.Active && (dateperiodpicker.StartDateOrNull == null || evmeDriver.Subject == null)) {
-				errorString += "Не заполнена дата\n Не заполнен водитель\n";
+				errorString += "Не заполнена дата или не выбран водитель\n";
 			}
 
-			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | entityviewmodelentryCar.Subject == null)) {
-				errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
+			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | Car == null))
+			{
+				errorString += "Не заполнена дата или автомобиль\n";
 			}
-				
+
 			if(radioSumm.Active && dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";
 			if(!string.IsNullOrWhiteSpace(errorString)) {
@@ -166,7 +211,7 @@ namespace Vodovoz.Reports
 
 			yCheckButtonDatailedSummary.Hide();
 
-			entityviewmodelentryCar.Subject = null;
+			Car = null;
 			evmeAuthor.Subject = null;
 
 			yvboxCarModel.Visible = false;
@@ -200,7 +245,7 @@ namespace Vodovoz.Reports
 
 			yCheckButtonDatailedSummary.Show();
 
-			entityviewmodelentryCar.Subject = null;
+			Car = null;
 			evmeDriver.Subject = null;
 
 			yvboxCarModel.Visible = true;

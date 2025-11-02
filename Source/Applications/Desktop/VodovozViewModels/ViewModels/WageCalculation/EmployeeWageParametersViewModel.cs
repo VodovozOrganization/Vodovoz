@@ -44,7 +44,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
-			canChangeWageCalculation = permissionValidator.Validate("can_edit_wage", userRepository.GetCurrentUser(UoW).Id);
+			canChangeWageCalculation =
+				permissionValidator.Validate(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanEditWage, userRepository.GetCurrentUser(UoW).Id);
 			_canEditWageBySelfSubdivision = userRepository.GetCurrentUser(UoW).IsAdmin ||
 										   (employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision == Entity.Subdivision &&
 										    permissionValidator.Validate("can_edit_wage_by_self_subdivision", userRepository.GetCurrentUser(UoW).Id)

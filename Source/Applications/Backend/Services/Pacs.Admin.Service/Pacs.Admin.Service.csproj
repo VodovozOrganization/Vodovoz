@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>8ed0432d-e022-495a-9c66-7a74497ad021</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\ApiAuthentication\ApiAuthentication.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Server\Pacs.Admin.Server.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
+	</ItemGroup>
+
+</Project>

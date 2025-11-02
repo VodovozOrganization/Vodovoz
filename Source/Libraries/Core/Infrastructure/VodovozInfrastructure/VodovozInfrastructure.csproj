@@ -9,17 +9,20 @@
     <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="MySqlConnector" Version="2.2.6" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
     <PackageReference Include="NLog" Version="5.1.2" />
-    <PackageReference Include="System.Text.Json" Version="6.0.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.8" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+	<PackageReference Include="System.Net.Http.Json" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Report\QS.Report.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Utilities\QS.Utilities.csproj" />
     <ProjectReference Include="..\..\Backend\Infrastructure\ApiClientProvider\ApiClientProvider.csproj" />
+    <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
   </ItemGroup>
 </Project>

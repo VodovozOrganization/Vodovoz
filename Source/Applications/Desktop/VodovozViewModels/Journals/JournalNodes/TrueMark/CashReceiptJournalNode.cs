@@ -4,6 +4,7 @@ using QS.Project.Journal.DataLoader.Hierarchy;
 using QS.Utilities.Text;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats

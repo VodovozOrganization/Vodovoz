@@ -87,10 +87,5 @@ namespace Vodovoz.Domain.Client
 			[Display(Name = "Отписка")]
 			Unsubscribing
 		}
-
-		public class BulkEmailEventTypeString : NHibernate.Type.EnumStringType
-		{
-			public BulkEmailEventTypeString() : base(typeof(BulkEmailEventType)) { }
-		}
 	}
 }

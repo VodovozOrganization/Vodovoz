@@ -1,19 +1,24 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.ViewModels.Control.EEVM;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Dialogs.Employees
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class EmployeeContractDlg : SingleUowTabBase
 	{
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		public event EventHandler Save;
 
@@ -21,6 +26,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public EmployeeContractDlg(EmployeeDocument document,Employee employee,IUnitOfWork uow)
 		{
+			ResolveDependancies();
 			this.Build();
 			TabName = "Новый договор";
 			UoW = uow;
@@ -36,6 +42,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public EmployeeContractDlg(int id, IUnitOfWork uow)
 		{
+			ResolveDependancies();
 			this.Build();
 			UoW = uow;
 			Entity = (EmployeeContract)UoW.GetById(typeof(EmployeeContract), id);
@@ -44,13 +51,30 @@ namespace Vodovoz.Dialogs.Employees
 			this.ShowAll();
 		}
 
+		private void ResolveDependancies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
+		}
+
 		void ConfigureDlg()
 		{
-			yentryOrganization.SubjectType = typeof(Organization);
-			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			yentryOrganization.Changed += (sender, e) => {
-				UpdateStates();
-			};
+			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<EmployeeContract>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationEntryViewModel.CanViewEntity = false;
+			organizationEntryViewModel.Changed += (s, e) => UpdateStates();
+
+			entityentryOrganization.ViewModel = organizationEntryViewModel;
+
 			yentry1.Binding.AddBinding(Entity,e=>e.Name,w=>w.Text).InitializeFromSource();
 			yContractDatepicker.Binding.AddBinding(Entity,e=>e.ContractDate,w=>w.DateOrNull).InitializeFromSource();
 			ydateperiodpicker1.Binding.AddBinding(Entity, e => e.FirstDay, w => w.StartDateOrNull).InitializeFromSource();
@@ -103,7 +127,7 @@ namespace Vodovoz.Dialogs.Employees
 			savetemplatewidget1.Sensitive = isTemplateActive;
 			yContractDatepicker.Sensitive = !isTemplateActive;
 			ydateperiodpicker1.Sensitive = !isTemplateActive;
-			yentryOrganization.Sensitive = !isTemplateActive;
+			entityentryOrganization.Sensitive = !isTemplateActive;
 			button15.Sensitive = !isTemplateActive;
 		}
 
@@ -126,5 +150,13 @@ namespace Vodovoz.Dialogs.Employees
 			SetActive();
 		}
 		#endregion
+
+		public override void Destroy()
+		{
+			_docTemplateRepository = null;
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
+		}
 	}
 }

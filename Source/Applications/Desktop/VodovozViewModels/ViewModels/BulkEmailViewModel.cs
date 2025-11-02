@@ -2,32 +2,33 @@
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
-using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using VodovozInfrastructure.Configuration;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
@@ -35,16 +36,18 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels
 {
-	public class BulkEmailViewModel : DialogViewModelBase
+	public class BulkEmailViewModel : DialogViewModelBase, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly ILogger<BulkEmailViewModel> _logger;
+		private readonly ILogger<RabbitMQConnectionFactory> _rabbitConnectionFactoryLogger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IEmailSettings _emailSettings;
 		private readonly ICommonServices _commonServices;
 		private readonly int _instanceId;
 		private readonly InstanceMailingConfiguration _configuration;
 		private DelegateCommand _startEmailSendingCommand;
-		private IList<Attachment> _attachments = new List<Attachment>();
-		private GenericObservableList<Attachment> _observableAttachments;
+		private readonly IObservableList<DetachedFileInformation> _attachments = new ObservableList<DetachedFileInformation>();
 		private bool _isInSendingProcess;
 		private readonly Employee _author;
 		private float _attachmentsSize;
@@ -59,13 +62,32 @@ namespace Vodovoz.ViewModels.ViewModels
 		private bool _canSend = true;
 		private int _monthsSinceUnsubscribing;
 		private bool _includeOldUnsubscribed;
+		private IModel _rabbitMQChannel;
+		private IBasicProperties _rabbitMQChannelProperties;
 
-		public BulkEmailViewModel(INavigationManager navigation, IUnitOfWorkFactory unitOfWorkFactory,
-			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction, IEmailParametersProvider emailParametersProvider,
-			ICommonServices commonServices, IAttachmentsViewModelFactory attachmentsViewModelFactory, Employee author, IEmailRepository emailRepository) : base(navigation)
+		public BulkEmailViewModel(
+			ILogger<BulkEmailViewModel> logger,
+			ILogger<RabbitMQConnectionFactory> rabbitConnectionFactoryLogger,
+			INavigationManager navigation,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			Func<IUnitOfWork, IQueryOver<Order>> itemsSourceQueryFunction,
+			IEmailSettings emailSettings,
+			ICommonServices commonServices,
+			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			Employee author,
+			IEmailRepository emailRepository,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory) : base(navigation)
 		{
-			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot();
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger ?? throw new ArgumentNullException(nameof(rabbitConnectionFactoryLogger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_uow = _unitOfWorkFactory.CreateWithoutRoot();
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_author = author ?? throw new ArgumentNullException(nameof(author));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
@@ -73,16 +95,17 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			_configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
 
-			AttachmentsEmailViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(ObservableAttachments);
-
-			ObservableAttachments.ListContentChanged += ObservableAttachments_ListContentChanged;
-
 			var itemsSourceQuery = itemsSourceQueryFunction.Invoke(_uow);
 			_debtorJournalNodes = itemsSourceQuery.List<DebtorJournalNode>();
 
 			MailSubject = string.Empty;
 
 			Init();
+
+			CreateRabbitMQChannel();
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(_uow, OnAttachmentsAdded, OnAttachmentDeleted, _attachments);
+			AttachedFileInformationsViewModel.FileInformations = _attachments;
 		}
 
 		private void Init()
@@ -151,24 +174,56 @@ namespace Vodovoz.ViewModels.ViewModels
 			OnPropertyChanged(nameof(SendingDurationInfo));
 		}
 
-		private void ObservableAttachments_ListContentChanged(object sender, EventArgs e)
+		private void CreateRabbitMQChannel()
 		{
-			if(ObservableAttachments.Count > 0 && !_commonServices.InteractiveService.Question(
+			var connectionFactory = new RabbitMQConnectionFactory(_rabbitConnectionFactoryLogger);
+			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
+				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost, _configuration.Port, true);
+			_rabbitMQChannel = connection.CreateModel();
+			_rabbitMQChannelProperties = _rabbitMQChannel.CreateBasicProperties();
+			_rabbitMQChannelProperties.Persistent = true;
+		}
+
+		private void OnAttachmentsAdded(string fileName)
+		{
+			if(!_commonServices.InteractiveService.Question(
 				$"Использование вложений повышает вероятность попадания в спам. Лучше передать информацию в тексте письма.\nВы точно хотите использовать вложения?"))
 			{
-				ObservableAttachments.Clear();
+				return;
 			}
+			else
+			{
+				if(_attachments.Any(afi => afi.FileName == fileName))
+				{
+					return;
+				}
 
+				_attachments.Add(new DetachedFileInformation
+				{
+					FileName = fileName,
+				});
+
+				RecalculateSize();
+			}
+		}
+
+		private void OnAttachmentDeleted(string fileName)
+		{
+			_attachments.Remove(_attachments.FirstOrDefault(a => a.FileName == fileName));
+			RecalculateSize();
+		}
+
+		private void RecalculateSize()
+		{
 			_attachmentsSize = 0;
 
-			foreach(var attachment in AttachmentsEmailViewModel.Attachments)
+			foreach(var attachment in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
 			{
-				_attachmentsSize += (attachment.ByteFile.Length / 1024f) / 1024f;
+				_attachmentsSize += (attachment.Value.Length / 1024f) / 1024f;
 			}
 
 			OnPropertyChanged(nameof(AttachmentsSizeInfoDanger));
 		}
-
 
 		private Email SelectPriorityEmail(IList<Email> counterpartyEmails)
 		{
@@ -187,8 +242,8 @@ namespace Vodovoz.ViewModels.ViewModels
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>
@@ -217,13 +272,13 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			var emailAttachments = new List<EmailAttachment>();
 
-			foreach(var attachment in ObservableAttachments)
+			foreach(var keyValuePair in AttachedFileInformationsViewModel.AttachedFiles.Where(af => _attachments.Any(a => a.FileName == af.Key)))
 			{
 				emailAttachments.Add(new EmailAttachment
 				{
-					ContentType = MimeMapping.GetMimeMapping(attachment.FileName),
-					Filename = attachment.FileName,
-					Base64Content = Convert.ToBase64String(attachment.ByteFile)
+					ContentType = MimeMapping.GetMimeMapping(keyValuePair.Key),
+					Filename = keyValuePair.Key,
+					Base64Content = Convert.ToBase64String(keyValuePair.Value)
 				});
 			}
 
@@ -232,20 +287,12 @@ namespace Vodovoz.ViewModels.ViewModels
 			var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
 			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-			var logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-			var connectionFactory = new RabbitMQConnectionFactory(logger);
-			var connection = connectionFactory.CreateConnection(_configuration.MessageBrokerHost, _configuration.MessageBrokerUsername,
-				_configuration.MessageBrokerPassword, _configuration.MessageBrokerVirtualHost);
-			var channel = connection.CreateModel();
-			var properties = channel.CreateBasicProperties();
-			properties.Persistent = true;
-
-			channel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, properties, sendingBody);
+			_rabbitMQChannel.BasicPublish(_configuration.EmailSendExchange, _configuration.EmailSendKey, false, _rabbitMQChannelProperties, sendingBody);
 		}
 
 		private string GetUnsubscribeHtmlPart(Guid guid) => $"<br/><br/><a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
 
-		private string GetUnsubscribeLink(Guid guid) => $"{_emailParametersProvider.UnsubscribeUrl}/{guid}";
+		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
 
 		#region Commands
 
@@ -264,7 +311,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 				OnPropertyChanged(nameof(SendingProgressUpper));
 
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
+				using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("BulkEmail"))
 				{
 					foreach(var counterparty in _counterpartiesToSent)
 					{
@@ -304,11 +351,12 @@ namespace Vodovoz.ViewModels.ViewModels
 
 							try
 							{
-								SendEmail(email.Address, counterparty.FullName, storedEmail);
 								unitOfWork.Commit();
+								SendEmail(email.Address, counterparty.FullName, storedEmail);
 							}
 							catch(Exception e)
 							{
+								_logger.LogError(e, "Ошибка при отправке письма контрагенту {CounterpartyFullName}", counterparty?.FullName);
 								sendingErrors += $"{ counterparty.FullName }; ";
 							}
 						}
@@ -357,15 +405,10 @@ namespace Vodovoz.ViewModels.ViewModels
 			set => SetField(ref _mailTextPart, value);
 		}
 
-		public AttachmentsViewModel AttachmentsEmailViewModel { get; }
-
 		public string AttachmentsSizeInfo => $"{_attachmentsSize.ToString("F")} / 15 Мб";
 
 		[PropertyChangedAlso(nameof(CanExecute))]
 		public bool AttachmentsSizeInfoDanger => _attachmentsSize > 15;
-
-		public GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(_attachments));
 
 		[PropertyChangedAlso(nameof(SendingDurationInfo), nameof(SendedCountInfo))]
 		public double SendingProgressValue
@@ -424,11 +467,18 @@ namespace Vodovoz.ViewModels.ViewModels
 			}
 		}
 
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
 		public EventHandler SendingProgressBarUpdated;
 
 		public void Stop()
 		{
 			_canSend = false;
+		}
+
+		public void Dispose()
+		{
+			_rabbitMQChannel?.Dispose();
 		}
 	}
 }

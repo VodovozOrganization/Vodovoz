@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.Controllers
 {
@@ -17,15 +19,20 @@ namespace Vodovoz.Controllers
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly IPaymentService _paymentService;
+		private readonly object _lockObject = new object();
 
 		public PaymentFromBankClientController(
 			IPaymentItemsRepository paymentItemsRepository,
 			IOrderRepository orderRepository,
-			IPaymentsRepository paymentsRepository)
+			IPaymentsRepository paymentsRepository,
+			IPaymentService paymentService
+			)
 		{
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 		}
 		
 		/// <summary>
@@ -107,14 +114,20 @@ namespace Vodovoz.Controllers
 		/// <param name="order">Заказ</param>
 		/// <param name="refundPaymentReason">Причина возврата суммы на баланс</param>
 		public void ReturnAllocatedSumToClientBalance(
-			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation)
+			IUnitOfWork uow, 
+			Order order, 
+			RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation
+		)
 		{
-			if(!HasAllocatedSum(uow, order.Id, out var paymentItems, out var allocatedSum))
+			lock(_lockObject)
 			{
-				return;
+				if(!HasAllocatedSum(uow, order.Id, out var paymentItems, out var allocatedSum))
+				{
+					return;
+				}
+
+				CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, order, allocatedSum, paymentItems, refundPaymentReason);
 			}
-			
-			CreateNewPaymentForReturnAllocatedSumToClientBalance(uow, order, allocatedSum, paymentItems, refundPaymentReason);
 		}
 
 		/// <summary>
@@ -124,18 +137,30 @@ namespace Vodovoz.Controllers
 		/// <param name="uow">Unit of work</param>
 		/// <param name="order">Заказ</param>
 		/// <param name="previousOrderStatus">Предыдущий статус заказа</param>
-		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus)
+		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(
+			IUnitOfWork uow,
+			Order order,
+			OrderStatus previousOrderStatus
+		)
 		{
-			if(HasOrderUndeliveredStatus(previousOrderStatus)
-				&& order.PaymentType == PaymentType.Cashless
-				&& HasNotCancelledRefundedPayment(uow, order.Id, out var refundedPayment))
+			if(HasOrderUndeliveredStatus(previousOrderStatus) && order.PaymentType == PaymentType.Cashless)
 			{
-				refundedPayment.CancelAllocation(
-					$"Причина отмены: заказ №{order.Id} вернули в статус" +
-					$" {order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}",
-					true);
-				uow.Save(refundedPayment);
+				var notCancelledRefundedPayments = GetNotCancelledRefundedPayments(uow, order.Id);
 
+				if(!notCancelledRefundedPayments.Any())
+				{
+					return;
+				}
+
+				foreach(var refundedPayment in notCancelledRefundedPayments)
+				{
+					var reason = $"Причина отмены: заказ №{order.Id} вернули в статус " +
+						$"{order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}";
+
+					_paymentService.CancelAllocation(uow, refundedPayment, reason, false);					
+					uow.Save(refundedPayment);
+				}
+				
 				var cancelledPaymentItems =
 					_paymentItemsRepository.GetCancelledPaymentItemsForOrderFromNotCancelledPayments(uow, order.Id);
 
@@ -164,11 +189,8 @@ namespace Vodovoz.Controllers
 			{
 				return;
 			}
-
-			payment.CancelAllocation(
-				$"Причина отмены: по запросу пользователя",
-				true,
-				true);
+			var reason = "Причина отмены: по запросу пользователя";
+			_paymentService.CancelAllocation(uow, payment, reason, true);
 
 			if(payment.CashlessMovementOperation != null)
 			{
@@ -192,15 +214,18 @@ namespace Vodovoz.Controllers
 			return paymentItems.Any();
 		}
 		
-		private bool HasNotCancelledRefundedPayment(IUnitOfWork uow, int orderId, out Payment refundedPayment)
+		private IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
 		{
-			refundedPayment = _paymentsRepository.GetNotCancelledRefundedPayment(uow, orderId);
-			
-			return refundedPayment != null;
+			return _paymentsRepository.GetNotCancelledRefundedPayments(uow, orderId);
 		}
 
 		private void CreateNewPaymentForReturnAllocatedSumToClientBalance(
-			IUnitOfWork uow, Order order, decimal allocatedSum, IList<PaymentItem> paymentItems, RefundPaymentReason refundPaymentReason)
+			IUnitOfWork uow,
+			Order order,
+			decimal allocatedSum,
+			IList<PaymentItem> paymentItems,
+			RefundPaymentReason refundPaymentReason
+		)
 		{
 			foreach(var paymentItem in paymentItems)
 			{
@@ -220,17 +245,15 @@ namespace Vodovoz.Controllers
 			{
 				sum = allocatedSum;
 			}
-			
-			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason);
 
 			if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
 			{
-				order.OrderPaymentStatus =
-					order.PaymentType == PaymentType.Cashless
-						? OrderPaymentStatus.UnPaid
-						: OrderPaymentStatus.None;
+				order.OrderPaymentStatus = order.PaymentType == PaymentType.Cashless
+					? OrderPaymentStatus.UnPaid
+					: OrderPaymentStatus.None;
 			}
 			
+			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason);
 			uow.Save(newPayment);
 		}
 	}

@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Cash;
@@ -41,7 +42,7 @@ namespace Vodovoz
 			Build();
 			TabName = "Долги сотрудников";
 			representationtreeviewDebts.Selection.Changed += RepresentationtreeviewDebts_Selection_Changed;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
 

@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("wage_parameter_item_type");
-			Map(x => x.WageParameterItemType).Column("wage_parameter_item_type").CustomType<WageParameterItemTypesStringType>().Update().Not.Insert();
+			Map(x => x.WageParameterItemType).Column("wage_parameter_item_type").Update().Not.Insert();
 		}
 	}
 
@@ -31,7 +31,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 		{
 			DiscriminatorValue(nameof(WageParameterItemTypes.Percent));
 			Map(x => x.RouteListPercent).Column("route_list_percent_wage");
-			Map(x => x.PercentWageType).Column("percent_wage_type").CustomType<PercentWageTypesStringType>();
+			Map(x => x.PercentWageType).Column("percent_wage_type");
 		}
 	}
 

@@ -1,65 +1,48 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Services;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "место, откуда проведены оплаты",
-		Nominative = "место, откуда проведена оплата")]
+		NominativePlural = "Источники оплат",
+		GenitivePlural = "Источников оплат",
+		Nominative = "Источник оплаты")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PaymentFrom : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class PaymentFrom : PaymentFromEntity, IValidatableObject
 	{
-		private Organization _organizationForOnlinePayments;
-		
-		public virtual int Id { get; set; }
-		public virtual string Name { get; set; }
-		public virtual bool IsArchive { get; set; }
-
-		public virtual Organization OrganizationForOnlinePayments
-		{
-			get => _organizationForOnlinePayments;
-			set => SetField(ref _organizationForOnlinePayments, value);
-		}
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			if(!(validationContext.GetService(
 				typeof(IPaymentFromRepository)) is IPaymentFromRepository paymentFromRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(paymentFromRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(paymentFromRepository)}");
 			}
 			
-			if(!(validationContext.ServiceContainer.GetService(
-				typeof(IOrderParametersProvider)) is IOrderParametersProvider orderParametersProvider))
+			if(!(validationContext.GetService(
+				typeof(IOrderSettings)) is IOrderSettings orderSettings))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(orderParametersProvider) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(orderSettings)}");
 			}
-			
+
 			if(string.IsNullOrWhiteSpace(Name))
 			{
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
 			}
 
-			if(Id > 0
-				&& OrganizationForOnlinePayments != null
-				&& orderParametersProvider.PaymentsByCardFromAvangard.Contains(Id)
-				&& !OrganizationForOnlinePayments.AvangardShopId.HasValue)
-			{
-				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_Id",
-					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				var duplicate = paymentFromRepository.GetDuplicatePaymentFromByName(uow, Id, Name);
 				if(duplicate != null)

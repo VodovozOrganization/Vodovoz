@@ -18,7 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 
 			Map(x => x.ConfirmedDistance).Column("confirmed_distance");
 			Map(x => x.Date).Column("date").Access.CamelCaseField(Prefix.Underscore);
-			Map(x => x.Status).Column("status").CustomType<RouteListStatusStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.ClosingDate).Column("closing_date");
 			Map(x => x.FirstClosingDate).Column("first_closing_date");
 			Map(x => x.ClosingComment).Column("closing_comment");
@@ -44,7 +44,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
 			Map(x => x.HasFixedShippingPrice).Column("has_fixed_shipping_price");
 			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
-			Map(x => x.DriverTerminalCondition).Column("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
+			Map(x => x.DriverTerminalCondition).Column("driver_terminal_condition");
 			Map(x => x.DeliveredAt).Column("delivered_at");
 			Map(x => x.SpecialConditionsAccepted).Column("special_conditions_accepted");
 			Map(x => x.SpecialConditionsAcceptedAt).Column("special_conditions_accepted_at");

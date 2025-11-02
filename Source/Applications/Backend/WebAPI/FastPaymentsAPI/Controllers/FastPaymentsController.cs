@@ -1,52 +1,68 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Responses;
+using FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration;
 using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
-using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Controllers
 {
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/[action]")]
 	public class FastPaymentsController : Controller
 	{
+		private const string _serviceUnavailableError = "Сервис отключен, пользуйтесь другими видами оплат!";
 		private readonly ILogger<FastPaymentsController> _logger;
-		private readonly IFastPaymentOrderModel _fastPaymentOrderModel;
-		private readonly IFastPaymentModel _fastPaymentModel;
+		private readonly IFastPaymentOrderService _fastPaymentOrderService;
+		private readonly IFastPaymentService _fastPaymentService;
 		private readonly IDriverAPIService _driverApiService;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
 		private readonly SiteNotifier _siteNotifier;
+		private readonly FastPaymentStatusManagerFromDesktop _fastPaymentStatusManagerFromDesktop;
+		private readonly FastPaymentStatusManagerFromDriverApp _fastPaymentStatusManagerFromDriverApp;
+		private readonly FastPaymentStatusManagerFromOnline _fastPaymentStatusManagerFromOnline;
 		private readonly MobileAppNotifier _mobileAppNotifier;
 
 		public FastPaymentsController(
 			ILogger<FastPaymentsController> logger,
-			IFastPaymentOrderModel fastPaymentOrderModel,
-			IFastPaymentModel fastPaymentModel,
+			IFastPaymentOrderService fastPaymentOrderService,
+			IFastPaymentService fastPaymentService,
 			IDriverAPIService driverApiService,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler,
 			SiteNotifier siteNotifier,
-			MobileAppNotifier mobileAppNotifier)
+			MobileAppNotifier mobileAppNotifier,
+			FastPaymentStatusManagerFromDesktop fastPaymentStatusManagerFromDesktop,
+			FastPaymentStatusManagerFromDriverApp fastPaymentStatusManagerFromDriverApp,
+			FastPaymentStatusManagerFromOnline fastPaymentStatusManagerFromOnline)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_fastPaymentOrderModel = fastPaymentOrderModel ?? throw new ArgumentNullException(nameof(fastPaymentOrderModel));
-			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
+			_fastPaymentOrderService = fastPaymentOrderService ?? throw new ArgumentNullException(nameof(fastPaymentOrderService));
+			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 			_siteNotifier = siteNotifier ?? throw new ArgumentNullException(nameof(siteNotifier));
 			_mobileAppNotifier = mobileAppNotifier ?? throw new ArgumentNullException(nameof(mobileAppNotifier));
+			_fastPaymentStatusManagerFromDesktop =
+				fastPaymentStatusManagerFromDesktop ?? throw new ArgumentNullException(nameof(fastPaymentStatusManagerFromDesktop));
+			_fastPaymentStatusManagerFromDriverApp =
+				fastPaymentStatusManagerFromDriverApp ?? throw new ArgumentNullException(nameof(fastPaymentStatusManagerFromDriverApp));
+			_fastPaymentStatusManagerFromOnline =
+				fastPaymentStatusManagerFromOnline ?? throw new ArgumentNullException(nameof(fastPaymentStatusManagerFromOnline));
 		}
 
 		/// <summary>
@@ -55,14 +71,13 @@ namespace FastPaymentsAPI.Controllers
 		/// <param name="orderDto">Dto с номером заказа</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/RegisterOrderForGetQR")]
 		public async Task<QRResponseDTO> RegisterOrderForGetQR([FromBody] OrderDTO orderDto)
 		{
 			var orderId = orderDto.OrderId;
 			_logger.LogInformation($"Поступил запрос отправки QR-кода для заказа №{orderId}");
 			
 			var response = new QRResponseDTO();
-			var paramsValidationResult = _fastPaymentOrderModel.ValidateParameters(orderId);
+			var paramsValidationResult = _fastPaymentOrderService.ValidateParameters(orderId);
 			
 			if(paramsValidationResult != null)
 			{
@@ -72,73 +87,45 @@ namespace FastPaymentsAPI.Controllers
 
 			try
 			{
-				var fastPayments = _fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOrder(orderId);
+				var fastPayments = _fastPaymentService.GetAllPerformedOrProcessingFastPaymentsByOrder(orderId);
 
-				if(fastPayments.Any())
-				{
-					var fastPayment = fastPayments[0];
-					var ticket = fastPayment.Ticket;
+				var order = _fastPaymentOrderService.GetOrder(orderId);
+				var orderValidationResult = _fastPaymentOrderService.ValidateOrder(order, orderId);
 
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Performed)
-					{
-						response.FastPaymentStatus = FastPaymentStatus.Performed;
-						return response;
-					}
-
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
-					{
-						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {ticket}");
-						var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(fastPayment.Ticket, fastPayment.Organization);
-						
-						if(orderInfoResponseDto.ResponseCode != 0)
-						{
-							return _errorHandler.LogAndReturnErrorMessageFromUpdateOrderInfo(
-								response, orderInfoResponseDto, ticket, _logger);
-						}
-						if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
-						{
-							_fastPaymentModel.UpdateFastPaymentStatus(
-								fastPayment, orderInfoResponseDto.Status, orderInfoResponseDto.StatusDate);
-						}
-
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Performed)
-						{
-							response.FastPaymentStatus = FastPaymentStatus.Performed;
-							return response;
-						}
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
-						{
-							if(!string.IsNullOrWhiteSpace(fastPayment.QRPngBase64))
-							{
-								response.QRCode = fastPayment.QRPngBase64;
-								response.FastPaymentStatus = fastPayment.FastPaymentStatus;
-								return response;
-							}
-							
-							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
-							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
-						}
-					}
-				}
-				
-				var order = _fastPaymentOrderModel.GetOrder(orderId);
-				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
-				
 				if(orderValidationResult != null)
 				{
 					response.ErrorMessage = orderValidationResult;
 					return response;
 				}
+				
+				var statusCheck = await _fastPaymentStatusManagerFromDriverApp.CheckAllOrderFastPayments(fastPayments, response);
+
+				if(statusCheck.NeedReturnResult)
+				{
+					return statusCheck.Result as QRResponseDTO;
+				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = RequestFromType.FromDesktopOrDriverAppByQr;
-				var organization = _fastPaymentModel.GetOrganization(requestType);
+				var requestType = FastPaymentRequestFromType.FromDriverAppByQr;
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType, order);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа по заказу {OrderId}: {ErrorMessage}",
+						orderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, organization);
+					orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -155,7 +142,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
-				_fastPaymentModel.SaveNewTicketForOrder(
+				_fastPaymentService.SaveNewTicketForOrder(
 					orderRegistrationResponseDto,
 					orderId,
 					fastPaymentGuid,
@@ -171,20 +158,31 @@ namespace FastPaymentsAPI.Controllers
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
-				_logger.LogError(e, $"При регистрации заказа {orderId} с получением QR-кода произошла ошибка");
+				_logger.LogError(e, "При регистрации заказа {OrderId} с получением QR-кода произошла ошибка", orderId);
 			}
 			
 			return response;
 		}
 
-		[HttpGet]
-		[Route("/api/RegisterOrder")]
-		public async Task<FastPaymentResponseDTO> RegisterOrder(int orderId, string phoneNumber, bool isQr)
+		/// <summary>
+		/// Эндпойнт для регистрации заказа в системе эквайринга и получения сессии оплаты для формирования ссылки на оплату для ДВ
+		/// </summary>
+		/// <param name="fastPaymentRequestDto">Dto с номерами заказа и телефона</param>
+		/// <returns></returns>
+		[HttpPost]
+		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto)
 		{
-			_logger.LogInformation($"Поступил запрос на отправку платежа с данными orderId: {orderId}, phoneNumber: {phoneNumber}");
+			var orderId = fastPaymentRequestDto.OrderId;
+			var phoneNumber = fastPaymentRequestDto.PhoneNumber;
+			var isQr = fastPaymentRequestDto.IsQr;
+			
+			_logger.LogInformation(
+				"Поступил запрос на отправку платежа с данными orderId: {OrderId}, phoneNumber: {PhoneNumber}",
+				orderId,
+				phoneNumber);
 
 			var response = new FastPaymentResponseDTO();
-			var paramsValidationResult = _fastPaymentOrderModel.ValidateParameters(orderId, ref phoneNumber);
+			var paramsValidationResult = _fastPaymentOrderService.ValidateParameters(orderId, ref phoneNumber);
 			
 			if(paramsValidationResult != null)
 			{
@@ -195,49 +193,17 @@ namespace FastPaymentsAPI.Controllers
 			phoneNumber = $"+7{phoneNumber}";
 			try
 			{
-				var fastPayments = _fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOrder(orderId);
+				var fastPayments = _fastPaymentService.GetAllPerformedOrProcessingFastPaymentsByOrder(orderId);
+				
+				var statusCheck = await _fastPaymentStatusManagerFromDesktop.CheckAllOrderFastPayments(fastPayments, response);
 
-				if(fastPayments.Any())
+				if(statusCheck.NeedReturnResult)
 				{
-					var fastPayment = fastPayments[0];
-					var ticket = fastPayment.Ticket;
-
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Performed)
-					{
-						response.FastPaymentStatus = FastPaymentStatus.Performed;
-						return response;
-					}
-
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
-					{
-						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {ticket}");
-						var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(ticket, fastPayment.Organization);
-
-						if(orderInfoResponseDto.ResponseCode != 0)
-						{
-							return _errorHandler.LogAndReturnErrorMessageFromUpdateOrderInfo(
-								response, orderInfoResponseDto, ticket, _logger);
-						}
-						if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
-						{
-							_fastPaymentModel.UpdateFastPaymentStatus(
-								fastPayment, orderInfoResponseDto.Status, orderInfoResponseDto.StatusDate);
-						}
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Performed)
-						{
-							response.FastPaymentStatus = FastPaymentStatus.Performed;
-							return response;
-						}
-						if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
-						{
-							_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
-							_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
-						}
-					}
+					return statusCheck.Result as FastPaymentResponseDTO;
 				}
 				
-				var order = _fastPaymentOrderModel.GetOrder(orderId);
-				var orderValidationResult = _fastPaymentOrderModel.ValidateOrder(order, orderId);
+				var order = _fastPaymentOrderService.GetOrder(orderId);
+				var orderValidationResult = _fastPaymentOrderService.ValidateOrder(order, orderId);
 				
 				if(orderValidationResult != null)
 				{
@@ -246,15 +212,27 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var requestType = isQr ? RequestFromType.FromDesktopOrDriverAppByQr : RequestFromType.FromDesktopByCard;
-				var organization = _fastPaymentModel.GetOrganization(requestType);
+				var requestType = isQr ? FastPaymentRequestFromType.FromDesktopByQr : FastPaymentRequestFromType.FromDesktopByCard;
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, requestType, order);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа по заказу {OrderId}: {ErrorMessage}",
+						orderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
 					orderRegistrationResponseDto =
-						await _fastPaymentOrderModel.RegisterOrder(order, fastPaymentGuid, organization, phoneNumber, isQr);
+						await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization, phoneNumber, isQr);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -273,7 +251,7 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
 				var paymentType = isQr ? PaymentType.SmsQR : PaymentType.PaidOnline;
-				_fastPaymentModel.SaveNewTicketForOrder(
+				_fastPaymentService.SaveNewTicketForOrder(
 					orderRegistrationResponseDto,
 					orderId,
 					fastPaymentGuid,
@@ -290,33 +268,22 @@ namespace FastPaymentsAPI.Controllers
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
-				_logger.LogError(e, $"При регистрации заказа {orderId} произошла ошибка");
+				_logger.LogError(e, "При регистрации заказа {OrderId} произошла ошибка", orderId);
 			}
 
 			return response;
 		}
 
 		/// <summary>
-		/// Эндпойнт для регистрации заказа в системе эквайринга и получения сессии оплаты для формирования ссылки на оплату для ДВ
-		/// </summary>
-		/// <param name="fastPaymentRequestDto">Dto с номерами заказа и телефона</param>
-		/// <returns></returns>
-		[HttpPost]
-		[Route("/api/RegisterOrder")]
-		public async Task<FastPaymentResponseDTO> RegisterOrder([FromBody] FastPaymentRequestDTO fastPaymentRequestDto) =>
-			await RegisterOrder(fastPaymentRequestDto.OrderId, fastPaymentRequestDto.PhoneNumber, fastPaymentRequestDto.IsQr);
-		
-		/// <summary>
 		/// Эндпойнт для регистрации онлайн-заказа с сайта и получения ссылки на платежную страницу
 		/// </summary>
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/RegisterOnlineOrder")]
-		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrder(
+		public async Task<ResponseRegisterOnlineOrder> RegisterOnlineOrder(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromSiteByQr);
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromSiteByQr);
 		}
 		
 		/// <summary>
@@ -325,30 +292,25 @@ namespace FastPaymentsAPI.Controllers
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/RegisterOnlineOrderFromMobileApp")]
-		public async Task<ResponseRegisterOnlineOrderDTO> RegisterOnlineOrderFromMobileApp(
+		public async Task<ResponseRegisterOnlineOrder> RegisterOnlineOrderFromMobileApp(
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
-			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, RequestFromType.FromMobileAppByQr);
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromMobileAppByQr);
 		}
 		
-		private async Task<ResponseRegisterOnlineOrderDTO> RegisterNewOnlineOrder(
-			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, RequestFromType requestType)
+		private async Task<ResponseRegisterOnlineOrder> RegisterNewOnlineOrder(
+			RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto, FastPaymentRequestFromType fastPaymentRequestType)
 		{
 			var onlineOrderId = requestRegisterOnlineOrderDto.OrderId;
 			var onlineOrderSum = requestRegisterOnlineOrderDto.OrderSum;
 
-			_logger.LogInformation($"Поступил запрос регистрации онлайн-заказа №{onlineOrderId}");
+			_logger.LogInformation("Поступил запрос регистрации онлайн-заказа №{OnlineOrderId}", onlineOrderId);
 
-			var response = new ResponseRegisterOnlineOrderDTO();
+			var response = new ResponseRegisterOnlineOrder();
 			var paramsValidationResult =
-				_fastPaymentOrderModel.ValidateParameters(
-					onlineOrderId,
-					requestRegisterOnlineOrderDto.BackUrl,
-					requestRegisterOnlineOrderDto.BackUrlOk,
-					requestRegisterOnlineOrderDto.BackUrlFail);
+				_fastPaymentOrderService.ValidateParameters(requestRegisterOnlineOrderDto, fastPaymentRequestType);
 
-			if(paramsValidationResult != null)
+			if(!string.IsNullOrWhiteSpace(paramsValidationResult))
 			{
 				response.ErrorMessage = paramsValidationResult;
 				return response;
@@ -357,65 +319,29 @@ namespace FastPaymentsAPI.Controllers
 			try
 			{
 				var fastPayments =
-					_fastPaymentModel.GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(onlineOrderId, onlineOrderSum);
-
-				if(fastPayments.Any())
+					_fastPaymentService.GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(onlineOrderId, onlineOrderSum);
+				
+				try
 				{
-					var fastPayment = fastPayments[0];
-					var ticket = fastPayment.Ticket;
-
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Performed)
+					var statusCheck =
+						await _fastPaymentStatusManagerFromOnline.CheckAllOrderFastPayments(fastPayments, response);
+					
+					if(statusCheck.NeedReturnResult)
 					{
-						response.ErrorMessage = "Онлайн-заказ уже оплачен";
-						return response;
-					}
-
-					if(fastPayment.FastPaymentStatus == FastPaymentStatus.Processing)
-					{
-						_logger.LogInformation($"Делаем запрос в банк, чтобы узнать статус оплаты сессии {ticket}");
-						try
-						{
-							var orderInfoResponseDto = await _fastPaymentOrderModel.GetOrderInfo(ticket, fastPayment.Organization);
-
-							if(orderInfoResponseDto.ResponseCode != 0)
-							{
-								return _errorHandler.LogAndReturnErrorMessageFromUpdateOrderInfo(
-									response, orderInfoResponseDto, ticket, _logger);
-							}
-
-							if((int)orderInfoResponseDto.Status != (int)fastPayment.FastPaymentStatus)
-							{
-								_fastPaymentModel.UpdateFastPaymentStatus(
-									fastPayment, orderInfoResponseDto.Status, orderInfoResponseDto.StatusDate);
-							}
-
-							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Performed)
-							{
-								response.ErrorMessage = "Онлайн-заказ уже оплачен";
-								return response;
-							}
-
-							if(orderInfoResponseDto.Status == FastPaymentDTOStatus.Processing)
-							{
-								_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
-								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
-
-								await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-								await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-							}
-						}
-						catch(Exception e)
-						{
-							response.ErrorMessage = "При получении информации об оплате из банка или обновлении статуса платежа произошла ошибка";
-							_logger.LogError(
-								e,
-								$"При получении информации об оплате из банка {ticket} или обновлении статуса платежа произошла ошибка");
-							return response;
-						}
+						return statusCheck.Result as ResponseRegisterOnlineOrder;
 					}
 				}
+				catch(Exception e)
+				{
+					response.ErrorMessage = "При получении информации об оплате из банка или обновлении статуса платежа произошла ошибка";
+					_logger.LogError(
+						e,
+						"При получении информации об оплате из банка {Ticket} или обновлении статуса платежа произошла ошибка",
+						fastPayments.FirstOrDefault()?.Ticket);
+					return response;
+				}
 
-				var orderValidationResult = _fastPaymentOrderModel.ValidateOnlineOrder(onlineOrderSum);
+				var orderValidationResult = _fastPaymentOrderService.ValidateOnlineOrder(onlineOrderSum);
 
 				if(orderValidationResult != null)
 				{
@@ -424,15 +350,27 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				var fastPaymentGuid = Guid.NewGuid();
-				var organization = _fastPaymentModel.GetOrganization(requestType);
+				var organizationResult = _fastPaymentService.GetOrganization(DateTime.Now.TimeOfDay, fastPaymentRequestType);
+
+				if(organizationResult.IsFailure)
+				{
+					var errorMessage = organizationResult.Errors.First().Message;
+					_logger.LogWarning("Не удалось получить организацию для быстрого платежа онлайн-заказа {OnlineOrderId}: {ErrorMessage}",
+						onlineOrderId,
+						errorMessage);
+					response.ErrorMessage = errorMessage;
+					return response;
+				}
+				
+				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				var callBackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
 
 				try
 				{
-					_logger.LogInformation($"Регистрируем онлайн-заказ {onlineOrderId} в системе эквайринга");
-					orderRegistrationResponseDto = await _fastPaymentOrderModel.RegisterOnlineOrder(
-						requestRegisterOnlineOrderDto, organization);
+					_logger.LogInformation("Регистрируем онлайн-заказ {OnlineOrderId} в системе эквайринга", onlineOrderId);
+					orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOnlineOrder(
+						requestRegisterOnlineOrderDto, organization, fastPaymentRequestType);
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -442,33 +380,34 @@ namespace FastPaymentsAPI.Controllers
 				}
 				catch(Exception e)
 				{
-					var message = $"При регистрации онлайн-заказа {onlineOrderId} в системе эквайринга произошла ошибка";
-					response.ErrorMessage = message;
-					_logger.LogError(e, message);
+					var messageTemplate = "При регистрации онлайн-заказа {0} в системе эквайринга произошла ошибка";
+					response.ErrorMessage = string.Format(messageTemplate, onlineOrderId);
+					_logger.LogError(e, string.Format(messageTemplate, "{OnlineOrderId}"), onlineOrderId);
 					return response;
 				}
 
-				_logger.LogInformation($"Сохраняем новую сессию оплаты для онлайн-заказа №{onlineOrderId}");
+				_logger.LogInformation("Сохраняем новую сессию оплаты для онлайн-заказа №{OnlineOrderId}", onlineOrderId);
 				try
 				{
-					_fastPaymentModel.SaveNewTicketForOnlineOrder(
+					_fastPaymentService.SaveNewTicketForOnlineOrder(
 						orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
-						organization, requestType, callBackUrl);
+						organization, fastPaymentRequestType, callBackUrl);
 				}
 				catch(Exception e)
 				{
-					var message = $"При сохранении новой сессии оплаты для онлайн-заказа {onlineOrderId} произошла ошибка";
-					response.ErrorMessage = message;
-					_logger.LogError(e, message);
+					var messageTemplate = "При сохранении новой сессии оплаты для онлайн-заказа {0} произошла ошибка";
+					response.ErrorMessage = string.Format(messageTemplate, onlineOrderId);
+					_logger.LogError(e, string.Format(messageTemplate, "{OnlineOrderId}"), onlineOrderId);
 					return response;
 				}
 
-				response.PayUrl = _fastPaymentOrderModel.GetPayUrlForOnlineOrder(fastPaymentGuid);
+				FillOnlineResponseData(response, fastPaymentRequestType, orderRegistrationResponseDto.QRPngBase64, fastPaymentGuid);
+				return response;
 			}
 			catch(Exception e)
 			{
 				response.ErrorMessage = e.Message;
-				_logger.LogError(e, $"При регистрации онлайн-заказа {onlineOrderId} произошла ошибка");
+				_logger.LogError(e, "При регистрации онлайн-заказа {OnlineOrderId} произошла ошибка", onlineOrderId);
 			}
 
 			return response;
@@ -480,7 +419,6 @@ namespace FastPaymentsAPI.Controllers
 		/// <param name="paidOrderDto">Dto с информацией об оплате</param>
 		/// <returns>При успешном выполнении отправляем 202</returns>
 		[HttpPost]
-		[Route("/api/ReceivePayment")]
 		[Consumes("application/x-www-form-urlencoded")]
 		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
@@ -490,56 +428,63 @@ namespace FastPaymentsAPI.Controllers
 			try
 			{
 				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из ответа");
-				paidOrderInfoDto = _fastPaymentOrderModel.GetPaidOrderInfo(paidOrderDto.xml);
+				paidOrderInfoDto = _fastPaymentOrderService.GetPaidOrderInfo(paidOrderDto.xml);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при парсинге ответа по успешной оплате");
-				return StatusCode(500);
+				return Problem();
 			}
 
 			var ticket = paidOrderInfoDto.Ticket;
-			var fastPayment = _fastPaymentModel.GetFastPaymentByTicket(ticket);
+			var fastPayment = _fastPaymentService.GetFastPaymentByTicket(ticket);
 
 			if(fastPayment == null)
 			{
-				_logger.LogError($"Платеж с ticket: {ticket} не найден в базе");
-				return StatusCode(500);
+				_logger.LogError("Платеж с ticket: {Ticket} не найден в базе", ticket);
+				return Problem();
 			}
 
 			bool fastPaymentUpdated;
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
-				if(!_fastPaymentModel.ValidateSignature(paidOrderInfoDto, out var paymentSignature))
+				if(!_fastPaymentService.ValidateSignature(paidOrderInfoDto, out var paymentSignature))
 				{
 					var bankSignature = paidOrderInfoDto.Signature;
 					var orderNumber = paidOrderInfoDto.OrderNumber;
 					var shopId = paidOrderInfoDto.ShopId;
 					
-					_logger.LogError($"Ответ по оплате заказа №{orderNumber} пришел с неверной подписью {bankSignature}" +
-						$" по shopId {shopId}, рассчитанная подпись {paymentSignature}");
+					_logger.LogError("Ответ по оплате заказа №{OrderNumber} пришел с неверной подписью {BankSignature}" +
+						" по shopId {ShopId}, рассчитанная подпись {PaymentSignature}",
+						orderNumber,
+						bankSignature,
+						shopId,
+						paymentSignature);
 
 					try
 					{
-						_fastPaymentOrderModel.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
+						_fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
 					}
 					catch(Exception e)
 					{
-						_logger.LogError(e, "Не удалось уведомить пользователя о неверной подписи оплаты");
+						_logger.LogError(e, "Не удалось уведомить пользователя о неверной подписи оплаты с сессией {Ticket}", ticket);
 					}
 
-					return new BadRequestResult();
+					return BadRequest();
 				}
 
-				_logger.LogInformation($"Обновляем статус оплаты платежа с ticket: {ticket}");
-				fastPaymentUpdated = _fastPaymentModel.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
+				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);
+				fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					$"Ошибка при обработке поступившего платежа (ticket: {ticket}, status: {paidOrderInfoDto.Status})");
-				return StatusCode(500);
+					"Ошибка при обработке поступившего платежа (ticket: {Ticket}, status: {PaymentStatus})",
+					ticket,
+					paidOrderInfoDto.Status);
+				
+				return Problem();
 			}
 
 			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
@@ -550,25 +495,8 @@ namespace FastPaymentsAPI.Controllers
 				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
 			}
 			
-			return new AcceptedResult();
+			return Accepted();
 		}
-
-		private void NotifyDriver(FastPayment fastPayment, string orderNumber)
-		{
-			if(fastPayment?.Order != null)
-			{
-				try
-				{
-					_logger.LogInformation($"Уведомляем водителя о изменении статуса оплаты заказа: {orderNumber}");
-					_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(orderNumber));
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, $"Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа {orderNumber}");
-				}
-			}
-		}
-
 
 		/// <summary>
 		/// Эндпойнт отмены сессии оплаты/платежа
@@ -576,69 +504,77 @@ namespace FastPaymentsAPI.Controllers
 		/// <param name="cancelTicketRequestDto">Dto с сессией, которую надо отменить</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/CancelPayment")]
 		public async Task<CancelTicketResponseDTO> CancelPayment([FromBody] CancelTicketRequestDTO cancelTicketRequestDto)
 		{
+			var ticket = cancelTicketRequestDto.Ticket;
+
 			try
 			{
-				var ticket = cancelTicketRequestDto.Ticket;
-				_logger.LogInformation($"Пришел запрос на отмену платежа с сессией: {ticket}");
-				var fastPayment = _fastPaymentModel.GetFastPaymentByTicket(ticket);
+				_logger.LogInformation("Пришел запрос на отмену платежа с сессией: {Ticket}", ticket);
+				var fastPayment = _fastPaymentService.GetFastPaymentByTicket(ticket);
 				
 				if(fastPayment == null)
 				{
-					_logger.LogError($"Платеж с сессией: {ticket} не найден в базе");
+					_logger.LogError("Платеж с сессией: {Ticket} не найден в базе", ticket);
 					return new CancelTicketResponseDTO("Не найден платеж в базе");
 				}
 
-				_logger.LogInformation($"Посылаем запрос в банк на отмену сессии оплаты: {ticket}");
-				var cancelPaymentResponse = await _fastPaymentOrderModel.CancelPayment(ticket, fastPayment.Organization);
+				_logger.LogInformation("Посылаем запрос в банк на отмену сессии оплаты: {Ticket}", ticket);
+				var cancelPaymentResponse = await _fastPaymentOrderService.CancelPayment(ticket, fastPayment.Organization);
 
 				if(cancelPaymentResponse.ResponseCode == 0)
 				{
-					_logger.LogInformation($"Обновляем статус платежа");
-					_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
+					_logger.LogInformation("Обновляем статус платежа");
+					_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 				}
 				
 				return new CancelTicketResponseDTO(_responseCodeConverter.ConvertToResponseStatus(cancelPaymentResponse.ResponseCode));
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, $"При отмене сессии оплаты произошла ошибка");
+				_logger.LogError(e, "При отмене сессии оплаты {Ticket} произошла ошибка", ticket);
 				return new CancelTicketResponseDTO(e.Message);
 			}
 		}
 		
+		/// <summary>
+		/// Получение информации об оплате
+		/// </summary>
+		/// <param name="ticket">Номер тикета/сессии платежа</param>
+		/// <returns>Информации об оплате <see cref="OrderInfoResponseDTO"/></returns>
 		[HttpGet]
-		[Route("/api/GetOrderInfo")]
 		public async Task<OrderInfoResponseDTO> GetOrderInfo(string ticket)
 		{
-			_logger.LogInformation($"Пришел запрос на получении инфы о платеже с сессией: {ticket}");
+			_logger.LogInformation("Пришел запрос на получении инфы о платеже с сессией: {Ticket}", ticket);
 
 			FastPayment fastPayment;
 			try
 			{
-				fastPayment = _fastPaymentModel.GetFastPaymentByTicket(ticket);
+				fastPayment = _fastPaymentService.GetFastPaymentByTicket(ticket);
 
 				if(fastPayment == null)
 				{
-					_logger.LogError($"Платеж с сессией: {ticket} не найден в базе");
+					_logger.LogError("Платеж с сессией: {Ticket} не найден в базе", ticket);
 					return null;
 				}
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "При получении информации о быстром платеже из базы произошла ошибка");
+				_logger.LogError(
+					e,
+					"При получении информации о быстром платеже с сессией {Ticket} из базы произошла ошибка",
+					ticket);
+				
 				return null;
 			}
 
 			try
 			{
-				return await _fastPaymentOrderModel.GetOrderInfo(ticket, fastPayment.Organization);
+				return await _fastPaymentOrderService.GetOrderInfo(ticket, fastPayment.Organization);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, $"При получении информации об оплате произошла ошибка");
+				_logger.LogError(e, "При получении информации об оплате с сессией {Ticket} произошла ошибка", ticket);
 				return null;
 			}
 		}
@@ -649,15 +585,49 @@ namespace FastPaymentsAPI.Controllers
 		/// <param name="orderId">Id заказа</param>
 		/// <returns></returns>
 		[HttpGet]
-		[Route("/api/GetOrderId")]
 		public OrderDTO GetOrderId(int orderId)
 		{
-			var order = _fastPaymentOrderModel.GetOrder(orderId);
+			var order = _fastPaymentOrderService.GetOrder(orderId);
 			var orderDto = new OrderDTO
 			{
 				OrderId = order?.Id ?? -1
 			};
 			return orderDto;
+		}
+		
+		private void FillOnlineResponseData(
+			ResponseRegisterOnlineOrder response,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
+			string qrPngBase64,
+			Guid fastPaymentGuid)
+		{
+			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
+			{
+				response.QrCode = qrPngBase64;
+			}
+			else
+			{
+				response.PayUrl = _fastPaymentOrderService.GetPayUrlForOnlineOrder(fastPaymentGuid);
+			}
+		}
+		
+		private void NotifyDriver(FastPayment fastPayment, string orderNumber)
+		{
+			if(fastPayment?.Order != null)
+			{
+				try
+				{
+					_logger.LogInformation("Уведомляем водителя о изменении статуса оплаты заказа: {OrderNumber}", orderNumber);
+					_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(orderNumber));
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(
+						e,
+						"Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа {OrderNumber}",
+						orderNumber);
+				}
+			}
 		}
 	}
 }

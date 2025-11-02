@@ -5,22 +5,23 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Services;
+using RouteListItem = Vodovoz.Domain.Logistic.RouteListItem;
 
 namespace Vodovoz.Controllers
 {
 	public class RouteListAddressKeepingDocumentController : IRouteListAddressKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 
-		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public RouteListAddressKeepingDocumentController(IEmployeeRepository employeeRepository, INomenclatureRepository nomenclatureRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 		}
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
@@ -56,7 +57,7 @@ namespace Vodovoz.Controllers
 		{
 			var routeList = routeListItem.RouteList;
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
 			sbyte amountSign;
 			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
@@ -124,7 +125,7 @@ namespace Vodovoz.Controllers
 				bottlesAmountSign = 1;
 			}
 
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var defaultBottleNomenclature = _nomenclatureRepository.GetDefaultBottleNomenclature(uow);
 			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
 
 			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
@@ -191,7 +192,7 @@ namespace Vodovoz.Controllers
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.RouteListItem = routeListItem;
-			routeListKeepingDocument.Author = currentEmployee;
+			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 
 			var routeList = routeListItem.RouteList;
 
@@ -254,9 +255,10 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
+			IUnitOfWork uow, IUnitOfWorkFactory unitOfWorkFactory, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
+			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false, bool isFromRouteListClosingNewUndelivery = false)
 		{
-			if(!changedRouteListItem.RouteList.ClosingFilled)
+			if(!changedRouteListItem.RouteList.ClosingFilled && itemsCacheList != null)
 			{
 				return itemsCacheList;
 			}
@@ -277,7 +279,7 @@ namespace Vodovoz.Controllers
 			}
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			routeListKeepingDocument.Author = currentEmployee;
+			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 			routeListKeepingDocument.RouteListItem = changedRouteListItem;
 
 			RouteList oldRouteList;
@@ -287,11 +289,11 @@ namespace Vodovoz.Controllers
 
 			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			using(var uowLocal = unitOfWorkFactory.CreateWithoutRoot("Изменение свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
 				oldRouteList = uowLocal.GetById<RouteList>(changedRouteListItem.RouteList.Id);
-				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(true);
+				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(!forceUsePlanCount && !isFromRouteListClosingNewUndelivery);
 				oldEquipmentToPickupAmountNodes = oldRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
 					.GroupBy(n => n.Nomenclature.Id)
@@ -299,7 +301,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = n.Key,
 						Nomenclature = n.First().Nomenclature,
-						Amount = n.Sum(s => s.CurrentCount)
+						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
 					})
 					.ToList();
 			}
@@ -323,7 +325,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = i.Nomenclature.Id,
 						Nomenclature = i.Nomenclature,
-						Amount = i.CurrentCount
+						Amount = forceUsePlanCount ? i.Count : i.CurrentCount
 					})
 					.Concat(changedRouteListItem.Order.OrderEquipments
 						.Where(e => e.Direction == Direction.Deliver)
@@ -331,7 +333,7 @@ namespace Vodovoz.Controllers
 						{
 							NomenclatureId = e.Nomenclature.Id,
 							Nomenclature = e.Nomenclature,
-							Amount = e.CurrentCount
+							Amount = forceUsePlanCount ? e.Count : e.CurrentCount
 						}))
 					.Where(n => n.Nomenclature.Id == node.NomenclatureId)
 					.GroupBy(n => n.Nomenclature.Id)
@@ -399,7 +401,7 @@ namespace Vodovoz.Controllers
 					{
 						NomenclatureId = n.Key,
 						Nomenclature = n.First().Nomenclature,
-						Amount = n.Sum(s => s.CurrentCount)
+						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
 					})
 					.ToList()
 					.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
@@ -440,7 +442,7 @@ namespace Vodovoz.Controllers
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
-				routeListKeepingDocumentItem.Amount = item.CurrentCount;
+				routeListKeepingDocumentItem.Amount = forceUsePlanCount ? item.Count : item.CurrentCount;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
@@ -479,6 +481,75 @@ namespace Vodovoz.Controllers
 			routeListKeepingDocument.Items.Clear();
 
 			uow.Delete(routeListKeepingDocument);
+		}
+
+		public void CreateDeliveryFreeBalanceTransferItems(IUnitOfWork uow, AddressTransferDocumentItem addressTransferDocumentItem)
+		{
+			var newAddress = addressTransferDocumentItem.NewAddress;
+			var oldAddress = addressTransferDocumentItem.OldAddress;
+
+			foreach(var orderItem in oldAddress.Order.GetAllGoodsToDeliver())
+			{
+				var newDeliveryFreeBalanceTransferItem = new DeliveryFreeBalanceTransferItem
+				{
+					AddressTransferDocumentItem = addressTransferDocumentItem,
+					RouteListFrom = oldAddress.RouteList,
+					RouteListTo = newAddress.RouteList,
+					Nomenclature = orderItem.Nomenclature,
+					Amount = orderItem.Amount
+				};
+
+				if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.FromHandToHand)
+				{
+					// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадутся операции
+					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+					   || oldAddress.RouteList.Status != RouteListStatus.New)
+					{
+						var freeBalanceOperationFrom = newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
+						freeBalanceOperationFrom.Amount = newDeliveryFreeBalanceTransferItem.Amount;
+						freeBalanceOperationFrom.Nomenclature = newDeliveryFreeBalanceTransferItem.Nomenclature;
+						freeBalanceOperationFrom.OperationTime = DateTime.Now;
+						freeBalanceOperationFrom.RouteList = oldAddress.RouteList;
+
+						newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
+						newDeliveryFreeBalanceTransferItem.RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationFrom);
+					}
+
+					if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+					   || newAddress.RouteList.Status != RouteListStatus.New)
+					{
+						var freeBalanceOperationTo = newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
+						freeBalanceOperationTo.Amount = -newDeliveryFreeBalanceTransferItem.Amount;
+						freeBalanceOperationTo.Nomenclature = newDeliveryFreeBalanceTransferItem.Nomenclature;
+						freeBalanceOperationTo.OperationTime = DateTime.Now;
+						freeBalanceOperationTo.RouteList = newAddress.RouteList;
+
+						newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
+						newDeliveryFreeBalanceTransferItem.RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(newDeliveryFreeBalanceTransferItem.DeliveryFreeBalanceOperationTo);
+					}
+				}
+
+				addressTransferDocumentItem.DeliveryFreeBalanceTransferItems.Add(newDeliveryFreeBalanceTransferItem);
+			}
+
+			uow.Save(addressTransferDocumentItem);
+
+			// Если переносят в МЛ в статусе Сдаётся, адрес переходит в статус Доставлен и нужны операции на возврат
+			if(addressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+				&& newAddress.RouteList.Status == RouteListStatus.OnClosing)
+			{
+				var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == newAddress.Id)
+					?? new RouteListAddressKeepingDocument();
+
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				routeListKeepingDocument.RouteListItem = newAddress;
+				routeListKeepingDocument.AuthorId = currentEmployee.Id;
+
+				CreateOperationsForReturns(uow, newAddress, routeListKeepingDocument, oldAddress.Status, newAddress.Status, true);
+
+				uow.Save(routeListKeepingDocument);
+			}
 		}
 	}
 }

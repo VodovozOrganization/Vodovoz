@@ -1,4 +1,4 @@
-﻿<ui>
+<ui>
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionCarEventsJournal' action='ActionCarEventsJournal'/>
 		<toolitem name='ActionCarProxiesJournal' action='ActionCarProxiesJournal'/>
@@ -7,6 +7,7 @@
 		<toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
 		<toolitem name='ActionWarehouseDocuments' action='ActionWarehouseDocuments'/>
 		<toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
-		<toolitem name='CarsJournalAction' action='CarsJournalAction'/>
+		<toolitem name='ActionCar' action='ActionCar'/>
+		<toolitem name='ActionMileageWriteOffJournal' action='ActionMileageWriteOffJournal'/>
 	</toolbar>
 </ui>

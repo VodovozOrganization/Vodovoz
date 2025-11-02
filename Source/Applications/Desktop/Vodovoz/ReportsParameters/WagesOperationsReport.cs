@@ -1,68 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
-using Vodovoz.TempAdapters;
+using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WagesOperationsReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class WagesOperationsReport : ViewBase<WagesOperationsReportViewModel>, ISingleUoWDialog
 	{
-		public WagesOperationsReport(IEmployeeJournalFactory employeeJournalFactory)
+		public WagesOperationsReport(WagesOperationsReportViewModel viewModel) : base(viewModel)
 		{
-			if(employeeJournalFactory is null)
-			{
-				throw new ArgumentNullException(nameof(employeeJournalFactory));
-			}
-			
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
+
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDate)
+				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.InitializeFromSource();
+
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			evmeEmployee.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Employee, w => w.Subject)
+				.InitializeFromSource();
+
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчет по зарплатным операциям";
-
-		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
-			{
-				Identifier = "Employees.WagesOperations",
-				UseUserVariables = true,
-				Parameters = new Dictionary<string, object>
-				{ 
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "employee_id", evmeEmployee.SubjectId }
-				}
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
-		{
-			string errorString = string.Empty;
-			if (evmeEmployee.Subject == null)
-				errorString += "Не заполнено поле сотрудника\n";
-			if (dateperiodpicker.StartDateOrNull == null)
-				errorString += "Не заполнена дата\n";
-			if (!string.IsNullOrWhiteSpace(errorString)) {
-				MessageDialogHelper.RunErrorDialog(errorString);
-				return;
-			}
-			OnUpdate(true);
-		}
-		#endregion
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

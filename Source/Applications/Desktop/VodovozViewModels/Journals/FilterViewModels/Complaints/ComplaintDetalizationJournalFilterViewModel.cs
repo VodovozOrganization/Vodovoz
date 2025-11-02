@@ -81,10 +81,29 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 			{
 				if(UpdateFilterField(ref _restrictComplaintKind, value))
 				{
+					/*Т.к. идет множественный вызов и при обработке FirstOrDefault получается уже реальный объект,
+					 а не прокси, то делаем дополнительные проверки и устанавливаем параметр RestrictComplaintObject в тихую,
+					 если значения ComplaintObject и RestrictComplaintObject равны, дабы не вызвать не нужную перенастройку
+					 VisibleComplaintKinds
+					 */
+					if(value is null)
+					{
+						RestrictComplaintObject = null;
+					}
+					else
+					{
+						if(value.ComplaintObject?.Id != ComplaintObject?.Id)
+						{
+							RestrictComplaintObject = ComplaintObjects
+								.FirstOrDefault(x => x.Id == value.ComplaintObject?.Id);
+						}
+						else
+						{
+							_restrictComplaintObject = ComplaintObject;
+						}
+					}
+					
 					ComplaintKind = value;
-					RestrictComplaintObject = ComplaintObjects
-						.Where(x => x.Id == value?.ComplaintObject?.Id)
-						.FirstOrDefault();
 				}
 			}
 		}

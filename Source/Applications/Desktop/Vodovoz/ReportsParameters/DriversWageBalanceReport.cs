@@ -6,21 +6,26 @@ using Gtk;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
 	public partial class DriversWageBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		IList<DriverNode> _driversList = new List<DriverNode>();
+		private readonly IReportInfoFactory _reportInfoFactory;
 
-		public DriversWageBalanceReport()
+		public DriversWageBalanceReport(IReportInfoFactory reportInfoFactory)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 
@@ -50,15 +55,15 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Employees.DriversWageBalance",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", ydateBalanceBefore.Date.Date.AddDays(1).AddTicks(-1) },
-					{ "drivers", _driversList.Where(d => d.IsSelected).Select(d => d.Id) }
-				}
+				{ "date", ydateBalanceBefore.Date.Date.AddDays(1).AddTicks(-1) },
+				{ "drivers", _driversList.Where(d => d.IsSelected).Select(d => d.Id) }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Employees.DriversWageBalance", Title, parameters);
+
+			return reportInfo;
 		}
 
 		private void FillDrivers()

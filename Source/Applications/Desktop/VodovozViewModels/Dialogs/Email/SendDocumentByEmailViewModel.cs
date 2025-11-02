@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -9,14 +9,16 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
+using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.Dialogs.Email
 {
@@ -40,16 +42,21 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			set => SetField(ref _btnSendEmailSensitive, value);
 		}
 
-		private object _selectedObj;
-		public object SelectedObj {
-			get => _selectedObj;
-			set => SetField(ref _selectedObj, value);
+		private StoredEmail _selectedStoredEmail;
+		public StoredEmail SelectedStoredEmail {
+			get => _selectedStoredEmail;
+			set => SetField(ref _selectedStoredEmail, value);
 		}
 
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly Employee _employee;
+		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
+
+		private bool _canManuallyResendUpd =>
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.Documents.CanManuallyResendUpd);
 
 		private IEmailableDocument Document { get; set; }
 
@@ -59,13 +66,15 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
 
-		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider,
-									  Employee employee, IInteractiveService interactiveService, IUnitOfWork uow = null)
+		public SendDocumentByEmailViewModel(IUnitOfWorkFactory uowFactory, IEmailRepository emailRepository, IEmailSettings emailSettings,
+									  Employee employee, ICommonServices commonServices, IUnitOfWork uow = null)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_employee = employee;
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = _commonServices.InteractiveService;
 			StoredEmails = new GenericObservableList<StoredEmail>();
 			UoW = uow;
 
@@ -87,6 +96,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						case OrderDocumentType.Bill:
 						case OrderDocumentType.SpecialBill:
+						case OrderDocumentType.UPD:
+						case OrderDocumentType.SpecialUPD:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
@@ -140,10 +151,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 					{
 						return Document?.Order != null;
 					}
-					else
-					{
-						return Document?.Id != 0;
-					}
+					
+					return Document?.Id != 0;
 				}
 			);
 		}
@@ -171,7 +180,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				return;
 			}
 
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				IList<StoredEmail> listEmails = null;
 
@@ -193,7 +202,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+							&& ((OrderWithoutShipmentForDebt)Document).Organization != null;
 						break;
 					case OrderDocumentType.BillWSForAdvancePayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
@@ -201,7 +211,8 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+						    && ((OrderWithoutShipmentForAdvancePayment)Document).Organization != null;
 						break;
 					case OrderDocumentType.BillWSForPayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
@@ -209,7 +220,19 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+						    && ((OrderWithoutShipmentForPayment)Document).Organization != null;
+						break;
+					case OrderDocumentType.UPD:
+					case OrderDocumentType.SpecialUPD:
+						listEmails = uow.Session.QueryOver<UpdDocumentEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive =
+							_emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+							&& _canManuallyResendUpd;
 						break;
 					default:
 						BtnSendEmailSensitive = false;
@@ -261,7 +284,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderAddress;
+				_ = _emailSettings.DocumentEmailSenderAddress;
 			}
 			catch(InvalidProgramException)
 			{
@@ -271,7 +294,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 			try
 			{
-				_ = _emailParametersProvider.DocumentEmailSenderName;
+				_ = _emailSettings.DocumentEmailSenderName;
 			}
 			catch(InvalidProgramException)
 			{
@@ -302,7 +325,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				return;
 			}
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("StoredEmail"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("StoredEmail"))
 			{
 				var storedEmail = new StoredEmail
 				{
@@ -366,6 +389,16 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+							break;
+						case OrderDocumentType.UPD:
+						case OrderDocumentType.SpecialUPD:
+							var updDocumentEmail = new UpdDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderDocument = (OrderDocument)Document
+							};
+							unitOfWork.Save(updDocumentEmail);
 							break;
 					}
 

@@ -9,6 +9,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 		public int NomenclatureId { get; set; }
 		public string NomenclatureName { get; set; }
 		public string InventoryNumber { get; set; }
+		public bool IsUsed { get; set; }
+		public string GetInventoryNumber => InventoryNomenclatureInstance.GetInventoryNumberString(IsUsed, InventoryNumber);
 	}
 	
 	public class InventoryInstancesStockJournalNode : InventoryInstancesJournalNode

@@ -6,17 +6,18 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class EmailsViewModel : WidgetViewModelBase
 	{
 		private IUnitOfWork _uow;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 
 		private PersonType _personType;
@@ -28,13 +29,13 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public EmailsViewModel(
 			IUnitOfWork uow,
 			IList<Email> emailList,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailSettings,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IInteractiveService interactiveService,
 			PersonType personType)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			InteractiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -66,7 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 					{
 						EmailsList.Add(new Email
 						{
-							EmailType = _uow.GetById<EmailType>(_emailParametersProvider.EmailTypeForReceiptsId)
+							EmailType = _uow.GetById<EmailType>(_emailSettings.EmailTypeForReceiptsId)
 						});
 					}
 					else

@@ -1,14 +1,17 @@
-﻿using System;
+using System;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
-using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using VodovozInfrastructure;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Factories
 {
@@ -87,11 +90,11 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId)
+		public OrderSignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId)
 		{
 			var signatureSection = _configuration.GetSection($"{_signature}{shopId}");
 
-			return new SignatureParams
+			return new OrderSignatureParams
 			{
 				ShopId = signatureSection.GetValue<long>("ShopId"),
 				Sign = signatureSection.GetValue<string>("ShopSign"),
@@ -100,12 +103,12 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
+		public OrderSignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto)
 		{
 			var shopId = paidOrderInfoDto.ShopId;
 			var avSign = _configuration.GetSection($"{_signature}{shopId}").GetValue<string>("AvSign");
 
-			return new SignatureParams
+			return new OrderSignatureParams
 			{
 				OrderId = paidOrderInfoDto.OrderNumber,
 				OrderSumInKopecks = paidOrderInfoDto.Amount,
@@ -155,14 +158,20 @@ namespace FastPaymentsAPI.Library.Factories
 				Amount = order.OrderSum,
 				CreationDate = paymentDto.CreationDate,
 				Order = order,
-				Organization = paymentDto.Organization,
-				PaymentByCardFrom = paymentDto.PaymentByCardFrom,
+				Organization = new Organization
+				{
+					Id = paymentDto.OrganizationId
+				},
+				PaymentByCardFrom = new PaymentFrom
+				{
+					Id = paymentDto.PaymentByCardFromId
+				},
 				Ticket = paymentDto.Ticket,
 				QRPngBase64 = paymentDto.QRPngBase64,
 				ExternalId = paymentDto.ExternalId,
 				PhoneNumber = paymentDto.PhoneNumber,
 				FastPaymentGuid = paymentDto.FastPaymentGuid,
-				FastPaymentPayType = paymentDto.FastPaymentPayType
+				FastPaymentPayType = Enum.Parse<FastPaymentPayType>(paymentDto.FastPaymentPayType)
 			};
 		}
 

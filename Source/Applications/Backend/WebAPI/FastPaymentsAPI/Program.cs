@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
+using Autofac.Extensions.DependencyInjection;
 
 namespace FastPaymentsAPI
 {
@@ -20,6 +21,7 @@ namespace FastPaymentsAPI
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();

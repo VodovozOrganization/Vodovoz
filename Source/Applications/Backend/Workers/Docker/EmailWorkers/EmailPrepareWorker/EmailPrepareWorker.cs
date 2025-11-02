@@ -1,129 +1,118 @@
 ﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QSOrmProject;
-using QSProjectsLib;
 using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Common;
+using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
 {
-	public class EmailPrepareWorker : BackgroundService
+	public class EmailPrepareWorker : TimerBackgroundServiceBase
 	{
 		private const string _queuesConfigurationSection = "Queues";
 		private const string _emailSendExchangeParameter = "EmailSendExchange";
 		private const string _emailSendKeyParameter = "EmailSendKey";
 
-		private readonly string _emailSendKey;
-		private readonly string _emailSendExchange;
+		private string _emailSendKey;
+		private string _emailSendExchange;
+		private int _instanceId;
 
+		// Это для костыля с остановкой сервиса, при устранении утечек удалить вместе со связанным функционалом
+		private int _crutchCounter = 0;
+		private const int _crutchCounterLimit = 100;
+
+		private bool _initialized = false;
 		private readonly ILogger<EmailPrepareWorker> _logger;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IConfiguration _configuration;
 		private readonly IModel _channel;
-		private readonly IEmailRepository _emailRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
-		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
-		private readonly IEmailSendMessagePreparer _emailSendMessagePreparer;
-		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
-		private readonly int _instanceId;
+		private readonly IHostApplicationLifetime _hostApplicationLifetime;
+
+		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailPrepareWorker(
+			IServiceScopeFactory serviceScopeFactory,
 			ILogger<EmailPrepareWorker> logger,
 			IConfiguration configuration,
 			IModel channel,
-			IEmailRepository emailRepository,
-			IEmailParametersProvider emailParametersProvider,
-			IEmailDocumentPreparer emailDocumentPreparer,
-			IEmailSendMessagePreparer emailSendMessagePreparer)
+			IHostApplicationLifetime hostApplicationLifetime)
 		{
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
-			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
-			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
-			_emailSendMessagePreparer = emailSendMessagePreparer ?? throw new ArgumentNullException(nameof(emailSendMessagePreparer));
-
+			_hostApplicationLifetime = hostApplicationLifetime;
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
-			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
+			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
+
+			_logger.LogInformation("Запущена сборка от {BuildDate}",
+				new DateTime(2000, 1, 1)
+					.AddDays(assemblyVersion.Build)
+					.AddSeconds(assemblyVersion.Revision * 2));
+		}
+
+		protected override async Task DoWork(CancellationToken stoppingToken)
+		{
+			try
+			{
+				_logger.LogInformation("Email prepairing start at: {time}", DateTimeOffset.Now);
+
+				await PrepareAndSendEmails();
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, ex.Message);
+			}
+		}
+
+		public override async Task StartAsync(CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Starting Email Prepare Worker...");
+
+			_emailSendKey = _configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
-			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
+			_emailSendExchange = _configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendExchangeParameter);
 			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
 
-			var conStrBuilder = new MySqlConnectionStringBuilder();
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			var databaseSection = configuration.GetSection("Database");
+			using var settingsScope = _serviceScopeFactory.CreateScope();
 
-			conStrBuilder.Server = databaseSection.GetValue("Hostname", "localhost");
-			conStrBuilder.Port = databaseSection.GetValue<uint>("Port", 3306);
-			conStrBuilder.UserID = databaseSection.GetValue("Username", "");
-			conStrBuilder.Password = databaseSection.GetValue("Password", "");
-			conStrBuilder.Database = databaseSection.GetValue("DatabaseName", "");
-			conStrBuilder.SslMode = MySqlSslMode.None;
+			var unitOfWorkFactory = settingsScope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
-			QSMain.ConnectionString = conStrBuilder.GetConnectionString(true);
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-									 .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-									 .ConnectionString(QSMain.ConnectionString);
+			using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Email prepare worker");
 
-			OrmMain.ClassMappingList = new List<IOrmObjectMapping> (); // Нужно, чтобы запустился конструктор OrmMain
+			_instanceId = Convert.ToInt32(unitOfWork.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
 
-			OrmConfig.ConfigureOrm(db_config,
-				new Assembly[] {
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
-					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
-					Assembly.GetAssembly(typeof(QS.Attachments.HibernateMapping.AttachmentMap)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-			});
+			await base.StartAsync(cancellationToken);
+			
+			_logger.LogInformation(
+				"Email Prepare worker started. Settings: EmailSendKey: {EmailSendKey}, EmailSendExchange: {EmailSendExchange}, InstanceId = {InstanceId}",
+				_emailSendKey,
+				_emailSendExchange,
+				_instanceId);
 
-			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
-			{
-				_instanceId = Convert.ToInt32(unitOfWork.Session
-					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-					.List<object>()
-					.FirstOrDefault());
-			}
-		}
-
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-		{
-			_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-			while(!stoppingToken.IsCancellationRequested)
-			{
-				await PrepareAndSendEmails();
-				await Task.Delay(_workDelay, stoppingToken);
-			}
-		}
-
-		public override Task StartAsync(CancellationToken cancellationToken)
-		{
-			_logger.LogInformation("Starting Email Prepare Worker...");
-			return base.StartAsync(cancellationToken);
+			_initialized = true;
 		}
 
 		public override Task StopAsync(CancellationToken cancellationToken)
@@ -132,77 +121,111 @@ namespace EmailPrepareWorker
 			return base.StopAsync(cancellationToken);
 		}
 
-		private Task PrepareAndSendEmails()
+		private async Task PrepareAndSendEmails()
 		{
-			SendEmailMessageBuilder emailSendMessageBuilder = null;
-			
-			try
+			if(!_initialized)
 			{
-				using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Document prepare worker"))
+				_logger.LogWarning("Not initialized, Prepairing aborted...");
+				return;
+			}
+
+			using var prepareAndSendEmailsScope = _serviceScopeFactory.CreateScope();
+
+			var unitOfWorkFactory = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
+			var emailRepository = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailRepository>();
+			var emailSettings = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSettings>();
+			var emailDocumentPreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailDocumentPreparer>();
+			var emailSendMessagePreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSendMessagePreparer>();
+			var mySqlConnectionStringBuilder = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<MySqlConnector.MySqlConnectionStringBuilder>();
+			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
+
+			SendEmailMessageBuilder emailSendMessageBuilder = null;
+
+			using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Document prepare worker");
+
+			var emailsToSend = emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
+
+			foreach(var counterpartyEmail in emailsToSend)
+			{
+				try
 				{
-					var emailsToSend = _emailRepository.GetEmailsForPreparingOrderDocuments(unitOfWork);
-
-					foreach(var counterpartyEmail in emailsToSend)
+					if(_crutchCounter > _crutchCounterLimit)
 					{
-						try
-						{
-							_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
-
-							if(counterpartyEmail.EmailableDocument == null)
-							{
-								counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
-								counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
-								unitOfWork.Save(counterpartyEmail.StoredEmail);
-								unitOfWork.Commit();
-
-								continue;
-							}
-
-							switch(counterpartyEmail.Type)
-							{
-								case CounterpartyEmailType.BillDocument:
-								case CounterpartyEmailType.OrderWithoutShipmentForPayment:
-								case CounterpartyEmailType.OrderWithoutShipmentForDebt:
-								case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
-								{
-										emailSendMessageBuilder = new SendEmailMessageBuilder(_emailParametersProvider,
-											_emailDocumentPreparer, counterpartyEmail, _instanceId);
-
-										break;
-								}
-								case CounterpartyEmailType.UpdDocument: 
-								{
-									emailSendMessageBuilder = new UpdSendEmailMessageBuilder(_emailParametersProvider,
-										_emailDocumentPreparer, counterpartyEmail, _instanceId);
-										
-									break;
-								}
-							}
-
-							var sendingBody = _emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder);
-
-							var properties = _channel.CreateBasicProperties();
-							properties.Persistent = true;
-
-							_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
-
-							counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
-							unitOfWork.Save(counterpartyEmail.StoredEmail);
-							unitOfWork.Commit();
-						}
-						catch(Exception ex)
-						{
-							_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
-						}
+						_logger.LogInformation("Email prepairing termination to prevent memory leak at: {time}", DateTimeOffset.Now);
+						_hostApplicationLifetime.StopApplication();
+						return;
 					}
+
+					_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
+
+					if(counterpartyEmail.EmailableDocument == null)
+					{
+						counterpartyEmail.StoredEmail.State = StoredEmailStates.SendingError;
+						counterpartyEmail.StoredEmail.Description = "Missing/deleted emailable document";
+						unitOfWork.Save(counterpartyEmail.StoredEmail);
+						unitOfWork.Commit();
+
+						continue;
+					}
+
+					switch(counterpartyEmail.Type)
+					{
+						case CounterpartyEmailType.BillDocument:
+						case CounterpartyEmailType.OrderWithoutShipmentForPayment:
+						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
+						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
+							{
+								emailSendMessageBuilder = new SendEmailMessageBuilder(
+									unitOfWork,
+									emailSettings,
+									emailRepository,
+									emailDocumentPreparer,
+									edoAccountController,
+									counterpartyEmail,
+									_instanceId);
+
+								break;
+							}
+						case CounterpartyEmailType.UpdDocument:
+							{
+								emailSendMessageBuilder = new UpdSendEmailMessageBuilder(
+									emailSettings,
+									emailRepository,
+									unitOfWork,
+									emailDocumentPreparer,
+									edoAccountController,
+									counterpartyEmail,
+									_instanceId);
+
+								break;
+							}
+					}
+
+					var properties = _channel.CreateBasicProperties();
+					properties.Persistent = true;
+
+					var message = emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, mySqlConnectionStringBuilder.ConnectionString);
+					var serializedMessage = JsonSerializer.Serialize(message);
+					var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
+
+					_logger.LogInformation("Подготовлено {AttachmentsCount} вложений", message.Attachments.Count);
+
+					_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+
+					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
+					unitOfWork.Save(counterpartyEmail.StoredEmail);
+					unitOfWork.Commit();
+
+					_crutchCounter++;
+					_logger.LogInformation("Email prepairing processed {ProcessedCount} of {ProcessMaxCount} (At maximum - service will be stopped)", _crutchCounter, _crutchCounterLimit);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError($"Failed to process counterparty email {counterpartyEmail.Id}: {ex.Message}");
 				}
 			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex.Message);
-			}
 
-			return Task.CompletedTask;
+			await Task.CompletedTask;
 		}
 	}
 }

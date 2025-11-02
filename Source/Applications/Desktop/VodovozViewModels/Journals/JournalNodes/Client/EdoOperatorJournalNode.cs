@@ -1,4 +1,5 @@
 ﻿using QS.Project.Journal;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Client

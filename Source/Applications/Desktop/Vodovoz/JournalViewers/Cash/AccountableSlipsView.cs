@@ -1,4 +1,6 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSProjectsLib;
 using System;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountableSlipsView : QS.Dialog.Gtk.TdiTabBase
 	{
-		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
+		private readonly IAccountableDebtsRepository _accountableDebtsRepository = ScopeProvider.Scope.Resolve<IAccountableDebtsRepository>();
 		private IUnitOfWork _uow;
 
 		public IUnitOfWork UoW
@@ -58,7 +60,7 @@ namespace Vodovoz
 			Build();
 			TabName = "Движения по подотчетным деньгам";
 			accountableslipfilter1.Refiltered += Accountableslipfilter1_Refiltered;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			accountableslipfilter1.JournalTab = this;
 		}
 

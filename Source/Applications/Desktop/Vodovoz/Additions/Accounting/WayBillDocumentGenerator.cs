@@ -31,6 +31,9 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools;
+using Vodovoz.Core.Domain.Employees;
+using QS.Extensions.Observable.Collections.List;
+using FileWorker = QSDocTemplates.FileWorker;
 
 namespace Vodovoz.Additions.Accounting
 {
@@ -115,7 +118,7 @@ namespace Vodovoz.Additions.Accounting
 		{
 			MultiDocPrinter = new MultipleDocumentPrinter
 			{
-				PrintableDocuments = new GenericObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
+				PrintableDocuments = new ObservableList<SelectablePrintDocument>(WayBillSelectableDocuments)
 			};
 			MultiDocPrinter.PrintingCanceled += (o, args) => PrintingCanceled?.Invoke(o, args);
 		}
@@ -203,7 +206,7 @@ namespace Vodovoz.Additions.Accounting
 						(carFuelVersionAlias.EndDate == null || carFuelVersionAlias.EndDate >= currentDateTime))
 				.Where(() => carVersionAlias.CarOwnType == CarOwnType.Company)
 				.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
-					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle }))
+					new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle, CarTypeOfUse.Minivan }))
 				.SelectList(list => list
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegistrationNumber)
 					.Select(() => carAlias.FuelType).WithAlias(() => resultAlias.FuelType)
@@ -296,29 +299,35 @@ namespace Vodovoz.Additions.Accounting
 				if(i == 0)
 				{
 					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
-					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(geoGroupVersion, order.DeliveryPoint) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceFromBaseMeter(
+						geoGroupVersion.PointCoordinates,
+						order.DeliveryPoint.PointCoordinates) * 2 / 1000m;
 					
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion.PointCoordinates));
 					deliveryPointFrom = order.DeliveryPoint;
 				}
 				else if(i == lastId)
 				{
 					var geoGroupVersion = GetActualGeoGroupVersion(employee, generationDate);
-					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(order.DeliveryPoint, geoGroupVersion) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceToBaseMeter(
+						order.DeliveryPoint.PointCoordinates,
+						geoGroupVersion.PointCoordinates) * 2 / 1000m;
 
 					if(order.DeliveryPoint.CoordinatesExist)
 					{
-						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint.PointCoordinates));
 					}
-					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion));
+					wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(geoGroupVersion.PointCoordinates));
 				}
 				else
 				{
-					wayBill.Mileage = _distanceCalculator.DistanceMeter(deliveryPointFrom, order.DeliveryPoint) * 2 / 1000m;
+					wayBill.Mileage = _distanceCalculator.DistanceMeter(
+						deliveryPointFrom.PointCoordinates,
+						order.DeliveryPoint.PointCoordinates) * 2 / 1000m;
 
 					if(order.DeliveryPoint.CoordinatesExist)
 					{
-						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint));
+						wayBillDocument.HashPointsOfRoute.Add(CachedDistance.GetHash(order.DeliveryPoint.PointCoordinates));
 					}
 					deliveryPointFrom = order.DeliveryPoint;
 				}
@@ -397,7 +406,7 @@ namespace Vodovoz.Additions.Accounting
 			LongOperationDlg.StartOperation(
 				delegate(IWorker worker)
 				{
-					using(FileWorker fileWorker = new FileWorker())
+					using(QSDocTemplates.FileWorker fileWorker = new QSDocTemplates.FileWorker())
 					{
 						int step = 0;
 						foreach(IPrintableOdtDocument document in odtToPrinter)

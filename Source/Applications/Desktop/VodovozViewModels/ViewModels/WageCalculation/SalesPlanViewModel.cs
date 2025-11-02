@@ -12,6 +12,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -60,9 +61,9 @@ namespace Vodovoz.ViewModels.WageCalculation
 							}
 						).ViewModel;
 					
-					nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
+					nomenclatureSelector.OnSelectResult += (sender, e) =>
 					{
-						foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedNodes.Select(x => x.Id)))
+						foreach(var nomenclature in UoW.GetById<Nomenclature>(e.SelectedObjects.Cast<NomenclatureJournalNode>().Select(x => x.Id)))
 						{
 							Entity.AddNomenclatureItem(new NomenclatureSalesPlanItem() { Nomenclature = nomenclature, SalesPlan = Entity });
 						}

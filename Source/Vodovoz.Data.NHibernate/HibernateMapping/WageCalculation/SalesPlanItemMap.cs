@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
@@ -34,7 +33,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 			{
 				DiscriminatorValue("EquipmentType");
 
-				Map(x => x.EquipmentType).Column("equipment_type").CustomType<EquipmentTypeStringType>();
+				Map(x => x.EquipmentType).Column("equipment_type");
 			}
 		}
 

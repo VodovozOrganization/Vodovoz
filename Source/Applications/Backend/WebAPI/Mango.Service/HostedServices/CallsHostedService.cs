@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Mango.Service.Calling;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using QS.Utilities;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Mango.Service.Calling;
-using Mango.Service.Extensions;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using QS.Utilities;
 
 namespace Mango.Service.HostedServices
 {
@@ -55,7 +54,7 @@ namespace Mango.Service.HostedServices
 			if(!toRemove.Any())
 				return;
 
-			var noDisconnected = toRemove.Where(c => c.Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected)).ToList();
+			var noDisconnected = toRemove.Where(c => c.Events.Values.All(e => (int)e.CallState != (int)CallState.Disconnected)).ToList();
 			if(noDisconnected.Count > 0)
 			{
 				var text = NumberToTextRus.FormatCase(noDisconnected.Count,
@@ -67,7 +66,7 @@ namespace Mango.Service.HostedServices
 				_loggerLostEvents.LogError(text);
 			}
 
-			var lostIncome = toRemove.Where(c => c.Events.Values.All(e => e.CallState.ParseCallState() == CallState.Disconnected)).ToList();
+			var lostIncome = toRemove.Where(c => c.Events.Values.All(e => (int)e.CallState == (int)CallState.Disconnected)).ToList();
 			if(lostIncome.Count > 0)
 			{
 				var text = NumberToTextRus.FormatCase(lostIncome.Count,
@@ -85,7 +84,7 @@ namespace Mango.Service.HostedServices
 			}
 
 			var activeCallsCount = Calls.Count(p => 
-				p.Value.Events.Values.All(e => e.CallState.ParseCallState() != CallState.Disconnected));
+				p.Value.Events.Values.All(e => (int)e.CallState != (int)CallState.Disconnected));
 
 			_logger.LogInformation("Забыта информация о {RemoveCount} звонках. Всего сервер знает " +
 				"о {CallsCount} звонках, из них {ActiveCallsCount} активных.",

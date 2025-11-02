@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -10,11 +10,13 @@ namespace Vodovoz.ViewWidgets.Reports
 	[ToolboxItem(true)]
 	public partial class IncludeExludeFiltersView : WidgetViewBase<IncludeExludeFiltersViewModel>
 	{
+		[Obsolete("Не использовать, только для дизайнера!!")]
+		public IncludeExludeFiltersView() { }
+
 		public IncludeExludeFiltersView(IncludeExludeFiltersViewModel viewModel)
 			: base(viewModel)
 		{
 			Build();
-
 			Initialize();
 		}
 
@@ -26,11 +28,15 @@ namespace Vodovoz.ViewWidgets.Reports
 				ytreeviewElements.QueueDraw();
 			};
 
+			ybuttonClearAllExcludes.Binding.AddBinding(ViewModel, vm => vm.WithExcludes, w => w.Visible).InitializeFromSource();
+
 			ybuttonClearAllExcludes.Clicked += (s, e) =>
 			{
 				ViewModel.ClearAllExcludesCommand.Execute();
 				ytreeviewElements.QueueDraw();
 			};
+
+			ybuttonClearExcludes.Binding.AddBinding(ViewModel, vm => vm.WithExcludes, w => w.Visible).InitializeFromSource();
 
 			ybuttonClearExcludes.Clicked += (s, e) =>
 			{
@@ -65,37 +71,34 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddBinding(ViewModel, vm => vm.ShowArchived, w => w.Active)
 				.InitializeFromSource();
 
-			ytreeviewFilters.CreateFluentColumnsConfig<IncludeExcludeFilter>()
+			var columnConfig = ytreeviewFilters.CreateFluentColumnsConfig<IncludeExcludeFilter>();
+
+			columnConfig
 				.AddColumn("✔️")
-				.AddNumericRenderer(x => x.IncludedCount)
-				.AddSetter((c, n) =>
-				{
-					c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
-					if(n.IncludedCount == 0)
+					.AddNumericRenderer(x => x.IncludedCount)
+					.AddSetter((c, n) =>
 					{
-						c.Text = "";
-					}
-					else
-					{
-						c.Text = n.IncludedCount.ToString();
-					}
-				})
-				.AddColumn("X")
-				.AddNumericRenderer(x => x.ExcludedCount)
-				.AddSetter((c, n) =>
-				{
-					c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
-					if(n.ExcludedCount == 0)
-					{
-						c.Text = "";
-					}
-					else
-					{
-						c.Text = n.ExcludedCount.ToString();
-					}
-				})
-				.AddColumn("").AddTextRenderer(x => x.Title)
-				.Finish();
+						c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
+						c.Text = n.IncludedCount == 0 ? "" : n.IncludedCount.ToString();
+					});
+
+			if(ViewModel.WithExcludes)
+			{
+				columnConfig
+					.AddColumn("X")
+						.AddNumericRenderer(x => x.ExcludedCount)
+						.AddSetter((c, n) =>
+						{
+							c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
+							c.Text = n.ExcludedCount == 0 ? "" : n.ExcludedCount.ToString();
+						});
+			}
+
+			columnConfig
+				.AddColumn("")
+					.AddTextRenderer(x => x.Title);
+
+			columnConfig.Finish();
 
 			ytreeviewFilters.ItemsDataSource = ViewModel.Filters;
 
@@ -135,24 +138,43 @@ namespace Vodovoz.ViewWidgets.Reports
 
 				ytreeviewElements.YTreeModel = recursiveModel;
 
-				ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>()
-					.AddColumn("\t✔️")
-					.AddToggleRenderer(x => x.Include).ToggledEvent(OnElementCheckboxToggled)
-					.AddColumn("X").AddToggleRenderer(x => x.Exclude).ToggledEvent(OnElementCheckboxToggled)
-					.AddColumn("").AddTextRenderer(x => x.Title ?? "")
-					.AddSetter((cell, node) =>
-					{
-						if(cell == null)
-						{
-							return;
-						}
+				var columnConfig = ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>();
+				
+				var includeMapping = columnConfig.AddColumn("\t✔️")
+					.AddToggleRenderer(x => x.Include)
+					.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+					.ToggledEvent(OnElementCheckboxToggled);
 
-						if(!string.IsNullOrWhiteSpace(ViewModel.SearchString))
+				if(ViewModel.ActiveFilter.IsRadio)
+				{
+					includeMapping.Radio();
+				}
+
+				if(ViewModel.WithExcludes)
+				{
+					columnConfig.AddColumn("X")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(x => x.Exclude)
+						.AddSetter((cell, node) => cell.Activatable = node.IsEditable)
+						.ToggledEvent(OnElementCheckboxToggled);
+				}
+
+				columnConfig
+					.AddColumn("").AddTextRenderer(x => x.Title ?? "")
+						.AddSetter((cell, node) =>
 						{
-							cell.Markup = node.Title.Replace(ViewModel.SearchString, $"<b>{ViewModel.SearchString}</b>");
-						}
-					})
-					.Finish();
+							if(cell == null)
+							{
+								return;
+							}
+
+							if(!string.IsNullOrWhiteSpace(ViewModel.SearchString))
+							{
+								cell.Markup = node.Title.Replace(ViewModel.SearchString, $"<b>{ViewModel.SearchString}</b>");
+							}
+						});
+
+				columnConfig.Finish();
 			}
 		}
 

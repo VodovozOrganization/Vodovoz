@@ -32,13 +32,13 @@ namespace Vodovoz.Views
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonAddEquipment;
+		private global::Gamma.GtkWidgets.yButton buttonAddEquipment;
 
-		private global::Gtk.Button buttonDeleteEquipment;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteEquipment;
 
 		private global::Gtk.HBox hboxInfo;
 
-		private global::Gtk.Button buttonOpenSlider;
+		private global::Gamma.GtkWidgets.yButton buttonOpenSlider;
 
 		private global::Gtk.Table tableInfo;
 
@@ -233,7 +233,7 @@ namespace Vodovoz.Views
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonAddEquipment = new global::Gtk.Button();
+			this.buttonAddEquipment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddEquipment.CanFocus = true;
 			this.buttonAddEquipment.Name = "buttonAddEquipment";
 			this.buttonAddEquipment.UseUnderline = true;
@@ -244,7 +244,7 @@ namespace Vodovoz.Views
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonDeleteEquipment = new global::Gtk.Button();
+			this.buttonDeleteEquipment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteEquipment.CanFocus = true;
 			this.buttonDeleteEquipment.Name = "buttonDeleteEquipment";
 			this.buttonDeleteEquipment.UseUnderline = true;
@@ -267,7 +267,7 @@ namespace Vodovoz.Views
 			this.hboxInfo.Name = "hboxInfo";
 			this.hboxInfo.Spacing = 6;
 			// Container child hboxInfo.Gtk.Box+BoxChild
-			this.buttonOpenSlider = new global::Gtk.Button();
+			this.buttonOpenSlider = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenSlider.CanFocus = true;
 			this.buttonOpenSlider.Name = "buttonOpenSlider";
 			this.buttonOpenSlider.UseUnderline = true;

@@ -5,6 +5,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -12,9 +13,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private IEntityEntryViewModel _orderViewModel;
 		private FinancialExpenseCategory _financialExpenseCategory;
 
@@ -53,7 +55,9 @@ namespace Vodovoz.ViewModels.Cash
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 			IReportViewOpener reportViewOpener,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			IFinancialExpenseCategoriesRepository financialExpenseCategoriesRepository)
+			IFinancialExpenseCategoriesRepository financialExpenseCategoriesRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = IsNew ? "Расходный кассовый ордер самовывоза" : $"Расходный кассовый ордер самовывоза {Entity.Id}";
@@ -80,7 +84,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Expense));
 			CanEditRectroactively =
 				_entityExtendedPermissionValidator.Validate(
@@ -272,14 +276,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.Expense";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.Expense",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id",  Entity.Id }
-				}
+				{ "id",  Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);

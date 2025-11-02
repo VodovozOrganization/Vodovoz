@@ -7,6 +7,8 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Nodes;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
 {
@@ -15,22 +17,25 @@ namespace Vodovoz.Controllers
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IStockRepository _stockRepository;
+		private readonly IGeneralSettings _generalSettings;
 
 		public GoodsOnlineParametersController(
 			INomenclatureRepository nomenclatureRepository,
 			IPromotionalSetRepository promotionalSetRepository,
-			IStockRepository stockRepository)
+			IStockRepository stockRepository,
+			IGeneralSettings generalSettings)
 		{
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 		}
 		
 		public NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			var parameters =
-				_nomenclatureRepository.GetNomenclaturesOnlineParametersForSend(uow, parameterType)
+				_nomenclatureRepository.GetActiveNomenclaturesOnlineParametersForSend(uow, parameterType)
 					.ToDictionary(x => x.NomenclatureId);
 			
 			var prices =
@@ -41,11 +46,19 @@ namespace Vodovoz.Controllers
 				parameters.Where(x => x.Value.AvailableForSale == GoodsOnlineAvailability.ShowAndSale)
 					.Select(x => x.Key);
 			
-			var stocksForShowAndSellParams = _stockRepository.NomenclatureInStock(uow, nomenclaturesIds.ToArray());
+			var warehouses = _generalSettings.WarehousesForPricesAndStocksIntegration;
+			var stocksForShowAndSellParams = _stockRepository.NomenclatureInStock(uow, nomenclaturesIds.ToArray(), warehouses);
 
-			foreach(var keyPairValue in stocksForShowAndSellParams.Where(keyPairValue => keyPairValue.Value <= 0))
+			//Если по выбранным складам не было движений номенклатуры, то она будет отсутствовать в итоговой выборке.
+			//Поэтому просто берем баланс по Id номенклатуры и если ее там нет, вернется дефолтное значение 0
+			foreach(var parameter in parameters)
 			{
-				parameters[keyPairValue.Key].AvailableForSale = GoodsOnlineAvailability.Show;
+				stocksForShowAndSellParams.TryGetValue(parameter.Key, out var balance);
+
+				if(balance <= 0)
+				{
+					parameter.Value.AvailableForSale = GoodsOnlineAvailability.Show;
+				}
 			}
 
 			return new NomenclatureOnlineParametersData(parameters, prices);
@@ -62,11 +75,12 @@ namespace Vodovoz.Controllers
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			var parameters =
-				_promotionalSetRepository.GetPromotionalSetsOnlineParametersForSend(uow, parameterType)
+				_promotionalSetRepository.GetActivePromotionalSetsOnlineParametersForSend(uow, parameterType)
 					.ToDictionary(x => x.PromotionalSetId);
-			
+
+			var warehouses = _generalSettings.WarehousesForPricesAndStocksIntegration;
 			var promotionalSetItems =
-				_promotionalSetRepository.GetPromotionalSetsItemsWithBalanceForSend(uow, parameterType)
+				_promotionalSetRepository.GetPromotionalSetsItemsWithBalanceForSend(uow, parameterType, warehouses)
 					.ToLookup(x => x.PromotionalSetId);
 
 			var itemsWithZeroBalance =

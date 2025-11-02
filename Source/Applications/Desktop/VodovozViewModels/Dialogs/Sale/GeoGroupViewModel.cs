@@ -8,13 +8,16 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Models;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Warehouses;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales
@@ -22,8 +25,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	public class GeoGroupViewModel : EntityTabViewModelBase<GeoGroup>
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
-		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
-		private readonly ILifetimeScope _lifetimeScope;
+		private ILifetimeScope _lifetimeScope;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
 		private IEntityAutocompleteSelectorFactory _cashSelectorFactory;
@@ -43,32 +45,48 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			INavigationManager navigationManager,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
-			IWarehouseJournalFactory warehouseJournalFactory,
+			ViewModelEEVMBuilder<Subdivision> geoGroupVersionViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Warehouse> warehouseVersionViewModelEEVMBuilder,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(geoGroupVersionViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(geoGroupVersionViewModelEEVMBuilder));
+			}
+
+			if(warehouseVersionViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseVersionViewModelEEVMBuilder));
+			}
+
 			_geoGroupVersionsModel = geoGroupVersionsModel ?? throw new ArgumentNullException(nameof(geoGroupVersionsModel));
-			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CheckPermissions();
 			BindVersions();
 
-			CashSubdivisionViewModel = BuildCashSubdivisionViewModel();
+			CashSubdivisionViewModel = geoGroupVersionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.SelectedVersionCashSubdivision)
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.Finish();
+
+			WarehouseViewModel = warehouseVersionViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.SelectedVersionWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 
 			Entity.PropertyChanged += EntityPropertyChanged;
 			Versions.ElementRemoved += VersionsElementRemoved;
 		}
 
-		public IEntityEntryViewModel CashSubdivisionViewModel { get; private set; }
-
-		private IEntityEntryViewModel BuildCashSubdivisionViewModel()
-		{
-			return new CommonEEVMBuilderFactory<GeoGroupVersionViewModel>(this, SelectedVersion, UoW, NavigationManager, _lifetimeScope)
-				.ForProperty(x => x.CashSubdivision)
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
-				.UseViewModelDialog<SubdivisionViewModel>()
-				.Finish();
-		}
+		public IEntityEntryViewModel CashSubdivisionViewModel { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		private void CheckPermissions()
 		{
@@ -76,7 +94,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			_versionsPermissionResult = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(GeoGroupVersion));
 		}
 
-		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -87,6 +105,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 					break;
 			}
 		}
+
 		private void VersionsElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			if(aObject == SelectedVersion)
@@ -98,17 +117,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 		public bool CanEdit => _canEdit;
 		public bool CanReadVersions => _versionsPermissionResult.CanRead;
 
-		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory
-		{
-			get
-			{
-				if(_warehouseSelectorFactory == null)
-				{
-					_warehouseSelectorFactory = _warehouseJournalFactory.CreateSelectorFactory();
-				}
-				return _warehouseSelectorFactory;
-			}
-		}
+		public bool CanChangeCashSubdivision => _versionsPermissionResult.CanCreate && SelectedVersion != null && SelectedVersion.Status == VersionStatus.Draft;
+		public bool CanChangeWarehouse => _versionsPermissionResult.CanCreate && SelectedVersion != null && SelectedVersion.Status == VersionStatus.Draft;
 
 		#region Add version
 
@@ -255,6 +265,34 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 				UnsubscribeSelectedVersionPropertyChanged();
 				SetField(ref _selectedVersion, value);
 				SubscribeSelectedVersionPropertyChanged();
+				OnPropertyChanged(nameof(CanChangeCashSubdivision));
+				OnPropertyChanged(nameof(CanChangeWarehouse));
+				OnPropertyChanged(nameof(SelectedVersionWarehouse));
+				OnPropertyChanged(nameof(SelectedVersionCashSubdivision));
+			}
+		}
+
+		public Warehouse SelectedVersionWarehouse
+		{
+			get => SelectedVersion?.Warehouse;
+			set
+			{
+				if(SelectedVersion != null && CanChangeWarehouse)
+				{
+					SelectedVersion.Warehouse = value;
+				}
+			}
+		}
+
+		public Subdivision SelectedVersionCashSubdivision
+		{
+			get => SelectedVersion?.CashSubdivision;
+			set
+			{
+				if(SelectedVersion != null && CanChangeCashSubdivision)
+				{
+					SelectedVersion.CashSubdivision = value;
+				}
 			}
 		}
 
@@ -276,7 +314,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			}
 		}
 
-		private void SelectedVersion_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void SelectedVersion_PropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
@@ -399,5 +437,10 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		#endregion
 
+		public override void Dispose()
+		{
+			_lifetimeScope = null;
+			base.Dispose();
+		}
 	}
 }

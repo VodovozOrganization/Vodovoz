@@ -5,22 +5,31 @@
     <UserSecretsId>d6b9a2e9-a3a6-4133-a5cd-d2dd944e825f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	<DockerfileContext>..\..\..\..</DockerfileContext>
-	<DockerComposeProjectPath>..\Sms.Internal.Service.Compose\sms-docker-compose.dcproj</DockerComposeProjectPath>	
 	<VersionPrefix>1.1.1</VersionPrefix>
 	<AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
 	<FileVersion>$(VersionPrefix)</FileVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <_WebToolingArtifacts Remove="Properties\PublishProfiles\DockerRegistry.pubxml" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.53.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" />
     <PackageReference Include="Grpc.AspNetCore.Web" Version="2.53.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="Autofac" Version="7.0.0" />
-	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+	<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 	<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 	<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
   </ItemGroup>

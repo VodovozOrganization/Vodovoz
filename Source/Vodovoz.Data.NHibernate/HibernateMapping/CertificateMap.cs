@@ -11,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
-			Map(x => x.TypeOfCertificate).Column("certificate_type").CustomType<CertificateTypeStringType>();
+			Map(x => x.TypeOfCertificate).Column("certificate_type");
 			Map(x => x.ImageFile).Column("image_file").LazyLoad();
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.StartDate).Column("start_date");

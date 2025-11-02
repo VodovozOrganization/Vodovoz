@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Store
 {
@@ -16,10 +16,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Store
 			Map(x => x.CanReceiveEquipment).Column("can_receive_equipment");
 			Map(x => x.PublishOnlineStore).Column("publish_online_store");
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.TypeOfUse).Column("type_of_use").CustomType<WarehouseUsingStringType>();
+			Map(x => x.TypeOfUse).Column("type_of_use");
+			Map(x => x.Address).Column("address");
 
-			References(x => x.OwningSubdivision).Column("owning_subdivision");
-			References(x => x.MovementDocumentsNotificationsSubdivisionRecipient)
+			Map(x => x.OwningSubdivisionId).Column("owning_subdivision");
+			Map(x => x.MovementDocumentsNotificationsSubdivisionRecipientId)
 				.Column("movement_documents_notifications_subdivision_recipient_id");
 		}
 	}

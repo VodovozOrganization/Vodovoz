@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s.Requests;
+﻿using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Notifications;
 using Microsoft.AspNetCore.Mvc;

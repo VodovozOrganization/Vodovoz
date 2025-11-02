@@ -15,5 +15,6 @@ namespace Vodovoz.Models.CashReceipts
 
 		Task<FiscalizationResult> CheckFiscalDocument(FiscalDocument doc, CancellationToken cancellationToken);
 		Task<FiscalizationResult> CheckFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken);
+		Task<FiscalizationResult> RequeueFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken);
 	}
 }

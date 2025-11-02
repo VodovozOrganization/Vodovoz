@@ -8,9 +8,9 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yEntry FilterEntry;
 
-		private global::Gtk.Button ForwardingButton;
+		private global::Gamma.GtkWidgets.yButton ForwardingButton;
 
-		private global::Gtk.Button ForwardingToConsultationButton;
+		private global::Gamma.GtkWidgets.yButton ForwardingToConsultationButton;
 
 		private global::Gtk.HBox hbox1;
 
@@ -46,7 +46,7 @@ namespace Vodovoz.Views.Mango
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ForwardingButton = new global::Gtk.Button();
+			this.ForwardingButton = new global::Gamma.GtkWidgets.yButton();
 			this.ForwardingButton.Sensitive = false;
 			this.ForwardingButton.CanFocus = true;
 			this.ForwardingButton.Name = "ForwardingButton";
@@ -59,7 +59,7 @@ namespace Vodovoz.Views.Mango
 			w2.RightAttach = ((uint)(6));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ForwardingToConsultationButton = new global::Gtk.Button();
+			this.ForwardingToConsultationButton = new global::Gamma.GtkWidgets.yButton();
 			this.ForwardingToConsultationButton.Sensitive = false;
 			this.ForwardingToConsultationButton.CanFocus = true;
 			this.ForwardingToConsultationButton.Name = "ForwardingToConsultationButton";

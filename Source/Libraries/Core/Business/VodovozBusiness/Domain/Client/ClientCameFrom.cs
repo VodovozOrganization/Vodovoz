@@ -39,8 +39,6 @@ namespace Vodovoz.Domain.Client
 			Name = string.Empty;
 		}
 
-		public static IUnitOfWorkGeneric<ClientCameFrom> Create() => UnitOfWorkFactory.CreateWithNewRoot<ClientCameFrom>();
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))

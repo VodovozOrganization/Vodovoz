@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
   <Width>7.5in</Width>
@@ -15,18 +13,22 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
     `nomenclature`.`name` AS nomenclature,
     nomenclature.id AS nomenclature_id,
+    mu.name as measurement_unit_name,
+    mu.digits as measurement_unit_digits,
     nom_discrepancies.id as discrepancy_nom_id,
-    ROUND(amount_in_db) amount_in_db,
-    ROUND(amount_in_fact) amount_in_fact,
-    ROUND(amount_in_fact - amount_in_db) difference,
+    ROUND(amount_in_db, IFNULL(mu.digits, 0)) as amount_in_db,
+    ROUND(amount_in_fact, IFNULL(mu.digits, 0)) as amount_in_fact,
+    ROUND(amount_in_fact - amount_in_db, IFNULL(mu.digits, 0)) as difference,
     store_inventory_item.comment
 FROM
     store_inventory_item
         LEFT JOIN
     nomenclature ON nomenclature.id = store_inventory_item.nomenclature_id
+    	LEFT JOIN
+    measurement_units mu ON mu.id = nomenclature.unit_id
         LEFT JOIN
     store_inventory ON store_inventory.id = store_inventory_item.store_inventory_id
         LEFT JOIN
@@ -87,6 +89,14 @@ ORDER BY
         </Field>
         <Field Name="nomenclature_id">
           <DataField>nomenclature_id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="measurement_unit_name">
+          <DataField>measurement_unit_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="measurement_unit_digits">
+          <DataField>measurement_unit_digits</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
@@ -315,11 +325,13 @@ WHERE stored_resource.id = @id1</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     n.name AS nomenclature,
+    mu.name as measurement_unit_name,
+    mu.digits as measurement_unit_digits,
     ni.id AS instance_id,
-    ROUND(amount_in_db) as amount_in_db,
-    ni.inventory_number as inventory_number,
+    ROUND(amount_in_db, IFNULL(mu.digits, 0)) as amount_in_db,
+    GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number) as inventory_number,
     IF(is_missing, 0, 1) as amount_in_fact,
-    ROUND((select amount_in_fact) - amount_in_db) as difference,
+    ROUND((select amount_in_fact) - amount_in_db, IFNULL(mu.digits, 0)) as difference,
     store_inventory_instance_item.comment
 FROM
     store_inventory_instance_item
@@ -327,6 +339,8 @@ FROM
     nomenclature_instances ni on store_inventory_instance_item.nomenclature_instance_id = ni.id
         LEFT JOIN
     nomenclature n ON ni.nomenclature_id = n.id
+        LEFT JOIN
+    measurement_units mu ON mu.id = n.unit_id
 WHERE
     store_inventory_instance_item.store_inventory_id = @inventory_id
 ORDER BY
@@ -369,6 +383,14 @@ ORDER BY
         <Field Name="comment">
           <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="measurement_unit_name">
+          <DataField>measurement_unit_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="measurement_unit_digits">
+          <DataField>measurement_unit_digits</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -416,7 +438,7 @@ ORDER BY
         <Header>
           <TableRows>
             <TableRow>
-              <Height>22.9pt</Height>
+              <Height>13.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -469,7 +491,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>В учете шт.</Value>
+                      <Value>В учете</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -485,7 +507,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>По факту шт.</Value>
+                      <Value>По факту</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -501,7 +523,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Разница шт.</Value>
+                      <Value>Разница</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -590,7 +612,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="culling_category">
-                      <Value>=Fields!amount_in_db.Value</Value>
+                      <Value>=Round({amount_in_db}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -606,7 +628,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="amount">
-                      <Value>=Fields!amount_in_fact.Value</Value>
+                      <Value>=Round({amount_in_fact}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -623,7 +645,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>=Fields!difference.Value</Value>
+                      <Value>=Round({difference}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -656,114 +678,6 @@ ORDER BY
             </TableRow>
           </TableRows>
         </Details>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>=Sum(Fields!amount_in_db.Value)</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="tf_amount">
-                      <Value>=Sum(Fields!amount_in_fact.Value)</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>=Sum(Fields!difference.Value)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
         <Left>0.0pt</Left>
         <Top>171.4pt</Top>
       </Table>
@@ -801,8 +715,7 @@ ORDER BY
       <Textbox Name="Textbox12">
         <Height>30.82pt</Height>
         <Width>399.59pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>0</ZIndex>
         <Left>168.76pt</Left>
         <Top>69.80pt</Top>
@@ -1017,7 +930,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>В учете шт.</Value>
+                      <Value>В учете</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1033,7 +946,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>По факту шт.</Value>
+                      <Value>По факту</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1049,7 +962,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Разница шт.</Value>
+                      <Value>Разница</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1099,7 +1012,7 @@ ORDER BY
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1115,7 +1028,7 @@ ORDER BY
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1153,7 +1066,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>={amount_in_db}</Value>
+                      <Value>=Round({amount_in_db}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1168,7 +1081,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>={amount_in_fact}</Value>
+                      <Value>=Round({amount_in_fact}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1183,7 +1096,7 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>={difference}</Value>
+                      <Value>=Round({difference}, {measurement_unit_digits}) + " " + {measurement_unit_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1203,8 +1116,8 @@ ORDER BY
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1215,122 +1128,6 @@ ORDER BY
         </Details>
         <Left>0.0pt</Left>
         <Top>245.7pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>12.1pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox42">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox43">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox45">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=Sum({amount_in_db})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox46">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=Sum({amount_in_fact})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox47">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=Sum({difference})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox48">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
       </Table>
     </ReportItems>
     <Height>409.3pt</Height>
@@ -1370,16 +1167,14 @@ ORDER BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="sorted_by_nomenclature_name">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

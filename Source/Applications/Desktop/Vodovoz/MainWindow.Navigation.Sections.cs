@@ -1,25 +1,31 @@
-﻿using QS.Dialog.GtkUI;
+using Autofac;
+using QS.Dialog.GtkUI;
 using QS.Navigation;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
+using QS.Report;
+using QS.Report.ViewModels;
 using System;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
-using Vodovoz.Representations;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.TrueMark.CodesPool;
+using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
 {
@@ -122,6 +128,11 @@ public partial class MainWindow
 		SwitchToUI("Vodovoz.toolbars.sales_department.xml");
 	}
 
+	protected void OnAction1SWorkAcivated(System.Object sender, System.EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.1s_work.xml");
+	}
+
 	protected void OnActionCarServiceAcivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.car_service.xml");
@@ -130,6 +141,11 @@ public partial class MainWindow
 	protected void OnActionSuppliersActivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
+	}
+
+	protected void OnActionTrueMarkActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.true_mark.xml");
 	}
 
 	#region Логистика
@@ -141,11 +157,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	private void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
-		var filter = new RouteListJournalFilterViewModel();
-		filter.StartDate = DateTime.Today.AddMonths(-2);
-		filter.EndDate = DateTime.Today;
-
-		NavigationManager.OpenViewModel<RouteListJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+		NavigationManager.OpenViewModel<RouteListJournalViewModel, Action<RouteListJournalFilterViewModel>>(null, filter =>
+		{
+			filter.StartDate = DateTime.Today.AddMonths(-2);
+			filter.EndDate = DateTime.Today;
+		});
 	}
 
 	/// <summary>
@@ -172,23 +188,38 @@ public partial class MainWindow
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
+			null,
+			filter =>
+			{
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
+			OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnOrdersRatingsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
 	}
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
+			() => new QSReport.ReportViewDlg(new OnecCommentsReport(reportInfoFactory))
 		);
 	}
 
-	protected void OnActionTraineeActivated(object sender, EventArgs e)
+	protected void OpenRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
-			() => new PermissionControlledRepresentationJournal(new TraineeVM())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RoutesListRegisterReportViewModel));
+	}
+
+	protected void OpenDriverRoutesListRegisterReport()
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverRoutesListRegisterReportViewModel));
 	}
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
@@ -212,7 +243,12 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			null,
-			filter => filter.IsForRetail = true,
+			filter =>
+			{
+				filter.IsForRetail = true;
+				filter.StartDate = DateTime.Today.AddMonths(-2);
+				filter.EndDate = DateTime.Today;
+			},
 			OpenPageOptions.IgnoreHash);
 	}
 
@@ -234,6 +270,33 @@ public partial class MainWindow
 		});
 	}
 
+	protected void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
+	{
+		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#region Честный знак
+
+	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionEdoProcessJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Журнал проблем документооборота с клиентами
+	/// </summary>
+	protected void OnActionEdoProblemJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProblemJournalViewModel>(null);
+	}
+
+	#endregion Честный знак
+
 	#region Заказы
 
 	/// <summary>
@@ -254,5 +317,24 @@ public partial class MainWindow
 			OpenPageOptions.IgnoreHash);
 	}
 
+	#endregion
+
+	#region ТРО
+	/// <summary>
+	/// Пробег без МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	void OnActionMileageWriteOffJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MileageWriteOffJournalViewModel, Action<MileageWriteOffJournalFilterViewModel>>(
+			   null,
+			   filter =>
+			   {
+				   filter.WriteOffDateFrom = DateTime.Today.AddMonths(-1);
+				   filter.WriteOffDateTo = DateTime.Today;
+			   },
+			   OpenPageOptions.IgnoreHash);
+	}
 	#endregion
 }

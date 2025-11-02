@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
@@ -19,10 +18,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
 			Map(x => x.ServiceStartDate).Column("service_start_date");
 			Map(x => x.RepeatedService).Column("repeated_service");
 			Map(x => x.DiagnosticsResult).Column("diagnostics_result");
-			Map(x => x.Status).Column("status").CustomType<ServiceClaimStatusStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.Payment).Column("payment_type");
-			Map(x => x.ServiceClaimType).Column("service_claim_type").CustomType<ServiceClaimTypeStringType>();
-			Map(x => x.WithSerial).Column("service_claim_equipment_serial_type").CustomType<ServiceClaimEquipmentSerialStringType>();
+			Map(x => x.ServiceClaimType).Column("service_claim_type");
+			Map(x => x.WithSerial).Column("service_claim_equipment_serial_type");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");

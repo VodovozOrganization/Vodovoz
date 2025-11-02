@@ -1,0 +1,939 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Doc">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    CONCAT_WS('',
+              CONCAT(drivers.last_name, ' '),
+              IF(drivers.name = '',
+                 '',
+                 CONCAT(LEFT(drivers.name, 1), '.')),
+              IF(drivers.patronymic = '',
+                 '',
+                 CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    CONCAT_WS('',
+              CONCAT(forwaders.last_name, ' '),
+              IF(forwaders.name = '',
+                 '',
+                 CONCAT(LEFT(forwaders.name, 1), '.')),
+              IF(forwaders.patronymic = '',
+                 '',
+                 CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
+    cm.name AS model,
+    cars.reg_number AS reg_number,
+    scld.id AS car_load_document_id,
+    q.daily_number,
+    route_lists.additional_loading_document_id IS NOT NULL as has_fast_delivery
+FROM
+    route_lists
+    LEFT JOIN
+        employees AS drivers ON drivers.id = route_lists.driver_id
+    LEFT JOIN
+        employees AS forwaders ON forwaders.id = route_lists.forwarder_id
+    LEFT JOIN
+        cars ON cars.id = route_lists.car_id
+    LEFT JOIN 
+        car_models cm ON cars.model_id = cm.id
+    LEFT JOIN
+        store_car_load_documents scld ON scld.route_list_id = route_lists.id
+    LEFT JOIN
+    	car_loading_daily_queue q on q.route_list_id = route_lists.id and q.`date` = DATE(route_lists.`date`)
+WHERE
+    scld.id = @id
+GROUP BY route_lists.id
+LIMIT 1
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@id">
+            <Value>={?id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="forwader">
+          <DataField>forwader</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="model">
+          <DataField>model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reg_number">
+          <DataField>reg_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_load_document_id">
+          <DataField>car_load_document_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="has_fast_delivery">
+          <DataField>has_fast_delivery</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Equipment">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	SUM(scldi.amount) as count,
+	mu.digits,
+	IF(scldi.own_type IS NOT NULL,
+		CASE scldi.own_type
+			WHEN 'None'  THEN n.name
+			WHEN 'Client'THEN CONCAT(n.name, ' (Клиент)')
+			WHEN 'Duty'	 THEN CONCAT(n.name, ' (Дежурный)')
+			WHEN 'Rent'	 THEN CONCAT(n.name, ' (Аренда)')
+			ELSE n.name
+		END, n.name) as nomenclature_name
+FROM
+	store_car_load_document_items scldi 
+LEFT JOIN 
+    store_car_load_documents scld ON scld.id = scldi.car_load_document_id 
+LEFT JOIN nomenclature n ON n.id = scldi.nomenclature_id
+LEFT JOIN measurement_units mu ON mu.id = n.unit_id
+WHERE
+	scldi.car_load_document_id = @id
+	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle', 'CashEquipment', 'PromotionalProducts','Overalls')
+	AND n.online_store_external_id IS NULL
+GROUP BY n.id, scldi.own_type </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>={?id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EquipmentOnlineStore">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT o2.e_shop_order FROM store_car_load_documents scld 
+INNER JOIN store_car_load_document_items scldi ON scldi.car_load_document_id = scld.id 
+INNER JOIN nomenclature n ON scldi.nomenclature_id = n.id
+INNER JOIN route_list_addresses rla ON rla.route_list_id = scld.route_list_id 
+INNER JOIN orders o2 ON o2.id = rla.order_id 
+INNER JOIN order_items oi ON o2.id = oi.order_id AND oi.nomenclature_id = scldi.nomenclature_id
+WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+  AND n.online_store_id IS NOT NULL
+  AND scld.id = @id
+  AND o2.e_shop_order IS NOT NULL
+GROUP BY o2.e_shop_order;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>={?id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="e_shop_order">
+          <DataField>e_shop_order</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="InfoString">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT bp.str_value as info_str
+FROM base_parameters bp 
+WHERE bp.name = 'car_load_document_info_string';</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="info_str">
+          <DataField>info_str</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.24pt</Height>
+        <Width>134pt</Width>
+        <Value>Кладовщик_____________</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>93.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox84" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.99pt</Height>
+        <Width>142.70pt</Width>
+        <Value>= "Водитель_____________"</Value>
+        <ZIndex>0</ZIndex>
+        <Left>227.6pt</Left>
+        <Top>93.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Table Name="Table10">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>568.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox91">
+                      <Value>='Погрузка товаров по МЛ №' + {route_list_id} +
+' от ' + 
+Format({route_list_date}, "dd.MM.yyyy")</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")"</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>17.0pt</Top>
+      </Table>
+      <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>568.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>10.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>18.7pt</Top>
+      </Table>
+      <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>568.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>180.5pt</Top>
+      </Table>
+      <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>267.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>33.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>16.0pt</Top>
+      </Table>
+      <Table Name="Table12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>267.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>33.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>297.8pt</Left>
+        <Top>16.0pt</Top>
+      </Table>
+      <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Equipment</DataSetName>
+        <NoRows>Нет отгрузки оборудования</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>275.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>13.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Наименование</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox88">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>14.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox89">
+                      <Value>={nomenclature_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox90">
+                      <Value>= {count}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>='N' + {digits}</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>51.9pt</Top>
+        <ZIndex>0</ZIndex>
+      </Table>
+      <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>EquipmentOnlineStore</DataSetName>
+        <NoRows></NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>147.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox99">
+                      <Value>Заказы Интернет-магазина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>357.8pt</Left>
+        <Top>40.2pt</Top>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>={e_shop_order}</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox102">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>='Количество заказов: ' + Count({e_shop_order})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Textbox Name="Textbox29">
+        <Height>13.52pt</Height>
+        <Width>389.09pt</Width>
+        <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
+        <ZIndex>0</ZIndex>
+        <Left>117.8pt</Left>
+        <Top>107.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Table Name="Table3">
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>568.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>10.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>2.4pt</Top>
+      </Table>
+      <Rectangle Name="LeftQrRectangle">
+        <Height>120.00pt</Height>
+        <Width>90.00pt</Width>
+        <Left>0.00pt</Left>
+        <Top>177.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Rectangle>
+      <Rectangle Name="RightQrRectangle" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>120.00pt</Height>
+        <Width>90.00pt</Width>
+        <Left>457.60pt</Left>
+        <Top>177.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Rectangle>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.78pt</Height>
+        <Width>565pt</Width>
+        <Value>=First( {info_str} , "InfoString" )</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>126.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>574.2pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>61264</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

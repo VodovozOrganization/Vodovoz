@@ -7,14 +7,15 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -30,10 +31,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly bool _canManageTerminal;
 		private readonly Warehouse _defaultWarehouse;
 		private readonly ICommonServices _commonServices;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
+		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
 		private string _title;
 		private int _terminalId;
 		private DriverAttachedTerminalDocumentBase _entity;
@@ -48,14 +50,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
 			IUnitOfWork uow,
-			ITerminalNomenclatureProvider terminalNomenclatureProvider)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			_driver = driver ?? throw new ArgumentNullException(nameof(driver));
 			_parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_terminalNomenclatureProvider =
-				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -66,7 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_driver.Id > 0
 				? _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, _driver)
 				: null, false);
-			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 		}
 
 		#region Свойства
@@ -125,7 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					Author = _author,
 					Driver = _driver
 				};
-				_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+				_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 				returnDocument.CreateMovementOperations(income, UoW.GetById<Nomenclature>(_terminalId));
 
 				UpdateEntityAndRelatedProperties(returnDocument, true);
@@ -138,7 +141,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			{
 				return;
 			}
-			_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+			_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 			var terminal = UoW.GetById<Nomenclature>(_terminalId);
 			var filter = new NomenclatureBalanceByStockFilterViewModel(_warehouseRepository)
 			{
@@ -147,7 +150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				Nomenclature = terminal
 			};
 			var writeoffWarehouseJournal =
-				new NomenclatureBalanceByStockJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, _commonServices)
+				new NomenclatureBalanceByStockJournalViewModel(filter, _unitOfWorkFactory, _commonServices)
 				{
 					TabName = "Выбор склада для списания терминала",
 					SelectionMode = JournalSelectionMode.Single
@@ -169,7 +172,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					Author = _author,
 					Driver = _driver
 				};
-				_terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+				_terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
 				giveoutDocument.CreateMovementOperations(writeoff, terminal);
 
 				UpdateEntityAndRelatedProperties(giveoutDocument, true);

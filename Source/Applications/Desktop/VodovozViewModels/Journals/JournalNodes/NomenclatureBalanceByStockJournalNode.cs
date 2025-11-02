@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
 {

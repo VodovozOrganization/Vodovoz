@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<UserSecretsId>50e938ed-e8db-4963-b71c-b0876e8f8889</UserSecretsId>
+        <DockerfileContext>.</DockerfileContext>
+    </PropertyGroup>
+
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.*</AssemblyVersion>
+		<Deterministic>false</Deterministic>
+	</PropertyGroup>
+
+	<ItemGroup>
+      <Content Remove="appsettings.Development.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.Development.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.14" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+        <PackageReference Include="MySqlConnector" Version="2.2.6" />
+        <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+        <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+      <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
+    </ItemGroup>
+
+</Project>

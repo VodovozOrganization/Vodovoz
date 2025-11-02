@@ -1,57 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using QS.Validation;
-using Vodovoz.Domain.Documents;
-using Vodovoz.PermissionExtensions;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
-using Vodovoz.Domain.Goods;
-using System.Linq;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+﻿using Autofac;
+using Gamma.GtkWidgets;
+using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using NHibernate;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.ReportsParameters;
-using Gamma.GtkWidgets;
-using QS.Project.Services;
-using QSProjectsLib;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Tools.Store;
-using Vodovoz.Infrastructure;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Report;
+using QSOrmProject;
+using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.ReportsParameters;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<ShiftChangeWarehouseDocumentDlg> _logger;
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IStockRepository _stockRepository = new StockRepository();
+		private IEmployeeRepository _employeeRepository;
+		private IStockRepository _stockRepository;
 
 		private SelectableParametersReportFilter _filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
+			ResolveDependencies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(UoW.IsNew)
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
@@ -62,11 +66,18 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
-			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
+			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			ConfigureDlg(storeDocument);
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+			_stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(ShiftChangeWarehouseDocument sub) : this (sub.Id)
@@ -85,7 +96,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
 				var permissionValidator = 
-					new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
+					new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
 				
 				canEdit &= permissionValidator.Validate(
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
@@ -235,22 +246,22 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!CanSave)
 				return false;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null) {
+			if(Entity.LastEditorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
-			logger.Info("Сохраняем акт списания...");
+			_logger.LogInformation("Сохраняем акт списания...");
 			UoWGeneric.Save();
-			logger.Info("Ok.");
+			_logger.LogInformation("Ok.");
 			return true;
 		}
 
@@ -259,12 +270,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
-			var reportInfo = new QS.Report.ReportInfo {
-				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
-				Identifier = "Store.ShiftChangeWarehouse",
-				Parameters = new Dictionary<string, object> {
-					{ "document_id",  Entity.Id }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp);
+			reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "document_id",  Entity.Id }
 			};
 
 			TabParent.OpenTab(
@@ -378,12 +389,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					vm => vm.SelectionMode = JournalSelectionMode.Single
 				).ViewModel;
 				
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
+			journal.OnSelectResult += Journal_OnEntitySelectedResult;
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;

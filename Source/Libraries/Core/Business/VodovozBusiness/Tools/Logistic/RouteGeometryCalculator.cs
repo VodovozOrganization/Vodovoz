@@ -5,13 +5,11 @@ using QS.Osrm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -23,11 +21,11 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly ICachedDistanceRepository _cachedDistanceRepository = new CachedDistanceRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
-
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
+		private readonly ICachedDistanceRepository _cachedDistanceRepository;
+		private readonly IOsrmSettings _osrmSettings;
+		private readonly IOsrmClient _osrmClient;
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 
 		Dictionary<int, int> calculatedRoutes = new Dictionary<int, int>();
 
@@ -37,8 +35,18 @@ namespace Vodovoz.Tools.Logistic
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
 
-		public RouteGeometryCalculator()
+		public RouteGeometryCalculator(
+			IUnitOfWorkFactory uowFactory,
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient,
+			ICachedDistanceRepository cachedDistanceRepository
+			)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
+			_uow = _uowFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 		}
 
 		/// <summary>
@@ -55,49 +63,49 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Почучаем расстояния в метрах между точками
 		/// </summary>
-		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
+		public int DistanceMeter(PointCoordinates fromDeliveryPoint, PointCoordinates toDeliveryPoint)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDeliveryPoint);
+			var toHash = CachedDistance.GetHash(toDeliveryPoint);
 			return DistanceMeter(fromHash, toHash);
 		}
 
 		/// <summary>
 		/// Всемя пути в секундах между точками
 		/// </summary>
-		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
+		public int TimeSec(PointCoordinates fromDeliveryPoint, PointCoordinates toDeliveryPoint)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
-			var toHash = CachedDistance.GetHash(toDP);
+			var fromHash = CachedDistance.GetHash(fromDeliveryPoint);
+			var toHash = CachedDistance.GetHash(toDeliveryPoint);
 			return TimeSec(fromHash, toHash);
 		}
 
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(GeoGroupVersion fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(PointCoordinates fromBase, PointCoordinates toDeliveryPoint)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDeliveryPoint);
 			return DistanceMeter(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время от базы в секундах
 		/// </summary>
-		public int TimeFromBase(GeoGroupVersion fromBase, DeliveryPoint toDP)
+		public int TimeFromBase(PointCoordinates fromBase, PointCoordinates toDeliveryPoint)
 		{
 			var fromBaseHash = CachedDistance.GetHash(fromBase);
-			var toHash = CachedDistance.GetHash(toDP);
+			var toHash = CachedDistance.GetHash(toDeliveryPoint);
 			return TimeSec(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время до базы в секундах
 		/// </summary>
-		public int TimeToBase(DeliveryPoint fromDP, GeoGroupVersion toBase)
+		public int TimeToBase(PointCoordinates fromDeliveryPoint, PointCoordinates toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDeliveryPoint);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return TimeSec(fromHash, toBaseHash);
 		}
@@ -105,9 +113,9 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeoGroupVersion toBase)
+		public int DistanceToBaseMeter(PointCoordinates fromDeliveryPoint, PointCoordinates toBase)
 		{
-			var fromHash = CachedDistance.GetHash(fromDP);
+			var fromHash = CachedDistance.GetHash(fromDeliveryPoint);
 			var toBaseHash = CachedDistance.GetHash(toBase);
 			return DistanceMeter(fromHash, toBaseHash);
 		}
@@ -186,9 +194,9 @@ namespace Vodovoz.Tools.Logistic
 			if (prepared.Count > 0)
 			{
 				IList<CachedDistance> fromDB;
-				lock(uow)
+				lock(_uow)
 				{
-					fromDB = _cachedDistanceRepository.GetCache(uow, prepared.ToArray());
+					fromDB = _cachedDistanceRepository.GetCache(_uow, prepared.ToArray());
 				}
 				foreach (var loaded in fromDB)
 				{
@@ -248,9 +256,9 @@ namespace Vodovoz.Tools.Logistic
 			if(distance == null && checkDB)
 			{
 				IList<CachedDistance> list;
-				lock(uow)
+				lock(_uow)
 				{
-					list = _cachedDistanceRepository.GetCache(uow, new[] { new WayHash(fromP, toP) });
+					list = _cachedDistanceRepository.GetCache(_uow, new[] { new WayHash(fromP, toP) });
 				}
 				distance = list.FirstOrDefault();
 			}
@@ -273,11 +281,11 @@ namespace Vodovoz.Tools.Logistic
 
 			if (needAdd)
 			{
-				lock(uow)
+				lock(_uow)
 				{
 					AddNewCacheDistance(distance);
-					uow.TrySave(distance);
-					uow.Commit();
+					_uow.Save(distance);
+					_uow.Commit();
 				}
 			}
 
@@ -300,7 +308,7 @@ namespace Vodovoz.Tools.Logistic
 			CachedDistance.GetLatLon(distance.ToGeoHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
 			bool ok = false;
-			var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var result = _osrmClient.GetRoute(points, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			ok = result?.Code == "Ok";
 			if(ok && result.Routes.Any()) {
 				distance.DistanceMeters = result.Routes.First().TotalDistance;
@@ -310,10 +318,10 @@ namespace Vodovoz.Tools.Logistic
 
 			if(ok)
 			{
-				lock(uow) {
+				lock(_uow) {
 					AddNewCacheDistance(distance);
-					uow.TrySave(distance);
-					uow.Commit();
+					_uow.Save(distance);
+					_uow.Commit();
 				}
 				addedCached++;
 				return true;
@@ -324,6 +332,6 @@ namespace Vodovoz.Tools.Logistic
 			return false;
 		}
 
-		public void Dispose() => uow?.Dispose();
+		public void Dispose() => _uow?.Dispose();
 	}
 }

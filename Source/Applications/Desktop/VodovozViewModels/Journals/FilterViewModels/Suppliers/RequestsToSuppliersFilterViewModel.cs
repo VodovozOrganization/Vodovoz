@@ -1,74 +1,112 @@
-﻿using QS.Project.Filter;
-using QS.Project.Journal.EntitySelector;
+﻿using Autofac;
+using QS.Project.Filter;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
-using Autofac;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.FilterViewModels.Suppliers
 {
 	public class RequestsToSuppliersFilterViewModel : FilterViewModelBase<RequestsToSuppliersFilterViewModel>
 	{
 		private ILifetimeScope _lifetimeScope;
-		
-		public IEntitySelectorFactory NomenclatureSelectorFactory { get; set; }
+		private DateTime? _restrictStartDate;
+		private DateTime? _restrictEndDate;
+		private Nomenclature _restrictNomenclature;
+		private RequestStatus? _restrictStatus = RequestStatus.InProcess;
+		private DialogViewModelBase _journal;
 
 		public RequestsToSuppliersFilterViewModel(
-			ILifetimeScope lifetimeScope,
-			INomenclatureJournalFactory nomenclatureJournalFactory)
+			ILifetimeScope lifetimeScope)
 		{
-			if(nomenclatureJournalFactory is null)
-			{
-				throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-			}
-
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			NomenclatureSelectorFactory = nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(_lifetimeScope);
 		}
 
-		private DateTime? restrictStartDate;
-		public virtual DateTime? RestrictStartDate {
-			get => restrictStartDate;
-			set {
-				if(UpdateFilterField(ref restrictStartDate, value))
+		public virtual DateTime? RestrictStartDate
+		{
+			get => _restrictStartDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictStartDate, value))
+				{
 					CanChangeStartDate = false;
+				}
 			}
 		}
+
 		public bool CanChangeStartDate { get; private set; } = true;
 
-		private DateTime? restrictEndDate;
-		public virtual DateTime? RestrictEndDate {
-			get => restrictEndDate;
-			set {
-				if(UpdateFilterField(ref restrictEndDate, value))
+		public virtual DateTime? RestrictEndDate
+		{
+			get => _restrictEndDate;
+			set
+			{
+				if(UpdateFilterField(ref _restrictEndDate, value))
+				{
 					CanChangeEndDate = false;
+				}
 			}
 		}
+
 		public bool CanChangeEndDate { get; private set; } = true;
 
-		Nomenclature restrictNomenclature;
-		public virtual Nomenclature RestrictNomenclature {
-			get => restrictNomenclature;
-			set {
-				if(UpdateFilterField(ref restrictNomenclature, value))
+		public virtual Nomenclature RestrictNomenclature
+		{
+			get => _restrictNomenclature;
+			set
+			{
+				if(UpdateFilterField(ref _restrictNomenclature, value))
+				{
 					CanChangeNomenclature = false;
+				}
 			}
 		}
+
 		public bool CanChangeNomenclature { get; private set; } = true;
 
-		RequestStatus? restrictStatus = RequestStatus.InProcess;
-		public virtual RequestStatus? RestrictStatus {
-			get => restrictStatus;
-			set {
-				if(UpdateFilterField(ref restrictStatus, value))
+		public virtual RequestStatus? RestrictStatus
+		{
+			get => _restrictStatus;
+			set
+			{
+				if(UpdateFilterField(ref _restrictStatus, value))
+				{
 					CanChangeStatus = false;
+				}
 			}
 		}
 		public bool CanChangeStatus { get; private set; } = true;
 
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
+
+		public DialogViewModelBase Journal
+		{
+			get => _journal;
+			set
+			{
+				if(_journal is null)
+				{
+					_journal = value;
+
+					NomenclatureViewModel = new CommonEEVMBuilderFactory<RequestsToSuppliersFilterViewModel>(_journal, this, UoW, _journal.NavigationManager, _lifetimeScope)
+						.ForProperty(x => x.RestrictNomenclature)
+						.UseViewModelDialog<NomenclatureViewModel>()
+						.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+						{
+
+						})
+						.Finish();
+				}
+			}
+		}
+
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

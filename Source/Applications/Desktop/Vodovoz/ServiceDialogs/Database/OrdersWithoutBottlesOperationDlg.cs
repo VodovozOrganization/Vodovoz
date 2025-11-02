@@ -1,25 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using Vodovoz.Core.DataService;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<Order> orders;
 
@@ -65,8 +64,11 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
-			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider(new ParametersProvider());
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new RouteListItemRepository(), new CashRepository()));
+			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
+			var routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
+
+			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , nomenclatureSettings, routeListItemRepository, cashRepository));
 			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
 				orders.Count(x => x.BottlesMovementOperation != null))){

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>279.4mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -353,8 +351,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -363,8 +360,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -399,8 +395,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -423,8 +418,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -447,8 +441,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -471,8 +464,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -495,8 +487,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -519,8 +510,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -543,8 +533,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -567,8 +556,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -591,8 +579,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -615,8 +602,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -625,8 +611,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -648,7 +633,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Details >
+        <Details>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -924,7 +909,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -954,17 +939,17 @@ FROM
 WHERE
     (@StartDate = '' OR
      (
-             (@DateType = 'CreationDate' AND orders.create_date &gt;= @StartDate)
+             (@DateType = 'CreationDate' AND orders.create_date &gt;= DATE(@StartDate))
              OR
-             (@DateType = 'DeliveryDate' AND orders.delivery_date &gt;= @StartDate)
+             (@DateType = 'DeliveryDate' AND orders.delivery_date &gt;= DATE(@StartDate))
          )
         )
   AND
     (@EndDate = '' OR
      (
-             (@DateType = 'CreationDate' AND orders.create_date &lt; DATE_ADD(@EndDate, INTERVAL 1 DAY))
+             (@DateType = 'CreationDate' AND orders.create_date &lt; DATE_ADD(DATE(@EndDate), INTERVAL 1 DAY))
              OR
-             (@DateType = 'DeliveryDate' AND orders.delivery_date &lt; DATE_ADD(@EndDate, INTERVAL 1 DAY))
+             (@DateType = 'DeliveryDate' AND orders.delivery_date &lt; DATE_ADD(DATE(@EndDate), INTERVAL 1 DAY))
          )
         )
   AND (
@@ -1008,7 +993,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="create_date">
           <DataField>create_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1070,8 +1055,7 @@ GROUP BY
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -1082,40 +1066,35 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="DateType">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_include">
       <DataType>Integer</DataType>

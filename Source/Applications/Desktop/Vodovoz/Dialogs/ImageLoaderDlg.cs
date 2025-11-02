@@ -1,9 +1,6 @@
-﻿using System;
-using NLog;
-using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using QS.Validation;
-using Vodovoz.Domain.StoredResources;
+﻿using QS.Dialog.Gtk;
+using QS.Project.Services;
+using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz.Dialogs
 {
@@ -13,8 +10,8 @@ namespace Vodovoz.Dialogs
 		public ImageLoaderDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<StoredResource>();
-			UoWGeneric.Root.Type = ResoureceType.Image;
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<StoredResource>();
+			UoWGeneric.Root.Type = ResourceType.Image;
 			TabName = "Новое изображение";
 			ConfigureDlg();
 		}
@@ -22,8 +19,8 @@ namespace Vodovoz.Dialogs
 		public ImageLoaderDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<StoredResource>(id);
-			UoWGeneric.Root.Type = ResoureceType.Image;
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<StoredResource>(id);
+			UoWGeneric.Root.Type = ResourceType.Image;
 			ConfigureDlg();
 		}
 
@@ -42,7 +39,7 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

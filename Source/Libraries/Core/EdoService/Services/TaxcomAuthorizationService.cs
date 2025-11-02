@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Vodovoz.Settings.Edo;
 
-namespace EdoService.Services
+namespace EdoService.Library.Services
 {
 	public class TaxcomAuthorizationService : IAuthorizationService
 	{
@@ -22,9 +22,9 @@ namespace EdoService.Services
 			_httpClient.DefaultRequestHeaders.Add("Integrator-Id", _edoSettings.TaxcomIntegratorId);
 		}
 
-		public async Task<string> Login()
+		public async Task<string> Login(string login, string password)
 		{
-			var response = await _httpClient.GetAsync($"API/Login?login={_edoSettings.TaxcomLogin}&password={_edoSettings.TaxcomPassword}");
+			var response = await _httpClient.GetAsync($"API/Login?login={login}&password={password}");
 			var responseBody = await response.Content.ReadAsStringAsync();
 
 			return responseBody;

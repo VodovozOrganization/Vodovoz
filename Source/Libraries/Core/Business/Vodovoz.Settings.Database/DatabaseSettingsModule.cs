@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using System.Linq;
 
 namespace Vodovoz.Settings.Database
 {
@@ -16,7 +17,6 @@ namespace Vodovoz.Settings.Database
 				.AsSelf()
 				.AsImplementedInterfaces()
 				.InstancePerLifetimeScope();
-
 		}
 	}
 }

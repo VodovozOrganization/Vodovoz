@@ -1,27 +1,27 @@
-﻿using System;
 using PayPageAPI.Models;
+using System;
 using Vodovoz.Domain.FastPayments;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.FastPayments;
+using Vodovoz.Settings.Organizations;
 
 namespace PayPageAPI.Controllers
 {
 	public class PayViewModelFactory : IPayViewModelFactory
 	{
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public PayViewModelFactory(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider)
+			IFastPaymentSettings fastPaymentSettings,
+			IOrganizationSettings organizationSettings)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 		
 		public PayViewModel CreateNewPayViewModel(FastPayment fastPayment) =>
-			new PayViewModel(_fastPaymentParametersProvider, _organizationParametersProvider, fastPayment);
+			new PayViewModel(_fastPaymentSettings, _organizationSettings, fastPayment);
 	}
 }

@@ -1,4 +1,5 @@
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes

@@ -1,15 +1,15 @@
 ﻿using NHibernate;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
@@ -20,21 +20,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	public class DeliveryPointByClientJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<DeliveryPoint, DeliveryPointViewModel, DeliveryPointByClientJournalNode, DeliveryPointJournalFilterViewModel>
 	{
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
-
 		public DeliveryPointByClientJournalViewModel(
-			IDeliveryPointViewModelFactory deliveryPointViewModelFactory,
 			DeliveryPointJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			bool hideJournalForOpen,
-			bool hideJournalForCreate)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate)
+			INavigationManager navigationManager,
+			bool hideJournalForOpen = false,
+			bool hideJournalForCreate = false)
+			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpen, hideJournalForCreate, navigationManager)
 		{
 			TabName = "Журнал точек доставки клиента";
-
-			_deliveryPointViewModelFactory =
-				deliveryPointViewModelFactory ?? throw new ArgumentNullException(nameof(deliveryPointViewModelFactory));
 
 			UpdateOnChanges(
 				typeof(Counterparty),
@@ -47,48 +42,73 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		private void CreateEditAction()
 		{
 			var editAction = new JournalAction("Изменить",
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<DeliveryPointByClientJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
 						return false;
 					}
 					DeliveryPointByClientJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					return config.PermissionResult.CanRead;
 				},
 				(selected) => true,
-				(selected) => {
+				(selected) =>
+				{
 					var selectedNodes = selected.OfType<DeliveryPointByClientJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
 						return;
 					}
 					DeliveryPointByClientJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
 						return;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 				}
 			);
-			if(SelectionMode == JournalSelectionMode.None) {
+			if(SelectionMode == JournalSelectionMode.None)
+			{
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var entityConfig = EntityConfigs.First().Value;
+			var addAction = new JournalAction("Добавить",
+				selected => entityConfig.PermissionResult.CanCreate && FilterViewModel?.Counterparty != null,
+				selected => entityConfig.PermissionResult.CanCreate,
+				selected =>
+				{
+					var docConfig = entityConfig.EntityDocumentConfigurations.First();
+					docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
+				},
+				"Insert"
+				);
+			NodeActionsList.Add(addAction);
 		}
 
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateEditAction();
 		}
 
@@ -145,9 +165,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		};
 
 		protected override Func<DeliveryPointViewModel> CreateDialogFunction => () =>
-			_deliveryPointViewModelFactory.GetForCreationDeliveryPointViewModel(FilterViewModel.Counterparty);
+			NavigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder, Counterparty>(
+				this, EntityUoWBuilder.ForCreate(), FilterViewModel.Counterparty)
+				.ViewModel;
 
 		protected override Func<DeliveryPointByClientJournalNode, DeliveryPointViewModel> OpenDialogFunction => (node) =>
-			_deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(node.Id);
+			NavigationManager.OpenViewModel<DeliveryPointViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 	}
 }

@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 
 namespace Vodovoz.Settings.Database
 {
@@ -29,7 +31,7 @@ namespace Vodovoz.Settings.Database
 			return _settings.ContainsKey(settingName);
 		}
 
-		public void CreateOrUpdateSetting(string name, string value)
+		public void CreateOrUpdateSetting(string name, string value, TimeSpan? cacheTimeOut = null)
 		{
 			bool isInsert = false;
 			if(_settings.TryGetValue(name, out var oldSetting))
@@ -49,6 +51,11 @@ namespace Vodovoz.Settings.Database
 				{
 					var newSetting = new Setting() { Name = name, StrValue = value };
 
+					if(cacheTimeOut.HasValue)
+					{
+						newSetting.CacheTimeout = cacheTimeOut.Value;
+					}
+
 					uow.Save(newSetting);
 
 					_logger.LogDebug("Добавляем новую настройку в базу {Name}='{Value}'", name, value);
@@ -58,6 +65,11 @@ namespace Vodovoz.Settings.Database
 					uow.Session.Refresh(oldSetting);
 
 					oldSetting.StrValue = value;
+
+					if(cacheTimeOut.HasValue)
+					{
+						oldSetting.CacheTimeout = cacheTimeOut.Value;
+					}
 
 					uow.Save(oldSetting);
 
@@ -157,6 +169,28 @@ namespace Vodovoz.Settings.Database
 			return value;
 		}
 
+		public DateTime GetDateTimeValue(string settingName, CultureInfo cultureInfo = null)
+		{
+			if(!ContainsSetting(settingName))
+			{
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
+			}
+
+			string value = GetSettingValue(settingName);
+
+			if(cultureInfo == null)
+			{
+				cultureInfo = CultureInfo.GetCultureInfo("ru-RU");
+			}
+
+			if(string.IsNullOrWhiteSpace(value) || !DateTime.TryParse(value, cultureInfo, DateTimeStyles.None, out DateTime result))
+			{
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
+			}
+
+			return result;
+		}
+
 		public T GetValue<T>(string settingName)
 		{
 			if(!ContainsSetting(settingName))
@@ -226,17 +260,37 @@ namespace Vodovoz.Settings.Database
 			{
 				_logger.LogDebug("Обновляем все настройки");
 				var settings = uow.Session.QueryOver<Setting>().List();
-				_settings.Clear();
+				var oldSettings = _settings.Values.ToList();
 
-				foreach(var setting in settings)
+				foreach(var newSetting in settings)
 				{
-					if(_settings.ContainsKey(setting.Name))
+					if(_settings.TryGetValue(newSetting.Name, out var currentSetting))
 					{
-						continue;
-					}
+						var oldSetting = oldSettings.SingleOrDefault(x => x.Name == newSetting.Name);
 
-					setting.CachedTime = DateTime.Now;
-					_settings.TryAdd(setting.Name, setting);
+						if(oldSetting != null)
+						{
+							oldSettings.Remove(oldSetting);
+						}
+						
+						if(currentSetting.IsExpired)
+						{
+							currentSetting.CachedTime = DateTime.Now;
+							currentSetting.StrValue = newSetting.StrValue;
+						}
+						else
+						{
+							continue;
+						}
+					}
+					
+					newSetting.CachedTime = DateTime.Now;
+					_settings.TryAdd(newSetting.Name, newSetting);
+				}
+
+				foreach(var oldSetting in oldSettings)
+				{
+					_settings.TryRemove(oldSetting.Name, out var deletedSetting);
 				}
 			}
 		}

@@ -11,94 +11,70 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    distr.district_name AS d_name,
-    gg.name as gg_name,
-    ord.*
+	distr.district_name AS d_name,
+	gg.name as gg_name,
+	orders_data.*
 FROM
-    districts distr
-        INNER JOIN
-    geo_groups gg ON distr.geo_group_id = gg.id 
-        INNER JOIN
-    districts_sets ds ON ds.id = distr.districts_set_id AND ds.status ='Active'
-        LEFT JOIN  
+	districts distr
+INNER JOIN
+    geo_groups gg ON
+	distr.geo_group_id = gg.id
+INNER JOIN
+    districts_sets ds ON
+	ds.id = distr.districts_set_id
+	AND ds.status = 'Active'
+LEFT JOIN  
     (
-    SELECT
-            dp.district_id,
-            o.delivery_date,
-    NULLIF(
-            COUNT(DISTINCT IF(
-                        o.is_fast_delivery, o.id, NULL
-                )), 0) AS orders_fast_delivery,
-    NULLIF(
-            COUNT(DISTINCT IF(
-                        HOUR(dsch.to_time) &lt;= 13 AND o.is_fast_delivery = FALSE,  o.id, NULL
-                )), 0) AS orders_before_13,
-    NULLIF(
-            COUNT(DISTINCT IF(
-                            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18 AND o.is_fast_delivery = FALSE, o.id, NULL
-                )),0) AS orders_between_13_18,
-    NULLIF(
-            COUNT(DISTINCT IF(
-                        HOUR(dsch.to_time) &gt; 18 AND o.is_fast_delivery = FALSE, o.id, NULL
-                )),0) AS orders_after_18,
-     NULLIF(
-            SUM(IF(
-                        o.is_fast_delivery = TRUE,
-                        IF(
-                                        n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-                            ), 0
-                )),0) AS bottles_fast_delivery,
-    NULLIF(
-            SUM(IF(
-                        HOUR(dsch.to_time) &lt;= 13 AND o.is_fast_delivery = FALSE,
-                        IF(
-                                        n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-                            ), 0
-                )),0) AS bottles_before_13,
-    NULLIF(
-            SUM(IF(
-                            HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18 AND o.is_fast_delivery = FALSE,
-                            IF(
-                                            n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-                                ), 0
-                )),0) AS bottles_between_13_18,
-    NULLIF(
-            SUM(IF(
-                        HOUR(dsch.to_time) &gt; 18  AND o.is_fast_delivery = FALSE,
-                        IF(
-                                        n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0
-                            ), 0
-                )),0) AS bottles_after_18,
-    COUNT(DISTINCT o.id) AS total_orders_count,
-    SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', cast(i.count as SIGNED), NULL)) AS total_bottles_count,
-    HOUR(dsch.to_time) AS delivery_schedule
-        FROM
-    orders o
-        LEFT JOIN
-    order_items i ON o.id = i.order_id
-        LEFT JOIN
-    nomenclature n ON i.nomenclature_id = n.id
-        LEFT JOIN
-    delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
-        INNER JOIN
-    delivery_points dp ON dp.id = o.delivery_point_id    
-        WHERE
-    o.order_status NOT IN ('Canceled','NewOrder','WaitForPayment')
-    AND DATE(o.delivery_date) &gt;= DATE(@start_date) AND DATE(o.delivery_date) &lt;= DATE(@end_date)
-    AND o.delivery_schedule_id IS NOT NULL
-    AND NOT o.is_contract_closer
-    AND o.order_address_type != 'Service'
-    AND NOT o.self_delivery  
-        GROUP BY dp.district_id
-    ) ord ON ord.district_id = distr.id
-       WHERE
-    (@geographic_group_id = '' OR distr.geo_group_id = @geographic_group_id)
-    AND (@tariff_zone_id = '' OR distr.tariff_zone_id = @tariff_zone_id)
+	SELECT
+		dp.district_id,
+		MAX(o.delivery_date) as delivery_date,
+		NULLIF(COUNT(DISTINCT IF(o.is_fast_delivery, o.id, NULL)), 0) AS orders_fast_delivery,
+		NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &lt;= 13 AND o.is_fast_delivery = FALSE, o.id, NULL)), 0) AS orders_before_13,
+		NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18 AND o.is_fast_delivery = FALSE, o.id, NULL)), 0) AS orders_between_13_18,
+		NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt; 18 AND o.is_fast_delivery = FALSE, o.id, NULL)), 0) AS orders_after_18,
+		NULLIF(SUM(IF(o.is_fast_delivery = TRUE,
+			IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)), 0) AS bottles_fast_delivery,
+		NULLIF(SUM(IF(HOUR(dsch.to_time) &lt;= 13 AND o.is_fast_delivery = FALSE,
+			IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)), 0) AS bottles_before_13,
+		NULLIF(SUM(IF(HOUR(dsch.to_time) &gt; 13 AND HOUR(dsch.to_time) &lt;= 18 AND o.is_fast_delivery = FALSE,
+        	IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)), 0) AS bottles_between_13_18,
+		NULLIF(SUM(IF(HOUR(dsch.to_time) &gt; 18 AND o.is_fast_delivery = FALSE,
+        	IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)), 0) AS bottles_after_18,
+		NULLIF(COUNT(DISTINCT o.id), 0) AS total_orders_count,
+		NULLIF(SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', cast(i.count as SIGNED), NULL)), 0) AS total_bottles_count
+	FROM
+		orders o
+	LEFT JOIN
+    order_items i ON
+		o.id = i.order_id
+	LEFT JOIN
+    nomenclature n ON
+		i.nomenclature_id = n.id
+	LEFT JOIN
+    delivery_schedule dsch ON
+		o.delivery_schedule_id = dsch.id
+	INNER JOIN
+    delivery_points dp ON
+		dp.id = o.delivery_point_id
+	WHERE
+		o.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
+		AND o.delivery_date &gt;= DATE(@start_date)
+		AND o.delivery_date &lt;  DATE_ADD(DATE(@end_date), INTERVAL 1 DAY)
+		AND o.delivery_schedule_id IS NOT NULL
+		AND NOT o.is_contract_closer
+		AND o.order_address_type != 'Service'
+		AND NOT o.self_delivery
+	GROUP BY dp.district_id
+    ) orders_data ON orders_data.district_id = distr.id
+WHERE
+	(@geographic_group_id = '' OR distr.geo_group_id = @geographic_group_id)
+	AND (@tariff_zone_id = '' OR distr.tariff_zone_id = @tariff_zone_id)
 GROUP BY distr.id
-ORDER BY d_name;</CommandText>
+ORDER BY d_name;
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -120,7 +96,7 @@ ORDER BY d_name;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="d_name">
           <DataField>d_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -1357,7 +1333,7 @@ ORDER BY d_name;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>

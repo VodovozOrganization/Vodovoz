@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace FastPaymentsAPI.Library.Validators
@@ -14,42 +18,72 @@ namespace FastPaymentsAPI.Library.Validators
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public string Validate(int orderId)
+		public string Validate(int orderId, FastPaymentRequestFromType? requestFromType = null)
 		{
-			if(orderId <= 0)
+			if(!requestFromType.HasValue)
 			{
-				_logger.LogError($"Запрос на отправку платежа пришёл с неверным значением номера заказа {orderId}");
-				return "Неверное значение номера заказа";
+				if(orderId <= 0)
+				{
+					_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
+					return "Неверное значение номера заказа";
+				}
+			}
+			else
+			{
+				switch(requestFromType)
+				{
+					case FastPaymentRequestFromType.FromSiteByQr:
+						if(orderId < 100_000_000)
+						{
+							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
+							return "Неверное значение номера заказа";
+						}
+						break;
+					case FastPaymentRequestFromType.FromMobileAppByQr:
+						if(orderId < 200_000_000)
+						{
+							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
+							return "Неверное значение номера заказа";
+						}
+						break;
+				}
 			}
 
 			return null;
 		}
 		
-		public string Validate(int onlineOrderId, string backUrl, string backUrlOk, string backUrlFail)
+		public string Validate(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
-			var orderIdValidationResult = Validate(onlineOrderId);
+			var result = new StringBuilder();
+			
+			var orderIdValidationResult = Validate(registerOnlineOrderDto.OrderId, fastPaymentRequestFromType);
 			if(orderIdValidationResult != null)
 			{
-				return orderIdValidationResult;
-			}
-			
-			if(string.IsNullOrEmpty(backUrl))
-			{
-				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrl)));
-				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrl));
-			}
-			if(string.IsNullOrEmpty(backUrlOk))
-			{
-				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlOk)));
-				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlOk));
-			}
-			if(string.IsNullOrEmpty(backUrlFail))
-			{
-				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlFail)));
-				return GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(backUrlFail));
+				result.AppendLine(orderIdValidationResult);
 			}
 
-			return null;
+			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
+			{
+				return result.ToString();
+			}
+			
+			if(string.IsNullOrEmpty(registerOnlineOrderDto.BackUrl))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrl)));
+				result.AppendLine(GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrl)));
+			}
+			if(string.IsNullOrEmpty(registerOnlineOrderDto.BackUrlOk))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrlOk)));
+				result.AppendLine(GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrlOk)));
+			}
+			if(string.IsNullOrEmpty(registerOnlineOrderDto.BackUrlFail))
+			{
+				_logger.LogError(GetLogMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrlFail)));
+				result.AppendLine(GetReturnMessageForOnlineOrderNullOrEmptyParameter(nameof(registerOnlineOrderDto.BackUrlFail)));
+			}
+
+			return result.ToString();
 		}
 		
 		public string ValidateOnlineOrder(decimal onlineOrderSum)

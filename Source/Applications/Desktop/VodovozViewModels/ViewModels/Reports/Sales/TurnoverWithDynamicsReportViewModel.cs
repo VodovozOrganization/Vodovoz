@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -19,21 +20,27 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
@@ -46,7 +53,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
-		private readonly ICommonServices _commonServices;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -54,6 +61,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -71,32 +79,51 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private IEnumerable<string> _lastGenerationErrors;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private bool _showContacts;
+		private static OrderStatus[] _clientOneOrderStatuses = { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			ICommonServices commonServices,
 			INavigationManager navigation,
-			IncludeExludeFiltersViewModel filterViewModel,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
-			ILeftRightListViewModelFactory leftRightListViewModelFactory)
+			ILeftRightListViewModelFactory leftRightListViewModelFactory,
+			ICurrentPermissionService currentPermissionService,
+			IUserService userService,
+			IEmployeeRepository employeeRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_interactiveService = commonServices.InteractiveService;
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
+			{
+				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
+			}
+
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
+			_employeeRepository = employeeRepository ?? throw new  ArgumentNullException(nameof(employeeRepository));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
 
-			_userIsSalesRepresentative =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
-				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
+			_userIsSalesRepresentative = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
+				&& !userService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Report.Sales.CanGetContactsInSalesReports);
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
+
+			_canViewReportSalesWithCashReceipts =
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
@@ -104,7 +131,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_lastGenerationErrors = Enumerable.Empty<string>();
 
 			ConfigureFilter();
-
 			SetupGroupings();
 		}
 
@@ -268,22 +294,125 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				_userIsSalesRepresentative ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
+
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+				{ "Клиенты с одним заказом", "with_one_order" },
+				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
+			};
+			
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
+
+			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+		}
+
+		private void CheckAndRefreshSelectedGroupsForCashReceiptOnly()
+		{
+			if(!(_filterViewModel.ActiveFilter is IncludeExcludeBoolParamsFilter))
+			{
+				return;
+			}
+
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
+
+			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
+			{
+				return;
+			}
+
+			if(!(value is bool included) || !included)
+			{
+				return;
+			}
+
+			try
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+
+				_leftRightListViewModelFactory.SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(GroupingSelectViewModel);
+
+				var leftGroupingItems = GroupingSelectViewModel.LeftItems;
+
+				var organizationGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Organization);
+
+				var nomenclatureGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+
+				//Сначала организация, потом номенклатура
+				
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != organizationGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+				
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != nomenclatureGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+			}
+			finally
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
+			}
 		}
 
 		private void SetupGroupings()
 		{
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesWithDynamicsReportGroupingsConstructor();
 
-			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
+			GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
 		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+
 			if(SelectedGroupings.LastOrDefault() != GroupingType.Nomenclature)
 			{
 				ShowResidueForNomenclaturesWithoutSales = false;
 			}
+
 			OnPropertyChanged(nameof(SelectedGroupings));
 		}
 
@@ -297,14 +426,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				"    'Доставлен'\r\n" +
 				"    'Выгрузка на складе'\r\n" +
 				"    'Закрыт'\r\n" +
-				"    'Ожидание оплаты' и заказ - самовывоз с оплатой после отгрузки.\r\n" +
 				"В отчет не попадают заказы, являющиеся закрывашками по контракту.\r\n" +
 				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\r\n" +
+				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
 				"2. Настройки отчёта:\r\n" +
 				"«В разрезе» - Выбор разбивки по периодам. В отчет попадают периоды согласно выбранного разреза, но не выходя за границы выставленного периода.\r\n" +
 				"«Единица измерения» - величина, в которой будет сформирован отчёт, а именно в штуках или рублях.\r\n" +
 				"«В динамике» - показывает изменения по отношению к предыдущему столбцу, в процентах или ед. измерения.\r\n" +
 				"«Показать последнюю продажу» - добавляется информация о дате последней продажи, кол-ве дней от последней продажи до текущей даты, остатках по всем складам на текущую дату.\r\n" +
+				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
 				"2.1 В отчете доступна группировка по:\r\n" +
 				"    'Номенклатура'\r\n" +
 				"    'Контрагент'\r\n" +
@@ -350,12 +480,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedList.Any())
 			{
-				stringBuilder.AppendLine(string.Concat("Только: ", string.Join(", ", includedList)));
+				stringBuilder.AppendLine(string.Concat(" Только: ", string.Join(", ", includedList)));
 			}
 
 			if(excludedList.Any())
 			{
-				stringBuilder.AppendLine(string.Concat("Кроме: ", string.Join(", ", excludedList)));
+				stringBuilder.AppendLine(string.Concat(" Кроме: ", string.Join(", ", excludedList)));
 			}
 		}
 
@@ -369,25 +499,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ReportGenerationCancelationTokenSource.Cancel();
 			}
 
-			var filters = string.Empty;
-
-			var sb2 = new StringBuilder();
-
-			GetParameterValues<NomenclatureCategory>(sb2);
-			GetParameterValues<Nomenclature>(sb2);
-			GetParameterValues<ProductGroup>(sb2);
-			GetParameterValues<Counterparty>(sb2);
-			GetParameterValues<Organization>(sb2);
-			GetParameterValues<DiscountReason>(sb2);
-			GetParameterValues<Subdivision>(sb2);
-			GetParameterValues<Employee>(sb2);
-			GetParameterValues<GeoGroup>(sb2);
-			GetParameterValues<PaymentType>(sb2);
-			GetParameterValues<PromotionalSet>(sb2);
-			GetParameterValues<CounterpartyCompositeClassification>(sb2);
-			GetBoolParamsValues(sb2);
-
-			filters = sb2.ToString().Trim('\n');
+			_filterViewModel.GetReportParametersSet(out var sb, withCounts: false);
 
 			var selectedGroupings = SelectedGroupings;
 
@@ -401,7 +513,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return TurnoverWithDynamicsReport.Create(
 					StartDate.Value,
 					EndDate.Value,
-					filters,
+					sb.ToString(),
 					selectedGroupings,
 					SlicingType,
 					MeasurementUnit,
@@ -454,15 +566,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private IList<TurnoverWithDynamicsReport.OrderItemNode> GetData(TurnoverWithDynamicsReport report)
 		{
-			var filterOrderStatusInclude = new OrderStatus[]
+			var sendedCashReceiptStatuses = new[]
 			{
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
+				FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed, FiscalDocumentStatus.Completed
 			};
 
 			#region Сбор параметров
@@ -522,10 +628,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
 			var excludedSubdivisions = subdivisionsFilter.GetExcluded().ToArray();
 
-			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>();
+			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>("OrderAuthor");
 			var includedEmployees = employeesFilter.GetIncluded().ToArray();
 			var excludedEmployees = employeesFilter.GetExcluded().ToArray();
-
+			
+			var salesManagerFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>("SalesManager");
+			var includedSalesManager = salesManagerFilter.GetIncluded().ToArray();
+			var excludedSalesManager = salesManagerFilter.GetExcluded().ToArray();
+			
 			var geoGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<GeoGroup>>();
 			var includedGeoGroups = geoGroupsFilter.GetIncluded().ToArray();
 			var excludedGeoGroups = geoGroupsFilter.GetExcluded().ToArray();
@@ -584,6 +694,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			#endregion Сбор параметров
 
 			Order orderAlias = null;
+			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
@@ -594,6 +705,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			Counterparty counterpartyAlias = null;
+			Employee salesManagerAlias = null;
 			CounterpartySubtype counterpartySubtypeAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Organization organizationAlias = null;
@@ -602,6 +714,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			Email emailAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem notTransferedRouteListItemAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
@@ -678,6 +794,50 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						case "is_self_delivery":
 							nomenclaturesEmptyQuery.Where(() => orderAlias.SelfDelivery == param.Include);
 							break;
+						case "with_one_order":
+						{
+							var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+								.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+								.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
+								.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+							var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+							subQueryOrdersCount.Where(param.Include
+								? Restrictions.Eq(countProjection, 1)
+								: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+							nomenclaturesEmptyQuery.WithSubquery
+								.WhereProperty(() => counterpartyAlias.Id)
+								.In(subQueryOrdersCount);
+							
+							break;
+						}
+						case "only_with_cash_receipts":
+						{
+							EdoFiscalDocument edoFiscalDocumentAlias = null;
+							EdoTask edoTaskAlias = null;
+							OrderEdoRequest edoRequestAlias = null;
+
+							var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+								.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+								.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+								.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+								.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+								.IsIn(sendedCashReceiptStatuses)
+								.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+							if(param.Include)
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereExists(subQueryWithCashReceipts);
+							}
+							else
+							{
+								nomenclaturesEmptyQuery.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+							}
+						
+							break;
+						}
 						default:
 							throw new NotSupportedException(param.Number);
 					}
@@ -715,6 +875,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => authorAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias)
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartySubtype, () => counterpartySubtypeAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => counterpartyContractAlias.Organization, () => organizationAlias)
@@ -1052,6 +1213,66 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#endregion Employees
 
+			#region SalesManager
+
+			if(includedSalesManager.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => salesManagerAlias.Id),
+					includedSalesManager));
+			}
+
+			if(excludedSalesManager.Any())
+			{
+				query.Where(Restrictions.Not(Restrictions.In(
+					Projections.Property(() => salesManagerAlias.Id),
+					excludedSalesManager)));
+			}
+
+			var fullNameProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' ', ?2, ' ', ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => salesManagerAlias.LastName),
+				Projections.Property(() => salesManagerAlias.Name),
+				Projections.Property(() => salesManagerAlias.Patronymic)
+			);
+
+			var salesManagerNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => salesManagerAlias.LastName)),
+				fullNameProjection,
+				Projections.Constant("Без менеджера КА")
+			);
+
+			var salesManagerIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => salesManagerAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => salesManagerAlias.Id));
+			
+			#endregion
+
+			#region OrderAuthor
+			
+			var fullNameOrderAuthorProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' ', ?2, ' ', ?3)"),
+				NHibernateUtil.String,
+				Projections.Property(() => authorAlias.LastName),
+				Projections.Property(() => authorAlias.Name),
+				Projections.Property(() => authorAlias.Patronymic)
+			);
+
+			var orderAuthorNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => authorAlias.LastName)),
+				fullNameOrderAuthorProjection,
+				Projections.Constant("Без автора заказа")
+			);
+
+			var orderAuthorIdProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => authorAlias.Id)),
+				Projections.Constant(0), 
+				Projections.Property(() => authorAlias.Id));
+
+			#endregion
+			
 			#region GeoGroups
 
 			if(includedGeoGroups.Any())
@@ -1100,7 +1321,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				Projections.Property(() => promotionalSetAlias.Id));
 
 			#endregion PromotionalSets
-
+			
 			#region OrderStatuses
 
 			if(includedOrderStatuses.Any())
@@ -1193,6 +1414,75 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					case "is_self_delivery":
 						query.Where(() => orderAlias.SelfDelivery == param.Include);
 						break;
+					case "with_one_order":
+					{
+						var subQueryOrdersCount = QueryOver.Of(() => orderCountAlias)
+							.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+							.WhereRestrictionOn(() => orderCountAlias.OrderStatus).Not.IsIn(_clientOneOrderStatuses)
+							.Select(Projections.GroupProperty(Projections.Property<Order>(o => o.Client.Id)));
+
+						var countProjection = Projections.CountDistinct(() => orderCountAlias.Id);
+
+						subQueryOrdersCount.Where(param.Include
+							? Restrictions.Eq(countProjection, 1)
+							: Restrictions.Not(Restrictions.Eq(countProjection, 1)));
+
+						query.WithSubquery
+							.WhereProperty(() => counterpartyAlias.Id)
+							.In(subQueryOrdersCount);
+						
+						break;
+					}
+					case "only_with_cash_receipts":
+					{
+						EdoFiscalDocument edoFiscalDocumentAlias = null;
+						EdoTask edoTaskAlias = null;
+						OrderEdoRequest edoRequestAlias = null;
+
+						var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
+							.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+							.JoinEntityAlias(() => edoRequestAlias, () => edoTaskAlias.Id == edoRequestAlias.Task.Id)
+							.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+							.WhereRestrictionOn(() => edoFiscalDocumentAlias.Status)
+							.IsIn(sendedCashReceiptStatuses)
+							.Select(Projections.Property(() => edoFiscalDocumentAlias.Id));
+
+						if(param.Include)
+						{
+							query.WithSubquery.WhereExists(subQueryWithCashReceipts);
+						}
+						else
+						{
+							query.WithSubquery.WhereNotExists(subQueryWithCashReceipts);
+						}
+						
+						break;
+					}
+					case "only_orders_from_route_lists":
+						if(param.Include)
+						{
+							query
+								.JoinEntityAlias(
+									() => notTransferedRouteListItemAlias,
+									() => orderAlias.Id == notTransferedRouteListItemAlias.Order.Id
+										&& notTransferedRouteListItemAlias.Status != RouteListItemStatus.Transfered)
+								.JoinAlias(() => notTransferedRouteListItemAlias.RouteList, () => routeListAlias)
+								.JoinAlias(() => routeListAlias.Car, () => carAlias)
+								.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+								.Where(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck);
+						}
+						else
+						{
+							query
+								.JoinEntityAlias(
+									() => notTransferedRouteListItemAlias,
+									() => orderAlias.Id == notTransferedRouteListItemAlias.Order.Id
+										&& notTransferedRouteListItemAlias.Status != RouteListItemStatus.Transfered,
+									JoinType.LeftOuterJoin)
+								.Left.JoinAlias(() => notTransferedRouteListItemAlias.RouteList, () => routeListAlias)
+								.Where(() => routeListAlias.Id == null);
+						}
+						break;
 					default:
 						throw new NotSupportedException(param.Number);
 				}
@@ -1202,7 +1492,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#endregion
 
-			var result = query.Where(GetOrderCriterion(filterOrderStatusInclude, orderAlias))
+			var result = query
+				.Where(() => !orderAlias.IsContractCloser)
+				.And(Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate))
 				.SelectList(list =>
 					list.SelectGroup(() => orderItemAlias.Id)
 						.Select(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id)
@@ -1236,27 +1528,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(counterpartyClassificationProjection).WithAlias(() => resultNodeAlias.CounterpartyClassification)
 						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName)
 						.Select(promotinalSetIdProjection).WithAlias(() => resultNodeAlias.PromotionalSetId)
-						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName))
+						.Select(promotinalSetNameProjection).WithAlias(() => resultNodeAlias.PromotionalSetName)
+						.Select(salesManagerIdProjection).WithAlias(() => resultNodeAlias.SalesManagerId)
+						.Select(salesManagerNameProjection).WithAlias(() => resultNodeAlias.SalesManagerName)
+						.Select(orderAuthorIdProjection).WithAlias(() => resultNodeAlias.OrderAuthorId)
+						.Select(orderAuthorNameProjection).WithAlias(() => resultNodeAlias.OrderAuthorName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<TurnoverWithDynamicsReport.OrderItemNode>())
 				.List<TurnoverWithDynamicsReport.OrderItemNode>();
 
 			return nomenclaturesEmptyNodes.Union(result).ToList();
-		}
-
-		private AbstractCriterion GetOrderCriterion(OrderStatus[] filterOrderStatusInclude, Order orderAlias)
-		{
-			return Restrictions.And(
-						Restrictions.And(
-							Restrictions.Or(
-								Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), filterOrderStatusInclude),
-								Restrictions.And(
-									Restrictions.Eq(Projections.Property(() => orderAlias.OrderStatus), OrderStatus.WaitForPayment),
-									Restrictions.And(
-										Restrictions.Eq(Projections.Property(() => orderAlias.SelfDelivery), true),
-										Restrictions.Eq(Projections.Property(() => orderAlias.PayAfterShipment), true)))),
-							Restrictions.NotEqProperty(Projections.Property(() => orderAlias.IsContractCloser), Projections.Constant(true))),
-						Restrictions.Between(Projections.Property(() => orderAlias.DeliveryDate), StartDate, EndDate));
 		}
 
 		private IEnumerable<string> ValidateParameters()
@@ -1299,6 +1580,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public override void Dispose()
 		{
 			ReportGenerationCancelationTokenSource?.Dispose();
+			_filterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
 			base.Dispose();
 		}
 	}

@@ -1,37 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate;
+using NHibernate.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Project.Services;
 using QS.Tdi;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
-using Vodovoz.Core.DataService;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-		private readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		private Gdk.Pixbuf _vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
@@ -41,7 +40,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private GenericObservableList<GeoGroup> _geographicGroups;
 		private GenericObservableList<string> _warnings;
 
-		private IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private IUnitOfWork _uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		public PrintRouteDocumentsDlg()
 		{
@@ -236,8 +235,22 @@ namespace Vodovoz.Dialogs.Logistic
 
 				var selectedRoutesWithFastDelivery = _uow.GetAll<RouteList>()
 					.Where(r => selectedRoutesIds.Contains(r.Id) && r.AdditionalLoadingDocument != null)
+					.FetchMany(x => x.Addresses)
+					.ThenFetch(x => x.Order)
+					.ThenFetch(x => x.Contract)
+					.ThenFetch(x => x.Organization)
 					.Select(r => r.Id)
 					.ToList();
+
+				var selectedRouteListWithChainStore = _routes
+					.Where(x => x.Selected)
+					.Select(x => (x.Document as RouteListPrintableDocs).routeList)
+					.SelectMany(x => x.Addresses)
+					.Where(address => selectedRoutesIds.Contains(address.RouteList.Id)
+					                  && address.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+					                  && address.Order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Select(address => address.RouteList.Id)
+					.ToArray();
 
 				foreach(var item in _routes.Where(x => x.Selected))
 				{
@@ -268,6 +281,11 @@ namespace Vodovoz.Dialogs.Logistic
 						if(chkForwarderReceipt.Active && selectedRoutesWithFastDelivery.Contains(rlPrintableDoc.routeList.Id))
 						{
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ForwarderReceipt);
+						}
+						
+						if(chkChainStoreNotification.Active && selectedRouteListWithChainStore.Contains(rlPrintableDoc.routeList.Id))
+						{
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ChainStoreNotification);
 						}
 
 						bool cancelPrinting = false;

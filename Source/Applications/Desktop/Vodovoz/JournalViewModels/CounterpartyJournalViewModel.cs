@@ -16,7 +16,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -258,9 +258,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyContractNumber))
 			{
-				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
+					FilterViewModel.CounterpartyContractNumber,
+					MatchMode.Anywhere));
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
@@ -332,21 +334,17 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress
 			));
 
-			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
-				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
-				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
-				.Select(Projections.SqlFunction(
-											new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2,' - ',?1) SEPARATOR ?3)"),
-											NHibernateUtil.String,
-											Projections.Property(() => contractAlias.ContractSubNumber),
-											Projections.Property(() => counterpartyAliasForSubquery.VodovozInternalId),
-											Projections.Constant("\n")));
+			var contractsProjection = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+					NHibernateUtil.String,
+					Projections.Property(() => contractAlias.Number),
+					Projections.Constant("\n"));
 
 			var addressSubquery = QueryOver.Of<DeliveryPoint>(() => addressAlias)
 				.Where(d => d.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => addressAlias.IsActive)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => addressAlias.CompiledAddress),
 					Projections.Constant("\n")));
@@ -376,41 +374,26 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.Left.JoinAlias(c => c.CounterpartyContracts, () => contractAlias)
 				.JoinEntityAlias(
 						() => counterpartyClassificationAlias,
 						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId
 							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
 						JoinType.LeftOuterJoin);
 
-			var searchHealperNew = new TempAdapters.SearchHelper(Search);
-
-			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var vodovozInternalIdParam = new TempAdapters.SearchParameter(() => counterpartyAlias.VodovozInternalId, TempAdapters.SearchParametrType.VodovozInternalId);
-			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
-			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
-			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
-
-			query.Where(searchHealperNew.GetSearchCriterionNew(
-				idParam,
-				vodovozInternalIdParam,
-				nameParam,
-				INNParam,
-				digitNumberParam,
-				deliveryPointPhoneParam,
-				compiledAdressParam
-			));
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Name,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			var counterpartyResultQuery = query
 				.SelectList(list => list
 					.SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
-					.Select(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 					.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 					.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
 					.Select(c => c.IsLiquidating).WithAlias(() => resultAlias.IsLiquidating)
-					.SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
+					.Select(contractsProjection).WithAlias(() => resultAlias.Contracts)
 					.Select(Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 						NHibernateUtil.String,
@@ -513,9 +496,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
 			}
 
-			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyContractNumber))
 			{
-				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+				query.Where(Restrictions.Like(Projections.Property(() => contractAlias.Number),
+					FilterViewModel.CounterpartyContractNumber,
+					MatchMode.Anywhere));
 			}
 
 			if(FilterViewModel?.CounterpartyInn != null)
@@ -575,35 +560,6 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress
 			));
 
-			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
-				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
-				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
-				.Select(Projections.SqlFunction(
-											new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2,' - ',?1) SEPARATOR ?3)"),
-											NHibernateUtil.String,
-											Projections.Property(() => contractAlias.ContractSubNumber),
-											Projections.Property(() => counterpartyAliasForSubquery.VodovozInternalId),
-											Projections.Constant("\n")));
-
-			var addressSubquery = QueryOver.Of<DeliveryPoint>(() => addressAlias)
-				.Where(d => d.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => addressAlias.IsActive)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-					NHibernateUtil.String,
-					Projections.Property(() => addressAlias.CompiledAddress),
-					Projections.Constant("\n")));
-
-			var tagsSubquery = QueryOver.Of<Counterparty>(() => counterpartyAliasForSubquery)
-				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
-				.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(' <span foreground=\"', ?1, '\"> ♥</span>', ?2) SEPARATOR '\n')"),
-					NHibernateUtil.String,
-					Projections.Property(() => tagAliasForSubquery.ColorText),
-					Projections.Property(() => tagAliasForSubquery.Name)
-				));
-
 			if(FilterViewModel != null && FilterViewModel.Tag != null)
 			{
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
@@ -615,30 +571,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment);
 			}
 			
-			var searchHealperNew = new TempAdapters.SearchHelper(Search);
-
-			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var vodovozInternalIdParam = new TempAdapters.SearchParameter(() => counterpartyAlias.VodovozInternalId, TempAdapters.SearchParametrType.VodovozInternalId);
-			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
-			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
-			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
-
-			query.Where(searchHealperNew.GetSearchCriterionNew(
-				idParam,
-				vodovozInternalIdParam,
-				nameParam,
-				INNParam,
-				digitNumberParam,
-				deliveryPointPhoneParam,
-				compiledAdressParam
-			));
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Name,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias)
+				.Left.JoinAlias(c => c.CounterpartyContracts, () => contractAlias)
 				.JoinEntityAlias(
 						() => counterpartyClassificationAlias,
 						() => counterpartyAlias.Id == counterpartyClassificationAlias.CounterpartyId

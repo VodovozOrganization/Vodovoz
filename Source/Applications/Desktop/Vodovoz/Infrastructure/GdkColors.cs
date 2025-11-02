@@ -39,7 +39,9 @@ namespace Vodovoz.Infrastructure
 
 		public static Color SuccessText { get; } = new Color(14, 135, 14);
 
-		public static Color SuccessBase { get; } = IsLight ? new Color(0xc0, 0xff, 0xc0) : new Color(69, 161, 69);
+		public static Color SuccessBase { get; } = IsLight
+			? new Color(0xc0, 0xff, 0xc0)
+			: new Color(47, 109, 47);
 
 		#endregion Success
 
@@ -47,7 +49,9 @@ namespace Vodovoz.Infrastructure
 
 		public static Color DangerText { get; } = IsLight ? new Color(255, 0, 0) : new Color(209, 90, 90);
 
-		public static Color DangerBase { get; } = new Color(0xff, 0x66, 0x66);
+		public static Color DangerBase { get; } = IsLight
+			? new Color(0xff, 0x66, 0x66)
+			: new Color(126, 50, 50);
 
 		#endregion Danger
 
@@ -82,6 +86,7 @@ namespace Vodovoz.Infrastructure
 		public static Color DarkRed { get; } = new Color(110, 19, 0);
 		public static Color Pink { get; } = IsLight ? new Color(0xff, 0xc0, 0xc0) : new Color(164, 123, 123);
 		public static Color LightYellow2 { get; } = new Color(255, 243, 199);
+		public static Color YellowMustard { get; } = IsLight ? LightYellow2: new Color(193, 157, 39);
 		public static Color Orange { get; } = new Color(0xfc, 0x66, 0x00);
 		public static Color DarkGreen { get; } = new Color(32, 100, 17);
 		public static Color CadetBlue { get; } = IsLight ? new Color(95, 158, 160) : new Color(140, 178, 179);
@@ -89,9 +94,12 @@ namespace Vodovoz.Infrastructure
 		public static Color LightPurple { get; } = new Color(199, 206, 255);
 		public static Color LightCoral { get; } = new Color(240, 128, 128);
 		public static Color Turquoise { get; } = new Color(64, 224, 208);
+		public static Color DarkBlue { get; } = new Color(0, 12, 123);
+		public static Color DarkViolet { get; } = new Color(88, 19, 94);
 		public static Color DarkMustard { get; } = IsLight ? new Color(0xb3, 0xb3, 0x00) : new Color(255, 219, 88);
 		public static Color CashFlowTotalColor { get; } = IsLight ? new Color(249, 191, 143) : new Color(233, 84, 32);
-		public static Color ComplaintDiscussionCommentBase { get; } = IsLight ? new Color(230, 230, 245) : new Color(62, 62, 65);
+		public static Color DiscussionCommentBase { get; } = IsLight ? new Color(230, 230, 245) : new Color(62, 62, 65);
+		public static Color CarMonitoringNewbieDriversBase { get; } = IsLight ? new Color(250, 130, 130) : new Color(178, 102, 25);
 
 		#endregion AdditionalColors
 	}

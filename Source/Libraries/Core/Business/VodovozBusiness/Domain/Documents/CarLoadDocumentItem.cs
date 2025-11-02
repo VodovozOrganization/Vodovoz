@@ -1,43 +1,41 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки талона погрузки",
-		Nominative = "строка талона погрузки")]
-	[HistoryTrace]
-	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
+	public class CarLoadDocumentItem: CarLoadDocumentItemEntity
 	{
-		DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
+		private CarLoadDocument _document;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
+		private EmployeeNomenclatureMovementOperation _employeeNomenclatureMovementOperation;
+		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
+		private Nomenclature _nomenclature;
+		private Equipment _equipment;
+		private OwnTypes _ownType;
+		private decimal _amountInStock;
+		private decimal _amountInRouteList;
+		private decimal _amountLoaded;
 
 		#region Свойства
-		public virtual int Id { get; set; }
 
-		CarLoadDocument document;
-
-		public virtual CarLoadDocument Document {
-			get { return document; }
-			set { SetField (ref document, value); }
+		public virtual new CarLoadDocument Document {
+			get { return _document; }
+			set { SetField (ref _document, value); }
 		}
-
-		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
 		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
 			get { return _goodsAccountingOperation; }
 			set { SetField (ref _goodsAccountingOperation, value); }
 		}
 
-		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
 		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
-			get => employeeNomenclatureMovementOperation;
-			set => SetField (ref employeeNomenclatureMovementOperation, value);
+			get => _employeeNomenclatureMovementOperation;
+			set => SetField (ref _employeeNomenclatureMovementOperation, value);
 		}
 
 		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
@@ -46,84 +44,55 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _deliveryFreeBalanceOperation, value);
 		}
 
-		Nomenclature nomenclature;
-
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
+		public virtual new Nomenclature Nomenclature {
+			get { return _nomenclature; }
 			set {
-				SetField (ref nomenclature, value);
+				SetField (ref _nomenclature, value);
 
-				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
-					GoodsAccountingOperation.Nomenclature = nomenclature;
+				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
 			}
 		}
 
-		Equipment equipment;
-
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get => equipment;
-			set => SetField(ref equipment, value);
+			get => _equipment;
+			set => SetField(ref _equipment, value);
 		}
-
-		OwnTypes ownType;
 
 		[Display(Name = "Принадлежность")]
 		public virtual OwnTypes OwnType
 		{
-			get => ownType;
-			set => SetField(ref ownType, value);
-		}
-
-		decimal amount;
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get => amount;
-			set => SetField (ref amount, value);
-		}
-
-		decimal? expireDatePercent;
-		[Display(Name = "Процент срока годности")]
-		public virtual decimal? ExpireDatePercent {
-			get => expireDatePercent; 
-			set {
-				SetField(ref expireDatePercent, value);
-			} 
+			get => _ownType;
+			set => SetField(ref _ownType, value);
 		}
 
 		#endregion
 
 		#region Не сохраняемые
 
-		decimal amountInStock;
-
 		[Display (Name = "Количество на складе")]
 		public virtual decimal AmountInStock {
-			get { return amountInStock; }
+			get { return _amountInStock; }
 			set {
-				SetField (ref amountInStock, value);
+				SetField (ref _amountInStock, value);
 			}
 		}
-
-		decimal amountInRouteList;
 
 		[Display (Name = "Количество в машрутном листе")]
 		public virtual decimal AmountInRouteList {
-			get { return amountInRouteList; }
+			get { return _amountInRouteList; }
 			set {
-				SetField (ref amountInRouteList, value);
+				SetField (ref _amountInRouteList, value);
 			}
 		}
 
-		decimal amountLoaded;
-
 		[Display (Name = "Уже отгружено")]
 		public virtual decimal AmountLoaded {
-			get { return amountLoaded; }
+			get { return _amountLoaded; }
 			set {
-				SetField (ref amountLoaded, value);
+				SetField (ref _amountLoaded, value);
 			}
 		}
 			
@@ -131,7 +100,7 @@ namespace Vodovoz.Domain.Documents
 			GoodsAccountingOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
 				GoodsAccountingOperation.Nomenclature.Name,
 				GoodsAccountingOperation.Nomenclature.Unit?.MakeAmountShortStr(GoodsAccountingOperation.Amount) ?? GoodsAccountingOperation.Amount.ToString(),
-				document.Title);
+				_document.Title);
 
         #endregion
 

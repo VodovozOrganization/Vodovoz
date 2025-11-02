@@ -1,13 +1,13 @@
 ﻿using Gamma.GtkWidgets;
 using Gtk;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using static Vodovoz.ViewModels.Dialogs.Orders.PrintOrdersDocumentsViewModel;
 
 namespace Vodovoz.Views.Orders
 {
-	public partial class PrintOrdersDocumentsView : DialogViewBase<PrintOrdersDocumentsViewModel>
+	public partial class PrintOrdersDocumentsView : TabViewBase<PrintOrdersDocumentsViewModel>
 	{
 		private readonly Adjustment _progressBarAdjustment =
 			new Adjustment(0, 0, 0, 1, 1, 1);
@@ -32,6 +32,10 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			ybuttonCancel.Clicked += (_, _2) => ViewModel.CloseDialogCommand.Execute();
+
+			ybuttonSelectAll.Clicked += (_, _2) => ViewModel.SelectAllOrdersCommand.Execute();
+
+			ybuttonDeselectAll.Clicked += (_, _2) => ViewModel.DeselectAllOrdersCommand.Execute();
 
 			ycheckbuttonBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)

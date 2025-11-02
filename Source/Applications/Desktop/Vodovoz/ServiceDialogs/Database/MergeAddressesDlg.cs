@@ -23,7 +23,7 @@ namespace Vodovoz.ServiceDialogs.Database
 	public partial class MergeAddressesDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IUnitOfWork _uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private readonly IUnitOfWork _uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<DublicateNode> _duplicates;
 		private GenericObservableList<DublicateNode> _observableDuplicates;
 		private readonly ReplaceEntity _replaceEntity;

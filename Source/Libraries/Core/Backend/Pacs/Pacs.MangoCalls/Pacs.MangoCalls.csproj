@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+    <ProjectReference Include="..\..\Mango\Mango.CallsPublishing\Mango.CallsPublishing.csproj" />
+    <ProjectReference Include="..\..\Mango\Mango.Core\Mango.Core.csproj" />
+    <ProjectReference Include="..\Pacs.Server\Pacs.Server.csproj" />
+  </ItemGroup>
+
+</Project>

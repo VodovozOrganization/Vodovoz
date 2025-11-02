@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using QS.Dialog.GtkUI;
+using QS.Project.Services;
+using QS.Report;
+using QSReport;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.ColumnConfig;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModels.Logistic;
 
@@ -18,14 +18,17 @@ namespace Vodovoz.ReportsParameters.Store
 	public partial class ProductionRequestReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; set; }
+
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly int _defaultStockRate = 20;
 
-		public ProductionRequestReport(IEmployeeRepository employeeRepository)
+		public ProductionRequestReport(IReportInfoFactory reportInfoFactory, IEmployeeRepository employeeRepository)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 
@@ -122,10 +125,8 @@ namespace Vodovoz.ReportsParameters.Store
 				}
 			};
 
-			return new ReportInfo {
-				Identifier = "Store.ProductionRequestReport",
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create("Store.ProductionRequestReport", Title, parameters);
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false) =>

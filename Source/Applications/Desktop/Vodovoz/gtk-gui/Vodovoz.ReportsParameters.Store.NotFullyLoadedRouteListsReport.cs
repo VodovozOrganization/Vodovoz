@@ -6,7 +6,7 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		private global::QS.Widgets.GtkUI.DateRangePicker datePeriodPicker;
 
@@ -14,7 +14,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.Widgets.yEntryReference yEntRefWarehouse;
+		private global::QS.Views.Control.EntityEntry warehouseEntry;
 
 		protected virtual void Build()
 		{
@@ -29,7 +29,7 @@ namespace Vodovoz.ReportsParameters.Store
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.Sensitive = false;
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
@@ -74,11 +74,11 @@ namespace Vodovoz.ReportsParameters.Store
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yEntRefWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.yEntRefWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.yEntRefWarehouse.Name = "yEntRefWarehouse";
-			this.table1.Add(this.yEntRefWarehouse);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yEntRefWarehouse]));
+			this.warehouseEntry = new global::QS.Views.Control.EntityEntry();
+			this.warehouseEntry.Events = ((global::Gdk.EventMask)(256));
+			this.warehouseEntry.Name = "warehouseEntry";
+			this.table1.Add(this.warehouseEntry);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.warehouseEntry]));
 			w5.TopAttach = ((uint)(1));
 			w5.BottomAttach = ((uint)(2));
 			w5.LeftAttach = ((uint)(1));
@@ -91,8 +91,6 @@ namespace Vodovoz.ReportsParameters.Store
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.datePeriodPicker.PeriodChanged += new global::System.EventHandler(this.OnDatePeriodPickerPeriodChanged);
-			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}
 }

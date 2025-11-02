@@ -11,14 +11,15 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Journals;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels
 	{
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUserRoleRepository _userRoleRepository;
+		private readonly IUserRoleService _userRoleService;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserPermissionsController _userPermissionsController;
 		private readonly UserRole _oldCurrentUserRole;
@@ -51,10 +53,12 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			IUserRoleRepository userRoleRepository,
+			IUserRoleService userRoleService,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
+			_userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_userPermissionsController = _scope.Resolve<IUserPermissionsController>();
 
@@ -176,7 +180,7 @@ namespace Vodovoz.ViewModels
 		
 		private void UpdateUserRoles()
 		{
-			var devSubdivisionId = _scope.Resolve<ISubdivisionParametersProvider>().GetDevelopersSubdivisionId;
+			var devSubdivisionId = _scope.Resolve<ISubdivisionSettings>().GetDevelopersSubdivisionId;
 			var isDeveloper = _scope.Resolve<IEmployeeService>().GetEmployeeForUser(UoW, CurrentUser.Id).Subdivision.Id == devSubdivisionId;
 			
 			try
@@ -256,7 +260,7 @@ namespace Vodovoz.ViewModels
 			_addUserRoleToUserCommand ?? (_addUserRoleToUserCommand = new DelegateCommand(
 				() =>
 				{
-					Entity.ObservableUserRoles.Add(SelectedAvailableUserRole);
+					Entity.UserRoles.Add(SelectedAvailableUserRole);
 					_rolesToGrant.Add(SelectedAvailableUserRole);
 					_rolesToRevoke.Remove(SelectedAvailableUserRole);
 					AvailableUserRoles.Remove(SelectedAvailableUserRole);
@@ -273,7 +277,7 @@ namespace Vodovoz.ViewModels
 					AvailableUserRoles.Add(SelectedUserRole);
 					_rolesToRevoke.Add(SelectedUserRole);
 					_rolesToGrant.Remove(SelectedUserRole);
-					Entity.ObservableUserRoles.Remove(SelectedUserRole);
+					Entity.UserRoles.Remove(SelectedUserRole);
 					UpdateUserRolesForCurrentRoleAction?.Invoke();
 					OnPropertyChanged(nameof(CanRemoveUserRole));
 				},
@@ -347,19 +351,27 @@ namespace Vodovoz.ViewModels
 				return;
 			}
 			
-			var roleName = defaultRole.Split(' ')[3];
+			var roleName = defaultRole.Split(' ')[3].Trim('`');
 			Entity.CurrentUserRole = allAvailableUserRoles.SingleOrDefault(x => x.Name == roleName);
 		}
 
 		private void GetUserRoles(IList<UserRole> allAvailableUserRoles)
 		{
-			foreach(var availableUserRole in allAvailableUserRoles)
+			foreach(var userGrant in _userGrants)
 			{
-				var pattern = availableUserRole.SearchingPatternFromUserGrants(Entity.Login);
+				var matches = Regex.Matches(userGrant, _userRoleService.SearchingPatternFromUserGrants(Entity.Login));
 
-				if(_userGrants.SingleOrDefault(x => x.Contains(pattern)) != null)
+				if(matches.Count <= 0)
 				{
-					Entity.UserRoles.Add(availableUserRole);
+					continue;
+				}
+
+				var userRoleName = matches[0].Groups[1].Value;
+				var userRole = allAvailableUserRoles.SingleOrDefault(x => x.Name == userRoleName);
+					
+				if(userRole != null)
+				{
+					Entity.UserRoles.Add(userRole);
 				}
 			}
 		}
@@ -383,10 +395,22 @@ namespace Vodovoz.ViewModels
 		{
 			try
 			{
-				if(_oldCurrentUserRole != Entity.CurrentUserRole)
+				if(_oldCurrentUserRole == Entity.CurrentUserRole)
 				{
-					_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
+					return;
 				}
+
+				if(Entity.CurrentUserRole.Name != UserRoles.User
+					&& Entity.CurrentUserRole.Name != UserRoles.Financier)
+				{
+					_userRoleRepository.GrantRoleToUser(UoW, UserRoles.User, Entity.Login, true);
+				}
+				else
+				{
+					_userRoleRepository.RevokeRoleFromUser(UoW, UserRoles.User, Entity.Login);
+					_userRoleRepository.GrantRoleToUser(UoW, UserRoles.User, Entity.Login);
+				}
+				_userRoleRepository.SetDefaultRoleToUser(UoW, Entity.CurrentUserRole, Entity.Login);
 			}
 			catch(Exception e)
 			{
@@ -399,7 +423,7 @@ namespace Vodovoz.ViewModels
 		{
 			Entity.PropertyChanged += UpdateChanges;
 			AvailableUserRoles.ListContentChanged += UpdateChanges;
-			Entity.ObservableUserRoles.ListContentChanged += UpdateChanges;
+			Entity.UserRoles.CollectionChanged += UpdateChanges;
 			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged += UpdateChanges;
 			
 			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)
@@ -412,7 +436,7 @@ namespace Vodovoz.ViewModels
 		{
 			Entity.PropertyChanged -= UpdateChanges;
 			AvailableUserRoles.ListContentChanged -= UpdateChanges;
-			Entity.ObservableUserRoles.ListContentChanged -= UpdateChanges;
+			Entity.UserRoles.CollectionChanged -= UpdateChanges;
 			PresetPermissionsViewModel.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
 			
 			foreach(var warehousePermissionNode in WarehousePermissionsViewModel.AllWarehouses)

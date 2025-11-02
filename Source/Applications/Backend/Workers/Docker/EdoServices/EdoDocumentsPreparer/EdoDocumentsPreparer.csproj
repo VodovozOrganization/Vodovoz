@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <UserSecretsId>dotnet-EdoDocumentsPreparer-E1E9725A-C330-4303-B96B-2586C4FD2743</UserSecretsId>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+        <PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\..\..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Library\TaxcomEdo.Library.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+    </ItemGroup>
+	<Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
+</Project>

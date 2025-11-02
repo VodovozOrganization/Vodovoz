@@ -1,13 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Sale;
@@ -19,13 +23,16 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IGeographicGroupRepository _geographicGroupRepository = new GeographicGroupRepository();
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private SelectableParametersReportFilter _filter;
 
-		public NomenclatureForShipment()
+		public NomenclatureForShipment(IReportInfoFactory reportInfoFactory, IGeographicGroupRepository geographicGroupRepository)
 		{
-			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
+			Build();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ydatepicker.Date = DateTime.Today.AddDays(1);
 			ConfigureDlg();
@@ -33,9 +40,9 @@ namespace Vodovoz.ReportsParameters.Store
 
 		void ConfigureDlg()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => string.Format("{0}", g.Name));
-			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			lstGeoGrp.SetRenderTextFunc<GeoGroup>(g => $"{g.Name}");
+			lstGeoGrp.ItemsList = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, true);
 
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
@@ -138,11 +145,8 @@ namespace Vodovoz.ReportsParameters.Store
 
 			}
 
-			var repInfo = new ReportInfo {
-				Identifier = "Store.GoodsToShipOnDate",
-				Parameters = parameters
-			};
-			return repInfo;
+			var reportInfo = _reportInfoFactory.Create("Store.GoodsToShipOnDate", Title, parameters);
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false)

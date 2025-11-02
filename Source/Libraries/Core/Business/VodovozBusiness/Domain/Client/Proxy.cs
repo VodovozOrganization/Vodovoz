@@ -142,14 +142,6 @@ namespace Vodovoz.Domain.Client
 				return;
 			ObservableDeliveryPoints.Add(deliveryPoint);
 		}
-
-		//Конструкторы
-		public static IUnitOfWorkGeneric<Proxy> Create (Counterparty counterparty)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<Proxy> ();
-			uow.Root.Counterparty = counterparty;
-			return uow;
-		}
 	}
 }
 

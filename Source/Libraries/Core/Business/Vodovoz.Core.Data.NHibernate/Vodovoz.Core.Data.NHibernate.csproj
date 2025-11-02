@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
@@ -6,13 +6,22 @@
 
 	<ItemGroup>
 		<PackageReference Include="FluentNHibernate" Version="3.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
 		<PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
 		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />
+	  <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
+	  <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 	  <ProjectReference Include="..\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+	  <ProjectReference Include="..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Options\" />
 	</ItemGroup>
 </Project>

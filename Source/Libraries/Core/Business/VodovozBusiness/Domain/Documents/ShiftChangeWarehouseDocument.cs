@@ -7,11 +7,13 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 
@@ -35,6 +37,7 @@ namespace Vodovoz.Domain.Documents
 		private GenericObservableList<ShiftChangeWarehouseDocumentItem> _observableNomenclatureItems;
 		private IList<InstanceShiftChangeWarehouseDocumentItem> _instanceItems = new List<InstanceShiftChangeWarehouseDocumentItem>();
 		private GenericObservableList<InstanceShiftChangeWarehouseDocumentItem> _observableInstanceItems;
+		private bool _sortedByNomenclatureName;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
@@ -81,6 +84,12 @@ namespace Vodovoz.Domain.Documents
 					Warehouse = null;
 				}
 			}
+		}
+
+		public virtual bool SortedByNomenclatureName
+		{
+			get => _sortedByNomenclatureName;
+			set => SetField(ref _sortedByNomenclatureName, value);
 		}
 
 		[Display(Name = "Тип передачи остатков")]
@@ -240,7 +249,7 @@ namespace Vodovoz.Domain.Documents
 				return;
 			}
 			
-			IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> instances = null;
+			IList<NomenclatureInstanceBalanceNode> instances = null;
 
 			switch(ShiftChangeResidueDocumentType)
 			{
@@ -367,7 +376,37 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		#endregion
+		public virtual void SortItems(bool byName = false)
+		{
+			var sortedNomenclatureItems = NomenclatureItems.ToList();
+			var sortedInstanceItems = InstanceItems.ToList();
+
+			if(!byName)
+			{
+				sortedNomenclatureItems.Sort((x, y) => x.Nomenclature.Id.CompareTo(y.Nomenclature.Id));
+				sortedInstanceItems.Sort((x, y) => x.InventoryNomenclatureInstance.Id.CompareTo(y.InventoryNomenclatureInstance.Id));
+			}
+			else
+			{
+				sortedNomenclatureItems.Sort((x, y) => x.Nomenclature.Name.CompareTo(y.Nomenclature.Name));
+				sortedInstanceItems.Sort((x, y) => x.InventoryNomenclatureInstance.Name.CompareTo(y.InventoryNomenclatureInstance.Name));
+			}
+
+			ObservableNomenclatureItems.Clear();
+			ObservableInstanceItems.Clear();
+
+			foreach(var nomenclatureItem in sortedNomenclatureItems)
+			{
+				ObservableNomenclatureItems.Add(nomenclatureItem);
+			}
+
+			foreach(var instanceItem in sortedInstanceItems)
+			{
+				ObservableInstanceItems.Add(instanceItem);
+			}
+		}
+
+		#endregion Функции
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

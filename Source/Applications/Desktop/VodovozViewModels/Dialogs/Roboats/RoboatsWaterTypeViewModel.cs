@@ -1,39 +1,54 @@
-﻿using QS.Navigation;
+﻿using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Dialogs.Roboats
 {
 	public class RoboatsWaterTypeViewModel : EntityTabViewModelBase<RoboatsWaterType>
 	{
 		private RoboatsEntityViewModel _roboatsEntityViewModel;
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
 
-		public RoboatsWaterTypeViewModel(IEntityUoWBuilder uowBuilder, INomenclatureJournalFactory nomenclatureJournalFactory, IRoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices) : base(uowBuilder, commonServices)
+		public RoboatsWaterTypeViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
+			ICommonServices commonServices,
+			INavigationManager navigationManager)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(roboatsViewModelFactory is null)
 			{
 				throw new ArgumentNullException(nameof(roboatsViewModelFactory));
 			}
 
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-
 			RoboatsEntityViewModel = roboatsViewModelFactory.CreateViewModel(Entity);
-
-			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetRoboatsWaterJournalFactory();
 
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(RoboatsWaterType));
 			_canEdit = permissionResult.CanUpdate;
 			_canCreate = permissionResult.CanCreate;
+
+			NomenclatureViewModel = new CommonEEVMBuilderFactory<RoboatsWaterType>(this, Entity, UoW, NavigationManager)
+				.ForProperty(rwt => rwt.Nomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.water;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
 		}
 
 		public bool CanEdit => _canEdit || _canCreate && UoW.IsNew;
@@ -44,11 +59,7 @@ namespace Vodovoz.ViewModels.Dialogs.Roboats
 			set => SetField(ref _roboatsEntityViewModel, value);
 		}
 
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory
-		{
-			get => _nomenclatureSelectorFactory;
-			set => SetField(ref _nomenclatureSelectorFactory, value);
-		}
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
 
 		protected override bool BeforeSave()
 		{

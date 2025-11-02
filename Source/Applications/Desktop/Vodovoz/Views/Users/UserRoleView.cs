@@ -5,6 +5,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.ViewModels.Users;
 
@@ -94,7 +95,7 @@ namespace Vodovoz.Views.Users
 				.AddBinding(ViewModel, vm => vm.SelectedEntityAvailableDatabase, w => w.SelectedRow)
 				.InitializeFromSource();
 			treeViewAvailableDataBases.RowActivated += (o, args) => ViewModel.RemoveAvailableDatabaseCommand.Execute();
-			treeViewAvailableDataBases.ItemsDataSource = ViewModel.Entity.ObservableAvailableDatabases;
+			treeViewAvailableDataBases.ItemsDataSource = ViewModel.Entity.AvailableDatabases;
 
 			#endregion
 
@@ -131,7 +132,7 @@ namespace Vodovoz.Views.Users
 				.AddColumn("")
 				.Finish();
 
-			treeViewPrivileges.ItemsDataSource = ViewModel.Entity.ObservablePrivileges;
+			treeViewPrivileges.ItemsDataSource = ViewModel.Entity.Privileges;
 			treeViewPrivileges.Selection.Mode = SelectionMode.Multiple;
 			treeViewPrivileges.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedPrivileges, w => w.SelectedRows)

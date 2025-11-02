@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
@@ -71,7 +72,7 @@ namespace Vodovoz.Views.Warehouse
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
 				{
-					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+					filter.CounterpartyType = CounterpartyType.Supplier;
 				})
 				.Finish();
 
@@ -90,14 +91,10 @@ namespace Vodovoz.Views.Warehouse
 			vboxStorageFrom.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
 				.InitializeFromSource();
-			hboxWarehouseFrom.Binding
-				.AddBinding(ViewModel, vm => vm.CanShowWarehouseFrom, w => w.Visible)
-				.InitializeFromSource();
-			comboWarehouseFrom.Binding
-				.AddBinding(ViewModel, vm => vm.WarehousesFrom, w => w.ItemsList)
-				.InitializeFromSource();
-			comboWarehouseFrom.Binding
-				.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem)
+
+			entryWarehouseFrom.ViewModel = ViewModel.SourceWarehouseViewModel;
+			entryWarehouseFrom.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanShowWarehouseFrom, w => w.Visible)
 				.InitializeFromSource();
 
 			employeeEntryFrom.ViewModel = ViewModel.FromEmployeeStorageEntryViewModel;
@@ -115,17 +112,11 @@ namespace Vodovoz.Views.Warehouse
 
 			#region Получатель
 
-			hboxWarehouseTo.Binding
+			entryWarehouseTo.ViewModel = ViewModel.TargetWarehouseViewModel;
+
+			entryWarehouseTo.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowWarehouseTo, w => w.Visible)
-				.InitializeFromSource();
-			comboWarehouseTo.Binding
-				.AddBinding(ViewModel, vm => vm.WarehousesTo, w => w.ItemsList)
-				.InitializeFromSource();
-			comboWarehouseTo.Binding
-				.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem)
-				.InitializeFromSource();
-			comboWarehouseTo.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanChangeTargetWarehouseDocument, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			employeeEntryTo.ViewModel = ViewModel.ToEmployeeStorageEntryViewModel;

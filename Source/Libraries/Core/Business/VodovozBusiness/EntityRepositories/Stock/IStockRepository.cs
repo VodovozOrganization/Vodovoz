@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Stock
 {
@@ -10,7 +10,11 @@ namespace Vodovoz.EntityRepositories.Stock
 	{
 		decimal NomenclatureReserved(IUnitOfWork uow, int nomenclatureId);
 		decimal GetStockForNomenclature(IUnitOfWork uow, int nomenclatureId);
-		Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int[] nomenclatureIds, int? warehouseId = null, DateTime? onDate = null);
+		Dictionary<int, decimal> NomenclatureInStock(
+			IUnitOfWork uow,
+			int[] nomenclatureIds,
+			IEnumerable<int> warehouseIds = null,
+			DateTime? onDate = null);
 		Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
 			int storageId,
@@ -22,6 +26,5 @@ namespace Vodovoz.EntityRepositories.Stock
 			IEnumerable<int> productGroupToInclude,
 			IEnumerable<int> productGroupToExclude,
 			DateTime? onDate = null);
-		Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork uow, int[] warehouseIds, int[] nomenclatureIds);
 	}
 }

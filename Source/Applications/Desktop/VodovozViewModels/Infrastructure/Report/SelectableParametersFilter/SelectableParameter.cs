@@ -31,8 +31,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 						UnselectAllChilds();
 					}
 
-					RaiseAnySelectedChanged(this);
 					Parent?.ActualizeSelected();
+					RaiseAnySelectedChanged(this);
 				}
 			}
 		}

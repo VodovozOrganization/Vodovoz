@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using MoreLinq;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QS.Services;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Services;
 
@@ -19,15 +18,17 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class SalaryRatesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IWageParametersProvider _wageParametersProvider;
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IWageSettings _wageSettings;
 		private readonly ICommonServices _commonServices;
 
 		private readonly GenericObservableList<SalaryRateFilterNode> _salaryRateFilterNodes;
 
-		public SalaryRatesReport(IUnitOfWorkFactory unitOfWorkFactory, IWageParametersProvider wageParametersProvider,
+		public SalaryRatesReport(IReportInfoFactory reportInfoFactory, IUnitOfWorkFactory unitOfWorkFactory, IWageSettings wageSettings,
 			ICommonServices commonServices)
 		{
-			_wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Build();
@@ -53,16 +54,15 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Sales.SalaryRatesReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
-					{ "cityId", _wageParametersProvider.GetCityWageDistrictId },
-					{ "suburbId", _wageParametersProvider.GetSuburbWageDistrictId },
-				}
+				{ "wageIds", _salaryRateFilterNodes.Where(d => d.Selected).Select(d => d.WageId) },
+				{ "cityId", _wageSettings.CityWageDistrictId },
+				{ "suburbId", _wageSettings.SuburbWageDistrictId }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Sales.SalaryRatesReport", Title, parameters);
+			return reportInfo;
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -81,19 +81,5 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), true));
 		}
-	}
-
-	public class SalaryRateFilterNode : PropertyChangedBase
-	{
-		private bool _selected;
-
-		public bool Selected
-		{
-			get => _selected;
-			set => SetField(ref _selected, value);
-		}
-
-		public int WageId { get; set; }
-		public string Name { get; set; }
 	}
 }

@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Client;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -85,14 +82,12 @@ namespace Vodovoz.Domain.Orders
 		{
 		}
 
-		public override bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
+		public override bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings)
 		{
 			if(!IsForZeroDebt)
 				return true;
 
-			var forfeitId = standartNomenclatures.GetForfeitId();
-
-			BottlesRepository bottlesRepository = new BottlesRepository();
+			IBottlesRepository bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
 
 			BottlesMovementOperation bottlesMovementAlias = null;
 			Order orderAlias = null;
@@ -132,7 +127,7 @@ namespace Vodovoz.Domain.Orders
 			foreach(var o in orders1) {
 				if(o.OrderDepositItems != null && o.OrderItems == null)
 					orders2.Add(o);
-				if(o.OrderItems.All(i => i.Nomenclature.Id == forfeitId))
+				if(o.OrderItems.All(i => i.Nomenclature.Id == nomenclatureSettings.ForfeitId))
 					orders2.Add(o);
 				if(o.OrderItems == null)
 					orders2.Add(o);

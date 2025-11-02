@@ -5,9 +5,10 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using Vodovoz.Domain.Contacts;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Journals.JournalViewModels
 {

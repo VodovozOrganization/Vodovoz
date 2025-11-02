@@ -2,12 +2,17 @@
 using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -18,6 +23,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ILifetimeScope _lifetimeScope;
 		private Counterparty _client;
 		private DeliveryPoint _address;
+		private Employee _salesManager;
 		private PersonType? _opf;
 		private DateTime? _endDate;
 		private DateTime? _startDate;
@@ -39,8 +45,12 @@ namespace Vodovoz.Filters.ViewModels
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
 		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
-		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
+		private IEntityAutocompleteSelectorFactory _managerSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
+		private DialogViewModelBase _journal;
+		private bool _hideExcludeFromAutoCalls = false;
+		private decimal? _fixPriceFrom;
+		private decimal? _fixPriceTo;
 
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
@@ -49,6 +59,7 @@ namespace Vodovoz.Filters.ViewModels
 			UpdateWith(
 				x => x.Client,
 				x => x.Address,
+				x => x.SalesManager,
 				x => x.OPF,
 				x => x.StartDate,
 				x => x.EndDate,
@@ -61,8 +72,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.HideActiveCounterparty,
 				x => x.ShowSuspendedCounterparty,
 				x => x.ShowCancellationCounterparty,
-				x => x.DebtorsTaskStatus
-			);
+				x => x.DebtorsTaskStatus,
+				x => x.HideExcludeFromAutoCalls);
 		}
 
 		public Counterparty Client
@@ -75,6 +86,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _address;
 			set => SetField(ref _address, value);
+		}
+
+		public Employee SalesManager
+		{
+			get => _salesManager;
+			set => SetField(ref _salesManager, value);
 		}
 
 		public PersonType? OPF
@@ -171,6 +188,18 @@ namespace Vodovoz.Filters.ViewModels
 			get => _deliveryPointsTo;
 			set => UpdateFilterField(ref _deliveryPointsTo, value);
 		}
+		
+		public decimal? FixPriceFrom
+		{
+			get => _fixPriceFrom;
+			set => SetField(ref _fixPriceFrom, value);
+		}
+
+		public decimal? FixPriceTo
+		{
+			get => _fixPriceTo;
+			set => SetField(ref _fixPriceTo, value);
+		}
 
 		public Nomenclature LastOrderNomenclature
 		{
@@ -196,6 +225,15 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _debtorsTaskStatus, value);
 		}
 
+		/// <summary>
+		/// Сокрытие контрагентов с отказом от автообзвона
+		/// </summary>
+		public bool HideExcludeFromAutoCalls
+		{
+			get => _hideExcludeFromAutoCalls;
+			set => UpdateFilterField(ref _hideExcludeFromAutoCalls, value);
+		}
+
 		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
 		 _deliveryPointCategories ?? (_deliveryPointCategories = UoW.GetAll<DeliveryPointCategory>());
 
@@ -211,13 +249,33 @@ namespace Vodovoz.Filters.ViewModels
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
 				_lifetimeScope.Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 
-		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
-			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
-				new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
-					typeof(Nomenclature), () => _lifetimeScope.Resolve<NomenclaturesJournalViewModel>()));
+		public virtual IEntityAutocompleteSelectorFactory ManagerSelectorFactory =>
+			_managerSelectorFactory ?? (_managerSelectorFactory =
+				_lifetimeScope.Resolve<IEmployeeJournalFactory>().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+		
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
+
+		public DialogViewModelBase Journal
+		{
+			get => _journal;
+			set
+			{
+				if(_journal is null)
+				{
+					_journal = value;
+
+					NomenclatureViewModel = new CommonEEVMBuilderFactory<DebtorsJournalFilterViewModel>(_journal, this, UoW, _journal.NavigationManager, _lifetimeScope)
+						.ForProperty(x => x.LastOrderNomenclature)
+						.UseViewModelDialog<NomenclatureViewModel>()
+						.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+						.Finish();
+				}
+			}
+		}
 
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

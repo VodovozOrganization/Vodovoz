@@ -12,7 +12,7 @@ namespace Vodovoz.Cash.Transfer
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
 		private global::Gtk.Table tableState;
 
@@ -38,7 +38,7 @@ namespace Vodovoz.Cash.Transfer
 
 		private global::Gtk.Label labelCar;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::Gtk.HBox hboxTransferInfo;
 
@@ -139,7 +139,7 @@ namespace Vodovoz.Cash.Transfer
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;
@@ -255,6 +255,7 @@ namespace Vodovoz.Cash.Transfer
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeDriver]));
@@ -270,13 +271,11 @@ namespace Vodovoz.Cash.Transfer
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
-			this.hbox2.Add(this.entityviewmodelentryCar);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.hbox2.Add(this.entityentryCar);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryCar]));
 			w19.Position = 3;
 			this.vboxDialog.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hbox2]));

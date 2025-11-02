@@ -9,10 +9,17 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class UndeliveryDetalizationJournalFactory : IUndeliveryDetalizationJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public UndeliveryDetalizationJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateUndeliveryDetalizationAutocompleteSelectorFactory(UndeliveryDetalizationJournalFilterViewModel filterViewModel)
 		{
 			return new EntityAutocompleteSelectorFactory<UndeliveryDetalizationJournalViewModel>(typeof(UndeliveryDetalization), () =>
-				new UndeliveryDetalizationJournalViewModel(filterViewModel, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+				new UndeliveryDetalizationJournalViewModel(filterViewModel, _uowFactory, ServicesConfig.CommonServices));
 		}
 	}
 }

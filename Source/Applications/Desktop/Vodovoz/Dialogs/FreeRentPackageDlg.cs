@@ -1,10 +1,12 @@
-﻿using NHibernate.Criterion;
+﻿using Autofac;
+using NHibernate.Criterion;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Factories;
 
@@ -13,7 +15,7 @@ namespace Vodovoz
 	public partial class FreeRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<FreeRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IRentPackageRepository _rentPackageRepository = new RentPackageRepository();
+		private readonly IRentPackageRepository _rentPackageRepository = ScopeProvider.Scope.Resolve<IRentPackageRepository>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 
 		private ValidationContext _validationContext;
@@ -21,7 +23,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<FreeRentPackage>();
 			TabName = "Новый пакет бесплатной аренды";
 			ConfigureDlg();
 		}
@@ -29,7 +31,7 @@ namespace Vodovoz
 		public FreeRentPackageDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<FreeRentPackage>(id);
 			ConfigureDlg();
 		}
 

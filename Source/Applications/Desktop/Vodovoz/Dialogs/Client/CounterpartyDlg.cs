@@ -1,8 +1,5 @@
-using Autofac;
-using EdoService;
-using EdoService.Converters;
-using EdoService.Dto;
-using EdoService.Services;
+﻿using Autofac;
+using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -10,7 +7,6 @@ using Gtk;
 using NHibernate;
 using NHibernate.Transform;
 using NLog;
-using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Dialog;
@@ -18,6 +14,7 @@ using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -40,18 +37,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using TISystems.TTC.CRM.BE.Serialization;
-using TrueMarkApi.Library.Converters;
-using TrueMarkApi.Library.Dto;
+using TrueMark.Contracts;
+using TrueMarkApi.Client;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
@@ -60,9 +60,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
@@ -71,9 +68,15 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
+using Vodovoz.Models.TrueMark;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Specifications.Orders.EdoContainers;
@@ -82,18 +85,22 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using Vodovoz.Views.Client;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Nodes;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz
 {
@@ -105,44 +112,51 @@ namespace Vodovoz
 
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
+		private readonly bool _canEditClientRefer =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
-		private readonly IEmployeeService _employeeService = VodovozGtkServicesConfig.EmployeeService;
+		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IMoneyRepository _moneyRepository = new MoneyRepository();
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
-		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
-		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
-		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
+		private readonly IPhoneRepository _phoneRepository = ScopeProvider.Scope.Resolve<IPhoneRepository>();
+		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
+		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
+		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
+		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
-		private IEmailParametersProvider _emailParametersProvider;
+		private IEmailSettings _emailSettings;
 		private ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private ValidationContext _validationContext;
 		private Employee _currentEmployee;
 		private PhonesViewModel _phonesViewModel;
 		private double _emailLastScrollPosition;
-		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
-		private IContactListService _contactListService;
-		private TrueMarkApiClient _trueMarkApiClient;
+		private CounterpartyEdoAccountsViewModel _counterpartyEdoAccountsViewModel;
+		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private ITrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings;
 		private ICounterpartySettings _counterpartySettings;
-		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IOrganizationSettings _organizationSettings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
 		private IRevenueServiceClient _revenueServiceClient;
 		private ICounterpartyService _counterpartyService;
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
+		private IDeleteEntityService _deleteEntityService;
+		private ICurrentPermissionService _currentPermissionService;
+		private IEdoService _edoService;
+		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
+		private ICounterpartyFileStorageService _counterpartyFileStorageService;
+		private IGeneralSettings _generalSettings;
+		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
+		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+		private Organization _vodovozOrganization;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -234,14 +248,14 @@ namespace Vodovoz
 		public CounterpartyDlg()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			ConfigureDlg();
 		}
 
 		public CounterpartyDlg(int id)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(id);
 			ConfigureDlg();
 		}
 
@@ -252,7 +266,7 @@ namespace Vodovoz
 		public CounterpartyDlg(NewCounterpartyParameters parameters)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 
 			Entity.Name = parameters.Name;
 			Entity.FullName = parameters.FullName;
@@ -285,7 +299,7 @@ namespace Vodovoz
 		public CounterpartyDlg(Phone phone)
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			phone.Counterparty = Entity;
 			Entity.Phones.Add(phone);
 			ConfigureDlg();
@@ -302,14 +316,21 @@ namespace Vodovoz
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
+			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
+			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
-			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
-			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
+			_roboatsJournalsFactory = new RoboatsJournalsFactory(ServicesConfig.UnitOfWorkFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, NavigationManager, _deleteEntityService, _currentPermissionService);
+			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory(ServicesConfig.UnitOfWorkFactory);
+			_emailSettings = _lifetimeScope.Resolve<IEmailSettings>();
+			_trueMarkApiClient = _lifetimeScope.Resolve<ITrueMarkApiClient>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -327,6 +348,8 @@ namespace Vodovoz
 			{
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
+
+			_vodovozOrganization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 			ConfigureTabInfo();
 			ConfigureTabContacts();
@@ -364,8 +387,53 @@ namespace Vodovoz
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+
+			ConfigureClientReferEntityEntry();
+			ConfigureDelayDaysFromGeneralSettings();
 		}
 
+		private void InitializeEdoAccountsWidget()
+		{
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(Entity);
+			
+			_counterpartyEdoAccountsViewModel = _lifetimeScope.Resolve<CounterpartyEdoAccountsViewModel>(
+				new TypedParameter(typeof(IUnitOfWork), UoW),
+				new TypedParameter(typeof(Counterparty), Entity),
+				new TypedParameter(typeof(ITdiTab), this)
+			);
+			
+			var accountsView = new CounterpartyEdoAccountsView(_counterpartyEdoAccountsViewModel);
+			vboxEdoAccounts.Add(accountsView);
+			accountsView.Show();
+		}
+
+		private void ConfigureClientReferEntityEntry()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Counterparty>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+
+			entityentryClientRefer.ViewModel = builder.ForProperty(x => x.Referrer)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			entityentryClientRefer.ViewModel.DisposeViewModel = false;
+		}
+
+		private void ConfigureDelayDaysFromGeneralSettings()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.DelayDaysForBuyers = _generalSettings.DefaultPaymentDeferment;
+		}
+		
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.SalesManager)
@@ -398,6 +466,16 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(Entity.IsLiquidating))
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+			}
+
+			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
+			{
+				Entity.Referrer = null;
+			}
+			
+			if(e.PropertyName == nameof(Entity.PersonType))
+			{
+				OnPersonTypeChanged();
 			}
 		}
 
@@ -470,13 +548,25 @@ namespace Vodovoz
 				.InitializeFromSource();
 			SetSensitivityByPermission("can_arc_counterparty_and_deliverypoint", ycheckIsArchived);
 
-			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
+			lblVodovozNumber.Visible = false;
 
-			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
+			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
+			
+			
+			
+			yhboxReferrer.Binding.AddSource(Entity)
+				.AddFuncBinding(e => 
+						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId),
+					w => w.Visible)
+				.AddFuncBinding(e =>
+						(e.Id == 0 && CanEdit)
+						|| _canEditClientRefer,
+					w => w.Sensitive)
+				.InitializeFromSource();
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
 
-			ySpecCmbCameFrom.Sensitive = Entity.Id == 0 && CanEdit;
+			ySpecCmbCameFrom.Sensitive = (Entity.Id == 0 && CanEdit) || _canEditClientRefer;
 			ySpecCmbCameFrom.ItemsList = _counterpartyRepository.GetPlacesClientCameFrom(
 				UoW,
 				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
@@ -505,10 +595,7 @@ namespace Vodovoz
 			DelayDaysForBuyerValue.Binding
 				.AddBinding(Entity, e => e.DelayDaysForBuyers, w => w.ValueAsInt)
 				.InitializeFromSource();
-			DelayDaysForBuyerValue.Sensitive =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"can_change_delay_days_for_buyers_and_chain_store");
-
+			
 			yspinDelayDaysForTechProcessing.Binding
 				.AddBinding(Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -543,7 +630,7 @@ namespace Vodovoz
 			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
 			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
 
-			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			comboboxOpf.Sensitive = (_currentUserCanEditCounterpartyDetails || Entity.TypeOfOwnership is null) && CanEdit;
 			FillComboboxOpf();
 			comboboxOpf.Changed += ComboboxOpfChanged;
 
@@ -593,6 +680,13 @@ namespace Vodovoz
 				.InitializeFromSource();
 			specialListCmbWorksThroughOrganization.Sensitive = _canSetWorksThroughOrganization && CanEdit;
 
+			specialListCmbWorksThroughOrganization.ItemSelected += (s, e) =>
+			{
+				Entity.OurOrganizationAccountForBills = null;
+
+				UpdateOurOrganizationSpecialAccountItemList();
+			};
+
 			enumTax.ItemsEnum = typeof(TaxType);
 
 			if(Entity.CreateDate != null)
@@ -619,12 +713,17 @@ namespace Vodovoz
 
 			// Прикрепляемые документы
 
-			var filesViewModel =
-				new CounterpartyFilesViewModel(Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
-				{
-					ReadOnly = !CanEdit
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+			_attachedFileInformationsViewModel = _attachmentsViewModelFactory.CreateAndInitialize<Counterparty, CounterpartyFileInformation>(
+				UoW,
+				Entity,
+				_counterpartyFileStorageService,
+				_cancellationTokenSource.Token,
+				Entity.AddFileInformation,
+				Entity.RemoveFileInformation);
+
+			_attachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			smallfileinformationsview.ViewModel = _attachedFileInformationsViewModel;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -658,7 +757,17 @@ namespace Vodovoz
 				.InitializeFromSource();
 			yspinExpirationDatePercent.Sensitive = CanEdit;
 
-			ycheckRoboatsExclude.Binding.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active).InitializeFromSource();
+			ycheckRoboatsExclude.Binding
+				.AddBinding(Entity, e => e.RoboatsExclude, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckExcludeFromAutoCalls.Binding
+				.AddBinding(Entity, e => e.ExcludeFromAutoCalls, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckHideDeliveryPointInBill.Binding
+				.AddBinding(Entity, e => e.HideDeliveryPointForBill, w => w.Active)
+				.InitializeFromSource();
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
@@ -706,6 +815,16 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
+		private void OnPersonTypeChanged()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.DelayDaysForBuyers = Entity.PersonType == PersonType.legal ? 7 : 0;
+		}
+
 		private void UpdateCounterpartyClassificationValues()
 		{
 			var classification =
@@ -742,8 +861,9 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
+			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
 			_phonesViewModel =
-				new PhonesViewModel(_phoneRepository, UoW, _contactsParameters, _roboatsJournalsFactory, _commonServices)
+				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
 				{
 					PhonesList = Entity.ObservablePhones,
 					Counterparty = Entity,
@@ -754,19 +874,18 @@ namespace Vodovoz
 			var emailsViewModel = new EmailsViewModel(
 				UoWGeneric,
 				Entity.Emails,
-				_emailParametersProvider,
+				_emailSettings,
 				_externalCounterpartyRepository,
 				_commonServices.InteractiveService,
 				Entity.PersonType);
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
-			var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager);
+			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			if(SetSensitivityByPermission("can_set_personal_sales_manager", entrySalesManager))
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
-
 			entrySalesManager.Binding
 				.AddBinding(Entity, e => e.SalesManager, w => w.Subject)
 				.InitializeFromSource();
@@ -875,6 +994,8 @@ namespace Vodovoz
 
 			accountsView.CanEdit = _currentUserCanEditCounterpartyDetails && CanEdit;
 			accountsView.SetAccountOwner(UoW, Entity);
+
+			ybuttonCopyAccountDetails.Clicked += OnButtonCopyAccountDetailsClicked;
 		}
 
 		private void ConfigureTabProxies()
@@ -903,6 +1024,20 @@ namespace Vodovoz
 			buttonDeleteTag.Sensitive = CanEdit;
 		}
 
+		private void UpdateOurOrganizationSpecialAccountItemList()
+		{
+			if(!Entity.UseSpecialDocFields)
+			{
+				Entity.OurOrganizationAccountForBills = null;
+			}
+
+			var organization = Entity.WorksThroughOrganization ?? _vodovozOrganization;
+
+			speciallistcomboboxSpecialAccount.ShowSpecialStateNot = true;
+			speciallistcomboboxSpecialAccount.NameForSpecialStateNot = "По умолчанию";
+			speciallistcomboboxSpecialAccount.ItemsList = organization.Accounts;
+		}
+
 		private void ConfigureTabSpecialFields()
 		{
 			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
@@ -920,6 +1055,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text)
 				.InitializeFromSource();
 			yentryCustomer.IsEditable = CanEdit;
+
+			UpdateOurOrganizationSpecialAccountItemList();
+			speciallistcomboboxSpecialAccount.SetRenderTextFunc<Account>(e => e.Name);
+			speciallistcomboboxSpecialAccount.Binding
+				.AddBinding(Entity, e => e.OurOrganizationAccountForBills, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			#region Особый договор
 
@@ -1019,9 +1160,11 @@ namespace Vodovoz
 			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
 				.AddColumn("№").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Id.ToString() : "0")
 				.AddColumn("ТМЦ").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : string.Empty)
-				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
+				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 1000000, 1, 1, 1)).Editing()
 				.Finish();
-			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
+			ytreeviewSpecialNomenclature.Binding
+				.AddBinding(Entity, e => e.SpecialNomenclatures, w => w.ItemsDataSource)
+				.InitializeFromSource();
 			ytreeviewSpecialNomenclature.Sensitive = CanEdit;
 
 			ybuttonAddNom.Sensitive = CanEdit;
@@ -1047,17 +1190,15 @@ namespace Vodovoz
 					UoW,
 					this,
 					ServicesConfig.CommonServices,
-					Startup.MainWin.NavigationManager);
+					NavigationManager as ITdiCompatibilityNavigation);
 			supplierPricesWidget.Sensitive = CanEdit;
 		}
 
 		private void ConfigureTabFixedPrices()
 		{
-			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
-			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
+			var fixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
-			var nomSelectorFactory = new NomenclatureJournalFactory();
-			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this, _lifetimeScope);
+			var fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, this, NavigationManager, _lifetimeScope);
 			fixedpricesview.ViewModel = fixedPricesViewModel;
 			SetSensitivityByPermission("can_edit_counterparty_fixed_prices", fixedpricesview);
 		}
@@ -1065,12 +1206,6 @@ namespace Vodovoz
 		private void ConfigureValidationContext()
 		{
 			_validationContext = _validationContextFactory.CreateNewValidationContext(Entity);
-
-			_validationContext.ServiceContainer.AddService(typeof(IBottlesRepository), _bottlesRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IDepositRepository), _depositRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IMoneyRepository), _moneyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(ICounterpartyRepository), _counterpartyRepository);
-			_validationContext.ServiceContainer.AddService(typeof(IOrderRepository), _orderRepository);
 		}
 
 		private void ConfigureTabEmails()
@@ -1081,7 +1216,7 @@ namespace Vodovoz
 			}
 
 			_emailLastScrollPosition = 0;
-			EmailDataLoader = new ThreadDataLoader<EmailRow>(UnitOfWorkFactory.GetDefaultFactory) { PageSize = 50 };
+			EmailDataLoader = new ThreadDataLoader<EmailRow>(ServicesConfig.UnitOfWorkFactory) { PageSize = 50 };
 			EmailDataLoader.AddQuery(EmailItemsSourceQueryFunction);
 
 			ytreeviewEmails.ColumnsConfig = FluentColumnsConfig<EmailRow>.Create()
@@ -1124,8 +1259,8 @@ namespace Vodovoz
 
 		private void CongigureTabEdo()
 		{
-			edoLightsMatrixView.ViewModel = _edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
-
+			InitializeEdoAccountsWidget();
+			
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choise_other_reason_leaving"))
 			{
 				yEnumCmbReasonForLeaving.AddEnumToHideList(ReasonForLeaving.Other);
@@ -1140,6 +1275,7 @@ namespace Vodovoz
 			{
 				var isInnRequired = string.IsNullOrWhiteSpace(Entity.INN) &&
 									(Entity.ReasonForLeaving == ReasonForLeaving.Resale
+									 || Entity.ReasonForLeaving == ReasonForLeaving.Tender
 									 || (Entity.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 										 && Entity.PersonType == PersonType.legal)
 									 );
@@ -1150,8 +1286,7 @@ namespace Vodovoz
 				}
 
 				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
-
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+				_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
@@ -1171,65 +1306,6 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.INN, w => w.Text)
 				.InitializeFromSource();
 
-			ybuttonCheckClientInTaxcom.Binding
-				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && (e.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || e.ReasonForLeaving == ReasonForLeaving.Resale),
-					w => w.Sensitive)
-				.InitializeFromSource();
-
-			var edoOperatorsAutocompleteSelectorFactory = _edoOperatorsJournalFactory.CreateEdoOperatorsAutocompleteSelectorFactory();
-			evmeOperatoEdo.SetEntityAutocompleteSelectorFactory(edoOperatorsAutocompleteSelectorFactory);
-			evmeOperatoEdo.Binding
-				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
-					w => w.Sensitive)
-				.AddBinding(Entity, e => e.EdoOperator, w => w.Subject)
-				.InitializeFromSource();
-
-			evmeOperatoEdo.ChangedByUser += (s, e) =>
-			{
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-			};
-
-			yentryPersonalAccountCodeInEdo.Binding
-				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
-					w => w.Sensitive)
-				.AddBinding(Entity, e => e.PersonalAccountIdInEdo, w => w.Text)
-				.InitializeFromSource();
-
-			yentryPersonalAccountCodeInEdo.Changed += (s, e) =>
-			{
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-			};
-
-			ybuttonSendInviteByTaxcom.Binding
-				.AddFuncBinding(Entity,
-					e => e.EdoOperator != null
-						 && !string.IsNullOrWhiteSpace(e.PersonalAccountIdInEdo)
-						 && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
-			ybuttonSendManualInvite.Binding
-				.AddFuncBinding(Entity,
-					e => e.EdoOperator != null
-						 && e.ConsentForEdoStatus == ConsentForEdoStatus.Unknown,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
-			yEnumCmbConsentForEdo.ItemsEnum = typeof(ConsentForEdoStatus);
-			yEnumCmbConsentForEdo.Binding
-				.AddBinding(Entity, e => e.ConsentForEdoStatus, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCmbConsentForEdo.Sensitive = false;
-
-			ybuttonCheckConsentForEdo.Binding
-				.AddFuncBinding(Entity, e => e.ConsentForEdoStatus == ConsentForEdoStatus.Sent, w => w.Sensitive)
-				.InitializeFromSource();
-
 			ybuttonRegistrationInChestnyZnak.Binding
 				.AddFuncBinding(Entity,
 					e => e.ReasonForLeaving == ReasonForLeaving.Resale && !string.IsNullOrWhiteSpace(e.INN),
@@ -1245,79 +1321,63 @@ namespace Vodovoz
 			yEnumCmbSendUpdInOrderStatus.ItemsEnum = typeof(OrderStatusForSendingUpd);
 			yEnumCmbSendUpdInOrderStatus.Binding
 				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
+					e => e.LegalAndHasAnyDefaultAccountAgreedForEdo || e.ReasonForLeaving == ReasonForLeaving.Tender,
 					w => w.Sensitive)
 				.AddBinding(Entity, e => e.OrderStatusForSendingUpd, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yChkBtnIsPaperlessWorkflow.Binding
-				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ConsentForEdoStatus == ConsentForEdoStatus.Agree,
-					w => w.Sensitive)
+				.AddBinding(Entity, e => e.LegalAndHasAnyDefaultAccountAgreedForEdo, w => w.Sensitive)
 				.AddBinding(Entity, e => e.IsPaperlessWorkflow, w => w.Active)
 				.InitializeFromSource();
-
-			specialListCmbAllOperators.Binding
-				.AddFuncBinding(Entity,
-					e => e.PersonType == PersonType.legal && e.ReasonForLeaving != ReasonForLeaving.Unknown && e.ReasonForLeaving != ReasonForLeaving.Other,
-					w => w.Sensitive)
-				.AddBinding(Entity, e => e.ObservableCounterpartyEdoOperators, w => w.ItemsList)
-				.InitializeFromSource();
-
-			specialListCmbAllOperators.ItemSelected += (s, e) =>
-			{
-				if(e.SelectedItem is CounterpartyEdoOperator counterpartyEdoOperator)
-				{
-					Entity.EdoOperator = counterpartyEdoOperator.EdoOperator;
-					Entity.PersonalAccountIdInEdo = counterpartyEdoOperator.PersonalAccountIdInEdo;
-				}
-			};
 
 			yChkBtnDoNotMixMarkedAndUnmarkedGoodsInOrder.Binding
 				.AddBinding(Entity, e => e.DoNotMixMarkedAndUnmarkedGoodsInOrder, w => w.Active)
 				.InitializeFromSource();
 
-			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-
-			IAuthorizationService taxcomAuthorizationService = new TaxcomAuthorizationService(_edoSettings);
-			_contactListService = new ContactListService(taxcomAuthorizationService, _edoSettings, new ContactStateConverter());
-
-			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
+			_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 		}
 
 		private void ConfigureTabEdoContainers()
 		{
-			treeViewEdoDocumentsContainer.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+			treeViewEdoDocumentsContainer.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
+				.AddColumn("Новый\nдокументооборот")
+					.AddToggleRenderer(x => x.IsNewDockflow)
+					.Editing(false)
 				.AddColumn(" Дата \n создания ")
-					.AddTextRenderer(x => x.Created.ToString("dd.MM.yyyy\nHH:mm"))
+					.AddTextRenderer(x => x.TaxcomDocflowCreationTime == null ? string.Empty : x.TaxcomDocflowCreationTime.Value.ToString("dd.MM.yyyy\nHH:mm"))
 				.AddColumn(" Номер \n заказа ")
-					.AddTextRenderer(x => x.Order == null ? "" : x.Order.Id.ToString())
+					.AddTextRenderer(x => x.OrderId == null ? "" : x.OrderId.ToString())
 				.AddColumn(" Номер счета б/о \n на предоплату ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePayment == null ? "" : x.OrderWithoutShipmentForAdvancePayment.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForAdvancePaymentId == null ? "" : x.OrderWithoutShipmentForAdvancePaymentId.ToString())
 				.AddColumn(" Номер счета б/о \n на долг ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForDebt == null ? "" : x.OrderWithoutShipmentForDebt.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForDebtId == null ? "" : x.OrderWithoutShipmentForDebtId.ToString())
 				.AddColumn(" Номер счета б/о \n на постоплату ")
-					.AddTextRenderer(x => x.OrderWithoutShipmentForPayment == null ? "" : x.OrderWithoutShipmentForPayment.Id.ToString())
+					.AddTextRenderer(x => x.OrderWithoutShipmentForPaymentId == null ? "" : x.OrderWithoutShipmentForPaymentId.ToString())
 				.AddColumn(" Код документооборота ")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn(" Отправленные \n документы ")
-					.AddTextRenderer(x => x.SentDocuments)
+					.AddTextRenderer(x => x.DocumentType)
 				.AddColumn(" Статус \n документооборота ")
-					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+					.AddTextRenderer(x => x.EdoDocFlowStatusString)
 				.AddColumn(" Доставлено \n клиенту? ")
-					.AddToggleRenderer(x => x.Received)
+					.AddToggleRenderer(x => x.IsReceived)
 					.Editing(false)
 				.AddColumn(" Описание ошибки ")
 					.AddTextRenderer(x => x.ErrorDescription)
 					.WrapWidth(500)
+				.AddColumn("Статус задачи\nнового документооборота")
+					.AddTextRenderer(x => x.EdoTaskStatus.HasValue ? x.EdoTaskStatus.Value.GetEnumTitle() : string.Empty)
+				.AddColumn("Статус документа\nнового документооборота")
+					.AddTextRenderer(x => x.EdoDocumentStatus.HasValue ? x.EdoDocumentStatus.Value.GetEnumTitle() : string.Empty)
 				.AddColumn("")
 				.Finish();
 
-			UpdateEdoContainers();
-			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			UpdateEdoDocumentDataNodes();
+			treeViewEdoDocumentsContainer.ItemsDataSource = _edoEdoDocumentDataNodes;
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
-			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
+			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoDocumentDataNodes();
 		}
 
 		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
@@ -1326,14 +1386,15 @@ namespace Vodovoz
 			{
 				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
 					EntityUoWBuilder.ForOpen(Entity.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.UnitOfWorkFactory,
 					_commonServices,
-					GetOrderIdsWithoutSuccessfullySentUpd());
+					GetOrderIdsWithoutSuccessfullySentUpd(),
+					_edoService);
 				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
 			}
 		}
 
-		private void UpdateEdoContainers()
+		private void UpdateEdoContainers(IUnitOfWork uow)
 		{
 			if(Entity.Id < 1)
 			{
@@ -1342,12 +1403,37 @@ namespace Vodovoz
 
 			_edoContainers.Clear();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			var containers = _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id);
+
+			foreach(var item in containers)
 			{
-				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
+				if(item.IsIncoming)
 				{
-					_edoContainers.Add(item);
+					continue;
 				}
+				_edoContainers.Add(item);
+			}
+		}
+
+		private void UpdateEdoDocumentDataNodes()
+		{
+			_edoEdoDocumentDataNodes.Clear();
+
+			var documents = new List<EdoDockflowData>();
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
+			{
+				UpdateEdoContainers(uow);
+
+				documents.AddRange(_edoDocflowRepository.GetEdoDocflowDataByClientId(uow, Entity.Id));
+				documents.AddRange(_edoContainers.Select(x => new EdoDockflowData(x)));
+			}
+
+			documents = documents.OrderByDescending(x => x.OrderId).ToList();
+
+			foreach(var document in documents)
+			{
+				_edoEdoDocumentDataNodes.Add(document);
 			}
 
 			SetEdoDocumentsSendAllUnsentButtonSensitive();
@@ -1366,7 +1452,7 @@ namespace Vodovoz
 			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
 
 			var orderIdsHavingUpdSentSuccessfully = _edoContainers
-				.Where(c => c.Type == Type.Upd
+				.Where(c => c.Type == DocumentContainerType.Upd
 					&& !c.IsIncoming
 					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 				.Select(c => c.Order.Id)
@@ -1521,10 +1607,7 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				Entity.UoW = UoW;
-
-				_phonesViewModel.RemoveEmpty();
-				emailsView.ViewModel.RemoveEmpty();
+				RemoveEmptyEmailsAndPhones();
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1543,13 +1626,97 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				UoWGeneric.Save();
+				UoW.Save();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+				_attachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
 				_logger.Info("Ok.");
 				return true;
 			}
 			finally
 			{
 				SetSensetivity(true);
+			}
+		}
+
+		private void RemoveEmptyEmailsAndPhones()
+		{
+			_phonesViewModel.RemoveEmpty();
+			emailsView.ViewModel.RemoveEmpty();
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!_attachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in _attachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _counterpartyFileStorageService.CreateFileAsync(Entity, fileName,
+					new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_counterpartyFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(_attachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!_attachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in _attachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_counterpartyFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
 			}
 		}
 
@@ -1833,6 +2000,8 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+
+			UpdateOurOrganizationSpecialAccountItemList();
 		}
 
 		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
@@ -1880,22 +2049,25 @@ namespace Vodovoz
 
 		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
 		{
-			NomenclatureJournalFactory nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-
-			TabParent.AddSlaveTab(this, journal);
+			(NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += Journal_OnEntitySelectedResult;
+				});
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null)
 			{
 				return;
 			}
 
-			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
+			if(Entity.SpecialNomenclatures.Any(x => x.Nomenclature.Id == selectedNode.Id))
 			{
 				return;
 			}
@@ -1907,7 +2079,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			Entity.ObservableSpecialNomenclatures.Add(specNomenclature);
+			Entity.SpecialNomenclatures.Add(specNomenclature);
 		}
 
 		private void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
@@ -1918,17 +2090,17 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
+			if(Entity.SpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
 			{
 				return;
 			}
 
-			Entity.ObservableSpecialNomenclatures.Add(specNom);
+			Entity.SpecialNomenclatures.Add(specNom);
 		}
 
 		protected void OnYbuttonRemoveNomClicked(object sender, EventArgs e)
 		{
-			Entity.ObservableSpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
+			Entity.SpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
 		}
 
 		protected void OnEnumcomboCargoReceiverSourceChangedByUser(object sender, EventArgs e)
@@ -1937,6 +2109,7 @@ namespace Vodovoz
 		}
 
 		private string _cargoReceiverBackupBuffer;
+		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 
 		private void UpdateCargoReceiver()
 		{
@@ -1957,7 +2130,7 @@ namespace Vodovoz
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
 		{
-			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
 			{
@@ -1966,7 +2139,7 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение отписки от массовой рассылки"))
 			{
 				unitOfWork.Save(unsubscribingEvent);
 				unitOfWork.Commit();
@@ -1977,7 +2150,7 @@ namespace Vodovoz
 
 		protected void OnButtonSubscribeClicked(object sender, EventArgs e)
 		{
-			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailParametersProvider);
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
 			var subscribingEvent = new SubscribingBulkEmailEvent
 			{
@@ -1986,76 +2159,13 @@ namespace Vodovoz
 				Counterparty = Entity
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Сохранение подписки на массовую рассылку"))
 			{
 				unitOfWork.Save(subscribingEvent);
 				unitOfWork.Commit();
 			}
 
 			RefreshBulkEmailEventStatus();
-		}
-
-		protected void OnYbuttonCheckClientInTaxcomClicked(object sender, EventArgs e)
-		{
-			ContactList contactResult;
-
-			try
-			{
-				contactResult = _contactListService.CheckContragentAsync(Entity.INN, Entity.KPP).Result;
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Ошибка при проверке контрагента в Такском.");
-
-				return;
-			}
-
-			if(contactResult?.Contacts == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Контрагент не найден через Такском.");
-
-				return;
-			}
-
-			if(contactResult.Contacts.Length == 1)
-			{
-				var contactListItem = contactResult.Contacts[0];
-				Entity.PersonalAccountIdInEdo = contactListItem.EdxClientId;
-				Entity.EdoOperator = GetEdoOperatorByEdoAccountId(contactListItem.EdxClientId); ;
-				_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-						"Оператор получен.");
-
-				return;
-			}
-
-			foreach(var edoOperator in contactResult.Contacts)
-			{
-				var isNotExists = Entity.CounterpartyEdoOperators.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
-
-				if(isNotExists)
-				{
-					Entity.ObservableCounterpartyEdoOperators.Add(new CounterpartyEdoOperator
-					{
-						PersonalAccountIdInEdo = edoOperator.EdxClientId,
-						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
-						Counterparty = Entity
-					});
-
-					specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
-				}
-			}
-
-			Entity.EdoOperator = null;
-			Entity.PersonalAccountIdInEdo = null;
-
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-				"У контрагента найдено несколько операторов, выберите нужный из списка.");
 		}
 
 		protected void OnYbuttonRegistrationInChestnyZnakClicked(object sender, EventArgs e)
@@ -2068,7 +2178,7 @@ namespace Vodovoz
 				return;
 			}
 
-			TrueMarkResponseResultDto trueMarkResponse;
+			TrueMarkRegistrationResultDto trueMarkResponse;
 
 			try
 			{
@@ -2111,144 +2221,11 @@ namespace Vodovoz
 
 			Entity.RegistrationInChestnyZnakStatus = status.Value;
 
-			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
+			_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
 		}
-
-		protected void OnYbuttonCheckConsentForEdoClicked(object sender, EventArgs e)
-		{
-			if(Entity.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-			{
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"В статусе \"Принят\" проверка согласия не требуется");
-
-				return;
-			}
-
-			if(string.IsNullOrWhiteSpace(Entity.INN))
-			{
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					"Проверка согласия невозможна, должен быть заполнен ИНН");
-
-				return;
-			}
-
-			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
-			var contactListParser = new ContactListParser();
-
-			ContactListItem contactListItem = null;
-
-			try
-			{
-				contactListItem = contactListParser.GetLastChangeOnDate(_contactListService, checkDate, Entity.INN, Entity.KPP).Result;
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Ошибка при проверке статуса приглашения.\n{ex.Message}");
-
-				return;
-			}
-
-			if(contactListItem == null)
-			{
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Приглашение не найдено.");
-
-				return;
-			}
-
-			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
-
-			_edoLightsMatrixViewModel.RefreshLightsMatrix(Entity);
-
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Согласие проверено.");
-		}
-
-		protected void OnYbuttonSendInviteByTaxcomClicked(object sender, EventArgs e)
-		{
-			SendContact();
-		}
-
-		protected void OnYbuttonSendManualInviteClicked(object sender, EventArgs e)
-		{
-			SendContact(true);
-		}
-
-		private void SendContact(bool isManual = false)
-		{
-			var email = Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.ForBills)
-						?? Entity.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
-						?? Entity.Emails.LastOrDefault();
-
-			ResultDto resultMessage;
-
-			if(email == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					"Не удалось отправить приглашение. Заполните Email у контрагента");
-
-				return;
-			}
-
-			if(!_commonServices.InteractiveService.Question("Перед продолжением нужно будет сохранить контрагента.\nПродолжить?"))
-			{
-				return;
-			}
-
-			try
-			{
-				if(isManual)
-				{
-					if(!_commonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
-					{
-						return;
-					}
-
-					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationParametersProvider.VodovozOrganizationId);
-
-					resultMessage = _contactListService.SendContactsForManualInvitationAsync(Entity.INN, Entity.KPP, organization.Name, Entity.EdoOperator.Code,
-						email.Address, document.FileName, document.ByteFile).Result;
-				}
-				else
-				{
-					resultMessage = _contactListService.SendContactsAsync(Entity.INN, Entity.KPP, email.Address, Entity.PersonalAccountIdInEdo).Result;
-				}
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					$"Ошибка при отправке приглашения.\n{ex.Message}");
-
-				return;
-			}
-
-			if(resultMessage.IsSuccess)
-			{
-				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
-
-				UoW.Save();
-				UoW.Commit();
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-					"Приглашение отправлено.");
-			}
-			else
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
-			}
-		}
-
-		private EdoOperator GetEdoOperatorByEdoAccountId(string id) => UoW.GetAll<EdoOperator>().SingleOrDefault(eo => eo.Code == id.Substring(0, 3));
 
 		public override void Dispose()
 		{
@@ -2264,6 +2241,18 @@ namespace Vodovoz
 			};
 
 			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonCopyAccountDetailsClicked(object sender, EventArgs e)
+		{
+			var accountData = $"ИНН: {Entity.INN}\n" +
+				$"КПП: {Entity.KPP}\n" +
+				$"ЮР. адрес: {Entity.RawJurAddress}\n" +
+				$"ФИО: {Entity.SignatoryFIO}\n" +
+				$"В лице: {Entity.SignatoryPost}\n" +
+				$"На основании:  {Entity.SignatoryBaseOf}";
+
+			GetClipboard(Gdk.Selection.Clipboard).Text = accountData;
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
@@ -2384,7 +2373,7 @@ namespace Vodovoz
 					IsArchive = false
 				};
 
-				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				using(var uowOrganization = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
 				{
 					uowOrganization.Save(newOrganizationOwnershipType);
 				}

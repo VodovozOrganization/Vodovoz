@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Tools.Orders
 {
-	public class EdoContainerMainDocumentIdParser
+	public class EdoContainerMainDocumentIdParser : IEdoContainerMainDocumentIdParser
 	{
 		private readonly ICounterpartyRepository _counterpartyRepository;
 

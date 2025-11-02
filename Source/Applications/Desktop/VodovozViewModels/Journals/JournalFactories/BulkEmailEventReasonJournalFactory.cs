@@ -8,11 +8,18 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class BulkEmailEventReasonJournalFactory : IBulkEmailEventReasonJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public BulkEmailEventReasonJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateBulkEmailEventReasonAutocompleteSelectorFactory()
 		{
 			return new EntityAutocompleteSelectorFactory<BulkEmailEventReasonJournalViewModel>(typeof(BulkEmailEventReason), () =>
 			{
-				return new BulkEmailEventReasonJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new BulkEmailEventReasonJournalViewModel(_uowFactory, ServicesConfig.CommonServices);
 			});
 		}
 	}

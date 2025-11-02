@@ -3,6 +3,7 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Employees;
@@ -11,8 +12,11 @@ namespace Vodovoz.PermissionExtensions
 {
 	public class EntityExtendedPermissionValidator : IEntityExtendedPermissionValidator
 	{
-		public EntityExtendedPermissionValidator(IPermissionExtensionStore permissionExtensionStore, IEmployeeRepository employeeRepository)
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public EntityExtendedPermissionValidator(IUnitOfWorkFactory uowFactory, IPermissionExtensionStore permissionExtensionStore, IEmployeeRepository employeeRepository)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			PermissionExtensionStore = permissionExtensionStore ?? throw new NullReferenceException(nameof(permissionExtensionStore));
 			EmployeeRepository = employeeRepository ?? throw new NullReferenceException(nameof(employeeRepository));
 		}
@@ -31,7 +35,7 @@ namespace Vodovoz.PermissionExtensions
 			if(!permissionExtension.IsValidType(entityType))
 				return false;
 				
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) 
+			using(var uow = _uowFactory.CreateWithoutRoot()) 
 			{
 				User user = uow.GetById<User>(userId);
 

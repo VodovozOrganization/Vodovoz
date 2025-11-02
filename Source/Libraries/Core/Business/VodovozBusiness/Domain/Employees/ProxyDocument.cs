@@ -86,11 +86,4 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Доверенность M-2")]
 		M2Proxy
 	}
-
-	public class ProxyDocumentStringType : NHibernate.Type.EnumStringType
-	{
-		public ProxyDocumentStringType() : base(typeof(ProxyDocumentType))
-		{
-		}
-	}
 }

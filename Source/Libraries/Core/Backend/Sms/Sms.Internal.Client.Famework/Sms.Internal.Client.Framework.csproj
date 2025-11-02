@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Sms.Internal.Client.Framework</RootNamespace>
     <AssemblyName>Sms.Internal.Client.Framework</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -97,7 +97,7 @@
       <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Diagnostics.DiagnosticSource">
-      <Version>7.0.2</Version>
+      <Version>8.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Memory">
       <Version>4.5.5</Version>

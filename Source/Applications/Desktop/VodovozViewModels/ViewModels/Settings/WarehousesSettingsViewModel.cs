@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate.Transform;
@@ -8,9 +8,9 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Store;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
@@ -24,8 +24,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
-			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			string parameterName) : base(commonServices, unitOfWorkFactory, generalSettingsParametersProvider, parameterName)
+			IGeneralSettings generalSettingsSettings,
+			string parameterName) : base(commonServices, unitOfWorkFactory, generalSettingsSettings, parameterName)
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		protected override void SaveEntities()
 		{
 			var ids = ObservableEntities.Select(x => x.Id).ToArray();
-			GeneralSettingsParametersProvider.UpdateWarehousesIdsForParameter(ids, ParameterName);
+			GeneralSettingsSettings.UpdateWarehousesIdsForParameter(ids, ParameterName);
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Данные сохранены");
 		}
 
@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				NamedDomainObjectNode resultAlias = null;
 				uow.Session.DefaultReadOnly = true;
 
-				var warehousesIds = GeneralSettingsParametersProvider.WarehousesForPricesAndStocksIntegration;
+				var warehousesIds = GeneralSettingsSettings.WarehousesForPricesAndStocksIntegration;
 
 				var nodes = uow.Session.QueryOver<Warehouse>()
 					.WhereRestrictionOn(w => w.Id).IsIn(warehousesIds)

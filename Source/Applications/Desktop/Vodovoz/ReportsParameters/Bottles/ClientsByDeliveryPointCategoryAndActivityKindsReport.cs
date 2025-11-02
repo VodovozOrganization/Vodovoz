@@ -1,111 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using Gamma.Widgets;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
+﻿using Gamma.GtkWidgets;
+using QS.Views;
+using System.ComponentModel;
 using Vodovoz.Domain.Client;
-using QS.Dialog.GtkUI;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
-	public partial class ClientsByDeliveryPointCategoryAndActivityKindsReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class ClientsByDeliveryPointCategoryAndActivityKindsReport : ViewBase<ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel>
 	{
-		DeliveryPointCategory category;
-		PaymentType? paymentType;
-		CounterpartyActivityKind activityKind;
-		GenericObservableList<SubstringToSearch> substringsToSearch;
+		private readonly ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel _viewModel;
 
-		public ClientsByDeliveryPointCategoryAndActivityKindsReport()
+		public ClientsByDeliveryPointCategoryAndActivityKindsReport(ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
-			dtrngPeriod.StartDate = DateTime.Today;
-			dtrngPeriod.EndDate = DateTime.Today;
-			specCmbDeliveryPointCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().List();
-			specCmbDeliveryPointCategory.ItemSelected += (s, e) => category = specCmbDeliveryPointCategory.SelectedItem as DeliveryPointCategory;
-			enumCmbPaymentType.ItemsEnum = typeof(PaymentType);
-			enumCmbPaymentType.EnumItemSelected += (s, e) => paymentType = (PaymentType?)enumCmbPaymentType.SelectedItem;
-			specCmbSubstring.ItemsList = UoW.Session.QueryOver<CounterpartyActivityKind>().List();
+			specCmbDeliveryPointCategory.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.DeliveryPointCategories, w => w.ItemsList)
+				.AddBinding(vm => vm.DeliveryPointCategory, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			enumCmbPaymentType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.PaymentTypeType, w => w.ItemsEnum)
+				.AddBinding(vm => vm.PaymentType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
 			specCmbSubstring.SetRenderTextFunc<CounterpartyActivityKind>(x => x.Name);
-			specCmbSubstring.ItemSelected += LstCmbSubstring_ItemSelected;
+			specCmbSubstring.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ActivityKinds, w => w.ItemsList)
+				.AddBinding(vm => vm.ActivityKind, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			SetAccessibility();
-			yTreeSubstrings.ColumnsConfig = columnsConfig;
+			yTreeSubstrings.ColumnsConfig = ColumnsConfigFactory.Create<SubstringToSearch>()
+				.AddColumn("Выбрать").AddToggleRenderer(n => n.Selected).Editing()
+				.AddColumn("Название").AddTextRenderer(n => n.Substring)
+				.Finish();
+
+			srlWinSubstrings.Visible = !ViewModel.SubstringsVisible;
+			yTreeSubstrings.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SubstringsToSearch, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SubstringsVisible, w => w.Visible, new BooleanInvertedConverter())
+				.InitializeFromSource();
+
+			yEntSubstring.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SubstringsVisible, w => w.Visible)
+				.AddBinding(vm => vm.SubstringToSearch, w => w.Text)
+				.InitializeFromSource();
+
+
+			dtrngPeriod.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			buttonRun.BindCommand(ViewModel.GenerateReportCommand);
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
-		void LstCmbSubstring_ItemSelected(object sender, ItemSelectedEventArgs e)
+		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			activityKind = specCmbSubstring.SelectedItem as CounterpartyActivityKind;
-			if(activityKind != null) {
-				substringsToSearch = new GenericObservableList<SubstringToSearch>(activityKind.GetListOfSubstrings());
-				yTreeSubstrings.ItemsDataSource = substringsToSearch;
-			} else {
-				yTreeSubstrings.ItemsDataSource = substringsToSearch = null;
+			switch(e.PropertyName)
+			{
+				case nameof(ViewModel.SubstringsVisible):
+					srlWinSubstrings.Visible = !ViewModel.SubstringsVisible;
+					break;
+				default:
+					break;
 			}
-			SetAccessibility();
-		}
-
-		void SetAccessibility()
-		{
-			srlWinSubstrings.Visible = specCmbSubstring.SelectedItem != null;
-			yEntSubstring.Visible = specCmbSubstring.SelectedItem == null;
-		}
-
-		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<SubstringToSearch>()
-														   .AddColumn("Выбрать")
-																.AddToggleRenderer(n => n.Selected).Editing()
-														   .AddColumn("Название")
-																.AddTextRenderer(n => n.Substring)
-														   .Finish();
-
-
-		#region IParametersWidget implementation
-
-		public string Title => "Клиенты по типам объектов и видам деятельности";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion IParametersWidget implementation
-
-		void OnUpdate(bool hide = false) => LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-
-		protected void OnButtonRunClicked(object sender, EventArgs e) => OnUpdate(true);
-
-		string[] GetSubstrings(IEnumerable<string> strings)
-		{
-			return strings.Any() ? strings.ToArray() : new[] { "ALL" };
-		}
-
-		ReportInfo GetReportInfo()
-		{
-			string[] substrings = { "ALL" };
-			if(activityKind == null && !string.IsNullOrEmpty(yEntSubstring.Text))
-				substrings = new[] { yEntSubstring.Text };
-			if(activityKind != null)
-				substrings = GetSubstrings(substringsToSearch.Where(s => s.Selected).Select(s => s.Substring));
-			var repInfo = new ReportInfo {
-				Identifier = "Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport",
-				Parameters = new Dictionary<string, object> {
-					{ "start_date", dtrngPeriod.StartDate },
-					{ "end_date", dtrngPeriod.EndDate },
-					{ "category_id", category?.Id ?? 0},
-					{ "payment_type", paymentType?.ToString() ?? "ALL" },
-					{ "substrings", substrings}
-				}
-			};
-
-			return repInfo;
 		}
 	}
 }

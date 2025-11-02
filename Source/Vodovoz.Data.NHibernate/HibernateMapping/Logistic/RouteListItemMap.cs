@@ -28,9 +28,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.WithForwarder).Column("with_forwarder");
 			Map(x => x.StatusLastUpdate).Column("status_last_update");
 			Map(x => x.Comment).Column("comment").Length(150);
-			Map(x => x.Status).Column("status").CustomType<RouteListItemStatusStringType>();
-			Map(x => x.AddressTransferType).Column("address_transfer_type").CustomType<AddressTransferTypeStringType>();
+			Map(x => x.Status).Column("status");
+			Map(x => x.AddressTransferType).Column("address_transfer_type");
 			Map(x => x.WasTransfered).Column("was_transfered");
+			Map(x => x.RecievedTransferAt).Column("recieved_transfer_at");
 			Map(x => x.CashierComment).Column("cashier_comment");
 			Map(x => x.CashierCommentCreateDate).Column("cashier_comment_create_date");
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
@@ -40,6 +41,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			Map(x => x.PlanTimeEnd).Column("plan_time_end").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.CommentForFine).Column("comment_for_fine");
 			Map(x => x.IsDriverForeignDistrict).Column("is_driver_foreign_district");
+			Map(x => x.UnscannedCodesReason).Column("unscanned_codes_reason");
 
 			Map(x => x.CreationDate).Column("creation_date")
 				.Insert().Not.Update().Access.ReadOnlyPropertyThroughCamelCaseField(Prefix.Underscore);
@@ -53,6 +55,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			References(x => x.LateArrivalReason).Column("late_arrival_reason_id");
 			References(x => x.LateArrivalReasonAuthor).Column("late_arrival_reason_author_id");
 			References(x => x.CommentForFineAuthor).Column("comment_for_fine_author_id");
+
+			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
 
 			HasManyToMany(x => x.Fines)
 				.Table("fines_to_route_list_addresses")

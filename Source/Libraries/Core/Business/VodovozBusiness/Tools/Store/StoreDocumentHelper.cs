@@ -5,19 +5,19 @@ using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.Services;
 
 namespace Vodovoz.Tools.Store
 {
 	public class StoreDocumentHelper : IStoreDocumentHelper
 	{
-		private readonly IUserSettings _userSettings;
+		private readonly IUserSettingsService _userSettings;
 		private readonly IInteractiveService _interactiveService;
 		private CurrentWarehousePermissions WarehousePermissions { get; }
 
-		public StoreDocumentHelper(IUserSettings userSettings)
+		public StoreDocumentHelper(IUserSettingsService userSettings)
 		{
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			WarehousePermissions = new CurrentWarehousePermissions();
@@ -217,7 +217,7 @@ namespace Vodovoz.Tools.Store
 		{
 			var result = GetRestrictedWarehouseQuery(permissions)
 				.DetachedCriteria
-				.Add(Restrictions.IsNotNull(nameof(Warehouse.OwningSubdivision)));
+				.Add(Restrictions.IsNotNull(nameof(Warehouse.OwningSubdivisionId)));
 
 			return result;
 		}

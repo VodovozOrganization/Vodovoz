@@ -41,11 +41,10 @@ namespace Mango.Grpc.Client
 
 			var options = new[]
 			{
-				new ChannelOption("grpc.keepalive_time_ms", 30000),
-				new ChannelOption("grpc.keepalive_timeout_ms", 15000),
-				new ChannelOption("grpc.keepalive_permit_without_calls", 1),
-				new ChannelOption("grpc.http2.min_time_between_pings_ms", 30000),
-				new ChannelOption("grpc.http2.max_pings_without_data", 0)
+				new ChannelOption("grpc.keepalive_time_ms", _mangoSettings.GrpcKeepAliveTimeMs),
+				new ChannelOption("grpc.keepalive_timeout_ms", _mangoSettings.GrpcKeepAliveTimeoutMs),
+				new ChannelOption("grpc.keepalive_permit_without_calls", _mangoSettings.GrpcKeepAlivePermitWithoutCalls ? 1 : 0),
+				new ChannelOption("grpc.http2.max_pings_without_data", _mangoSettings.GrpcMaxPingWithoutData)
 			};
 
 			_channel = new Channel(url, ChannelCredentials.Insecure, options);

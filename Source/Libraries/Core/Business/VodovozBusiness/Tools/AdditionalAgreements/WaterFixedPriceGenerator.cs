@@ -1,32 +1,34 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Tools
 {
 	public class WaterFixedPriceGenerator
 	{
 		private readonly IUnitOfWork _uow;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly decimal _priceIncrement;
 
-		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public WaterFixedPriceGenerator(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, INomenclatureRepository nomenclatureRepository)
 		{
 			_uow = uow;
-
-			if(nomenclatureParametersProvider == null)
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			if(nomenclatureSettings == null)
 			{
-				throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+				throw new ArgumentNullException(nameof(nomenclatureSettings));
 			}
 			
 			SemiozeriePrice = 0m;
-			_priceIncrement = nomenclatureParametersProvider.GetWaterPriceIncrement;
-			SemiozerieWater = nomenclatureParametersProvider.GetWaterSemiozerie(uow);
-			RuchkiWater = nomenclatureParametersProvider.GetWaterRuchki(uow);
-			KislorodnayaWater = nomenclatureParametersProvider.GetWaterKislorodnaya(uow);
-			SnyatogorskayaWater = nomenclatureParametersProvider.GetWaterSnyatogorskaya(uow);
-			KislorodnayaDeluxeWater = nomenclatureParametersProvider.GetWaterKislorodnayaDeluxe(uow);
+			_priceIncrement = nomenclatureSettings.GetWaterPriceIncrement;
+			SemiozerieWater = _nomenclatureRepository.GetWaterSemiozerie(uow);
+			RuchkiWater = _nomenclatureRepository.GetWaterRuchki(uow);
+			KislorodnayaWater = _nomenclatureRepository.GetWaterKislorodnaya(uow);
+			SnyatogorskayaWater = _nomenclatureRepository.GetWaterSnyatogorskaya(uow);
+			KislorodnayaDeluxeWater = _nomenclatureRepository.GetWaterKislorodnayaDeluxe(uow);
 		}
 
 		private Nomenclature SemiozerieWater;

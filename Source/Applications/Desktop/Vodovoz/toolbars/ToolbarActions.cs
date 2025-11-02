@@ -13,13 +13,11 @@ using QS.Report.ViewModels;
 using QSReport;
 using System;
 using Vodovoz;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
@@ -33,9 +31,6 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.Old1612ExportTo1c;
-using Vodovoz.Parameters;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Representations;
@@ -45,6 +40,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
@@ -63,8 +59,10 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Service;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 
@@ -78,8 +76,14 @@ public partial class MainWindow : Window
 	Action ActionUndeliveredOrders;
 	Action ActionCashReceiptsJournal;
 	Action ActionOrdersWithReceiptJournal;
+	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
+	Action ActionServiceDeliveryRules;
+	Action ActionWarehouseDocuments;
+	Action ActionWarehouseStock;
+	Action ActionClientBalance;
+	Action ActionWarehouseDocumentsItemsJournal;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -121,10 +125,6 @@ public partial class MainWindow : Window
 	Action ActionPaymentFromBank;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
-	Action ActionRevision;
-	Action ActionExportTo1c;
-	Action ActionOldExportTo1c;
-	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportPaymentsByCard;
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
@@ -154,14 +154,25 @@ public partial class MainWindow : Window
 
 	//ТрО
 	private Action ActionCarEventsJournal;
-	public Action WayBillReportAction { get; private set; }
-	public Action CarsJournalAction { get; private set; }
+	private Action ActionMileageWriteOffJournal;
 
 	//Отдел продаж
 	private Action ActionSalesOrdersJournal;
 	private Action ActionSalesCounterpartiesJournal;
 	private Action ActionSalesUndeliveredOrdersJournal;
 	private Action ActionSalesComplaintsJournal;
+
+	//Работа с 1С
+	Action ActionRevision;
+	Action ActionExportTo1c;
+	Action ActionExportCounterpartiesTo1c;
+	Action ActionAnalyseCounterpartyDiscrepancies;
+
+	//Честный знак
+	Action ActionCodesPool;
+	Action ActionEdoProcessJournal;
+	Action ActionEdoProblemJournal;
+	
 
 	public void BuildToolbarActions()
 	{
@@ -175,16 +186,18 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
-		
+		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
+
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
-		
+
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -221,13 +234,9 @@ public partial class MainWindow : Window
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента", null, "table");
-		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3 (до 16.12.2020)", null, "table");
-		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportPaymentsByCard = new Action("ActionImportPaymentsByCard", "Загрузка выписки оплат по карте", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
-		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
@@ -253,14 +262,24 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
-		WayBillReportAction = new Action("WayBillReportAction", "Путевой лист");
-		CarsJournalAction = new Action("CarsJournalAction", "Автомобили");
+		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Пробег без МЛ", null, "table");
 
 		//Отдел продаж
 		ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");
 		ActionSalesCounterpartiesJournal = new Action("ActionSalesCounterpartiesJournal", "Журнал контрагентов", null, "table");
 		ActionSalesUndeliveredOrdersJournal = new Action("ActionSalesUndeliveredOrdersJournal", "Журнал недовозов", null, "table");
 		ActionSalesComplaintsJournal = new Action("ActionSalesComplaintsJournal", "Журнал рекламаций", null, "table");
+
+		//Работа с 1С
+		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
+		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
+		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
+		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
+
+		//Честный знак
+		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
+		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
+		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -274,9 +293,11 @@ public partial class MainWindow : Window
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionCashReceiptsJournal, null);
 		w1.Add(ActionOrdersWithReceiptJournal, null);
+		w1.Add(OnlineOrdersJournalAction, null);
 		
 		//Сервис
 		w1.Add(ActionServiceClaims, null);
+		w1.Add(ActionServiceDeliveryRules, null);
 		
 		//Склад
 		w1.Add(ActionWarehouseDocuments, null);
@@ -316,10 +337,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionPaymentFromBank, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
-		w1.Add(ActionRevision, null);
-		w1.Add(ActionExportTo1c, null);
-		w1.Add(ActionOldExportTo1c, null);
-		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportPaymentsByCard, null);
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
@@ -356,13 +373,25 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionWarehouseStock, null);
-		w1.Add(CarsJournalAction, null);
+		w1.Add(ActionCar, null);
+		w1.Add(ActionMileageWriteOffJournal, null);
 
 		//Отдел продаж
 		w1.Add(ActionSalesOrdersJournal, null);
 		w1.Add(ActionSalesCounterpartiesJournal, null);
 		w1.Add(ActionSalesUndeliveredOrdersJournal, null);
 		w1.Add(ActionSalesComplaintsJournal, null);
+
+		//Работа с 1С
+		w1.Add(ActionRevision, null);
+		w1.Add(ActionExportTo1c, null);
+		w1.Add(ActionExportCounterpartiesTo1c, null);
+		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
+
+		//Честный знак
+		w1.Add(ActionCodesPool, null);
+		w1.Add(ActionEdoProcessJournal, null);
+		w1.Add(ActionEdoProblemJournal, null);
 
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
@@ -377,9 +406,11 @@ public partial class MainWindow : Window
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
 		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
-		
+		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
+
 		//Сервис
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
+		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
 		
 		//Склад
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -417,10 +448,6 @@ public partial class MainWindow : Window
 
 		//Бухгалтерия
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionRevision.Activated += ActionRevision_Activated;
-		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
-		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
-		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportPaymentsByCard.Activated += ActionImportPaymentsByCardActivated;
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
@@ -453,8 +480,7 @@ public partial class MainWindow : Window
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
-		WayBillReportAction.Activated += OnWayBillReportActivated;
-		CarsJournalAction.Activated += OnCarsJournalActivated;
+		ActionMileageWriteOffJournal.Activated += OnActionMileageWriteOffJournalActivated;
 
 		//Отдел продаж
 		ActionSalesOrdersJournal.Activated += OnActionSalesOrdersJournalActivated;
@@ -462,6 +488,17 @@ public partial class MainWindow : Window
 		ActionSalesUndeliveredOrdersJournal.Activated += OnActionSalesUndeliveredOrdersOrdersJournalActivated;
 		ActionSalesComplaintsJournal.Activated += OnActionSalesComplaintsJournalActivated;
 
+		//Работа с 1С
+		ActionRevision.Activated += ActionRevision_Activated;
+		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
+		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
+		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
+
+		//Честный знак
+		ActionCodesPool.Activated += OnActionCodesPoolActivated;
+		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
+		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
+		
 		#endregion
 	}
 
@@ -501,7 +538,8 @@ public partial class MainWindow : Window
 	}
 	private void ActionSalariesJournal_Activated(object sender, EventArgs e)
 	{
-		var filter = new SalaryByEmployeeJournalFilterViewModel(new SubdivisionRepository(new ParametersProvider()), EmployeeStatus.IsWorking);
+		var subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
+		var filter = new SalaryByEmployeeJournalFilterViewModel(subdivisionRepository, EmployeeStatus.IsWorking);
 
 		var page = NavigationManager.OpenViewModel<SalaryByEmployeeJournalViewModel, SalaryByEmployeeJournalFilterViewModel>(null, filter);
 		page.ViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -549,12 +587,7 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"CRM",
-			() => new TasksView(
-								new EmployeeJournalFactory(NavigationManager),
-								new DeliveryPointRepository()), null
-		);
+		NavigationManager.OpenViewModel<CallTaskJournalViewModel>(null);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
@@ -569,10 +602,7 @@ public partial class MainWindow : Window
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
-			() => new EmployeeWorkChartDlg()
-		);
+		NavigationManager.OpenTdiTab<EmployeeWorkChartDlg>(null);
 	}
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
@@ -590,22 +620,19 @@ public partial class MainWindow : Window
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ReportDebtorsBottlesViewModel));
 	}
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		INomenclatureRepository nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 
 		tdiMain.OpenTab(
 			"ExportImportNomenclatureCatalog",
 			() => new ExportImportNomenclatureCatalogViewModel(
 				nomenclatureRepository,
-				UnitOfWorkFactory.GetDefaultFactory,
+				uowFactory,
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
 			)
@@ -619,7 +646,12 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<PaymentsJournalViewModel>(null);
+		var filterParams = new Action<PaymentsJournalFilterViewModel>[]
+		{
+				f => f.HideCancelledPayments = true,
+		};
+
+		NavigationManager.OpenViewModel<PaymentsJournalViewModel, Action<PaymentsJournalFilterViewModel>[]>(null, filterParams);
 	}
 
 	private void OnActionImportPaymentsFromAvangardActivated(object sender, EventArgs e)
@@ -635,12 +667,14 @@ public partial class MainWindow : Window
 	void ActionFinancialDistrictsSetsJournal_Activated(object sender, EventArgs e)
 	{
 		var filter = new FinancialDistrictsSetsJournalFilterViewModel { HidenByDefault = true };
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var employeeService = _autofacScope.Resolve<IEmployeeService>();
 
 		var paymentsJournalViewModel = new FinancialDistrictsSetsJournalViewModel(
 			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
+			uowFactory,
 			ServicesConfig.CommonServices,
-			VodovozGtkServicesConfig.EmployeeService,
+			employeeService,
 			new EntityDeleteWorker(),
 			true,
 			true
@@ -649,16 +683,17 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(paymentsJournalViewModel);
 	}
 
-
+	/// <summary>
+	/// Доходы и расходы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
-
-		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
-
-		report.ParentTab = page.TdiTab;
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			configureTab: vm => (vm.ParametersWidget as CashFlow).ParentTab = vm,
+			addingRegistrations: builder => builder.RegisterType<CashFlow>().As<IParametersWidget>());
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
@@ -683,28 +718,19 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Журнал перемещения д/с для юр.лиц
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		var entityExtendedPermissionValidator = new EntityExtendedPermissionValidator(
-			PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository());
-
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
+		NavigationManager.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel>(
+			null,
+			addingRegistrations: builder => builder.Register(c => new EmployeeFilterViewModel
 			{
-				HidenByDefault = true
-			},
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			entityExtendedPermissionValidator,
-			VodovozGtkServicesConfig.EmployeeService)
-		);
+				Status = EmployeeStatus.IsWorking
+			}));
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
@@ -736,23 +762,13 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
+		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
+		(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = ((page as TdiPage<RdlViewerViewModel>).TdiTab);
 	}
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
-		);
-	}
-
-	void ActionOldExportTo1c_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<Old1612ExportTo1cDialog>(),
-			() => new Old1612ExportTo1cDialog(UnitOfWorkFactory.GetDefaultFactory)
-		);
+		NavigationManager.OpenViewModel<ExportTo1CViewModel>(null);
 	}
 
 	void ActionExportCounterpartiesTo1c_Activated(object sender, System.EventArgs e)
@@ -778,11 +794,12 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		var filter = new RouteListJournalFilterViewModel();
-		filter.StartDate = DateTime.Today.AddMonths(-2);
-		filter.EndDate = DateTime.Today.AddDays(1);
-		
-		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
+		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel, Action<RouteListJournalFilterViewModel>>(null, filter =>
+		{
+			filter.StartDate = DateTime.Today.AddMonths(-2);
+			filter.EndDate = DateTime.Today.AddDays(1);
+		});
+
 		page.ViewModel.NavigationManager = NavigationManager;
 	}
 
@@ -817,15 +834,7 @@ public partial class MainWindow : Window
 
 	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() =>
-			{
-				var journal = new PermissionControlledRepresentationJournal(new ClientEquipmentBalanceVM());
-				journal.CustomTabName("Оборудование у клиентов");
-				return journal;
-			}
-		);
+		NavigationManager.OpenViewModel<ClientEquipmentBalanceJournalViewModel>(null);
 	}
 
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
@@ -853,7 +862,7 @@ public partial class MainWindow : Window
 	{
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 		Action<NomenclatureStockFilterViewModel> filterParams = null;
-		
+
 		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)
 		{
 			filterParams = f =>
@@ -866,17 +875,14 @@ public partial class MainWindow : Window
 		{
 			filterParams = f => f.ShowArchive = true;
 		}
-		
+
 		NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
 			null, filterParams);
 	}
 
-	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
+	void ActionWarehouseDocumentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
-			() => new WarehouseDocumentsView()
-		);
+		NavigationManager.OpenViewModel<WarehouseDocumentsJournalViewModel>(null);
 	}
 
 	void ActionServiceClaimsActivated(object sender, System.EventArgs e)
@@ -920,10 +926,7 @@ public partial class MainWindow : Window
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<DeliveryPriceDlg>(),
-			() => new DeliveryPriceDlg()
-		);
+		NavigationManager.OpenTdiTab<DeliveryPriceDlg>(null);
 	}
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
@@ -1005,7 +1008,22 @@ public partial class MainWindow : Window
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel, Action<ComplaintFilterViewModel>>(
 			   null,
-			   filter => filter.IsForSalesDepartment = true,
+			   filter =>
+			   {
+				   filter.IsForSalesDepartment = true;
+				   filter.StartDate = DateTime.Today.AddMonths(-2);
+				   filter.EndDate = DateTime.Today;
+			   },
 			   OpenPageOptions.IgnoreHash);
+	}
+	
+	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
+	}
+
+	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
 	}
 }

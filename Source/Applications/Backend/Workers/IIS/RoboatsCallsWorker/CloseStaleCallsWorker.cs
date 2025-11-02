@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 
 namespace RoboatsService.Workers
 {

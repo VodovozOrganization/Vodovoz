@@ -9,7 +9,7 @@ namespace Vodovoz.ViewWidgets.Reports
 	{
 		public CarModelSelectionFilterView(CarModelSelectionFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 

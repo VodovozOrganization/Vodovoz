@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {
@@ -209,6 +211,9 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			}
 		}
 
+		public virtual decimal TotalSumOfDamage =>
+			ObservableItems.Sum(x => x.SumOfDamage);
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			#region ValidateStorage
@@ -247,6 +252,13 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 				{
 					yield return new ValidationResult ($"На складе недостаточное количество <{item.Nomenclature.Name}>",
 						new[] { nameof(Items) });
+				}
+
+				if((item.Type == WriteOffDocumentItemType.InstanceWriteOffFromCarDocumentItem 
+					|| item.Type == WriteOffDocumentItemType.BulkWriteOffFromCarDocumentItem) 
+						&& item.CullingCategory is null)
+				{
+					yield return new ValidationResult($"Для номенклатуры <{item.Nomenclature.Name}> \nПоле \"Причина выбраковки\" не должно быть пустым", new[] { nameof(item.Type) });
 				}
 			}
 		}

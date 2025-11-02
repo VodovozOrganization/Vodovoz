@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -13,22 +10,30 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -49,11 +54,12 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private const string _fillByWarehouse = "Заполнить по складу";
 		private const string _fillByCar = "Заполнить по автомобилю";
 		private readonly CommonMessages _commonMessages;
-		private readonly StoreDocumentHelper _documentHelper;
+		private readonly IStoreDocumentHelper _documentHelper;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _scope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
 		private bool _isInstanceAccountingActive;
 		private bool _isBulkAccountingActive;
@@ -61,7 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private string _instancesDiscrepanciesString;
 		private Employee _currentEmployee;
 		private SelectableParametersReportFilter _selectableFilter;
-		
+
 		private DelegateCommand _printCommand;
 		private DelegateCommand _fillNomenclatureItemsByStorageCommand;
 		private DelegateCommand _addMissingNomenclatureCommand;
@@ -78,12 +84,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			CommonMessages commonMessages,
-			StoreDocumentHelper documentHelper,
+			IStoreDocumentHelper documentHelper,
 			IStockRepository stockRepository,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
 			IReportViewOpener reportViewOpener,
 			IEntityExtendedPermissionValidator extendedPermissionValidator,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
@@ -93,12 +101,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
 
 			Init(employeeService ?? throw new ArgumentNullException(nameof(employeeService)));
 		}
-		
+
 		public bool IsBulkAccountingActive
 		{
 			get => _isBulkAccountingActive;
@@ -134,13 +143,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			get => _activeAccounting;
 			set => SetField(ref _activeAccounting, value);
 		}
-		
+
 		public string InstancesDiscrepanciesString
 		{
 			get => _instancesDiscrepanciesString;
 			set => SetField(ref _instancesDiscrepanciesString, value);
 		}
-		
+
 		public bool CanCreate => Entity.Id == 0 && CheckCanCreateDocument();
 		public bool CanEdit => Entity.Id > 0 && CheckCanEditDocument();
 		public bool HasAccessToCarStorages { get; private set; }
@@ -160,21 +169,44 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи остатков"))
 				{
-					if(Save())
+					if(!Save())
 					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
 						return;
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo
+				var reportInfo = _reportInfoFactory.Create();
+
+				var carTypeOfUsesForDefectionAct = new List<CarTypeOfUse> { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
+
+				if(Entity.Car != null
+					&& Entity.Car.CarModel != null
+					&& carTypeOfUsesForDefectionAct.Contains(Entity.Car.CarModel.CarTypeOfUse))
 				{
-					Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.ShiftChangeWarehouse",
-					Parameters = new Dictionary<string, object>
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct";
+					reportInfo.Parameters = new Dictionary<string, object>
 					{
-						{ "document_id",  Entity.Id }
-					}
-				};
+						{ "document_id", Entity.Id },
+						{ "car_id", Entity.Car?.Id },
+						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Minivan },
+						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
+						{ "sender_fio", Entity.Sender.FullName },
+						{ "receiver_fio", Entity.Receiver.FullName },
+					};
+				}
+				else
+				{
+					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
+					reportInfo.Identifier = "Store.ShiftChangeWarehouse";
+					reportInfo.Parameters = new Dictionary<string, object>
+					{
+						{ "document_id", Entity.Id },
+						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName}
+					};
+				}
 
 				_reportViewOpener.OpenReport(this, reportInfo);
 			}
@@ -197,7 +229,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				}
 			}
 		}
-		
+
 		public DelegateCommand FillNomenclatureItemsByStorageCommand => _fillNomenclatureItemsByStorageCommand ?? (
 			_fillNomenclatureItemsByStorageCommand = new DelegateCommand(
 				() =>
@@ -210,28 +242,37 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var productGroupToInclude = new List<int>();
 					var productGroupToExclude = new List<int>();
 
-					foreach (var parameterSet in _selectableFilter.ParameterSets)
+					foreach(var parameterSet in _selectableFilter.ParameterSets)
 					{
-						switch(parameterSet.ParameterName) {
+						switch(parameterSet.ParameterName)
+						{
 							case nameof(Nomenclature):
-								if (parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach (SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										nomenclaturesToInclude.Add(value.EntityId);
 									}
-								} else {
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								}
+								else
+								{
+									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										nomenclaturesToExclude.Add(value.EntityId);
 									}
 								}
 								break;
 							case nameof(NomenclatureCategory):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
 									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
 										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
 										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 									}
-								} else {
+								}
+								else
+								{
 									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
 										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
@@ -240,12 +281,17 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 								}
 								break;
 							case nameof(ProductGroup):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										productGroupToInclude.Add(value.EntityId);
 									}
-								} else {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								}
+								else
+								{
+									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										productGroupToExclude.Add(value.EntityId);
 									}
 								}
@@ -277,19 +323,22 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							productGroupToInclude: productGroupToInclude,
 							productGroupToExclude: productGroupToExclude);
 					}
-					
+
 					OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 				}
 			));
-		
+
 		public DelegateCommand AddMissingNomenclatureCommand => _addMissingNomenclatureCommand ?? (
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this, OpenPageOptions.AsSlave);
-					page.ViewModel.FilterViewModel.AvailableCategories = Nomenclature.GetCategoriesForGoods();
+					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+						this,
+						filter => filter.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+						OpenPageOptions.AsSlave);
+
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnEntitySelectedResult += OnMissingNomenclatureSelectedResult;
+					page.ViewModel.OnSelectResult += OnMissingNomenclatureSelectedResult;
 				}
 			));
 
@@ -312,7 +361,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				}
 			}
 		}
-		
+
 		public DelegateCommand FillNomenclatureInstanceItemsCommand => _fillNomenclatureInstanceItemsCommand ?? (
 			_fillNomenclatureInstanceItemsCommand = new DelegateCommand(
 				() =>
@@ -324,28 +373,37 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var productGroupToInclude = new List<int>();
 					var productGroupToExclude = new List<int>();
 
-					foreach (var parameterSet in _selectableFilter.ParameterSets)
+					foreach(var parameterSet in _selectableFilter.ParameterSets)
 					{
-						switch(parameterSet.ParameterName) {
+						switch(parameterSet.ParameterName)
+						{
 							case nameof(Nomenclature):
-								if (parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach (SelectableEntityParameter<InventoryNomenclatureInstance> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									foreach(SelectableEntityParameter<InventoryNomenclatureInstance> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										instancesToInclude.Add(value.EntityId);
 									}
-								} else {
-									foreach(SelectableEntityParameter<InventoryNomenclatureInstance> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								}
+								else
+								{
+									foreach(SelectableEntityParameter<InventoryNomenclatureInstance> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										instancesToExclude.Add(value.EntityId);
 									}
 								}
 								break;
 							case nameof(NomenclatureCategory):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
 									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
 										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
 										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 									}
-								} else {
+								}
+								else
+								{
 									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
 										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
@@ -354,19 +412,24 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 								}
 								break;
 							case nameof(ProductGroup):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										productGroupToInclude.Add(value.EntityId);
 									}
-								} else {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
+								}
+								else
+								{
+									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									{
 										productGroupToExclude.Add(value.EntityId);
 									}
 								}
 								break;
 						}
 					}
-					
+
 					Entity.FillInstanceItemsFromStock(
 						UoW,
 						_nomenclatureInstanceRepository,
@@ -376,11 +439,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						nomenclatureCategoryToExclude,
 						productGroupToInclude,
 						productGroupToExclude);
-					
+
 					OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 				}
 			));
-		
+
 		public DelegateCommand AddMissingNomenclatureInstanceCommand => _addMissingNomenclatureInstanceCommand ?? (
 			_addMissingNomenclatureInstanceCommand = new DelegateCommand(
 				() =>
@@ -393,11 +456,24 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		#endregion
 
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			{
+				SortDocumentItems();
+			}
+		}
+
+		private void SortDocumentItems()
+		{
+			Entity.SortItems(Entity.SortedByNomenclatureName);
+		}
+
 		protected override bool BeforeValidation() => CanSave;
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _currentEmployee;
+			Entity.LastEditorId = _currentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			UpdateInstanceDiscrepancies();
 
@@ -408,7 +484,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		{
 			_currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			SetPermissions();
-			
+
 			if(_currentEmployee is null)
 			{
 				ShowErrorMessage(
@@ -417,7 +493,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				FailInitialize = true;
 				return;
 			}
-			
+
 			if(!CanCreate && UoW.IsNew)
 			{
 				FailInitialize = true;
@@ -431,7 +507,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _currentEmployee;
+				Entity.AuthorId = _currentEmployee?.Id;
 				Entity.Warehouse = _documentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			}
 			else
@@ -443,7 +519,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					return;
 				}
 			}
-			
+
 			ConfigureSelectableFilter();
 			SetEntriesViewModels();
 			SetPropertyChangeRelations();
@@ -452,8 +528,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				UpdateInstanceDiscrepancies();
 			}
+
+			if(Entity.SortedByNomenclatureName)
+			{
+				SortDocumentItems();
+			}
 		}
-		
+
 		private bool CheckNomenclaturesWithoutUnits(out string errorMessage)
 		{
 			errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
@@ -466,7 +547,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					wrongNomenclatures++;
 				}
 			}
-			
+
 			return wrongNomenclatures > 0;
 		}
 
@@ -480,10 +561,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				new ParametersFactory(UoW, (filters) =>
 				{
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
-					
+
 					var query = UoW.Session.QueryOver<Nomenclature>()
 						.Where(x => !x.IsArchive);
-					
+
 					if(filters != null && filters.Any())
 					{
 						foreach(var f in filters)
@@ -512,7 +593,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			);
 
 			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
-				() => {
+				() =>
+				{
 					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
 					if(!selectedValues.Any())
 					{
@@ -540,20 +622,20 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						var query = UoW.Session.QueryOver<ProductGroup>()
 							.Where(p => p.Parent == null)
 							.And(p => !p.IsArchive);
-					
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
+
+						if(filters != null && filters.Any())
 						{
-							query.Where(f());
+							foreach(var f in filters)
+							{
+								query.Where(f());
+							}
 						}
-					}
-					return query.List();
-				},
+						return query.List();
+					},
 				x => x.Name,
 				x => x.Childs)
 			);
-			
+
 			Nomenclature nomenclatureAlias = null;
 			var instancesParam = _selectableFilter.CreateParameterSet("Экземпляры",
 				nameof(InventoryNomenclatureInstance),
@@ -577,11 +659,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							}
 						}
 					}
-					
+
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						Projections.Property(() => instanceAlias.InventoryNumber));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
@@ -589,7 +671,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<InventoryNomenclatureInstance>>());
 					return query.List<SelectableParameter>();
 				}));
-			
+
 			instancesParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
 				() =>
 				{
@@ -614,24 +696,24 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private void SetEntriesViewModels()
 		{
 			var builder = new CommonEEVMBuilderFactory<ShiftChangeWarehouseDocument>(this, Entity, UoW, NavigationManager, _scope);
-			
+
 			_availableWarehousesIdsForCreate = _documentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			_availableWarehousesIdsForEdit = _documentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.ShiftChangeEdit);
-			
+
 			EmployeeSenderEntryViewModel = builder.ForProperty(x => x.Sender)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
 					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			EmployeeSenderEntryViewModel.CanViewEntity = false;
-			
+
 			EmployeeReceiverEntryViewModel = builder.ForProperty(x => x.Receiver)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
 					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			EmployeeReceiverEntryViewModel.CanViewEntity = false;
-			
+
 			WarehouseStorageEntryViewModel = builder.ForProperty(x => x.Warehouse)
 				.UseViewModelDialog<WarehouseViewModel>()
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(GetWarehouseFilterParams)
@@ -639,7 +721,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			WarehouseStorageEntryViewModel.CanViewEntity = false;
 			WarehouseStorageEntryViewModel.BeforeChangeByUser += OnWarehouseBeforeChangeByUser;
 			WarehouseStorageEntryViewModel.ChangedByUser += OnWarehouseChangedByUser;
-			
+
 			CarStorageEntryViewModel = builder.ForProperty(x => x.Car)
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
@@ -678,7 +760,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				}
 			}
 		}
-		
+
 		private void OnWarehouseChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.Warehouse is null)
@@ -716,13 +798,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				x => x.ShiftChangeResidueDocumentType,
 				() => CanShowWarehouseStorage,
 				() => CanShowCarStorage);
-			
+
 			SetPropertyChangeRelation(
 				x => x.ShiftChangeResidueDocumentType,
 				() => FillNomenclaturesByStorageTitle,
 				() => FillNomenclatureInstancesByStorageTitle);
-			
+
 			SetStoragePropertiesChangeRelation();
+
+			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		private void SetStoragePropertiesChangeRelation()
@@ -735,14 +819,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => CanChangeShiftChangeResidueDocumentType);
 		}
 
-		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		private void OnMissingNomenclatureSelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			if(!e.SelectedNodes.Any())
+			var selectedNodes = e.SelectedObjects.Cast<NomenclatureJournalNode>();
+
+			if(!selectedNodes.Any())
 			{
 				return;
 			}
 
-			foreach(var node in e.SelectedNodes)
+			foreach(var node in selectedNodes)
 			{
 				if(Entity.NomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 				{
@@ -753,11 +839,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				Entity.AddItem(nomenclature, 0, 0);
 			}
 		}
-		
+
 		private void OnMissingInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selectedNodes = e.GetSelectedObjects<InventoryInstancesJournalNode>();
-			
+
 			if(!selectedNodes.Any())
 			{
 				return;
@@ -769,28 +855,33 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				{
 					continue;
 				}
-				
+
 				var instance = UoW.GetById<InventoryNomenclatureInstance>(node.Id);
 				Entity.AddInstanceItem(instance, 0, true);
 			}
 		}
-		
+
 		private void UpdateInstanceDiscrepancies()
 		{
 			var storageId = Entity.GetStorageId();
 			var storageType = Entity.GetStorageType();
 			var currentInstancesIds =
 				Entity.ObservableInstanceItems.Select(x => x.InventoryNomenclatureInstance.Id).ToArray();
-			
+
 			var instancesOnStorageBalance =
 				_nomenclatureInstanceRepository.GetOtherInstancesOnStorageBalance(
 					UoW, storageType, storageId ?? 0, currentInstancesIds, Entity.TimeStamp);
 
 			foreach(var instanceData in instancesOnStorageBalance)
 			{
+				if(_instancesDiscrepancies.ContainsKey(instanceData.Id))
+				{
+					continue;
+				}
+				
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
-					$"{instanceData.Name} {instanceData.InventoryNumber} числится на этом складе");
+					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
 			}
 
 			var currentInstancesOnOtherStorages =
@@ -804,14 +895,22 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var key = groupInstanceData.Key;
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
-					
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.InventoryNumber} числится на: {storages}");
+
+					if(!_instancesDiscrepancies.ContainsKey(key))
+					{
+						_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
+					}
+					else
+					{
+						_instancesDiscrepancies[key] =
+							$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages} помимо выбранного склада";
+					}
 				}
 			}
 
 			InstancesDiscrepanciesString = _instancesDiscrepancies.Any() ? string.Join("\n", _instancesDiscrepancies.Values) : string.Empty;
 		}
-		
+
 		private bool CheckCanCreateDocument()
 		{
 			switch(Entity.ShiftChangeResidueDocumentType)
@@ -824,11 +923,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			return false;
 		}
-		
+
 		private bool CheckCanEditDocument()
 		{
 			var canEdit = false;
-			
+
 			switch(Entity.ShiftChangeResidueDocumentType)
 			{
 				case ShiftChangeResidueDocumentType.Warehouse:
@@ -849,6 +948,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			Entity.PropertyChanged -= EntityPropertyChanged;
 			WarehouseStorageEntryViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
 			WarehouseStorageEntryViewModel.ChangedByUser -= OnWarehouseChangedByUser;
 			CarStorageEntryViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;

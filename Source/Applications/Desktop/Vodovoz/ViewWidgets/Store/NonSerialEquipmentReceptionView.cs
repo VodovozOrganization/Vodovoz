@@ -1,20 +1,21 @@
 ﻿using Autofac;
 using Gtk;
 using NHibernate.Transform;
-using QS.DomainModel.Entity;
+using QS.Navigation;
+using QS.Project.Journal;
 using QS.Project.Services;
 using QSOrmProject;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
 {
@@ -22,20 +23,20 @@ namespace Vodovoz.ViewWidgets.Store
 	public partial class NonSerialEquipmentReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private GenericObservableList<ReceptionNonSerialEquipmentItemNode> ReceptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
+		private GenericObservableList<ReceptionNonSerialEquipmentItemNode> _receptionNonSerialEquipmentList = new GenericObservableList<ReceptionNonSerialEquipmentItemNode>();
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 
-		public IList<ReceptionNonSerialEquipmentItemNode> Items {
-			get {
-				return ReceptionNonSerialEquipmentList;
+		public IList<ReceptionNonSerialEquipmentItemNode> Items
+		{
+			get
+			{
+				return _receptionNonSerialEquipmentList;
 			}
 		}
 
 		public NonSerialEquipmentReceptionView()
 		{
-			this.Build();
+			Build();
 
 			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionNonSerialEquipmentItemNode>()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
@@ -46,83 +47,97 @@ namespace Vodovoz.ViewWidgets.Store
 					.Editing()
 				.AddColumn("")
 				.Finish();
-			
-			ytreeEquipment.ItemsDataSource = ReceptionNonSerialEquipmentList;
+
+			ytreeEquipment.ItemsDataSource = _receptionNonSerialEquipmentList;
 		}
 
-		RouteList routeList;
-		public RouteList RouteList {
-			get {
-				return routeList;
+		private RouteList _routeList;
+		public RouteList RouteList
+		{
+			get
+			{
+				return _routeList;
 			}
-			set {
-				if(routeList == value)
+			set
+			{
+				if(_routeList == value)
+				{
 					return;
-				routeList = value;
-				if(routeList != null) {
+				}
+
+				_routeList = value;
+				if(_routeList != null)
+				{
 					FillListEquipmentFromRoute();
-				} else {
-					ReceptionNonSerialEquipmentList.Clear();
+				}
+				else
+				{
+					_receptionNonSerialEquipmentList.Clear();
 				}
 
 			}
 		}
 
-		void FillListEquipmentFromRoute()
+		public CarUnloadDocumentDlg Container { get; internal set; }
+
+		private void FillListEquipmentFromRoute()
 		{
-			ReceptionNonSerialEquipmentList.Clear();
+			_receptionNonSerialEquipmentList.Clear();
 			ReceptionNonSerialEquipmentItemNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature NomenclatureAlias = null;
 			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem>()
-														.Where(r => r.RouteList.Id == RouteList.Id)
-														.JoinAlias(rli => rli.Order, () => orderAlias)
-														.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-														.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
-														.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => NomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-														.SelectList(list => list
-														   .SelectGroup(() => NomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-														   .Select(() => NomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-														   .SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
-														)
-														.TransformUsing(Transformers.AliasToBean<ReceptionNonSerialEquipmentItemNode>())
-														.List<ReceptionNonSerialEquipmentItemNode>();
+				.Where(r => r.RouteList.Id == RouteList.Id)
+				.JoinAlias(rli => rli.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => NomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.SelectGroup(() => NomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => NomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.SelectSum(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.NeedReceptionCount)
+				)
+				.TransformUsing(Transformers.AliasToBean<ReceptionNonSerialEquipmentItemNode>())
+				.List<ReceptionNonSerialEquipmentItemNode>();
 
 			foreach(var equipment in equipmentItems)
-				ReceptionNonSerialEquipmentList.Add(equipment);
+			{
+				_receptionNonSerialEquipmentList.Add(equipment);
+			}
 		}
 
 		protected void OnButtonAddEquipmentClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureFilterViewModel();
-			filter.RestrictCategory = NomenclatureCategory.equipment;
+			var page = (Container.NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				Container,
+				filter => filter.RestrictCategory = NomenclatureCategory.equipment,
+				OpenPageOptions.AsSlave,
+				vievModel =>
+				{
+					vievModel.OnSelectResult += Journal_OnEntitySelectedResult;
+					vievModel.Title = "Оборудование";
+					vievModel.SelectionMode = JournalSelectionMode.Single;
 
-			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(_lifetimeScope);
-			journal.FilterViewModel = filter;
-			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
-			journal.Title = "Оборудование";
-			
-			if(_userHasOnlyAccessToWarehouseAndComplaints == null)
-			{
-				_userHasOnlyAccessToWarehouseAndComplaints =
-					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"user_have_access_only_to_warehouse_and_complaints")
-					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
-			}
+					if(_userHasOnlyAccessToWarehouseAndComplaints == null)
+					{
+						_userHasOnlyAccessToWarehouseAndComplaints =
+							ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+								Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
+							&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+					}
 
-			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
-			{
-				journal.HideButtons();
-			}
-
-			MyTab.TabParent.AddSlaveTab(MyTab, journal);
+					if(_userHasOnlyAccessToWarehouseAndComplaints.Value)
+					{
+						vievModel.HideButtons();
+					}
+				});
 		}
 
-		private void Journal_OnEntitySelectedResult(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		private void Journal_OnEntitySelectedResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+
 			if(selectedNode == null)
 			{
 				return;
@@ -135,21 +150,24 @@ namespace Vodovoz.ViewWidgets.Store
 				NomenclatureId = selectedNomenclature.Id,
 				Name = selectedNomenclature.Name
 			};
-			ReceptionNonSerialEquipmentList.Add(node);
+
+			_receptionNonSerialEquipmentList.Add(node);
 		}
 
-		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			Nomenclature nomenclature = (e.Subject as Nomenclature);
-			if(nomenclature == null) {
+			if(nomenclature == null)
+			{
 				return;
 			}
-			var node = new ReceptionNonSerialEquipmentItemNode() {
+			var node = new ReceptionNonSerialEquipmentItemNode()
+			{
 				NomenclatureCategory = nomenclature.Category,
 				NomenclatureId = nomenclature.Id,
 				Name = nomenclature.Name
 			};
-			ReceptionNonSerialEquipmentList.Add(node);
+			_receptionNonSerialEquipmentList.Add(node);
 		}
 
 		public override void Destroy()
@@ -157,33 +175,6 @@ namespace Vodovoz.ViewWidgets.Store
 			base.Destroy();
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-		}
-	}
-
-	public class ReceptionNonSerialEquipmentItemNode : PropertyChangedBase
-	{
-		public NomenclatureCategory NomenclatureCategory { get; set; }
-		public int NomenclatureId { get; set; }
-		public string Name { get; set; }
-
-		public int NeedReceptionCount { get; set; }
-
-		int amount;
-		public virtual int Amount {
-			get { return amount; }
-			set {
-				SetField(ref amount, value, () => Amount);
-			}
-		}
-
-		int returned;
-		public int Returned {
-			get {
-				return returned;
-			}
-			set {
-				SetField(ref returned, value, () => Returned);
-			}
 		}
 	}
 }

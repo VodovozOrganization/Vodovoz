@@ -45,7 +45,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							&& order.Client.Id == payment.Counterparty.Id
 							&& order.PaymentType == PaymentType.Cashless
 							&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
-							&& order.OrderSum > 0));
+							&& order.OrderSum > 0
+							&& order.Contract.Organization.INN == payment.Organization.INN));
 
 				if(!orders.Any())
 				{
@@ -76,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
-			if(!payment.PaymentItems.Any())
+			if(!payment.Items.Any())
 			{
 				return false;
 			}

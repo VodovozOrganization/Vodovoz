@@ -2,7 +2,8 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 {
@@ -30,19 +31,19 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 
 		public List<EdoLightsMatrixColumn> Columns { get; set; } = new List<EdoLightsMatrixColumn>();
 
-		public void Colorize(EdoLightsMatrixColumn column, EdoLightsColorizeType edoLightsColorizeType)
+		public void Colorize(EdoLightsMatrixColumn column, PossibleAccessState edoLightsColorizeType)
 		{
 			column.EdoLightsColorizeType = edoLightsColorizeType;
 			OnPropertyChanged(nameof(GetColorizeType));
 		}
 
-		public EdoLightsColorizeType GetColorizeType(EdoLightsMatrixPaymentType paymentKind)
+		public PossibleAccessState GetColorizeType(EdoLightsMatrixPaymentType paymentKind)
 		{
 			var column = Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
 
 			if(column == null)
 			{
-				return EdoLightsColorizeType.Forbidden;
+				return PossibleAccessState.Forbidden;
 			}
 
 			return column.EdoLightsColorizeType;

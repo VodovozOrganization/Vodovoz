@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.Entity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Parameters;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentBase : PropertyChangedBase
 	{
-		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
-			new GeneralSettingsParametersProvider(new ParametersProvider());
-
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
@@ -47,12 +47,27 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => isBillWithoutShipmentSent;
 			set => SetField(ref isBillWithoutShipmentSent, value);
 		}
+		
+		private Organization _organization;
+		[Display(Name = "Организация в счете")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
+		}
 
 		public virtual Email GetEmailAddressForBill()
 		{
 			return Client?.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 
-		public virtual bool HasPermissionsForAlternativePrice => _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
+		public virtual bool HasPermissionsForAlternativePrice
+		{
+			get
+			{
+				var generalSettingsParameters = ScopeProvider.Scope.Resolve<IGeneralSettings>();
+				return generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
+			}
+		}
 	}
 }

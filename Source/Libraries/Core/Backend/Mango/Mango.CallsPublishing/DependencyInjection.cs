@@ -1,41 +1,43 @@
-﻿using Mango.Core.Handlers;
-using MassTransit;
-using MessageTransport;
+﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Security;
+using System;
 using System.Security.Authentication;
+using Vodovoz.Settings.Pacs;
 
 namespace Mango.CallsPublishing
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddCallsPublishing(this IServiceCollection services, IMessageTransportSettings transportSettings)
+		public static IServiceCollection AddCallsPublishing(this IServiceCollection services)
 		{
-			services
-				.AddScoped<ICallEventHandler, PublisherCallEventHandler>()
-				;
-
-			services.AddMassTransit(x =>
+			services.AddMassTransit(busCfg =>
 			{
-				x.UsingRabbitMq((context, cfg) =>
+				busCfg.UsingRabbitMq((context, rabbitCfg) =>
 				{
-					cfg.Host(
-						transportSettings.Host,
-						(ushort)transportSettings.Port,
-						transportSettings.VirtualHost,
-						hostCfg => 
+					var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
+					rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
+						rabbitHostCfg =>
 						{
-							hostCfg.Username(transportSettings.User);
-							hostCfg.Password(transportSettings.Password);
-							hostCfg.UseSsl(ssl =>
+							rabbitHostCfg.Username(messageSettings.Username);
+							rabbitHostCfg.Password(messageSettings.Password);
+							if(messageSettings.UseSSL)
 							{
-								ssl.Protocol = SslProtocols.Tls12;
-							});
+								rabbitHostCfg.UseSsl(ssl =>
+								{
+									if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+									{
+										ssl.AllowPolicyErrors(allowedPolicyErrors);
+									}
+
+									ssl.Protocol = SslProtocols.Tls12;
+								});
+							}
 						}
 					);
 
-					cfg.ConfigureMangoProducerTopology(context);
-
-					cfg.ConfigureEndpoints(context);
+					rabbitCfg.AddMangoTopology(context);
+					rabbitCfg.ConfigureEndpoints(context);
 				});
 			});
 

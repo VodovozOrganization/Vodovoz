@@ -12,23 +12,23 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCancel;
 
-		private global::Gtk.Button btnCopyEntityId;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId;
 
 		private global::Gamma.GtkWidgets.yTable ytableMain;
 
-		private global::Gtk.Button buttonAcceptFine;
+		private global::Gamma.GtkWidgets.yButton buttonAcceptFine;
 
 		private global::Vodovoz.ViewWidgets.Mango.EmployeePhone ButtonAcceptFine;
 
-		private global::Gtk.Button buttonFromTrack;
+		private global::Gamma.GtkWidgets.yButton buttonFromTrack;
 
-		private global::Gtk.Button buttonMileageDistribution;
+		private global::Gamma.GtkWidgets.yButton buttonMileageDistribution;
 
-		private global::Gtk.Button buttonOpenMap;
+		private global::Gamma.GtkWidgets.yButton buttonOpenMap;
 
 		private global::QS.Widgets.GtkUI.DatePicker datePickerDate;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
@@ -129,7 +129,7 @@ namespace Vodovoz.Views.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId.CanFocus = true;
 			this.btnCopyEntityId.Name = "btnCopyEntityId";
 			this.btnCopyEntityId.UseUnderline = true;
@@ -156,7 +156,7 @@ namespace Vodovoz.Views.Logistic
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonAcceptFine = new global::Gtk.Button();
+			this.buttonAcceptFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAcceptFine.CanFocus = true;
 			this.buttonAcceptFine.Name = "buttonAcceptFine";
 			this.buttonAcceptFine.UseUnderline = true;
@@ -188,7 +188,7 @@ namespace Vodovoz.Views.Logistic
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonFromTrack = new global::Gtk.Button();
+			this.buttonFromTrack = new global::Gamma.GtkWidgets.yButton();
 			this.buttonFromTrack.CanFocus = true;
 			this.buttonFromTrack.Name = "buttonFromTrack";
 			this.buttonFromTrack.UseUnderline = true;
@@ -202,7 +202,7 @@ namespace Vodovoz.Views.Logistic
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonMileageDistribution = new global::Gtk.Button();
+			this.buttonMileageDistribution = new global::Gamma.GtkWidgets.yButton();
 			this.buttonMileageDistribution.CanFocus = true;
 			this.buttonMileageDistribution.Name = "buttonMileageDistribution";
 			this.buttonMileageDistribution.UseUnderline = true;
@@ -216,7 +216,7 @@ namespace Vodovoz.Views.Logistic
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.buttonOpenMap = new global::Gtk.Button();
+			this.buttonOpenMap = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenMap.CanFocus = true;
 			this.buttonOpenMap.Name = "buttonOpenMap";
 			this.buttonOpenMap.UseUnderline = true;
@@ -238,6 +238,7 @@ namespace Vodovoz.Views.Logistic
 			this.datePickerDate.Date = new global::System.DateTime(0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;
+			this.datePickerDate.HideButtonClearDate = false;
 			this.ytableMain.Add(this.datePickerDate);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.datePickerDate]));
 			w14.LeftAttach = ((uint)(1));
@@ -245,13 +246,11 @@ namespace Vodovoz.Views.Logistic
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
-			this.ytableMain.Add(this.entityviewmodelentryCar);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.ytableMain.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.entityentryCar]));
 			w15.TopAttach = ((uint)(1));
 			w15.BottomAttach = ((uint)(2));
 			w15.LeftAttach = ((uint)(4));
@@ -262,6 +261,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeDriver]));
@@ -275,6 +275,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeForwarder.Name = "evmeForwarder";
 			this.evmeForwarder.CanEditReference = true;
+			this.evmeForwarder.CanDisposeEntitySelectorFactory = false;
 			this.evmeForwarder.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeForwarder);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeForwarder]));
@@ -288,6 +289,7 @@ namespace Vodovoz.Views.Logistic
 			this.evmeLogistician.Events = ((global::Gdk.EventMask)(256));
 			this.evmeLogistician.Name = "evmeLogistician";
 			this.evmeLogistician.CanEditReference = true;
+			this.evmeLogistician.CanDisposeEntitySelectorFactory = false;
 			this.evmeLogistician.CanOpenWithoutTabParent = false;
 			this.ytableMain.Add(this.evmeLogistician);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.evmeLogistician]));

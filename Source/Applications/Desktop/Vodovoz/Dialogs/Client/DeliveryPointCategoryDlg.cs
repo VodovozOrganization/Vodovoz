@@ -1,5 +1,6 @@
 ﻿using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.Dialogs.Client
 		public DeliveryPointCategoryDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPointCategory>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<DeliveryPointCategory>();
 			ConfigureDlg();
 		}
 
@@ -19,7 +20,7 @@ namespace Vodovoz.Dialogs.Client
 		public DeliveryPointCategoryDlg(int id)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DeliveryPointCategory>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryPointCategory>(id);
 			ConfigureDlg();
 		}
 
@@ -38,7 +39,7 @@ namespace Vodovoz.Dialogs.Client
 
 		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

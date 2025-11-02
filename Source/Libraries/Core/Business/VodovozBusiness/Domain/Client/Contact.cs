@@ -80,7 +80,7 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
-			protected set { SetField (ref counterparty, value, () => Counterparty); }
+			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
 		[Display (Name = "Телефоны")]
@@ -129,13 +129,6 @@ namespace Vodovoz.Domain.Client
 		public override int GetHashCode ()
 		{
 			return Id.GetHashCode (); 
-		}
-
-		public static IUnitOfWorkGeneric<Contact> Create (Counterparty counterparty)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<Contact> ();
-			uow.Root.Counterparty = counterparty;
-			return uow;
 		}
 	}
 }

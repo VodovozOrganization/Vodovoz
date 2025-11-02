@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using Vodovoz.Services;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Orders
 
 		public abstract void Activate(Order order);
 		public abstract void Deactivate(Order order);
-		public abstract bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures);
+		public abstract bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings);
 
 		public abstract string Title { get; }
 	}

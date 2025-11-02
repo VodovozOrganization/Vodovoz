@@ -102,6 +102,48 @@ namespace Vodovoz.Dialogs.Logistic
 				}
 			};
 
+			var logisticsRequrementsMarkers = new List<object[]> {
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_forwarder", PointMarkerShape.custom),
+					"Требуется экспедитор на адресе: \"Э\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_documents", PointMarkerShape.custom),
+					"Требуется наличие паспорта/документов у водителя: \"Д\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_nationality", PointMarkerShape.custom),
+					"Требуется русский водитель: \"Р\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_pass", PointMarkerShape.custom),
+					"Требуется пропуск: \"П\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_largus", PointMarkerShape.custom),
+					"Требуется Ларгус (газель не проедет): \"Л\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("logistics_requirements_many", PointMarkerShape.custom),
+					"Несколько требований в одном заказе: \"Восклицательный знак\" на карте"
+				}
+			};
+
+			var orderInfoMarkers = new List<object[]> {
+				new object[] {
+					PointMarker.GetIconPixbuf("order_info_small_bottles", PointMarkerShape.custom),
+					"Мелкотарная продукция в заказе: \"М\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("order_info_cooler", PointMarkerShape.custom),
+					"Кулер в заказе: \"К\" на карте"
+				},
+				new object[] {
+					PointMarker.GetIconPixbuf("order_info_many", PointMarkerShape.custom),
+					"В заказе имеется и кулер и мелкотарная продукция: \"Восклицательный знак\" на карте"
+				}
+			};
+
 			lblInfo.Text = "Перетаскивание карты, правой кнопкой мыши.\n" +
 				"Обычное(прямоугольное) выделение адресов на карте осуществляется перемещением мыши с нажатой левой кнопкой.\n" +
 				"Для выделения по одному маркеру, включите CAPS LOCK и левой кнопкой мыши для выделения\\удаления, кликните по нему\n" +
@@ -132,6 +174,26 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddTextRenderer(x => " - "+(string)x[4])
 				.Finish();
 			treeMarkers.SetItemsSource(ms);
+
+			ytreeviewLogisticsRequrementsMarkers.HeadersVisible = false;
+			ytreeviewLogisticsRequrementsMarkers.ColumnsConfig = FluentColumnsConfig<object[]>
+				.Create()
+				.AddColumn("Маркер")
+					.AddPixbufRenderer(x => x[0] as Pixbuf)
+				.AddColumn("Описание")
+					.AddTextRenderer(x => " - " + (string)x[1])
+				.Finish();
+			ytreeviewLogisticsRequrementsMarkers.SetItemsSource(logisticsRequrementsMarkers);
+
+			ytreeviewOrderInfoMarkers.HeadersVisible = false;
+			ytreeviewOrderInfoMarkers.ColumnsConfig = FluentColumnsConfig<object[]>
+				.Create()
+				.AddColumn("Маркер")
+					.AddPixbufRenderer(x => x[0] as Pixbuf)
+				.AddColumn("Описание")
+					.AddTextRenderer(x => " - " + (string)x[1])
+				.Finish();
+			ytreeviewOrderInfoMarkers.SetItemsSource(orderInfoMarkers);
 		}
 
 		protected void OnBtnOkClicked(object sender, EventArgs e)

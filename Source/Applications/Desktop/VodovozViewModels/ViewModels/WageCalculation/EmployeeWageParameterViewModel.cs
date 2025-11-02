@@ -173,11 +173,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public IList<WageParameterItemTypes> GetWageParameterItemTypesToHide()
 		{
 			if(entity.Employee != null
-			   && entity.Employee.DriverOfCarTypeOfUse == CarTypeOfUse.Truck
-			   && entity.WageParameterItem?.WageParameterItemType != WageParameterItemTypes.RatesLevel)
+				&& entity.Employee.DriverOfCarTypeOfUse == CarTypeOfUse.Truck
+				&& entity.WageParameterItem?.WageParameterItemType != WageParameterItemTypes.RatesLevel)
 			{
 				return new List<WageParameterItemTypes> { WageParameterItemTypes.RatesLevel };
 			}
+
 			return new List<WageParameterItemTypes>();
 		}
 	}

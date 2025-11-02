@@ -1,6 +1,7 @@
-﻿using QS.Navigation;
+﻿using System;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Payments;
@@ -18,16 +19,16 @@ namespace Vodovoz.Views.Payments
 
 		private void ConfigureDlg()
 		{
-			btnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			btnGoToManualPaymentMatching.Clicked += (sender, args) => ViewModel.SaveAndOpenManualPaymentMatchingCommand.Execute();
+			btnSave.BindCommand(ViewModel.SaveCommand);
+			btnCancel.BindCommand(ViewModel.CloseCommand);
+			btnGoToManualPaymentMatching.BindCommand(ViewModel.SaveAndOpenManualPaymentMatchingCommand);
 
 			paymentDatePicker.IsEditable = true;
 			paymentDatePicker.Binding
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
 				.InitializeFromSource();
 
-			chkBtnUpdateBalance.Toggled += (sender, args) => ViewModel.ChangePaymentNumAndPaymentPurposeCommand.Execute();
+			chkBtnUpdateBalance.Toggled += UpdateBalanceToggled;
 			chkBtnUpdateBalance.Binding
 				.AddBinding(ViewModel, vm => vm.IsPaymentForUpdateBalance, w => w.Active)
 				.InitializeFromSource();
@@ -40,7 +41,7 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel.Entity, e => e.Total, w => w.ValueAsDecimal)
 				.InitializeFromSource();
 
-			ConfigureCounterpartyEntry();
+			ConfigureEntityEntries();
 			
 			textViewPaymentPurpose.Binding
 				.AddBinding(ViewModel.Entity, e => e.PaymentPurpose, w => w.Buffer.Text)
@@ -56,7 +57,12 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 		}
 
-		private void ConfigureCounterpartyEntry()
+		private void UpdateBalanceToggled(object sender, EventArgs e)
+		{
+			ViewModel.ChangePaymentNumAndPaymentPurposeCommand.Execute();
+		}
+
+		private void ConfigureEntityEntries()
 		{
 			var builder = new LegacyEEVMBuilderFactory<Payment>(
 				ViewModel, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
@@ -64,6 +70,8 @@ namespace Vodovoz.Views.Payments
 					.UseTdiEntityDialog()
 					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 					.Finish();
+
+			organizationEntry.ViewModel = ViewModel.OrganizationsEntryViewModel;
 		}
 	}
 }

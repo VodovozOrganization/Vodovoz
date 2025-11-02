@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -7,6 +8,8 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -23,11 +26,15 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class UndeliveredOrdersPanelView : Gtk.Bin, IPanelView
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = new UndeliveredOrdersRepository();
+		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		
-		public UndeliveredOrdersPanelView()
+		public UndeliveredOrdersPanelView(IUndeliveredOrdersRepository undeliveredOrdersRepository)
 		{
-			this.Build();
+			_undeliveredOrdersRepository = undeliveredOrdersRepository
+				?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+
+			Build();
+
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "")
@@ -39,7 +46,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
 			
-			_uow = UnitOfWorkFactory.CreateWithoutRoot();
+			_uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		List<object[]> guilties = new List<object[]>();

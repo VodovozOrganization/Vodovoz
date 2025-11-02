@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;

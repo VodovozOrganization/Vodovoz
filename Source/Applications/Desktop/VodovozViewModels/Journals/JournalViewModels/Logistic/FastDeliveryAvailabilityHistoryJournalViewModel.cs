@@ -18,8 +18,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Models;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -35,7 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(
@@ -44,16 +45,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			IFileDialogService fileDialogService,
-			IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings,
+			INomenclatureSettings nomenclatureSettings,
 			Action<FastDeliveryAvailabilityFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
-			var availabilityHistoryParameterProvider = fastDeliveryAvailabilityHistoryParameterProvider
-													   ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryParameterProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			var availabilityHistorySettings = fastDeliveryAvailabilityHistorySettings
+													   ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistorySettings));
 
 			TabName = "Журнал истории проверок экспресс-доставок";
 
@@ -63,9 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				typeof(FastDeliveryNomenclatureDistributionHistory),
 				typeof(FastDeliveryOrderItemHistory)
 				);
-
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(unitOfWorkFactory);
-			fastDeliveryAvailabilityHistoryModel.ClearFastDeliveryAvailabilityHistory(availabilityHistoryParameterProvider);
 
 			_timer = new Timer(_interval);
 			_timer.Elapsed += TimerOnElapsed;
@@ -92,7 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				FilterViewModel.FailsReportName = reportName;
 				FilterViewModel.FailsReportAction = () =>
 				{
-					var report = new FastDeliveryFailsReport(UnitOfWorkFactory, FilterViewModel, Search, _nomenclatureParametersProvider, _fileDialogService);
+					var report = new FastDeliveryFailsReport(UnitOfWorkFactory, FilterViewModel, Search, _nomenclatureSettings, _fileDialogService);
 					report.Export();
 				};
 			}
@@ -174,7 +172,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var nomenclatureNotInStockSubquery = QueryOver.Of(() => fastDeliveryOrderItemHistoryAlias)
 			.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias)
 			.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
-			.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
+			.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureSettings.PromotionalNomenclatureGroupId)
 			.WithSubquery.WhereNotExists(nomenclatureDistributionSubquery)
 			.Select(Projections.Conditional(
 				Restrictions.Gt(
@@ -327,7 +325,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var nomenclatureNotInStockSubquery = QueryOver.Of(() => fastDeliveryOrderItemHistoryAlias)
 			.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias)
 			.Where(() => fastDeliveryOrderItemHistoryAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
-			.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureParametersProvider.PromotionalNomenclatureGroupId)
+			.Where(() => nomenclatureAlias.ProductGroup.Id != _nomenclatureSettings.PromotionalNomenclatureGroupId)
 			.WithSubquery.WhereNotExists(nomenclatureDistributionSubquery)
 			.Select(Projections.Conditional(
 				Restrictions.Gt(

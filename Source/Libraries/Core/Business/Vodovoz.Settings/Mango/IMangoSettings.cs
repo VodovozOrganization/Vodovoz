@@ -8,5 +8,10 @@
 		string VpbxApiSalt { get; }
 		bool MangoEnabled { get; }
 		bool TestMode { get; }
+
+		int GrpcKeepAliveTimeMs { get; }
+		int GrpcKeepAliveTimeoutMs { get; }
+		bool GrpcKeepAlivePermitWithoutCalls { get; }
+		int GrpcMaxPingWithoutData { get; }
 	}
 }

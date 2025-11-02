@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -26,14 +28,16 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Employee;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -43,11 +47,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
-		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
+		private readonly IGeographicGroupSettings _geographicGroupSettings;
 
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
@@ -86,6 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IList<District> _cachedFastDeliveryDistricts;
 		private IList<GeoGroup> _geogroups;
 		private GeoGroup _selectedGeoGroup;
+		private bool _hideTrucks;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -94,21 +99,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ITrackRepository trackRepository,
 			IRouteListRepository routeListRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDeliveryRepository deliveryRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IGeographicGroupRepository geographicGroupRepository,
-			IGeographicGroupParametersProvider geographicGroupParametersProvider)
+			IGeographicGroupSettings geographicGroupSettings,
+			IEmployeeSettings employeeSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
-			_geographicGroupParametersProvider = geographicGroupParametersProvider;
+			_geographicGroupSettings = geographicGroupSettings;
 
 			TabName = "Мониторинг";
+
+			MaxDaysForNewbieDriver = employeeSettings.MaxDaysForNewbieDriver;
 
 			CarsOverlayId = "cars";
 			TracksOverlayId = "tracks";
@@ -117,10 +127,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			UoW.Session.DefaultReadOnly = true;
 
-			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesParametersProvider.CarsMonitoringResfreshInSeconds);
+			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesSettings.CarsMonitoringResfreshInSeconds);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesSettings.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			var timespanRange = new List<TimeSpan>();
 
@@ -134,7 +144,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_historyDate = DateTime.Today;
 			_historyHour = TimeSpan.FromHours(9);
 
-			_fastDeliveryTime = _deliveryRulesParametersProvider.MaxTimeForFastDelivery;
+			_fastDeliveryTime = _deliveryRulesSettings.MaxTimeForFastDelivery;
 
 			FastDeliveryDistricts = new ObservableCollection<District>();
 			RouteListAddresses = new ObservableCollection<RouteListAddressNode>();
@@ -274,6 +284,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		public bool HideTrucks
+		{
+			get => _hideTrucks;
+			set
+			{
+				SetField(ref _hideTrucks, value);
+				RefreshWorkingDriversCommand?.Execute();
+			}
+		}
+
 		public DateTime HistoryDate
 		{
 			get => _historyDate;
@@ -309,7 +329,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		public IList<GeoGroup> GeoGroups => _geogroups 
-		    ?? (_geogroups = _geographicGroupRepository.GeographicGroupsWithoutEast(UoW, _geographicGroupParametersProvider));
+		    ?? (_geogroups = _geographicGroupRepository.GeographicGroupsWithoutEast(UoW, _geographicGroupSettings));
 
 		public GeoGroup SelectedGeoGroup
 		{
@@ -415,7 +435,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Command Handlers
 		private void OpenRouteListKeepingTab(int routeListId)
 		{
-			_gtkTabsOpener.OpenRouteListKeepingDlg(this, routeListId);
+			NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(routeListId));
 		}
 
 		private void OpenChangeRouteListFastDeliveryMaxDistanceDlg(int routeListId)
@@ -443,6 +463,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteListItem routeListItemAlias = null;
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
+			CarModel carModelAlias = null;
 			Track trackAlias = null;
 
 			Domain.Orders.Order orderAlias = null;
@@ -521,6 +542,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
 			}
 
+			if(HideTrucks)
+			{
+				query.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+					.Where(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck);
+			}
+
 			var dateForRouteListMaxFastDeliveryOrders = ShowHistory ? HistoryDateTime : DateTime.Now;
 
 			var routeListMaxFastDeliveryOrdersSubquery = QueryOver.Of<RouteListMaxFastDeliveryOrders>()
@@ -533,12 +560,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Take(1);
 
 			var routeListMaxFastDeliveryOrdersProjection = Projections.Conditional(Restrictions.IsNull(Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery)),
-				Projections.Constant(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime),
+				Projections.Constant(_deliveryRulesSettings.MaxFastOrdersPerSpecificTime),
 				Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery));
 
 			if(ShowActualFastDeliveryOnly)
 			{
-				var specificTimeForFastOrdersCount = (int)_deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+				var specificTimeForFastOrdersCount = (int)_deliveryRulesSettings.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
 
 				TrackPoint trackPointAlias = null;
 
@@ -640,6 +667,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.LastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
+					.Select(() => driverAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(isCompanyCarProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
@@ -680,7 +708,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				savedRow.RowNumber = ++rowNum;
 				if (savedRow.FastDeliveryMaxDistance == null)
 				{
-					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
+					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
 				}
 
 				savedRow.MaxFastDeliveryOrders = driversNodes[i].Max(x => x.MaxFastDeliveryOrders);
@@ -853,6 +881,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
+		public int MaxDaysForNewbieDriver { get; }
+
 		#region IDisposable
 		public override void Dispose()
 		{
@@ -881,6 +911,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string LastName { get; set; }
 
 		public string Patronymic { get; set; }
+
+		public DateTime? FirstWorkDay { get; set; }
 
 		public string CarNumber { get; set; }
 
@@ -924,6 +956,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
 		public DateTime? LastTrackPointTime { get; set; }
+
+		public int TotalWorkDays => (int)(FirstWorkDay.HasValue ? (DateTime.Now - FirstWorkDay.Value).TotalDays : 0);
 	}
 
 	public class RouteListAddressNode

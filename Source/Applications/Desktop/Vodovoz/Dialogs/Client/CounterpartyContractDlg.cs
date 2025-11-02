@@ -1,23 +1,25 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using Autofac;
 using QS.Dialog;
+using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
-using QS.Validation;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
-using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Models;
-using Vodovoz.Parameters;
-using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz
 {
 	public partial class CounterpartyContractDlg : QS.Dialog.Gtk.EntityDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
@@ -25,10 +27,13 @@ namespace Vodovoz
 
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
-			this.Build ();
-			UoWGeneric = CounterpartyContract.Create (counterparty);
+			ResolveDependencies();
+			Build();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
+			UoWGeneric.Root.Counterparty = counterparty;
+			UoWGeneric.Root.UpdateNumber();
 			TabName = "Новый договор";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		/// <summary>
@@ -37,18 +42,12 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty, Organization organization) : this (counterparty)
 		{
 			UoWGeneric.Root.Organization = organization;
-			referenceOrganization.Sensitive = false;
+			entityentryOrganization.Sensitive = false;
 			Entity.UpdateContractTemplate(UoW, _docTemplateRepository);
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var parametersProvider = new ParametersProvider();
-			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
-			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
-			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var contractType = CounterpartyContractEntity.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;
@@ -60,24 +59,55 @@ namespace Vodovoz
 
 		public CounterpartyContractDlg (int id)
 		{
+			ResolveDependencies();
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
 			ConfigureDlg ();
+		}
+
+		private void ResolveDependencies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 		}
 
 		private void ConfigureDlg ()
 		{
-			checkOnCancellation.Binding.AddBinding (Entity, e => e.OnCancellation, w => w.Active).InitializeFromSource ();
-			checkArchive.Binding.AddBinding (Entity, e => e.IsArchive, w => w.Active).InitializeFromSource ();
+			checkOnCancellation.Binding
+				.AddBinding(Entity, e => e.OnCancellation, w => w.Active)
+				.InitializeFromSource();
+			checkArchive.Binding
+				.AddBinding(Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 
-			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
-			entryNumber.Binding.AddBinding (Entity, e => e.ContractFullNumber, w => w.Text).InitializeFromSource ();
-			spinDelay.Binding.AddBinding (Entity, e => e.MaxDelay, w => w.ValueAsInt).InitializeFromSource ();
+			dateIssue.Binding
+				.AddBinding(Entity, e => e.IssueDate, w => w.Date)
+				.InitializeFromSource();
+			entryNumber.Binding
+				.AddBinding(Entity, e => e.Number, w => w.Text)
+				.InitializeFromSource();
+			spinDelay.Binding
+				.AddBinding(Entity, e => e.MaxDelay, w => w.ValueAsInt)
+				.InitializeFromSource();
 			ycomboContractType.ItemsEnum = typeof(ContractType);
-			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
+			ycomboContractType.Binding
+				.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			referenceOrganization.SubjectType = typeof(Organization);
-			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
+			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CounterpartyContract>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationEntryViewModel.CanViewEntity = false;
+
+			entityentryOrganization.ViewModel = organizationEntryViewModel;
 
 			if (Entity.DocumentTemplate == null && Entity.Organization != null)
 			{
@@ -95,7 +125,7 @@ namespace Vodovoz
 
             entryNumber.Sensitive = false;
             dateIssue.Sensitive = false;
-            referenceOrganization.Sensitive = false;
+			entityentryOrganization.Sensitive = false;
             ycomboContractType.Sensitive = false;
         }
 
@@ -106,8 +136,8 @@ namespace Vodovoz
 				return false;
 			}
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
-			if(!validator.Validate(Entity))
+			var validator = ServicesConfig.ValidationService;
+			if(!validator.Validate(Entity, new ValidationContext(Entity)))
 			{
 				return false;
 			}
@@ -115,6 +145,14 @@ namespace Vodovoz
 			UoWGeneric.Save ();
 			ContractSaved?.Invoke(this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			_docTemplateRepository = null;
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

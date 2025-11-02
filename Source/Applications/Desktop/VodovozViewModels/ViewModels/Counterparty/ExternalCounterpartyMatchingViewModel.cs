@@ -15,6 +15,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.Utilities.Numeric;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
@@ -22,7 +23,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Counterparty

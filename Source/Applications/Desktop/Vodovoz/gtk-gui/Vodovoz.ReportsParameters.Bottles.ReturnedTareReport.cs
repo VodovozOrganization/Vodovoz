@@ -8,7 +8,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonHelp;
+		private global::Gamma.GtkWidgets.yButton buttonHelp;
 
 		private global::Gamma.GtkWidgets.yCheckButton chkClosedOrdersOnly;
 
@@ -40,7 +40,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonHelp = new global::Gtk.Button();
+			this.buttonHelp = new global::Gamma.GtkWidgets.yButton();
 			this.buttonHelp.CanFocus = true;
 			this.buttonHelp.Name = "buttonHelp";
 			this.buttonHelp.UseUnderline = true;

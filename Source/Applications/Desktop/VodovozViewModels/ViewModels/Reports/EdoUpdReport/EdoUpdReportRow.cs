@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using System;
-using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
@@ -17,11 +18,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public decimal DiscountMoney { get; set; }
 		public decimal Sum => Price * Count - DiscountMoney;
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
+		public EdoDocumentStatus? NewEdoDocFlowStatus { get; set; }
 		public string EdoDocError { get; set; }
 
-		public string EdoDocFlowStatusString => EdoDocFlowStatus.HasValue && EdoDocFlowStatus == Domain.Orders.Documents.EdoDocFlowStatus.Error 
-			? EdoDocError 
-			: EdoDocFlowStatus?.GetEnumTitle() ?? "Не отправлялось";
+		public string EdoDocFlowStatusString =>
+			EdoDocFlowStatus is null
+			? NewEdoDocFlowStatus is null
+				? "Не отправлялось"
+				: NewEdoDocFlowStatus == EdoDocumentStatus.Error ? EdoDocError : NewEdoDocFlowStatus.GetEnumTitle()
+			: EdoDocFlowStatus == Core.Domain.Documents.EdoDocFlowStatus.Error ? EdoDocError : EdoDocFlowStatus.GetEnumTitle();
 
 		public string TrueMarkApiError { get; set; }
 		public bool? IsTrueMarkApiSuccess { get; set; }

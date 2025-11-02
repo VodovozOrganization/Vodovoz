@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Subdivisions
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		Subdivision GetQCDepartment(IUnitOfWork uow);
 		IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false);
 		IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow);
-		IList<Subdivision> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes);
+		IList<NamedDomainObjectNode> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(
+			IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes);
 	}
 }

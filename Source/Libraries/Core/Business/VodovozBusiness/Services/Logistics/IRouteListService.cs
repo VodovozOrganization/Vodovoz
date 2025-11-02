@@ -2,10 +2,11 @@
 using QS.Validation;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Errors;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Services.Logistics
 {
@@ -50,20 +51,16 @@ namespace Vodovoz.Services.Logistics
 			int targetRouteListId,
 			IDictionary<int, AddressTransferType?> ordersIdsAndTransferType);
 
-		Result ValidateForAccept(RouteList routeList, bool skipOverfillValidation = false);
+		Result ValidateForAccept(RouteList routeList,IOrderRepository orderRepository, bool skipOverfillValidation = false);
 
 		Result TryChangeStatusToNew(
 			IUnitOfWork unitOfWork,
 			RouteList routeList);
 
-		Result<IEnumerable<string>> TryChangeStatusToAccepted(
-			IUnitOfWork unitOfWork,
-			RouteList routeList,
-			Action<bool> disableItemsUpdate,
-			IValidator validationService,
-			bool skipOverfillValidation = false,
-			bool confirmRecalculateRoute = false,
-			bool confirmSendOnClosing = false,
-			bool confirmSenEnRoute = false);
+		Result<RouteListItem> FindTransferSource(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
+
+		Result<RouteListItem> FindTransferTarget(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
+		void ConfirmRouteListAddressTransferRecieved(int routeListAddress, DateTime actionTime);
+		Result<RouteListItem> FindPrevious(IUnitOfWork unitOfWork, RouteListItem routeListAddress);
 	}
 }

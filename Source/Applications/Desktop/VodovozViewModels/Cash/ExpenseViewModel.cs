@@ -7,7 +7,6 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -16,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Documents;
@@ -28,6 +28,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
+using DateTimeHelpers;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -35,6 +36,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using QS.Report;
 
 namespace Vodovoz.ViewModels.Cash
 {
@@ -52,12 +54,14 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IFuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IUserService _userService;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IPermissionResult _entityPermissionResult;
 		private readonly IReportViewOpener _reportViewOpener;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private bool _canEditDate;
+		private bool _canEditDdrDate;
 		private Employee _restrictEmployee;
 
 		public ExpenseViewModel(
@@ -78,7 +82,9 @@ namespace Vodovoz.ViewModels.Cash
 			IReportViewOpener reportViewOpener,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IExpenseSettings expenseSettings,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
@@ -113,7 +119,7 @@ namespace Vodovoz.ViewModels.Cash
 			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Expense));
 
 			CanEditRectroactively =
@@ -121,7 +127,10 @@ namespace Vodovoz.ViewModels.Cash
 					typeof(Expense), userService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			_canEditDate = commonServices.CurrentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDate);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Expense.CanEditDate);
+
+			_canEditDdrDate = commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Expense.CanEditDdrDate);
 
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
@@ -169,6 +178,10 @@ namespace Vodovoz.ViewModels.Cash
 				() => CanEdit);
 
 			SetPropertyChangeRelation(
+				e => e.DdrDate,
+				() => DdrDate);
+
+			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
@@ -193,10 +206,26 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			PrintCommand = new DelegateCommand(Print);
-			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);
-			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Self));
+			SaveCommand = new DelegateCommand(SaveAndClose, () => CanSave);
+			SaveCommand.CanExecuteChangedWith(this, vm => vm.CanSave);
+
+			CloseCommand = new DelegateCommand(() => Close(CanSave, CloseSource.Cancel));
 
 			RefreshCurrentEmployeeWage();
+
+			ValidationContext.Items.Add(
+				nameof(IFinancialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId),
+				_financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId);
+
+			PropertyChanged += OnViewModelPropertyChanged;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(CanEdit))
+			{
+				OnPropertyChanged(nameof(CanSave));
+			}
 		}
 
 		public IReadOnlyCollection<Organization> CachedOrganizations { get; }
@@ -320,15 +349,48 @@ namespace Vodovoz.ViewModels.Cash
 			set => Entity.Money = value;
 		}
 
+		public DateTime DdrDate
+		{
+			get => Entity.DdrDate;
+			set
+			{
+				if(DdrDate != default && DdrDate != Entity.DdrDate && !CanEditDdrDate)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"У вас недостаточно прав для изменения даты учета ДДР");
+					return;
+				}
+
+				var dateTimeLowerBorder = DateTimeExtensions.Max(Entity.Date, Entity.DdrDate.FirstDayOfMonth());
+
+				if(value.Date >= dateTimeLowerBorder.Date)
+				{
+					Entity.DdrDate = value.Date;
+				}
+				else
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Нельзя установить дату учета ДДР ранее {dateTimeLowerBorder:dd.MM.yyyy}");
+					OnPropertyChanged(nameof(DdrDate));
+				}
+			}
+		}
+
 		public bool CanEditRectroactively { get; }
 
 		public bool CanEditDate => _canEditDate && !IsAdvance;
+
+		public bool CanEditDdrDate => _canEditDdrDate;
 
 		public bool CanCreate => _entityPermissionResult.CanCreate;
 
 		public bool CanEdit => (UoW.IsNew && CanCreate)
 			|| (_entityPermissionResult.CanUpdate && Entity.Date.Date == DateTime.Now.Date)
 			|| CanEditRectroactively;
+
+		public bool CanSave => CanEdit || CanEditDate;
 
 		[PropertyChangedAlso(nameof(CurrentEmployeeWageBalanceLabelString))]
 		public decimal CurrentEmployeeWage { get; private set; }
@@ -431,9 +493,7 @@ namespace Vodovoz.ViewModels.Cash
 					_logger.LogInformation("Ok");
 				}
 
-				Close(false, CloseSource.Save);
-
-				return true;
+				return base.Save(close);
 			}
 
 			return false;
@@ -447,12 +507,7 @@ namespace Vodovoz.ViewModels.Cash
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
 			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
-			{
-				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
-			}
-			else if(Entity.TypeOperation == ExpenseType.EmployeeAdvance
-					|| Entity.TypeOperation == ExpenseType.Salary)
+				|| Entity.TypeOperation == ExpenseType.Salary)
 			{
 				_expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, Entity, true);
 			}
@@ -503,14 +558,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.Expense";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.Expense",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id", Entity.Id }
-				}
+				{ "id", Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);
@@ -613,7 +666,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			if(unclosedChangeAdvances.Count() > 0)
 			{
-				ServicesConfig.CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 					"Закройте сначала ранее выданные авансы со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
 				return false;
 			}
@@ -621,7 +674,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			if(!_orderIdsToChanges.Any())
 			{
-				ServicesConfig.CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
+				CommonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
 					"Для данного МЛ нет наличных заказов требующих сдачи");
 				return false;
 			}

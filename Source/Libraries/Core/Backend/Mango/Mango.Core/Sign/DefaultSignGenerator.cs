@@ -6,9 +6,9 @@ namespace Mango.Core.Sign
 	public class DefaultSignGenerator : IDefaultSignGenerator
 	{
 		private readonly ISignGenerator _signGenerator;
-		private readonly IMangoSettings _mangoSettings;
+		private readonly IMangoConfigurationSettings _mangoSettings;
 
-		public DefaultSignGenerator(ISignGenerator signGenerator, IMangoSettings mangoSettings)
+		public DefaultSignGenerator(ISignGenerator signGenerator, IMangoConfigurationSettings mangoSettings)
 		{
 			_signGenerator = signGenerator ?? throw new ArgumentNullException(nameof(signGenerator));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));

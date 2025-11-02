@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -109,7 +111,15 @@ namespace Vodovoz.Domain.Fuel
 			}
 
 			var validationContext = new ValidationContext(this);
-			validationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			validationContext.InitializeServiceProvider(type =>
+			{
+				if(type == typeof(IFuelRepository))
+				{
+					return fuelRepository;
+				}
+				return null;
+			});
+
 			string exceptionMessage = this.RaiseValidationAndGetResult(validationContext);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);
@@ -132,7 +142,7 @@ namespace Vodovoz.Domain.Fuel
 			return sum;
 		}
 
-		private IEnumerable<ValidationResult> ValidateFuelBalance(IFuelRepository fuelRepository)
+		private IEnumerable<ValidationResult> ValidateFuelBalance(IUnitOfWorkFactory uowFactory, IFuelRepository fuelRepository)
 		{
 			if(fuelRepository == null) {
 				throw new ArgumentNullException(nameof(fuelRepository));
@@ -140,7 +150,8 @@ namespace Vodovoz.Domain.Fuel
 			if(UoW.IsNew) {
 				yield break;
 			}
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
 				var balance = fuelRepository.GetAllFuelsBalanceForSubdivision(uow, Subdivision);
 				FuelIncomeInvoice originalInvoice = uow.GetById<FuelIncomeInvoice>(Id);
 				var originalBalance = fuelRepository.GetAllFuelsBalanceForSubdivision(UoW, originalInvoice.Subdivision);
@@ -183,7 +194,9 @@ namespace Vodovoz.Domain.Fuel
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!FuelIncomeInvoiceItems.Any()) {
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			if(!FuelIncomeInvoiceItems.Any())
+			{
 				yield return new ValidationResult("Необходимо добавить позиции по приходу топлива");
 			}
 
@@ -199,14 +212,14 @@ namespace Vodovoz.Domain.Fuel
 				yield return new ValidationResult("Для каждого топлива должна быть выбрана номенклатура");
 			}
 
-			if(FuelIncomeInvoiceItems.Any(x => x.Nomenclature != null && x.Nomenclature.Category != Goods.NomenclatureCategory.fuel)) {
+			if(FuelIncomeInvoiceItems.Any(x => x.Nomenclature != null && x.Nomenclature.Category != NomenclatureCategory.fuel)) {
 				yield return new ValidationResult("В документе можно добавлять только топливо");
 			}
 
 			if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
 				throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
 			}
-			foreach(var result in ValidateFuelBalance(fuelRepository)) {
+			foreach(var result in ValidateFuelBalance(uowFactory, fuelRepository)) {
 				yield return result;
 			}
 		}

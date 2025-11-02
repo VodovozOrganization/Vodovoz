@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				return;
 			}
 
-			var printDocuments = EntityDocumentsPrinter.DocumentsToPrint;
+			var printDocuments = EntityDocumentsPrinter.MultiDocPrinterPrintableDocuments;
 			if(_currentOrder != null) 
 			{ //если этот диалог вызван из заказа
 				var documents =

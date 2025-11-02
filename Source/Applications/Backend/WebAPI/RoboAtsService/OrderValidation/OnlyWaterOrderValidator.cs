@@ -1,19 +1,21 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace RoboatsService.OrderValidation
 {
 	public sealed class OnlyWaterOrderValidator : OrderValidatorBase
 	{
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public OnlyWaterOrderValidator(INomenclatureParametersProvider nomenclatureParametersProvider)
+		public OnlyWaterOrderValidator(INomenclatureSettings nomenclatureSettings)
 		{
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public override IEnumerable<string> GetProblemMessages(IEnumerable<Order> orders)
@@ -27,8 +29,8 @@ namespace RoboatsService.OrderValidation
 			foreach(var order in orders)
 			{
 				var hasOnlyWater = !order.OrderItems
-					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.PaidDeliveryNomenclatureId)
-					.Where(x => x.Nomenclature.Id != _nomenclatureParametersProvider.FastDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureSettings.PaidDeliveryNomenclatureId)
+					.Where(x => x.Nomenclature.Id != _nomenclatureSettings.FastDeliveryNomenclatureId)
 					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water);
 
 				if(hasOnlyWater)

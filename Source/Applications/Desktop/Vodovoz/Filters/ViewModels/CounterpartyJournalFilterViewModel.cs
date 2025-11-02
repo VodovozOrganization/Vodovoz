@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using NHibernate.Transform;
+using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
@@ -7,10 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Retail;
-using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Widgets.Search;
 
@@ -30,7 +32,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ReasonForLeaving? _reasonForLeaving;
 		private bool _isNeedToSendBillByEdo;
 		private int? _counterpartyId;
-		private int? _counterpartyVodovozInternalId;
+		private string _counterpartyContractNumber;
 		private string _counterpartyInn;
 		private bool _showLiquidating;
 		private CounterpartyCompositeClassification? _counterpartyClassification;
@@ -38,6 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private ClientCameFrom _clientCameFrom;
 		private bool _clientCameFromIsEmpty;
 		private object _selectedCameFrom;
+		private CounterpartyType? _restrictCounterpartyType;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
 
@@ -73,6 +76,19 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _counterpartyType;
 			set => SetField(ref _counterpartyType, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanChangeCounterpartyType))]
+		public virtual CounterpartyType? RestrictCounterpartyType
+		{
+			get => _restrictCounterpartyType;
+			set
+			{
+				if(SetField(ref _restrictCounterpartyType, value))
+				{
+					CounterpartyType = value;
+				}
+			}
 		}
 
 		public virtual bool RestrictIncludeArchive
@@ -190,10 +206,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyId, value);
 		}
 
-		public int? CounterpartyVodovozInternalId
+		public string CounterpartyContractNumber
 		{
-			get => _counterpartyVodovozInternalId;
-			set => SetField(ref _counterpartyVodovozInternalId, value);
+			get => _counterpartyContractNumber;
+			set => SetField(ref _counterpartyContractNumber, value);
 		}
 
 		public string CounterpartyInn
@@ -215,6 +231,8 @@ namespace Vodovoz.Filters.ViewModels
 			get => _clientCameFromIsEmpty;
 			set => UpdateFilterField(ref _clientCameFromIsEmpty, value);
 		}
+
+		public bool CanChangeCounterpartyType => RestrictCounterpartyType is null;
 
 		private void UnsubscribeOnCheckChanged()
 		{

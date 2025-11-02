@@ -46,7 +46,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSaveComment;
+		private global::Gamma.GtkWidgets.yButton buttonSaveComment;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxLogisticsRequirements;
 
@@ -56,7 +56,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.HBox hboxSaveLogisticsRequirements;
 
-		private global::Gtk.Button buttonSaveLogisticsRequirements;
+		private global::Gamma.GtkWidgets.yButton buttonSaveLogisticsRequirements;
 
 		private global::Gtk.HBox hbox2;
 
@@ -256,7 +256,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSaveComment = new global::Gtk.Button();
+			this.buttonSaveComment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveComment.CanFocus = true;
 			this.buttonSaveComment.Name = "buttonSaveComment";
 			this.buttonSaveComment.UseUnderline = true;
@@ -303,7 +303,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.hboxSaveLogisticsRequirements.Name = "hboxSaveLogisticsRequirements";
 			this.hboxSaveLogisticsRequirements.Spacing = 6;
 			// Container child hboxSaveLogisticsRequirements.Gtk.Box+BoxChild
-			this.buttonSaveLogisticsRequirements = new global::Gtk.Button();
+			this.buttonSaveLogisticsRequirements = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveLogisticsRequirements.CanFocus = true;
 			this.buttonSaveLogisticsRequirements.Name = "buttonSaveLogisticsRequirements";
 			this.buttonSaveLogisticsRequirements.UseUnderline = true;

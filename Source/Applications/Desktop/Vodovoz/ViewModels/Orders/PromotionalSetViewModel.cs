@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -15,18 +15,21 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
+using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
+	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult, IAskSaveOnCloseViewModel
 	{
 		private ILifetimeScope _lifetimeScope;
-
 		private PromotionalSetItem _selectedPromoItem;
 		private PromotionalSetActionBase _selectedAction;
 		private WidgetViewModelBase _selectedActionViewModel;
 		private bool _informationTabActive;
 		private bool _sitesAndAppsTabActive;
+		private bool _showSpecialBottlesCountForDeliveryPrice;
 		private int _currentPage;
 		
 		public PromotionalSetViewModel(
@@ -34,18 +37,21 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IStringHandler stringHandler,
 			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeType =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.Order.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
+					Vodovoz.Core.Domain.Permissions.OrderPermissions.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
 
 			if(!CanRead)
 			{
 				AbortOpening("У вас недостаточно прав для просмотра");
 			}
 
+			_showSpecialBottlesCountForDeliveryPrice = Entity.BottlesCountForCalculatingDeliveryPrice.HasValue;
 			CreateCommands();
 			ConfigureOnlineParameters();
 		}
@@ -108,9 +114,22 @@ namespace Vodovoz.ViewModels.Orders
 			}
 		}
 		
+		public bool ShowSpecialBottlesCountForDeliveryPrice
+		{
+			get => _showSpecialBottlesCountForDeliveryPrice;
+			set
+			{
+				if(SetField(ref _showSpecialBottlesCountForDeliveryPrice, value) && !value)
+				{
+					Entity.BottlesCountForCalculatingDeliveryPrice = null;
+				}
+			}
+		}
+		
 		public PromotionalSetOnlineParameters MobileAppPromotionalSetOnlineParameters { get; private set; }
 		public PromotionalSetOnlineParameters VodovozWebSitePromotionalSetOnlineParameters { get; private set; }
 		public PromotionalSetOnlineParameters KulerSaleWebSitePromotionalSetOnlineParameters { get; private set; }
+		public IStringHandler StringHandler { get; }
 
 		#region Permissions
 
@@ -120,10 +139,12 @@ namespace Vodovoz.ViewModels.Orders
 		public bool CanDelete => PermissionResult.CanDelete;
 
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
-		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
+		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanCreateOrUpdate;
 		public bool CanRemoveAction => _selectedAction != null && CanDelete && Entity.Id == 0;
 
 		public bool CanChangeType { get; }
+
+		public bool AskSaveOnClose => CanCreateOrUpdate;
 
 		#endregion
 
@@ -157,8 +178,8 @@ namespace Vodovoz.ViewModels.Orders
 						vm => vm.SelectionMode = JournalSelectionMode.Single)
 					.ViewModel;
 
-				nomenJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-					var selectedNode = e.SelectedNodes.Cast<NomenclatureJournalNode>().FirstOrDefault();
+				nomenJournalViewModel.OnSelectResult += (sender, e) => {
+					var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 					if(selectedNode == null) {
 						return;
 					}
@@ -195,9 +216,13 @@ namespace Vodovoz.ViewModels.Orders
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) =>
 				{
-					SelectedActionViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
+					var addFixedPriceViewModel = _lifetimeScope.Resolve<AddFixPriceActionViewModel>(
 						new TypedParameter(typeof(IUnitOfWork), UoW),
 						new TypedParameter(typeof(PromotionalSet), Entity));
+
+					addFixedPriceViewModel.Container = this;
+
+					SelectedActionViewModel = addFixedPriceViewModel;
 
 					if(SelectedActionViewModel is ICreationControl)
 					{

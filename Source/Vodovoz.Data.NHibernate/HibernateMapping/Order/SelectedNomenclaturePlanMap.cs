@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -40,7 +39,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			{
 				DiscriminatorValue("EquipmentType");
 
-				Map(x => x.EquipmentType).Column("equipment_type").CustomType<EquipmentTypeStringType>();
+				Map(x => x.EquipmentType).Column("equipment_type");
 			}
 		}
 

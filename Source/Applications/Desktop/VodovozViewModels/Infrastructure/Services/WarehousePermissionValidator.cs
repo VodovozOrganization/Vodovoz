@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using MoreLinq;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.ViewModels.Infrastructure.Services
@@ -25,7 +27,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services
 		{
 			var userId = employee.User.Id;
 			var permissions = new List<WarehousePermissionBase>();
-			using(var uow = UnitOfWorkFactory.CreateForRoot<User>(userId))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<User>(userId))
 			{
 			 	var subdivision = employee.Subdivision;
 			 	permissions = new List<WarehousePermissionBase>();

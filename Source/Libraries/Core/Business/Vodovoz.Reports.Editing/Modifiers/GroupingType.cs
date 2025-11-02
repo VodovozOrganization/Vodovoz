@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Reports.Editing.Modifiers
 {
@@ -35,6 +35,22 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Классификация контрагента")]
 		CounterpartyClassification,
 		[Display(Name = "Промонабор")]
-		PromotionalSet
+		PromotionalSet,
+		[Display(Name = "Сотрудник")]
+		Employee,
+		[Display(Name = "Событие")]
+		DriverWarehouseEvent,
+		[Display(Name = "Время события")]
+		DriverWarehouseEventDate,
+		[Display(Name = "Статус документооборота")]
+		EdoDocFlowStatus,
+		[Display(Name = "Тип доставки")]
+		OrderDeliveryType,
+		[Display(Name = "Тип переноса")]
+		OrderTransferType,
+		[Display(Name = "Менеджер КА")]
+		CounterpartyManager,
+		[Display(Name = "Автор заказа")]
+		OrderAuthor,
 	}
 }

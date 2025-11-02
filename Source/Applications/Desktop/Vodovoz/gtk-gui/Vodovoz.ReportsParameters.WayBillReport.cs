@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker datepicker;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDriver;
 
@@ -58,6 +58,7 @@ namespace Vodovoz.ReportsParameters
 			this.datepicker.Date = new global::System.DateTime(0);
 			this.datepicker.IsEditable = true;
 			this.datepicker.AutoSeparation = false;
+			this.datepicker.HideButtonClearDate = false;
 			this.table1.Add(this.datepicker);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.datepicker]));
 			w1.LeftAttach = ((uint)(1));
@@ -65,12 +66,11 @@ namespace Vodovoz.ReportsParameters
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entryCar.Name = "entryCar";
-			this.entryCar.CanEditReference = false;
-			this.table1.Add(this.entryCar);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.table1.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryCar]));
 			w2.TopAttach = ((uint)(2));
 			w2.BottomAttach = ((uint)(3));
 			w2.LeftAttach = ((uint)(1));
@@ -82,6 +82,8 @@ namespace Vodovoz.ReportsParameters
 			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.entryDriver.Name = "entryDriver";
 			this.entryDriver.CanEditReference = false;
+			this.entryDriver.CanDisposeEntitySelectorFactory = false;
+			this.entryDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryDriver);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryDriver]));
 			w3.TopAttach = ((uint)(1));

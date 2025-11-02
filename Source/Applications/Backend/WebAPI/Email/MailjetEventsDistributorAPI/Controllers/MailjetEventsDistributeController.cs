@@ -173,7 +173,7 @@ namespace MailjetEventsDistributorAPI.Controllers
 				var username = messageBrockerSection.GetValue<string>("Username");
 				var password = messageBrockerSection.GetValue<string>("Password");
 
-				var connection = _queueConnectionFactory.CreateConnection(instance.MessageBrockerHost, username, password, instance.MessageBrockerVirtualHost);
+				var connection = _queueConnectionFactory.CreateConnection(instance.MessageBrockerHost, username, password, instance.MessageBrockerVirtualHost, instance.Port, messageBrockerSection.GetValue("UseSsl", true));
 				var channel = connection.CreateModel();
 
 				channel.QueueDeclare(_mailEventKey, true, false, false, null);

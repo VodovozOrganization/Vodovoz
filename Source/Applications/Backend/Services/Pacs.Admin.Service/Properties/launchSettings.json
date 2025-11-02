@@ -1,0 +1,23 @@
+﻿{
+	"profiles": {
+		"Pacs.Admin.Service": {
+			"commandName": "Project",
+			"environmentVariables": {
+				"DOTNET_ENVIRONMENT": "Development"
+			},
+			"dotnetRunMessages": true,
+			"applicationUrl": "http://localhost:5000"
+		},
+		"Docker.Development": {
+			"commandName": "Docker",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				"ASPNETCORE_URLS": "http://+:5000"
+			},
+			"publishAllPorts": true,
+			"useSSL": false,
+			//5002 это порт Grpc, задается в appsettings.json
+			"DockerfileRunArguments": "-p 5000:5000"
+		}
+	}
+}

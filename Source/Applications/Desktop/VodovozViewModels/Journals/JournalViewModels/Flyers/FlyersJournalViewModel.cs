@@ -1,10 +1,10 @@
-﻿using System;
-using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -13,19 +13,16 @@ using Vodovoz.ViewModels.ViewModels.Flyers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 {
-	public class FlyersJournalViewModel : SingleEntityJournalViewModelBase<Flyer, FlyerViewModel, FlyersJournalNode>
+	public class FlyersJournalViewModel : EntityJournalViewModelBase<Flyer, FlyerViewModel, FlyersJournalNode>
 	{
-		private ILifetimeScope _lifetimeScope;
-		
 		public FlyersJournalViewModel(
-			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices,
-			bool hideJournalForOpenDialog = false,
-			bool hideJournalForCreateDialog = false
-		) : base(uowFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
+			IInteractiveService interactiveService,
+			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService)
+			: base(uowFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			
 			TabName = "Журнал рекламных листовок";
 			
@@ -34,7 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 				typeof(FlyerActionTime));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Flyer>> ItemsSourceQueryFunction => uow =>
+		protected override IQueryOver<Flyer> ItemsQuery(IUnitOfWork uow)
 		{
 			Flyer flyerAlias = null;
 			Nomenclature leafletNomenclatureAlias = null;
@@ -48,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 			query.Where(GetSearchCriterion(
 				() => leafletNomenclatureAlias.Name
 			));
-			
+
 			var result = query.SelectList(list => list
 					.Select(l => l.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => leafletNomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
@@ -56,22 +53,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Flyers
 					.Select(() => flyerActionTimeAlias.EndDate).WithAlias(() => resultAlias.EndDate))
 				.OrderBy(() => leafletNomenclatureAlias.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<FlyersJournalNode>());
-			
+
 			return result;
-		};
-
-		protected override Func<FlyerViewModel> CreateDialogFunction => () =>
-			_lifetimeScope.Resolve<FlyerViewModel>(
-				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()));
-		
-		protected override Func<FlyersJournalNode, FlyerViewModel> OpenDialogFunction => n =>
-			_lifetimeScope.Resolve<FlyerViewModel>(
-				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(n.Id)));
-
-		public override void Dispose()
-		{
-			_lifetimeScope = null;
-			base.Dispose();
 		}
 	}
 }

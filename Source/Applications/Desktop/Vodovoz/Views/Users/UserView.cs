@@ -9,6 +9,7 @@ using Vodovoz.Core;
 using Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Views.Users
 {
@@ -93,7 +94,7 @@ namespace Vodovoz.Views.Users
 				_documentPermissionWidget.Show();
 				ybuttonDocumentPrivileges.Sensitive = true;
 				_documentPermissionWidget.Model.PermissionListViewModel.ExportAction = ViewModel.ExportPermissions;
-				_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ListContentChanged += ViewModel.UpdateChanges;
+				_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ContentChanged += ViewModel.UpdateChanges;
 
 				_specialDocumentPermissionWidget.ConfigureDlg(ViewModel.UoW, ViewModel.Entity);
 				vboxSpecialDocumentPrivileges.Add(_specialDocumentPermissionWidget);
@@ -157,7 +158,7 @@ namespace Vodovoz.Views.Users
 				.AddBinding(ViewModel, vm => vm.SelectedUserRole, w => w.SelectedRow)
 				.InitializeFromSource();
 			ytreeviewAddedRoles.RowActivated += (o, args) => ViewModel.RemoveUserRoleCommand.Execute();
-			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.ObservableUserRoles;
+			ytreeviewAddedRoles.ItemsDataSource = ViewModel.Entity.UserRoles;
 			ytreeviewAvailableRoles.Sensitive = ytreeviewAddedRoles.Sensitive = !ViewModel.IsSameUser && ViewModel.HasUserOnServer;
 		}
 
@@ -214,7 +215,7 @@ namespace Vodovoz.Views.Users
 			ViewModel.UpdateUserRolesForCurrentRoleAction -= ViewModelOnUpdateUserRolesForCurrentRoleAction;
 			ViewModel.AddUserRoleToUserCommand.CanExecuteChanged -= AddUserRoleToUserCommandOnCanExecuteChanged;
 			ViewModel.RemoveUserRoleCommand.CanExecuteChanged -= RemoveUserRoleCommandOnCanExecuteChanged;
-			_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ListContentChanged -= ViewModel.UpdateChanges;
+			_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ContentChanged -= ViewModel.UpdateChanges;
 			if(_specialDocumentPermissionWidget.ViewModel != null)
 			{
 				_specialDocumentPermissionWidget.ViewModel.ObservablePermissionsList.ListContentChanged -= ViewModel.UpdateChanges;

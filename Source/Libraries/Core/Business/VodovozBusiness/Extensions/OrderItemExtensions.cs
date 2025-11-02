@@ -7,7 +7,7 @@ namespace Vodovoz.Extensions
 		internal static void UpdatePriceWithRecalculate(this OrderItem newItem, decimal price)
 		{
 			newItem.SetPrice(price);
-			newItem.RecalculateAll();
+			newItem.RecalculateDiscountAndVat();
 		}
 	}
 }

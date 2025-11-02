@@ -1,12 +1,14 @@
 ﻿using System;
-using FastPaymentsAPI.Library.DTO_s;
-using FastPaymentsAPI.Library.DTO_s.Requests;
-using FastPaymentsAPI.Library.DTO_s.Responses;
+using FastPaymentsApi.Contracts;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Managers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using VodovozInfrastructure;
+using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Factories
 {
@@ -17,8 +19,8 @@ namespace FastPaymentsAPI.Library.Factories
 		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTOForOnlineOrder(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, string signature, int shopId);
 		CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket, int shopId);
-		SignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId);
-		SignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto);
+		OrderSignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId);
+		OrderSignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto);
 		FastPayment GetFastPayment(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			DateTime creationDate,

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace EdoService.Dto
+namespace EdoService.Library.Dto
 {
 	public class TrueApiAuthDto
 	{

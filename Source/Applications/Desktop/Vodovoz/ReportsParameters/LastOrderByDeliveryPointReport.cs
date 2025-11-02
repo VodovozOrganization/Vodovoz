@@ -1,67 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSReport;
+﻿using QS.Views;
 using QSWidgetLib;
-using QS.Dialog.GtkUI;
+using System;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class LastOrderByDeliveryPointReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class LastOrderByDeliveryPointReport : ViewBase<LastOrderByDeliveryPointReportViewModel>
 	{
-		public LastOrderByDeliveryPointReport()
+		public LastOrderByDeliveryPointReport(LastOrderByDeliveryPointReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ydatepicker.Date = DateTime.Now.Date;
+
+			ydatepicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
+			buttonSanitary.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Sanitary, w => w.Active)
+				.InitializeFromSource();
+
 			BottleDeptEntry.ValidationMode = ValidationType.numeric;
+			BottleDeptEntry.Changed += BottleDeptChanged;
+
+			buttonCreateRepot.BindCommand(ViewModel.GenerateReportCommand);
 		}
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title {
-			get {
-				return "Отчет по последнему заказу";
+		private void BottleDeptChanged(object sender, EventArgs e)
+		{
+			if(!string.IsNullOrEmpty(BottleDeptEntry.Text))
+			{
+				ViewModel.BottleDept = Convert.ToInt32(BottleDeptEntry.Text);
 			}
-		}
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			bool isSortByBottles;
-			int deptCount;
-			if(!String.IsNullOrEmpty(BottleDeptEntry.Text)) {
-				deptCount = Convert.ToInt32(BottleDeptEntry.Text);
-				isSortByBottles = true;
-			} 
-			else {
-				isSortByBottles = false;
-				deptCount = 0;
+			else
+			{
+				ViewModel.BottleDept = 0;
 			}
-
-			return new ReportInfo {
-				Identifier = buttonSanitary.Active?"Orders.SanitaryReport":"Orders.OrdersByDeliveryPoint",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "date", ydatepicker.Date },
-					{ "bottles_count", deptCount},
-					{ "is_sort_bottles", isSortByBottles }
-				}
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonCreateRepotClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
 		}
 	}
 }

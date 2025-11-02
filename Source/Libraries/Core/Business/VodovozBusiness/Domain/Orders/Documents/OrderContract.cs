@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -29,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				if(contract == null) {
 					return "Нет договора";
 				}
-				return String.Format("Договор №{0}", contract.ContractFullNumber);
+				return $"Договор №{contract.Number}";
 			}
 		}
 

@@ -128,5 +128,48 @@ namespace DateTimeHelpers
 		{
 			return _calendar.AddWeeks(dateTime, weeks);
 		}
+
+		public static DateTime Max(DateTime dateTime, DateTime otherDateTime)
+			=> dateTime > otherDateTime ? dateTime : otherDateTime;
+
+		public static string GetRuMonthGenetive(this DateTime dateTime)
+		{
+			switch(dateTime.Month)
+			{
+				case 1:
+					return "января";
+				case 2:
+					return "февраля";
+				case 3:
+					return "марта";
+
+				case 4:
+					return "апреля";
+				case 5:
+					return "мая";
+				case 6:
+					return "июня";
+
+				case 7:
+					return "июля";
+				case 8:
+					return "августа";
+				case 9:
+					return "сентября";
+
+				case 10:
+					return "октября";
+				case 11:
+					return "ноября";
+				case 12:
+					return "декабря";
+
+				default:
+					return "-";
+			}
+		}
+		
+		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
+		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
 	}
 }

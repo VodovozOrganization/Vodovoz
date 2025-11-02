@@ -14,10 +14,11 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ViewModels.Profitability;
-using Vodovoz.ViewModels.Widgets.Profitability;
 
 namespace Vodovoz.ViewModels.Profitability
 {
@@ -52,7 +53,7 @@ namespace Vodovoz.ViewModels.Profitability
 			IEmployeeService employeeService,
 			IWarehouseRepository warehouseRepository,
 			ICarRepository carRepository,
-			IMonthPickerViewModelFactory monthPickerViewModelFactory,
+			IDatePickerViewModelFactory monthPickerViewModelFactory,
 			IProfitabilityConstantsDataViewModelFactory profitabilityConstantsDataViewModelFactory,
 			IValidator validator,
 			IRouteListProfitabilityController routeListProfitabilityController) : base(navigationManager)
@@ -82,7 +83,7 @@ namespace Vodovoz.ViewModels.Profitability
 		}
 		
 		public ProfitabilityConstants Entity => UoWGeneric.Root;
-		public MonthPickerViewModel MonthPickerViewModel { get; private set; }
+		public DatePickerViewModel MonthPickerViewModel { get; private set; }
 
 		public bool IsIdleState
 		{
@@ -145,8 +146,8 @@ namespace Vodovoz.ViewModels.Profitability
 				}
 			}
 			));
-		
-		private DateTime CalculatedMonth => MonthPickerViewModel.SelectedMonth;
+
+		private DateTime CalculatedMonth => MonthPickerViewModel.SelectedDate;
 		private IUnitOfWorkGeneric<ProfitabilityConstants> UoWGeneric { get; set; }
 		private IUnitOfWork UoW => UoWGeneric;
 
@@ -233,15 +234,15 @@ namespace Vodovoz.ViewModels.Profitability
 			Entity.CalculateRepairCost();
 		}
 		
-		private void Initialize(IMonthPickerViewModelFactory monthPickerViewModelFactory)
+		private void Initialize(IDatePickerViewModelFactory monthPickerViewModelFactory)
 		{
 			UoWGeneric = _profitabilityConstantsViewModelHandler.GetLastCalculatedProfitabilityConstants();
 			_currentEditor = _employeeService.GetEmployeeForUser(UoW, _userService.CurrentUserId);
 
-			MonthPickerViewModel = monthPickerViewModelFactory.CreateNewMonthPickerViewModel(
+			MonthPickerViewModel = monthPickerViewModelFactory.CreateNewDatePickerViewModel(
 				Entity.CalculatedMonth,
-				CanSelectNextMonth,
-				CanSelectPreviousMonth);
+				canSelectNextDateFunc: CanSelectNextMonth,
+				canSelectPreviousDateFunc: CanSelectPreviousMonth);
 
 			MonthPickerViewModel.PropertyChanged += OnMonthPickerViewModelPropertyChanged;
 
@@ -250,7 +251,7 @@ namespace Vodovoz.ViewModels.Profitability
 
 		private void OnMonthPickerViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(MonthPickerViewModel.SelectedMonth))
+			if(e.PropertyName == nameof(MonthPickerViewModel.SelectedDate))
 			{
 				UpdateData(CalculatedMonth);
 			}

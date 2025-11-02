@@ -4,23 +4,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySqlConnector;
+using Microsoft.Extensions.Logging;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
-using QS.Project.Domain;
+using QS.Project.Core;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
-using Vodovoz.Core.DataService;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Roboats;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
+using Vodovoz.Infrastructure.Persistance;
+using DriverApi.Notifications.Client;
 
 namespace RoboatsCallsWorker
 {
@@ -36,8 +35,33 @@ namespace RoboatsCallsWorker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-			NLogBuilder.ConfigureNLog("NLog.config");
-			CreateBaseConfig();
+			services.AddLogging(logging =>
+			{
+				logging.ClearProviders();
+				logging.AddNLogWeb();
+				logging.AddConfiguration(Configuration.GetSection("NLog"));
+			});
+
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddTrackedUoW()
+				.AddBusiness(Configuration)
+				.AddDriverApiNotificationsSenders()
+				.AddInfrastructure()
+				;
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -45,10 +69,6 @@ namespace RoboatsCallsWorker
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
-			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
-			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
-			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<SettingsController>().As<ISettingsController>();
 			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 
@@ -93,41 +113,5 @@ namespace RoboatsCallsWorker
                 app.UseDeveloperExceptionPage();
             }
         }
-
-		private void CreateBaseConfig()
-		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>()
-				;
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
-				}
-			);
-		}
 	}
 }

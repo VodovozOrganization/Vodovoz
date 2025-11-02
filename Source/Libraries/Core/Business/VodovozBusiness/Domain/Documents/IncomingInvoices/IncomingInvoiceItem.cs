@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		NominativePlural = "строки входящей накладной",
 		Nominative = "строка входящей накладной")]
 	[HistoryTrace]
-	public abstract class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
+	public abstract class IncomingInvoiceItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private decimal _amount;
 		private decimal _primeCost;
@@ -37,7 +38,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(1)]
 		[Display(Name = "Количество")]
 		public virtual decimal Amount
 		{
@@ -52,7 +52,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
-		[Min(0)]
 		[Display(Name = "Цена")]
 		public virtual decimal PrimeCost
 		{
@@ -80,10 +79,22 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 
 		public abstract AccountingType AccountingType { get; }
 		public abstract int EntityId { get; }
-
 		
 		public override string ToString() => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
-		
+
 		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new [] { nameof(Amount) });
+			}
+
+			if(PrimeCost < 0)
+			{
+				yield return new ValidationResult("Цена должна быть больше 0", new[] { nameof(PrimeCost) });
+			}
+		}
 	}
 }

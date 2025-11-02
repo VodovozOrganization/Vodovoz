@@ -26,7 +26,8 @@ namespace MailjetEventsDistributorAPI.DataAccess
 				"	i.id AS Id,\n" +
 				"	i.database_id AS DatabaseId,\n" +
 				"	i.message_broker_host AS MessageBrockerHost,\n" +
-				"	i.message_broker_virtual_host AS MessageBrockerVirtualHost\n" +
+				"	i.message_broker_virtual_host AS MessageBrockerVirtualHost,\n" +
+				"	i.port AS Port\n" +
 				"FROM instances i\n" +
 				$"WHERE i.database_id = { Id };"
 				).ToList().FirstOrDefault();

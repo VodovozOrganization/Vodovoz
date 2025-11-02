@@ -4,30 +4,47 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.WageCalculation;
+using VodovozBusiness.Services.Subdivisions;
 
 namespace Vodovoz.ViewModels.ViewModels.Organizations
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
 		private readonly ILifetimeScope _scope;
+		private readonly ISubdivisionPermissionsService _subdivisionPermissionsService;
+		private readonly IGenericRepository<Subdivision> _subdivisionGenericRepository;
+		private readonly ICashRepository _cashRepository;
 		private PresetSubdivisionPermissionsViewModel _presetSubdivisionPermissionVm;
 		private WarehousePermissionsViewModel _warehousePermissionsVm;
+		private bool _canEnablePacs;
+		private SubdivisionsJournalViewModel _subdivisionsJournalViewModel;
+		private bool _isAddSubdivisionPermissionsSelected;
+		private bool _isReplaceSubdivisionPermissionsSelected;
+
+		private FinancialResponsibilityCenter _financialResponsibilityCenter;
 
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -37,11 +54,24 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ISubdivisionRepository subdivisionRepository,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
-			SubdivisionsJournalViewModel subdivisionsJournalViewModel) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionPermissionsService subdivisionPermissionsService,
+			IGenericRepository<Subdivision> subdivisionGenericRepository,
+			ICashRepository cashRepository,
+			SubdivisionsJournalViewModel subdivisionsJournalViewModel,
+			ViewModelEEVMBuilder<FinancialResponsibilityCenter> financialResponsibilityCenterViewModelEEVMBuilder)
+			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(financialResponsibilityCenterViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(financialResponsibilityCenterViewModelEEVMBuilder));
+			}
+
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_subdivisionPermissionsService = subdivisionPermissionsService ?? throw new ArgumentNullException(nameof(subdivisionPermissionsService));
+			_subdivisionGenericRepository = subdivisionGenericRepository ?? throw new ArgumentNullException(nameof(subdivisionGenericRepository));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			SubdivisionsJournalViewModel = subdivisionsJournalViewModel ?? throw new ArgumentNullException(nameof(subdivisionsJournalViewModel));
 			SubdivisionsJournalViewModel.JournalFilter.SetAndRefilterAtOnce<SubdivisionFilterViewModel>(filter => filter.RestrictParentId = Entity.Id);
 			SubdivisionsJournalViewModel.Refresh();
@@ -77,17 +107,53 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				.UseViewModelJournal<SalesChannelJournalViewModel>()
 				.Finish();
 
+			FinancialResponsibilityCenterViewModel = financialResponsibilityCenterViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.FinancialResponsibilityCenter)
+				.UseViewModelJournalAndAutocompleter<FinancialResponsibilityCenterJournalViewModel>()
+				.UseViewModelDialog<FinancialResponsibilityCenterViewModel>()
+				.Finish();
+
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 
 			SubscribeUpdateOnChanges();
+
+			AddSubdivisionPermissionsCommand = new DelegateCommand(AddSubdivisionPermissions);
+			ReplaceSubdivisionPermissionsCommand = new DelegateCommand(ReplaceSubdivisionPermissions);
+
+			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
+				Vodovoz.Core.Domain.Permissions.PacsPermissions.CanEnablePacs,
+				CommonServices.UserService.CurrentUserId);
+
+			if(Entity.Id != 0)
+			{
+				CanArchive = 
+					_cashRepository.CurrentCashForGivenSubdivisions(UoW, new int[] { Entity.Id }).Sum(x => x.Balance) == 0 || Entity.IsArchive;
+			}
+			else
+			{
+				CanArchive = true;
+			}
 		}
+
+		public event Action UpdateWarehousePermissionsAction;
 
 		public ISubdivisionRepository SubdivisionRepository { get; }
 		public SubdivisionsJournalViewModel SubdivisionsJournalViewModel { get; }
 		public IEntityEntryViewModel ChiefViewModel { get; private set; }
 		public IEntityEntryViewModel ParentSubdivisionViewModel { get; private set; }
 		public IEntityEntryViewModel DefaultSalesPlanViewModel { get; private set; }
+		public IEntityEntryViewModel FinancialResponsibilityCenterViewModel { get; }
+		public DelegateCommand AddSubdivisionPermissionsCommand { get; }
+		public DelegateCommand ReplaceSubdivisionPermissionsCommand { get; }
+
+		public FinancialResponsibilityCenter FinancialResponsibilityCenter
+		{
+			get => this.GetIdRefField(ref _financialResponsibilityCenter, Entity.FinancialResponsibilityCenterId);
+			set => this.SetIdRefField(SetField, ref _financialResponsibilityCenter, () => Entity.FinancialResponsibilityCenterId, value);
+		}
 
 		public EntitySubdivisionPermissionViewModel EntitySubdivisionPermissionViewModel { get; }
 
@@ -118,13 +184,23 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
+		public bool CanEnablePacs => _canEnablePacs;
+
+		public bool CanArchive { get; }
+
+		public bool CanAddOrReplacePermissions =>
+			CommonServices.UserService.GetCurrentUser().IsAdmin
+			&& !Entity.ChildSubdivisions.Any();
 
 		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
 
-		public virtual GeoGroup GeographicGroup {
+		public virtual GeoGroup GeographicGroup
+		{
 			get => Entity.GeographicGroup;
-			set {
-				if(Entity.GeographicGroup == value) {
+			set
+			{
+				if(Entity.GeographicGroup == value)
+				{
 					return;
 				}
 				Entity.GeographicGroup = value;
@@ -178,32 +254,26 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			return base.BeforeSave();
 		}
 
-		public override void Dispose()
-		{
-			UnsubscribeUpdateOnChanges();
-			base.Dispose();
-		}
-
 		private void SubscribeUpdateOnChanges()
 		{
 			Entity.PropertyChanged += UpdateChanges;
 			Entity.ObservableDocumentTypes.ListContentChanged += UpdateChanges;
 			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged += UpdateChanges;
 			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged += UpdateChanges;
-			
+
 			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
 			{
 				warehousePermissionNode.SubNodeViewModel.ListContentChanged += UpdateChanges;
 			}
 		}
-		
+
 		private void UnsubscribeUpdateOnChanges()
 		{
 			Entity.PropertyChanged -= UpdateChanges;
 			Entity.ObservableDocumentTypes.ListContentChanged -= UpdateChanges;
 			EntitySubdivisionPermissionViewModel.ObservableTypeOfEntitiesList.ListContentChanged -= UpdateChanges;
 			PresetSubdivisionPermissionVM.ObservablePermissionsList.ListContentChanged -= UpdateChanges;
-			
+
 			foreach(var warehousePermissionNode in WarehousePermissionsVM.AllWarehouses)
 			{
 				warehousePermissionNode.SubNodeViewModel.ListContentChanged -= UpdateChanges;
@@ -211,5 +281,105 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		}
 
 		private void UpdateChanges(object sender, EventArgs e) => HasChanges = true;
+
+		private void SelectSourceSubdivisionToCopyPermissions()
+		{
+			var selectSubdivisionPage = NavigationManager.OpenViewModel<SubdivisionsJournalViewModel, Action<SubdivisionFilterViewModel>>(
+				this,
+				filter =>
+				{
+
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Single;
+				});
+
+			if(_subdivisionsJournalViewModel != null)
+			{
+				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
+			}
+
+			_subdivisionsJournalViewModel = selectSubdivisionPage.ViewModel;
+			_subdivisionsJournalViewModel.OnSelectResult += OnSourceSubdivisionToCopyPermissionsSelected;
+		}
+
+		private void OnSourceSubdivisionToCopyPermissionsSelected(object sender, JournalSelectedEventArgs e)
+		{
+			var selectedNode = e.SelectedObjects.FirstOrDefault();
+
+			if(selectedNode == null
+				|| !(selectedNode is SubdivisionJournalNode subdivisionNode)
+				|| subdivisionNode.Id == Entity.Id)
+			{
+				return;
+			}
+
+			var subdivision =
+				_subdivisionGenericRepository
+				.Get(UoW, x => x.Id == subdivisionNode.Id)
+				.FirstOrDefault();
+
+			if(subdivision is null)
+			{
+				return;
+			}
+
+			if(_isAddSubdivisionPermissionsSelected)
+			{
+				AddSubdivisionPermissions(subdivision);
+			}
+
+			if(_isReplaceSubdivisionPermissionsSelected)
+			{
+				ReplaceSubdivisionPermissions(subdivision);
+			}
+		}
+
+		private void AddSubdivisionPermissions()
+		{
+			_isAddSubdivisionPermissionsSelected = true;
+			_isReplaceSubdivisionPermissionsSelected = false;
+
+			SelectSourceSubdivisionToCopyPermissions();
+		}
+
+		private void ReplaceSubdivisionPermissions()
+		{
+			_isAddSubdivisionPermissionsSelected = false;
+			_isReplaceSubdivisionPermissionsSelected = true;
+
+			SelectSourceSubdivisionToCopyPermissions();
+		}
+
+		private void AddSubdivisionPermissions(Subdivision sourceSubdivision)
+		{
+			EntitySubdivisionPermissionViewModel.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+			WarehousePermissionsVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
+			PresetSubdivisionPermissionVM.AddPermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+
+			UpdateWarehousePermissionsAction?.Invoke();
+		}
+
+		private void ReplaceSubdivisionPermissions(Subdivision sourceSubdivision)
+		{
+			EntitySubdivisionPermissionViewModel.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+			WarehousePermissionsVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, Entity, sourceSubdivision);
+			PresetSubdivisionPermissionVM.ReplacePermissionsFromSubdivision(_subdivisionPermissionsService, sourceSubdivision);
+
+			UpdateWarehousePermissionsAction?.Invoke();
+		}
+
+		public override void Dispose()
+		{
+			if(_subdivisionsJournalViewModel != null)
+			{
+				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
+			}
+
+			UnsubscribeUpdateOnChanges();
+			base.Dispose();
+		}
 	}
 }

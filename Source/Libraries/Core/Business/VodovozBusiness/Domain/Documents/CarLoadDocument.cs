@@ -7,9 +7,10 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -25,62 +26,93 @@ namespace Vodovoz.Domain.Documents
 	{
 		private const int _commentLimit = 150;
 
+		private RouteList _routeList;
+		private Warehouse _warehouse;
+		private IList<CarLoadDocumentItem> _items = new List<CarLoadDocumentItem>();
+		private GenericObservableList<CarLoadDocumentItem> _observableItems;
+		private string _comment;
+		private CarLoadDocumentLoadOperationState _loadOperationState;
+
 		#region Сохраняемые свойства
-		
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				{
 					return;
+				}
+
 				UpdateOperationsTime();
 			}
 		}
 
-		private RouteList routeList;
-		public virtual RouteList RouteList {
-			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
-		private Warehouse warehouse;
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set => SetField(ref warehouse, value, () => Warehouse);
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
 		}
 		
-		private IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem>();
 		[Display(Name = "Строки")]
 		public virtual IList<CarLoadDocumentItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		private GenericObservableList<CarLoadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<CarLoadDocumentItem>(Items);
-				return observableItems;
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<CarLoadDocumentItem>(Items);
+				}
+
+				return _observableItems;
 			}
 		}
 
-		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-		
+
+		[Display(Name = "Статус талона погрузки")]
+		public virtual CarLoadDocumentLoadOperationState LoadOperationState
+		{
+			get => _loadOperationState;
+			set => SetField(ref _loadOperationState, value);
+		}
+
+
 		#endregion
 
 		#region Не сохраняемые свойства
 
 		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
+
+		public virtual IEnumerable<int> SeparateTableOrderIds =>
+			Items
+			.Where(item => item.OrderId.HasValue && item.IsIndividualSetForOrder)
+			.Select(item => item.OrderId.Value)
+			.Distinct()
+			.ToList();
+
+		public virtual bool IsDocumentHasCommonOrders =>
+			Items.Any(x => !x.IsIndividualSetForOrder);
 
 		#endregion
 
@@ -89,42 +121,88 @@ namespace Vodovoz.Domain.Documents
 		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, ISubdivisionRepository subdivisionRepository, bool warehouseOnly)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			ObservableItems.Clear();
 			if(RouteList == null || (Warehouse == null && warehouseOnly))
+			{
 				return;
+			}
 
-			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, subdivisionRepository, warehouseOnly ? Warehouse : null);
+			var carLoadDocumentItems = GetCarLoadDocumentItemsFromRouteList(uow, routeListRepository, subdivisionRepository, warehouseOnly);
+
+			foreach(var item in carLoadDocumentItems)
+			{
+				ObservableItems.Add(item);
+			}
+		}
+
+		public virtual IEnumerable<CarLoadDocumentItem> GetCarLoadDocumentItemsFromRouteList(
+			IUnitOfWork uow,
+			IRouteListRepository routeListRepository,
+			ISubdivisionRepository subdivisionRepository,
+			bool isWarehouseOnly)
+		{
+			var goodsAndEquips = routeListRepository
+				.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, subdivisionRepository, isWarehouseOnly ? Warehouse : null);
+
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
-			foreach(var inRoute in goodsAndEquips) {
-				ObservableItems.Add(
-					new CarLoadDocumentItem {
-						Document = this,
-						Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-						OwnType = inRoute.OwnType,
-						ExpireDatePercent = inRoute.ExpireDatePercent,
-						AmountInRouteList = inRoute.Amount,
-						Amount = inRoute.Amount
-					}
-				);
+			var items = new List<CarLoadDocumentItem>();
+
+			foreach(var inRoute in goodsAndEquips)
+			{
+				var amountInRouteList = goodsAndEquips
+					.Where(x =>
+						x.NomenclatureId == inRoute.NomenclatureId
+						&& x.ExpireDatePercent == inRoute.ExpireDatePercent
+						&& x.OrderId == inRoute.OrderId
+						&& x.OwnType == inRoute.OwnType)
+					.Sum(x => x.Amount);
+
+				items.Add(new CarLoadDocumentItem
+				{
+					Document = this,
+					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+					OwnType = inRoute.OwnType,
+					ExpireDatePercent = inRoute.ExpireDatePercent,
+					AmountInRouteList = amountInRouteList,
+					Amount = inRoute.Amount,
+					OrderId = inRoute.OrderId,
+					IsIndividualSetForOrder = inRoute.IsNeedIndividualSetOnLoad
+				});
 			}
+
+			return items;
 		}
 
 		public virtual void UpdateInRouteListAmount(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			if(RouteList == null)
+			{
 				return;
+			}
+
 			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRLWithSpecialRequirements(uow, RouteList, null);
 
-			foreach(var item in Items) {
-				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id && x.ExpireDatePercent == item.ExpireDatePercent);
-				if(aGoods != null) {
-					item.AmountInRouteList = aGoods.Amount;
+			foreach(var item in Items)
+			{
+				var aGoods = goodsAndEquips.Where(x =>
+					x.NomenclatureId == item.Nomenclature.Id
+					&& x.ExpireDatePercent == item.ExpireDatePercent
+					&& x.OrderId == item.OrderId
+					&& x.OwnType == item.OwnType);
+
+				if(aGoods != null)
+				{
+					item.AmountInRouteList = aGoods.Sum(x => x.Amount);
 				}
 			}
 		}
@@ -132,11 +210,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
+
 			var inStock = stockRepository.NomenclatureInStock(
 				uow,
 				Items.Select(x => x.Nomenclature.Id).ToArray(),
-				Warehouse.Id,
+				new []{ Warehouse.Id },
 				TimeStamp
 			);
 
@@ -152,10 +233,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
 			if(routeListRepository == null)
+			{
 				throw new ArgumentNullException(nameof(routeListRepository));
+			}
 
 			if(!Items.Any() || Warehouse == null)
+			{
 				return;
+			}
 
 			var inLoaded = routeListRepository.AllGoodsLoadedDivided(uow, RouteList, this);
 			if(inLoaded.Count == 0)
@@ -168,7 +253,9 @@ namespace Vodovoz.Domain.Documents
 				var found = inLoaded.FirstOrDefault(x => 
 					x.NomenclatureId == item.Nomenclature.Id 
 					&& x.OwnType == item.OwnType 
-					&& x.ExpireDatePercent == item.ExpireDatePercent);
+					&& x.ExpireDatePercent == item.ExpireDatePercent
+					&& x.OrderId == item.OrderId);
+
 				if(found != null)
 				{
 					item.AmountLoaded = found.Amount;
@@ -263,9 +350,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Author == null) {
+			if(AuthorId == null) {
 				yield return new ValidationResult("Не указан кладовщик.",
-					new[] { nameof(Author) });
+					new[] { nameof(AuthorId) });
 			}
 			if(RouteList == null) {
 				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",

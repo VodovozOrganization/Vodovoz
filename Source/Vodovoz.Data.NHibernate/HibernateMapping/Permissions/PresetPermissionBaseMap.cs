@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Permissions
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			DiscriminateSubClassesOnColumn("permission_type");
-			Map(x => x.PresetPermissionType).Column("permission_type").CustomType<PresetPermissionTypeCustomType>().Update().Not.Insert(); ;
+			Map(x => x.PresetPermissionType).Column("permission_type").Update().Not.Insert();
 
 			Map(x => x.PermissionName).Column("permission_name");
 			Map(x => x.Value).Column("value");

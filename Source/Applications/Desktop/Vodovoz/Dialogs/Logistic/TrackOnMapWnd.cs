@@ -1,7 +1,9 @@
-﻿using GMap.NET;
+﻿using Autofac;
+using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
+using Microsoft.Extensions.Logging;
 using Polylines;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -12,21 +14,22 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Dialogs.Logistic
 {
 	public partial class TrackOnMapWnd : Gtk.Window
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly ITrackRepository _trackRepository = new TrackRepository();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
+		private static ILogger<TrackOnMapWnd> _logger = ScopeProvider.Scope.Resolve<ILogger<TrackOnMapWnd>>();
+		private readonly ITrackRepository _trackRepository = ScopeProvider.Scope.Resolve<ITrackRepository>();
+		private readonly IOsrmSettings _osrmSettings = ScopeProvider.Scope.Resolve<IOsrmSettings>();
+		private readonly IOsrmClient _osrmClient = ScopeProvider.Scope.Resolve<IOsrmClient>();
 
 		#region Поля
 
@@ -64,7 +67,7 @@ namespace Dialogs.Logistic
 		{
 			this.Build();
 
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			this.routeList = UoW.Session.QueryOver<RouteList>()
 				.Where(rl => rl.Id == routeListId).SingleOrDefault();
 			if (routeList == null)
@@ -289,7 +292,7 @@ namespace Dialogs.Logistic
 		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
 		{
 			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
-			var response = curTrack.CalculateDistanceToBase();
+			var response = curTrack.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 			UoW.Save(curTrack);
 			UoW.Commit();
 			UpdateDistanceLabel();
@@ -339,7 +342,7 @@ namespace Dialogs.Logistic
 				
 				if(distance > 0.5)
 				{
-					_logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					_logger.LogInformation("Найден разрыв в треке расстоянием в {Distance}", distance);
 					message += string.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
 					                          distance,
 					                          lastPoint.TimeStamp,
@@ -364,7 +367,7 @@ namespace Dialogs.Logistic
 					if(afterIndex - beforeIndex > 1)
 					{
 						var throughAddress = addressesByCompletion.GetRange (beforeIndex + 1, afterIndex - beforeIndex - 1);
-						_logger.Info ("В разрыве найдены выполенные адреса порядковый(е) номер(а) {0}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
+						_logger.LogInformation("В разрыве найдены выполенные адреса порядковый(е) номер(а) {IndexesInRoute}", String.Join (", ", throughAddress.Select (x => x.IndexInRoute)));
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));
@@ -373,7 +376,7 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = OsrmClientFactory.Instance.GetRoute(routePoints, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
+					var missedTrack = _osrmClient.GetRoute(routePoints, false, GeometryOverview.Simplified, _osrmSettings.ExcludeToll);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
@@ -560,7 +563,7 @@ namespace Dialogs.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+				var recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
@@ -585,7 +588,7 @@ namespace Dialogs.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();

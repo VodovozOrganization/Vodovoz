@@ -1,18 +1,21 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using QS.Print;
+using QS.Report;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.Print;
-using QS.Report;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
-using QS.HistoryLog;
-using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -97,17 +100,19 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
-				Title = this.Title,
-				Identifier = "Documents.BillWithoutShipmentForPayment",
-				Parameters = new Dictionary<string, object> {
-					{ "bill_ws_for_payment_id", Id },
-					{ "special_contract_number", SpecialContractNumber },
-					{ "organization_id", new OrganizationParametersProvider(new ParametersProvider()).GetCashlessOrganisationId },
-					{ "hide_signature", HideSignature },
-					{ "special", false }
-				}
+			var settings = ScopeProvider.Scope.Resolve<IOrganizationSettings>();
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Documents.BillWithoutShipmentForPayment";
+			reportInfo.Title = Title;
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "bill_ws_for_payment_id", Id },
+				{ "special_contract_number", SpecialContractNumber },
+				{ "organization_id", Organization.Id },
+				{ "hide_signature", HideSignature },
+				{ "special", false }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
@@ -115,7 +120,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
-
+		
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.GetSpecialContractString() : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
@@ -129,7 +134,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => copiesToPrint;
 			set => copiesToPrint = value;
 		}
-
+		
 		#region Свои свойства
 
 		private bool hideSignature;
@@ -141,21 +146,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
-
-			var imageId = "email_ad";
-			var image = new EmailAttachment();
-			image.MIMEType = "image/png";
-			image.FileName = "email_ad.png";
-			using(Stream stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Vodovoz.Resources.email_ad.png")) {
-				byte[] buffer = new byte[stream.Length];
-				stream.Read(buffer, 0, buffer.Length);
-				image.Base64Content = Convert.ToBase64String(buffer);
-			}
-
-			template.Attachments.Add(imageId, image);
 
 			template.Title = "ООО \"Веселый водовоз\"";
 			template.Text =
@@ -193,7 +186,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						"<p>Мы ВКонтакте: <a href=\"https://vk.com/vodovoz_spb\" target=\"_blank\">vk.com/vodovoz_spb</a></p>\n" +
 						"<p>Мы в Instagram: @vodovoz_lifestyle</p>\n" +
 						"<p>Наш официальный сайт: <a href=\"http://www.vodovoz-spb.ru/\" target=\"_blank\">www.vodovoz-spb.ru</a></p>\n" +
-						string.Format("<img src=\"cid:{0}\">", imageId);
+						"<img src=\"https://cloud1.vod.qsolution.ru/email-attachments/email_ad.png\">";
 
 			return template;
 		}
@@ -212,5 +205,5 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(OrderWithoutDeliveryForPaymentItems)}
 				);
 		}
-	}
+	} 
 }

@@ -3,10 +3,10 @@ using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.Services;
 using VodovozInfrastructure.Versions;
 using Gamma.Utilities;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Models
 {
@@ -65,12 +65,17 @@ namespace Vodovoz.Models
 			}
 
 			var activeVersion = geoGroup.Versions.FirstOrDefault(v => v.Status == VersionStatus.Active);
+
 			if(activeVersion != null)
 			{
 				CloseVersion(geoGroup, activeVersion);
+				activatingVersion.ActivationDate = activeVersion.ClosingDate.Value.AddMilliseconds(1);
+			}
+			else
+			{
+				activatingVersion.ActivationDate = DateTime.Now;
 			}
 
-			activatingVersion.ActivationDate = activeVersion.ClosingDate.Value.AddMilliseconds(1);
 			activatingVersion.Status = VersionStatus.Active;
 		}
 

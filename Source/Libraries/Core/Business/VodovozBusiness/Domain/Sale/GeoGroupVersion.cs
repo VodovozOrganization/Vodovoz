@@ -4,8 +4,9 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Versions;
 
 namespace Vodovoz.Domain.Sale
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "Версии частей города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeoGroupVersion : VersionEntityBase, IValidatableObject
+	public class GeoGroupVersion : VersionEntityBase, IValidatableObject, IDomainObject
 	{
 		private Employee _author;
 		private GeoGroup _geoGroup;
@@ -68,6 +69,8 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		public virtual bool BaseCoordinatesExist => BaseLatitude.HasValue && BaseLongitude.HasValue;
+		public virtual GMap.NET.PointLatLng GmapPoint => new GMap.NET.PointLatLng((double)BaseLatitude, (double)BaseLongitude);
+		public virtual PointCoordinates PointCoordinates => new PointCoordinates(BaseLatitude, BaseLongitude);
 
 		/// <summary>
 		/// Сравнивает координаты с точностью 6 знаков после запятой

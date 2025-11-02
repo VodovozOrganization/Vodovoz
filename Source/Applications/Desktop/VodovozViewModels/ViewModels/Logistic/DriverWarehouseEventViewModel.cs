@@ -4,11 +4,13 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Logistic.Drivers;
 using Autofac;
 using QS.Commands;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Interfaces.Logistics;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Settings.Employee;
 using VodovozInfrastructure.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -18,11 +20,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICoordinatesParser _coordinatesParser;
 		private readonly IDriverWarehouseEventRepository _driverWarehouseEventRepository;
 		private readonly ICompletedDriverWarehouseEventRepository _completedDriverWarehouseEventRepository;
-		private readonly ILifetimeScope _scope;
 
+		private ILifetimeScope _scope;
 		private bool _hasCompletedEvents;
-
-		private DelegateCommand<string> _setCoordinatesFromBufferCommand;
 
 		public DriverWarehouseEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICoordinatesParser coordinatesParser,
 			IDriverWarehouseEventRepository driverWarehouseEventRepository,
 			ICompletedDriverWarehouseEventRepository completedDriverWarehouseEventRepository,
+			IDriverWarehouseEventSettings driverWarehouseEventSettings,
 			ILifetimeScope scope) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_coordinatesParser = coordinatesParser ?? throw new ArgumentNullException(nameof(coordinatesParser));
@@ -39,6 +40,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
 			_completedDriverWarehouseEventRepository =
 				completedDriverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(completedDriverWarehouseEventRepository));
+			DriverWarehouseEventSettings =
+				driverWarehouseEventSettings ?? throw new ArgumentNullException(nameof(driverWarehouseEventSettings));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			Configure();
@@ -54,6 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool IsCoordinatesVisible => Entity.Type == DriverWarehouseEventType.OnLocation;
 		public bool CanPrintQrCode => Entity.Type == DriverWarehouseEventType.OnLocation;
 		public bool IsDocumentQrParametersVisible => Entity.Type == DriverWarehouseEventType.OnDocuments;
+		public IDriverWarehouseEventSettings DriverWarehouseEventSettings { get; }
 
 		public DriverWarehouseEventType EventType
 		{
@@ -67,23 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		public DelegateCommand<string> SetCoordinatesFromBufferCommand =>
-			_setCoordinatesFromBufferCommand ?? (_setCoordinatesFromBufferCommand = new DelegateCommand<string>(
-				buffer =>
-				{
-					var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
-
-					if(!result.ParsedCoordinates.HasValue)
-					{
-						ShowWarningMessage(result.ErrorMessage);
-					}
-					else
-					{
-						var parsedCoordinates = result.ParsedCoordinates.Value;
-						Entity.WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude);
-					}
-				}
-				));
+		public DelegateCommand<string> SetCoordinatesFromBufferCommand { get; private set; }
 
 		public bool AskUserQuestion(string question, string title = null)
 		{
@@ -92,9 +80,36 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		private void Configure()
 		{
+			CreateCommands();
 			ConfigureEntityChangingRelations();
 			CheckCompletedEventsByEntity();
 			ConfigureValidationContext();
+		}
+
+		private void CreateCommands()
+		{
+			CreateSetCoordinatesFromBufferCommand();
+		}
+
+		private void CreateSetCoordinatesFromBufferCommand()
+		{
+			SetCoordinatesFromBufferCommand =
+				new DelegateCommand<string>(
+					buffer =>
+					{
+						var result = _coordinatesParser.GetCoordinatesFromBuffer(buffer);
+
+						if(!result.ParsedCoordinates.HasValue)
+						{
+							ShowWarningMessage(result.ErrorMessage);
+						}
+						else
+						{
+							var parsedCoordinates = result.ParsedCoordinates.Value;
+							Entity.WriteCoordinates(parsedCoordinates.Latitude, parsedCoordinates.Longitude);
+						}
+					}
+				);
 		}
 
 		private void ConfigureValidationContext()
@@ -118,6 +133,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				e => e.Type,
 				() => IsCoordinatesVisible,
 				() => IsDocumentQrParametersVisible);
+		}
+
+		public override void Dispose()
+		{
+			_scope = null;
+			base.Dispose();
 		}
 	}
 }

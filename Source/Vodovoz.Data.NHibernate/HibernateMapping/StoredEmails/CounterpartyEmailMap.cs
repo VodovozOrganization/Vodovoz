@@ -13,15 +13,15 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 
 			DiscriminateSubClassesOnColumn("type");
 
-			Map(x => x.Type).Column("type").CustomType<CounterpartyEmailStringType>().ReadOnly();
+			Map(x => x.Type).Column("type").ReadOnly();
 
 			References(x => x.StoredEmail).Column("stored_email_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 		}
 
-		public class OrderDocumentEmailMap : SubclassMap<BillDocumentEmail>
+		public class BillDocumentEmailMap : SubclassMap<BillDocumentEmail>
 		{
-			public OrderDocumentEmailMap()
+			public BillDocumentEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.BillDocument));
 				References(x => x.OrderDocument).Column("order_document_id");

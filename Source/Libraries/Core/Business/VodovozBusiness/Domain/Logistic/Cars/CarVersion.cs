@@ -1,8 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private CarOwnType _carOwnType;
+		private Organization _carOwnerOrganization;
 
 		public virtual int Id { get; set; }
 
@@ -47,25 +48,16 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _car, value);
 		}
 
+		[Display(Name = "Собственник авто")]
+		public virtual Organization CarOwnerOrganization
+		{
+			get => _carOwnerOrganization;
+			set => SetField(ref _carOwnerOrganization, value);
+		}
+
 		public virtual bool IsCompanyCar => CarOwnType == CarOwnType.Company;
 		public virtual bool IsRaskat => CarOwnType == CarOwnType.Raskat;
 
 		public override string ToString() => $"[ТС: {Car.Id}] Версия авто №{Id}";
-	}
-
-	public enum CarOwnType
-	{
-		[Display(Name = "ТС компании")]
-		Company,
-		[Display(Name = "ТС в раскате")]
-		Raskat,
-		[Display(Name = "ТС водителя")]
-		Driver
-	}
-
-	public class CarOwnTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CarOwnTypeStringType() : base(typeof(CarOwnType))
-		{ }
 	}
 }

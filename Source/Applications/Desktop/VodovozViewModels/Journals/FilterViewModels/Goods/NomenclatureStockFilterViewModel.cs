@@ -1,11 +1,12 @@
-using System;
-using QS.Project.Filter;
-using Vodovoz.Domain.Store;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.Navigation;
+using QS.Project.Filter;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;

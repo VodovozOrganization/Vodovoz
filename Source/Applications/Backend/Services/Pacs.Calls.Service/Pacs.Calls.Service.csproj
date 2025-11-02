@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>dotnet-Pacs.Calls.Service-36722125-5263-45d7-912f-fd5a9ef4aba0</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<ContainerRepository>pacs.calls.service</ContainerRepository>
+		<ContainerRegistry>docker.vod.qsolution.ru:5100</ContainerRegistry>
+		<ContainerImageTag>latest</ContainerImageTag>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Pacs\Pacs.MangoCalls\Pacs.MangoCalls.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>

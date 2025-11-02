@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Concurrent;
-using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
+using CustomerAppsApi.Library.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -15,21 +15,21 @@ namespace CustomerAppsApi.Controllers
 	{
 		private readonly ILogger<CounterpartyController> _logger;
 		private readonly INomenclatureModel _nomenclatureModel;
-		private readonly IConfigurationSection _frequencyMinutesLimitSection;
-		private static readonly ConcurrentDictionary<Source, DateTime> _requestPricesTimes = new ConcurrentDictionary<Source, DateTime>();
-		private static readonly ConcurrentDictionary<Source, DateTime> _requestNomenclaturesTimes =
-			new ConcurrentDictionary<Source, DateTime>();
+		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
+		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
 
 		public NomenclatureController(
 			ILogger<CounterpartyController> logger,
 			INomenclatureModel nomenclatureModel,
-			IConfiguration configuration)
+			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
+			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_nomenclatureModel = nomenclatureModel ?? throw new ArgumentNullException(nameof(nomenclatureModel));
-			_frequencyMinutesLimitSection = 
-				(configuration ?? throw new ArgumentNullException(nameof(configuration)))
-				.GetSection("RequestsMinutesLimits");
+			_pricesFrequencyRequestsHandler =
+				pricesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(pricesFrequencyRequestsHandler));
+			_nomenclaturesFrequencyRequestsHandler =
+				nomenclaturesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(nomenclaturesFrequencyRequestsHandler));
 		}
 
 		[HttpGet("GetNomenclaturesPricesAndStocks")]
@@ -39,14 +39,9 @@ namespace CustomerAppsApi.Controllers
 			try
 			{
 				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
-				var now = DateTime.Now;
-				var lastRequestTime = _requestPricesTimes.GetOrAdd(source, now);
-				var passedMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-				var requestFrequencyMinutesLimit = _frequencyMinutesLimitSection.GetValue<int>("PricesAndStocksRequestFrequencyLimit");
-
-				if(passedMinutes > 0 && passedMinutes < requestFrequencyMinutesLimit)
+				
+				if(!_pricesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
-					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new NomenclaturesPricesAndStockDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
@@ -54,7 +49,7 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var pricesAndStocks = _nomenclatureModel.GetNomenclaturesPricesAndStocks(source);
-				_requestPricesTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+				_pricesFrequencyRequestsHandler.TryUpdate(source);
 				return pricesAndStocks;
 			}
 			catch(Exception e)
@@ -74,14 +69,9 @@ namespace CustomerAppsApi.Controllers
 			try
 			{
 				_logger.LogInformation("Поступил запрос на выборку номенклатур от источника {Source}", sourceName);
-				var now = DateTime.Now;
-				var lastRequestTime = _requestNomenclaturesTimes.GetOrAdd(source, now);
-				var passedMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
-				var requestFrequencyMinutesLimit = _frequencyMinutesLimitSection.GetValue<int>("NomenclaturesRequestFrequencyLimit");
-
-				if(passedMinutes > 0 && passedMinutes < requestFrequencyMinutesLimit)
+				
+				if(!_nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
-					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new NomenclaturesDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
@@ -89,7 +79,7 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var nomenclatures = _nomenclatureModel.GetNomenclatures(source);
-				_requestNomenclaturesTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+				_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
 				return nomenclatures;
 			}
 			catch(Exception e)

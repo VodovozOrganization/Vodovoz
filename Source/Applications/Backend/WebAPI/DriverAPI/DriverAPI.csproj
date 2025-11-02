@@ -2,28 +2,57 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <UserSecretsId>aspnet-DriverAPI-FDB83907-6562-4080-9D21-59FAA6ABC15B</UserSecretsId>
     <!-- Warning: Setting the following switch is *NOT* recommended in web apps. Remove it when Nhibernate fix BinaryFormatter Using -->
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <PropertyGroup>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.*</AssemblyVersion>
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	<DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <Content Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="7.0.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
-    <PackageReference Include="Google.OrTools" Version="6.4.4495" />
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.14" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,26 +60,27 @@
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverAPI.Library\DriverAPI.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\WebApi\Telemetry\Telemetry.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
+    <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

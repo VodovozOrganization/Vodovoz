@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -28,7 +29,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
@@ -49,7 +50,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private readonly ILogger<AtWorksDlg> _logger;
 		private readonly ILifetimeScope _lifetimeScope;
-		private readonly IDefaultDeliveryDayScheduleSettings _defaultDeliveryDayScheduleSettings;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICarRepository _carRepository;
@@ -78,7 +79,7 @@ namespace Vodovoz.Dialogs.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
@@ -95,7 +96,7 @@ namespace Vodovoz.Dialogs.Logistic
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot("На работе");
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("На работе");
 
 			if(userService is null)
 			{
@@ -110,7 +111,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_defaultDeliveryDayScheduleSettings = defaultDeliveryDayScheduleSettings ?? throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -126,7 +127,7 @@ namespace Vodovoz.Dialogs.Logistic
 			_canReturnDriver = permissionService.ValidateUserPresetPermission("can_return_driver_to_work", currentUserId);
 
 			_defaultDeliveryDaySchedule =
-				UoW.GetById<DeliveryDaySchedule>(_defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
+				UoW.GetById<DeliveryDaySchedule>(_deliveryScheduleSettings.DefaultDeliveryDayScheduleId);
 
 			_cachedGeographicGroups = _geographicGroupRepository.GeographicGroupsWithCoordinates(UoW, isActiveOnly: true);
 
@@ -168,6 +169,7 @@ namespace Vodovoz.Dialogs.Logistic
 		private void Initialize()
 		{
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList,
 					new EnumsListConverter<CarTypeOfUse>())
@@ -528,23 +530,23 @@ namespace Vodovoz.Dialogs.Logistic
 				return;
 			}
 
-			var filter = new CarJournalFilterViewModel(_lifetimeScope, new CarModelJournalFactory());
-
-			filter.SetAndRefilterAtOnce(
-				x => x.Archive = false,
-				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
-			);
-
-			var carJournalPage = (NavigationManager as ITdiCompatibilityNavigation).OpenViewModelOnTdi<CarJournalViewModel, CarJournalFilterViewModel>(this, filter);
-
-			carJournalPage.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			carJournalPage.ViewModel.OnEntitySelectedResult += (o, args) =>
-			{
-				var car = UoW.GetById<Car>(args.SelectedNodes.First().Id);
-				DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
-				driver.Car = car;
-			};
+			var carJournalPage = (NavigationManager as ITdiCompatibilityNavigation)
+				.OpenViewModelOnTdi<CarJournalViewModel, Action<CarJournalFilterViewModel>>(this, filter =>
+				{
+					filter.Archive = false;
+					filter.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company };
+				},
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += (o, args) =>
+					{
+						var car = UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						DriversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+						driver.Car = car;
+					};
+				});
 		}
 
 		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)

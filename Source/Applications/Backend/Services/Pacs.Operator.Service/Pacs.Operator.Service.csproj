@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>dotnet-Pacs.Operator.Service-30e1f354-4fea-483f-81bd-266ab76534b3</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\ApiAuthentication\ApiAuthentication.csproj" />
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Pacs\Pacs.Operator.Server\Pacs.Operator.Server.csproj" />
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Pacs\Pacs.Server\Pacs.Server.csproj" />
+	  <ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+	</ItemGroup>
+</Project>

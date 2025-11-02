@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
+using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
@@ -26,8 +27,8 @@ namespace Vodovoz.ViewModel
 			var result = new List<TransferOperationVMNode>();
 
 			var transferQuery = UoW.Session.QueryOver<TransferOperationDocument>(() => transferAlias)
-								   .JoinQueryOver(() => transferAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-								   .JoinQueryOver(() => transferAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+								   .JoinEntityAlias(() => authorAlias, () => transferAlias.AuthorId == authorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+								   .JoinEntityAlias(() => lastEditorAlias, () => transferAlias.LastEditorId == lastEditorAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 								   .JoinQueryOver(() => transferAlias.FromClient, () => fromCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 								   .JoinQueryOver(() => transferAlias.ToClient, () => toCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 								   .JoinQueryOver(() => transferAlias.FromDeliveryPoint, () => fromDeliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

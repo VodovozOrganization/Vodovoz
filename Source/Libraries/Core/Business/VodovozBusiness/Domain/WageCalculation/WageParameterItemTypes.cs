@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.WageCalculation
 {
@@ -16,10 +16,5 @@ namespace Vodovoz.Domain.WageCalculation
         RatesLevel,
         [Display(Name = "План продаж")]
         SalesPlan
-    }
-    
-    public class WageParameterItemTypesStringType : NHibernate.Type.EnumStringType
-    {
-        public WageParameterItemTypesStringType() : base(typeof(WageParameterItemTypes)) { }
     }
 }

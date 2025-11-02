@@ -11,10 +11,12 @@
       <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
       <ProjectReference Include="..\..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
       <ProjectReference Include="..\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+      <ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
       <ProjectReference Include="..\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
     </ItemGroup>
 

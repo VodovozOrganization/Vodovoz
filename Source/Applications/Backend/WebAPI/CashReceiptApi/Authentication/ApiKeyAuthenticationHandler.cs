@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using CashReceiptApi.Options;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -12,29 +14,30 @@ namespace CashReceiptApi.Authentication
 	public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 	{
 		private readonly IConfiguration _configuration;
+		private readonly IOptions<ServiceOptions> _serviceOptions;
 
 		public ApiKeyAuthenticationHandler(
-			IConfiguration configuration, 
-			IOptionsMonitor<ApiKeyAuthenticationOptions> options, 
+			IConfiguration configuration,
+			IOptionsMonitor<ApiKeyAuthenticationOptions> options,
+			IOptions<ServiceOptions> serviceOptions,
 			ILoggerFactory logger,
-			UrlEncoder encoder, 
-			ISystemClock clock) 
+			UrlEncoder encoder,
+			ISystemClock clock)
 			: base(options, logger, encoder, clock)
 		{
 			_configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+			_serviceOptions = serviceOptions ?? throw new ArgumentNullException(nameof(serviceOptions));
 		}
 
 		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-			if(!Request.Headers.TryGetValue(ApiKeyAuthenticationOptions.HeaderName, out var apiKeyFromRequest) || apiKeyFromRequest.Count != 1)
+			if(!Request.Headers.TryGetValue(nameof(_serviceOptions.Value.ApiKey), out var apiKeyFromRequest) || apiKeyFromRequest.Count != 1)
 			{
-				Logger.LogWarning("An API request was received without the {0} header", ApiKeyAuthenticationOptions.HeaderName);
+				Logger.LogWarning("An API request was received without the {0} header", nameof(_serviceOptions.Value.ApiKey));
 				return AuthenticateResult.Fail("Invalid parameters");
 			}
 
-			var apiKey = _configuration.GetValue<string>(ApiKeyAuthenticationOptions.HeaderName);
-
-			if(!apiKeyFromRequest.Equals(apiKey))
+			if(!apiKeyFromRequest.Equals(_serviceOptions.Value.ApiKey))
 			{
 				return AuthenticateResult.Fail("Unauthorized client");
 			}

@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
@@ -14,6 +15,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -118,7 +120,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason
 					, true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -150,11 +154,19 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -219,7 +231,9 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Причина").AddEnumRenderer(
 					node => node.DirectionReason,
 					true
-				).AddSetter((c, n) => {
+				)
+				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
+				.AddSetter((c, n) => {
 					if(n.Direction == Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
@@ -251,11 +265,19 @@ namespace Vodovoz.ViewWidgets
 							case DirectionReason.RepairAndCleaning:
 								c.Text = "В ремонт и санобработку";
 								break;
+							case DirectionReason.TradeIn:
+								c.Text = "По акции \"Трейд-Ин\"";
+								break;
+							case DirectionReason.ClientGift:
+								c.Text = "Подарок от клиента";
+								break;
 							default:
 								break;
 						}
 					}
-				}).HideCondition(HideItemFromDirectionReasonComboInEquipment)
+
+					c.UpdateComboList(n);
+				})
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -282,10 +304,13 @@ namespace Vodovoz.ViewWidgets
 				case DirectionReason.None:
 					return true;
 				case DirectionReason.Rent:
-					return node.Direction == Domain.Orders.Direction.Deliver;
 				case DirectionReason.Repair:
 				case DirectionReason.Cleaning:
 				case DirectionReason.RepairAndCleaning:
+					return false;
+				case DirectionReason.TradeIn:
+				case DirectionReason.ClientGift:
+					return node.Direction == Domain.Orders.Direction.Deliver;
 				default:
 					return false;
 			}
@@ -355,12 +380,12 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureToClient;
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureToClient;
 		}
 
-		void NomenclatureToClient(object sender, JournalSelectedNodesEventArgs e)
+		void NomenclatureToClient(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}
@@ -381,7 +406,7 @@ namespace Vodovoz.ViewWidgets
 			}
 			
 			var nomenclaturesJournalViewModel = OpenNomenclaturesJournalViewModel();
-			nomenclaturesJournalViewModel.OnEntitySelectedResult += NomenclatureFromClient;
+			nomenclaturesJournalViewModel.OnSelectResult += NomenclatureFromClient;
 		}
 
 		private NomenclaturesJournalViewModel OpenNomenclaturesJournalViewModel()
@@ -393,6 +418,7 @@ namespace Vodovoz.ViewWidgets
 					f.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 					f.SelectCategory = NomenclatureCategory.equipment;
 					f.SelectSaleCategory = SaleCategory.notForSale;
+					f.CanChangeOnlyOnlineNomenclatures = false;
 				},
 				OpenPageOptions.AsSlave,
 				vm =>
@@ -403,9 +429,9 @@ namespace Vodovoz.ViewWidgets
 			.ViewModel;
 		}
 
-		void NomenclatureFromClient(object sender, JournalSelectedNodesEventArgs e)
+		void NomenclatureFromClient(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedNodes.FirstOrDefault();
+			var selectedNode = e.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}

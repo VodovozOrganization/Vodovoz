@@ -4,23 +4,23 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash
 {
 	public class FuelCashOrganisationDistributor : IFuelCashOrganisationDistributor
 	{
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
+		private readonly IOrganizationRepository _organizationRepository;
 
-		public FuelCashOrganisationDistributor(ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider)
+		public FuelCashOrganisationDistributor(IOrganizationRepository organizationRepository)
 		{
-			_cashDistributionCommonOrganisationProvider = cashDistributionCommonOrganisationProvider
-				?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public void DistributeCash(IUnitOfWork uow, FuelDocument fuelDoc)
 		{
-			var org = _cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
+			var org = _organizationRepository.GetCommonOrganisation(uow);
 
 			var operation = new OrganisationCashMovementOperation
 			{

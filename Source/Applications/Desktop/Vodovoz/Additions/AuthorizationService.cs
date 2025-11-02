@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -10,11 +11,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.User;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using VodovozInfrastructure.Configuration;
@@ -28,7 +31,7 @@ namespace Vodovoz.Additions
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IEmailParametersProvider _emailParametersProvider;
+		private readonly IEmailSettings _emailSettings;
 		private readonly int _humanResourcesSubdivisionId;
 		private readonly int _developersSubdivisionId;
 
@@ -38,28 +41,28 @@ namespace Vodovoz.Additions
 			IUserRoleSettings userRoleSettings,
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
-			IEmailParametersProvider emailParametersProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IEmailSettings emailSettings,
+			ISubdivisionSettings subdivisionSettings,
 			ILogger<AuthorizationService> logger)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
 			_userRoleRepository = userRoleRepository ?? throw new ArgumentNullException(nameof(userRoleRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 
-			if(subdivisionParametersProvider is null)
+			if(subdivisionSettings is null)
 			{
-				throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+				throw new ArgumentNullException(nameof(subdivisionSettings));
 			}
-			_humanResourcesSubdivisionId = subdivisionParametersProvider.GetHumanResourcesSubdivisionId;
-			_developersSubdivisionId = subdivisionParametersProvider.GetDevelopersSubdivisionId;
+			_humanResourcesSubdivisionId = subdivisionSettings.GetHumanResourcesSubdivisionId;
+			_developersSubdivisionId = subdivisionSettings.GetDevelopersSubdivisionId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
 		{
-			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using (var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				_userRepository.ChangePasswordForUser(uow, userLogin, password);
 				var user = _userRepository.GetUserByLogin(uow, userLogin);
@@ -193,8 +196,8 @@ namespace Vodovoz.Additions
 			{
 				From = new EmailContact
 				{
-					Name = _emailParametersProvider.DocumentEmailSenderName,
-					Email = _emailParametersProvider.DocumentEmailSenderAddress
+					Name = _emailSettings.DocumentEmailSenderName,
+					Email = _emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = new List<EmailContact>
@@ -226,7 +229,7 @@ namespace Vodovoz.Additions
 				var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
 
 				var connectionFactory = new RabbitMQConnectionFactory(Logger);
-				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost);
+				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost, configuration.Port, true);
 				var channel = connection.CreateModel();
 
 				var properties = channel.CreateBasicProperties();

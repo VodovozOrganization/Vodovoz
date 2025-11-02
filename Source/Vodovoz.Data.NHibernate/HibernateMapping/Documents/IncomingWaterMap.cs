@@ -16,8 +16,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.Amount).Column("amount").Not.Nullable();
 			Map(x => x.TimeStamp).Column("time_stamp").Not.Nullable();
 			Map(x => x.LastEditedTime).Column("last_edit_time");
-			References(x => x.Author).Column("author_id");
-			References(x => x.LastEditor).Column("last_editor_id");
+			Map(x => x.AuthorId).Column("author_id");
+			Map(x => x.LastEditorId).Column("last_editor_id");
+
 			References(x => x.Product).Column("product_nomenclature_id").Not.Nullable();
 			References(x => x.IncomingWarehouse).Column("incoming_warehouse_id").Not.Nullable();
 			References(x => x.WriteOffWarehouse).Column("writeoff_warehouse_id").Not.Nullable();

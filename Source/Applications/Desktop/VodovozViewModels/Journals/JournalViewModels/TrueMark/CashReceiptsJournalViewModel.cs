@@ -18,16 +18,20 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
-using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
+using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -37,8 +41,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
-		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly bool _canResendDuplicateReceipts;
 
 		private CashReceiptJournalFilterViewModel _filter;
@@ -53,8 +57,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			TrueMarkCodesPool trueMarkCodesPool,
 			ICashReceiptRepository cashReceiptRepository,
 			ReceiptManualController receiptManualController,
-			TrueMarkCodePoolLoader codePoolLoader,
 			IFileDialogService fileDialogService,
+			IOrganizationSettings organizationSettings,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -66,19 +70,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
-			_codePoolLoader = codePoolLoader ?? throw new ArgumentNullException(nameof(codePoolLoader));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			
+
 			var allReceiptStatusesAvailable =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
 				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
-			
+
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
@@ -99,7 +103,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			Filter = filter;
-
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал чеков";
@@ -149,10 +152,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 		}
 
-		public bool CanCreateProductCodesScanningReportReport => 
-			Filter.StartDate.HasValue 
-			&& Filter.EndDate.HasValue 
-			&& Filter.EndDate.Value >= Filter.StartDate.Value 
+		public bool CanCreateProductCodesScanningReportReport =>
+			Filter.StartDate.HasValue
+			&& Filter.EndDate.HasValue
+			&& Filter.EndDate.Value >= Filter.StartDate.Value
 			&& !IsReportGeneratingInProcess;
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -183,7 +186,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
-			CreateLoadCodesToPoolAction();
+			CreateNodeRequeueFiscalDocAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
 		}
@@ -210,7 +213,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
-			
+
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -309,11 +312,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
 					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
 					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
-					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
+					.Select(() => sourceCodeAlias.Gtin).WithAlias(() => resultAlias.SourceGtin)
 					.Select(() => productCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedProductCode)
 					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateProductCode)
 					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceCodeSerialNumber)
-					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
+					.Select(() => resultCodeAlias.Gtin).WithAlias(() => resultAlias.ResultGtin)
 					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
 					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
 				)
@@ -505,7 +508,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#endregion Manual send
 
-		#region Refresh fiscal document
+		#region Refresh and requeue fiscal document
 
 		private void CreatePopupRefreshFiscalDocAction()
 		{
@@ -519,12 +522,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			NodeActionsList.Add(refreshFiscalDocAction);
 		}
 
+		private void CreateNodeRequeueFiscalDocAction()
+		{
+			var requeueFiscalDocAction = GetRequeueFiscalDocAction();
+			NodeActionsList.Add(requeueFiscalDocAction);
+		}
+
 		private JournalAction GetRefreshFiscalDocAction()
 		{
 			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
 				(selected) => RefreshFiscalDocActionSensitive(selected),
 				(selected) => true,
 				RefreshFiscalDoc
+			);
+			return manualSentAction;
+		}
+
+		private JournalAction GetRequeueFiscalDocAction()
+		{
+			var manualSentAction = new JournalAction("Повторное проведение чека",
+				(selected) => RequeueFiscalDocActionSensitive(selected),
+				(selected) => true,
+				RequeueFiscalDoc
 			);
 			return manualSentAction;
 		}
@@ -561,60 +580,71 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 
-			try
-			{
-				_receiptManualController.RefreshFiscalDoc(node.Id);
-			}
-			catch(Exception ex)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
-			}
+			var result = _receiptManualController.RefreshFiscalDoc(node.Id);
+
+			ShowResultToUser(result);
+
 			Refresh();
 		}
 
-		#endregion Refresh fiscal document
-
-		#region Load codes to pool
-
-		private void CreateLoadCodesToPoolAction()
+		private bool RequeueFiscalDocActionSensitive(object[] selectedNodes)
 		{
-			var loadCodesToPoolAction = new JournalAction("Загрузить коды в пул",
-				(selected) => true,
-				(selected) => true,
-				(selected) => LoadCodesToPool()
-			);
-			NodeActionsList.Add(loadCodesToPoolAction);
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.FiscalDocStatus == FiscalDocumentStatus.Failed)
+			{
+				return true;
+			}
+
+			return false;
 		}
 
-		private void LoadCodesToPool()
+		private void RequeueFiscalDoc(object[] selectedNodes)
 		{
-			var interactiveService = _commonServices.InteractiveService;
-			var dialogSettings = new DialogSettings();
-			dialogSettings.SelectMultiple = false;
-			dialogSettings.Title = "Выберите файл содержащий коды";
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
-			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
-			if(!result.Successful)
-			{
-				return;
-			}
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 
-			try
-			{
-				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
+			var result = _receiptManualController.RequeueFiscalDoc(node.Id);
 
-				interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Найдено кодов: {lodingResult.TotalFound}" +
-					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
-					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
-			}
-			catch(IOException ex)
+			ShowResultToUser(result);
+
+			Refresh();
+		}
+
+		private void ShowResultToUser(Result result)
+		{
+			if(result.IsSuccess)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Запрос выполнен успешно");
+			}
+			else
+			{
+				var firstError = result.Errors.FirstOrDefault();
+
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					firstError.Message ?? "При выполнении запроса произошла непредвиденная ошибка");
 			}
 		}
 
-		#endregion Load codes to pool
+		#endregion Refresh and requeue fiscal document
 
 		#region Product Codes Scanning Repor Creation
 		private void CreateProductCodesScanningReportAction()
@@ -649,7 +679,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
-			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative 
+			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
 				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
@@ -667,9 +697,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
+				report = await ProductCodesScanningReport.GenerateAsync(
+					unitOfWork, _organizationSettings, Filter.StartDate.Value, Filter.EndDate.Value);
 			}
-			
+
 			await report?.ExportReportToExcelAsync(result.Path);
 
 			IsReportGeneratingInProcess = false;

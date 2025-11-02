@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+using Autofac;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
@@ -10,30 +11,29 @@ using QS.Widgets;
 using QSProjectsLib;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Application.Payments.OnlinePayments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Infrastructure;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.ServiceDialogs
 {
 	//FIXME Переименовать диалог при переписывании на MVVM.
 	public partial class ImportPaymentsFromTinkoffDlg : TdiTabBase
 	{
-		private readonly IPaymentsRepository _paymentsRepository = new PaymentsRepository();
-		private PaymentsFromTinkoffParser _tinkoffParser;
-		private PaymentsFromYookassaParser _yookassaParser;
-		private PaymentsFromCloudPaymentsParser _cloudPaymentsParser;
+		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private MenuItem _readTinkoff;
 		private MenuItem _readYookassa;
 		private MenuItem _readCloudPayments;
 		private Widget _readFileButton;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 
-		GenericObservableList<PaymentByCardOnline> paymentsByCard;
+		IObservableList<PaymentByCardOnline> _paymentsByCard;
 		List<string> errorList = new List<string>();
 		IList<PaymentByCardOnlineNode> otherPaymentsFromDB;
 
@@ -111,8 +111,8 @@ namespace Vodovoz.ServiceDialogs
 
 		private void ConfigureButtonReadFile()
 		{
-			MenuButton menuButton = new MenuButton {Label = "Прочитать данные из файла"};
-			Menu childActionButtons = new Menu();
+			var menuButton = new MenuButton {Label = "Прочитать данные из файла"};
+			var childActionButtons = new Menu();
 			
 			_readTinkoff = new MenuItem("Прочитать выгрузку Тинькова");
 			_readTinkoff.Activated += (sender, args) => ReadTinkoffPayments();
@@ -152,7 +152,7 @@ namespace Vodovoz.ServiceDialogs
 		{
 			if(otherPaymentsFromDB == null || !otherPaymentsFromDB.Any())
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 				{
 					otherPaymentsFromDB = _paymentsRepository.GetPaymentsByTwoMonths(uow, payment.DateAndTime);
 				}
@@ -180,25 +180,8 @@ namespace Vodovoz.ServiceDialogs
 				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Тинькова нужен {fChooser.Filters[0].Name}.");
 				return;
 			}
-			
-			_tinkoffParser = new PaymentsFromTinkoffParser(fChooser.Filename);
 
-			try
-			{
-				_tinkoffParser.Parse();
-			}
-			catch(Exception e)
-			{
-				ShowError(e);
-
-				return;
-			}
-
-			if(_tinkoffParser.PaymentsFromTinkoff != null)
-			{
-				paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_tinkoffParser.PaymentsFromTinkoff);
-				ShowParsedPayments();
-			}
+			ParsePayments(new PaymentsFromTinkoffParser(), fChooser.Filename);
 		}
 
 		void ReadYookassaPayments()
@@ -210,22 +193,8 @@ namespace Vodovoz.ServiceDialogs
 				MessageDialogHelper.RunErrorDialog($"Неверное расширение файла! Для выгрузки с Юкассы нужен {fChooser.Filters[1].Name} или {fChooser.Filters[0].Name}.");
 				return;
 			}
-			
-			_yookassaParser = new PaymentsFromYookassaParser(fChooser.Filename);
 
-			try
-			{
-				_yookassaParser.Parse();
-			}
-			catch(Exception e)
-			{
-				ShowError(e);
-
-				return;
-			}
-
-			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_yookassaParser.PaymentsFromYookassa);
-			ShowParsedPayments();
+			ParsePayments(new PaymentsFromYookassaParser(), fChooser.Filename);
 		}
 
 		void ReadCloudPayments()
@@ -238,19 +207,22 @@ namespace Vodovoz.ServiceDialogs
 				return;
 			}
 
-			_cloudPaymentsParser = new PaymentsFromCloudPaymentsParser(fChooser.Filename);
-
+			ParsePayments(new PaymentsFromCloudPaymentsParser(), fChooser.Filename);
+		}
+		
+		private void ParsePayments(IPaymentByCardOnlineParser parser, string filename)
+		{
 			try
 			{
-				_cloudPaymentsParser.Parse();
+				parser.Parse(filename);
 			}
 			catch(Exception e)
 			{
 				ShowError(e);
-
 				return;
 			}
-			paymentsByCard = new GenericObservableList<PaymentByCardOnline>(_cloudPaymentsParser.PaymentsFromCloudPayments);
+
+			_paymentsByCard = new ObservableList<PaymentByCardOnline>(parser.ParsedPayments);
 			ShowParsedPayments();
 		}
 
@@ -272,15 +244,15 @@ namespace Vodovoz.ServiceDialogs
 		{
 			InitializeListOfPayments();
 			btnUpload.Sensitive = chkAll.Active = chkAll.Sensitive =
-				treeDocuments.Sensitive = paymentsByCard.Any(p => p.Selectable);
+				treeDocuments.Sensitive = _paymentsByCard.Any(p => p.Selectable);
 			UpdateDescription();
-			treeDocuments.ItemsDataSource = paymentsByCard;
+			treeDocuments.ItemsDataSource = _paymentsByCard;
 		}
 		
 		void InitializeListOfPayments()
 		{
 			otherPaymentsFromDB?.Clear();
-			foreach(PaymentByCardOnline payment in paymentsByCard) {
+			foreach(PaymentByCardOnline payment in _paymentsByCard) {
 				if(payment.PaymentStatus != PaymentStatus.CONFIRMED) {
 					payment.Color = colorLightRed;
 					payment.Selected = payment.Selectable = false;
@@ -303,19 +275,19 @@ namespace Vodovoz.ServiceDialogs
 		
 		void UpdateDescription()
 		{
-			if(paymentsByCard != null) {
+			if(_paymentsByCard != null) {
 				StringBuilder sb = new StringBuilder();
-				if(paymentsByCard.Any())
+				if(_paymentsByCard.Any())
 					sb.Append(
 						string.Format(
 							"Отмечено для загрузки <b>{0}</b> платежей из <b>{1}</b>, ",
-							paymentsByCard.Count(p => p.Selected),
-							paymentsByCard.Count()
+							_paymentsByCard.Count(p => p.Selected),
+							_paymentsByCard.Count()
 						)
 					);
-				if(paymentsByCard.Any(p => p.IsDuplicate))
+				if(_paymentsByCard.Any(p => p.IsDuplicate))
 					sb.Append($"<span background=\"{colorYellow}\">     </span> - был загружен ранее, ");
-				if(paymentsByCard.Any(p => p.PaymentStatus != PaymentStatus.CONFIRMED))
+				if(_paymentsByCard.Any(p => p.PaymentStatus != PaymentStatus.CONFIRMED))
 					sb.Append($"<span background=\"{colorLightRed}\">     </span> - статус неприемлем, ");
 
 				lblDescription.Markup = sb.ToString().Trim(new[] { ' ', ',' });
@@ -343,14 +315,14 @@ namespace Vodovoz.ServiceDialogs
 			int cnt = 0;
 			int totalSaved = 0;
 			int totalProcessed = 0;
-			var paymentsToSave = paymentsByCard.Where(p => p.Selected);
+			var paymentsToSave = _paymentsByCard.Where(p => p.Selected);
 			int qtyPaymentsToSave = paymentsToSave.Count();
 
 			IUnitOfWork uow = null;
 			foreach(var selectedPayment in paymentsToSave) {
 				try {
 					if(cnt == 0) {
-						uow = UnitOfWorkFactory.CreateWithoutRoot();
+						uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 						uow.Session.SetBatchSize(batchSize);
 					}
 					uow.Save(selectedPayment);
@@ -405,7 +377,7 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnChkAllToggled(object sender, EventArgs e)
 		{
 			if(chkAll.HasFocus) {
-				foreach(PaymentByCardOnline item in paymentsByCard)
+				foreach(PaymentByCardOnline item in _paymentsByCard)
 					item.Selected = item.Selectable && chkAll.Active;
 				treeDocuments.YTreeModel.EmitModelChanged();
 				UpdateDescription();
@@ -415,7 +387,7 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnBtnUploadClicked(object sender, EventArgs e)
 		{
 			btnUpload.Sensitive = treeDocuments.Sensitive = chkAll.Sensitive = chkAll.Active = false;
-			Save(paymentsByCard.Count(p => p.Selected) < 200 ? 1 : 100);
+			Save(_paymentsByCard.Count(p => p.Selected) < 200 ? 1 : 100);
 			UpdateDescription();
 
 			if(errorList.Any()) {
@@ -425,7 +397,7 @@ namespace Vodovoz.ServiceDialogs
 				messageDialog.Show();
 				errorList.Clear();
 			}
-			paymentsByCard.Clear();
+			_paymentsByCard.Clear();
             _readFileButton.Sensitive = true;
 		}
 

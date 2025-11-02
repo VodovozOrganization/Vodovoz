@@ -1,7 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Security;
-using Vodovoz.Domain.Employees;
 using Gamma.GtkWidgets;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Views.Security
 {
@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Security
                 .AddColumn("")
                 .Finish();
 
-            ytreeviewUsers.ItemsDataSource = ViewModel.Entity.ObservableUsers;
+            ytreeviewUsers.ItemsDataSource = ViewModel.Entity.Users;
             ytreeviewUsers.YTreeModel.EmitModelChanged();
 
             if (string.IsNullOrWhiteSpace(ViewModel.Entity.Domain))

@@ -5,9 +5,11 @@ using QS.ErrorReporting;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Versioning;
+using QS.Utilities.Debug;
 using System;
 using System.Linq;
 using Vodovoz.Tools;
+using Vodovoz.Tools.Exceptions;
 
 namespace Vodovoz
 {
@@ -115,6 +117,19 @@ namespace Vodovoz
 			interactiveMessage.ShowMessage(
 				ImportanceLevel.Error,
 				"У приложения закончилась память.\nДля продолжения работы перезапустите программу");
+			return true;
+		}
+
+		public static bool DeliveryPointDistrictNotFoundException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
+		{
+			var deliveryPointDistrictNotFoundException = ExceptionHelper.FindExceptionTypeInInner<DeliveryPointDistrictNotFoundException>(exception);
+
+			if(deliveryPointDistrictNotFoundException == null)
+			{
+				return false;
+			}
+
+			interactiveService.ShowMessage(ImportanceLevel.Warning, $"{deliveryPointDistrictNotFoundException.Message}\nПроверьте правильность установки координат точки доставки или обратитесь в техподдержку.");
 			return true;
 		}
 	}

@@ -8,9 +8,9 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonFineDuplicates;
+		private global::Gamma.GtkWidgets.yButton buttonFineDuplicates;
 
-		private global::Gtk.Button buttonApply;
+		private global::Gamma.GtkWidgets.yButton buttonApply;
 
 		private global::Gtk.ProgressBar progressOp;
 
@@ -37,7 +37,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonFineDuplicates = new global::Gtk.Button();
+			this.buttonFineDuplicates = new global::Gamma.GtkWidgets.yButton();
 			this.buttonFineDuplicates.CanFocus = true;
 			this.buttonFineDuplicates.Name = "buttonFineDuplicates";
 			this.buttonFineDuplicates.UseUnderline = true;
@@ -51,7 +51,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonApply = new global::Gtk.Button();
+			this.buttonApply = new global::Gamma.GtkWidgets.yButton();
 			this.buttonApply.CanFocus = true;
 			this.buttonApply.Name = "buttonApply";
 			this.buttonApply.UseUnderline = true;

@@ -2,15 +2,20 @@
 using Gamma.Widgets;
 using Gtk;
 using QS.Journal.GtkUI;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
 using System.Text;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -47,11 +52,15 @@ namespace Vodovoz.Views.Complaints
 			labelName.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-
+			
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			if (!ViewModel.CanClose)
 			{
 				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.Closed });
+			}
+			if(ViewModel.Entity.Status != ComplaintStatuses.NotTakenInProcess)
+			{
+				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.NotTakenInProcess });
 			}
 
 			_lastStatus = ViewModel.Status;
@@ -69,16 +78,11 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-			entryCounterparty.Binding
-				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
-				.InitializeFromSource();
+			InitializeEntryViewModels();
+
 			labelCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
-			OnCounterpartyChanged();
 
 			spLstAddress.Binding
 				.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive)
@@ -88,16 +92,6 @@ namespace Vodovoz.Views.Complaints
 
 			lblAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
-			entryOrder.Binding
-				.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject)
-				.InitializeFromSource();
-
-			entryOrder.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
-				.InitializeFromSource();
-			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
 			labelOrder.Binding
 				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
 				.InitializeFromSource();
@@ -155,7 +149,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
+			smallfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			ytextviewComplaintText.Binding
 				.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text)
@@ -195,7 +189,20 @@ namespace Vodovoz.Views.Complaints
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
-			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+			orderRatingEntry.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+
+			lblOrderRating.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			
+			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
+
+			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
+			{
+				handsetPhone.SetPhone(ViewModel.Entity.Phone);
+			}
 
 			ViewModel.Entity.PropertyChanged += (o, e) =>
 			{
@@ -269,6 +276,12 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive)
 				.InitializeFromSource();
 
+			yenumcomboboxWorkWithClientResult.ItemsEnum = typeof(ComplaintWorkWithClientResult);
+			yenumcomboboxWorkWithClientResult.ShowSpecialStateNot = false;
+			yenumcomboboxWorkWithClientResult.Binding
+				.AddBinding(ViewModel.Entity, e => e.WorkWithClientResult, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
 			_popupCopyArrangementsMenu = new Menu();
 			MenuItem copyArrangementsMenuEntry = new MenuItem("Копировать");
 			copyArrangementsMenuEntry.ButtonPressEvent += CopyArrangementsMenuEntry_Activated;
@@ -280,6 +293,62 @@ namespace Vodovoz.Views.Complaints
 			copyCommentsMenuEntry.ButtonPressEvent += CopyCopyCommentsMenuEntry_Activated;
 			copyCommentsMenuEntry.Visible = true;
 			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
+		}
+
+		private void InitializeEntryViewModels()
+		{
+			var builder = new LegacyEEVMBuilderFactory<Complaint>(
+				Tab, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope);
+
+			var counterpartyEntryViewModel =
+				builder
+					.ForProperty(x => x.Counterparty)
+					.UseTdiEntityDialog()
+					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+					.Finish();
+
+			counterpartyEntry.ViewModel = counterpartyEntryViewModel;
+			counterpartyEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			OnCounterpartyChanged();
+
+			var orderEntryViewModel =
+				builder
+					.ForProperty(x => x.Order)
+					.UseTdiEntityDialog()
+					.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
+						f => f.RestrictCounterparty = ViewModel.Entity.Counterparty
+					)
+					.Finish();
+			orderEntryViewModel.BeforeChangeByUser += OnBeforeChangeOrderByUser;
+
+			orderEntry.ViewModel = orderEntryViewModel;
+			orderEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			orderEntry.ViewModel.ChangedByUser += OnOrderChangedByUser;
+		}
+
+		private void OnBeforeChangeOrderByUser(object sender, BeforeChangeEventArgs e)
+		{
+			var result = ViewModel.Entity.CanChangeOrder();
+
+			if(!result.CanChange)
+			{
+				e.CanChange = false;
+				ViewModel.ShowMessage(result.Message);
+				return;
+			}
+			
+			e.CanChange = true;
+		}
+		
+		private void OnOrderChangedByUser(object sender, EventArgs e)
+		{
+			ViewModel.ChangeDeliveryPointCommand.Execute();
 		}
 
 		private void OnYenumcomboStatusChanged(object sender, ItemSelectedEventArgs e)
@@ -377,12 +446,19 @@ namespace Vodovoz.Views.Complaints
 		{
 			if(node is ComplaintArrangementComment || node is ComplaintResultComment)
 			{
-				cell.CellBackgroundGdk = GdkColors.ComplaintDiscussionCommentBase;
+				cell.CellBackgroundGdk = GdkColors.DiscussionCommentBase;
 			}
 			else
 			{
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 			}
+		}
+
+		public override void Destroy()
+		{
+			orderEntry.ViewModel.BeforeChangeByUser -= OnBeforeChangeOrderByUser;
+			orderEntry.ViewModel.ChangedByUser -= OnOrderChangedByUser;
+			base.Destroy();
 		}
 	}
 }

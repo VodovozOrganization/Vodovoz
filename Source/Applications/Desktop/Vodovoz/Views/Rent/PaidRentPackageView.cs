@@ -1,7 +1,6 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.ViewModels.Rent;
 
 namespace Vodovoz.Views.Rent
@@ -24,14 +23,9 @@ namespace Vodovoz.Views.Rent
 			spinPriceDaily.Binding.AddBinding(ViewModel.Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource();
 			spinPriceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.PriceMonthly, w => w.ValueAsDecimal).InitializeFromSource();
 
-			entryDepositService.SetEntityAutocompleteSelectorFactory(ViewModel.DepositServiceSelectorFactory);
-			entryDepositService.Binding.AddBinding(ViewModel.Entity, e => e.DepositService, w => w.Subject).InitializeFromSource();
-
-			entryRentServiceDaily.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryRentServiceDaily.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceDaily, w => w.Subject).InitializeFromSource();
-
-			entryRentServiceMonthly.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
-			entryRentServiceMonthly.Binding.AddBinding(ViewModel.Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource();
+			entryDepositServiceNomenclature.ViewModel = ViewModel.DepositServiceNomenclatureViewModel;
+			entryDailyRentServiceNomenclature.ViewModel = ViewModel.DailyRentServiceNomenclatureViewModel;
+			entryLongTermRentServiceNomenclature.ViewModel = ViewModel.LongTermRentNomenclatureServiceViewModel;
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentKind);
 			referenceEquipmentType.Binding.AddBinding(ViewModel.Entity, e => e.EquipmentKind, w => w.Subject).InitializeFromSource();

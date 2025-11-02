@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -8,17 +9,16 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Permissions
 {
 	public static class EntitySubdivisionForUserPermissionValidator
 	{
-		private static readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private static readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		private static readonly IUserRepository _userRepository = new UserRepository();
-		private static readonly IPermissionRepository _permissionRepository = new PermissionRepository();
-		
+		private static IEmployeeRepository _employeeRepository => ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+		private static ISubdivisionRepository _subdivisionRepository => ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+		private static IUserRepository _userRepository => ScopeProvider.Scope.Resolve<IUserRepository>();
+		private static IPermissionRepository _permissionRepository => ScopeProvider.Scope.Resolve<IPermissionRepository>();
+
 		/// <summary>
 		/// Проверка прав доступа по списку сущностей для текущего пользователя
 		/// </summary>

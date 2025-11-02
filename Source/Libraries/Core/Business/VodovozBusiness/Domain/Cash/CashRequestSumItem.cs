@@ -14,6 +14,7 @@ namespace Vodovoz.Domain.Cash
 		Nominative = "сумма")]
 	public class CashRequestSumItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private const int _maxCommentLength = 500;
 		private CashRequest _cashRequest;
 		private string _comment;
 		private decimal _sum;
@@ -122,6 +123,16 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult(
 					"Необходимо выбрать дату",
 					new[] { nameof(Date) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(Comment))
+			{
+				if(Comment.Length > _maxCommentLength)
+				{
+					yield return new ValidationResult(
+						$"Длина комментария превышена на {Comment.Length - _maxCommentLength}",
+						new[] { nameof(Comment) });
+				}
 			}
 		}
 

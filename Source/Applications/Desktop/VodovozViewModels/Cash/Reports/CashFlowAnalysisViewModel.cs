@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private DateTime _endDate;
 		private CashFlowDdsReport _report;
 		private bool _hideCategoriesWithoutDocuments;
+		private CashFlowDdsReport.ReportMode _reportMode;
 
 		public CashFlowAnalysisViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -96,6 +97,25 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			set => SetField(ref _hideCategoriesWithoutDocuments, value);
 		}
 
+		public CashFlowDdsReport.ReportMode ReportMode
+		{
+			get => _reportMode;
+			set
+			{
+				if(SetField(ref _reportMode, value))
+				{
+					if(value == CashFlowDdsReport.ReportMode.Dds)
+					{
+						TabName = "Анализ движения денежных средств";
+					}
+					else
+					{
+						TabName = "Анализ движения денежных расходов";
+					}
+				}
+			}
+		}
+
 		public bool CanSaveReport => Report != null;
 
 		public Color AccentColor => _accentColor;
@@ -145,7 +165,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, HideCategoriesWithoutDocuments);
+			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode);
 
 			if(Report != null)
 			{

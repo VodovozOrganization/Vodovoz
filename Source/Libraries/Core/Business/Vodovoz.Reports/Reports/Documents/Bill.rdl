@@ -59,16 +59,21 @@
                                     p_counterparty.comment IS NULL,
                                     '',
                                     CONCAT(' ', p_counterparty.comment)
-                                )
-                        )
+                            )
+                    )
                     SEPARATOR '; '
-                )
+            )
         from phones p_counterparty
         where c.id = p_counterparty.counterparty_id
           and p_counterparty.is_archive = 0
     )AS client_contact,
     CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author,
-    dp.compiled_address_short AS delivery_address
+    dp.compiled_address_short AS delivery_address,
+    (
+        select NUMBER_TO_STRING_DESCRIPTION(sum(ROUND(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)))
+        from order_items oi
+        where oi.order_id = o.id
+    ) AS order_sum_string
 FROM
     orders o
         LEFT JOIN
@@ -162,6 +167,10 @@ WHERE
         </Field>
         <Field Name="delivery_address">
           <DataField>delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_sum_string">
+          <DataField>order_sum_string</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -266,7 +275,7 @@ WHERE
     CONCAT('+7 ', phones.number) AS phone,
     banks.name,
     banks.bik,
-    banks.cor_account,
+    cor_account.cor_account_number as cor_account,
     banks.city,
     accounts.number,
     leader.last_name AS leader_last_name,
@@ -292,8 +301,12 @@ FROM
         AND
             (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
         LEFT JOIN
-    accounts ON accounts.id = organizations.default_account_id
-        LEFT JOIN
+    accounts ON 
+    		(((NOT counterparty.use_special_doc_fields OR counterparty.our_organization_account_for_bills is NULL) and accounts.id = organizations.default_account_id) 
+    		or (counterparty.use_special_doc_fields and accounts.id = counterparty.our_organization_account_for_bills))
+    	LEFT JOIN
+    banks_cor_accounts cor_account ON accounts.bank_cor_account_id = cor_account.id 
+    	LEFT JOIN
     banks ON banks.id = accounts.bank_id
         LEFT JOIN
     employees leader ON leader.id = ov.leader_id
@@ -302,7 +315,7 @@ FROM
         LEFT JOIN
     phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE
-    orders.id = @order_id;</CommandText>
+    orders.id = @order_id LIMIT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
@@ -533,6 +546,20 @@ WHERE o.id = @order_id
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="AdditionalInfo">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT bp.str_value as info_str
+FROM base_parameters bp 
+WHERE bp.name = 'bill_additional_info';</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="info_str">
+          <DataField>info_str</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -580,7 +607,7 @@ WHERE o.id = @order_id
         <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
         <ZIndex>0</ZIndex>
         <Left>208.7pt</Left>
-        <Top>36.2pt</Top>
+        <Top>34.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -665,11 +692,11 @@ WHERE o.id = @order_id
             </Style>
           </Textbox>
           <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>30pt</Height>
-            <Width>40pt</Width>
+            <Height>30.00pt</Height>
+            <Width>40.00pt</Width>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
-            <Left>260pt</Left>
+            <Left>260.0pt</Left>
             <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
@@ -687,11 +714,11 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30.00pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={cor_account}</Value>
             <ZIndex>0</ZIndex>
-            <Left>300.00pt</Left>
-            <Top>15.10pt</Top>
+            <Left>300.0pt</Left>
+            <Top>15.1pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -728,12 +755,12 @@ WHERE o.id = @order_id
             </Style>
           </Textbox>
           <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>30pt</Height>
-            <Width>220pt</Width>
+            <Height>30.00pt</Height>
+            <Width>220.00pt</Width>
             <Value>={full_name}</Value>
             <ZIndex>0</ZIndex>
-            <Left>40pt</Left>
-            <Top>60.1pt</Top>
+            <Left>40.00pt</Left>
+            <Top>60.10pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -753,7 +780,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>15.00pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={bik}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.00pt</Left>
@@ -797,7 +824,7 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>60pt</Height>
-            <Width>115.00pt</Width>
+            <Width>130.00pt</Width>
             <Value>={number}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.00pt</Left>
@@ -1427,7 +1454,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>=SummaString_Val(Format(Sum({total}, 'Goods'), "F2"))</Value>
+                      <Value>=First({order_sum_string}, "Order")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1454,22 +1481,22 @@ WHERE o.id = @order_id
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>396.7pt</Top>
+        <Top>420.7pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
         <Height>103.22pt</Height>
         <Width>535.30pt</Width>
-        <Left>31.40pt</Left>
-        <Top>511.60pt</Top>
+        <Left>31.4pt</Left>
+        <Top>534.8pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
             <Width>173.52pt</Width>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>52.30pt</Top>
+            <Left>0.0pt</Left>
+            <Top>76.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1489,7 +1516,7 @@ WHERE o.id = @order_id
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>156.8pt</Left>
-            <Top>52.3pt</Top>
+            <Top>76.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1510,7 +1537,7 @@ WHERE o.id = @order_id
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>407.8pt</Left>
-            <Top>53.1pt</Top>
+            <Top>77.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1526,7 +1553,7 @@ WHERE o.id = @order_id
             <Value>Бухгалтер______________</Value>
             <ZIndex>1</ZIndex>
             <Left>283.4pt</Left>
-            <Top>51.6pt</Top>
+            <Top>75.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1540,7 +1567,7 @@ WHERE o.id = @order_id
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>72.9pt</Left>
-            <Top>20.8pt</Top>
+            <Top>44.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1560,7 +1587,7 @@ WHERE o.id = @order_id
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>323.8pt</Left>
-            <Top>28.8pt</Top>
+            <Top>52.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1579,8 +1606,8 @@ WHERE o.id = @order_id
           <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
-            <Left>290.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>290.0pt</Left>
+            <Top>0.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1680,8 +1707,8 @@ WHERE o.id = @order_id
         <Width>500.69pt</Width>
         <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
         <ZIndex>0</ZIndex>
-        <Left>39.20pt</Left>
-        <Top>204.70pt</Top>
+        <Left>39.2pt</Left>
+        <Top>230.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1705,7 +1732,7 @@ WHERE o.id = @order_id
           <FontFamily>Calibri</FontFamily>
         </Style>
         <Left>40.7pt</Left>
-        <Top>224.1pt</Top>
+        <Top>247.3pt</Top>
       </Line>
       <Table Name="Table1">
         <DataSetName>Order</DataSetName>
@@ -1798,10 +1825,9 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 + ', ИНН ' 
 + {inn} 
 + ', КПП ' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp}) 
++ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp})
 + '\n' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false,{special_delivery_address},{client_address} )
-+ ', ' 
++ Iif({use_special_doc_fields}  and {?special}, Iif(String.IsNullOrWhiteSpace({special_delivery_address}), '', ', ' + {special_delivery_address}), ', ' + {client_address} ) 
 +
 Iif(
     Iif(
@@ -1812,8 +1838,8 @@ Iif(
     '',
     Iif(
         {client_contact} = null,
-        {delivery_point_contact},
-        {client_contact}
+        ', ' + {delivery_point_contact},
+        ', ' + {client_contact}
     )
 )</Value>
                       <Style>
@@ -1964,7 +1990,7 @@ Iif(
             <TableRow>
               <Height>24.5pt</Height>
               <Visibility>
-                <Hidden>=Fields!delivery_address.IsMissing</Hidden>
+                <Hidden>=Fields!delivery_address.IsMissing OR {?hide_delivery_point}</Hidden>
               </Visibility>
               <TableCells>
                 <TableCell>
@@ -2006,13 +2032,13 @@ Iif(
           </TableRows>
         </Details>
         <Left>28.9pt</Left>
-        <Top>229.5pt</Top>
+        <Top>253.5pt</Top>
       </Table>
       <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>145.13pt</Height>
-        <Width>250.77pt</Width>
-        <Left>175.2pt</Left>
-        <Top>612.4pt</Top>
+        <Height>112.04pt</Height>
+        <Width>222.99pt</Width>
+        <Left>203.0pt</Left>
+        <Top>635.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2024,8 +2050,7 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>0</ZIndex>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2034,7 +2059,7 @@ Iif(
         <Value>ВНИМАНИЕ! Срок действия счета на все товары, кроме бутилированной воды объемом 19 литров, три рабочих дня с момента выставления.</Value>
         <ZIndex>0</ZIndex>
         <Left>136.1pt</Left>
-        <Top>743.3pt</Top>
+        <Top>747.3pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -2080,10 +2105,29 @@ Iif(
             <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>415.5pt</Left>
-        <Top>75.0pt</Top>
+        <Left>431.5pt</Left>
+        <Top>63.0pt</Top>
         <ZIndex>10</ZIndex>
       </CustomReportItem>
+      <Textbox Name="Textbox46">
+        <Height>21.73pt</Height>
+        <Width>500pt</Width>
+        <Value>=First( {info_str} , "AdditionalInfo" )</Value>
+        <ZIndex>2</ZIndex>
+        <Left>39.2pt</Left>
+        <Top>207.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Left</TextAlign>
+          <Color>Red</Color>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+        <CanGrow>false</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2093,404 +2137,6 @@ Iif(
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
-        Dim T1Str As String
-        Dim T2Str As String
-        Dim T3Str As String
-        Dim T4Str As String
-        Dim KStr As String
-        Dim Cel As String
-        Dim KNameStr As String
- 
-        Summa = Trim$(Summa) 'Удалить пробелы
-        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
-        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
-        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
-        'Проверка длины числа
-        If Len(Summa) &gt; 15 Then
-            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
-            Return "Invalid value!"
-            Exit Function
-        End If
- 
-        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
- 
-        'Анализ первой триады
-        T1Str = TrStr(Left(Summa, 3), 0)
-        If T1Str &lt;&gt; "" Then
-            Select Case Right$(Left(Summa, 3), 1)
-                Case Is = "0"
-                    T1Str = T1Str &amp; "миллиардов "
-                Case Is = "1"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиард "
-                    End If
-                Case Is = "2"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "3"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "4"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Else
-                    T1Str = T1Str &amp; "миллиардов "
-            End Select
-        End If
- 
-        'Анализ второй триады
-        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
-        If T2Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 4, 3), 1)
-                Case Is = "0"
-                    T2Str = T2Str &amp; "миллионов "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллион "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Else
-                    T2Str = T2Str &amp; "миллионов "
-            End Select
-        End If
- 
-        'Анализ третьей триады
-        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
-        If T3Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 7, 3), 1)
-                Case Is = "0"
-                    T3Str = T3Str &amp; "тысяч "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысяча "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Else
-                    T3Str = T3Str &amp; "тысяч "
-            End Select
-        End If
- 
-        'Анализ четвертой триады
-        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
-  
-        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
-            Cel = "ноль "
-        Else
-            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
-        End If
- 
-        '========= Приписать валюту =========
-        'Рубли
-        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
-            Select Case Mid$(Summa, 12, 1)
-                Case Is = "0"
-                    Cel = Cel &amp; "рублей "
-                Case Is = "1"
-                    Cel = Cel &amp; "рубль "
-                Case Is = "2"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "3"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "4"
-                    Cel = Cel &amp; "рубля "
-                Case Else
-                    Cel = Cel &amp; "рублей "
-            End Select
-        End If
- 
-        Select Case Mid$(Summa, 11, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-                Cel = Cel &amp; "рублей "
-        End Select
- 
-        'Копейки
-        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
-            Select Case Right$(Summa, 1)
-                Case Is = "0"
-	    KNameStr = " копеек"
-                Case Is = "1"
-	    KNameStr = " копейка"
-                Case Is = "2"
-                    KNameStr = " копейки"
-                Case Is = "3"
-	    KNameStr = " копейки"
-                Case Is = "4"
-	    KNameStr = " копейки"
-                Case Else
-	    KNameStr = " копеек"
-            End Select
-        End If
- 
-        Select Case Right$(Summa, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-	KNameStr = " копеек"
-        End Select
- 
-        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
-
-    End Function
-    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
-        TrStr = ""
-        If Rod = 0 Then
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "один "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "два "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "один "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "два "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        Else
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "одна "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "две "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "одна "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "две "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        End If
-    End Function</Code>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -2543,6 +2189,13 @@ Iif(
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_delivery_point">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>

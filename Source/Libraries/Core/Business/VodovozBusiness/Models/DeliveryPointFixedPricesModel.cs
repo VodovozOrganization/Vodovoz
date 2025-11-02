@@ -12,9 +12,12 @@ namespace Vodovoz.Models
     {
         private readonly IUnitOfWork _uow;
         private readonly DeliveryPoint _deliveryPoint;
-        private readonly NomenclatureFixedPriceController _fixedPriceController;
+        private readonly INomenclatureFixedPriceController _fixedPriceController;
 
-        public DeliveryPointFixedPricesModel(IUnitOfWork uow, DeliveryPoint deliveryPoint, NomenclatureFixedPriceController fixedPriceController)
+        public DeliveryPointFixedPricesModel(
+			IUnitOfWork uow,
+			DeliveryPoint deliveryPoint,
+			INomenclatureFixedPriceController fixedPriceController)
         {
             _uow = uow ?? throw new ArgumentNullException(nameof(uow));
             _deliveryPoint = deliveryPoint ?? throw new ArgumentNullException(nameof(deliveryPoint));
@@ -46,7 +49,7 @@ namespace Vodovoz.Models
                 throw new ArgumentNullException(nameof(nomenclature));
             }
 
-            _fixedPriceController.AddFixedPrice(_uow, _deliveryPoint, nomenclature, fixedPrice, minCount);
+            _fixedPriceController.AddFixedPrice(_deliveryPoint, nomenclature, fixedPrice, minCount);
 		}
 
 		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount)

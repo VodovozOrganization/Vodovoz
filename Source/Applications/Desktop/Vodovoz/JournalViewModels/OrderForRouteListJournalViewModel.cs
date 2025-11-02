@@ -1,38 +1,41 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Deletion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
+using System;
+using System.Globalization;
+using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using QS.Project.Journal.DataLoader;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
-using Vodovoz.Services;
-using QS.Navigation;
-using QS.Deletion;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderForRouteListJournalViewModel(
@@ -41,14 +44,16 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			INomenclatureRepository nomenclatureRepository,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			Action<OrderJournalFilterViewModel> filterConfig = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_closingDocumentDeliveryScheduleId =
-				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 
 			filterViewModel.Journal = this;
@@ -138,8 +143,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			var sanitizationNomenclatureIds = 
-				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
+
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -222,9 +226,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
 			}
 
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -234,9 +245,9 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
-													 .Select(Projections.Sum(() => orderItemAlias.Count));
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
@@ -266,7 +277,7 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));
@@ -332,10 +343,9 @@ namespace Vodovoz.JournalViewModels
 						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var route in routes) {
-							tdiMain.OpenTab(
-								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
-								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
-							);
+							var page = NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(route.Key));
+
+							page.ViewModel.SelectOrdersById(route.Select(x => x.Order.Id).ToArray());
 						}
 					}
 				)
@@ -423,12 +433,12 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(
 								string.Format(CultureInfo.InvariantCulture,
-									"https://maps.yandex.ru/?text={0} {1} {2}",
+									"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 									order.DeliveryPoint.City,
+									order.DeliveryPoint.StreetType,
 									order.DeliveryPoint.Street,
 									order.DeliveryPoint.Building
-								)
-							);
+								));
 						}
 					}
 				)

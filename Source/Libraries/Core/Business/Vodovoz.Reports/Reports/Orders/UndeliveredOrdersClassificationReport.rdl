@@ -499,7 +499,7 @@
         WHEN 'ServiceMan' THEN 'Мастер СЦ'
         WHEN 'ForceMajor' THEN 'Форс-мажор'
         WHEN 'DirectorLO' THEN 'Доставка за час'
-        WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
+        WHEN 'DirectorLOCurrentDayDelivery' THEN 'Довезли в тот же день'
         WHEN 'AutoСancelAutoTransfer' then 'Автоотмена автопереноса'
         WHEN 'None' THEN 'Нет (не недовоз)' 
     ELSE

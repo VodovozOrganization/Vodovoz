@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
@@ -20,12 +21,14 @@ namespace Vodovoz.ReportsParameters
 	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly SelectableParametersReportFilter _filter;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private const string _orderAuthorIncludeParameter = "order_author_include";
 		
-		public PlanImplementationReport(bool orderById = false)
+		public PlanImplementationReport(IReportInfoFactory reportInfoFactory, bool orderById = false)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureDlg();
 		}
@@ -179,12 +182,9 @@ namespace Vodovoz.ReportsParameters
 			{
 				identifier = "Sales.PlanImplementationByEmployeeReport";
 			}
-			
-			return new ReportInfo
-			{
-				Identifier = identifier,
-				Parameters = parameters
-			};
+
+			var reportInfo = _reportInfoFactory.Create(identifier, Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)

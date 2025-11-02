@@ -1,5 +1,7 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using Gtk;
+using QS.Navigation;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -19,6 +21,7 @@ namespace Vodovoz.Views.Orders
 
 		private void ConfigureDlg()
 		{
+			notebook.Sensitive = ViewModel.CanCreateOrUpdate;
 			notebook.ShowTabs = false;
 			notebook.Binding
 				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
@@ -37,39 +40,53 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			btnCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanCreateOrUpdate, CloseSource.Cancel);
 
 			yentryPromotionalSetName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yChkIsArchive.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yentryDiscountReason.Binding
 				.AddBinding(ViewModel.Entity, e => e.DiscountReasonInfo, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbCanEditNomCount.Binding
 				.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			chkPromoSetForNewClients.Binding
-				.AddBinding(ViewModel.Entity, e => e.PromotionalSetForNewClients, w => w.Active)
+				.AddBinding(ViewModel.Entity, p => p.PromotionalSetForNewClients, w => w.Active)
 				.InitializeFromSource();
 			chkPromoSetForNewClients.Sensitive = ViewModel.CanChangeType;
+
+			chkBtnShowSpecialBottlesCountForDeliveryPrice.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowSpecialBottlesCountForDeliveryPrice, w => w.Active)
+				.AddBinding(vm => vm.CanCreateOrUpdate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			entrySpecialBottlesCountForDeliveryPrice.MaxLength = 3;
+			entrySpecialBottlesCountForDeliveryPrice.Binding
+				.AddBinding(ViewModel.Entity, p => p.BottlesCountForCalculatingDeliveryPrice, w => w.Text, new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.ShowSpecialBottlesCountForDeliveryPrice, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
+				.InitializeFromSource();
+			entrySpecialBottlesCountForDeliveryPrice.Changed += OnSpecialBottlesCountForDeliveryPriceChanged;
 
 			widgetcontainerview.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
 			ybtnAddNomenclature.Clicked += (sender, e) => ViewModel.AddNomenclatureCommand.Execute();
 			ybtnAddNomenclature.Binding
-				.AddBinding(ViewModel, vm => vm.CanUpdate, b => b.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 
 			ybtnRemoveNomenclature.Clicked += (sender, e) => ViewModel.RemoveNomenclatureCommand.Execute();
@@ -80,7 +97,7 @@ namespace Vodovoz.Views.Orders
 			yEnumButtonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
 			yEnumButtonAddAction.EnumItemClicked += (sender, e) => ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum);
 			yEnumButtonAddAction.Binding
-				.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybtnRemoveAction.Clicked += (sender, e) => ViewModel.RemoveActionCommand.Execute();
@@ -93,6 +110,15 @@ namespace Vodovoz.Views.Orders
 			ConfigureSitesAndAppsTab();
 
 			ylblCreationDate.Text = ViewModel.CreationDate;
+		}
+		
+		private void OnSpecialBottlesCountForDeliveryPriceChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
 		private void ConfigureTreePromoSetsItems()
@@ -131,7 +157,7 @@ namespace Vodovoz.Views.Orders
 			yTreePromoSetItems.ItemsDataSource = ViewModel.Entity.ObservablePromotionalSetItems;
 			yTreePromoSetItems.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.AddBinding(vm => vm.SelectedPromoItem, w => w.SelectedRow)
 				.InitializeFromSource();
 		}
@@ -145,7 +171,7 @@ namespace Vodovoz.Views.Orders
 				.Finish();
 			yTreeActionsItems.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanUpdate, w => w.Sensitive)
+				.AddBinding(vm => vm.CanCreateOrUpdate, w => w.Sensitive)
 				.AddBinding(vm => vm.SelectedAction, w => w.SelectedRow)
 				.InitializeFromSource();
 		}
@@ -162,6 +188,7 @@ namespace Vodovoz.Views.Orders
 			
 			entryOnlineName.Binding
 				.AddBinding(ViewModel.Entity, e => e.OnlineName, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureParametersForMobileApp();
@@ -175,6 +202,7 @@ namespace Vodovoz.Views.Orders
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppPromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
 		
@@ -184,6 +212,7 @@ namespace Vodovoz.Views.Orders
 			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSitePromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
 		
@@ -193,6 +222,7 @@ namespace Vodovoz.Views.Orders
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSitePromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
 	};

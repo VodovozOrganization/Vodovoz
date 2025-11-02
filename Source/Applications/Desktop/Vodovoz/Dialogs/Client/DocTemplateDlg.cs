@@ -1,33 +1,39 @@
-﻿using System;
+using Autofac;
 using Gamma.Utilities;
-using QS.DomainModel.UoW;
+using QS.DocTemplates;
+using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using QSDocTemplates;
 using QSProjectsLib;
-using QS.Validation;
-using Vodovoz.Domain;
+using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Infrastructure;
 using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
+using QS.DocTemplates;
+using FileWorker = QSDocTemplates.FileWorker;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz
 {
 	public partial class DocTemplateDlg : QS.Dialog.Gtk.EntityDialogBase<DocTemplate>
 	{
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		private FileWorker worker = new FileWorker();
+		private QSDocTemplates.FileWorker worker = new QSDocTemplates.FileWorker();
 
 		public DocTemplateDlg()
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<DocTemplate> ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<DocTemplate> ();
 			ConfigureDlg ();
 		}
 
 		public DocTemplateDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DocTemplate> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DocTemplate> (id);
 			ConfigureDlg ();
 		}
 
@@ -43,8 +49,22 @@ namespace Vodovoz
 			ycomboType.Binding.AddBinding(Entity, e => e.TemplateType, w => w.SelectedItem).InitializeFromSource();
 			ycomboContractType.ItemsEnum = typeof(ContractType);
 			ycomboContractType.Binding.AddBinding(Entity, e => e.ContractType, w => w.SelectedItem).InitializeFromSource();
-			yentryreferenceOrg.SubjectType = typeof(Organization);
-			yentryreferenceOrg.Binding.AddBinding(Entity, e => e.Organization, w => w.Subject).InitializeFromSource();
+			
+			var organizationEntryViewModelBuilder = new LegacyEEVMBuilderFactory<DocTemplate>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope);
+
+			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationEntryViewModel.CanViewEntity = false;
+
+			entityentryOrganization.ViewModel = organizationEntryViewModel;
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 		}
@@ -59,7 +79,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -87,6 +107,13 @@ namespace Vodovoz
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			worker.OpenInOffice(Entity, false, FileEditMode.Template);
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			base.Destroy();
 		}
 	}
 }

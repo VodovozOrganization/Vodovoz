@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gdk;
 using Gtk;
@@ -10,12 +10,12 @@ using QS.Permissions;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QS.Widgets.GtkUI;
-using Vodovoz.Domain.Employees;
+using System;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewWidgets.Permissions
@@ -26,7 +26,8 @@ namespace Vodovoz.ViewWidgets.Permissions
 		private static readonly Color _colorPrimaryText = GdkColors.PrimaryText;
 		private static readonly Color _colorBlue = GdkColors.InfoText;
 		private static readonly Color _colorInsensitiveText = GdkColors.InsensitiveText;
-
+		private ISubdivisionRepository _subdivisionRepository;
+		private IPermissionRepository _permissionsRepository;
 		private Menu _availablePresetPermissionsPopupMenu;
 		private Menu _userPresetPermissionsPopupMenu;
 		
@@ -34,22 +35,30 @@ namespace Vodovoz.ViewWidgets.Permissions
 
 		public PresetPermissionsView(PresetPermissionsViewModelBase viewModel) : base(viewModel)
 		{
+			ResolveDependencies();
 			Build();
 			Configure();
 		}
 
 		public PresetPermissionsView()
 		{
+			ResolveDependencies();
 			Build();
+		}
+
+		[Obsolete("Должен быть удален при разрешении проблем с контейнером")]
+		private void ResolveDependencies()
+		{
+			_subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+			_permissionsRepository = ScopeProvider.Scope.Resolve<IPermissionRepository>();
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
 		{
-			var permissionRepository = new PermissionRepository();
 			ViewModel =
 				new PresetUserPermissionsViewModel(
-					uow, permissionRepository, uow.GetById<User>(user.Id),
-					new UsersPresetPermissionValuesGetter(permissionRepository, new SubdivisionRepository(new ParametersProvider())),
+					uow, _permissionsRepository, uow.GetById<User>(user.Id),
+					new UsersPresetPermissionValuesGetter(_permissionsRepository, _subdivisionRepository),
 					new UserPermissionsExporter(new FileDialogService(), new GtkMessageDialogsInteractive()));
 			Configure();
 		}
@@ -157,6 +166,13 @@ namespace Vodovoz.ViewWidgets.Permissions
 			}
 			
 			_userPresetPermissionsPopupMenu.Popup();
+		}
+
+		public override void Destroy()
+		{
+			_subdivisionRepository = null;
+			_permissionsRepository = null;
+			base.Destroy();
 		}
 	}
 }

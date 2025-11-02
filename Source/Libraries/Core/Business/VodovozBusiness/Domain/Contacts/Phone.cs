@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Utilities.Numeric;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
-using Vodovoz.Services;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Settings.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Domain.Contacts
 {
@@ -13,66 +13,21 @@ namespace Vodovoz.Domain.Contacts
 		NominativePlural = "телефоны",
 		Nominative = "телефон")]
 	[HistoryTrace]
-	public class Phone : PropertyChangedBase, IDomainObject
+	public class Phone : Core.Domain.Contacts.PhoneEntity
 	{
 		#region Свойства
+
 		private DeliveryPoint _deliveryPoint;
 		private Counterparty _counterparty;
 		private RoboAtsCounterpartyName _roboAtsCounterpartyName;
 		private RoboAtsCounterpartyPatronymic _roboAtsCounterpartyPatronymic;
+		private PhoneType _phoneType;
+		private Employee _employee;
 
-		public virtual int Id { get; set; }
-
-		private string number;
-		public virtual string Number
+		public virtual new PhoneType PhoneType
 		{
-			get => number;
-			set
-			{
-				var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
-				string phone = formatter.FormatString(value);
-				SetField(ref number, phone, () => Number);
-				DigitsNumber = value;
-			}
-		}
-
-		private string digitsNumber;
-		[Display(Name = "Только цифры")]
-		public virtual string DigitsNumber
-		{
-			get => digitsNumber;
-			protected set
-			{
-				var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
-				string phone = formatter.FormatString(value);
-				SetField(ref digitsNumber, phone, () => DigitsNumber);
-			}
-		}
-
-		public virtual string Additional { get; set; }
-
-		private PhoneType phoneType;
-		public virtual PhoneType PhoneType
-		{
-			get => phoneType;
-			set { SetField(ref phoneType, value, () => PhoneType); }
-		}
-
-		private string _comment;
-
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set { SetField(ref _comment, value); }
-		}
-
-		private bool _isArchive;
-		[Display(Name = "Архив")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
+			get => _phoneType;
+			set => SetField(ref _phoneType, value);
 		}
 
 		[Display(Name = "Точка доставки")]
@@ -87,6 +42,13 @@ namespace Vodovoz.Domain.Contacts
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		[Display(Name = "Сотрудник")]
+		public virtual Employee Employee
+		{
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
 		[Display(Name = "Имя контрагента")]
@@ -112,20 +74,21 @@ namespace Vodovoz.Domain.Contacts
 			get
 			{
 				return PhoneType?.Name
-					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
-					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
-					 + (String.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
+					 + (string.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
+					 + (string.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
+					 + (string.IsNullOrWhiteSpace(Comment) ? "" : $"\n[{Comment}]");
 			}
 		}
 
 		#endregion
 
 		/// <summary>
-		/// Обязательно вызвать <see cref="Init(IContactParametersProvider)"/> после вызова конструктора
+		/// Обязательно вызвать <see cref="Init(IContactSettings)"/> после вызова конструктора
 		/// </summary>
 		public Phone()
 		{
 		}
+
 		/// <summary>
 		/// Конструктор ,который преобразует любой вид телефона к стандартному виду
 		/// Формат:
@@ -140,43 +103,25 @@ namespace Vodovoz.Domain.Contacts
 		{
 			var formatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 			string phone = formatter.FormatString(number);
-			this.number = phone;
+			_number = phone;
 
 			formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
 			phone = formatter.FormatString(number);
-			this.digitsNumber = phone;
+			_digitsNumber = phone;
 
 			_comment = comment;
 		}
 
-		public virtual Phone Init(IContactParametersProvider contactsParameters)
+		public virtual Phone Init(IContactSettings contactsParameters)
 		{
-			//I-2566 Отключено за ненадобностью
-			//if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))
-			//	Number = String.Empty;
-			//else
-			//Number = String.Format("({0})", contactsParameters.DefaultCityCode);
-
-			Number = String.Empty;
-			Additional = String.Empty;
+			Number = string.Empty;
+			Additional = string.Empty;
 			return this;
 		}
 
 		public override string ToString()
 		{
 			return "+7 " + Number;
-		}
-
-		public virtual bool IsValidPhoneNumber => IsValidPhoneNumberFormat();
-
-		private bool IsValidPhoneNumberFormat()
-		{
-			if(Regex.IsMatch(digitsNumber, "^[3 4 8 9]{1}[0-9]{9}"))
-			{
-				return true;
-			}
-
-			return false;
 		}
 
 		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";

@@ -3,6 +3,7 @@ using MoreLinq;
 using NetTopologySuite.Geometries;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -19,7 +20,9 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;
@@ -28,6 +31,32 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public sealed class DistrictsSetViewModel : EntityTabViewModelBase<DistrictsSet>
 	{
+		private readonly IEntityDeleteWorker _entityDeleteWorker;
+		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
+		private readonly GeometryFactory _geometryFactory;
+
+		public readonly bool CanChangeDistrictWageTypePermissionResult;
+		public readonly bool CanEditDistrict;
+		public readonly bool CanEditDeliveryRules;
+
+		public readonly bool CanDeleteDistrict;
+		public readonly bool CanCreateDistrict;
+		public readonly bool CanSave;
+		public readonly bool CanEdit;
+
+		private AcceptBeforeJournalViewModel _acceptBeforeJournalViewModel;
+
+		private District _copiedDistrict;
+
+		private GenericObservableList<PointLatLng> _selectedDistrictBorderVertices;
+		private GenericObservableList<PointLatLng> _newBorderVertices;
+		private District _selectedDistrict;
+		private WeekDayName? _selectedWeekDayName;
+		private CommonDistrictRuleItem _selectedCommonDistrictRuleItem;
+		private WeekDayDistrictRuleItem _selectedWeekDayDistrictRuleItem;
+		private DeliveryScheduleRestriction _selectedScheduleRestriction;
+		private bool _isCreatingNewBorder;
+
 		public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -41,7 +70,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
 			DistrictRuleRepository = districtRuleRepository ?? throw new ArgumentNullException(nameof(districtRuleRepository));
 			_deliveryScheduleJournalFactory = deliveryScheduleJournalFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleJournalFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Районы с графиками доставки";
 
@@ -76,26 +104,40 @@ namespace Vodovoz.ViewModels.Logistic
 			SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
 			NewBorderVertices = new GenericObservableList<PointLatLng>();
 
+			#region Command Initialization
+
+			AddDistrictCommand = CreateAddDistrictCommand();
+			RemoveDistrictCommand = CreateRemoveDistrictCommand();
+			CreateBorderCommand = CreateCreateBorderCommand();
+			ConfirmNewBorderCommand = CreateConfirmNewBorderCommand();
+			CancelNewBorderCommand = CreateCancelNewBorderCommand();
+			RemoveBorderCommand = CreateRemoveBorderCommand();
+			AddNewVertexCommand = CreateAddNewVertexCommand();
+			RemoveNewBorderVertexCommand = CreateRemoveNewBorderVertexCommand();
+			AddScheduleRestrictionCommand = CreateAddScheduleRestrictionCommand();
+			RemoveScheduleRestrictionCommand = CreateRemoveScheduleRestrictionCommand();
+			RemoveWeekDayDistrictRuleItemCommand = CreateRemoveWeekDayDistrictRuleItemCommand();
+			RemoveCommonDistrictRuleItemCommand = CreateRemoveCommonDistrictRuleItemCommand();
+			AddWeekDayDeliveryPriceRuleCommand = CreateAddWeekDayDeliveryPriceRuleCommand();
+			AddCommonDeliveryPriceRuleCommand = CreateAddCommonDeliveryPriceRuleCommand();
+
+			AddAcceptBeforeCommand = new DelegateCommand(AddAcceptBefore, () => CanEditSchedule);
+			AddAcceptBeforeCommand.CanExecuteChangedWith(this, x => x.CanEditSchedule);
+
+			RemoveAcceptBeforeCommand = CreateRemoveAcceptBeforeCommand();
 			CopyDistrictSchedulesCommand = new DelegateCommand(CopyDistrictSchedules);
 			PasteSchedulesToDistrictCommand = new DelegateCommand(PasteSchedulesToSelectedDistrict);
 			PasteSchedulesToZoneCommand = new DelegateCommand(PasteSchedulesToZone);
+
+			#endregion Command Initialization
 		}
 
-		private readonly IEntityDeleteWorker _entityDeleteWorker;
-		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleJournalFactory;
-		private readonly GeometryFactory _geometryFactory;
-		private ICommonServices _commonServices;
+		public IUnitOfWorkFactory UoWFactory => UnitOfWorkFactory;
 
-		public readonly bool CanChangeDistrictWageTypePermissionResult;
-		public readonly bool CanEditDistrict;
-		public readonly bool CanEditDeliveryRules;
-		public readonly bool CanEditDeliveryScheduleRestriction;
-		public readonly bool CanDeleteDistrict;
-		public readonly bool CanCreateDistrict;
-		public readonly bool CanSave;
-		public readonly bool CanEdit;
-
-		private District _copiedDistrict;
+		public bool CanEditSchedule => SelectedScheduleRestriction != null
+			&& CanEditDeliveryScheduleRestriction
+			&& SelectedDistrict != null
+			&& SelectedScheduleRestriction != null;
 
 		public bool CanCopyDeliveryScheduleRestrictions =>
 			CanEditDeliveryScheduleRestriction
@@ -120,38 +162,38 @@ namespace Vodovoz.ViewModels.Logistic
 			? SelectedDistrict.GetScheduleRestrictionCollectionByWeekDayName(SelectedWeekDayName.Value)
 			: null;
 
-		public GenericObservableList<CommonDistrictRuleItem> CommonDistrictRuleItems => SelectedDistrict.ObservableCommonDistrictRuleItems;
+		public GenericObservableList<CommonDistrictRuleItem> CommonDistrictRuleItems => SelectedDistrict.CommonDistrictRuleItems;
 
 		public GenericObservableList<WeekDayDistrictRuleItem> WeekDayDistrictRuleItems => SelectedWeekDayName.HasValue && SelectedDistrict != null
 			? SelectedDistrict.GetWeekDayRuleItemCollectionByWeekDayName(SelectedWeekDayName.Value)
 			: null;
 
-		private GenericObservableList<PointLatLng> selectedDistrictBorderVertices;
 		public GenericObservableList<PointLatLng> SelectedDistrictBorderVertices
 		{
-			get => selectedDistrictBorderVertices;
-			set => SetField(ref selectedDistrictBorderVertices, value, () => SelectedDistrictBorderVertices);
+			get => _selectedDistrictBorderVertices;
+			set => SetField(ref _selectedDistrictBorderVertices, value);
 		}
 
-		private GenericObservableList<PointLatLng> newBorderVertices;
 		public GenericObservableList<PointLatLng> NewBorderVertices
 		{
-			get => newBorderVertices;
-			set => SetField(ref newBorderVertices, value, () => NewBorderVertices);
+			get => _newBorderVertices;
+			set => SetField(ref _newBorderVertices, value);
 		}
 
-		private District selectedDistrict;
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
 		public District SelectedDistrict
 		{
-			get => selectedDistrict;
+			get => _selectedDistrict;
 			set
 			{
-				if(!SetField(ref selectedDistrict, value, () => SelectedDistrict))
+				if(!SetField(ref _selectedDistrict, value))
+				{
 					return;
+				}
 
 				SelectedDistrictBorderVertices.Clear();
 
-				if(selectedDistrict != null)
+				if(_selectedDistrict != null)
 				{
 					if(!SelectedWeekDayName.HasValue)
 					{
@@ -208,13 +250,12 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private WeekDayName? selectedWeekDayName;
 		public WeekDayName? SelectedWeekDayName
 		{
-			get => selectedWeekDayName;
+			get => _selectedWeekDayName;
 			set
 			{
-				if(SetField(ref selectedWeekDayName, value, () => SelectedWeekDayName))
+				if(SetField(ref _selectedWeekDayName, value))
 				{
 					if(SelectedWeekDayName != null)
 					{
@@ -225,154 +266,443 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private CommonDistrictRuleItem selectedCommonDistrictRuleItem;
 		public CommonDistrictRuleItem SelectedCommonDistrictRuleItem
 		{
-			get => selectedCommonDistrictRuleItem;
-			set => SetField(ref selectedCommonDistrictRuleItem, value, () => SelectedCommonDistrictRuleItem);
+			get => _selectedCommonDistrictRuleItem;
+			set => SetField(ref _selectedCommonDistrictRuleItem, value);
 		}
 
-		private WeekDayDistrictRuleItem selectedWeekDayDistrictRuleItem;
 		public WeekDayDistrictRuleItem SelectedWeekDayDistrictRuleItem
 		{
-			get => selectedWeekDayDistrictRuleItem;
-			set => SetField(ref selectedWeekDayDistrictRuleItem, value, () => SelectedWeekDayDistrictRuleItem);
+			get => _selectedWeekDayDistrictRuleItem;
+			set => SetField(ref _selectedWeekDayDistrictRuleItem, value);
 		}
 
-		private DeliveryScheduleRestriction selectedScheduleRestriction;
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
 		public DeliveryScheduleRestriction SelectedScheduleRestriction
 		{
-			get => selectedScheduleRestriction;
-			set => SetField(ref selectedScheduleRestriction, value, () => SelectedScheduleRestriction);
+			get => _selectedScheduleRestriction;
+			set => SetField(ref _selectedScheduleRestriction, value);
 		}
 
-		private bool isCreatingNewBorder;
+		[PropertyChangedAlso(nameof(CanEditSchedule))]
+		public bool CanEditDeliveryScheduleRestriction { get; }
+
 		public bool IsCreatingNewBorder
 		{
-			get => isCreatingNewBorder;
+			get => _isCreatingNewBorder;
 			private set
 			{
 				if(value && SelectedDistrict == null)
+				{
 					throw new ArgumentNullException(nameof(SelectedDistrict));
-				SetField(ref isCreatingNewBorder, value, () => IsCreatingNewBorder);
+				}
+
+				SetField(ref _isCreatingNewBorder, value);
 			}
 		}
 
 		#region Commands
 
-		private DelegateCommand addDistrictCommand;
-		public DelegateCommand AddDistrictCommand => addDistrictCommand ?? (addDistrictCommand = new DelegateCommand(
-			() =>
-			{
-				var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район", DistrictsSet = Entity };
-				Entity.ObservableDistricts.Add(newDistrict);
-				SelectedDistrict = newDistrict;
-			}, () => true
-		));
+		public DelegateCommand AddAcceptBeforeCommand { get; }
 
-		private DelegateCommand removeDistrictCommand;
-		public DelegateCommand RemoveDistrictCommand => removeDistrictCommand ?? (removeDistrictCommand = new DelegateCommand(
-			() =>
-			{
-				var distrToDel = selectedDistrict;
-				Entity.ObservableDistricts.Remove(SelectedDistrict);
-				if(distrToDel.Id == 0)
+		public DelegateCommand AddDistrictCommand { get; }
+
+		private DelegateCommand CreateAddDistrictCommand() =>
+			new DelegateCommand(
+				() =>
 				{
-					return;
-				}
+					var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район", DistrictsSet = Entity };
+					Entity.ObservableDistricts.Add(newDistrict);
+					SelectedDistrict = newDistrict;
+				},
+				() => true);
 
-				if(_entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW))
+		public DelegateCommand RemoveDistrictCommand { get; }
+
+		private DelegateCommand CreateRemoveDistrictCommand() =>
+			new DelegateCommand(
+				() =>
 				{
-					SelectedDistrict = null;
-				}
-				else
+					var distrToDel = _selectedDistrict;
+					Entity.ObservableDistricts.Remove(SelectedDistrict);
+					if(distrToDel.Id == 0)
+					{
+						return;
+					}
+
+					if(_entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW))
+					{
+						SelectedDistrict = null;
+					}
+					else
+					{
+						Entity.ObservableDistricts.Add(distrToDel);
+						SelectedDistrict = distrToDel;
+					}
+				},
+				() => SelectedDistrict != null);
+
+		public DelegateCommand CreateBorderCommand { get; }
+
+		private DelegateCommand CreateCreateBorderCommand() =>
+			new DelegateCommand(
+				() =>
 				{
-					Entity.ObservableDistricts.Add(distrToDel);
-					SelectedDistrict = distrToDel;
-				}
-			},
-			() => SelectedDistrict != null
-		));
+					IsCreatingNewBorder = true;
+					NewBorderVertices.Clear();
+				},
+				() => !IsCreatingNewBorder);
 
-		private DelegateCommand createBorderCommand;
-		public DelegateCommand CreateBorderCommand => createBorderCommand ?? (createBorderCommand = new DelegateCommand(
-			() =>
-			{
-				IsCreatingNewBorder = true;
-				NewBorderVertices.Clear();
-			},
-			() => !IsCreatingNewBorder
-		));
+		public DelegateCommand ConfirmNewBorderCommand { get; }
 
-		private DelegateCommand confirmNewBorderCommand;
-		public DelegateCommand ConfirmNewBorderCommand => confirmNewBorderCommand ?? (confirmNewBorderCommand = new DelegateCommand(
-			() =>
-			{
-				if(NewBorderVertices.Count < 3)
-					return;
-				var closingPoint = NewBorderVertices[0];
-				NewBorderVertices.Add(closingPoint);
-				SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>(NewBorderVertices.ToList());
-				NewBorderVertices.Clear();
-				SelectedDistrict.DistrictBorder = _geometryFactory.CreatePolygon(SelectedDistrictBorderVertices.Select(p => new Coordinate(p.Lat, p.Lng)).ToArray());
-				IsCreatingNewBorder = false;
-			},
-			() => IsCreatingNewBorder
-		));
+		private DelegateCommand CreateConfirmNewBorderCommand() =>
+			 new DelegateCommand(
+				() =>
+				{
+					if(NewBorderVertices.Count < 3)
+					{
+						return;
+					}
 
-		private DelegateCommand cancelNewBorderCommand;
-		public DelegateCommand CancelNewBorderCommand => cancelNewBorderCommand ?? (cancelNewBorderCommand = new DelegateCommand(
-			() =>
-			{
-				NewBorderVertices.Clear();
-				IsCreatingNewBorder = false;
-				OnPropertyChanged(nameof(NewBorderVertices));
-			},
-			() => IsCreatingNewBorder
-		));
+					var closingPoint = NewBorderVertices[0];
+					NewBorderVertices.Add(closingPoint);
+					SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>(NewBorderVertices.ToList());
+					NewBorderVertices.Clear();
+					SelectedDistrict.DistrictBorder = _geometryFactory.CreatePolygon(SelectedDistrictBorderVertices.Select(p => new Coordinate(p.Lat, p.Lng)).ToArray());
+					IsCreatingNewBorder = false;
+				},
+				() => IsCreatingNewBorder);
 
-		private DelegateCommand removeBorderCommand;
-		public DelegateCommand RemoveBorderCommand => removeBorderCommand ?? (removeBorderCommand = new DelegateCommand(
-			() =>
-			{
-				SelectedDistrict.DistrictBorder = null;
-				SelectedDistrictBorderVertices.Clear();
-				OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
-				OnPropertyChanged(nameof(SelectedDistrict));
-			},
-			() => !IsCreatingNewBorder
-		));
+		public DelegateCommand CancelNewBorderCommand { get; }
 
-		private DelegateCommand<PointLatLng> addNewVertexCommand;
-		public DelegateCommand<PointLatLng> AddNewVertexCommand => addNewVertexCommand ?? (addNewVertexCommand = new DelegateCommand<PointLatLng>(
-			point =>
-			{
-				NewBorderVertices.Add(point);
-				OnPropertyChanged(nameof(NewBorderVertices));
-			},
-			point => IsCreatingNewBorder
-		));
+		public DelegateCommand CreateCancelNewBorderCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					NewBorderVertices.Clear();
+					IsCreatingNewBorder = false;
+					OnPropertyChanged(nameof(NewBorderVertices));
+				},
+				() => IsCreatingNewBorder);
 
-		private DelegateCommand<PointLatLng> removeNewBorderVerteCommand;
-		public DelegateCommand<PointLatLng> RemoveNewBorderVertexCommand => removeNewBorderVerteCommand ?? (removeNewBorderVerteCommand = new DelegateCommand<PointLatLng>(
-			point =>
-			{
-				NewBorderVertices.Remove(point);
-				OnPropertyChanged(nameof(NewBorderVertices));
-			},
-			point => IsCreatingNewBorder && !point.IsEmpty
-		));
+		public DelegateCommand RemoveBorderCommand { get; }
 
-		private DelegateCommand _addScheduleRestrictionCommand;
-		public DelegateCommand AddScheduleRestrictionCommand
+		private DelegateCommand CreateRemoveBorderCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					SelectedDistrict.DistrictBorder = null;
+					SelectedDistrictBorderVertices.Clear();
+					OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
+					OnPropertyChanged(nameof(SelectedDistrict));
+				},
+				() => !IsCreatingNewBorder);
+
+		public DelegateCommand<PointLatLng> AddNewVertexCommand { get; }
+
+		private DelegateCommand<PointLatLng> CreateAddNewVertexCommand() =>
+			new DelegateCommand<PointLatLng>(
+				point =>
+				{
+					NewBorderVertices.Add(point);
+					OnPropertyChanged(nameof(NewBorderVertices));
+				},
+				point => IsCreatingNewBorder);
+
+		public DelegateCommand<PointLatLng> RemoveNewBorderVertexCommand { get; }
+
+		private DelegateCommand<PointLatLng> CreateRemoveNewBorderVertexCommand() =>
+			new DelegateCommand<PointLatLng>(
+				point =>
+				{
+					NewBorderVertices.Remove(point);
+					OnPropertyChanged(nameof(NewBorderVertices));
+				},
+				point => IsCreatingNewBorder && !point.IsEmpty);
+
+		public DelegateCommand AddScheduleRestrictionCommand { get; }
+
+		private DelegateCommand CreateAddScheduleRestrictionCommand() => new DelegateCommand(AddScheduleRestriction);
+
+		public DelegateCommand RemoveScheduleRestrictionCommand { get; }
+
+		private DelegateCommand CreateRemoveScheduleRestrictionCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					ScheduleRestrictions.Remove(SelectedScheduleRestriction);
+				},
+				() => SelectedScheduleRestriction != null);
+
+		public DelegateCommand RemoveWeekDayDistrictRuleItemCommand { get; }
+
+		private DelegateCommand CreateRemoveWeekDayDistrictRuleItemCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					WeekDayDistrictRuleItems.Remove(SelectedWeekDayDistrictRuleItem);
+				},
+				() => SelectedWeekDayDistrictRuleItem != null);
+
+		public DelegateCommand RemoveCommonDistrictRuleItemCommand { get; }
+
+		private DelegateCommand CreateRemoveCommonDistrictRuleItemCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					CommonDistrictRuleItems.Remove(SelectedCommonDistrictRuleItem);
+				},
+				() => SelectedCommonDistrictRuleItem != null);
+
+		#region Команда добавления правила цен доставки дня недели
+
+		public DelegateCommand AddWeekDayDeliveryPriceRuleCommand { get; }
+
+		private DelegateCommand CreateAddWeekDayDeliveryPriceRuleCommand()
 		{
-			get
-			{
-				if(_addScheduleRestrictionCommand == null)
+			var command = new DelegateCommand(AddWeekDayDeliveryPriceRule, () => CanAddWeekDayDeliveryPriceRuleCommand);
+			command.CanExecuteChangedWith(this, x => x.CanAddWeekDayDeliveryPriceRuleCommand);
+
+			return command;
+		}
+
+		private bool CanAddWeekDayDeliveryPriceRuleCommand => CanEditDeliveryRules;
+
+		private void AddWeekDayDeliveryPriceRule()
+		{
+			NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
 				{
-					_addScheduleRestrictionCommand = new DelegateCommand(AddScheduleRestriction);
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += JournalOnWeekDayEntitySelectedResult;
+				});
+		}
+
+		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var node = e.SelectedObjects.Cast<DeliveryPriceRuleJournalNode>().FirstOrDefault();
+
+			if(node == null)
+			{
+				return;
+			}
+
+			if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					WeekDay = SelectedWeekDayName.Value,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+						.Where(d => d.Id == node.Id)
+						.First()
+				});
+			}
+		}
+
+		#endregion Команда добавления правила цен доставки дня недели
+
+		#region Команда добавления общего правила цен доставки
+
+		public DelegateCommand AddCommonDeliveryPriceRuleCommand { get; }
+
+		private DelegateCommand CreateAddCommonDeliveryPriceRuleCommand()
+		{
+			var command = new DelegateCommand(AddCommonDeliveryPriceRule, () => CanAddCommonDeliveryPriceRuleCommand);
+			command.CanExecuteChangedWith(this, x => x.CanAddCommonDeliveryPriceRuleCommand);
+
+			return command;
+		}
+
+		private bool CanAddCommonDeliveryPriceRuleCommand => CanEditDeliveryRules;
+
+		private void AddCommonDeliveryPriceRule()
+		{
+			NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				viewModel =>
+				{
+					viewModel.SelectionMode = JournalSelectionMode.Single;
+					viewModel.OnSelectResult += JournalOnCommonEntitySelectedResult;
+				});
+		}
+
+		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedEventArgs e)
+		{
+			var node = e.SelectedObjects.Cast<DeliveryPriceRuleJournalNode>().FirstOrDefault();
+
+			if(node == null)
+			{
+				return;
+			}
+
+			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
+			{
+				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
+				{
+					District = SelectedDistrict,
+					Price = 0,
+					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
+						.Where(d => d.Id == node.Id)
+						.First()
+				});
+			}
+		}
+
+		#endregion Команда добавления общего правила цен доставки
+
+
+		private void OnAcceptBeforeJournalViewModelSelectResult(object sender, JournalSelectedEventArgs e)
+		{
+			var node = e.GetSelectedObjects<AcceptBefore>().FirstOrDefault();
+
+			if(node != null)
+			{
+				var acceptBefore = UoW.GetById<AcceptBefore>(node.Id);
+
+				if(acceptBefore != null && SelectedScheduleRestriction != null)
+				{
+					SelectedScheduleRestriction.AcceptBefore = acceptBefore;
 				}
-				return _addScheduleRestrictionCommand;
+			}
+		}
+
+		public DelegateCommand RemoveAcceptBeforeCommand { get; }
+
+		private DelegateCommand CreateRemoveAcceptBeforeCommand() =>
+			new DelegateCommand(
+				() =>
+				{
+					SelectedScheduleRestriction.AcceptBefore = null;
+				},
+				() => SelectedScheduleRestriction != null);
+
+		public DelegateCommand CopyDistrictSchedulesCommand { get; }
+		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
+		public DelegateCommand PasteSchedulesToZoneCommand { get; }
+		#endregion
+
+		#region Copy Paste District Schedule
+		private void CopyDistrictSchedules()
+		{
+			if(SelectedDistrict == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для копирования графиков доставки необходимо сначала выбрать район, из которого данные будут скопированы");
+
+				return;
+			}
+
+			_copiedDistrict = SelectedDistrict;
+		}
+
+		private void PasteSchedulesToSelectedDistrict()
+		{
+			if(SelectedDistrict == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для вставки графиков доставки необходимо сначала выбрать район, в который данные будут скопированы");
+
+				return;
+			}
+
+			PasteSchedulesToDistrict(SelectedDistrict);
+
+			OnPropertyChanged(nameof(ScheduleRestrictions));
+		}
+
+		private void PasteSchedulesToDistrict(District district)
+		{
+			if(_copiedDistrict == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для вставки графиков доставки необходимо сначала скопировать район");
+
+				return;
+			}
+
+			var schedulesToSet = new List<DeliveryScheduleRestriction>();
+
+			foreach(var schedule in _copiedDistrict.GetAllDeliveryScheduleRestrictions())
+			{
+				var newSchedule = schedule.Clone() as DeliveryScheduleRestriction;
+
+				newSchedule.District = district;
+
+				schedulesToSet.Add(newSchedule);
+			}
+
+			district.ReplaceDistrictDeliveryScheduleRestrictions(schedulesToSet);
+		}
+
+		private void PasteSchedulesToZone()
+		{
+			if(SelectedDistrict == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Для вставки графиков доставки необходимо сначала выбрать район для определения тарифной зоны");
+
+				return;
+			}
+
+			var districts = GetDistrictsByTariffZone(SelectedDistrict.TariffZone);
+
+			districts.ForEach(d => PasteSchedulesToDistrict(d));
+
+			OnPropertyChanged(nameof(ScheduleRestrictions));
+		}
+
+		private IEnumerable<District> GetDistrictsByTariffZone(TariffZone tariffZone)
+		{
+			var districts = Entity.ObservableDistricts
+				.Where(d => d.TariffZone.Id == tariffZone.Id)
+				.Select(d => d);
+
+			return districts;
+		}
+		#endregion Copy Paste District Schedule
+
+		private void AddAcceptBefore()
+		{
+			var acceptBeforePage = NavigationManager.OpenViewModel<AcceptBeforeJournalViewModel>(null);
+			_acceptBeforeJournalViewModel = acceptBeforePage.ViewModel;
+			_acceptBeforeJournalViewModel.VisibleEditAction = false;
+			_acceptBeforeJournalViewModel.VisibleDeleteAction = false;
+			_acceptBeforeJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+			_acceptBeforeJournalViewModel.OnSelectResult += OnAcceptBeforeJournalViewModelSelectResult;
+		}
+
+		private void SortDistricts()
+		{
+			for(int i = 0; i < Entity.Districts.Count - 1; i++)
+			{
+				for(int j = 0; j < Entity.Districts.Count - 2 - i; j++)
+				{
+					switch(NaturalStringComparer.CompareStrings(Entity.Districts[j].TariffZone?.Name ?? "", Entity.Districts[j + 1].TariffZone?.Name ?? ""))
+					{
+						case -1:
+							break;
+						case 1:
+							(Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
+							break;
+						case 0:
+							if(string.Compare(Entity.Districts[j].DistrictName, Entity.Districts[j + 1].DistrictName, StringComparison.InvariantCulture) > 0)
+							{
+								(Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
+							}
+
+							break;
+					}
+				}
 			}
 		}
 
@@ -410,259 +740,6 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private DelegateCommand removeScheduleRestrictionCommand;
-		public DelegateCommand RemoveScheduleRestrictionCommand => removeScheduleRestrictionCommand ?? (removeScheduleRestrictionCommand = new DelegateCommand(
-			() =>
-			{
-				ScheduleRestrictions.Remove(SelectedScheduleRestriction);
-			},
-			() => SelectedScheduleRestriction != null
-		));
-
-		private DelegateCommand removeWeekDayDistrictRuleItemCommand;
-		public DelegateCommand RemoveWeekDayDistrictRuleItemCommand => removeWeekDayDistrictRuleItemCommand ?? (removeWeekDayDistrictRuleItemCommand = new DelegateCommand(
-			() =>
-			{
-				WeekDayDistrictRuleItems.Remove(SelectedWeekDayDistrictRuleItem);
-			},
-			() => SelectedWeekDayDistrictRuleItem != null
-		));
-
-		private DelegateCommand removeCommonDistrictRuleItemCommand;
-		public DelegateCommand RemoveCommonDistrictRuleItemCommand => removeCommonDistrictRuleItemCommand ?? (removeCommonDistrictRuleItemCommand = new DelegateCommand(
-			() =>
-			{
-				CommonDistrictRuleItems.Remove(SelectedCommonDistrictRuleItem);
-			},
-			() => SelectedCommonDistrictRuleItem != null
-		));
-
-		#region Команда добавления правила цен доставки дня недели
-		private DelegateCommand _addWeekDayDeliveryPriceRuleCommand;
-		public DelegateCommand AddWeekDayDeliveryPriceRuleCommand
-		{
-			get
-			{
-				if(_addWeekDayDeliveryPriceRuleCommand == null)
-				{
-					_addWeekDayDeliveryPriceRuleCommand = new DelegateCommand(AddWeekDayDeliveryPriceRule, () => CanAddWeekDayDeliveryPriceRuleCommand);
-					_addWeekDayDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddWeekDayDeliveryPriceRuleCommand);
-				}
-				return _addWeekDayDeliveryPriceRuleCommand;
-			}
-		}
-
-		private bool CanAddWeekDayDeliveryPriceRuleCommand => CanEditDeliveryRules;
-
-		private void AddWeekDayDeliveryPriceRule()
-		{
-			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += JournalOnWeekDayEntitySelectedResult;
-			TabParent.AddSlaveTab(this, journal);
-		}
-
-		private void JournalOnWeekDayEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var node = e.SelectedNodes.FirstOrDefault();
-
-			if(node == null)
-			{
-				return;
-			}
-
-			if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
-			{
-				WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem
-				{
-					District = SelectedDistrict,
-					WeekDay = SelectedWeekDayName.Value,
-					Price = 0,
-					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-					.Where(d => d.Id == node.Id)
-					.First()
-				});
-			}
-		}
-		#endregion
-
-		#region Команда добавления общего правила цен доставки
-		private DelegateCommand _addCommonDeliveryPriceRuleCommand;
-		public DelegateCommand AddCommonDeliveryPriceRuleCommand
-		{
-			get
-			{
-				if(_addCommonDeliveryPriceRuleCommand == null)
-				{
-					_addCommonDeliveryPriceRuleCommand = new DelegateCommand(AddCommonDeliveryPriceRule, () => CanAddCommonDeliveryPriceRuleCommand);
-					_addCommonDeliveryPriceRuleCommand.CanExecuteChangedWith(this, x => x.CanAddCommonDeliveryPriceRuleCommand);
-				}
-				return _addCommonDeliveryPriceRuleCommand;
-			}
-		}
-
-		private bool CanAddCommonDeliveryPriceRuleCommand => CanEditDeliveryRules;
-
-		private void AddCommonDeliveryPriceRule()
-		{
-			var journal = new DeliveryPriceRuleJournalViewModel(UnitOfWorkFactory, _commonServices, DistrictRuleRepository);
-			journal.SelectionMode = JournalSelectionMode.Single;
-			journal.OnEntitySelectedResult += JournalOnCommonEntitySelectedResult;
-			TabParent.AddSlaveTab(this, journal);
-		}
-
-		private void JournalOnCommonEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
-		{
-			var node = e.SelectedNodes.FirstOrDefault();
-
-			if(node == null)
-			{
-				return;
-			}
-
-			if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != node.Id))
-			{
-				CommonDistrictRuleItems.Add(new CommonDistrictRuleItem
-				{
-					District = SelectedDistrict,
-					Price = 0,
-					DeliveryPriceRule = UoW.Session.Query<DeliveryPriceRule>()
-					.Where(d => d.Id == node.Id)
-					.First()
-				});
-			}
-		}
-		#endregion
-
-		private DelegateCommand<AcceptBefore> addAcceptBeforeCommand;
-		public DelegateCommand<AcceptBefore> AddAcceptBeforeCommand => addAcceptBeforeCommand ?? (addAcceptBeforeCommand = new DelegateCommand<AcceptBefore>(
-			acceptBefore =>
-			{
-				SelectedScheduleRestriction.AcceptBefore = acceptBefore;
-			},
-			acceptBefore => acceptBefore != null && SelectedScheduleRestriction != null
-		));
-
-		private DelegateCommand removeAcceptBeforeCommand;
-		public DelegateCommand RemoveAcceptBeforeCommand => removeAcceptBeforeCommand ?? (removeAcceptBeforeCommand = new DelegateCommand(
-			() =>
-			{
-				SelectedScheduleRestriction.AcceptBefore = null;
-			},
-			() => SelectedScheduleRestriction != null
-		));
-
-		public DelegateCommand CopyDistrictSchedulesCommand { get; }
-		public DelegateCommand PasteSchedulesToDistrictCommand { get; }
-		public DelegateCommand PasteSchedulesToZoneCommand { get; }
-		#endregion
-
-		#region Copy Paste District Schedule
-		private void CopyDistrictSchedules()
-		{
-			if(SelectedDistrict == null)
-			{
-				CommonServices.InteractiveService.ShowMessage(
-					   ImportanceLevel.Error,
-					   "Для копирования графиков доставки необходимо сначала выбрать район, из которого данные будут скопированы");
-
-				return;
-			}
-
-			_copiedDistrict = SelectedDistrict;
-		}
-
-		private void PasteSchedulesToSelectedDistrict()
-		{
-			if(SelectedDistrict == null)
-			{
-				CommonServices.InteractiveService.ShowMessage(
-					   ImportanceLevel.Error,
-					   "Для вставки графиков доставки необходимо сначала выбрать район, в который данные будут скопированы");
-
-				return;
-			}
-
-			PasteSchedulesToDistrict(SelectedDistrict);
-
-			OnPropertyChanged(nameof(ScheduleRestrictions));
-		}
-
-		private void PasteSchedulesToDistrict(District district)
-		{
-			if(_copiedDistrict == null)
-			{
-				CommonServices.InteractiveService.ShowMessage(
-					   ImportanceLevel.Error,
-					   "Для вставки графиков доставки необходимо сначала скопировать район");
-
-				return;
-			}
-
-			var schedulesToSet = new List<DeliveryScheduleRestriction>();
-
-			foreach(var schedule in _copiedDistrict.GetAllDeliveryScheduleRestrictions())
-			{
-				var newSchedule = schedule.Clone() as DeliveryScheduleRestriction;
-
-				newSchedule.District = district;
-
-				schedulesToSet.Add(newSchedule);
-			}
-
-			district.ReplaceDistrictDeliveryScheduleRestrictions(schedulesToSet);
-		}
-
-		private void PasteSchedulesToZone()
-		{
-			if(SelectedDistrict == null)
-			{
-				CommonServices.InteractiveService.ShowMessage(
-					   ImportanceLevel.Error,
-					   "Для вставки графиков доставки необходимо сначала выбрать район для определения тарифной зоны");
-
-				return;
-			}
-
-			var districts = GetDistrictsByTariffZone(SelectedDistrict.TariffZone);
-
-			districts.ForEach(d => PasteSchedulesToDistrict(d));
-
-			OnPropertyChanged(nameof(ScheduleRestrictions));
-		}
-
-		private IEnumerable<District> GetDistrictsByTariffZone(TariffZone tariffZone)
-		{
-			var districts = Entity.ObservableDistricts
-					.Where(d => d.TariffZone.Id == tariffZone.Id)
-					.Select(d => d);
-
-			return districts;
-		}
-		#endregion Copy Paste District Schedule
-
-		private void SortDistricts()
-		{
-			for(int i = 0; i < Entity.Districts.Count - 1; i++)
-			{
-				for(int j = 0; j < Entity.Districts.Count - 2 - i; j++)
-				{
-					switch(NaturalStringComparer.CompareStrings(Entity.Districts[j].TariffZone?.Name ?? "", Entity.Districts[j + 1].TariffZone?.Name ?? ""))
-					{
-						case -1:
-							break;
-						case 1:
-							(Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
-							break;
-						case 0:
-							if(String.Compare(Entity.Districts[j].DistrictName, Entity.Districts[j + 1].DistrictName, StringComparison.InvariantCulture) > 0)
-								(Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
-							break;
-					}
-				}
-			}
-		}
-
 		public override bool Save(bool close)
 		{
 			if(Entity.Id == 0)
@@ -685,9 +762,13 @@ namespace Vodovoz.ViewModels.Logistic
 		public override void Close(bool askSave, CloseSource source)
 		{
 			if(askSave)
+			{
 				TabParent?.AskToCloseTab(this, source);
+			}
 			else
+			{
 				TabParent?.ForceCloseTab(this, source);
+			}
 		}
 
 		public override bool HasChanges
@@ -698,6 +779,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_acceptBeforeJournalViewModel != null)
+			{
+				_acceptBeforeJournalViewModel.OnSelectResult -= OnAcceptBeforeJournalViewModelSelectResult;
+			}
+
 			UoW?.Dispose();
 			base.Dispose();
 		}

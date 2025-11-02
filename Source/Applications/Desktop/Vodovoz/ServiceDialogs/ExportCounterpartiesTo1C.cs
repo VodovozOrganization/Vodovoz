@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using Vodovoz.ServiceDialogs.ExportTo1c;
 using System;
 using Vodovoz.EntityRepositories.Counterparties;
+using QS.Project.Services;
+using Autofac;
+using ExportTo1c.Library;
 
 namespace Vodovoz.ServiceDialogs
 {
 	public class ExportCounterpartiesTo1C : IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly ICounterpartyRepository _counterpartyRepository = new CounterpartyRepository();
+		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
 		private IList<CounterpartyTo1CNode> _counterparties;
 
 		public int Steps => _counterparties.Count;
@@ -18,7 +20,7 @@ namespace Vodovoz.ServiceDialogs
 
 		public ExportCounterpartiesTo1C()
 		{
-			this._uow = UnitOfWorkFactory.CreateWithoutRoot();
+			this._uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		public void Run(IWorker worker)

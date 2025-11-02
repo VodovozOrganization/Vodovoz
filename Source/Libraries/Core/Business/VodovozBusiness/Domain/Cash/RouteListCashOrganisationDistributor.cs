@@ -6,23 +6,23 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash
 {
 	public class RouteListCashOrganisationDistributor : IRouteListCashOrganisationDistributor
 	{
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IRouteListItemCashDistributionDocumentRepository _routeListItemCashDistributionDocumentRepository;
 		private readonly IOrderRepository _orderRepository;
 
 		public RouteListCashOrganisationDistributor(
-			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
+			IOrganizationRepository organizationRepository,
 			IRouteListItemCashDistributionDocumentRepository routeListItemCashDistributionDocumentRepository,
 			IOrderRepository orderRepository)
 		{
-			_cashDistributionCommonOrganisationProvider =
-				cashDistributionCommonOrganisationProvider ?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_routeListItemCashDistributionDocumentRepository =
 				routeListItemCashDistributionDocumentRepository ?? throw new ArgumentNullException(nameof(routeListItemCashDistributionDocumentRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+				Organisation = _organizationRepository.GetCommonOrganisation(uow),
 				Amount = amount
 			};
 
@@ -135,7 +135,7 @@ namespace Vodovoz.Domain.Cash
 
 		public void DistributeExpenseCash(IUnitOfWork uow, RouteList routeList, Expense expense, decimal amount)
 		{
-			if(amount == 0)
+			if(amount == 0 || routeList is null)
 			{
 				return;
 			}
@@ -179,7 +179,7 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow),
+				Organisation = _organizationRepository.GetCommonOrganisation(uow),
 				Amount = -amount
 			};
 
@@ -199,7 +199,7 @@ namespace Vodovoz.Domain.Cash
 				OperationTime = DateTime.Now,
 				Organisation = hasReceipt
 					? address.Order.Contract.Organization
-					: _cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow)
+					: _organizationRepository.GetCommonOrganisation(uow)
 			};
 		}
 

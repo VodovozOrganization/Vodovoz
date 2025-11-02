@@ -11,6 +11,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;

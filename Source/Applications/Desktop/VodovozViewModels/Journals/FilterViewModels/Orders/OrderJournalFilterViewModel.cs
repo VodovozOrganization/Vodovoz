@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Widgets;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Gamma.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -39,7 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private PaymentFrom _paymentByCardFrom;
 		private PaymentOrder? _paymentOrder;
 		private bool _paymentsFromVisibility;
-		private Counterparty _restrictCounterparty;
+		private Counterparty _counterparty;
 		private DateTime? _restrictEndDate;
 		private bool? _restrictHideService;
 		private bool? _restrictLessThreeHours;
@@ -51,8 +52,10 @@ namespace Vodovoz.Filters.ViewModels
 		private bool? _restrictWithoutSelfDelivery;
 		private ViewTypes _viewTypes;
 		private bool _canChangeDeliveryPoint = true;
+		private bool _canChangeSalesManager = true;
 		private DeliveryPoint _deliveryPoint;
 		private Employee _author;
+		private Employee _salesManager;
 		private int? _orderId;
 		private int? _onlineOrderId;
 		private string _counterpartyPhone;
@@ -64,7 +67,7 @@ namespace Vodovoz.Filters.ViewModels
 		private IEnumerable<Organization> _organisations;
 		private IEnumerable<PaymentFrom> _paymentsFrom;
 		private IEnumerable<GeoGroup> _geographicGroups;
-		private bool _excludeClosingDocumentDeliverySchedule;
+		private bool? _filterClosingDocumentDeliverySchedule;
 		private string _counterpartyInn;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private ILifetimeScope _lifetimeScope;
@@ -75,7 +78,8 @@ namespace Vodovoz.Filters.ViewModels
 		public OrderJournalFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
@@ -85,7 +89,10 @@ namespace Vodovoz.Filters.ViewModels
 
 			CounterpartySelectorFactory = counterpartyJournalFactory?.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope)
 										  ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-
+			
+			ManagerSelectorFactory = employeeJournalFactory?.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory() 
+			                         ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
@@ -102,6 +109,7 @@ namespace Vodovoz.Filters.ViewModels
 		public IEnumerable<PaymentFrom> PaymentsFrom => _paymentsFrom ?? (_paymentsFrom = UoW.GetAll<PaymentFrom>().ToList());
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public virtual IEntityAutocompleteSelectorFactory ManagerSelectorFactory { get; }
 		public IEntityEntryViewModel AuthorViewModel { get; private set; }
 
 		#endregion
@@ -193,14 +201,22 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _allowPaymentTypes, value);
 		}
 
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => UpdateFilterField(ref _counterparty, value);
+		}
+
 		public virtual Counterparty RestrictCounterparty
 		{
-			get => _restrictCounterparty;
+			get => _counterparty;
 			set
 			{
-				if(UpdateFilterField(ref _restrictCounterparty, value))
+				if(UpdateFilterField(ref _counterparty, value))
 				{
 					CanChangeCounterparty = false;
+					OnPropertyChanged(nameof(CanChangeCounterparty));
+					OnPropertyChanged(nameof(Counterparty));
 					_deliveryPointJournalFilterViewModel.Counterparty = value;
 					if(value == null)
 					{
@@ -230,6 +246,17 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _author, value);
 		}
 
+		public virtual Employee SalesManager
+		{
+			get => _salesManager;
+			set => UpdateFilterField(ref _salesManager, value);
+		}
+		
+		public bool CanChangeSalesManager{
+			get => _canChangeSalesManager;
+			set => UpdateFilterField(ref _canChangeSalesManager, value);
+		}
+		
 		public bool CanChangeDeliveryPoint
 		{
 			get => _canChangeDeliveryPoint;
@@ -253,8 +280,16 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual ViewTypes ViewTypes
 		{
 			get => _viewTypes;
-			set => UpdateFilterField(ref _viewTypes, value);
+			set
+			{
+				if(UpdateFilterField(ref _viewTypes, value))
+				{
+					CanChangeViewTypes = false;
+				}
+			}
 		}
+
+		public bool CanChangeViewTypes { get; private set; } = true;
 
 		public OrderPaymentStatus? OrderPaymentStatus
 		{
@@ -502,10 +537,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _counterpartyNameLike, value);
 		}
 
-		public bool ExcludeClosingDocumentDeliverySchedule
+		public bool? FilterClosingDocumentDeliverySchedule
 		{
-			get => _excludeClosingDocumentDeliverySchedule;
-			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
+			get => _filterClosingDocumentDeliverySchedule;
+			set => UpdateFilterField(ref _filterClosingDocumentDeliverySchedule, value);
 		}
 		public override bool IsShow { get; set; } = true;
 
@@ -537,6 +572,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			_journal = null;
 			_lifetimeScope = null;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();

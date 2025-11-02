@@ -177,6 +177,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
+		public virtual string Title => $"{NameString} {DirectionString}";
+
 		#endregion
 
 		#region Функции
@@ -220,6 +222,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		public static OrderEquipment Clone(OrderEquipment orderEquipment)
+		{
+			return new OrderEquipment
+			{
+				Order = orderEquipment.Order,
+				Direction = orderEquipment.Direction,
+				Equipment = orderEquipment.Equipment,
+				OrderItem = orderEquipment.OrderItem,
+				OrderRentDepositItem = orderEquipment.OrderRentDepositItem,
+				OrderRentServiceItem = orderEquipment.OrderRentServiceItem,
+				OwnType = orderEquipment.OwnType,
+				DirectionReason = orderEquipment.DirectionReason,
+				Reason = orderEquipment.Reason,
+				Confirmed = orderEquipment.Confirmed,
+				Nomenclature = orderEquipment.Nomenclature,
+				ActualCount = orderEquipment.ActualCount,
+				Count = orderEquipment.Count
+			};
+		}
 	}
 
 	public enum Direction
@@ -228,23 +250,22 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Забрать")] PickUp
 	}
 
-	public class DirectionStringType : NHibernate.Type.EnumStringType
-	{
-		public DirectionStringType() : base(typeof(Direction)) { }
-	}
-
 	public enum DirectionReason
 	{
-		[Display(Name = "")] None
-		, [Display(Name = "Аренда")] Rent
-		, [Display(Name = "Ремонт")] Repair
-		, [Display(Name = "Санобработка")] Cleaning
-		, [Display(Name = "Ремонт и санобработка")] RepairAndCleaning
-	}
-
-	public class DirectionReasonStringType : NHibernate.Type.EnumStringType
-	{
-		public DirectionReasonStringType() : base(typeof(DirectionReason)) { }
+		[Display(Name = "")]
+		None,
+		[Display(Name = "Аренда")]
+		Rent,
+		[Display(Name = "Ремонт")]
+		Repair,
+		[Display(Name = "Санобработка")]
+		Cleaning,
+		[Display(Name = "Ремонт и санобработка")]
+		RepairAndCleaning,
+		[Display(Name = "Акция \"Трейд-Ин\"")]
+		TradeIn,
+		[Display(Name = "Подарок клиента")]
+		ClientGift,
 	}
 
 	public enum Reason
@@ -256,11 +277,6 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Продажа")] Sale
 	}
 
-	public class ReasonStringType : NHibernate.Type.EnumStringType
-	{
-		public ReasonStringType() : base(typeof(Reason)) { }
-	}
-
 	public enum OwnTypes
 	{
 		[Display(Name = "")] None,
@@ -268,10 +284,4 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Дежурный")] Duty,
 		[Display(Name = "Аренда")] Rent
 	}
-
-	public class OwnTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public OwnTypesStringType() : base(typeof(OwnTypes)) { }
-	}
 }
-

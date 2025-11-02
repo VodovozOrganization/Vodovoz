@@ -35,7 +35,20 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
-				
+
+			dateGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsDateGroup, w => w.Active)
+				.InitializeFromSource();
+			
+			driverGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsDriverGroup, w => w.Active)
+				.InitializeFromSource();
+			
+			carGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarGroup, w => w.Active)
+				.InitializeFromSource();
+			
+			lblDriver.LabelProp = DriversWarehousesEventsReportViewModel.EmloyeeTitle;
 			carEntry.ViewModel = ViewModel.CarViewModel;
 			driverEntry.ViewModel = ViewModel.DriverViewModel;
 			firstEventNameEntry.ViewModel = ViewModel.StartEventNameViewModel;
@@ -55,18 +68,26 @@ namespace Vodovoz.Views.Reports
 			treeViewReport.ColumnsConfig = FluentColumnsConfig<DriversWarehousesEventsReportNode>.Create()
 				.AddColumn(DriversWarehousesEventsReportViewModel.DateTitle)
 					.AddTextRenderer(x => x.EventDate.ToShortDateString())
-				.AddColumn(DriversWarehousesEventsReportViewModel.DriverTitle)
+				.AddColumn(DriversWarehousesEventsReportViewModel.EmloyeeTitle)
 					.AddTextRenderer(x => x.DriverFio)
 				.AddColumn(DriversWarehousesEventsReportViewModel.CarTitle)
 					.AddTextRenderer(x => x.CarModelWithNumber)
 				.AddColumn(DriversWarehousesEventsReportViewModel.FirstEventTitle)
 					.AddTextRenderer(x => x.FirstEventName)
+				.AddColumn(DriversWarehousesEventsReportViewModel.DocumentTypeColumn)
+					.AddTextRenderer(x => x.FirstEventDocumentType)
+				.AddColumn(DriversWarehousesEventsReportViewModel.DocumentNumberColumn)
+					.AddTextRenderer(x => x.FirstEventDocumentNumber.ToString())
 				.AddColumn(DriversWarehousesEventsReportViewModel.EventDistanceTitle)
 					.AddNumericRenderer(x => x.FirstEventDistance)
 				.AddColumn(DriversWarehousesEventsReportViewModel.EventTimeTitle)
 					.AddTextRenderer(x => x.FirstEventTime.HasValue ? x.FirstEventTime.Value.ToString() : "")
 				.AddColumn(DriversWarehousesEventsReportViewModel.SecondEventTitle)
 					.AddTextRenderer(x => x.SecondEventName)
+				.AddColumn(DriversWarehousesEventsReportViewModel.DocumentTypeColumn)
+					.AddTextRenderer(x => x.SecondEventDocumentType)
+				.AddColumn(DriversWarehousesEventsReportViewModel.DocumentNumberColumn)
+					.AddTextRenderer(x => x.SecondEventDocumentNumber.ToString())
 				.AddColumn(DriversWarehousesEventsReportViewModel.EventDistanceTitle)
 					.AddNumericRenderer(x => x.SecondEventDistance)
 				.AddColumn(DriversWarehousesEventsReportViewModel.EventTimeTitle)
@@ -74,7 +95,7 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("")
 				.Finish();
 
-			treeViewReport.ItemsDataSource = ViewModel.ReportNodes;
+			//treeViewReport.ItemsDataSource = ViewModel.ReportNodes;
 		}
 
 		private async void OnLoadReportClicked(object sender, EventArgs e)
@@ -92,6 +113,7 @@ namespace Vodovoz.Views.Reports
 				try
 				{
 					await ViewModel.GenerateReport();
+					treeViewReport.ItemsDataSource = ViewModel.ReportNodes;
 				}
 				catch(OperationCanceledException)
 				{

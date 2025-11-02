@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
@@ -6,11 +6,13 @@ using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain {
     public class WaterFixedPricesGenerator {
-        private readonly INomenclatureRepository nomenclatureRepository;
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly INomenclatureRepository nomenclatureRepository;
         private decimal priceIncrement;
 
-		public WaterFixedPricesGenerator(INomenclatureRepository nomenclatureRepository)
+		public WaterFixedPricesGenerator(IUnitOfWorkFactory uowFactory, INomenclatureRepository nomenclatureRepository)
 		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.nomenclatureRepository = nomenclatureRepository ??
 			                              throw new ArgumentNullException(nameof(nomenclatureRepository));
 		}
@@ -63,7 +65,7 @@ namespace Vodovoz.Domain {
 
 		private void LoadNomenclatures()
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+			using(var uow = _uowFactory.CreateWithoutRoot()) {
 				SemiozeriePrice = 0m;
 				priceIncrement = nomenclatureRepository.GetWaterPriceIncrement;
 				SemiozerieWater = nomenclatureRepository.GetWaterSemiozerie(uow);

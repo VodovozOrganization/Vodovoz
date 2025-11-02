@@ -12,6 +12,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -20,7 +21,8 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.Extensions;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Complaints;
+using Vodovoz.Settings.Database.Complaints;
 using Vodovoz.SidePanel.InfoProviders;
 using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
@@ -31,18 +33,18 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IComplaintsRepository complaintsRepository;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
-		private readonly ComplaintParametersProvider _complaintParametersProvider;
+		private readonly IComplaintSettings _complaintSettings;
 		private readonly Gdk.Color _primaryBg = GdkColors.PrimaryBase;
 		private readonly Gdk.Color _secondaryBg = GdkColors.PrimaryBG;
 		private readonly Gdk.Color _red = GdkColors.DangerText;
 		private readonly string _primaryTextHtmlColor = GdkColors.PrimaryText.ToHtmlColor();
 		private readonly string _redTextHtmlColor = GdkColors.DangerText.ToHtmlColor();
 
-		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, ComplaintParametersProvider complaintParametersProvider)
+		public ComplaintPanelView(IComplaintsRepository complaintsRepository, IComplaintResultsRepository complaintResultsRepository, IComplaintSettings complaintSettings)
 		{
 			this.complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
-			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_complaintSettings = complaintSettings ?? throw new ArgumentNullException(nameof(complaintSettings));
 
 			Build();
 			ConfigureWidget();
@@ -192,22 +194,17 @@ namespace Vodovoz.SidePanel.InfoViews
 			Responsible responsibleAlias = null;
 
 			var query = InfoProvider.UoW.Session.QueryOver(() => guiltyItemAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
-						   .Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
-						   .Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
+				.Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintResultOfCounterparty, () => resultOfCounterpartyAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintResultOfEmployees, () => resultOfEmployeesAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => guiltyItemAlias.Responsible, () => responsibleAlias)
+				.Left.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionForEmployeeAlias);
 
-
-			if(filter.EndDate != null)
-			{
-				filter.EndDate = filter.EndDate.Value.LatestDayTime();
-			}
-
-			if(filter.StartDate.HasValue)
-				filter.StartDate = filter.StartDate.Value.Date;
+			var startDate = filter.StartDate;
+			var endDate = filter.EndDate;
+			endDate = endDate?.LatestDayTime();
 
 			QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
@@ -218,39 +215,75 @@ namespace Vodovoz.SidePanel.InfoViews
 					.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
 			}
 
-			if(filter.StartDate.HasValue) {
-				switch (filter.FilterDateType) {
-					case DateFilterType.PlannedCompletionDate:
-						if(dicussionQuery == null) {
-							query = query.Where(() => complaintAlias.PlannedCompletionDate <= filter.EndDate)
-								.And(() => filter.StartDate == null || complaintAlias.PlannedCompletionDate >= filter.StartDate.Value);
-						} else {
-							dicussionQuery = dicussionQuery
-								.And(() => filter.StartDate == null || discussionAlias.PlannedCompletionDate >= filter.StartDate.Value)
-								.And(() => discussionAlias.PlannedCompletionDate <= filter.EndDate);
+			switch (filter.FilterDateType)
+			{
+				case DateFilterType.PlannedCompletionDate:
+					if(dicussionQuery == null)
+					{
+						if(startDate.HasValue)
+						{
+							query.Where(() => complaintAlias.PlannedCompletionDate >= startDate);
 						}
-						break;
-					case DateFilterType.ActualCompletionDate:
-						query = query.Where(() => complaintAlias.ActualCompletionDate <= filter.EndDate)
-								.And(() => filter.StartDate == null || complaintAlias.ActualCompletionDate >= filter.StartDate.Value);
-						break;
-					case DateFilterType.CreationDate:
-						query = query.Where(() => complaintAlias.CreationDate <= filter.EndDate)
-							.And(() => filter.StartDate == null || complaintAlias.CreationDate >= filter.StartDate.Value);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
+						if(endDate.HasValue)
+						{
+							query.Where(() => complaintAlias.PlannedCompletionDate <= endDate);
+						}
+					}
+					else
+					{
+						if(startDate.HasValue)
+						{
+							dicussionQuery.And(() => discussionAlias.PlannedCompletionDate >= startDate);
+						}
+						if(endDate.HasValue)
+						{
+							dicussionQuery.And(() => discussionAlias.PlannedCompletionDate <= endDate);
+						}
+					}
+					break;
+				case DateFilterType.ActualCompletionDate:
+					if(startDate.HasValue)
+					{
+						query.Where(() => complaintAlias.ActualCompletionDate >= startDate);
+					}
+					if(endDate.HasValue)
+					{
+						query.Where(() => complaintAlias.ActualCompletionDate <= endDate);
+					}
+					break;
+				case DateFilterType.CreationDate:
+					if(startDate.HasValue)
+					{
+						query.Where(() => complaintAlias.CreationDate >= startDate);
+					}
+					if(endDate.HasValue)
+					{
+						query.Where(() => complaintAlias.CreationDate <= endDate);
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
 			if(dicussionQuery != null)
+			{
 				query.WithSubquery.WhereExists(dicussionQuery);
+			}
+
 			if(filter.ComplaintType != null)
+			{
 				query = query.Where(() => complaintAlias.ComplaintType == filter.ComplaintType);
+			}
+
 			if(filter.ComplaintStatus != null)
+			{
 				query = query.Where(() => complaintAlias.Status == filter.ComplaintStatus);
+			}
+
 			if(filter.Employee != null)
+			{
 				query = query.Where(() => complaintAlias.CreatedBy.Id == filter.Employee.Id);
+			}
 
 			if(filter.GuiltyItemVM?.Entity?.Responsible != null) 
 			{
@@ -271,7 +304,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			if(filter.ComplaintKind != null)
+			{
 				query.Where(() => complaintAlias.ComplaintKind.Id == filter.ComplaintKind.Id);
+			}
 
 			var result = query.SelectList(list => list
 				.SelectGroup(c => c.Complaint.Id)
@@ -283,8 +318,8 @@ namespace Vodovoz.SidePanel.InfoViews
 						NHibernateUtil.String,
 					"GROUP_CONCAT(" +
 					"CASE ?1 " +
-					$"WHEN '{_complaintParametersProvider.EmployeeResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
-					$"WHEN '{_complaintParametersProvider.SubdivisionResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
+					$"WHEN '{_complaintSettings.EmployeeResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
+					$"WHEN '{_complaintSettings.SubdivisionResponsibleId}' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') " +
 					$"ELSE ?4 " +
 					"END " +
 					"ORDER BY ?5 ASC SEPARATOR '\n')"),
@@ -294,10 +329,10 @@ namespace Vodovoz.SidePanel.InfoViews
 					Projections.Property(() => subdivisionAlias.Name),
 					Projections.Property(() => responsibleAlias.Name),
 					Projections.Conditional(
-						Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.EmployeeResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+						Restrictions.EqProperty(Projections.Constant(_complaintSettings.EmployeeResponsibleId), Projections.Property(() => responsibleAlias.Id)),
 						Projections.Property(() => subdivisionForEmployeeAlias.Name),
 						Projections.Conditional(
-							Restrictions.EqProperty(Projections.Constant(_complaintParametersProvider.SubdivisionResponsibleId), Projections.Property(() => responsibleAlias.Id)),
+							Restrictions.EqProperty(Projections.Constant(_complaintSettings.SubdivisionResponsibleId), Projections.Property(() => responsibleAlias.Id)),
 							Projections.Property(() => subdivisionAlias.Name),
 							Projections.Property(() => responsibleAlias.Name)
 							)

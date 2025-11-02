@@ -1,4 +1,4 @@
-﻿using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsApi.Contracts;
 using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 
@@ -16,6 +17,7 @@ namespace FastPaymentsAPI.Library.Managers
 	public class FastPaymentStatusUpdater : BackgroundService
 	{
 		private readonly ILogger<FastPaymentStatusUpdater> _logger;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -27,6 +29,7 @@ namespace FastPaymentsAPI.Library.Managers
 
 		public FastPaymentStatusUpdater(
 			ILogger<FastPaymentStatusUpdater> logger,
+			IUnitOfWorkFactory uowFactory,
 			IFastPaymentRepository fastPaymentRepository,
 			IFastPaymentManager fastPaymentManager,
 			IServiceScopeFactory serviceScopeFactory,
@@ -35,6 +38,7 @@ namespace FastPaymentsAPI.Library.Managers
 			IErrorHandler errorHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -59,7 +63,7 @@ namespace FastPaymentsAPI.Library.Managers
 				{
 					_logger.LogInformation($"Обновление статуса обрабатывающихся платежей...");
 
-					using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = _uowFactory.CreateWithoutRoot())
 					{
 						var processingFastPayments = _fastPaymentRepository.GetAllProcessingFastPayments(uow);
 

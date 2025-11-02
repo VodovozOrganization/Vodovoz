@@ -306,7 +306,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.lblDriver = new global::Gtk.Label();
 			this.lblDriver.Name = "lblDriver";
 			this.lblDriver.Xalign = 1F;
-			this.lblDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель:");
+			this.lblDriver.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель в МЛ:");
 			this.table1.Add(this.lblDriver);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDriver]));
 			w23.TopAttach = ((uint)(5));

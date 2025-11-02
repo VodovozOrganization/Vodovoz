@@ -3,19 +3,17 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -24,9 +22,10 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ILogger<RouteListControlDlg> _logger;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
@@ -36,9 +35,10 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 			_logger = _lifetimeScope.Resolve<ILogger<RouteListControlDlg>>();
-			_baseParametersProvider = _lifetimeScope.Resolve<BaseParametersProvider>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+			_routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 		}
 
 		public RouteListControlDlg(RouteList sub) : this(sub.Id) { }
@@ -46,7 +46,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public RouteListControlDlg(int id) : this()
 		{
 			Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			ConfigureDlg();
 		}
 
@@ -54,11 +54,11 @@ namespace Vodovoz.Dialogs.Logistic
 		{
 			var contextItems = new Dictionary<object, object>
 			{
-				{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+				{nameof(IRouteListItemRepository), _routeListItemRepository}
 			};
 
 			var context = new ValidationContext(Entity, null, contextItems);
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 
 			if(!validator.Validate(Entity, context))
 			{
@@ -93,7 +93,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _baseParametersProvider.GetNomenclatureIdForTerminal);
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _nomenclatureSettings.NomenclatureIdForTerminal);
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;

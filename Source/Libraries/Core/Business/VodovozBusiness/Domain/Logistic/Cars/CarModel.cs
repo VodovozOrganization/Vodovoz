@@ -1,15 +1,18 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "модель автомобиля",
-		NominativePlural = "модели автомобилей")]
+		NominativePlural = "модели автомобилей",
+		GenitivePlural = "моделей автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class CarModel : PropertyChangedBase, IDomainObject, IValidatableObject
@@ -22,6 +25,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private decimal _maxVolume;
 		private IList<CarFuelVersion> _carFuelVersions = new List<CarFuelVersion>();
 		private GenericObservableList<CarFuelVersion> _observableCarFuelVersions;
+		private int _teсhInspectInterval;
 
 		public virtual int Id { get; set; }
 
@@ -67,6 +71,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _maxVolume, value);
 		}
 
+		[Display(Name = "Интервал техосмотра")]
+		public virtual int TeсhInspectInterval
+		{
+			get => _teсhInspectInterval;
+			set => _teсhInspectInterval = value;
+		}
+
 		public virtual IList<CarFuelVersion> CarFuelVersions
 		{
 			get => _carFuelVersions;
@@ -77,6 +88,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 			?? (_observableCarFuelVersions = new GenericObservableList<CarFuelVersion>(CarFuelVersions));
 
 		public virtual string Title => $"{CarManufacturer.Name} {Name}";
+
+		public virtual CarFuelVersion GetCarFuelVersionOnDate(DateTime date)
+		{
+			return ObservableCarFuelVersions.FirstOrDefault(x =>
+					x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -93,16 +110,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 			{
 				yield return new ValidationResult("Производитель должен быть заполнен", new[] { nameof(CarManufacturer) });
 			}
-		}
-	}
 
-	public enum CarTypeOfUse
-	{
-		[Display(Name = "Фургон (Ларгус)")]
-		Largus,
-		[Display(Name = "Фура")]
-		Truck,
-		[Display(Name = "Грузовой")]
-		GAZelle
+			if(TeсhInspectInterval == 0)
+			{
+				yield return new ValidationResult("Интервал техосмотра должен быть заполнен.", new[] { nameof(TeсhInspectInterval) });
+			}
+		}
 	}
 }

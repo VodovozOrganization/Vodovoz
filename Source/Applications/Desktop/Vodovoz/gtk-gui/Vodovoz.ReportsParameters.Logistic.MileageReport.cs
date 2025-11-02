@@ -22,7 +22,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.Label label2;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryCar;
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::Gtk.HBox hbox5;
 
@@ -42,7 +42,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton checkAnyStatus;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -126,12 +126,11 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.entityviewmodelentryCar = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
-			this.entityviewmodelentryCar.CanEditReference = true;
-			this.hbox3.Add(this.entityviewmodelentryCar);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityviewmodelentryCar]));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.hbox3.Add(this.entityentryCar);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entityentryCar]));
 			w8.Position = 1;
 			this.vbox2.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
@@ -156,6 +155,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.entityviewmodelentryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryEmployee.Name = "entityviewmodelentryEmployee";
 			this.entityviewmodelentryEmployee.CanEditReference = false;
+			this.entityviewmodelentryEmployee.CanDisposeEntitySelectorFactory = false;
+			this.entityviewmodelentryEmployee.CanOpenWithoutTabParent = false;
 			this.hbox5.Add(this.entityviewmodelentryEmployee);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.entityviewmodelentryEmployee]));
 			w11.Position = 1;
@@ -224,7 +225,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";

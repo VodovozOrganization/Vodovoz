@@ -118,7 +118,7 @@ namespace Vodovoz.ViewWidgets
 		public string Title {
 			get{
 				if(Document is CounterpartyContract) {
-					return String.Format("Договор");
+					return "Договор";
 				}
 
 				return "";
@@ -127,8 +127,8 @@ namespace Vodovoz.ViewWidgets
 
 		public string Number {
 			get {
-				if(Document is CounterpartyContract) {
-					return (Document as CounterpartyContract).ContractFullNumber;
+				if(Document is CounterpartyContract contract) {
+					return contract.Number;
 				}
 
 				return "";
@@ -137,12 +137,12 @@ namespace Vodovoz.ViewWidgets
 
 		public string Date {
 			get {
-				if(Document is CounterpartyContract) {
-					return (Document as CounterpartyContract).IssueDate.ToShortDateString();
+				if(Document is CounterpartyContract contract) {
+					return contract.IssueDate.ToShortDateString();
 				}
 
-				if(Document is OrderDocument) {
-					return (Document as OrderDocument).DocumentDateText;
+				if(Document is OrderDocument orderDocument) {
+					return orderDocument.DocumentDateText;
 				}
 
 				return "";

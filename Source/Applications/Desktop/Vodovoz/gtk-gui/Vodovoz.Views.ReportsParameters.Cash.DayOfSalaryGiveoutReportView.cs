@@ -14,9 +14,9 @@ namespace Vodovoz.Views.ReportsParameters.Cash
 
 		private global::Gtk.Table tableEmployeesFilter;
 
-		private global::Gtk.Button buttonSelectAll;
+		private global::Gamma.GtkWidgets.yButton buttonSelectAll;
 
-		private global::Gtk.Button buttonUnselectAll;
+		private global::Gamma.GtkWidgets.yButton buttonUnselectAll;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -78,7 +78,7 @@ namespace Vodovoz.Views.ReportsParameters.Cash
 			this.tableEmployeesFilter.RowSpacing = ((uint)(6));
 			this.tableEmployeesFilter.ColumnSpacing = ((uint)(6));
 			// Container child tableEmployeesFilter.Gtk.Table+TableChild
-			this.buttonSelectAll = new global::Gtk.Button();
+			this.buttonSelectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSelectAll.CanFocus = true;
 			this.buttonSelectAll.Name = "buttonSelectAll";
 			this.buttonSelectAll.UseUnderline = true;
@@ -90,7 +90,7 @@ namespace Vodovoz.Views.ReportsParameters.Cash
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableEmployeesFilter.Gtk.Table+TableChild
-			this.buttonUnselectAll = new global::Gtk.Button();
+			this.buttonUnselectAll = new global::Gamma.GtkWidgets.yButton();
 			this.buttonUnselectAll.CanFocus = true;
 			this.buttonUnselectAll.Name = "buttonUnselectAll";
 			this.buttonUnselectAll.UseUnderline = true;

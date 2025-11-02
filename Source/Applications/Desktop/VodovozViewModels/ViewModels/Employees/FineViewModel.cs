@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Gamma.Utilities;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,11 +14,15 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -31,20 +37,26 @@ namespace Vodovoz.ViewModels.Employees
 	public class FineViewModel : EntityTabViewModelBase<Fine>, IAskSaveOnCloseViewModel
 	{
 		private readonly IEmployeeService _employeeService;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEntitySelectorFactory _employeeSelectorFactory;
+		private readonly IWagesMovementRepository _wagesMovementRepository;
 
 		private Employee _currentEmployee;
+		private List<FineCategory> _fineCategories;
 
 		public FineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
+			IInteractiveService interactiveService,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope
+			ILifetimeScope lifetimeScope,
+			ICarEventRepository carEventRepository,
+			IWagesMovementRepository wagesMovementRepository
 		) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -53,13 +65,41 @@ namespace Vodovoz.ViewModels.Employees
 			}
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_wagesMovementRepository = wagesMovementRepository ?? throw new ArgumentNullException(nameof(wagesMovementRepository));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 
 			RouteListViewModel = BuildRouteListEntityViewModel();
+
+			ConfigureCarEvent(carEventRepository);
+		}
+
+		private void ConfigureCarEvent(ICarEventRepository carEventRepository)
+		{
+			var carEvents = carEventRepository.GetCarEventsByFine(UoW, Entity.Id);
+			
+			if(carEvents.Any())
+			{
+				CarEvent = $"Взыскано по событию ТС: {string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}";
+			}
+		}
+
+		public List<FineCategory> FineCategories
+		{
+			get
+			{
+				if(_fineCategories == null)
+				{
+					_fineCategories = UoW.GetAll<FineCategory>()
+										.Where(x => !x.IsArchive)
+										.ToList();
+				}
+				return _fineCategories;
+			}
 		}
 
 		public Employee CurrentEmployee
@@ -133,7 +173,9 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanEditFineType => CanEdit;
 
-		public decimal Liters
+        public bool IsNew => Entity.Id == 0;
+
+        public decimal Liters
 		{
 			get => Entity.LitersOverspending;
 
@@ -143,6 +185,8 @@ namespace Vodovoz.ViewModels.Employees
 				CalculateMoneyFromLiters();
 			}
 		}
+
+		public string CarEvent { get; private set; }
 
 		public IEntityEntryViewModel RouteListViewModel { get; }
 
@@ -162,7 +206,8 @@ namespace Vodovoz.ViewModels.Employees
 
 			SetPropertyChangeRelation(e => e.RouteList,
 				() => CanShowRequestRouteListMessage,
-				() => DateEditable);
+				() => DateEditable,
+				() => IsStandartFine);
 
 			OnEntityPropertyChanged(SetDefaultReason,
 				x => x.FineType);
@@ -175,9 +220,11 @@ namespace Vodovoz.ViewModels.Employees
 
 		private void CalculateMoneyFromLiters()
 		{
-			if(Entity.ObservableItems.Count() > 1)
+			if(Entity.ObservableItems.Count() > 1 && IsFuelOverspendingFine)
 			{
-				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
+				return;
 			}
 
 			if(RouteList != null)
@@ -196,7 +243,8 @@ namespace Vodovoz.ViewModels.Employees
 
 		private IEntityEntryViewModel BuildRouteListEntityViewModel()
 		{
-			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<Fine>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var routeListEntryViewModelBuilder = new CommonEEVMBuilderFactory<FineViewModel>(
+				this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = routeListEntryViewModelBuilder
 				.ForProperty(x => x.RouteList)
@@ -235,7 +283,6 @@ namespace Vodovoz.ViewModels.Employees
 			{
 				FineItem item = null;
 				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
-				Entity.ObservableItems.Clear();
 
 				if(item != null)
 				{
@@ -250,6 +297,42 @@ namespace Vodovoz.ViewModels.Employees
 
 		protected override bool BeforeSave()
 		{
+			var allowedCategories = new[] 
+			{
+				EmployeeCategory.driver,
+				EmployeeCategory.forwarder
+			};
+
+			var allowedStatuses = new[] 
+			{
+				EmployeeStatus.IsFired,
+				EmployeeStatus.OnCalculation 
+			};
+
+			foreach(var item in Entity.ObservableItems)
+			{
+				var employee = item.Employee;
+				if(employee == null)
+				{
+					continue;
+				}
+
+				if(employee.Category.IsIn(allowedCategories) 
+					&& employee.Status.IsIn(allowedStatuses))
+				{
+					decimal employeeBalance = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+
+					if(item.Money > employeeBalance)
+					{
+						CommonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							$"Баланс сотрудника {employee.GetPersonNameWithInitials()} меньше, чем сумма штрафа.",
+							"Невозможно выставить штраф"
+						);
+						return false;
+					}
+				}
+			}
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
 
@@ -366,30 +449,31 @@ namespace Vodovoz.ViewModels.Employees
 					};
 					TabParent.AddSlaveTab(this, employeeSelector);
 				},
-				() => Entity.RouteList == null && IsStandartFine
-			);
+				() => IsStandartFine && IsNew
+            );
 			AddFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
-			AddFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
+			AddFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit, x => x.IsNew);
 		}
 
 		#endregion AddFineItemCommand
 
 		#region DeleteFineItemCommand
 
-		public DelegateCommand<FineItem> DeleteFineItemCommand { get; private set; }
+		public DelegateCommand<FineItem> DeleteFineItemCommand { get; private set; }		
 
 		private void CreateDeleteFineItemCommand()
 		{
 			DeleteFineItemCommand = new DelegateCommand<FineItem>(
 				Entity.RemoveItem,
-				(item) => item != null && CanEdit && IsStandartFine && Entity.RouteList == null
-			);
+				(item) => item != null && CanEdit && IsStandartFine && IsNew
+            );
 			DeleteFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
-			DeleteFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
-		}
+			DeleteFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit, x => x.IsNew);
 
-		#endregion DeleteFineItemCommand
+        }
 
-		#endregion Commands
-	}
+        #endregion DeleteFineItemCommand
+
+        #endregion Commands
+    }
 }

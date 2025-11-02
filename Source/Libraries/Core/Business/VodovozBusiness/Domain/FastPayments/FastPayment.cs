@@ -1,10 +1,11 @@
-﻿using NHibernate.Type;
+using NHibernate.Type;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -12,6 +13,8 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.FastPayments
 {
@@ -160,10 +163,11 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetPerformedStatusForOrder(
 			IUnitOfWork uow,
 			DateTime paidDate,
-			IStandartNomenclatures standartNomenclatures,
+			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
-			ICashRepository cashRepository)
+			ICashRepository cashRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
@@ -176,7 +180,7 @@ namespace Vodovoz.Domain.FastPayments
 			{
 				Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
 					uow,
-					standartNomenclatures,
+					nomenclatureSettings,
 					routeListItemRepository,
 					selfDeliveryRepository,
 					cashRepository);
@@ -193,10 +197,10 @@ namespace Vodovoz.Domain.FastPayments
 			}
 			
 			PaidDate = paidDate;
-			Order.OnlineOrder = ExternalId;
-			Order.PaymentType = PaymentType;
-			Order.PaymentByCardFrom = PaymentByCardFrom;
-			Order.ForceUpdateContract(Organization);
+			Order.OnlinePaymentNumber = ExternalId;
+			Order.UpdatePaymentType(PaymentType, contractUpdater, false);
+			Order.UpdatePaymentByCardFrom(PaymentByCardFrom, contractUpdater, false);
+			contractUpdater.ForceUpdateContract(uow, Order, Organization);
 
 			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
 			{

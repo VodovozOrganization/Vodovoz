@@ -5,11 +5,9 @@ using QS.Project.Journal.EntitySelector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Parameters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
@@ -26,6 +24,8 @@ namespace Vodovoz.TempAdapters
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope)
 		{
+			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
+
 			if(unitOfWorkFactory == null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -34,10 +34,9 @@ namespace Vodovoz.TempAdapters
 			using(var uow =
 				unitOfWorkFactory.CreateWithoutRoot($"Фабрика статьи расхода {nameof(ExpenseCategorySelectorFactory)}"))
 			{
-				_excludedIds = new CategoryRepository(new ParametersProvider()).ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
+				var categoryRepository = _lifetimeScope.Resolve<ICategoryRepository>();
+				_excludedIds = categoryRepository.ExpenseSelfDeliveryCategories(uow).Select(x => x.Id);
 			}
-
-			_lifetimeScope = lifetimeScope ?? throw new System.ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultExpenseCategoryAutocompleteSelectorFactory()

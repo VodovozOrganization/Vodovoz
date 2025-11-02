@@ -26,9 +26,9 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerSingleReport;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityCarSingleReport;
-
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityDriverSingleReport;
+
+		private global::QS.Views.Control.EntityEntry entityentryCar;
 
 		private global::Gtk.HBox hboxTimeEntrySingleReport;
 
@@ -191,6 +191,7 @@ namespace Vodovoz.ReportsParameters
 			this.datepickerSingleReport.Date = new global::System.DateTime(0);
 			this.datepickerSingleReport.IsEditable = true;
 			this.datepickerSingleReport.AutoSeparation = false;
+			this.datepickerSingleReport.HideButtonClearDate = false;
 			this.tableSingleReport.Add(this.datepickerSingleReport);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.datepickerSingleReport]));
 			w6.LeftAttach = ((uint)(1));
@@ -198,29 +199,28 @@ namespace Vodovoz.ReportsParameters
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSingleReport.Gtk.Table+TableChild
-			this.entityCarSingleReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityCarSingleReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityCarSingleReport.Name = "entityCarSingleReport";
-			this.entityCarSingleReport.CanEditReference = false;
-			this.entityCarSingleReport.CanOpenWithoutTabParent = false;
-			this.tableSingleReport.Add(this.entityCarSingleReport);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityCarSingleReport]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
+			this.entityDriverSingleReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityDriverSingleReport.Events = ((global::Gdk.EventMask)(256));
+			this.entityDriverSingleReport.Name = "entityDriverSingleReport";
+			this.entityDriverSingleReport.CanEditReference = false;
+			this.entityDriverSingleReport.CanDisposeEntitySelectorFactory = false;
+			this.entityDriverSingleReport.CanOpenWithoutTabParent = false;
+			this.tableSingleReport.Add(this.entityDriverSingleReport);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityDriverSingleReport]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSingleReport.Gtk.Table+TableChild
-			this.entityDriverSingleReport = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityDriverSingleReport.Events = ((global::Gdk.EventMask)(256));
-			this.entityDriverSingleReport.Name = "entityDriverSingleReport";
-			this.entityDriverSingleReport.CanEditReference = false;
-			this.entityDriverSingleReport.CanOpenWithoutTabParent = false;
-			this.tableSingleReport.Add(this.entityDriverSingleReport);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityDriverSingleReport]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
+			this.entityentryCar = new global::QS.Views.Control.EntityEntry();
+			this.entityentryCar.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryCar.Name = "entityentryCar";
+			this.tableSingleReport.Add(this.entityentryCar);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableSingleReport[this.entityentryCar]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -416,6 +416,7 @@ namespace Vodovoz.ReportsParameters
 			this.datepickerOneDayGroupReport.Date = new global::System.DateTime(0);
 			this.datepickerOneDayGroupReport.IsEditable = true;
 			this.datepickerOneDayGroupReport.AutoSeparation = false;
+			this.datepickerOneDayGroupReport.HideButtonClearDate = false;
 			this.tableOneDayGroupReport.Add(this.datepickerOneDayGroupReport);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.datepickerOneDayGroupReport]));
 			w27.LeftAttach = ((uint)(1));

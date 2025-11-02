@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using QS.Print;
 using QS.Report;
-using Vodovoz.Parameters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -16,20 +18,22 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
-				Title = string.Format($"Лист сборки от {base.Order.DeliveryDate:d}"),
-				Identifier = GetReportName(),
-				Parameters = new Dictionary<string, object>
-				{
-					{ "order_id",  base.Order.Id}
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = string.Format($"Лист сборки от {Order.DeliveryDate:d}");
+			reportInfo.Identifier = GetReportName();
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id",  Order.Id}
 			};
+			return reportInfo;
 		}
 
 		string GetReportName()
 		{
-			var orderItemsQty = Order.OrderItems.Count(i => i.Nomenclature.IsFromOnlineShopGroup(
-				new NomenclatureParametersProvider(new ParametersProvider()).GetIdentifierOfOnlineShopGroup()));
+			var nomencltureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
+			var orderItemsQty = Order.OrderItems
+				.Count(i => i.Nomenclature.IsFromOnlineShopGroup(nomencltureSettings.IdentifierOfOnlineShopGroup));
 			
 			return orderItemsQty <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList";
 		}

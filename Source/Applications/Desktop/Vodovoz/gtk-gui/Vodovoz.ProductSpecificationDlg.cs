@@ -8,15 +8,15 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox4;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table datatable5;
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryProduct;
+		private global::QS.Views.Control.EntityEntry entryProduct;
 
 		private global::Gtk.Label label32;
 
@@ -39,7 +39,7 @@ namespace Vodovoz
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -53,7 +53,7 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -89,11 +89,9 @@ namespace Vodovoz
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.entryProduct = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryProduct = new global::QS.Views.Control.EntityEntry();
 			this.entryProduct.Events = ((global::Gdk.EventMask)(256));
 			this.entryProduct.Name = "entryProduct";
-			this.entryProduct.CanEditReference = false;
-			this.entryProduct.CanOpenWithoutTabParent = false;
 			this.datatable5.Add(this.entryProduct);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.entryProduct]));
 			w7.TopAttach = ((uint)(1));

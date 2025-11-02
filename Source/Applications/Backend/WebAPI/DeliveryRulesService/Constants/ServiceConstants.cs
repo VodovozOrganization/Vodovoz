@@ -13,6 +13,9 @@
 		public static string DistrictNotFoundByCoordinates =>
 			"Невозможно получить информацию о правилах доставки, т.к. по координатам {Latitude}, {Longitude} не был найден район";
 
+		public static string DistrictNotFoundByCoordinatesStringFormat =>
+			"Невозможно получить информацию о правилах доставки, т.к. по координатам {0}, {1} не был найден район";
+
 		public static string RequestToGetDeliveryRules(bool extended = false)
 		{
 			var str = extended ? "расширенных " : string.Empty;

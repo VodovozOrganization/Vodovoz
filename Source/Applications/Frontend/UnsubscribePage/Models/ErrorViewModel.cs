@@ -1,6 +1,4 @@
-using System;
-
-namespace UnsubscribePage.Models
+﻿namespace UnsubscribePage.Models
 {
 	public class ErrorViewModel
 	{

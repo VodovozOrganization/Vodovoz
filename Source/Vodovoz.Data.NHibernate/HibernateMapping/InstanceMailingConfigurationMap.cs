@@ -17,6 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping
 			Map(x => x.MessageBrokerPassword).Column("message_broker_password");
 			Map(x => x.EmailSendExchange).Column("email_send_exchange");
 			Map(x => x.EmailSendKey).Column("email_send_key");
+			Map(x => x.Port).Column("port");
 		}
 	}
 }

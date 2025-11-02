@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
@@ -63,11 +65,14 @@ namespace Vodovoz.Models.TrueMark
 			try
 			{
 				order = GetOrder();
-				var countMarkedNomenclatures = (int)order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
+				var countMarkedNomenclaturesWithPositiveSum = 
+					(int)order.OrderItems
+						.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Sum > 0)
+						.Sum(x => x.Count);
 
-				if(countMarkedNomenclatures > CashReceipt.MaxMarkCodesInReceipt)
+				if(countMarkedNomenclaturesWithPositiveSum > CashReceipt.MaxMarkCodesInReceipt)
 				{
-					CreateCashReceipts(order, countMarkedNomenclatures);
+					CreateCashReceipts(order, countMarkedNomenclaturesWithPositiveSum);
 				}
 				else
 				{
@@ -104,8 +109,9 @@ namespace Vodovoz.Models.TrueMark
 			var codesInReceipt = default(int);
 			CashReceiptsToSave = new List<CashReceipt>();
 			var receipt = CreateCashReceiptForBigOrder(order, receiptNumber);
+			var positiveSumItems = order.OrderItems.Where(x => x.Sum > 0);
 
-			foreach(var orderItem in order.OrderItems)
+			foreach(var orderItem in positiveSumItems)
 			{
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
@@ -138,8 +144,9 @@ namespace Vodovoz.Models.TrueMark
 		protected virtual void CreateCashReceipt(Order order)
 		{
 			var receipt = CashReceiptFactory.CreateNewCashReceipt(order);
+			var positiveSumItems = order.OrderItems.Where(x => x.Sum > 0);
 			
-			foreach(var orderItem in order.OrderItems)
+			foreach(var orderItem in positiveSumItems)
 			{
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
 				{

@@ -25,5 +25,12 @@ namespace Vodovoz.Domain.Permissions
 		}
 
 		public override string ToString() => $"Особое право на документ [{TypeOfEntity?.CustomName}] для подразделения [{Subdivision?.Name}]";
+
+		public virtual void CopySettingsFromPermissionExceptSubdivision(EntitySubdivisionPermissionExtended sourcePermission)
+		{
+			TypeOfEntity = sourcePermission.TypeOfEntity;
+			PermissionId = sourcePermission.PermissionId;
+			IsPermissionAvailable = sourcePermission.IsPermissionAvailable;
+		}
 	}
 }

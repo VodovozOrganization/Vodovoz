@@ -22,9 +22,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, widget => widget.Subject).InitializeFromSource();
@@ -44,7 +42,10 @@ namespace Vodovoz.Views.Logistic
 
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, widget => widget.Date).InitializeFromSource();
 
-			yspinConfirmedDistance.Binding.AddBinding(ViewModel.Entity, e => e.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+			yspinConfirmedDistance.Adjustment.Upper = (double)RouteList.ConfirmedDistanceLimit;
+			yspinConfirmedDistance.Binding
+				.AddBinding(ViewModel.Entity, e => e.ConfirmedDistance, widget => widget.ValueAsDecimal)
+				.InitializeFromSource();
 
 			yentryRecalculatedDistance.Binding.AddBinding(ViewModel.Entity, e => e.RecalculatedDistance, widget => widget.Text, new DecimalToStringConverter()).InitializeFromSource();
 

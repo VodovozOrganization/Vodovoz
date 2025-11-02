@@ -1,36 +1,27 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Linq;
-using AspNetCoreRateLimit;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
+using Microsoft.OpenApi.Models;
 using NLog.Web;
 using PayPageAPI.Controllers;
-using PayPageAPI.Models;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.DB;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.Settings.Database;
-using System.Reflection;
 using PayPageAPI.HealthChecks;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using PayPageAPI.Models;
+using QS.BusinessCommon.HMap;
+using QS.DomainModel.UoW;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
 
 namespace PayPageAPI
 {
 	public class Startup
 	{
-		private ILogger<Startup> _logger;
-
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -41,29 +32,40 @@ namespace PayPageAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddLogging(
-				logging =>
+			services
+				.AddSwaggerGen(c =>
 				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-				});
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "PayPageAPI", Version = "v1" });
+				})
+				.AddLogging(
+					logging =>
+					{
+						logging.ClearProviders();
+						logging.AddNLogWeb();
+						logging.AddConfiguration(Configuration.GetSection("NLog"));
+					});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			services
+				.AddMappingAssemblies(
+					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+					typeof(QS.Banks.Domain.Bank).Assembly,
+					typeof(QS.HistoryLog.HistoryMain).Assembly,
+					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+					typeof(QS.Attachments.Domain.Attachment).Assembly,
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(MeasurementUnitsMap).Assembly
+				)
+				.AddDatabaseConnection()
+				.AddCore()
+				.AddInfrastructure()
+				.AddTrackedUoW()
+				;
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			// Подключение к БД
-			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Страница быстрых платежей"));
-
-			// Конфигурация Nhibernate
-			try
-			{
-				CreateBaseConfig();
-			}
-			catch(Exception e)
-			{
-				_logger.LogCritical(e, e.Message);
-				throw;
-			}
+			services.AddScoped(provider => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Страница быстрых платежей"));
 			
 			services.AddOptions();
 			services.AddMemoryCache();
@@ -83,12 +85,6 @@ namespace PayPageAPI
 			
 			//configs and settings
 			services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
-			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
-			
-			//repositories
-			services.AddSingleton<IFastPaymentRepository, FastPaymentRepository>();
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
@@ -101,9 +97,11 @@ namespace PayPageAPI
 		{
 			app.UseIpRateLimiting();
 			
-			if (env.IsDevelopment())
+			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PayPageAPI v1"));
 			}
 			else
 			{
@@ -126,56 +124,6 @@ namespace PayPageAPI
 			});
 
 			app.ConfigureHealthCheckApplicationBuilder();
-		}
-		
-		private void CreateBaseConfig()
-		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
-			var conStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDBConfig = Configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = conStrBuilder.GetConnectionString(true);
-
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-				.Dialect<MySQL57SpatialExtendedDialect>()
-				.Driver<LoggedMySqlClientDriver>()
-				.ConnectionString(connectionString);
-
-			// Настройка ORM
-			OrmConfig.ConfigureOrm(
-				db_config,
-				new Assembly[]
-				{
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
-					Assembly.GetAssembly(typeof(Bank)),
-					Assembly.GetAssembly(typeof(HistoryMain)),
-					Assembly.GetAssembly(typeof(Attachment)),
-					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
-				}
-			);
-
-			var serviceUserId = 0;
-
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
-			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
-					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
-					.FirstOrDefault();
-			}
-
-			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 		}
 	}
 }

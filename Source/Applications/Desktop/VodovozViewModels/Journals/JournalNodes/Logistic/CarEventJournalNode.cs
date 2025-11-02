@@ -20,9 +20,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 		public DateTime StartDate { get; set; }
 		public DateTime EndDate { get; set; }
 		public decimal RepairCost { get; set; }
+		public decimal RepairPartsCost { get; set; }
 		public string Comment { get; set; }
 		public CarTypeOfUse CarTypeOfUse { get; set; }
 		public CarOwnType CarOwnType { get; set; }
+		public decimal RepairAndPartsSummaryCost => RepairCost + RepairPartsCost;
 
 		public string CarTypeOfUseAndOwnTypeString
 		{
@@ -34,11 +36,17 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 					case CarTypeOfUse.GAZelle:
 						str = "Г";
 						break;
+					case CarTypeOfUse.Minivan:
+						str = "Т";
+						break;
 					case CarTypeOfUse.Largus:
 						str = "Л";
 						break;
 					case CarTypeOfUse.Truck:
 						str = "Ф";
+						break;
+					case CarTypeOfUse.Loader:
+						str = "П";
 						break;
 					default:
 						throw new NotSupportedException($"{CarTypeOfUse.GetEnumTitle()} is not supported");

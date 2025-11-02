@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -18,20 +20,23 @@ namespace Vodovoz.ReportsParameters.Logistic
 	{
 		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public AddressesOverpaymentsReport(
+			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 				
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_driverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
 			_officeSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 			Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
 		}
 
@@ -46,6 +51,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			datePicker.StartDateChanged += (sender, e) => { buttonRun.Sensitive = true; };
 
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
 			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
@@ -64,21 +70,21 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.AddressesOverpaymentsReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", datePicker.StartDateOrNull },
-					{ "end_date", datePicker.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "creation_date", DateTime.Now },
-					{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
-					{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
-					{ "employee_id", entryDriver.Subject?.GetIdOrNull() },
-					{ "logistician_id", entryLogistician.Subject?.GetIdOrNull() },
-					{ "filters", GetSelectedFilters() }
-				}
+				{ "start_date", datePicker.StartDateOrNull },
+				{ "end_date", datePicker.EndDateOrNull?.AddHours(23).AddMinutes(59).AddSeconds(59) },
+				{ "creation_date", DateTime.Now },
+				{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
+				{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
+				{ "employee_id", entryDriver.Subject?.GetIdOrNull() },
+				{ "logistician_id", entryLogistician.Subject?.GetIdOrNull() },
+				{ "filters", GetSelectedFilters() }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Logistic.AddressesOverpaymentsReport", Title, parameters);
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()
@@ -137,7 +143,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 				"будет пересчитана.\n\n" +
 				"Сокращения отчета:\n" +
 				"<b>КТС</b>: категория транспортного средства. \n\tСокращения столбца: " +
-				"<b>К</b>: транспорт компании , <b>Н</b>: наемный транспорт, <b>Л</b>: ларгус, <b>Ф</b>: фура, <b>Г</b>: газель.\n\n" +
+				"<b>К</b>: транспорт компании , <b>Н</b>: наемный транспорт, <b>Л</b>: ларгус, <b>Ф</b>: фура, <b>Г</b>: газель, <b>Т</b>: Форд Транзит Мини.\n\n" +
 				"Столбцы отчета:\n" +
 				"<b>№</b>: порядковый номер\n" +
 				"<b>№ МЛ</b>: номер маршрутного листа\n" +

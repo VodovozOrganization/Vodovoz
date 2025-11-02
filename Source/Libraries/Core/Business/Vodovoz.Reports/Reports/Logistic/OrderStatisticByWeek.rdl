@@ -2480,12 +2480,12 @@
         </Footer>
       </Table>
       <Textbox Name="Textbox21">
-        <Height>12pt</Height>
-        <Width>5in</Width>
+        <Height>13.50pt</Height>
+        <Width>813.36pt</Width>
         <Value>=Parameters!selected_filters</Value>
         <ZIndex>0</ZIndex>
-        <Left>7pt</Left>
-        <Top>1.0pt</Top>
+        <Left>7.00pt</Left>
+        <Top>1.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2637,7 +2637,7 @@ ORDER BY week_begin</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>

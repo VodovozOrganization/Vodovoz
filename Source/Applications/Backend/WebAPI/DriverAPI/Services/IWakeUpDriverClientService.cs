@@ -25,5 +25,6 @@ namespace DriverAPI.Services
 		/// </summary>
 		/// <param name="driver">Сотрудник</param>
 		void UnSubscribe(Employee driver);
+		void UnSubscribe(string recipientToken);
 	}
 }

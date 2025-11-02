@@ -2,8 +2,10 @@
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -73,7 +75,7 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public EquipmentKindsForRentVM () 
-			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
+			: this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
 		public EquipmentKindsForRentVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsAccountingOperation))

@@ -13,6 +13,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -461,5 +462,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
 
 		public ILifetimeScope Scope => _lifetimeScope;
+
+		public override void Dispose()
+		{
+			FilterViewModel = null;
+			base.Dispose();
+		}
 	}
 }

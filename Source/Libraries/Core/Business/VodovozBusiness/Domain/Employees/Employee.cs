@@ -1,19 +1,27 @@
-﻿using System;
+﻿using Autofac;
+using Gamma.Utilities;
+using MySqlConnector;
+using NHibernate;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
+using QS.Dialog;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
+using QS.Project.Services;
+using QS.Utilities.Text;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Gamma.Utilities;
-using MySqlConnector;
-using NHibernate;
-using QS.Dialog;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.Services;
-using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -21,324 +29,198 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
-		Nominative = "сотрудник")]
+		Nominative = "сотрудник",
+		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Personnel, IEmployee
+	public class Employee : EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
 	{
 		private const int _commentLimit = 255;
-		private string _comment;
-		
+
+		private bool _hasAccessToWarehouseApp;
+
+		private Counterparty _counterparty;
+		private Citizenship _citizenship;
+		private Nationality _nationality;
+		private EmployeePost _post;
+		private User _user;
+		private Subdivision _subdivision;
+		private Employee _defaultForwarder;
+		private Organization _organisationForSalary;
+		private CarTypeOfUse? _driverOfCarTypeOfUse;
+		private CarOwnType? _driverOfCarOwnType;
+
+		private IList<Phone> _phones = new List<Phone>();
+		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
+		private IObservableList<Account> _accounts = new ObservableList<Account>();
+		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
+		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
+		private IList<DriverDistrictPrioritySet> _driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
+		private IList<DriverWorkScheduleSet> _driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
+		private IList<ExternalApplicationUser> _externalApplicationsUsers = new List<ExternalApplicationUser>();
+
+		private GenericObservableList<EmployeeDocument> _observableDocuments;
+		private GenericObservableList<Account> _observableAccounts;
+		private GenericObservableList<Attachment> _observableAttachments;
+		private GenericObservableList<EmployeeContract> _observableContracts;
+		private GenericObservableList<EmployeeWageParameter> _observableWageParameters;
 		private GenericObservableList<EmployeeRegistrationVersion> _observableEmployeeRegistrationVersions;
+		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
+		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
+		private IWageCalculationRepository _wageCalculationRepository;
+		private bool _canRecieveCounterpartyCalls;
+		private Phone _phoneForCounterpartyCalls;
 
-		#region Свойства
+		public virtual IUnitOfWork UoW { set; get; }
 
-		public override EmployeeType EmployeeType {
-			get { return EmployeeType.Employee; }
-			set { }
+		[Display(Name = "Иностранное граждансво")]
+		public virtual Citizenship Citizenship
+		{
+			get => _citizenship;
+			set => SetField(ref _citizenship, value);
 		}
 
-		EmployeeCategory category;
-
-		[Display(Name = "Категория")]
-		public virtual EmployeeCategory Category {
-			get => category;
-			set => SetField(ref category, value);
-		}
-		
-		uint? innerPhone;
-
-		[Display(Name = "Внутренний номер")]
-		public virtual uint? InnerPhone {
-			get { return innerPhone; }
-			set { SetField(ref innerPhone, value, () => InnerPhone); }
+		[Display(Name = "Национальность")]
+		public virtual Nationality Nationality
+		{
+			get => _nationality;
+			set => SetField(ref _nationality, value);
 		}
 
-		string androidLogin;
-
-		[Display(Name = "Логин для Android приложения")]
-		public virtual string AndroidLogin {
-			get { return androidLogin; }
-			set { SetField(ref androidLogin, value, () => AndroidLogin); }
+		[Display(Name = "Должность")]
+		public virtual EmployeePost Post
+		{
+			get => _post;
+			set => SetField(ref _post, value);
 		}
-
-		string androidPassword;
-
-		[Display(Name = "Пароль для Android приложения")]
-		public virtual string AndroidPassword {
-			get { return androidPassword; }
-			set { SetField(ref androidPassword, value, () => AndroidPassword); }
-		}
-
-		string androidSessionKey;
-
-		[Display(Name = "Ключ сессии для Android приложения")]
-		public virtual string AndroidSessionKey {
-			get { return androidSessionKey; }
-			set { SetField(ref androidSessionKey, value, () => AndroidSessionKey); }
-		}
-
-		string androidToken;
-
-		[Display(Name = "Токен Android приложения пользователя для отправки Push-сообщений")]
-		public virtual string AndroidToken {
-			get { return androidToken; }
-			set { SetField(ref androidToken, value, () => AndroidToken); }
-		}
-
-		EmployeeStatus status;
-
-		[Display(Name = "Статус сотрудника")]
-		public virtual EmployeeStatus Status {
-			get { return status; }
-			set { SetField(ref status, value, () => Status); }
-		}
-
-		User user;
 
 		[Display(Name = "Пользователь")]
-		public virtual User User {
-			get { return user; }
-			set { SetField(ref user, value, () => User); }
+		public virtual User User
+		{
+			get { return _user; }
+			set { SetField(ref _user, value, () => User); }
 		}
 
-		private Subdivision subdivision;
+		[Display(Name = "Пользователи внешних приложений")]
+		public virtual IList<ExternalApplicationUser> ExternalApplicationsUsers
+		{
+			get => _externalApplicationsUsers;
+			set => SetField(ref _externalApplicationsUsers, value);
+		}
 
 		[Display(Name = "Подразделение")]
-		public virtual Subdivision Subdivision {
-			get { return subdivision; }
-			set { SetField(ref subdivision, value, () => Subdivision); }
+		public virtual Subdivision Subdivision
+		{
+			get { return _subdivision; }
+			set { SetField(ref _subdivision, value, () => Subdivision); }
 		}
-
-		private DateTime? firstWorkDay;
-		[Display(Name = "Первый день работы")]
-		public virtual DateTime? FirstWorkDay {
-			get { return firstWorkDay; }
-			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
-		}
-
-		private DateTime? dateHired;
-		[Display(Name = "Дата приема")]
-		public virtual DateTime? DateHired {
-			get { return dateHired; }
-			set { SetField(ref dateHired, value, () => DateHired); }
-		}
-
-		private DateTime? dateFired;
-		[Display(Name = "Дата увольнения")]
-		public virtual DateTime? DateFired {
-			get { return dateFired; }
-			set { SetField(ref dateFired, value, () => DateFired); }
-		}
-
-		private DateTime? dateCalculated;
-		[Display(Name = "Дата расчета")]
-		public virtual DateTime? DateCalculated {
-			get { return dateCalculated; }
-			set { SetField(ref dateCalculated, value, () => DateCalculated); }
-		}
-
-		IList<EmployeeContract> contracts = new List<EmployeeContract>();
-
-		[Display(Name = "Договора")]
-		public virtual IList<EmployeeContract> Contracts {
-			get { return contracts; }
-			set { SetField(ref contracts, value, () => Contracts); }
-		}
-
-		GenericObservableList<EmployeeContract> observableContracts;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<EmployeeContract> ObservableContracts {
-			get {
-				if(observableContracts == null) {
-					observableContracts = new GenericObservableList<EmployeeContract>(Contracts);
-				}
-				return observableContracts;
-			}
-		}
-
-		private Employee defaultForwarder;
 
 		[Display(Name = "Экспедитор по умолчанию")]
-		public virtual Employee DefaultForwarder {
-			get { return defaultForwarder; }
-			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
+		public virtual Employee DefaultForwarder
+		{
+			get { return _defaultForwarder; }
+			set { SetField(ref _defaultForwarder, value, () => DefaultForwarder); }
 		}
 
-		private DriverType? driverType;
-		public virtual DriverType? DriverType {
-			get => driverType;
-			set => SetField(ref driverType, value);
+		[Display(Name = "Зарплатная организация")]
+		public virtual Organization OrganisationForSalary
+		{
+			get => _organisationForSalary;
+			set => SetField(ref _organisationForSalary, value);
+		}
+		
+		[Display(Name = "Клиент ВВ")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		private bool largusDriver;
-		[Display(Name = "Сотрудник - водитель Ларгуса")]
-		public virtual bool LargusDriver {
-			get { return largusDriver; }
-			set { SetField(ref largusDriver, value, () => LargusDriver); }
-		}
-
-		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		[Display(Name = "Водитель автомобиля типа")]
-		public virtual CarTypeOfUse? DriverOfCarTypeOfUse {
+		public virtual CarTypeOfUse? DriverOfCarTypeOfUse
+		{
 			get => _driverOfCarTypeOfUse;
 			set => SetField(ref _driverOfCarTypeOfUse, value);
 		}
 
-		private CarOwnType? _driverOfCarOwnType;
 		[Display(Name = "Водитель автомобиля принадлежности")]
-		public virtual CarOwnType? DriverOfCarOwnType {
+		public virtual CarOwnType? DriverOfCarOwnType
+		{
 			get => _driverOfCarOwnType;
 			set => SetField(ref _driverOfCarOwnType, value);
 		}
 
-		private Gender? gender;
-		[Display(Name = "Пол сотрудника")]
-		public virtual Gender? Gender {
-			get { return gender; }
-			set { SetField(ref gender, value); }
-		}
-
-		private float driverSpeed = 1;
-
-		[Display(Name = "Скорость работы водителя")]
-		public virtual float DriverSpeed {
-			get { return driverSpeed; }
-			set { SetField(ref driverSpeed, value, () => DriverSpeed); }
-		}
-
-		private short tripPriority = 6;
-
-		/// <summary>
-		/// Приорите(1-10) чем меньше тем лучше. Фактически это штраф.
-		/// </summary>
-		[Display(Name = "Приоритет для маршрутов")]
-		public virtual short TripPriority {
-			get { return tripPriority; }
-			set { SetField(ref tripPriority, value, () => TripPriority); }
-		}
-
-		int minRouteAddresses;
-
-		[Display(Name = "Минимум адресов")]
-		public virtual int MinRouteAddresses {
-			get { return minRouteAddresses; }
-			set { SetField(ref minRouteAddresses, value, () => MinRouteAddresses); }
-		}
-
-		int maxRouteAddresses;
-
-		[Display(Name = "Максимум адресов")]
-		public virtual int MaxRouteAddresses {
-			get { return maxRouteAddresses; }
-			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
-		}
-
-		#region DriverDistrictPrioritySets
-
-		private IList<DriverDistrictPrioritySet> driverDistrictPrioritySets = new List<DriverDistrictPrioritySet>();
-		[Display(Name = "Версии приоритетов районов водителя")]
-		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets {
-			get => driverDistrictPrioritySets;
-			set => SetField(ref driverDistrictPrioritySets, value);
-		}
-
-		private GenericObservableList<DriverDistrictPrioritySet> observableDriverDistrictPrioritySets;
-		public virtual GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets =>
-			observableDriverDistrictPrioritySets ?? (observableDriverDistrictPrioritySets =
-				new GenericObservableList<DriverDistrictPrioritySet>(DriverDistrictPrioritySets));
-
-		#endregion
-
-		#region ObservableDriverWorkScheduleSets
-
-		private IList<DriverWorkScheduleSet> driverWorkScheduleSets = new List<DriverWorkScheduleSet>();
-		[Display(Name = "Версии графиков работы водителя")]
-		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets {
-			get => driverWorkScheduleSets;
-			set => SetField(ref driverWorkScheduleSets, value);
-		}
-
-		private GenericObservableList<DriverWorkScheduleSet> observableDriverWorkScheduleSets;
-		public virtual GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets
-			=> observableDriverWorkScheduleSets ?? (observableDriverWorkScheduleSets =
-				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
-
-		#endregion
-
-		IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
-		[Display(Name = "Параметры расчета зарплаты")]
-		public virtual IList<EmployeeWageParameter> WageParameters {
-			get => wageParameters;
-			set => SetField(ref wageParameters, value, () => WageParameters);
-		}
-
-		GenericObservableList<EmployeeWageParameter> observableWageParameters;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<EmployeeWageParameter> ObservableWageParameters {
-			get {
-				if(observableWageParameters == null)
-					observableWageParameters = new GenericObservableList<EmployeeWageParameter>(WageParameters);
-				return observableWageParameters;
-			}
-		}
-
-		bool visitingMaster;
-		[Display(Name = "Выездной мастер")]
-		public virtual bool VisitingMaster {
-			get => visitingMaster;
-			set => SetField(ref visitingMaster, value);
-		}
-
-		private bool isChainStoreDriver;
-		[Display(Name = "Водитель для сетей")]
-		public virtual bool IsChainStoreDriver {
-			get => isChainStoreDriver;
-			set => SetField(ref isChainStoreDriver, value);
-		}
-
-		bool isDriverForOneDay;
-		public virtual bool IsDriverForOneDay {
-			get => isDriverForOneDay;
-			set => SetField(ref isDriverForOneDay, value);
-		}
-
-		private string loginForNewUser;
-		[Display(Name = "Логин нового пользователя")]
-		public virtual string LoginForNewUser {
-			get { return loginForNewUser; }
-			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
-		}
-		
-		Organization organisationForSalary;
-		public virtual Organization OrganisationForSalary {
-			get => organisationForSalary;
-			set => SetField(ref organisationForSalary, value);
-		}
-
-		private string email;
-
-		[Display(Name = "Электронная почта пользователя")]
-		public virtual string Email
+		[Display(Name = "Есть доступ к складскому приложению")]
+		public virtual bool HasAccessToWarehouseApp
 		{
-			get => email;
-			set => SetField(ref email, value);
+			get => _hasAccessToWarehouseApp;
+			set => SetField(ref _hasAccessToWarehouseApp, value);
 		}
-		
-		[Display(Name = "Комментарий по сотруднику")]
-		public virtual string Comment {
-			get => _comment;
-			set => SetField(ref _comment, value);
+
+		[Display(Name = "Телефоны")]
+		public virtual IList<Phone> Phones
+		{
+			get => _phones;
+			set => SetField(ref _phones, value);
 		}
-		
+
+		[Display(Name = "Водитель может принимать звонки от контрагентов")]
+		public virtual bool CanRecieveCounterpartyCalls
+		{
+			get => _canRecieveCounterpartyCalls;
+			set => SetField(ref _canRecieveCounterpartyCalls, value);
+		}
+
+		[Display(Name = "Телефон для приема звонков от контрагентов")]
+		public virtual Phone PhoneForCounterpartyCalls
+		{
+			get => _phoneForCounterpartyCalls;
+			set => SetField(ref _phoneForCounterpartyCalls, value);
+		}
+
+		[Display(Name = "Документы")]
+		public virtual IList<EmployeeDocument> Documents
+		{
+			get => _documents;
+			set => SetField(ref _documents, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments =>
+			_observableDocuments ?? (_observableDocuments = new GenericObservableList<EmployeeDocument>(Documents));
+
+		[Display(Name = "Договора")]
+		public virtual IList<EmployeeContract> Contracts
+		{
+			get { return _contracts; }
+			set { SetField(ref _contracts, value); }
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeContract> ObservableContracts =>
+			_observableContracts ?? (_observableContracts = new GenericObservableList<EmployeeContract>(Contracts));
+
+
+		[Display(Name = "Параметры расчета зарплаты")]
+		public virtual IList<EmployeeWageParameter> WageParameters
+		{
+			get => wageParameters;
+			set => SetField(ref wageParameters, value);
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<EmployeeWageParameter> ObservableWageParameters =>
+			_observableWageParameters ?? (_observableWageParameters = new GenericObservableList<EmployeeWageParameter>(WageParameters));
+
+
 		[Display(Name = "Версии видов оформлений")]
 		public virtual IList<EmployeeRegistrationVersion> EmployeeRegistrationVersions
 		{
@@ -351,56 +233,114 @@ namespace Vodovoz.Domain.Employees
 			_observableEmployeeRegistrationVersions ?? (_observableEmployeeRegistrationVersions =
 				new GenericObservableList<EmployeeRegistrationVersion>(EmployeeRegistrationVersions));
 
-		#endregion
-
-		public Employee()
+		[Display(Name = "Версии приоритетов районов водителя")]
+		public virtual IList<DriverDistrictPrioritySet> DriverDistrictPrioritySets
 		{
-			Name = String.Empty;
-			LastName = String.Empty;
-			Patronymic = String.Empty;
-			DrivingLicense = String.Empty;
-			Category = EmployeeCategory.office;
-			AddressRegistration = String.Empty;
-			AddressCurrent = String.Empty;
+			get => _driverDistrictPrioritySets;
+			set => SetField(ref _driverDistrictPrioritySets, value);
 		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DriverDistrictPrioritySet> ObservableDriverDistrictPrioritySets =>
+			_observableDriverDistrictPrioritySets ?? (_observableDriverDistrictPrioritySets =
+				new GenericObservableList<DriverDistrictPrioritySet>(DriverDistrictPrioritySets));
+
+		[Display(Name = "Версии графиков работы водителя")]
+		public virtual IList<DriverWorkScheduleSet> DriverWorkScheduleSets
+		{
+			get => _driverWorkScheduleSets;
+			set => SetField(ref _driverWorkScheduleSets, value);
+		}
+		
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DriverWorkScheduleSet> ObservableDriverWorkScheduleSets
+			=> _observableDriverWorkScheduleSets ?? (_observableDriverWorkScheduleSets =
+				new GenericObservableList<DriverWorkScheduleSet>(DriverWorkScheduleSets));
+
+		#region IAccountOwner implementation
+
+		public virtual IObservableList<Account> Accounts
+		{
+			get => _accounts;
+			set => SetField(ref _accounts, value);
+		}
+
+		[Display(Name = "Основной счет")]
+		public virtual Account DefaultAccount
+		{
+			get
+			{
+				return Accounts.FirstOrDefault(x => x.IsDefault);
+			}
+			set
+			{
+				Account oldDefAccount = Accounts.FirstOrDefault(x => x.IsDefault);
+				if(oldDefAccount != null && value != null && oldDefAccount.Id != value.Id)
+				{
+					oldDefAccount.IsDefault = false;
+				}
+				value.IsDefault = true;
+			}
+		}
+
+		public virtual void AddAccount(Account account)
+		{
+			Accounts.Add(account);
+			account.Owner = this;
+			if(DefaultAccount == null)
+				account.IsDefault = true;
+		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
-		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(!(validationContext.ServiceContainer.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
+			if(!(validationContext.GetService(typeof(IEmployeeRepository)) is IEmployeeRepository employeeRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(employeeRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(employeeRepository)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(ISubdivisionParametersProvider)) is ISubdivisionParametersProvider
-				   subdivisionParametersProvider))
+			if(!(validationContext.GetService(typeof(ISubdivisionSettings)) is ISubdivisionSettings
+					subdivisionSettings))
 			{
-				throw new ArgumentNullException($"Не найден сервис { nameof(subdivisionParametersProvider) }");
+				throw new ArgumentNullException($"Не найден сервис {nameof(subdivisionSettings)}");
 			}
 
-			if(!(validationContext.ServiceContainer.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
+			if(!(validationContext.GetService(typeof(IUserRepository)) is IUserRepository userRepository))
 			{
-				throw new ArgumentNullException($"Не найден репозиторий { nameof(userRepository) }");
+				throw new ArgumentNullException($"Не найден репозиторий {nameof(userRepository)}");
 			}
 
-			foreach(var item in base.Validate(validationContext)) {
-				yield return item;
+			if(String.IsNullOrEmpty(LastName))
+			{
+				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
 			}
 
-			if(!string.IsNullOrEmpty(AndroidLogin))
+			var employees = UoW.Session.QueryOver<Employee>()
+				.Where(p => p.Name == this.Name && p.LastName == this.LastName && p.Patronymic == this.Patronymic)
+				.WhereNot(p => p.Id == this.Id)
+				.List();
+
+			if(employees.Count > 0)
 			{
-				var exist = employeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+			}
+
+			if(ExternalApplicationsUsers.Any())
+			{
+				var login = ExternalApplicationsUsers.First().Login;
+				var exist = employeeRepository.GetEmployeeByAndroidLogin(UoW, login);
 
 				if(exist != null && exist.Id != Id)
 				{
 					yield return new ValidationResult(
-						$"Другой водитель с логином { AndroidLogin } для Android уже есть в БД.",
-						new[] { nameof(AndroidLogin) });
+						$"Пользователь с таким логином {login} уже есть в БД");
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null)
+			{
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
 			}
@@ -408,10 +348,13 @@ namespace Vodovoz.Domain.Employees
 			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
 			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
 			{
-				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(LoginForNewUser) });
+				yield return new ValidationResult(
+					"Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой",
+					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
 				{
@@ -420,7 +363,8 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				string mes = null;
 				bool userExists = false;
 
@@ -439,6 +383,7 @@ namespace Vodovoz.Domain.Employees
 						throw;
 					}
 				}
+
 				if(!String.IsNullOrWhiteSpace(mes))
 				{
 					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
@@ -450,24 +395,30 @@ namespace Vodovoz.Domain.Employees
 				}
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) &&
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanManageUsers))
+			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(Status == EmployeeStatus.IsFired && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees")) {
+			if(Status == EmployeeStatus.IsFired &&
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees"))
+			{
 				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
-						new[] { nameof(Status) });
+					new[] { nameof(Status) });
 			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+			if(!String.IsNullOrEmpty(LoginForNewUser))
+			{
 				string exist = GetPhoneForSmsNotification();
 				if(exist == null)
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
-							new[] { nameof(LoginForNewUser) });
-				if (String.IsNullOrEmpty(Email)) {
+						new[] { nameof(LoginForNewUser) });
+				if(String.IsNullOrEmpty(Email))
+				{
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан e-mail адрес",
-							new[] { nameof(Email) });
+						new[] { nameof(Email) });
 				}
 			}
 
@@ -475,15 +426,23 @@ namespace Vodovoz.Domain.Employees
 			{
 				if(DriverOfCarTypeOfUse == null || DriverOfCarOwnType == null)
 				{
-					yield return new ValidationResult(@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
+					yield return new ValidationResult(
+						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
 			}
+			
+			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
+			{
+				yield return new ValidationResult(
+					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
+					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
+			}
 
-			if(Subdivision == null || Subdivision.Id == subdivisionParametersProvider.GetParentVodovozSubdivisionId())
+			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
 			{
 				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
-					" общим подразделением 'Веселый Водовоз'");
+												" общим подразделением 'Веселый Водовоз'");
 			}
 
 			List<EmployeeDocument> mainDocuments = GetMainDocuments();
@@ -498,7 +457,7 @@ namespace Vodovoz.Domain.Employees
 			if(String.IsNullOrEmpty(DrivingLicense) && IsDriverForOneDay)
 				yield return new ValidationResult(String.Format("У разового водителя должно быть водительское удостоверение"),
 					new[] { this.GetPropertyName(x => x.DrivingLicense) });
-			
+
 			if(Comment != null && Comment.Length > _commentLimit)
 			{
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
@@ -527,9 +486,28 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
+		#region Без маппинга
+
+		public virtual string Title
+		{
+			get => ShortName;
+		}
+
+		#endregion Без маппинга
+
 		#region Функции
 
-		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = new WageCalculationRepository();
+		public virtual ExternalApplicationUser DriverAppUser =>
+			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.DriverApp);
+		
+		public virtual ExternalApplicationUser WarehouseAppUser =>
+			ExternalApplicationsUsers.SingleOrDefault(x => x.ExternalApplicationType == ExternalApplicationType.WarehouseApp);
+
+		public virtual IWageCalculationRepository WageCalculationRepository
+		{
+			get => _wageCalculationRepository ?? (_wageCalculationRepository = ScopeProvider.Scope.Resolve<IWageCalculationRepository>());
+			set => _wageCalculationRepository = value;
+		}
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
@@ -538,7 +516,8 @@ namespace Vodovoz.Domain.Employees
 		public virtual bool CheckStartDateForNewWageParameter(DateTime newStartDate)
 		{
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
-			if(oldWageParameter == null) {
+			if(oldWageParameter == null)
+			{
 				return true;
 			}
 
@@ -547,19 +526,25 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void ChangeWageParameter(EmployeeWageParameter wageParameter, DateTime startDate)
 		{
-			if(wageParameter == null) {
+			if(wageParameter == null)
+			{
 				throw new ArgumentNullException(nameof(wageParameter));
 			}
 
 			wageParameter.Employee = this;
 			wageParameter.StartDate = startDate;
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
-			if(oldWageParameter != null) {
-				if(oldWageParameter.StartDate > startDate) {
-					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+			if(oldWageParameter != null)
+			{
+				if(oldWageParameter.StartDate > startDate)
+				{
+					throw new InvalidOperationException(
+						"Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
 				}
+
 				oldWageParameter.EndDate = startDate.AddMilliseconds(-1);
 			}
+
 			ObservableWageParameters.Add(wageParameter);
 		}
 
@@ -567,58 +552,78 @@ namespace Vodovoz.Domain.Employees
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{
 			return WageParameters.Where(x => x.StartDate <= date)
-								 .OrderByDescending(x => x.StartDate)
-								 .Take(1)
-								 .SingleOrDefault();
+				.OrderByDescending(x => x.StartDate)
+				.Take(1)
+				.SingleOrDefault();
 		}
 
-		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
+		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository,
+			IWageSettings wageSettings, IInteractiveService interactiveService)
 		{
-			if(wageRepository == null) {
+			if(wageRepository == null)
+			{
 				throw new ArgumentNullException(nameof(wageRepository));
 			}
-			if(wageParametersProvider == null) {
-				throw new ArgumentNullException(nameof(wageParametersProvider));
+
+			if(wageSettings == null)
+			{
+				throw new ArgumentNullException(nameof(wageSettings));
 			}
-			if(interactiveService == null) {
+
+			if(interactiveService == null)
+			{
 				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
-			if(defaultLevel == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"", "Невозможно создать расчет зарплаты");
+			if(defaultLevel == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
-			if(defaultLevelForOurCar == null) {
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
+			if(defaultLevelForOurCar == null)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			var defaultLevelForRaskatCar = wageRepository.DefaultLevelForNewEmployeesOnRaskatCars(UoW);
 			if(defaultLevelForRaskatCar == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"", "Невозможно создать расчет зарплаты");
+				interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"",
+					"Невозможно создать расчет зарплаты");
 				return;
 			}
 
 			if(Id != 0) return;
 
 			ObservableWageParameters.Clear();
-			switch(Category) {
+			switch(Category)
+			{
 				case EmployeeCategory.driver:
-					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
+					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter
+					{
 						WageParameterItem = new ManualWageParameterItem(),
 						WageParameterItemForOurCars = new ManualWageParameterItem(),
 						WageParameterItemForRaskatCars = new ManualWageParameterItem()
 					};
-					if(VisitingMaster && !IsDriverForOneDay) {
-						parameterForDriver = new EmployeeWageParameter {
-							WageParameterItem = new PercentWageParameterItem {
+					if(VisitingMaster && !IsDriverForOneDay)
+					{
+						parameterForDriver = new EmployeeWageParameter
+						{
+							WageParameterItem = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							},
-							WageParameterItemForOurCars = new PercentWageParameterItem {
+							WageParameterItemForOurCars = new PercentWageParameterItem
+							{
 								PercentWageType = PercentWageTypes.Service
 							},
 							WageParameterItemForRaskatCars = new PercentWageParameterItem
@@ -627,12 +632,16 @@ namespace Vodovoz.Domain.Employees
 							}
 						};
 					}
-					else if(!IsDriverForOneDay) {
-						parameterForDriver = new EmployeeWageParameter {
-							WageParameterItem = new RatesLevelWageParameterItem {
+					else if(!IsDriverForOneDay)
+					{
+						parameterForDriver = new EmployeeWageParameter
+						{
+							WageParameterItem = new RatesLevelWageParameterItem
+							{
 								WageDistrictLevelRates = defaultLevel
 							},
-							WageParameterItemForOurCars = new RatesLevelWageParameterItem {
+							WageParameterItemForOurCars = new RatesLevelWageParameterItem
+							{
 								WageDistrictLevelRates = defaultLevelForOurCar
 							},
 							WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
@@ -645,8 +654,10 @@ namespace Vodovoz.Domain.Employees
 					ChangeWageParameter(parameterForDriver, DateTime.Today);
 					break;
 				case EmployeeCategory.forwarder:
-					var parameterForForwarder = new EmployeeWageParameter {
-						WageParameterItem = new RatesLevelWageParameterItem {
+					var parameterForForwarder = new EmployeeWageParameter
+					{
+						WageParameterItem = new RatesLevelWageParameterItem
+						{
 							WageDistrictLevelRates = defaultLevel
 						},
 						WageParameterItemForOurCars = new RatesLevelWageParameterItem
@@ -687,7 +698,8 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual string GetPhoneForSmsNotification()
 		{
-			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
+			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber
+				.TrimStart('+').TrimStart('7').TrimStart('8');
 			if(String.IsNullOrWhiteSpace(stringPhoneNumber)
 				|| stringPhoneNumber.Length == 0
 				|| stringPhoneNumber.First() != '9'
@@ -708,7 +720,7 @@ namespace Vodovoz.Domain.Employees
 
 			var now = DateTime.Now;
 
-			if (currentActiveSet != null)
+			if(currentActiveSet != null)
 			{
 				currentActiveSet.IsActive = false;
 				currentActiveSet.DateLastChanged = now;
@@ -722,16 +734,17 @@ namespace Vodovoz.Domain.Employees
 			driverDistrictPrioritySet.IsActive = true;
 			driverDistrictPrioritySet.DateLastChanged = now;
 			driverDistrictPrioritySet.LastEditor = editor;
-			driverDistrictPrioritySet.DateActivated 
+			driverDistrictPrioritySet.DateActivated
 				= currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
 		}
-		
+
 		public virtual void AddActiveDriverWorkScheduleSet(DriverWorkScheduleSet activeDriverWorkScheduleSet)
 		{
 			var currentActiveSet = ObservableDriverWorkScheduleSets.SingleOrDefault(x => x.IsActive);
-			if(currentActiveSet != null) {
+			if(currentActiveSet != null)
+			{
 				currentActiveSet.IsActive = false;
-				
+
 				currentActiveSet.DateDeactivated = currentActiveSet.DateActivated.Date > DateTime.Today
 					? currentActiveSet.DateActivated.Date.AddDays(1).AddMilliseconds(-1)
 					: DateTime.Today.AddDays(1).AddMilliseconds(-1);
@@ -739,11 +752,13 @@ namespace Vodovoz.Domain.Employees
 
 			activeDriverWorkScheduleSet.IsActive = true;
 			activeDriverWorkScheduleSet.DateActivated = currentActiveSet?.DateDeactivated.Value.Date.AddDays(1) ?? DateTime.Today;
-			
-			if(ObservableDriverWorkScheduleSets.Any()) {
+
+			if(ObservableDriverWorkScheduleSets.Any())
+			{
 				ObservableDriverWorkScheduleSets.Insert(0, activeDriverWorkScheduleSet);
 			}
-			else {
+			else
+			{
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
 		}
@@ -758,97 +773,19 @@ namespace Vodovoz.Domain.Employees
 				.Any();
 		}
 
+		public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
+
+		public virtual List<EmployeeDocument> GetMainDocuments()
+		{
+			List<EmployeeDocument> mainDocuments = new List<EmployeeDocument>();
+			foreach(var doc in Documents)
+			{
+				if(doc.MainDocument == true)
+					mainDocuments.Add(doc);
+			}
+			return mainDocuments;
+		}
+
 		#endregion
-	}
-
-	public enum EmployeeCategory
-	{
-		[Display(Name = "Офисный работник")]
-		office,
-		[Display(Name = "Водитель")]
-		driver,
-		[Display(Name = "Экспедитор")]
-		forwarder
-	}
-
-	public enum DriverType
-	{
-		[Display(Name = "Управляет ТС компании")]
-		companydriver,
-		[Display(Name = "Управляет ТС в раскате")]
-		raskat,
-		[Display(Name = "Управляет ТС личным")]
-		hireddriver
-	}
-
-	public enum EmployeeType
-	{
-		[Display(Name = "Сотрудник")]
-		Employee,
-		[Display(Name = "Стажер")]
-		Trainee
-	}
-
-	public enum EmployeeStatus
-	{
-		[Display(Name = "Работает")]
-		IsWorking,
-		[Display(Name = "На расчете")]
-		OnCalculation,
-		[Display(Name = "В декрете")]
-		OnMaternityLeave,
-		[Display(Name = "Уволен")]
-		IsFired
-	}
-	
-	public enum Gender
-	{
-		[Display(Name = "М")]
-		male,
-		[Display(Name = "Ж")]
-		female
-	}
-
-	public enum DriverTerminalRelation
-	{
-		[Display(Name = "Водители с терминалами")]
-		WithTerminal,
-		[Display(Name = "Водители без терминалов")]
-		WithoutTerminal
-	}
-
-	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))
-		{
-		}
-	}
-
-	public class RegistrationTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public RegistrationTypeStringType() : base(typeof(RegistrationType))
-		{
-		}
-	}
-
-	public class EmployeeTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeTypeStringType() : base(typeof(EmployeeType))
-		{
-		}
-	}
-
-	public class EmployeeStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public EmployeeStatusStringType() : base(typeof(EmployeeStatus))
-		{
-		}
-	}	
-
-	public class DriverTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DriverTypeStringType() : base(typeof(DriverType))
-		{
-		}
 	}
 }

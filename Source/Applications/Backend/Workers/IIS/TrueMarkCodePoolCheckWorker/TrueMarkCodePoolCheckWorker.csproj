@@ -1,7 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>.</DockerfileContext>
+		<UserSecretsId>b5f501fd-59a6-4c9c-96c9-0c94b3499ce2</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -19,22 +23,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NHibernate" Version="5.4.1" />
-		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-		<PackageReference Include="FluentNHibernate" Version="3.1.0" />
-		<PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
 		<PackageReference Include="Autofac" Version="7.0.0" />
-		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
-		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\TrueMarkApi.Library\TrueMarkApi.Library.csproj" />
+		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+		<ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
 		<ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
 	</ItemGroup>
 

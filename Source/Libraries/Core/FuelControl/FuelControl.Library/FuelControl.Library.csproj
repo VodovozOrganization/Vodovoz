@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\FuelControl.Contracts\FuelControl.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

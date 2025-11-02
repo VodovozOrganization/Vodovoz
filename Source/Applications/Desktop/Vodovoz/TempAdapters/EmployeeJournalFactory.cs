@@ -1,23 +1,26 @@
-using QS.DomainModel.UoW;
-using QS.Navigation;
+﻿using System;
+using Autofac;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.TempAdapters
 {
-	public class EmployeeJournalFactory : IEmployeeJournalFactory
+	public class EmployeeJournalFactory : IEmployeeJournalFactory, IDisposable
 	{
-		private readonly INavigationManager _navigationManager;
 		private EmployeeFilterViewModel _employeeJournalFilter;
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
+		private ILifetimeScope _scope;
 
-		public EmployeeJournalFactory(INavigationManager navigationManager, EmployeeFilterViewModel employeeJournalFilter = null)
+		public EmployeeJournalFactory(
+			ILifetimeScope scope,
+			EmployeeFilterViewModel employeeJournalFilter = null)
 		{
-			_navigationManager = navigationManager ?? throw new System.ArgumentNullException(nameof(navigationManager));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_employeeJournalFilter = employeeJournalFilter;
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
 		}
@@ -28,8 +31,8 @@ namespace Vodovoz.TempAdapters
 				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
-				UnitOfWorkFactory.GetDefaultFactory,
-				Startup.AppDIContainer,
+				ServicesConfig.UnitOfWorkFactory,
+				_scope,
 				Startup.MainWin.NavigationManager
 			);
 		}
@@ -47,15 +50,15 @@ namespace Vodovoz.TempAdapters
 			);
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateWorkingDriverEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false)
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
-				CreateWorkingDriverEmployeeJournal
+				() => CreateWorkingDriverEmployeeJournal(restrictedCategory)
 			);
 		}
 		
-		public EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal()
+		public EmployeesJournalViewModel CreateWorkingDriverEmployeeJournal(bool restrictedCategory = false)
 		{
 			var driverFilter = new EmployeeFilterViewModel
 			{
@@ -64,12 +67,24 @@ namespace Vodovoz.TempAdapters
 
 			driverFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.Category = EmployeeCategory.driver);
+				x =>
+				{
+					const EmployeeCategory driver = EmployeeCategory.driver;
+
+					if(restrictedCategory)
+					{
+						x.RestrictCategory = driver;
+					}
+					else
+					{
+						x.Category = driver;
+					}
+				});
 
 			return CreateEmployeesJournal(driverFilter);
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false)
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
@@ -82,7 +97,19 @@ namespace Vodovoz.TempAdapters
 
 					officeFilter.SetAndRefilterAtOnce(
 						x => x.Status = EmployeeStatus.IsWorking,
-						x => x.Category = EmployeeCategory.office);
+						x =>
+						{
+							const EmployeeCategory office = EmployeeCategory.office;
+
+							if(restrictedCategory)
+							{
+								x.RestrictCategory = office;
+							}
+							else
+							{
+								x.Category = office;
+							}
+						});
 					
 					return CreateEmployeesJournal(officeFilter);
 				}
@@ -105,23 +132,23 @@ namespace Vodovoz.TempAdapters
 						filter,
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
-						UnitOfWorkFactory.GetDefaultFactory,
-						Startup.AppDIContainer,
+						ServicesConfig.UnitOfWorkFactory,
+						_scope,
 						Startup.MainWin.NavigationManager
 					);
 				}
 			);
 		}
 
-		public IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory()
+		public IEntityAutocompleteSelectorFactory CreateWorkingForwarderEmployeeAutocompleteSelectorFactory(bool restrictedCategory = false)
 		{
 			return new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(
 				typeof(Employee),
-				CreateWorkingForwarderEmployeeJournal
+				() => CreateWorkingForwarderEmployeeJournal(restrictedCategory)
 			);
 		}
 
-		public EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal()
+		public EmployeesJournalViewModel CreateWorkingForwarderEmployeeJournal(bool restrictedCategory = false)
 		{
 			var forwarderFilter = new EmployeeFilterViewModel
 			{
@@ -130,9 +157,26 @@ namespace Vodovoz.TempAdapters
 					
 			forwarderFilter.SetAndRefilterAtOnce(
 				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.Category = EmployeeCategory.forwarder);
+				x =>
+				{
+					const EmployeeCategory forwarder = EmployeeCategory.forwarder;
+
+					if(restrictedCategory)
+					{
+						x.RestrictCategory = forwarder;
+					}
+					else
+					{
+						x.Category = forwarder;
+					}
+				});
 					
 			return CreateEmployeesJournal(forwarderFilter);
+		}
+
+		public void Dispose()
+		{
+			_scope = null;
 		}
 	}
 }

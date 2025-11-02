@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.TempAdapters;
@@ -15,7 +15,7 @@ namespace Vodovoz.TempAdapters
 			return new EntityAutocompleteSelectorFactory<SelectUserJournalViewModel>(typeof(User),
 				() => new SelectUserJournalViewModel(
 					new UsersJournalFilterViewModel(),
-					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.UnitOfWorkFactory,
 					ServicesConfig.CommonServices)
 			);
 		}

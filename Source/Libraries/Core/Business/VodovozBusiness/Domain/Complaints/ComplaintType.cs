@@ -11,11 +11,4 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Водительская")]
 		Driver
 	}
-
-	public class ComplaintTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public ComplaintTypeStringType() : base(typeof(ComplaintType))
-		{
-		}
-	}
 }

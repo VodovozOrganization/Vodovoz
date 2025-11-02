@@ -1,69 +1,97 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
-using Autofac;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Parameters;
-using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
+	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl, IDisposable
 	{
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
-		
+		private Nomenclature _nomenclature;
+		private decimal _price;
+		private bool _isForZeroDebt;
+		private DialogViewModelBase _container;
+		private readonly ILifetimeScope _lifetimeScope;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+
 		public AddFixPriceActionViewModel(
 			ILifetimeScope lifetimeScope,
-			IUnitOfWork uow, 
-			PromotionalSet promotionalSet, 
-			ICommonServices commonServices,
-			INomenclatureJournalFactory nomenclatureJournalFactory) 
+			IUnitOfWork uow,
+			PromotionalSet promotionalSet,
+			INomenclatureSettings nomenclatureSettings,
+			INomenclatureRepository nomenclatureRepository,
+			ICommonServices commonServices)
 		{
-			if(lifetimeScope is null)
-			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
-			}
-			
-			_nomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
-
-			var filter = new NomenclatureFilterViewModel();
-			filter.RestrictCategory = NomenclatureCategory.water;
-
-			NomenclatureSelectorFactory = _nomenclatureJournalFactory.GetDefaultNomenclatureSelectorFactory(lifetimeScope, filter);
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			CreateCommands();
 			PromotionalSet = promotionalSet;
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			CommonServices = commonServices;
 			UoW = uow;
 		}
+
+		public DialogViewModelBase Container
+		{
+			get => _container;
+			set
+			{
+				if(_container != null)
+				{
+					return;
+				}
+
+				_container = value;
+
+				NomenclatureViewModel = new CommonEEVMBuilderFactory<AddFixPriceActionViewModel>(_container, this, UoW, _container.NavigationManager, _lifetimeScope)
+					.ForProperty(x => x.Nomenclature)
+					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+					{
+						filter.RestrictCategory = NomenclatureCategory.water;
+					})
+					.UseViewModelDialog<NomenclatureViewModel>()
+					.Finish();
+			}
+		}
+
+		public IEntityEntryViewModel NomenclatureViewModel { get; private set; }
 
 		public PromotionalSet PromotionalSet { get; set; }
 		public ICommonServices CommonServices { get; set; }
 
 		public event Action CancelCreation;
 
-		private Nomenclature nomenclature;
-		public Nomenclature Nomenclature {
-			get => nomenclature;
-			set => SetField(ref nomenclature, value);
+		public Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
-		private decimal price;
-		public decimal Price {
-			get => price;
-			set => SetField(ref price, value);
+		public decimal Price
+		{
+			get => _price;
+			set => SetField(ref _price, value);
 		}
 
-		private bool isForZeroDebt;
-		public bool IsForZeroDebt {
-			get => isForZeroDebt;
-			set => SetField(ref isForZeroDebt, value);
+		public bool IsForZeroDebt
+		{
+			get => _isForZeroDebt;
+			set => SetField(ref _isForZeroDebt, value);
 		}
 
 		#region Commands
@@ -74,47 +102,61 @@ namespace Vodovoz.ViewModels.Orders
 			CreateCancelCommand();
 		}
 
-		public DelegateCommand AcceptCommand;
+		public DelegateCommand AcceptCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
 
 		private void CreateAcceptCommand()
 		{
 			AcceptCommand = new DelegateCommand(
-				() => {
-					var validatableAction = new PromotionalSetActionFixPrice {
+				() =>
+				{
+					var validatableAction = new PromotionalSetActionFixPrice
+					{
 						Nomenclature = Nomenclature,
 						Price = Price,
 						PromotionalSet = PromotionalSet,
 						IsForZeroDebt = IsForZeroDebt
 					};
-					if(!CommonServices.ValidationService.Validate(validatableAction))
-						return;
 
-					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, nomenclatureParametersProvider);
+					if(!CommonServices.ValidationService.Validate(validatableAction))
+					{
+						return;
+					}
+
+					var waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW, _nomenclatureSettings, _nomenclatureRepository);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
-					foreach(var fixedPrice in fixedPrices) {
-						var newAction = new PromotionalSetActionFixPrice {
+
+					foreach(var fixedPrice in fixedPrices)
+					{
+						var newAction = new PromotionalSetActionFixPrice
+						{
 							Nomenclature = fixedPrice.Nomenclature,
 							Price = fixedPrice.Price,
 							PromotionalSet = PromotionalSet,
 							IsForZeroDebt = IsForZeroDebt
 						};
-                        if(!CommonServices.ValidationService.Validate(newAction))
-                            return;
+
+						if(!CommonServices.ValidationService.Validate(newAction))
+						{
+							return;
+						}
+
 						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
 					}
 				},
 				() => true);
 		}
 
-		public DelegateCommand CancelCommand;
-		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
-
 		private void CreateCancelCommand()
 		{
 			CancelCommand = new DelegateCommand(
 				() => CancelCreation?.Invoke(),
 				() => true);
+		}
+
+		public void Dispose()
+		{
+			_container = null;
 		}
 
 		#endregion

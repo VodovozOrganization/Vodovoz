@@ -8,9 +8,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gamma.GtkWidgets.yTable ytableFilters;
 
-		private global::Gtk.Button buttonCancelChanges;
+		private global::Gamma.GtkWidgets.yButton buttonCancelChanges;
 
-		private global::Gtk.Button buttonSaveChanges;
+		private global::Gamma.GtkWidgets.yButton buttonSaveChanges;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowDriverStatus;
 
@@ -64,23 +64,23 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gtk.Button btnAddWorkingDrivers;
+		private global::Gamma.GtkWidgets.yButton btnAddWorkingDrivers;
 
-		private global::Gtk.Button buttonAddDriver;
+		private global::Gamma.GtkWidgets.yButton buttonAddDriver;
 
-		private global::Gtk.Button buttonOpenDriver;
+		private global::Gamma.GtkWidgets.yButton buttonOpenDriver;
 
-		private global::Gtk.Button buttonRemoveDriver;
+		private global::Gamma.GtkWidgets.yButton buttonRemoveDriver;
 
-		private global::Gtk.Button buttonClearDriverScreen;
+		private global::Gamma.GtkWidgets.yButton buttonClearDriverScreen;
 
-		private global::Gtk.Button buttonDriverSelectAuto;
+		private global::Gamma.GtkWidgets.yButton buttonDriverSelectAuto;
 
-		private global::Gtk.Button buttonOpenCar;
+		private global::Gamma.GtkWidgets.yButton buttonOpenCar;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateRouteLists;
 
-		private global::Gtk.Button buttonEditDistricts;
+		private global::Gamma.GtkWidgets.yButton buttonEditDistricts;
 
 		private global::Gamma.Widgets.SidePanels.HideHorizontalSeparator hideForwaders;
 
@@ -92,11 +92,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.HBox hbox6;
 
-		private global::Gtk.Button buttonAddForwarder;
+		private global::Gamma.GtkWidgets.yButton buttonAddForwarder;
 
-		private global::Gtk.Button buttonRemoveForwarder;
+		private global::Gamma.GtkWidgets.yButton buttonRemoveForwarder;
 
-		private global::Gtk.Button buttonAppointForwarders;
+		private global::Gamma.GtkWidgets.yButton buttonAppointForwarders;
 
 		private global::Vodovoz.ViewWidgets.Logistics.DistrictPriorityView districtpriorityview1;
 
@@ -118,7 +118,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ytableFilters.RowSpacing = ((uint)(6));
 			this.ytableFilters.ColumnSpacing = ((uint)(6));
 			// Container child ytableFilters.Gtk.Table+TableChild
-			this.buttonCancelChanges = new global::Gtk.Button();
+			this.buttonCancelChanges = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancelChanges.CanFocus = true;
 			this.buttonCancelChanges.Name = "buttonCancelChanges";
 			this.buttonCancelChanges.UseUnderline = true;
@@ -133,7 +133,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w2.XOptions = ((global::Gtk.AttachOptions)(0));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableFilters.Gtk.Table+TableChild
-			this.buttonSaveChanges = new global::Gtk.Button();
+			this.buttonSaveChanges = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveChanges.CanFocus = true;
 			this.buttonSaveChanges.Name = "buttonSaveChanges";
 			this.buttonSaveChanges.UseUnderline = true;
@@ -391,7 +391,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.btnAddWorkingDrivers = new global::Gtk.Button();
+			this.btnAddWorkingDrivers = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddWorkingDrivers.CanFocus = true;
 			this.btnAddWorkingDrivers.Name = "btnAddWorkingDrivers";
 			this.btnAddWorkingDrivers.UseUnderline = true;
@@ -402,7 +402,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w35.Expand = false;
 			w35.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonAddDriver = new global::Gtk.Button();
+			this.buttonAddDriver = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddDriver.CanFocus = true;
 			this.buttonAddDriver.Name = "buttonAddDriver";
 			this.buttonAddDriver.UseUnderline = true;
@@ -416,7 +416,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w37.Expand = false;
 			w37.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonOpenDriver = new global::Gtk.Button();
+			this.buttonOpenDriver = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenDriver.CanFocus = true;
 			this.buttonOpenDriver.Name = "buttonOpenDriver";
 			this.buttonOpenDriver.UseUnderline = true;
@@ -430,7 +430,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w39.Expand = false;
 			w39.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonRemoveDriver = new global::Gtk.Button();
+			this.buttonRemoveDriver = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRemoveDriver.CanFocus = true;
 			this.buttonRemoveDriver.Name = "buttonRemoveDriver";
 			this.buttonRemoveDriver.UseUnderline = true;
@@ -444,7 +444,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w41.Expand = false;
 			w41.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonClearDriverScreen = new global::Gtk.Button();
+			this.buttonClearDriverScreen = new global::Gamma.GtkWidgets.yButton();
 			this.buttonClearDriverScreen.CanFocus = true;
 			this.buttonClearDriverScreen.Name = "buttonClearDriverScreen";
 			this.buttonClearDriverScreen.UseUnderline = true;
@@ -455,7 +455,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w42.Expand = false;
 			w42.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonDriverSelectAuto = new global::Gtk.Button();
+			this.buttonDriverSelectAuto = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDriverSelectAuto.CanFocus = true;
 			this.buttonDriverSelectAuto.Name = "buttonDriverSelectAuto";
 			this.buttonDriverSelectAuto.UseUnderline = true;
@@ -469,7 +469,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w44.Expand = false;
 			w44.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonOpenCar = new global::Gtk.Button();
+			this.buttonOpenCar = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenCar.CanFocus = true;
 			this.buttonOpenCar.Name = "buttonOpenCar";
 			this.buttonOpenCar.UseUnderline = true;
@@ -494,7 +494,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w47.Expand = false;
 			w47.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonEditDistricts = new global::Gtk.Button();
+			this.buttonEditDistricts = new global::Gamma.GtkWidgets.yButton();
 			this.buttonEditDistricts.CanFocus = true;
 			this.buttonEditDistricts.Name = "buttonEditDistricts";
 			this.buttonEditDistricts.UseUnderline = true;
@@ -543,7 +543,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonAddForwarder = new global::Gtk.Button();
+			this.buttonAddForwarder = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddForwarder.CanFocus = true;
 			this.buttonAddForwarder.Name = "buttonAddForwarder";
 			this.buttonAddForwarder.UseUnderline = true;
@@ -557,7 +557,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w55.Expand = false;
 			w55.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonRemoveForwarder = new global::Gtk.Button();
+			this.buttonRemoveForwarder = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRemoveForwarder.CanFocus = true;
 			this.buttonRemoveForwarder.Name = "buttonRemoveForwarder";
 			this.buttonRemoveForwarder.UseUnderline = true;
@@ -571,7 +571,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w57.Expand = false;
 			w57.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonAppointForwarders = new global::Gtk.Button();
+			this.buttonAppointForwarders = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAppointForwarders.TooltipMarkup = "Распределить оставшихся экспедиторов по водителям";
 			this.buttonAppointForwarders.CanFocus = true;
 			this.buttonAppointForwarders.Name = "buttonAppointForwarders";

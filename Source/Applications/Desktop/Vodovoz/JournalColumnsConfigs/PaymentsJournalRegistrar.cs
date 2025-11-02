@@ -1,9 +1,11 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.Tools;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -11,37 +13,47 @@ namespace Vodovoz.JournalColumnsConfigs
 	internal sealed class PaymentsJournalRegistrar : ColumnsConfigRegistrarBase<PaymentsJournalViewModel, PaymentJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<PaymentJournalNode> config) =>
-			config.AddColumn("№")
+			config.AddColumn(PaymentsJournalColumns.IdColumn)
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn(PaymentsJournalColumns.NumberColumn)
 					.AddTextRenderer(x => x.PaymentNum.ToString())
-				.AddColumn("Дата")
+				.AddColumn(PaymentsJournalColumns.DateColumn)
 					.AddTextRenderer(x => x.Date.ToShortDateString())
-				.AddColumn("Cумма")
+				.AddColumn(PaymentsJournalColumns.TotalColumn)
 					.AddTextRenderer(x => x.Total.ToString())
-				.AddColumn("Заказы")
+				.AddColumn(PaymentsJournalColumns.OrdersColumn)
 					.AddTextRenderer(x => x.Orders)
-				.AddColumn("Плательщик")
+				.AddColumn(PaymentsJournalColumns.PayerColumn)
 					.AddTextRenderer(x => x.PayerName)
-					.WrapWidth(450)
+					.WrapWidth(300)
 					.WrapMode(WrapMode.WordChar)
-				.AddColumn("Контрагент")
+				.AddColumn(PaymentsJournalColumns.CounterpartyColumn)
 					.AddTextRenderer(x => x.CounterpartyName)
-					.WrapWidth(450)
+					.WrapWidth(300)
 					.WrapMode(WrapMode.WordChar)
-				.AddColumn("Получатель")
+				.AddColumn(PaymentsJournalColumns.OrganizationColumn)
 					.AddTextRenderer(x => x.Organization)
-				.AddColumn("Назначение платежа")
+				.AddColumn(PaymentsJournalColumns.OrganizationBankColumn)
+					.AddTextRenderer(x => x.OrganizationBank)
+					.WrapWidth(100)
+					.WrapMode(WrapMode.WordChar)
+				.AddColumn(PaymentsJournalColumns.OrganizationAccountColumn)
+					.AddTextRenderer(x => x.OrganizationAccountNumber)
+				.AddColumn(PaymentsJournalColumns.PurposeColumn)
 					.AddTextRenderer(x => x.PaymentPurpose)
 					.WrapWidth(600)
 					.WrapMode(WrapMode.WordChar)
-				.AddColumn("Категория дохода/расхода")
+				.AddColumn(PaymentsJournalColumns.ProfitCategoryColumn)
 					.AddTextRenderer(x => x.ProfitCategory)
 					.XAlign(0.5f)
-				.AddColumn("Создан вручную?")
+				.AddColumn(PaymentsJournalColumns.IsManuallyCreatedColumn)
 					.AddToggleRenderer(x => x.IsManualCreated)
 					.Editing(false)
-				.AddColumn("Нераспределенная сумма")
+				.AddColumn(PaymentsJournalColumns.UnAllocatedSumColumn)
 					.AddNumericRenderer(x => x.UnAllocatedSum)
 					.Digits(2)
+				.AddColumn(PaymentsJournalColumns.DocumentTypeColumn)
+					.AddTextRenderer(x => x.EntityType.GetClassUserFriendlyName().Nominative.CapitalizeSentence())
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>(
 					(c, n) =>

@@ -9,6 +9,7 @@ using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz

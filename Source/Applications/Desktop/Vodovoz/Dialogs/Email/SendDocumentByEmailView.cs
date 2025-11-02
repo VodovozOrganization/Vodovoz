@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
@@ -7,13 +8,12 @@ using Vodovoz.ViewModels.Dialogs.Email;
 
 namespace Vodovoz.Dialogs.Email
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class SendDocumentByEmailView : WidgetViewBase<SendDocumentByEmailViewModel>
 	{
 		public SendDocumentByEmailView(SendDocumentByEmailViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			Configure();
 		}
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Dialogs.Email
 			
 			yvalidatedentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
 			yvalidatedentryEmail.Binding.AddBinding(ViewModel, vm => vm.EmailString, w => w.Text).InitializeFromSource();
-			yvalidatedentryEmail.Changed += YvalidatedentryEmailOnChanged;
+			yvalidatedentryEmail.Changed += OnEmailChanged;
 			
 			ylabelDescription.Binding.AddBinding(ViewModel, vm => vm.Description, w => w.Text).InitializeFromSource();
 
@@ -42,35 +42,38 @@ namespace Vodovoz.Dialogs.Email
 				.Finish();
 
 			ytreeviewStoredEmails.ItemsDataSource = ViewModel.StoredEmails;
-			ytreeviewStoredEmails.Selection.Changed += OnYtreeviewStoredEmailsSelectionChanged;
+			ytreeviewStoredEmails.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedStoredEmail, w => w.SelectedRow)
+				.InitializeFromSource();
 		}
 
-		private void YvalidatedentryEmailOnChanged(object sender, EventArgs e)
+		private void OnEmailChanged(object sender, EventArgs e)
 		{
 			if (!string.IsNullOrWhiteSpace(yvalidatedentryEmail.Text))
 			{
-				var regex = new Regex(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@" +
-				                      @"[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$");
+				var regex = new Regex(Vodovoz.Domain.Contacts.Email.EmailRegEx);
 
 				yvalidatedentryEmail.Text = yvalidatedentryEmail.Text.Replace(" ", "").Replace("\n", "");
 				
 				if(regex.IsMatch(yvalidatedentryEmail.Text))
+				{
 					ViewModel.UpdateEmails();
+				}
 				else
+				{
 					ViewModel.BtnSendEmailSensitive = false;
+				}
 			}
 			else
+			{
 				ViewModel.BtnSendEmailSensitive = false;
+			}
 		}
 
-		void OnYtreeviewStoredEmailsSelectionChanged(object sender, EventArgs e)
+		public override void Destroy()
 		{
-			ViewModel.SelectedObj = ytreeviewStoredEmails.GetSelectedObject();
-
-			if(ViewModel.SelectedObj == null)
-				return;
-
-			ViewModel.Description = (ViewModel.SelectedObj as StoredEmail).Description;
+			yvalidatedentryEmail.Changed -= OnEmailChanged;
+			base.Destroy();
 		}
 	}
 }

@@ -3,7 +3,7 @@ using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Models;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Factories

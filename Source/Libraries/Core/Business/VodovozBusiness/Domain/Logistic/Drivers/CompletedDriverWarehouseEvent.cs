@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 

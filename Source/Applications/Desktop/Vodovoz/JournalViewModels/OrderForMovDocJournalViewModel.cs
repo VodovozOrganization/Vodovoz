@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -83,7 +84,7 @@ namespace Vodovoz.JournalViewModels
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
 				() => deliveryPointAlias.CompiledAddress,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder
 			));
 
@@ -94,7 +95,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
-				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
+				   .Select(() => orderAlias.OnlinePaymentNumber).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 				   .Select(() => orderAlias.EShopOrder).WithAlias(() => resultAlias.EShopOrder)

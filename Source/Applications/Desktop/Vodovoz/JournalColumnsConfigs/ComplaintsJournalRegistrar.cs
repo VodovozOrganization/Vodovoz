@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using System;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
@@ -89,10 +90,17 @@ namespace Vodovoz.JournalColumnsConfigs
 					(cell, node) =>
 					{
 						var color = GdkColors.PrimaryBase;
-						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
+
+						if(node.Status == ComplaintStatuses.NotTakenInProcess)
 						{
 							color = GdkColors.Pink;
 						}
+
+						if(node.IsNeedWork)
+						{
+							color = GdkColors.YellowMustard;
+						}
+
 						cell.CellBackgroundGdk = color;
 					})
 				.Finish();

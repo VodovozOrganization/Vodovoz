@@ -1,13 +1,13 @@
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -29,6 +29,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _canEditNomenclatureCount;
 		private bool _promotionalSetForNewClients;
 		private string _onlineName;
+		private int? _bottlesCountForCalculatingDeliveryPrice;
 		
 		private IList<PromotionalSetItem> _promotionalSetItems = new List<PromotionalSetItem>();
 		private GenericObservableList<PromotionalSetItem> _observablePromotionalSetItems;
@@ -90,6 +91,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _onlineName;
 			set => SetField(ref _onlineName, value);
+		}
+		
+		[Display(Name = "Количество бутылей для расчета платной доставки")]
+		public virtual int? BottlesCountForCalculatingDeliveryPrice
+		{
+			get => _bottlesCountForCalculatingDeliveryPrice;
+			set => SetField(ref _bottlesCountForCalculatingDeliveryPrice, value);
 		}
 		
 		[Display(Name = "Строки рекламного набора")]
@@ -194,9 +202,9 @@ namespace Vodovoz.Domain.Orders
 			_observablePromotionalSetActions ?? (_observablePromotionalSetActions =
 				new GenericObservableList<PromotionalSetActionBase>(_promotionalSetActions));
 
-		public virtual bool IsValidForOrder(Order order, IStandartNomenclatures standartNomenclatures)
+		public virtual bool IsValidForOrder(Order order, INomenclatureSettings nomenclatureSettings)
 		{
-			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, standartNomenclatures));
+			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, nomenclatureSettings));
 		}
 	}
 }

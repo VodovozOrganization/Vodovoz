@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic

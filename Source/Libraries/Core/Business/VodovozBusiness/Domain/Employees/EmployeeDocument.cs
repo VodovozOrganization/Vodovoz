@@ -92,13 +92,6 @@ namespace Vodovoz.Domain.Employees
 
 	}
 
-	public class DocumentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DocumentTypeStringType() : base(typeof(EmployeeDocumentType))
-		{
-		}
-	}
-
 	public enum EmployeeDocumentType
 	{
 		[Display(Name = "Паспорт")]

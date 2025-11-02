@@ -1,31 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Services;
+using QS.Report;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QS.Widgets;
+using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
-using Autofac;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICarJournalFactory _carJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
 
+		private ITdiTab _parentTab;
+		private Car _car;
+
 		public MileageReport(
+			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory,
 			ILifetimeScope lifetimeScope)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			Build();
 			Configure();
@@ -33,15 +43,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private void Configure()
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			UoW = uowFactory.CreateWithoutRoot();
 
 			ConfigureEntries();
 
 			ycheckbutton1.Toggled += (sender, args) =>
 			{
-				entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
+				entityentryCar.Sensitive = !ycheckbutton1.Active;
 				entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
-				entityviewmodelentryCar.Subject = null;
+				Car = null;
 				entityviewmodelentryEmployee.Subject = null;
 			};
 
@@ -52,13 +63,60 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+		}
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(_carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope));
+		#region Properties
+		public Car Car
+		{
+			get => _car;
+			set
+			{
+				if(_car != value)
+				{
+					_car = value;
+
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Car)));
+				}
+			}
+		}
+
+		public ITdiTab ParentTab
+		{
+			get => _parentTab;
+			set
+			{
+				_parentTab = value;
+
+				if(entityentryCar.ViewModel == null)
+				{
+					entityentryCar.ViewModel = BuildCarEntryViewModel();
+				}
+			}
+		}
+		#endregion Properties
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
+		{
+			var navigationManager = _lifetimeScope.BeginLifetimeScope().Resolve<INavigationManager>();
+
+			var viewModel = new LegacyEEVMBuilderFactory<MileageReport>(ParentTab, this, UoW, navigationManager, _lifetimeScope)
+			.ForProperty(x => x.Car)
+			.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+				filter =>
+				{
+				})
+			.UseViewModelDialog<CarViewModel>()
+			.Finish();
+
+			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
 		}
 
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public string Title => "Отчет по километражу";
 
@@ -72,17 +130,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 				{ "end_date", dateperiodpicker.EndDateOrNull },
 				{ "our_cars_only", ycheckbutton1.Active },
 				{ "any_status", checkAnyStatus.Active },
-				{ "car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0 },
+				{ "car_id", Car?.Id ?? 0 },
 				{ "employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0 },
 				{ "difference_km", validatedentryDifference.Text }
 			};
 
-			return new ReportInfo
-			{
-				Identifier = "Logistic.MileageReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create("Logistic.MileageReport", Title, parameters);
+			reportInfo.UseUserVariables = true;
+
+			return reportInfo;
 		}
 
 		private void OnButtonCreateReportClicked(object sender, EventArgs e)

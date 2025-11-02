@@ -4,9 +4,8 @@ using Gtk;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +14,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -27,15 +27,16 @@ namespace Vodovoz.Dialogs.Employees
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		private readonly IDocTemplateRepository _docTemplateRepository = new DocTemplateRepository();
+		private IDocTemplateRepository _docTemplateRepository;
 
 		private List<OrderEquipment> equipmentList;
 		public bool IsEditable { get; set; } = true;
 
 		public M2ProxyDlg()
 		{
+			ResolveDependancies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			ConfigureDlg();
 		}
@@ -44,20 +45,27 @@ namespace Vodovoz.Dialogs.Employees
 
 		public M2ProxyDlg(int id)
 		{
+			ResolveDependancies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(id);
 			TabName = "Изменение доверенности М-2";
 			ConfigureDlg();
 		}
 
 		public M2ProxyDlg(Order order)
 		{
+			ResolveDependancies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			TabName = "Новая доверенность М-2";
 			Entity.Order = order;
 
 			ConfigureDlg();
+		}
+
+		private void ResolveDependancies()
+		{
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
 		}
 
 		void ConfigureDlg()
@@ -74,10 +82,21 @@ namespace Vodovoz.Dialogs.Employees
 			};
 			evmeOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			var orgFactory = _lifetimeScope.Resolve<IOrganizationJournalFactory>();
-			evmeOrganization.SetEntityAutocompleteSelectorFactory(orgFactory.CreateOrganizationAutocompleteSelectorFactory());
-			evmeOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
-			evmeOrganization.Changed += (sender, e) => UpdateStates();
+
+			var organizationViewModel = new LegacyEEVMBuilderFactory<M2ProxyDocument>(
+				this,
+				Entity,
+				UoW,
+				Startup.MainWin.NavigationManager,
+				_lifetimeScope)
+				.ForProperty(x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+
+			organizationViewModel.Changed += (sender, e) => UpdateStates();
+
+			entryOrganization.ViewModel = organizationViewModel;
 
 			FillForOrder();
 
@@ -191,7 +210,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			bool isNewDoc = !(Entity.Id > 0);
 			evmeOrder.Sensitive = yDPDatesRange.Sensitive = evmeEmployee.Sensitive = evmeSupplier.Sensitive = yETicketNr.Sensitive
-				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = evmeOrganization.Sensitive = isNewDoc;
+				= yDTicketDate.Sensitive = yTWEquipment.Sensitive = entryOrganization.Sensitive = isNewDoc;
 
 			if(Entity.Organization == null || !isNewDoc) {
 				return;
@@ -205,7 +224,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Order == null)
 				return true;
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -227,6 +246,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override void Destroy()
 		{
+			_docTemplateRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

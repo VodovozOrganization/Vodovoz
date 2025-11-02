@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.id as nomenclature_id,
@@ -26,7 +26,7 @@
         WHEN 'rent' THEN 'Аренда кулеров'
         WHEN 'water' THEN 'Вода в многооборотной таре'
         WHEN 'deposit' THEN 'Залог'
-        WHEN 'spare_parts' THEN 'Запчасти'
+        WHEN 'spare_parts' THEN 'Запчасти сервисного центра'
         WHEN 'equipment' THEN 'Оборудование'
         WHEN 'additional' THEN 'Товары'
         WHEN 'service' THEN 'Услуга'
@@ -42,14 +42,18 @@ FROM
     nomenclature ON nomenclature.id = store_shiftchange_item.nomenclature_id
 WHERE
     store_shiftchange_item.store_shiftchange_id = @document_id
+ORDER BY IF(@order_by_nomenclature_name, nomenclature.name, store_shiftchange_item.id)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="document_id">
             <Value>=Parameters!document_id</Value>
           </QueryParameter>
+          <QueryParameter Name="order_by_nomenclature_name">
+            <Value>={?order_by_nomenclature_name}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -297,11 +301,11 @@ WHERE stored_resource.id = @id1</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="InstanceData">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     ni.id as instance_id,
-    ni.inventory_number,
+    GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number) as inventory_number,
     n.name AS nomenclature,
     ROUND(amount_in_db) as amount_in_db,
     IF(is_missing, 0, 1) as amount_in_fact,
@@ -311,7 +315,7 @@ WHERE stored_resource.id = @id1</CommandText>
         WHEN 'rent' THEN 'Аренда кулеров'
         WHEN 'water' THEN 'Вода в многооборотной таре'
         WHEN 'deposit' THEN 'Залог'
-        WHEN 'spare_parts' THEN 'Запчасти'
+        WHEN 'spare_parts' THEN 'Запчасти сервисного центра'
         WHEN 'equipment' THEN 'Оборудование'
         WHEN 'additional' THEN 'Товары'
         WHEN 'service' THEN 'Услуга'
@@ -328,14 +332,18 @@ FROM
         LEFT JOIN
     nomenclature n ON n.id = ni.nomenclature_id
 WHERE
-    store_shiftchange_instance_item.store_shiftchange_id = @document_id;</CommandText>
+    store_shiftchange_instance_item.store_shiftchange_id = @document_id
+ORDER BY IF(@order_by_nomenclature_name, n.name, store_shiftchange_instance_item.id);</CommandText>
         <QueryParameters>
           <QueryParameter Name="document_id">
             <Value>={?document_id}</Value>
           </QueryParameter>
+          <QueryParameter Name="order_by_nomenclature_name">
+            <Value>={?order_by_nomenclature_name}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="instance_id">
           <DataField>instance_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1258,7 +1266,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1274,7 +1282,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Left</TextAlign>
+                        <TextAlign>Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1563,7 +1571,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="document_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -1584,6 +1592,13 @@ WHERE
       <MultiValue>true</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="order_by_nomenclature_name">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

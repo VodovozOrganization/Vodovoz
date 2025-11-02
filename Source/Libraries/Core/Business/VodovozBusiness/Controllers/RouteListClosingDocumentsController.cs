@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -10,28 +10,25 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
 {
-    public class RouteListClosingDocumentsController : IRouteListClosingDocumentsController
+	public class RouteListClosingDocumentsController : IRouteListClosingDocumentsController
     {
         public RouteListClosingDocumentsController(
-            IStandartNomenclatures standartNomenclaturesParameters,
+			INomenclatureSettings nomenclatureSettings,
             IEmployeeRepository employeeRepository,
-            IRouteListRepository routeListRepository,
-            ITerminalNomenclatureProvider terminalNomenclatureProvider)
+            IRouteListRepository routeListRepository)
         {
-            this.standartNomenclaturesParameters = standartNomenclaturesParameters ?? throw new ArgumentNullException(nameof(standartNomenclaturesParameters));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-            this.terminalNomenclatureProvider = terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
         }
 
-        private readonly IStandartNomenclatures standartNomenclaturesParameters;
-        private readonly IEmployeeRepository employeeRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IEmployeeRepository employeeRepository;
         private readonly IRouteListRepository routeListRepository;
-        private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
 
         public void UpdateDocuments(RouteList routeList, IUnitOfWork uow)
         {
@@ -66,7 +63,7 @@ namespace Vodovoz.Controllers
 
         private void CreateOrUpdateDocuments(IUnitOfWork uow, RouteList routeList)
         {
-            var standartReturnNomenclature = uow.GetById<Nomenclature>(standartNomenclaturesParameters.GetReturnedBottleNomenclatureId);
+            var standartReturnNomenclature = uow.GetById<Nomenclature>(_nomenclatureSettings.ReturnedBottleNomenclatureId);
 
             var deliveryDocuments = uow.Session.QueryOver<DeliveryDocument>()
                 .WhereRestrictionOn(x => x.RouteListItem.Id)
@@ -92,14 +89,16 @@ namespace Vodovoz.Controllers
                     deliveryDocuments.Add(deliveryDocument);
                 }
 
-                if(deliveryDocument.Author == null)
-                    deliveryDocument.Author = employeeForCurrentUser;
+				if(deliveryDocument.AuthorId == null)
+				{
+					deliveryDocument.AuthorId = employeeForCurrentUser.Id;
+				}
 
-                if(deliveryDocument.TimeStamp == default(DateTime)) {
+				if(deliveryDocument.TimeStamp == default(DateTime)) {
                     deliveryDocument.TimeStamp = DateTime.Now;
                 }
 
-                deliveryDocument.LastEditor = employeeForCurrentUser;
+                deliveryDocument.LastEditorId = employeeForCurrentUser.Id;
                 deliveryDocument.LastEditedTime = DateTime.Now;
                 deliveryDocument.RouteListItem = address;
 
@@ -156,19 +155,21 @@ namespace Vodovoz.Controllers
         /// </summary>
         private void CreateOrUpdateDiscrepancyDocument(IUnitOfWork uow, RouteList routeList, Employee employeeForCurrentUser, IList<DeliveryDocument> deliveryDocuments)
         {
-            var terminalNomenclatureId = terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
+            var terminalNomenclatureId = _nomenclatureSettings.NomenclatureIdForTerminal;
             
             DriverDiscrepancyDocument discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>()
                 .Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault() ?? new DriverDiscrepancyDocument();
 
-            if(discrepancyDocument.Author == null)
-                discrepancyDocument.Author = employeeForCurrentUser;
+            if(discrepancyDocument.AuthorId == null)
+			{
+				discrepancyDocument.AuthorId = employeeForCurrentUser.Id;
+			}
 
-            if(discrepancyDocument.TimeStamp == default(DateTime)) {
+			if(discrepancyDocument.TimeStamp == default(DateTime)) {
                 discrepancyDocument.TimeStamp = DateTime.Now;
             }
 
-            discrepancyDocument.LastEditor = employeeForCurrentUser;
+            discrepancyDocument.LastEditorId = employeeForCurrentUser.Id;
             discrepancyDocument.LastEditedTime = DateTime.Now;
             discrepancyDocument.RouteList = routeList;
 

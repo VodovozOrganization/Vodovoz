@@ -8,15 +8,15 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button btnAdd;
+		private global::Gamma.GtkWidgets.yButton btnAdd;
 
-		private global::Gtk.Button buttonEdit;
+		private global::Gamma.GtkWidgets.yButton buttonEdit;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		private global::Gtk.CheckButton buttonFilter;
 
-		private global::Gtk.Button buttonRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::Gtk.HBox hboxFilter;
 
@@ -39,7 +39,7 @@ namespace Vodovoz.JournalViewers
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnAdd = new global::Gtk.Button();
+			this.btnAdd = new global::Gamma.GtkWidgets.yButton();
 			this.btnAdd.CanFocus = true;
 			this.btnAdd.Name = "btnAdd";
 			this.btnAdd.UseUnderline = true;
@@ -53,7 +53,7 @@ namespace Vodovoz.JournalViewers
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonEdit = new global::Gtk.Button();
+			this.buttonEdit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonEdit.CanFocus = true;
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.UseUnderline = true;
@@ -67,7 +67,7 @@ namespace Vodovoz.JournalViewers
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
@@ -93,7 +93,7 @@ namespace Vodovoz.JournalViewers
 			w7.Position = 3;
 			w7.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;

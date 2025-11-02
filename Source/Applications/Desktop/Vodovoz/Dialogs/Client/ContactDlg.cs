@@ -3,13 +3,11 @@ using Autofac;
 using NLog;
 using QS.Dialog;
 using Vodovoz.Domain.Contacts;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz
 {
@@ -18,12 +16,14 @@ namespace Vodovoz
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
-		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 
 		public ContactDlg (Counterparty counterparty)
 		{
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
 			this.Build ();
-			UoWGeneric = Contact.Create (counterparty);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Contact>();
+			UoWGeneric.Root.Counterparty = counterparty;
 			ConfigureDlg ();
 		}
 
@@ -33,8 +33,9 @@ namespace Vodovoz
 
 		public ContactDlg (int id)
 		{
+			_externalCounterpartyRepository = _lifetimeScope.Resolve<IExternalCounterpartyRepository>();
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Contact> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Contact> (id);
 			ConfigureDlg ();
 		}
 
@@ -56,7 +57,7 @@ namespace Vodovoz
 				new EmailsViewModel(
 					UoWGeneric,
 					Entity.Emails,
-					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_lifetimeScope.Resolve<IEmailSettings>(),
 					_externalCounterpartyRepository,
 					_interactiveService,
 					Entity.Counterparty.PersonType);
@@ -69,7 +70,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;

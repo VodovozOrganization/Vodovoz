@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 {
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public string CarModelWithNumber { get; set; }
 		public int EventId { get; set; }
 		public string EventName { get; set; }
+		public EventQrDocumentType? DocumentType { get; set; }
+		public int? DocumentNumber { get; set; }
 		public decimal Distance { get; set; }
 	}
 }

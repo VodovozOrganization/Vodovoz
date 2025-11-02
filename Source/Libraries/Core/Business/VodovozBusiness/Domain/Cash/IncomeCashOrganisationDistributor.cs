@@ -4,23 +4,22 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Cash
 {
 	public class IncomeCashOrganisationDistributor : IIncomeCashOrganisationDistributor
 	{
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
+		private readonly IOrganizationRepository _organizationRepository;
 
-		public IncomeCashOrganisationDistributor(ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider)
+		public IncomeCashOrganisationDistributor(IOrganizationRepository organizationRepository)
 		{
-			this._cashDistributionCommonOrganisationProvider =
-				cashDistributionCommonOrganisationProvider ?? throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
+			this._organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public void DistributeCashForIncome(IUnitOfWork uow, Income income, Organization organisation = null)
 		{
-			var org = organisation ?? _cashDistributionCommonOrganisationProvider.GetCommonOrganisation(uow);
+			var org = organisation ?? _organizationRepository.GetCommonOrganisation(uow);
 			var operation = CreateOrganisationCashMovementOperation(income, org);
 			var incomeCashDistributionDoc = CreateIncomeCashDistributionDocument(income, operation);
 			Save(operation, incomeCashDistributionDoc, uow);

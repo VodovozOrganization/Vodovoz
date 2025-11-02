@@ -55,7 +55,14 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		public override bool Save(bool close)
 		{
 			var all = _deliveryScheduleRepository.All(UoWGeneric);
-			var notArchivedList = all.Where(ds => ds.IsArchive == false && ds.From == Entity.From && ds.To == Entity.To && ds.Id != Entity.Id).ToList();
+
+			var notArchivedList = all
+				.Where(ds => ds.IsArchive == false
+					&& ds.From == Entity.From
+					&& ds.To == Entity.To
+					&& ds.Id != Entity.Id)
+				.ToList();
+
 			if(notArchivedList.Any() && UoWGeneric.Root.IsArchive == false)
 			{
 				//при архивировании интервала эти проверки не нужны
@@ -72,8 +79,13 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 				return false; // нашли активный
 			}
 
-			var archivedList = all.Where(ds => ds.IsArchive && ds.From == Entity.From && ds.To == Entity.To).ToList();
-			if(archivedList.Any() && UoWGeneric.Root.IsArchive == false)
+			var archivedList = all
+				.Where(ds => ds.IsArchive
+					&& ds.From == Entity.From
+					&& ds.To == Entity.To)
+				.ToList();
+
+			if(UoW.IsNew && archivedList.Any() && UoWGeneric.Root.IsArchive == false)
 			{
 				//при архивировании интервала эти проверки не нужны
 				//т.к. интервалы нельзя удалять, архивными могут быть несколько, так что берем первый

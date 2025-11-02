@@ -9,11 +9,4 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "От клиента")]
 		FromClient
 	}
-
-	public class ResidueEquipmentDirectionStringType : NHibernate.Type.EnumStringType
-	{
-		public ResidueEquipmentDirectionStringType() : base(typeof(ResidueEquipmentDirection))
-		{
-		}
-	}
 }

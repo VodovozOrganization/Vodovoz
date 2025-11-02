@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Specifications;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Specifications.Orders.EdoContainers

@@ -2,19 +2,19 @@
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Views.Client
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CloseSupplyToCounterpartyView : TabViewBase<CloseSupplyToCounterpartyViewModel>
 	{
 		public CloseSupplyToCounterpartyView(CloseSupplyToCounterpartyViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -43,6 +43,17 @@ namespace Vodovoz.Views.Client
 
 		private void ConfigureCloseSupplyControls()
 		{
+			ylabelDebtType.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
+				.InitializeFromSource();
+
+			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);
+			yenumcomboboxDebtType.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.CloseDeliveryDebtType, w => w.SelectedItemOrNull)
+				.AddBinding(e => e.IsDeliveriesClosed, l => l.Visible)
+				.InitializeFromSource();
+
 			labelCloseDelivery.Binding
 				.AddBinding(ViewModel, vm => vm.CloseDeliveryLabelInfo, l => l.LabelProp)
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
@@ -91,7 +102,7 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
-			lblVodovozNumber.LabelProp = ViewModel.Entity.VodovozInternalId.ToString();
+			lblVodovozNumber.Visible = false;
 
 			hboxCameFrom.Visible = (ViewModel.Entity.Id != 0 && ViewModel.Entity.CameFrom != null) || ViewModel.Entity.Id == 0;
 
@@ -220,12 +231,8 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			// Прикрепляемые документы
-			var filesViewModel =
-				new CounterpartyFilesViewModel(ViewModel.Entity, ViewModel.UoW, new FileDialogService(), ServicesConfig.CommonServices, ViewModel.UserRepository)
-				{
-					ReadOnly = true
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+
+			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 			frame3.Visible = ViewModel.Entity.IsForRetail;
 
 			chkNeedNewBottles.Binding
@@ -271,7 +278,7 @@ namespace Vodovoz.Views.Client
 		public override void Dispose()
 		{
 			ytreeviewSalesChannels?.Destroy();
-			counterpartyfilesview1?.Destroy();
+			smallfileinformationsview?.Destroy();
 			base.Dispose();
 		}
 	}

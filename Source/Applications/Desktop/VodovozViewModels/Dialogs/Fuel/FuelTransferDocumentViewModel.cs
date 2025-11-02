@@ -1,35 +1,50 @@
-﻿using System;
+﻿using Autofac;
+using QS.Commands;
+using QS.DomainModel.Entity;
+using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using QS.Report;
+using QS.Services;
+using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using QS.ViewModels;
-using QS.Commands;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Subdivisions;
-using QS.DomainModel.Entity;
-using QS.DomainModel.NotifyChange;
 using Vodovoz.EntityRepositories.Fuel;
-using QS.Project.Domain;
-using QS.Services;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
-using Autofac;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelTransferDocumentViewModel : EntityTabViewModelBase<FuelTransferDocument>
 	{
-		private readonly IEmployeeService employeeService;
-		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly IFuelRepository fuelRepository;
-		private readonly IEmployeeJournalFactory employeeJournalFactory;
-		private readonly ICarJournalFactory carJournalFactory;
-		private readonly IReportViewOpener reportViewOpener;
+		private readonly IEmployeeService _employeeService;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFuelRepository _fuelRepository;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private Employee _currentEmployee;
+		private bool _sendedNow;
+		private bool _receivedNow;
+		private IEnumerable<Subdivision> _cashSubdivisions;
+		private IEnumerable<Subdivision> _availableSubdivisionsForUser;
+		private List<Subdivision> _subdivisionsFrom;
+		private List<Subdivision> _subdivisionsTo;
+		private bool _isUpdatingSubdivisions = false;
+		private decimal _fuelBalanceCache;
+		private IEnumerable<FuelType> _fuelTypes;
 
 		public FuelTransferDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -38,39 +53,43 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory,
 			IReportViewOpener reportViewOpener,
-			ILifetimeScope lifetimeScope
-			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ILifetimeScope lifetimeScope,
+			IReportInfoFactory reportInfoFactory
+			) : base(uoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			TabName = "Документ перемещения топлива";
 
-			if(CurrentEmployee == null) {
+			if(CurrentEmployee == null)
+			{
 				AbortOpening("К вашему пользователю не привязан сотрудник, невозможно открыть документ");
 			}
 			ConfigureEntityPropertyChanges();
 			CreateCommands();
 
-			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
+			FuelBalanceViewModel = new FuelBalanceViewModel(unitOfWorkFactory,subdivisionRepository, fuelRepository);
 
 			UpdateCashSubdivisions();
 			UpdateFuelTypes();
 			UpdateBalanceCache();
 
-			if(uoWBuilder.IsNewEntity) {
+			if(uoWBuilder.IsNewEntity)
+			{
 				Entity.CreationTime = DateTime.Now;
 				Entity.Author = CurrentEmployee;
 			}
 
-			ConfigureEntries();
+			DriverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			CarEntryViewModel = BuildCarEntryViewModel();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -114,25 +133,25 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		public FuelBalanceViewModel FuelBalanceViewModel { get; }
 
-		private Employee currentEmployee;
-		public Employee CurrentEmployee {
-			get {
-				if(currentEmployee == null) {
-					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+		public Employee CurrentEmployee
+		{
+			get
+			{
+				if(_currentEmployee == null)
+				{
+					_currentEmployee = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
-				return currentEmployee;
+				return _currentEmployee;
 			}
 		}
 
 		public bool CanEdit => Entity.Status == FuelTransferDocumentStatuses.New;
-		public bool CanSave => (CanEdit && HasChanges) || sendedNow || receivedNow;
+		public bool CanSave => (CanEdit && HasChanges) || _sendedNow || _receivedNow;
 		public bool CanPrint => true;
 
-		private bool sendedNow;
 		[PropertyChangedAlso(nameof(CanSave))]
 		public bool CanSend => SendCommand.CanExecute();
 
-		private bool receivedNow;
 		[PropertyChangedAlso(nameof(CanSave))]
 		public bool CanReceive => ReceiveCommand.CanExecute();
 
@@ -140,14 +159,26 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		#region Entries
 
-		private void ConfigureEntries()
+		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel()
 		{
-			DriverSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory(_lifetimeScope);
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<FuelTransferDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = false;
+
+			return viewModel;
 		}
-		
-		public IEntityAutocompleteSelectorFactory DriverSelectorFactory;
-		public IEntityAutocompleteSelectorFactory CarSelectorFactory;
 
 		#endregion Entries
 
@@ -167,15 +198,18 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void CreateSendCommand()
 		{
 			SendCommand = new DelegateCommand(
-				() => {
-					if(!Validate()) {
+				() =>
+				{
+					if(!Validate())
+					{
 						return;
 					}
-					Entity.Send(CurrentEmployee, fuelRepository);
-					sendedNow = Entity.Status == FuelTransferDocumentStatuses.Sent;
+					Entity.Send(CurrentEmployee, _fuelRepository);
+					_sendedNow = Entity.Status == FuelTransferDocumentStatuses.Sent;
 					OnPropertyChanged(() => CanSave);
 				},
-				() => {
+				() =>
+				{
 					return CurrentEmployee != null
 						&& Entity.Status == FuelTransferDocumentStatuses.New
 						&& Entity.Driver != null
@@ -199,15 +233,17 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void CreateReceiveCommand()
 		{
 			ReceiveCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					Entity.Receive(CurrentEmployee);
-					receivedNow = Entity.Status == FuelTransferDocumentStatuses.Received;
+					_receivedNow = Entity.Status == FuelTransferDocumentStatuses.Received;
 					OnPropertyChanged(() => CanSave);
 				},
-				() => {
+				() =>
+				{
 					return CurrentEmployee != null
 						&& Entity.Status == FuelTransferDocumentStatuses.Sent
-						&& availableSubdivisionsForUser.Contains(Entity.CashSubdivisionTo)
+						&& _availableSubdivisionsForUser.Contains(Entity.CashSubdivisionTo)
 						&& Entity.Id != 0;
 				}
 			);
@@ -221,17 +257,19 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private void CreatePrintCommand()
 		{
 			PrintCommand = new DelegateCommand(
-				() => {
-					if((UoW.IsNew && Entity.Id == 0 || sendedNow || receivedNow) && (!AskQuestion("Сохранить изменения перед печатью?") || !Save()))
+				() =>
+				{
+					if((UoW.IsNew && Entity.Id == 0 || _sendedNow || _receivedNow) && (!AskQuestion("Сохранить изменения перед печатью?") || !Save()))
+					{
 						return;
+					}
 
-					var reportInfo = new QS.Report.ReportInfo {
-						Title = string.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}"),
-						Identifier = "Documents.FuelTransferDocument",
-						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
-					};
+					var reportInfo = _reportInfoFactory.Create();
+					reportInfo.Title = string.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}");
+					reportInfo.Identifier = "Documents.FuelTransferDocument";
+					reportInfo.Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } };
 
-					reportViewOpener.OpenReport(this, reportInfo);
+					_reportViewOpener.OpenReport(this, reportInfo);
 				},
 				() => true
 			);
@@ -239,7 +277,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		protected override void AfterSave()
 		{
-			receivedNow = sendedNow = false;
+			_receivedNow = _sendedNow = false;
 			base.AfterSave();
 		}
 
@@ -247,61 +285,67 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		#region Настройка списков доступных подразделений кассы
 
-		private IEnumerable<Subdivision> cashSubdivisions;
-		private IEnumerable<Subdivision> availableSubdivisionsForUser;
-
-		private List<Subdivision> subdivisionsFrom;
-		public virtual List<Subdivision> SubdivisionsFrom {
-			get => subdivisionsFrom;
-			set => SetField(ref subdivisionsFrom, value, () => SubdivisionsFrom);
+		public virtual List<Subdivision> SubdivisionsFrom
+		{
+			get => _subdivisionsFrom;
+			set => SetField(ref _subdivisionsFrom, value, () => SubdivisionsFrom);
 		}
 
-		private List<Subdivision> subdivisionsTo;
-		public virtual List<Subdivision> SubdivisionsTo {
-			get => subdivisionsTo;
-			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
+		public virtual List<Subdivision> SubdivisionsTo
+		{
+			get => _subdivisionsTo;
+			set => SetField(ref _subdivisionsTo, value, () => SubdivisionsTo);
 		}
 
 		private void UpdateCashSubdivisions()
 		{
-			availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
-			cashSubdivisions = subdivisionRepository.GetCashSubdivisions(UoW);
-			if(Entity.CashSubdivisionTo == null) {
-				SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser);
-			} else {
-				SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
+			_availableSubdivisionsForUser = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
+			_cashSubdivisions = _subdivisionRepository.GetCashSubdivisions(UoW);
+			if(Entity.CashSubdivisionTo == null)
+			{
+				SubdivisionsFrom = new List<Subdivision>(_availableSubdivisionsForUser);
 			}
-			if(Entity.CashSubdivisionFrom == null) {
-				SubdivisionsTo = new List<Subdivision>(cashSubdivisions);
-			} else {
-				SubdivisionsTo = new List<Subdivision>(cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
+			else
+			{
+				SubdivisionsFrom = new List<Subdivision>(_availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
 			}
-			if(!CanEdit && !SubdivisionsFrom.Contains(CashSubdivisionFrom)) {
+			if(Entity.CashSubdivisionFrom == null)
+			{
+				SubdivisionsTo = new List<Subdivision>(_cashSubdivisions);
+			}
+			else
+			{
+				SubdivisionsTo = new List<Subdivision>(_cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
+			}
+			if(!CanEdit && !SubdivisionsFrom.Contains(CashSubdivisionFrom))
+			{
 				SubdivisionsFrom.Add(CashSubdivisionFrom);
 			}
-			if(!CanEdit && !SubdivisionsTo.Contains(CashSubdivisionTo)) {
+			if(!CanEdit && !SubdivisionsTo.Contains(CashSubdivisionTo))
+			{
 				SubdivisionsTo.Add(CashSubdivisionTo);
 			}
 		}
 
-
-		private bool isUpdatingSubdivisions = false;
-
-
-
-		public virtual Subdivision CashSubdivisionFrom {
+		public virtual Subdivision CashSubdivisionFrom
+		{
 			get => Entity.CashSubdivisionFrom;
-			set {
-				if(CanEdit) {
+			set
+			{
+				if(CanEdit)
+				{
 					Entity.CashSubdivisionFrom = value;
 				}
 			}
 		}
 
-		public virtual Subdivision CashSubdivisionTo {
+		public virtual Subdivision CashSubdivisionTo
+		{
 			get => Entity.CashSubdivisionTo;
-			set {
-				if(CanEdit) {
+			set
+			{
+				if(CanEdit)
+				{
 					Entity.CashSubdivisionTo = value;
 				}
 			}
@@ -310,49 +354,55 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		private void UpdateSubdivisionsFrom()
 		{
-			if(!CanEdit || isUpdatingSubdivisions) {
+			if(!CanEdit || _isUpdatingSubdivisions)
+			{
 				return;
 			}
-			isUpdatingSubdivisions = true;
+			_isUpdatingSubdivisions = true;
 			var currentSubdivisonFrom = Entity.CashSubdivisionFrom;
-			SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
-			if(SubdivisionsTo.Contains(currentSubdivisonFrom)) {
+			SubdivisionsFrom = new List<Subdivision>(_availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
+			if(SubdivisionsTo.Contains(currentSubdivisonFrom))
+			{
 				Entity.CashSubdivisionFrom = currentSubdivisonFrom;
 			}
-			isUpdatingSubdivisions = false;
+			_isUpdatingSubdivisions = false;
 		}
 
 		private void UpdateSubdivisionsTo()
 		{
-			if(!CanEdit || isUpdatingSubdivisions) {
+			if(!CanEdit || _isUpdatingSubdivisions)
+			{
 				return;
 			}
-			isUpdatingSubdivisions = true;
+			_isUpdatingSubdivisions = true;
 			var currentSubdivisonTo = Entity.CashSubdivisionTo;
-			SubdivisionsTo = new List<Subdivision>(cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
-			if(SubdivisionsTo.Contains(currentSubdivisonTo)) {
+			SubdivisionsTo = new List<Subdivision>(_cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
+			if(SubdivisionsTo.Contains(currentSubdivisonTo))
+			{
 				Entity.CashSubdivisionTo = currentSubdivisonTo;
 			}
-			isUpdatingSubdivisions = false;
+			_isUpdatingSubdivisions = false;
 		}
 
 		#endregion Настройка списков доступных подразделений кассы
 
 		#region FuelBalance
 
-		private decimal fuelBalanceCache;
-		public virtual decimal FuelBalanceCache {
-			get => fuelBalanceCache;
-			set => SetField(ref fuelBalanceCache, value, () => FuelBalanceCache);
+		public virtual decimal FuelBalanceCache
+		{
+			get => _fuelBalanceCache;
+			set => SetField(ref _fuelBalanceCache, value, () => FuelBalanceCache);
 		}
 
 		private void UpdateBalanceCache()
 		{
-			if(Entity.CashSubdivisionFrom == null || Entity.FuelType == null) {
+			if(Entity.CashSubdivisionFrom == null || Entity.FuelType == null)
+			{
 				return;
 			}
-			FuelBalanceCache = fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivisionFrom, Entity.FuelType);
-			if(Entity.TransferedLiters > FuelBalanceCache && CanEdit) {
+			FuelBalanceCache = _fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivisionFrom, Entity.FuelType);
+			if(Entity.TransferedLiters > FuelBalanceCache && CanEdit)
+			{
 				Entity.TransferedLiters = FuelBalanceCache;
 			}
 		}
@@ -361,10 +411,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 
 		#region FuelTypes
 
-		private IEnumerable<FuelType> fuelTypes;
-		public virtual IEnumerable<FuelType> FuelTypes {
-			get => fuelTypes;
-			set => SetField(ref fuelTypes, value, () => FuelTypes);
+		public virtual IEnumerable<FuelType> FuelTypes
+		{
+			get => _fuelTypes;
+			set => SetField(ref _fuelTypes, value, () => FuelTypes);
 		}
 
 		private void UpdateFuelTypes()

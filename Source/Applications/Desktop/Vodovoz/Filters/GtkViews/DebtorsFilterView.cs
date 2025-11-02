@@ -2,10 +2,12 @@
 using QS.Widgets;
 using System;
 using System.ComponentModel;
-using Vodovoz.Domain.Client;
+using Gtk;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -22,7 +24,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entityVMEntryDeliveryPoint.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryPointSelectorFactory);
-			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureSelectorFactory);
+
+			entryNomenclature.ViewModel = ViewModel.NomenclatureViewModel;
 
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -45,10 +48,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, x => x.Address, x => x.Subject)
 				.InitializeFromSource();
 
-			entityviewmodelentryNomenclature.Binding
-				.AddBinding(ViewModel, x => x.LastOrderNomenclature, x => x.Subject)
+			entrySalesManager.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManagerSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(vm => vm.SalesManager, w => w.Subject)
 				.InitializeFromSource();
-
+			
 			yvalidatedentryDebtTo.Binding
 				.AddBinding(ViewModel, x => x.DebtBottlesTo, x => x.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
@@ -130,6 +134,30 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxHasTask.Binding
 				.AddBinding(ViewModel, x => x.DebtorsTaskStatus, x => x.SelectedItemOrNull)
 				.InitializeFromSource();
+
+			ycheckbuttonHideExcludedFromAutoCalls.Binding
+				.AddBinding(ViewModel, vm => vm.HideExcludeFromAutoCalls, w => w.Active)
+				.InitializeFromSource();
+			
+			yvalidatedentryFixPriceFrom.Binding
+            	.AddBinding(ViewModel, x => x.FixPriceFrom, x => x.Text, new NullableDecimalToStringConverter())
+            	.InitializeFromSource();
+
+			yvalidatedentryFixPriceFrom.KeyReleaseEvent += OnKeyReleased;
+
+			yvalidatedentryFixPriceTo.Binding
+            	.AddBinding(ViewModel, x => x.FixPriceTo, x => x.Text, new NullableDecimalToStringConverter())
+            	.InitializeFromSource();
+			
+			yvalidatedentryFixPriceTo.KeyReleaseEvent += OnKeyReleased;
+		}
+
+		private void OnKeyReleased(object o, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
@@ -143,6 +171,14 @@ namespace Vodovoz.Filters.GtkViews
 			{
 				ViewModel.DeliveryPointJournalFilterViewModel.Counterparty = ViewModel.Client;
 			}
+		}
+
+		public override void Dispose()
+		{
+			yvalidatedentryFixPriceFrom.KeyReleaseEvent -= OnKeyReleased;
+			yvalidatedentryFixPriceTo.KeyReleaseEvent -= OnKeyReleased;
+			
+			base.Dispose();
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using QS.Views.Dialog;
 using Vodovoz.Domain.Client;
-using Vodovoz.Presentation.ViewModels.PaymentType;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 
 namespace Vodovoz.Views
 {

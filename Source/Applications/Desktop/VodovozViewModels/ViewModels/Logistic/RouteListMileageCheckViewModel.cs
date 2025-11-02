@@ -1,18 +1,19 @@
-﻿using QS.Commands;
+﻿using Autofac;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Tdi;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -22,13 +23,14 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Settings.Employee;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Autofac;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -36,7 +38,8 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly IEmployeeSettings _employeeSettings2;
+		private readonly IEmployeeSettings _employeeSettings1;
 		private readonly ITrackRepository _trackRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -61,15 +64,14 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ICurrentPermissionService _currentPermissionService;
 
 		public RouteListMileageCheckViewModel(
 			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
-			ICarJournalFactory carJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			BaseParametersProvider baseParametersProvider,
 			ITrackRepository trackRepository,
 			ICallTaskRepository callTaskRepository,
 			IEmployeeRepository employeeRepository,
@@ -84,7 +86,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			IEmployeeSettings employeeSettings,
 			IEmployeeService employeeService,
-			IRouteListProfitabilityController routeListProfitabilityController)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			ICurrentPermissionService currentPermissionService)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -94,7 +97,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = $"Контроль за километражем маршрутного листа №{Entity.Id}";
 
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -110,9 +112,10 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_currentPermissionService = currentPermissionService;
 
-			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 
 			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -129,11 +132,11 @@ namespace Vodovoz.ViewModels.Logistic
 			ConfigureAndCheckPermissions();
 		}
 
-		public IEntityAutocompleteSelectorFactory CarSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory LogisticianSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
-		
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+
 		public bool CanEdit
 		{
 			get => _canEdit;
@@ -146,20 +149,22 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public bool CanCreateRouteListWithoutOrders { get; }
 		public IList<DeliveryShift> DeliveryShifts { get; }
 		public IList<RouteListKeepingNode> RouteListItems { get; }
 
 		public bool IsAcceptAvailable => Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck;
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose { get; private set; }
 
 		public virtual CallTaskWorker CallTaskWorker =>
 			_callTaskWorker ?? (_callTaskWorker = new CallTaskWorker(
+				UnitOfWorkFactory,
 				CallTaskSingletonFactory.GetInstance(),
 				_callTaskRepository,
 				_orderRepository,
 				_employeeRepository,
-				_baseParametersProvider,
+				_employeeSettings,
 				CommonServices.UserService,
 				_errorReporter));
 
@@ -177,7 +182,11 @@ namespace Vodovoz.ViewModels.Logistic
 					OnPropertyChanged(nameof(CanEdit));
 				}
 
-				Entity.AcceptMileage(CallTaskWorker);
+				if(!Entity.AcceptMileage(CallTaskWorker, CommonServices.ValidationService))
+				{
+					AskSaveOnClose = false;
+					return;
+				}
 
 				SaveWithClose();
 			}
@@ -222,8 +231,17 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
-					this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+				var page = NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, ITdiTabParent, ITdiTab>(
+					this,
+					TabParent,
+					this,
+					OpenPageOptions.AsSlave,
+					conf =>
+					{
+						conf.Configure(Entity.Driver.Id, Entity.Date, Entity.Car.FullTitle);
+					});
+
+				page.ViewModel.Distributed += Close;
 			}
 			));
 
@@ -240,15 +258,35 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 			));
 
+		private IEntityEntryViewModel BuildCarEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
 		private void ConfigureAndCheckPermissions()
 		{
 			var currentPermissionService = CommonServices.CurrentPermissionService;
-			var canUpdate = currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician) && PermissionResult.CanUpdate;
+			var canUpdate = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician) && PermissionResult.CanUpdate;
 			var canConfirmMileage = currentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 
 			CanEdit = (canUpdate && canConfirmMileage)
 					  || !(Entity.GetCarVersion.IsCompanyCar &&
-						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+						   new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Minivan, CarTypeOfUse.Largus }.Contains(Entity.Car.CarModel.CarTypeOfUse));
+
+			AskSaveOnClose = CanEdit;
 
 			if(!CanEdit)
 			{
@@ -271,7 +309,8 @@ namespace Vodovoz.ViewModels.Logistic
 				new Dictionary<object, object>
 					{
 						{nameof(IRouteListRepository), _routeListRepository},
-						{nameof(IRouteListItemRepository), _routeListItemRepository}
+						{nameof(IRouteListItemRepository), _routeListItemRepository},
+						{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 					});
 		}
 
@@ -358,6 +397,13 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
 			base.AfterSave();
+		}
+		
+		private void Close(object o, EventArgs args)
+		{
+			(o as RouteListMileageDistributionViewModel).Distributed -= Close;
+			
+			Close(false, CloseSource.Self);
 		}
 	}
 }

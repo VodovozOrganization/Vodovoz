@@ -2,7 +2,7 @@
 using System;
 using QS.Services;
 using Vodovoz.Domain.TrueMark;
-using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
+using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 {

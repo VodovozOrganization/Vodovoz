@@ -138,7 +138,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label lblFines;
 
-		private global::Gtk.Button buttonAddFine;
+		private global::Gamma.GtkWidgets.yButton buttonAddFine;
 
 		protected virtual void Build()
 		{
@@ -750,7 +750,7 @@ namespace Vodovoz.ViewWidgets
 			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.vbxReasonAndFines[this.frame3]));
 			w62.Position = 2;
 			// Container child vbxReasonAndFines.Gtk.Box+BoxChild
-			this.buttonAddFine = new global::Gtk.Button();
+			this.buttonAddFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFine.CanFocus = true;
 			this.buttonAddFine.Name = "buttonAddFine";
 			this.buttonAddFine.UseUnderline = true;

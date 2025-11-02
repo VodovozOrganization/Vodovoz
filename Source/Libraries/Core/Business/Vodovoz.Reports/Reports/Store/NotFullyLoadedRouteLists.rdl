@@ -308,8 +308,8 @@
                     NULLIF(LEFT(drv.name, 1), ''),
                     NULLIF(LEFT(drv.patronymic, 1), ''),
                     drv.last_name
-                )
-        ) AS driver_name,
+                 )
+    ) AS driver_name,
     w.name AS wh_name,
     n.name AS nom_name,
     nomenclatures_from_rl.nom_id,
@@ -335,7 +335,7 @@ FROM route_lists rl
              WHERE rl.not_fully_loaded
                AND rl.date BETWEEN @start_date AND @end_date
                AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
-               AND o.is_fast_delivery = FALSE 
+               AND o.is_fast_delivery = FALSE
                AND n.category IN (
                                   'additional',
                                   'equipment',
@@ -358,28 +358,36 @@ FROM route_lists rl
                AND rl.date BETWEEN @start_date AND @end_date
                AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
                AND oe.direction = 'Deliver'
-               AND o.is_fast_delivery = FALSE 
-         UNION ALL # Adds Termanal to RouteLists Nomenclatures 
-         SELECT 
-         	 (SELECT bp.str_value FROM base_parameters bp WHERE bp.name = 'terminal_nomenclature_id') AS nom_id,
-             1 AS count,
-             rl.id AS rl_id
-         FROM route_list_addresses rla
-         LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
-         LEFT JOIN orders o ON rla.order_id = o.id
-         WHERE rl.not_fully_loaded
-           AND rl.date BETWEEN @start_date AND @end_date 
-           AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
-           AND o.payment_type = 'Terminal' 
-         GROUP BY rl_id
-         UNION ALL # FastDelivery additional loading                  
-         SELECT
-              aldi.nomenclature_id  AS nom_id,
-              aldi.amount AS count,
-              rl.id AS rl_id
-         FROM additional_loading_documents ald 
-         INNER JOIN route_lists rl ON rl.additional_loading_document_id = ald.id
-         INNER JOIN additional_loading_document_items aldi ON aldi.additional_loading_document_id = ald.id
+               AND o.is_fast_delivery = FALSE
+             UNION ALL # Adds Terminal to RouteLists Nomenclatures 
+             SELECT
+                 (SELECT bp.str_value FROM base_parameters bp WHERE bp.name = 'terminal_nomenclature_id') AS nom_id,
+                 1 AS count,
+                 rl.id AS rl_id
+             FROM route_list_addresses rla
+                      LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+                      LEFT JOIN orders o ON rla.order_id = o.id
+             WHERE rl.not_fully_loaded
+               AND rl.date BETWEEN @start_date AND @end_date
+               AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
+               AND o.payment_type = 'Terminal'
+               AND 'Giveout' != (
+                     SELECT datd.type
+                     FROM driver_attached_terminal_documents datd
+                     WHERE date(datd.creation_date) &lt;= rl.date
+                       AND rl.driver_id = datd.driver_id
+                     ORDER BY ID DESC
+                     LIMIT 1
+                 ) # добавляем только если терминал не был выдан водителю
+             GROUP BY rl_id
+             UNION ALL # FastDelivery additional loading                  
+             SELECT
+                 aldi.nomenclature_id  AS nom_id,
+                 aldi.amount AS count,
+                 rl.id AS rl_id
+             FROM additional_loading_documents ald
+                      INNER JOIN route_lists rl ON rl.additional_loading_document_id = ald.id
+                      INNER JOIN additional_loading_document_items aldi ON aldi.additional_loading_document_id = ald.id
          ) AS T
     GROUP BY T.rl_id, T.nom_id
 ) AS nomenclatures_from_rl ON nomenclatures_from_rl.rl_id = rl.id

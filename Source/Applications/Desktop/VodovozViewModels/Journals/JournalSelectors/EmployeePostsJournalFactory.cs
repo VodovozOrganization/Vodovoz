@@ -10,12 +10,19 @@ namespace Vodovoz.ViewModels.Journals.JournalSelectors
 {
     public class EmployeePostsJournalFactory : IEmployeePostsJournalFactory
     {
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public EmployeePostsJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
         public IEntityAutocompleteSelectorFactory CreateEmployeePostsAutocompleteSelectorFactory(bool multipleSelect = false)
         {
 	        return new EntityAutocompleteSelectorFactory<EmployeePostsJournalViewModel>(
 		        typeof(EmployeePost),
 		        () => new EmployeePostsJournalViewModel(
-			        UnitOfWorkFactory.GetDefaultFactory,
+					_uowFactory,
 			        ServicesConfig.CommonServices)
 		        {
 			        SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single

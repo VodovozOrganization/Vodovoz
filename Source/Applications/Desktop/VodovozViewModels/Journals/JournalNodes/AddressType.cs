@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Orders;
@@ -32,31 +31,5 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			AddressType = addressType;
 		}
-	}
-	
-	public class OrderAddressTypeNode : PropertyChangedBase
-	{
-		private bool selected;
-		public virtual bool Selected 
-		{
-			get => selected;
-			set => SetField(ref selected, value);
-		}
-
-		public OrderAddressType OrderAddressType { get; }
-
-		public string Title => IsFastDelivery ? "Доставка за час" : OrderAddressType.GetEnumTitle();
-
-		public OrderAddressTypeNode(OrderAddressType orderAddressType)
-		{
-			OrderAddressType = orderAddressType;
-		}
-
-		public OrderAddressTypeNode(bool isFastDelivery)
-		{
-			IsFastDelivery = isFastDelivery;
-		}
-
-		public bool IsFastDelivery { get; }
 	}
 }

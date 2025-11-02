@@ -1,6 +1,6 @@
-﻿using Vodovoz.Domain.Client;
+﻿using Vodovoz.Core.Domain.Clients;
 
-namespace TrueMarkApi.Library.Converters
+namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkApiRegistrationStatusConverter
 	{
@@ -11,15 +11,12 @@ namespace TrueMarkApi.Library.Converters
 				case "Зарегистрирован":
 				case "Восстановлен":
 					return RegistrationInChestnyZnakStatus.Registered;
-					break;
 				case "Предварительная регистрация началась":
 				case "Предварительная регистрация производителя":
 				case "Предварительная регистрация продавца":
 					return RegistrationInChestnyZnakStatus.InProcess;
-					break;
 				case "Заблокирован":
 					return RegistrationInChestnyZnakStatus.Blocked;
-					break;
 				case "Не зарегистрирован":
 				case "Удален":
 					return RegistrationInChestnyZnakStatus.Unknown;

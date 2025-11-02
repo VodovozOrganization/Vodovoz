@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client

@@ -1,6 +1,5 @@
 ﻿using Gamma.Utilities;
 using Gtk;
-using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -18,36 +17,90 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			btnAddProductGroup.Clicked += (sender, args) => ViewModel.AddProductGroupCommand.Execute();
-			btnRemoveProductGroup.Clicked += (sender, args) => ViewModel.RemoveProductGroupCommand.Execute();
-			btnAddNomenclature.Clicked += (sender, args) => ViewModel.AddNomenclatureCommand.Execute();
-			btnRemoveNomenclature.Clicked += (sender, args) => ViewModel.RemoveNomenclatureCommand.Execute();
+			buttonSave.BindCommand(ViewModel.SaveCommand);
 			
-			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			entryName.Binding.AddBinding(ViewModel, vm => vm.CanChangeDiscountReasonName, w => w.Sensitive).InitializeFromSource();
-			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			spinDiscount.Binding.AddBinding(ViewModel.Entity, e => e.Value, w => w.ValueAsDecimal).InitializeFromSource();
-			enumDiscountValueType.ItemsEnum = typeof(DiscountUnits);
-			enumDiscountValueType.Binding.AddBinding(ViewModel.Entity, e => e.ValueType, w => w.SelectedItem).InitializeFromSource();
-			chkBtnPremiumDiscount.Binding.AddBinding(ViewModel.Entity, e => e.IsPremiumDiscount, w => w.Active).InitializeFromSource();
-			chkBtnSelectAll.Toggled += (s, e) => ViewModel.UpdateSelectedCategoriesCommand.Execute(chkBtnSelectAll.Active);
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
 			
-			ConfigureTreeViews();
+			buttonCancel.BindCommand(ViewModel.CloseCommand);
+			
+			radioDiscountInfo.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DiscountInfoTabActive, w => w.Active)
+				.AddBinding(vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			radioPromoCodeSettings.Binding
+				.AddBinding(ViewModel, vm => vm.PromoCodeSettingsTabActive, w => w.Active)
+				.AddBinding(ViewModel.Entity, e => e.IsPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
 
-			btnRemoveNomenclature.Binding.AddBinding(ViewModel, vm => vm.IsNomenclatureSelected, w => w.Sensitive).InitializeFromSource();
-			btnRemoveProductGroup.Binding.AddBinding(ViewModel, vm => vm.IsProductGroupSelected, w => w.Sensitive).InitializeFromSource();
+			notebook.ShowTabs = false;
+			notebook.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentPage, w => w.CurrentPage)
+				.InitializeFromSource();
+			
+			ConfigureDiscountInfoTab();
+			ConfigurePromoCodeTab();
 		}
 
-		private void ConfigureTreeViews()
+		#region Вкладка Информация о скидке
+
+		private void ConfigureDiscountInfoTab()
 		{
-			ConfigureNomenclatureCategoriesTree();
-			ConfigureNomenclaturesTree();
-			ConfigureProductGroupsTree();
+			entryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanChangeDiscountReasonName, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			checkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			spinDiscount.Binding
+				.AddBinding(ViewModel.Entity, e => e.Value, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			enumDiscountValueType.ItemsEnum = typeof(DiscountUnits);
+			enumDiscountValueType.Binding
+				.AddBinding(ViewModel.Entity, e => e.ValueType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			chkBtnPremiumDiscount.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsPremiumDiscount, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			chkBtnPresent.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsPresent, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			chkBtnSelectAll.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.SelectedAllCategories, w => w.Active)
+				.InitializeFromSource();
+			
+			chkPromoCode.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsPromoCode, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanChangeIsPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			ConfigureApplicabilityDiscountWidgets();
 		}
 
-		private void ConfigureNomenclatureCategoriesTree()
+		private void ConfigureApplicabilityDiscountWidgets()
+		{
+			ConfigureDiscountNomenclatureCategoriesWidgets();
+			ConfigureDiscountNomenclaturesWidgets();
+			ConfigureDiscountProductGroupsWidgets();
+		}
+
+		private void ConfigureDiscountNomenclatureCategoriesWidgets()
 		{
 			treeViewNomenclatureCategories.CreateFluentColumnsConfig<SelectableNomenclatureCategoryNode>()
 				.AddColumn("")
@@ -58,6 +111,7 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("")
 					.AddToggleRenderer(x => x.IsSelected)
 					.ToggledEvent(OnDiscountNomenclatureCategorySelected)
+					.AddSetter((c, n) => c.Activatable = ViewModel.CanEditDiscountReason)
 				.AddColumn("")
 				.Finish();
 
@@ -80,7 +134,7 @@ namespace Vodovoz.Views.Orders
 			});
 		}
 
-		private void ConfigureNomenclaturesTree()
+		private void ConfigureDiscountNomenclaturesWidgets()
 		{
 			treeViewNomenclatures.CreateFluentColumnsConfig<Nomenclature>()
 				.AddColumn("")
@@ -92,10 +146,23 @@ namespace Vodovoz.Views.Orders
 			
 			treeViewNomenclatures.HeadersVisible = false;
 			treeViewNomenclatures.ItemsDataSource = ViewModel.Entity.ObservableNomenclatures;
-			treeViewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.SelectedNomenclature, w => w.SelectedRow).InitializeFromSource();
+			treeViewNomenclatures.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedNomenclature, w => w.SelectedRow)
+				.InitializeFromSource();
+			
+			btnAddNomenclature.BindCommand(ViewModel.AddNomenclatureCommand);
+			btnRemoveNomenclature.BindCommand(ViewModel.RemoveNomenclatureCommand);
+			
+			btnAddNomenclature.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnRemoveNomenclature.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveNomenclature, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
-		private void ConfigureProductGroupsTree()
+		private void ConfigureDiscountProductGroupsWidgets()
 		{
 			treeViewProductGroups.CreateFluentColumnsConfig<ProductGroup>()
 				.AddColumn("№")
@@ -108,7 +175,74 @@ namespace Vodovoz.Views.Orders
 				.Finish();
 
 			treeViewProductGroups.ItemsDataSource = ViewModel.Entity.ObservableProductGroups;
-			treeViewProductGroups.Binding.AddBinding(ViewModel, vm => vm.SelectedProductGroup, w => w.SelectedRow).InitializeFromSource();
+			treeViewProductGroups.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedProductGroup, w => w.SelectedRow)
+				.InitializeFromSource();
+			
+			btnAddProductGroup.BindCommand(ViewModel.AddProductGroupCommand);
+			btnRemoveProductGroup.BindCommand(ViewModel.RemoveProductGroupCommand);
+			
+			btnAddProductGroup.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			btnRemoveProductGroup.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveProductGroup, w => w.Sensitive)
+				.InitializeFromSource();
 		}
+
+		#endregion
+
+		#region Настройки промокода
+
+		private void ConfigurePromoCodeTab()
+		{
+			entryPromoCodeName.Binding
+				.AddBinding(ViewModel.Entity, e => e.PromoCodeName, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanChangePromoCodeName, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			datePromoCodeDuration.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.StartDatePromoCode, w => w.StartDateOrNull)
+				.AddBinding(e => e.EndDatePromoCode, w => w.EndDateOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			chkPromoCodeTimeDuration.Binding
+				.AddBinding(ViewModel, vm => vm.HasPromoCodeDurationTime, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+
+			timePromoCodeDuration.Binding
+				.AddBinding(ViewModel.Entity, e => e.StartTimePromoCode, w => w.TimeStart)
+				.AddBinding(ViewModel.Entity, e => e.EndTimePromoCode, w => w.TimeEnd)
+				.AddBinding(ViewModel, vm => vm.HasPromoCodeDurationTime, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			chkOrderMinSum.Binding
+				.AddBinding(ViewModel, vm => vm.HasOrderMinSum, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+
+			spinMinOrderSum.Adjustment = new Adjustment(0, 0, DiscountReason.PromoCodeOrderMinSumLimit, 100, 1000, 0);
+			spinMinOrderSum.Binding
+				.AddBinding(ViewModel.Entity, e => e.PromoCodeOrderMinSum, w => w.ValueAsDecimal)
+				.AddBinding(ViewModel, vm => vm.HasOrderMinSum, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			lblRubles.Binding
+				.AddBinding(ViewModel, vm => vm.HasOrderMinSum, w => w.Visible)
+				.InitializeFromSource();
+			
+			chkOneTimePromoCode.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsOneTimePromoCode, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditPromoCode, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		#endregion
 	}
 }

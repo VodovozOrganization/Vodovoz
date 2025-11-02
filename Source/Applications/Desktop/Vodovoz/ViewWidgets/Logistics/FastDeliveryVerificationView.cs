@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Delivery;
+using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets;
 

@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -25,14 +26,10 @@ namespace Vodovoz.ViewModels.Logistic
             IUnitOfWork uow,
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
-            IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
             IEmployeeRepository employeeRepository,
             INavigationManager navigation = null) 
             : base(commonServices.InteractiveService, navigation)
         {
-            if(defaultDeliveryDayScheduleSettings == null) {
-                throw new ArgumentNullException(nameof(defaultDeliveryDayScheduleSettings));
-            }
             this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
             this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));

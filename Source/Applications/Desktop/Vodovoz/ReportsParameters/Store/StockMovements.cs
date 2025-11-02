@@ -13,52 +13,106 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
-using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Reports;
+using QS.ViewModels.Control.EEVM;
+using System.ComponentModel;
+using QS.Tdi;
+using QS.Navigation;
+using Autofac;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Reports
 {
-	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget
+	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
-		SelectableParametersReportFilter filter;
+		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly INavigationManager _navigationManager;
+		private readonly SelectableParametersReportFilter _filter;
+		private readonly GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes =
+			new GenericObservableList<SelectableSortTypeNode>();
+		private Warehouse _warehouse;
+		private ITdiTab _parentTab;
+		private ILifetimeScope _scope;
 
-		private GenericObservableList<SelectableSortTypeNode> selectableSortTypeNodes = new GenericObservableList<SelectableSortTypeNode>();
-
-		public StockMovements()
+		public StockMovements(
+			IReportInfoFactory reportInfoFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 		{
-			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefWarehouse.ItemsQuery = new StoreDocumentHelper(new UserSettingsGetter()).GetRestrictedWarehouseQuery();
-			filter = new SelectableParametersReportFilter(UoW);
-			
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-			{
-				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
-			}
-			
-			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
-			{
-				yentryrefWarehouse.Sensitive = false;
-			}
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+			Build();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			_filter = new SelectableParametersReportFilter(UoW);
 
 			ConfigureDlg();
+		}
+
+		private IEntityEntryViewModel WarehouseEntryViewModel { get; set; }
+
+		private Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				_warehouse = value;
+			}
+		}
+
+		public ITdiTab ParentTab
+		{
+			get => _parentTab;
+			set
+			{
+				_parentTab = value;
+				ConfigureWarehouseEntryViewModel();
+			}
+		}
+
+		private void ConfigureWarehouseEntryViewModel()
+		{
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			{
+				Warehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+			}
+
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
+			{
+				entryWarehouse.Sensitive = false;
+			}
+
+			var builder = new LegacyEEVMBuilderFactory<StockMovements>(ParentTab, this, UoW, _navigationManager, _scope);
+
+			WarehouseEntryViewModel = builder.ForProperty(x => x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+			
+			RefreshAvailableSortTypes();
+			WarehouseEntryViewModel.Changed += OnWarehouseChanged;
+			entryWarehouse.ViewModel = WarehouseEntryViewModel;
 		}
 
 		private void ConfigureDlg()
 		{
 			dateperiodpicker1.StartDate = dateperiodpicker1.EndDate = DateTime.Today;
 
-			var nomenclatureTypeParam = filter.CreateParameterSet(
+			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Типы номенклатур",
 				"nomenclature_type",
 				new ParametersEnumFactory<NomenclatureCategory>()
 			);
 
-			var nomenclatureParam = filter.CreateParameterSet(
+			var nomenclatureParam = _filter.CreateParameterSet(
 				"Номенклатуры",
 				"nomenclature",
 				new ParametersFactory(UoW, (filters) => {
@@ -102,7 +156,7 @@ namespace Vodovoz.Reports
 				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
 				.List();
 
-			filter.CreateParameterSet(
+			_filter.CreateParameterSet(
 				"Группы товаров",
 				"product_group",
 				new RecursiveParametersFactory<ProductGroup>(UoW,
@@ -125,7 +179,7 @@ namespace Vodovoz.Reports
 				x => x.Childs)
 			);
 
-			var viewModel = new SelectableParameterReportFilterViewModel(filter);
+			var viewModel = new SelectableParameterReportFilterViewModel(_filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
 			vboxParameters.Add(filterWidget);
 			filterWidget.Show();
@@ -138,44 +192,41 @@ namespace Vodovoz.Reports
 			ytreeSortPriority.HeadersVisible = false;
 			ytreeSortPriority.Reorderable = true;
 
-			ytreeSortPriority.ItemsDataSource = selectableSortTypeNodes;
+			ytreeSortPriority.ItemsDataSource = _selectableSortTypeNodes;
 
 			foreach (SortType enumItem in Enum.GetValues(typeof(SortType)))
             {
-				selectableSortTypeNodes.Add(new SelectableSortTypeNode(enumItem));
+				_selectableSortTypeNodes.Add(new SelectableSortTypeNode(enumItem));
 			}
-
-			RefreshAvailableSortTypes();
-
-			yentryrefWarehouse.Changed += YentryrefWarehouse_Changed;
 		}
 
 		private void RefreshAvailableSortTypes()
         {
-			var sortTypeNodes = selectableSortTypeNodes.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
+			var sortTypeNodes = _selectableSortTypeNodes.Where(x => x.SortType == Reports.SortType.GroupOfGoods);
 
-			if (yentryrefWarehouse.Subject == null)
+			if (Warehouse is null)
 			{
 				if (sortTypeNodes.Any())
 				{
-					selectableSortTypeNodes.Remove(sortTypeNodes.First());
+					_selectableSortTypeNodes.Remove(sortTypeNodes.First());
 				}
 				return;
 			}
 
 			if (!sortTypeNodes.Any())
 			{
-				selectableSortTypeNodes.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
+				_selectableSortTypeNodes.Add(new SelectableSortTypeNode(Reports.SortType.GroupOfGoods));
 			}
 		}
 
-		private void YentryrefWarehouse_Changed(object sender, EventArgs e) => RefreshAvailableSortTypes();
+		private void OnWarehouseChanged(object sender, EventArgs e) => RefreshAvailableSortTypes();
 
         #region IParametersWidget implementation
 
         public string Title => "Складские движения";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 
@@ -192,34 +243,38 @@ namespace Vodovoz.Reports
 		private ReportInfo GetReportInfo()
 		{
 			string reportId;
-			var warehouse = yentryrefWarehouse.Subject as Warehouse;
-			if (warehouse == null)
+			if(Warehouse is null)
+			{
 				reportId = "Store.StockWaterMovements";
-			else if (warehouse.TypeOfUse == WarehouseUsing.Shipment)
+			}
+			else if(Warehouse.TypeOfUse == WarehouseUsing.Shipment)
+			{
 				reportId = "Store.StockShipmentMovements";
-			else if (warehouse.TypeOfUse == WarehouseUsing.Production)
+			}
+			else if(Warehouse.TypeOfUse == WarehouseUsing.Production)
+			{
 				reportId = "Store.StockProductionMovements";
+			}
 			else
+			{
 				throw new NotImplementedException("Неизвестный тип использования склада.");
+			}
 
 			var parameters = new Dictionary<string, object>
 			{
 				{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
 				{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
-				{ "warehouse_id", warehouse?.Id ?? -1 },
+				{ "warehouse_id", Warehouse?.Id ?? -1 },
 				{ "creationDate", DateTime.Now },
-				{ "sortType", string.Join(", ", selectableSortTypeNodes.Where(x => x.Selected).Select(x => x.SortType.ToString())) }
+				{ "sortType", string.Join(", ", _selectableSortTypeNodes.Where(x => x.Selected).Select(x => x.SortType.ToString())) }
 			};
 
-			foreach (var item in filter.GetParameters()) {
+			foreach (var item in _filter.GetParameters()) {
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = reportId,
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create(reportId, Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
@@ -231,6 +286,18 @@ namespace Vodovoz.Reports
 		{
 			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
 			buttonRun.Sensitive = datePeriodSelected;
+		}
+
+		public override void Destroy()
+		{
+			if(_scope != null)
+			{
+				_scope.Dispose();
+				_scope = null;
+			}
+			_parentTab = null;
+
+			base.Destroy();
 		}
 	}
 

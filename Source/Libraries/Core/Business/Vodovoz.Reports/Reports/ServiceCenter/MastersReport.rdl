@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1381,21 +1381,21 @@ FROM
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
                ROUND((order_items.price * order_items.actual_count - order_items.discount_money) / order_items.actual_count, 2)
-                ) as entry_price,
+            ) as entry_price,
             IFNULL(FORMAT(order_items.actual_count, mu.digits), 0) AS entry_count,
             orders.payment_type AS entry_payment_type,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
                ROUND(order_items.price * order_items.actual_count - order_items.discount_money, 2)
-                ) as entry_sum,
+            ) as entry_sum,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
                ROUND((order_items.price * order_items.actual_count - order_items.discount_money) * nomenclature.percent_for_master * 0.01, 2)
-                ) as entry_wage,
+            ) as entry_wage,
             IF(order_items.actual_count = 0 OR order_items.actual_count IS NULL,
                0,
                ROUND((order_items.price * order_items.actual_count - order_items.discount_money), 2) * (1 - nomenclature.percent_for_master * 0.01)
-                ) as entry_profit,
+            ) as entry_profit,
             IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
         FROM
             route_list_addresses
@@ -1409,28 +1409,33 @@ FROM
             order_items ON order_items.order_id = orders.id
                 LEFT JOIN
             nomenclature ON nomenclature.id = order_items.nomenclature_id
-                LEFT JOIN 
+                LEFT JOIN
             measurement_units mu ON nomenclature.unit_id = mu.id
                 LEFT JOIN
             order_equipment ON order_equipment.order_id = orders.id
         WHERE
-            NOT(
+            NOT (
                 #Исключатся недовозы и отмены 
-                    (orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))
+                (orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))
                     OR
                     #Частичные недовозы
-                    (
-                                route_list_addresses.status = 'Completed'
-                            AND
-                                (
-                                            nomenclature.category in ('master', 'service')
-                                        AND nomenclature.serial = false
-                                        AND order_items.count != IFNULL(order_items.actual_count, 0)
-                                    )
-                        )
-                    OR
-                    route_list_addresses.status = 'Transfered'
+                (
+                    IF(@account_part_undelivery,
+                       route_list_addresses.status = 'Transfered',
+                       (
+                           route_list_addresses.status = 'Completed'
+                               AND
+                           (
+                               nomenclature.category in ('master', 'service')
+                                   AND nomenclature.serial = false
+                                   AND order_items.count != IFNULL(order_items.actual_count, 0)
+                           )
+                       )
+                       OR
+                       route_list_addresses.status = 'Transfered'
+                    )
                 )
+            )
     ) AS entries ON entries.rl_id = route_lists.id
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
@@ -1439,7 +1444,7 @@ FROM
         LEFT JOIN
     cash_expense ON cash_expense.route_list_id = route_lists.id
 WHERE
-        route_lists.date &gt;= @start_date
+    route_lists.date &gt;= @start_date
   AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
   AND route_lists.driver_id = @driver_id
 ORDER BY route_lists.date, route_lists.id;</CommandText>
@@ -1452,6 +1457,9 @@ ORDER BY route_lists.date, route_lists.id;</CommandText>
           </QueryParameter>
           <QueryParameter Name="driver_id">
             <Value>={?driver_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="account_part_undelivery">
+            <Value>={?account_part_undelivery}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1615,7 +1623,16 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_test;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1655,14 +1672,12 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="account_part_undelivery">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz_test;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

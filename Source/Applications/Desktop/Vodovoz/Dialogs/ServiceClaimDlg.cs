@@ -1,14 +1,15 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Tdi;
-using QS.Validation;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -19,39 +20,47 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Parameters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz
 {
-	public partial class ServiceClaimDlg : QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
+	public partial class ServiceClaimDlg
+		: QS.Dialog.Gtk.EntityDialogBase<ServiceClaim>,
+		ICounterpartyInfoProvider,
+		IDeliveryPointInfoProvider,
+		ICustomWidthInfoProvider
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
-		private readonly INomenclatureRepository _nomenclatureRepository =
-			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		private INomenclatureJournalFactory _nomenclatureJournalFactory;
+		private IEmployeeRepository _employeeRepository;
+		private IEquipmentRepository _equipmentRepository;
+		private INomenclatureRepository _nomenclatureRepository;
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
-		
+
 		#region IPanelInfoProvider implementation
-		public PanelViewType[] InfoWidgets{
-			get{
-				return new[]{ 
+
+		public int? WidthRequest => 420;
+		public PanelViewType[] InfoWidgets
+		{
+			get
+			{
+				return new[]{
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPointView
 				};
 			}
 		}
 
-		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;	
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		#endregion
 
@@ -63,14 +72,17 @@ namespace Vodovoz
 
 		public DeliveryPoint DeliveryPoint => evmeDeliveryPoint.Subject as DeliveryPoint;
 
-		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+		public OrderAddressType? TypeOfAddress => null;
+
+		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
 		bool isEditable = true;
 
-		public ServiceClaimDlg (Order order)
+		public ServiceClaimDlg(Order order)
 		{
+			ResolveDependencies();
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
 			ConfigureDlg ();
 		}
 
@@ -78,27 +90,35 @@ namespace Vodovoz
 		{
 		}
 
-		public ServiceClaimDlg (int id)
+		public ServiceClaimDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
-			ConfigureDlg ();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ServiceClaim> (id);
 		}
 
-		public ServiceClaimDlg (ServiceClaimType type)
+		public ServiceClaimDlg(ServiceClaimType type)
 		{
+			ResolveDependencies();
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
 			if (type == ServiceClaimType.RegularService)
 				EntitySaved += (sender,args)=>CreateOrder();
 			Entity.ServiceStartDate = DateTime.Today;
-			Entity.ServiceStartDate = DateTime.Now.AddDays (1);
-			ConfigureDlg ();
+			Entity.ServiceStartDate = DateTime.Now.AddDays(1);
+			ConfigureDlg();
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 		}
 
 		void CreateOrder()
 		{
-			var employee =_employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			var employee = _employeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
 			var order = Order.CreateFromServiceClaim(Entity, employee);
 			UoWGeneric.Save(order);
 			UoWGeneric.Commit();
@@ -106,9 +126,8 @@ namespace Vodovoz
 			TabParent.AddTab(orderDlg, this);
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
-			_nomenclatureJournalFactory = new NomenclatureJournalFactory();
 			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
@@ -136,14 +155,14 @@ namespace Vodovoz
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeEngineer.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
 			yentryEquipmentReplacement.ItemsQuery = _equipmentRepository.AvailableOnDutyEquipmentQuery();
-			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
+			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment>(e => e.Title);
 			yentryEquipmentReplacement.Binding
-				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
+				.AddBinding(UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
 				.InitializeFromSource();
 
 			evmeDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
@@ -153,12 +172,20 @@ namespace Vodovoz
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
-			nomenclatureVMEntry.SetEntityAutocompleteSelectorFactory(
-				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory(_lifetimeScope));
-			nomenclatureVMEntry.Binding
-				.AddBinding(Entity, e => e.Nomenclature, w => w.Subject)
-				.InitializeFromSource();
-			nomenclatureVMEntry.Changed += OnNomenclatureVMEntryChanged;
+			var entityEntryViewModel = new LegacyEEVMBuilderFactory<ServiceClaim>(this, Entity, UoW, Startup.MainWin.NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Nomenclature)
+				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(filter =>
+				{
+					filter.RestrictCategory = NomenclatureCategory.equipment;
+					filter.RestrictArchive = false;
+					filter.HidenByDefault = true;
+				})
+				.UseViewModelDialog<NomenclatureViewModel>()
+				.Finish();
+
+			entryNomenclature.ViewModel = entityEntryViewModel;
+
+			entryNomenclature.ViewModel.Changed += OnNomenclatureVMEntryChanged;
 
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
@@ -167,43 +194,44 @@ namespace Vodovoz
 			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
 			treeHistory.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimHistory;
 
-			treePartsAndServices.ColumnsConfig = FluentColumnsConfig <ServiceClaimItem>.Create ()
-				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
-				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
-				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-				.AddSetter ((c, i) => c.Editable = isEditable)
-				.WidthChars (10)
-				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
-				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn ("Сумма").AddNumericRenderer (node => node.Total).Digits (2)
-				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
-				.Finish ();
+			treePartsAndServices.ColumnsConfig = FluentColumnsConfig<ServiceClaimItem>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+				.AddSetter((c, i) => c.Editable = isEditable)
+				.WidthChars(10)
+				.AddColumn("Цена").AddNumericRenderer(node => node.Price).Digits(2)
+				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Сумма").AddNumericRenderer(node => node.Total).Digits(2)
+				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.Finish();
 
-			treeHistory.ColumnsConfig = FluentColumnsConfig <ServiceClaimHistory>.Create ()
-				.AddColumn ("Дата").AddTextRenderer (node => node.Date.ToShortDateString ())
-				.AddColumn ("Время").AddTextRenderer(node => node.Date.ToString ("HH:mm"))
-				.AddColumn ("Статус").AddTextRenderer(node => node.Status.GetEnumTitle ())
-				.AddColumn ("Сотрудник").AddTextRenderer(node => node.Employee == null ? " - " : node.Employee.FullName)
-				.AddColumn ("Комментарий").AddTextRenderer(node => node.Comment)
-				.Finish ();
+			treeHistory.ColumnsConfig = FluentColumnsConfig<ServiceClaimHistory>.Create()
+				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
+				.AddColumn("Время").AddTextRenderer(node => node.Date.ToString("HH:mm"))
+				.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
+				.AddColumn("Сотрудник").AddTextRenderer(node => node.Employee == null ? " - " : node.Employee.FullName)
+				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.Finish();
 
-			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
-			configureAvailableNextStatus ();
+			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice(aIdx[0]);
+			configureAvailableNextStatus();
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
-			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
+			if(UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService)
+			{
 				evmeDeliveryPoint.Visible = false;
 				labelDeliveryPoint.Visible = false;
 				yentryEquipmentReplacement.Visible = false;
 				labelReplacement.Visible = false;
 			}
-			datePickUpDate.IsEditable = Entity.InitialOrder==null;
+			datePickUpDate.IsEditable = Entity.InitialOrder == null;
 			Menu menu = new Menu();
-			var menuItemInitial = new MenuItem ("Перейти к начальному заказу");
+			var menuItemInitial = new MenuItem("Перейти к начальному заказу");
 			menuItemInitial.Sensitive = Entity.InitialOrder != null;
 			menuItemInitial.Activated += MenuInitialOrderActivated;
-			menu.Add (menuItemInitial);
+			menu.Add(menuItemInitial);
 			var menuItemFinal = new MenuItem("Перейти к финальному заказу");
 			menuItemFinal.Sensitive = Entity.FinalOrder != null;
 			menuItemFinal.Activated += MenuFinalOrderActivated;
@@ -212,7 +240,7 @@ namespace Vodovoz
 			menu.ShowAll();
 		}
 
-		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == Entity.GetPropertyName(x => x.Status))
 			{
@@ -235,9 +263,9 @@ namespace Vodovoz
 
 		#region implemented abstract members of OrmGtkDialogBase
 
-		public override bool Save ()
+		public override bool Save()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -246,42 +274,43 @@ namespace Vodovoz
 			throw new NotImplementedException();
 
 			CounterpartyContract contract;
-			if (contract == null) {
-				RunContractCreateDialog ();
+			if(contract == null)
+			{
+				RunContractCreateDialog();
 				return false;
 			}
 
-			UoWGeneric.Session.Refresh (contract);
+			UoWGeneric.Session.Refresh(contract);
 
-			if (UoWGeneric.Root.InitialOrder != null)
-				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial (UoWGeneric.Root);
+			if(UoWGeneric.Root.InitialOrder != null)
+				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial(UoWGeneric.Root);
 
-			if (UoWGeneric.IsNew)
+			if(UoWGeneric.IsNew)
 				UoWGeneric.Root.AddHistoryRecord(
-					UoWGeneric.Root.Status, 
+					UoWGeneric.Root.Status,
 					string.IsNullOrWhiteSpace(textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text,
 					_employeeRepository);
 
-			logger.Info ("Сохраняем заявку на обслуживание...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok");
+			logger.Info("Сохраняем заявку на обслуживание...");
+			UoWGeneric.Save();
+			logger.Info("Ok");
 			return true;
 		}
 
 		#endregion
 
-		protected void OnNomenclatureVMEntryChanged (object sender, EventArgs e)
+		protected void OnNomenclatureVMEntryChanged(object sender, EventArgs e)
 		{
-			FixNomenclatureAndEquipmentSensitivity ();
+			FixNomenclatureAndEquipmentSensitivity();
 
-			if (UoWGeneric.Root.Equipment != null &&
-			    UoWGeneric.Root.Equipment.Nomenclature.Id != UoWGeneric.Root.Nomenclature.Id) {
-			
+			if(UoWGeneric.Root.Equipment != null &&
+				UoWGeneric.Root.Equipment.Nomenclature.Id != UoWGeneric.Root.Nomenclature.Id)
+			{
 				UoWGeneric.Root.Equipment = null;
 			}
 		}
 
-		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
+		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Counterparty));
 			FixNomenclatureAndEquipmentSensitivity();
@@ -296,127 +325,133 @@ namespace Vodovoz
 			_deliveryPointJournalFilterViewModel.Counterparty = Entity.Counterparty;
 		}
 
-		void RunContractCreateDialog ()
+		void RunContractCreateDialog()
 		{
 			ITdiTab dlg;
-			string paymentTypeString="";
-			switch (UoWGeneric.Root.Payment) {
-			case PaymentType.Cash:
-				paymentTypeString = "наличной";
-				break;
-			case PaymentType.Cashless:
-				paymentTypeString = "безналичной";
-				break;
-			case PaymentType.Barter:
-				paymentTypeString = "бартерной";
-				break;
+			string paymentTypeString = "";
+			switch(UoWGeneric.Root.Payment)
+			{
+				case PaymentType.Cash:
+					paymentTypeString = "наличной";
+					break;
+				case PaymentType.Cashless:
+					paymentTypeString = "безналичной";
+					break;
+				case PaymentType.Barter:
+					paymentTypeString = "бартерной";
+					break;
 			}
 			string question = "Отсутствует договор с клиентом для " +
-			                  paymentTypeString +
-			                  " формы оплаты. Создать?";
-			if (MessageDialogWorks.RunQuestionDialog (question)) {
+							  paymentTypeString +
+							  " формы оплаты. Создать?";
+			if(MessageDialogWorks.RunQuestionDialog(question))
+			{
 
 				Organization organization = null;
-				throw  new NotImplementedException();
-				
-				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, organization);	
-				(dlg as IContractSaved).ContractSaved += (sender, e) => {
-					if (UoWGeneric.Root.InitialOrder != null)
-						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 
+				throw new NotImplementedException();
+
+				dlg = new CounterpartyContractDlg(UoWGeneric.Root.Counterparty, organization);
+				(dlg as IContractSaved).ContractSaved += (sender, e) =>
+				{
+					if(UoWGeneric.Root.InitialOrder != null)
+						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add(new OrderContract
+						{
 							Order = UoWGeneric.Root.InitialOrder,
 							AttachedToOrder = UoWGeneric.Root.InitialOrder,
 							Contract = e.Contract
 						});
 				};
-				TabParent.AddSlaveTab (this, dlg);
+				TabParent.AddSlaveTab(this, dlg);
 			}
 		}
 
-		protected void OnButtonAddServiceClicked (object sender, EventArgs e)
+		protected void OnButtonAddServiceClicked(object sender, EventArgs e)
 		{
-			OpenDialog (_nomenclatureRepository.NomenclatureOfServices());
+			OpenDialog(_nomenclatureRepository.NomenclatureOfServices());
 		}
 
-		protected void OnButtonAddPartClicked (object sender, EventArgs e)
+		protected void OnButtonAddPartClicked(object sender, EventArgs e)
 		{
-			OpenDialog (_nomenclatureRepository.NomenclatureOfPartsForService());
+			OpenDialog(_nomenclatureRepository.NomenclatureOfPartsForService());
 		}
 
-		void OpenDialog (NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)
+		void OpenDialog(NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)
 		{
 		}
 
-		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			UoWGeneric.Root.ObservableServiceClaimItems.Add (new ServiceClaimItem { 
+			UoWGeneric.Root.ObservableServiceClaimItems.Add(new ServiceClaimItem
+			{
 				ServiceClaim = UoWGeneric.Root,
 				Nomenclature = e.Subject as Nomenclature,
-				Price = (e.Subject as Nomenclature).GetPrice (1),
+				Price = (e.Subject as Nomenclature).GetPrice(1),
 				Count = 1
 			});
 		}
 
-		void FixPrice (int id)
+		void FixPrice(int id)
 		{
-			ServiceClaimItem item = UoWGeneric.Root.ObservableServiceClaimItems [id];
-			item.Price = item.Nomenclature.GetPrice ((int)item.Count);
+			ServiceClaimItem item = UoWGeneric.Root.ObservableServiceClaimItems[id];
+			item.Price = item.Nomenclature.GetPrice((int)item.Count);
 		}
 
-		protected void OnToggleInfoToggled (object sender, EventArgs e)
+		protected void OnToggleInfoToggled(object sender, EventArgs e)
 		{
-			if (toggleInfo.Active)
+			if(toggleInfo.Active)
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnToggleServicesAndWorksToggled (object sender, EventArgs e)
+		protected void OnToggleServicesAndWorksToggled(object sender, EventArgs e)
 		{
-			if (toggleServicesAndWorks.Active)
+			if(toggleServicesAndWorks.Active)
 				notebook1.CurrentPage = 1;
 		}
 
-		protected void OnToggleHistoryToggled (object sender, EventArgs e)
+		protected void OnToggleHistoryToggled(object sender, EventArgs e)
 		{
-			if (toggleHistory.Active)
+			if(toggleHistory.Active)
 				notebook1.CurrentPage = 2;
 		}
 
-		protected void OnButtonAddClicked (object sender, EventArgs e)
+		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
+			if(!String.IsNullOrWhiteSpace(textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog("Вы не заполнили комментарий. Продолжить?"))
+			{
 				ServiceClaimStatus newStatus = (ServiceClaimStatus)(enumStatusEditable.SelectedItem ?? UoWGeneric.Root.Status);
-				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text, _employeeRepository);
+				UoWGeneric.Root.AddHistoryRecord(newStatus, textComment.Buffer.Text, _employeeRepository);
 			}
 		}
 
-		void configureAvailableNextStatus ()
+		void configureAvailableNextStatus()
 		{
-			var enumList = UoWGeneric.Root.GetAvailableNextStatusList ();
-			enumStatusEditable.SetEnumItems<ServiceClaimStatus> (enumList);
+			var enumList = UoWGeneric.Root.GetAvailableNextStatusList();
+			enumStatusEditable.SetEnumItems<ServiceClaimStatus>(enumList);
 		}
 
-		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 		}
-			
-		protected void OnReferenceEquipmentChanged (object sender, EventArgs e)
+
+		protected void OnReferenceEquipmentChanged(object sender, EventArgs e)
 		{
 			Equipment selectedEquipment = referenceEquipment.Subject as Equipment;
-			nomenclatureVMEntry.Subject = selectedEquipment != null ? selectedEquipment.Nomenclature : null;
+			entryNomenclature.ViewModel.Entity = selectedEquipment != null ? selectedEquipment.Nomenclature : null;
 		}
-			
-		protected void OnEnumcomboWithSerialEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+
+		protected void OnEnumcomboWithSerialEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			FixNomenclatureAndEquipmentSensitivity ();
+			FixNomenclatureAndEquipmentSensitivity();
 		}
-			
-		protected void OnReferenceDeliveryPointChanged (object sender, EventArgs e)
+
+		protected void OnReferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
-			if (CurrentObjectChanged != null)
+			if(CurrentObjectChanged != null)
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(DeliveryPoint));
 
 			UpdateEquipmentState();
-			FixNomenclatureAndEquipmentSensitivity ();
+			FixNomenclatureAndEquipmentSensitivity();
 			referenceEquipment.ItemsQuery = _equipmentRepository.GetEquipmentAtDeliveryPointQuery(UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
 		}
 
@@ -425,8 +460,8 @@ namespace Vodovoz
 			int equipmentsCounts =
 				_equipmentRepository.GetEquipmentAtDeliveryPointQuery(
 					Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
-			
-			if (equipmentsCounts == 0 && Entity.Equipment == null)
+
+			if(equipmentsCounts == 0 && Entity.Equipment == null)
 			{
 				enumcomboWithSerial.SelectedItem = ServiceClaimEquipmentSerialType.WithoutSerial;
 			}
@@ -437,13 +472,16 @@ namespace Vodovoz
 		protected void FixNomenclatureAndEquipmentSensitivity()
 		{
 			bool withSerial = ((ServiceClaimEquipmentSerialType)enumcomboWithSerial.SelectedItem) == ServiceClaimEquipmentSerialType.WithSerial;
-			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
-				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
-			nomenclatureVMEntry.Sensitive = !withSerial && UoWGeneric.Root.Counterparty != null;
+			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty != null &&
+				(UoWGeneric.Root.DeliveryPoint != null || UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService);
+			entryNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty != null;
 		}
 
 		public override void Destroy()
 		{
+			_employeeRepository = null;
+			_equipmentRepository = null;
+			_nomenclatureRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
 			base.Destroy();

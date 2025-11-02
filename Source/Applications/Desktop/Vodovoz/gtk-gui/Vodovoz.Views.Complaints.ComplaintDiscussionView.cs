@@ -30,11 +30,11 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gtk.Table tableNewComment;
 
-		private global::Vodovoz.Views.FilesView filesview;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewComment;
+
+		private global::Vodovoz.Presentation.Views.SmallFileInformationsView smallfileinformationsview2;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddComment;
 
@@ -99,6 +99,7 @@ namespace Vodovoz.Views.Complaints
 			this.ydatepickerPlannedCompletionDate.Date = new global::System.DateTime(0);
 			this.ydatepickerPlannedCompletionDate.IsEditable = true;
 			this.ydatepickerPlannedCompletionDate.AutoSeparation = false;
+			this.ydatepickerPlannedCompletionDate.HideButtonClearDate = false;
 			this.hboxFields.Add(this.ydatepickerPlannedCompletionDate);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxFields[this.ydatepickerPlannedCompletionDate]));
 			w5.Position = 1;
@@ -156,17 +157,6 @@ namespace Vodovoz.Views.Complaints
 			this.tableNewComment.RowSpacing = ((uint)(6));
 			this.tableNewComment.ColumnSpacing = ((uint)(6));
 			// Container child tableNewComment.Gtk.Table+TableChild
-			this.filesview = new global::Vodovoz.Views.FilesView();
-			this.filesview.WidthRequest = 250;
-			this.filesview.Events = ((global::Gdk.EventMask)(256));
-			this.filesview.Name = "filesview";
-			this.tableNewComment.Add(this.filesview);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.filesview]));
-			w12.BottomAttach = ((uint)(2));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableNewComment.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.HeightRequest = 70;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -177,6 +167,18 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewComment.Name = "ytextviewComment";
 			this.GtkScrolledWindow1.Add(this.ytextviewComment);
 			this.tableNewComment.Add(this.GtkScrolledWindow1);
+			// Container child tableNewComment.Gtk.Table+TableChild
+			this.smallfileinformationsview2 = new global::Vodovoz.Presentation.Views.SmallFileInformationsView();
+			this.smallfileinformationsview2.WidthRequest = 250;
+			this.smallfileinformationsview2.Events = ((global::Gdk.EventMask)(256));
+			this.smallfileinformationsview2.Name = "smallfileinformationsview2";
+			this.tableNewComment.Add(this.smallfileinformationsview2);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.smallfileinformationsview2]));
+			w14.BottomAttach = ((uint)(2));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableNewComment.Gtk.Table+TableChild
 			this.ybuttonAddComment = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAddComment.CanFocus = true;

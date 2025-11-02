@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
+using System.Net.Security;
 using System.Threading.Tasks;
 
 namespace RabbitMQ.Infrastructure
@@ -30,7 +31,14 @@ namespace RabbitMQ.Infrastructure
 				UserName = section.GetValue<string>("Username"),
 				Password = section.GetValue<string>("Password"),
 				VirtualHost = section.GetValue<string>("VirtualHost"),
-				DispatchConsumersAsync = true
+				DispatchConsumersAsync = true,
+				Port = section.GetValue<int>("Port"),
+				Ssl =
+				{
+					ServerName = hostname,
+					AcceptablePolicyErrors = section.GetValue<SslPolicyErrors>("AcceptablePolicyErrors", SslPolicyErrors.None),
+					Enabled = section.GetValue("UseSsl", true)
+				},
 			};
 
 			bool waitingForRabbit = true;
@@ -68,7 +76,14 @@ namespace RabbitMQ.Infrastructure
 			return connection;
 		}
 
-		public IConnection CreateConnection(string hostname, string username, string password, string virtualhost)
+		public IConnection CreateConnection(
+			string hostname,
+			string username,
+			string password,
+			string virtualhost,
+			int port,
+			bool useSsl,
+			SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None)
 		{
 			var connectionFactory = new ConnectionFactory
 			{
@@ -76,7 +91,14 @@ namespace RabbitMQ.Infrastructure
 				UserName = username,
 				Password = password,
 				VirtualHost = virtualhost,
-				DispatchConsumersAsync = true
+				DispatchConsumersAsync = true,
+				Port = port,
+				Ssl =
+				{
+					ServerName = hostname,
+					AcceptablePolicyErrors = sslPolicyErrors,
+					Enabled = useSsl
+				}
 			};
 
 			IConnection connection;

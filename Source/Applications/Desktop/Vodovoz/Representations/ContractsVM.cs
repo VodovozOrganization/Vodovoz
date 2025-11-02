@@ -1,5 +1,4 @@
-﻿using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -60,8 +59,7 @@ namespace Vodovoz.ViewModel
 				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList(list => list
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.Id)
-			        .Select(() => counterpartyAlias.VodovozInternalId).WithAlias(() => resultAlias.CounterpartyInternalNumber)
-			        .Select(() => contractAlias.ContractSubNumber).WithAlias(() => resultAlias.ContractSubNumber)
+			        .Select(() => contractAlias.Number).WithAlias(() => resultAlias.ContractNumber)
 			        .Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
 					.Select(() => contractAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 					.Select(() => contractAlias.OnCancellation).WithAlias(() => resultAlias.OnCancellation)
@@ -129,28 +127,6 @@ namespace Vodovoz.ViewModel
 		{
 			return true;
 		}
-	}
-		
-	public class ContractsVMNode
-	{
-
-		public int Id{ get; set;}
-
-		public DateTime IssueDate{ get; set;}
-
-		public bool IsArchive{ get; set;}
-
-		public bool OnCancellation{ get; set;}
-
-		public int CounterpartyInternalNumber{ get; set; }
-
-		public int ContractSubNumber{ get; set; }
-
-		public string Title {
-			get { return String.Format("{0}-{1} от {2:d}", CounterpartyInternalNumber, ContractSubNumber, IssueDate); }
-		}
-			
-		public string Organization { get; set;}
 	}
 }
 

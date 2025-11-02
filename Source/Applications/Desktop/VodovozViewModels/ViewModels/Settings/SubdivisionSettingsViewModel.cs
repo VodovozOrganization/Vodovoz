@@ -12,7 +12,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
 {
@@ -21,19 +21,19 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INavigationManager _navigationManager;
-		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IGeneralSettings _generalSettingsSettings;
 		private GenericObservableList<Subdivision> _observableSubdivisions = new GenericObservableList<Subdivision>();
 		private Subdivision _selectedSubdivision;
 		private readonly List<int> _subdivisionsToAdd = new List<int>();
 		private readonly List<int> _subdivisionsToRemoves = new List<int>();
 
 		public SubdivisionSettingsViewModel(ICommonServices commonServices, IUnitOfWorkFactory unitOfWorkFactory,
-			INavigationManager navigationManager, IGeneralSettingsParametersProvider generalSettingsParametersProvider, string parameterName)
+			INavigationManager navigationManager, IGeneralSettings generalSettingsSettings, string parameterName)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_navigationManager = navigationManager;
-			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_generalSettingsSettings = generalSettingsSettings ?? throw new ArgumentNullException(nameof(generalSettingsSettings));
 
 			AddSubdivisionCommand = new DelegateCommand(AddSubdivision);
 			RemoveSubdivisionCommand = new DelegateCommand(RemoveSubdivision, () => CanRemove);
@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveSubdivisions()
 		{
-			_generalSettingsParametersProvider.UpdateSubdivisionsForParameter(_subdivisionsToAdd , _subdivisionsToRemoves, ParameterName);
+			_generalSettingsSettings.UpdateSubdivisionsForParameter(_subdivisionsToAdd , _subdivisionsToRemoves, ParameterName);
 
 			_subdivisionsToAdd.Clear();
 			_subdivisionsToRemoves.Clear();

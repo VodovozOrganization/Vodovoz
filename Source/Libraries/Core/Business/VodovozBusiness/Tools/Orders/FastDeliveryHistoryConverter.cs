@@ -7,6 +7,7 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Nodes;
 
 namespace Vodovoz.Tools.Orders
 {
@@ -107,7 +108,9 @@ namespace Vodovoz.Tools.Orders
 		}
 
 		public IList<FastDeliveryOrderItemHistory> ConvertNomenclatureAmountNodesToOrderItemsHistory(
-			IEnumerable<NomenclatureAmountNode> nomenclatureNodes, FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
+			IEnumerable<NomenclatureAmountNode> nomenclatureNodes, 
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory
+			)
 		{
 			return nomenclatureNodes
 				.Select(x => new FastDeliveryOrderItemHistory

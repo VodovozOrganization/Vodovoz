@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Report;
 using QS.Services;
 using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -18,15 +20,18 @@ namespace Vodovoz.ReportsParameters
 		private string reportPath;
 		private List<Subdivision> UserSubdivisions { get; }
 		private IEnumerable<Organization> Organizations { get; }
+
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
-		public CashBookReport(ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
+		public CashBookReport(IReportInfoFactory reportInfoFactory, ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
 		{
 			this.Build();
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ();
 			UserSubdivisions = GetSubdivisionsForUser();
 			
 			dateperiodpicker.StartDate = DateTime.Now.Date;
@@ -110,11 +115,10 @@ namespace Vodovoz.ReportsParameters
 				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem)?.Id);
 			}
 
-			return new ReportInfo {
-				Identifier = reportPath,
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create(reportPath, Title, parameters);
+			reportInfo.UseUserVariables = true;
+
+			return reportInfo;
 		}
 
 		void OnUpdate(bool hide = false) => 

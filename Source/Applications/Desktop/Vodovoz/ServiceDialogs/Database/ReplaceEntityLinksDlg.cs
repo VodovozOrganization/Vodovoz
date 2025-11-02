@@ -14,7 +14,7 @@ namespace Vodovoz.ServiceDialogs.Database
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 		int totalLinks = 0;
 		private ReplaceEntity _replaceEntity;

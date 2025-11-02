@@ -1,15 +1,17 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using Autofac;
+using NHibernate.SqlCommand;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -17,31 +19,36 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using NHibernate.Dialect.Function;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
-	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureJournalNode, NomenclatureFilterViewModel>
+	public class NomenclaturesJournalViewModel
+		: EntityJournalViewModelBase<
+			Nomenclature,
+			NomenclatureViewModel,
+			NomenclatureJournalNode>
 	{
-		private ILifetimeScope _lifetimeScope;
+		private readonly NomenclatureFilterViewModel _filterViewModel;
 
 		public NomenclaturesJournalViewModel(
-			ILifetimeScope lifetimeScope,
 			NomenclatureFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			Action<NomenclatureFilterViewModel> filterParams = null
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			TabName = "Журнал ТМЦ";
-
-			SetOrder(x => x.Name);
 
 			if(filterParams != null)
 			{
-				FilterViewModel.ConfigureWithoutFiltering(filterParams);
+				_filterViewModel.ConfigureWithoutFiltering(filterParams);
 			}
+
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
 
 			UpdateOnChanges(
 				typeof(Nomenclature),
@@ -50,6 +57,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+
+			UseSlider = false;
+		}
+
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		public void HideButtons()
+		{
+			NodeActionsList.Clear();
 		}
 
 		[Obsolete("Лучше передавать через фильтр")]
@@ -59,63 +78,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
-		protected override void CreateNodeActions()
+		protected override IQueryOver<Nomenclature> ItemsQuery(IUnitOfWork uow)
 		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateDefaultAddActions();
-			CreateEditAction();
-			CreateDefaultDeleteAction();
-		}
-
-		public void HideButtons()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-		}
-		
-		private void CreateEditAction()
-		{
-			var editAction = new JournalAction("Изменить",
-				(selected) => {
-					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return false;
-					}
-					NomenclatureJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return false;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanRead;
-				},
-				(selected) => true,
-				(selected) => {
-					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return;
-					}
-					NomenclatureJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
-				}
-			);
-			if(SelectionMode == JournalSelectionMode.None) {
-				RowActivatedAction = editAction;
-			}
-			NodeActionsList.Add(editAction);
-		}
-
-		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureOnlineParameters nomenclatureOnlineParametersAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
@@ -126,32 +92,67 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
-			var subQueryReserved = QueryOver.Of(() => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(() => nomenclatureAlias.DoNotReserve == false)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-					   || orderAlias.OrderStatus == OrderStatus.InTravelList
-					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-				.Select(Projections.Sum(() => orderItemsAlias.Count));
-
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
+
+			#region Reserved
+
+			IProjection reservedSumProjection = null;
+			
+			if(CalculateQuantityOnStock)
+			{
+				itemsQuery
+					.JoinEntityAlias(
+						() => orderItemsAlias,
+						() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id
+						      && nomenclatureAlias.DoNotReserve == false,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => orderAlias,
+						() => orderAlias.Id == orderItemsAlias.Order.Id
+						      && orderAlias.OrderStatus.IsIn(
+							      new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading }),
+						JoinType.LeftOuterJoin);
+
+				var reservedSqlFunc = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IF(?1 IS NULL, NULL, ?2)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderAlias.Id),
+					Projections.Property(() => orderItemsAlias.Count));
+
+				reservedSumProjection = Projections.Sum(reservedSqlFunc);
+			}
+
+			#endregion Reserved
+
+			if(!CalculateQuantityOnStock)
+			{
+				itemsQuery.JoinEntityAlias(
+					() => nomenclatureOnlineParametersAlias,
+					() => nomenclatureOnlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin);
+			}
 
 			//Хардкодим выборку номенклатур не для инвентарного учета
 			itemsQuery.Where(() => !nomenclatureAlias.HasInventoryAccounting);
-			
-			if(!FilterViewModel.RestrictArchive)
+
+			if(!_filterViewModel.RestrictArchive)
 			{
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 			}
 
-			if(FilterViewModel.RestrictedExcludedIds != null && FilterViewModel.RestrictedExcludedIds.Any()) {
-				itemsQuery.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(FilterViewModel.RestrictedExcludedIds);
+			if(_filterViewModel.RestrictedExcludedIds != null && _filterViewModel.RestrictedExcludedIds.Any())
+			{
+				itemsQuery.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(_filterViewModel.RestrictedExcludedIds);
 			}
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 			{
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
+			}
+
+			if(!CalculateQuantityOnStock && _filterViewModel.OnlyOnlineNomenclatures)
+			{
+				itemsQuery.Where(() => nomenclatureOnlineParametersAlias.NomenclatureOnlineAvailability != null);
 			}
 
 			itemsQuery.Where(
@@ -162,24 +163,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				)
 			);
 
-			if(!FilterViewModel.RestrictDilers)
+			if(!_filterViewModel.RestrictDilers)
 			{
 				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
 			}
 
-			if(FilterViewModel.RestrictCategory == NomenclatureCategory.water)
+			if(_filterViewModel.RestrictCategory == NomenclatureCategory.water)
 			{
-				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
+				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == _filterViewModel.RestrictDisposbleTare);
 			}
 
-			if(FilterViewModel.RestrictCategory.HasValue)
+			if(_filterViewModel.RestrictCategory.HasValue)
 			{
-				itemsQuery.Where(n => n.Category == FilterViewModel.RestrictCategory.Value);
+				itemsQuery.Where(n => n.Category == _filterViewModel.RestrictCategory.Value);
 			}
 
-			if(FilterViewModel.SelectCategory.HasValue && FilterViewModel.SelectSaleCategory.HasValue && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.SelectCategory.Value))
+			if(_filterViewModel.SelectCategory.HasValue
+				&& _filterViewModel.SelectSaleCategory.HasValue
+				&& Nomenclature.GetCategoriesWithSaleCategory().Contains(_filterViewModel.SelectCategory.Value))
 			{
-				itemsQuery.Where(n => n.SaleCategory == FilterViewModel.SelectSaleCategory);
+				itemsQuery.Where(n => n.SaleCategory == _filterViewModel.SelectSaleCategory);
 			}
 
 			if(AdditionalJournalRestriction != null)
@@ -190,17 +193,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				}
 			}
 
-			if(FilterViewModel.IsDefectiveBottle)
+			if(_filterViewModel.IsDefectiveBottle)
 			{
 				itemsQuery.Where(x => x.IsDefectiveBottle);
 			}
 
-			if(FilterViewModel.GlassHolderType.HasValue)
+			if(_filterViewModel.GlassHolderType.HasValue)
 			{
-				itemsQuery.Where(x => x.GlassHolderType == FilterViewModel.GlassHolderType.Value);
+				itemsQuery.Where(x => x.GlassHolderType == _filterViewModel.GlassHolderType.Value);
 			}
 
-			if(CalculateQuantityOnStock) {
+			if(CalculateQuantityOnStock)
+			{
 				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 					.Where(() => !nomenclatureAlias.IsSerial)
 					.SelectList(list => list
@@ -212,7 +216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.SelectSubQuery(subQueryBalance).WithAlias(() => resultAlias.InStock)
-						.SelectSubQuery(subQueryReserved).WithAlias(() => resultAlias.Reserved))
+						.Select(reservedSumProjection).WithAlias(() => resultAlias.Reserved))
 					.OrderBy(x => x.Name).Asc
 					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
 			}
@@ -231,19 +235,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			}
 
 			return itemsQuery;
-		};
-
-		protected override Func<NomenclatureViewModel> CreateDialogFunction =>
-			() => _lifetimeScope.Resolve<NomenclatureViewModel>(new TypedParameter(typeof(IEntityUoWBuilder),
-				EntityUoWBuilder.ForCreate()));
-
-		protected override Func<NomenclatureJournalNode, NomenclatureViewModel> OpenDialogFunction =>
-			node => _lifetimeScope.Resolve<NomenclatureViewModel>(new TypedParameter(typeof(IEntityUoWBuilder),
-				EntityUoWBuilder.ForOpen(node.Id)));
+		}
 
 		public override void Dispose()
 		{
-			_lifetimeScope = null;
+			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+
 			base.Dispose();
 		}
 	}

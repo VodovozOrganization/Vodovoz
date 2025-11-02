@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Autofac;
 using NHibernate.Criterion;
 using NLog;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 using Vodovoz.Factories;
 
@@ -13,7 +15,7 @@ namespace Vodovoz
 	public partial class PaidRentPackageDlg : QS.Dialog.Gtk.EntityDialogBase<PaidRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IRentPackageRepository _rentPackageRepository = new RentPackageRepository();
+		private readonly IRentPackageRepository _rentPackageRepository = ScopeProvider.Scope.Resolve<IRentPackageRepository>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
 
 		private ValidationContext _validationContext;
@@ -21,14 +23,14 @@ namespace Vodovoz
 		public PaidRentPackageDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
 			ConfigureDlg ();
 		}
 
 		public PaidRentPackageDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
 			ConfigureDlg ();
 		}
 

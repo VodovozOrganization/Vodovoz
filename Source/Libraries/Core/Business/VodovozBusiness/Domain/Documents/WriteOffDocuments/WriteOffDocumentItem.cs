@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Documents.IncomingInvoices;
@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		NominativePlural = "строки списания",
 		Nominative = "строка списания")]
 	[HistoryTrace]
-	public abstract class WriteOffDocumentItem: PropertyChangedBase, IDomainObject
+	public abstract class WriteOffDocumentItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private Nomenclature _nomenclature;
 		private CullingCategory _cullingCategory;
@@ -43,7 +43,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set => SetField(ref _cullingCategory, value);
 		}
 
-		[Min(1)]
 		[Display(Name = "Количество")]
 		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount
@@ -72,7 +71,10 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		}
 
 		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage => Nomenclature.SumOfDamage * Amount;
+		public virtual decimal SumOfDamage =>
+			Document?.WriteOffType == WriteOffType.Car
+			? Nomenclature.GetPurchasePriceOnDate(Document.TimeStamp) * Amount
+			: Nomenclature.SumOfDamage * Amount;
 
 		[Display(Name = "Штраф")]
 		public virtual Fine Fine
@@ -91,6 +93,8 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 
 		public abstract WriteOffDocumentItemType Type { get; }
 		public abstract AccountingType AccountingType { get; }
+
+		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 		public virtual string InventoryNumber => "-";
@@ -114,7 +118,19 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			GoodsAccountingOperation.Nomenclature = Nomenclature;
 		}
 
-		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
+			}
+
+			if((Type == WriteOffDocumentItemType.InstanceWriteOffFromCarDocumentItem 
+				|| Type == WriteOffDocumentItemType.BulkWriteOffFromCarDocumentItem) 
+					&& CullingCategory is null)
+			{
+				yield return new ValidationResult("Поле \"Причина выбраковки\" не должно быть пустым", new[] { nameof(Type) });
+			}
+		}
 	}
 }
-

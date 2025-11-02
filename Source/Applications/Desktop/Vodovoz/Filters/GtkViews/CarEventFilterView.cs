@@ -28,8 +28,7 @@ namespace Vodovoz.Filters.GtkViews
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel, vm => vm.Driver, w => w.Subject).InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel, vm => vm.Car, w => w.Subject).InitializeFromSource();
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			entityviewmodelentryCarEventType.SetEntityAutocompleteSelectorFactory(ViewModel.CarEventTypeSelectorFactory);
 			entityviewmodelentryCarEventType.Binding.AddBinding(ViewModel, vm => vm.CarEventType, e => e.Subject).InitializeFromSource();

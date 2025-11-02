@@ -3,6 +3,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
@@ -84,7 +85,7 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public ServiceClaimVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
+		public ServiceClaimVM () : this (ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot ())
 		{
 			CreateRepresentationFilter = () => new ServiceClaimFilter (UoW);
 		}

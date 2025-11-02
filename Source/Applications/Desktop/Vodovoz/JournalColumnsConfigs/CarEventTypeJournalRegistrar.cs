@@ -1,4 +1,7 @@
 ﻿using Gamma.ColumnConfig;
+using System;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using WrapMode = Pango.WrapMode;
@@ -22,6 +25,12 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(node => node.IsDoNotShowInOperation)
 					.Editing(false)
 					.XAlign(0f)
+				.AddColumn("Прикреплять акт списания")
+				.AddToggleRenderer(node => node.IsAttachWriteOffDocument)
+					.Editing(false)
+					.XAlign(0f)
+				.AddColumn("Зона\nответственности")
+					.AddTextRenderer(node => node.AreaOfResponsibilityValue)
 				.Finish();
 	}
 }

@@ -32,7 +32,7 @@ namespace VodovozInfrastructure.Passwords
             };
 
             Connection.ChangeDbConnectionString(dbConnectionStringBuilder.ConnectionString);
-            applicationConfigurator.ConfigureOrm();
+            //applicationConfigurator.ConfigureOrm();
         }
     }
 }

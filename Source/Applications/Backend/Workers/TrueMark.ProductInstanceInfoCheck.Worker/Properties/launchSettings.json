@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "TrueMark.ProductInstanceInfoCheck.Worker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,4 +1,5 @@
-﻿using Autofac;
+using Autofac;
+using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -6,6 +7,7 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -13,13 +15,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
@@ -42,7 +47,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly ISelfDeliveryCashOrganisationDistributor _selfDeliveryCashOrganisationDistributor;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
-
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IPermissionResult _entityPermissionResult;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private IEntityEntryViewModel _orderViewModel;
@@ -62,7 +67,9 @@ namespace Vodovoz.ViewModels.Cash
 			ISelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor,
 			IReportViewOpener reportViewOpener,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository)
+			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(financialIncomeCategoriesRepository is null)
@@ -100,7 +107,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Income));
 			CanEditRectroactively =
 				_entityExtendedPermissionValidator.Validate(
@@ -159,7 +166,7 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.SelfDeliveryDefaultFinancialIncomeCategoryId;
 
 			PrintCommand = new DelegateCommand(Print);
-			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);
+			SaveCommand = new DelegateCommand(SaveHandler, () => CanEdit);
 			CloseCommand = new DelegateCommand(() => Close(true, CloseSource.Self));
 		}
 
@@ -281,6 +288,37 @@ namespace Vodovoz.ViewModels.Cash
 			}
 		}
 
+		private void SaveHandler()
+		{
+			if(!Save(false))
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
+				return;
+			}
+
+			var document = Entity.Order.OrderDocuments
+				.FirstOrDefault(x =>
+					x.Type == OrderDocumentType.Invoice
+					|| x.Type == OrderDocumentType.InvoiceBarter
+					|| x.Type == OrderDocumentType.InvoiceContractDoc)
+				as IPrintableRDLDocument;
+
+			var page = NavigationManager
+				.OpenViewModel<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
+
+			page.PageClosed += OnInvoiceDocumentPrintViewClosed;
+		}
+
+		private void OnInvoiceDocumentPrintViewClosed(object sender, EventArgs eventArgs)
+		{
+			if(sender is IPage page)
+			{
+				page.PageClosed -= OnInvoiceDocumentPrintViewClosed;
+			}
+
+			Close(false, CloseSource.Save);
+		}
+
 		protected override bool BeforeSave()
 		{
 			Entity.AcceptSelfDeliveryPaid(_callTaskWorker);
@@ -313,14 +351,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.ReturnTicket";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.ReturnTicket",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id",  Entity.Id }
-				}
+				{ "id", Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);

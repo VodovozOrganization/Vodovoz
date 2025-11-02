@@ -26,10 +26,24 @@ namespace Vodovoz.Domain.Cash
 		private string _reasonForSendToReappropriate;
 		private string _cancelReason;
 		private Organization _organization;
+		private int _id;
 
 		#region Свойства
 
-		public virtual int Id { get; }
+		public virtual int Id
+		{
+			get => _id;
+			protected set
+			{
+				if(_id != value)
+				{
+					_id = value;
+
+					UpdateFileInformations();
+					UpdateComments();
+				}
+			}
+		}
 
 		public abstract string Title { get; }
 
@@ -39,7 +53,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual PayoutRequestState PayoutRequestState
 		{
 			get => _payoutRequestState;
-			set => SetField(ref _payoutRequestState, value);
+			protected set => SetField(ref _payoutRequestState, value);
 		}
 
 		[Display(Name = "Возможность не пересогласовывать выплаты")]
@@ -158,80 +172,9 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		protected abstract void UpdateFileInformations();
+		protected abstract void UpdateComments();
+
 		public abstract void ChangeState(PayoutRequestState newState);
-	}
-
-	public enum PayoutRequestDocumentType
-	{
-		[Display(Name = "Заявка на выдачу наличных ДС")]
-		CashRequest,
-
-		[Display(Name = "Заявка на оплату по Б/Н")]
-		CashlessRequest
-	}
-
-	public enum PayoutRequestState
-	{
-		[Display(Name = "Новая")]
-		New,
-
-		[Display(Name = "На уточнении")]
-		OnClarification, // после отправки на пересогласование
-
-		[Display(Name = "Подана")]
-		Submited, // после подтверждения
-
-		[Display(Name = "Согласована")]
-		Agreed, // после согласования
-
-		[Display(Name = "Передана на выдачу")]
-		GivenForTake,
-
-		[Display(Name = "Частично закрыта")]
-		PartiallyClosed, // содержит не выданные суммы
-
-		[Display(Name = "Отменена")]
-		Canceled,
-
-		[Display(Name = "Закрыта")]
-		Closed // все суммы выданы
-	}
-
-	public enum PayoutRequestUserRole
-	{
-		[Display(Name = "Заявитель")]
-		RequestCreator,
-
-		[Display(Name = "Согласователь")]
-		Coordinator,
-
-		[Display(Name = "Финансист")]
-		Financier,
-
-		[Display(Name = "Кассир")]
-		Cashier,
-
-		[Display(Name = "Другие")]
-		Other,
-
-		[Display(Name = "Бухгалтер")]
-		Accountant,
-		
-		[Display(Name = "Служба безопасности")]
-		SecurityService,
-	}
-
-	public class CashRequestStateStringType : EnumStringType
-	{
-		public CashRequestStateStringType() : base(typeof(PayoutRequestState))
-		{
-		}
-	}
-
-	public class CashRequestDocTypeStringType : EnumStringType
-	{
-		public CashRequestDocTypeStringType() : base(typeof(PayoutRequestDocumentType))
-		{
-		}
 	}
 }

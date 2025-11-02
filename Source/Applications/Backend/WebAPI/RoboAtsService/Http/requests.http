@@ -1,4 +1,16 @@
+﻿@apiKey = <ApiKey>
+
 ###
 GET https://localhost:5001/api/?CID=<PHONE>&CALL_UUID=<GUID>&request=datetime&show=requesttime HTTP/1.1
 content-type: application/json
-ApiKey: <API_KEY>
+ApiKey: {{apiKey}}
+
+###
+@counterPartyPhone=<PnoneNumber>
+GET https://localhost:5001/api/GetCounterpartyHasOrdersForDeliveryToday?counterPartyPhone={{counterPartyPhone}}
+ApiKey: {{apiKey}}
+
+###
+@orderId=<OrderId>
+GET https://localhost:5001/api/GetCourierPhones?orderId={{orderId}}
+ApiKey: {{apiKey}}

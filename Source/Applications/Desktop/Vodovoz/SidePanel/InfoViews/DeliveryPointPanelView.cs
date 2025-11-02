@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
@@ -26,10 +27,10 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class DeliveryPointPanelView : Gtk.Bin, IPanelView
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IDeliveryPointRepository _deliveryPointRepository = new DeliveryPointRepository();
-		private readonly IBottlesRepository _bottlesRepository = new BottlesRepository();
-		private readonly IDepositRepository _depositRepository = new DepositRepository();
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
+		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IDepositRepository _depositRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
@@ -39,9 +40,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		private bool _textviewcommentBufferChanged = false;
 		private bool _textviewcommentLogistBufferChanged = false;
 
-		public DeliveryPointPanelView(ICommonServices commonServices)
+		public DeliveryPointPanelView(
+			ICommonServices commonServices,
+			IDeliveryPointRepository deliveryPointRepository,
+			IBottlesRepository bottlesRepository,
+			IDepositRepository depositRepository,
+			IOrderRepository orderRepository)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
+			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+
 			Build();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
 			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
@@ -100,9 +111,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveLogisticsRequirements()
 		{
 			using(var uow =
-					UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
+					ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
 			{
-				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				if(uow.Root.LogisticsRequirements == null)
+				{
+					uow.Root.LogisticsRequirements = new LogisticsRequirements();
+				}
+
+				uow.Root.LogisticsRequirements.ForwarderRequired = logisticsRequirementsView.ViewModel.Entity.ForwarderRequired;
+				uow.Root.LogisticsRequirements.DocumentsRequired = logisticsRequirementsView.ViewModel.Entity.DocumentsRequired;
+				uow.Root.LogisticsRequirements.RussianDriverRequired = logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired;
+				uow.Root.LogisticsRequirements.PassRequired = logisticsRequirementsView.ViewModel.Entity.PassRequired;
+				uow.Root.LogisticsRequirements.LargusRequired = logisticsRequirementsView.ViewModel.Entity.LargusRequired;
+
 				uow.Save();
 			}
 		}
@@ -178,6 +199,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			buttonSaveComment.Sensitive = 
 				btn.Sensitive = 
 				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
+
+			var isLogistcsRequirementsEditable = _deliveryPointPermissionResult.CanUpdate && DeliveryPoint.Id != 0;
+			logisticsRequirementsView.Sensitive = isLogistcsRequirementsEditable;
+			buttonSaveLogisticsRequirements.Sensitive = isLogistcsRequirementsEditable;
 
 			if(InfoProvider is OrderDlg)
 			{
@@ -255,7 +280,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void SaveComment()
 		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий» на панели точки доставки"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();

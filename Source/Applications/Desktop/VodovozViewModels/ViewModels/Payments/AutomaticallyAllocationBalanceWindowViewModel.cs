@@ -6,59 +6,67 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using NHibernate;
+using QS.DomainModel.Tracking;
+using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.ViewModels.Payments
 {
 	public class AutomaticallyAllocationBalanceWindowViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		private readonly UnallocatedBalancesJournalNode _selectedUnallocatedBalancesNode;
-		private readonly IList<UnallocatedBalancesJournalNode> _loadedNodes;
-		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IPaymentsRepository _paymentsRepository;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IUnitOfWork _uow;
-		private DelegateCommand _allocateByCurrentCounterpartyCommand;
-		private DelegateCommand _allocateByAllCounterpartiesWithPositiveBalanceCommand;
+		private readonly IPaymentService _paymentService;
+		private readonly IUnitOfWork _unitOfWork;
+
 		private bool _isAllocationState;
 		private bool _allocateCompletedPayments = true;
-		
+
+		private UnallocatedBalancesJournalNode _selectedUnallocatedBalancesNode;
+		private IList<UnallocatedBalancesJournalNode> _loadedNodes;
+
 		public AutomaticallyAllocationBalanceWindowViewModel(
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			IPaymentsRepository paymentsRepository,
-			IOrderRepository orderRepository,
-			IUnitOfWorkFactory uowFactory,
-			UnallocatedBalancesJournalNode selectedUnallocatedBalancesNode,
-			IList<UnallocatedBalancesJournalNode> loadedNodes,
-			int closingDocumentDeliveryScheduleId) : base(navigationManager)
+			IPaymentService paymentService,
+			IUnitOfWorkFactory uowFactory)
+			: base(navigationManager)
 		{
-			if(navigationManager == null)
+			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			if(uowFactory is null)
+			{
+				throw new ArgumentNullException(nameof(uowFactory));
+			}
+
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_uow = (uowFactory ?? throw new ArgumentNullException(nameof(uowFactory))).CreateWithoutRoot();
-			_selectedUnallocatedBalancesNode =
-				selectedUnallocatedBalancesNode ?? throw new ArgumentNullException(nameof(selectedUnallocatedBalancesNode));
-			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
-			_closingDocumentDeliveryScheduleId = closingDocumentDeliveryScheduleId;
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
+			Title = "Автоматическое распределение положительного баланса";
+
+			_unitOfWork = uowFactory.CreateWithoutRoot(Title);
+
 			Resizable = false;
 			Deletable = false;
 			WindowPosition = WindowGravity.None;
+
+			AllocateByCurrentCounterpartyCommand = new DelegateCommand(AllocateByCurrentCounterparty, () => CanAllocateByCurrentCounterparty);
+			AllocateByAllCounterpartiesWithPositiveBalanceCommand = new DelegateCommand(AllocateByAllCounterpartiesWithPositiveBalance);
 		}
 
 		public bool IsAllocationState
 		{
 			get => _isAllocationState;
-			set => SetField(ref _isAllocationState, value);
+			set
+			{
+				if(SetField(ref _isAllocationState, value))
+				{
+					OnPropertyChanged(nameof(CanAllocateByCurrentCounterparty));
+				}
+			}
 		}
 
 		public bool AllocateCompletedPayments
@@ -68,162 +76,97 @@ namespace Vodovoz.ViewModels.Payments
 		}
 
 		public IProgressBarDisplayable ProgressBarDisplayable { get; set; }
-		
-		public DelegateCommand AllocateByCurrentCounterpartyCommand =>
-			_allocateByCurrentCounterpartyCommand ?? (_allocateByCurrentCounterpartyCommand =
-				new DelegateCommand(
-					() =>
-					{
-						try
-						{
-							IsAllocationState = true;
-							AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
-							IsAllocationState = false;
-						}
-						catch(Exception e)
-						{
-							_interactiveService.ShowMessage(
-								ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
-						}
-						finally
-						{
-							Close(false, CloseSource.Self);
-						}
-					}
-				)
-			);
 
-		public DelegateCommand AllocateByAllCounterpartiesWithPositiveBalanceCommand =>
-			_allocateByAllCounterpartiesWithPositiveBalanceCommand ?? (_allocateByAllCounterpartiesWithPositiveBalanceCommand =
-				new DelegateCommand(
-					() =>
-					{
-						try
-						{
-							IsAllocationState = true;
-							if(_loadedNodes.Count == 100)
-							{
-								ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
+		public DelegateCommand AllocateByCurrentCounterpartyCommand { get; }
+		public DelegateCommand AllocateByAllCounterpartiesWithPositiveBalanceCommand { get; }
 
-								var allUnAllocatedBalances =
-									_paymentsRepository.GetAllUnallocatedBalances(_uow, _closingDocumentDeliveryScheduleId)
-										.List<UnallocatedBalancesJournalNode>();
+		public bool CanAllocateByCurrentCounterparty => _selectedUnallocatedBalancesNode != null && !IsAllocationState;
 
-								AllocateLoadedBalances(allUnAllocatedBalances);
-							}
-							else
-							{
-								AllocateLoadedBalances(_loadedNodes);
-							}
-							IsAllocationState = false;
-						}
-						catch(Exception e)
-						{
-							_interactiveService.ShowMessage(
-								ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
-						}
-						finally
-						{
-							Close(false, CloseSource.Self);
-						}
-					}
-				)
-			);
-		
-		private void AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
+		public void Configure(
+			UnallocatedBalancesJournalNode selectedUnallocatedBalancesNode,
+			IList<UnallocatedBalancesJournalNode> loadedNodes)
 		{
-			var balance = node.CounterpartyBalance;
-			var paymentNodes = _paymentsRepository.GetAllNotFullyAllocatedPaymentsByClientAndOrg(
-				_uow, node.CounterpartyId, node.OrganizationId, AllocateCompletedPayments);
+			_selectedUnallocatedBalancesNode = selectedUnallocatedBalancesNode
+				?? throw new ArgumentNullException(nameof(selectedUnallocatedBalancesNode));
+			_loadedNodes = loadedNodes ?? throw new ArgumentNullException(nameof(loadedNodes));
 
-			var orderNodes =
-				_orderRepository.GetAllNotFullyPaidOrdersByClientAndOrg(
-					_uow,
-					node.CounterpartyId,
-					node.OrganizationId,
-					_closingDocumentDeliveryScheduleId);
-			
-			foreach(var paymentNode in paymentNodes)
+			OnPropertyChanged(nameof(CanAllocateByCurrentCounterparty));
+		}
+
+		public void AllocateByCurrentCounterparty()
+		{
+			try
 			{
-				if(balance == 0)
-				{
-					break;
-				}
+				IsAllocationState = true;
 
-				var unallocatedSum = paymentNode.UnallocatedSum;
-				var payment = _uow.GetById<Payment>(paymentNode.Id);
-				
-				while(orderNodes.Count > 0)
-				{
-					var order = _uow.GetById<Order>(orderNodes[0].Id);
-					var sumToAllocate = orderNodes[0].OrderSum - orderNodes[0].AllocatedSum;
-					
-					if(balance >= unallocatedSum)
+				var distributionResult = AllocateByCounterpartyAndOrg(_selectedUnallocatedBalancesNode);
+				IsAllocationState = false;
+
+				distributionResult.Match(
+					() =>
 					{
-						if(sumToAllocate <= unallocatedSum)
-						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							unallocatedSum -= sumToAllocate;
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-						}
-						else
-						{
-							payment.AddPaymentItem(order, unallocatedSum);
-							orderNodes[0].AllocatedSum += unallocatedSum;
-							balance -= unallocatedSum;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-							break;
-						}
+						_unitOfWork.Commit();
 
-						if(unallocatedSum == 0)
-						{
-							break;
-						}
-					}
-					else
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Распределение успешно завершено");
+					},
+					errors =>
 					{
-						if(sumToAllocate <= balance)
-						{
-							payment.AddPaymentItem(order, sumToAllocate);
-							balance -= sumToAllocate;
-							orderNodes.RemoveAt(0);
-							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-						}
-						else
-						{
-							payment.AddPaymentItem(order, balance);
-							balance = 0;
-							order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-						}
-
-						if(balance == 0)
-						{
-							break;
-						}
-					}
-				}
-
-				var allocatedPaymentItems =
-					payment.PaymentItems.Where(
-						pi => pi.CashlessMovementOperation == null || pi.Sum != pi.CashlessMovementOperation.Expense);
-
-				foreach(var paymentItem in allocatedPaymentItems)
-				{
-					paymentItem.CreateOrUpdateExpenseOperation();
-				}
-
-				if(payment.Status != PaymentState.completed)
-				{
-					payment.CreateIncomeOperation();
-					payment.Status = PaymentState.completed;
-				}
-
-				_uow.Save(payment);
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Error,
+							errors.First().Message);
+					});
 			}
+			catch(Exception)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
+			}
+			finally
+			{
+				Close(false, CloseSource.Self);
+			}
+		}
 
-			_uow.Commit();
+		private void AllocateByAllCounterpartiesWithPositiveBalance()
+		{
+			try
+			{
+				IsAllocationState = true;
+				if(_loadedNodes.Count == 100)
+				{
+					ProgressBarDisplayable.Start(1, 0, "Получаем всех клиентов с положительным балансом...");
+
+					var allUnAllocatedBalances =
+						_paymentService.GetAllUnallocatedBalancesForAutomaticDistribution(_unitOfWork);
+
+					AllocateLoadedBalances(allUnAllocatedBalances.Value.ToList());
+				}
+				else
+				{
+					AllocateLoadedBalances(_loadedNodes);
+				}
+				IsAllocationState = false;
+			}
+			catch(Exception)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error, "Возникла непредвиденная ошибка, перезапустите операцию");
+			}
+			finally
+			{
+				Close(false, CloseSource.Self);
+			}
+		}
+
+		private Result AllocateByCounterpartyAndOrg(UnallocatedBalancesJournalNode node)
+		{
+			return _paymentService.DistributeByClientIdAndOrganizationId(
+				_unitOfWork,
+				node.CounterpartyId,
+				node.OrganizationId,
+				AllocateCompletedPayments);
 		}
 
 		private void AllocateLoadedBalances(IList<UnallocatedBalancesJournalNode> loadedNodes)
@@ -231,20 +174,51 @@ namespace Vodovoz.ViewModels.Payments
 			var allocated = 0;
 			ProgressBarDisplayable.Start(loadedNodes.Count, 0,
 				$"Всего {loadedNodes.Count} клиентов с положительным балансом. Начинаем распределение...");
-			
+
+			var distributionResults = new List<Result>();
+
+			if(_unitOfWork.Session.GetCurrentTransaction() is null)
+			{
+				_unitOfWork.Session.BeginTransaction();
+			}
+
 			foreach(var node in loadedNodes)
 			{
-				AllocateByCounterpartyAndOrg(node);
+				distributionResults.Add(AllocateByCounterpartyAndOrg(node));
 				allocated++;
 				ProgressBarDisplayable.Add(1, $"Обработано {allocated} клиентов из {loadedNodes.Count}");
 			}
-			
-			ProgressBarDisplayable.Update("Балансы разнесены успешно");
+
+			var counterpartyNotDistributedCount = distributionResults.Count(result => result.Errors.All(error => error.Code ==
+				typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoOrdersToDistribute)
+				|| error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoPaymentsWithPositiveBalance)));
+
+			if(!distributionResults.Any()
+				|| distributionResults.All(result => result.IsSuccess)
+				|| distributionResults.Any(result => result.Errors.All(error =>
+					error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoOrdersToDistribute)
+					|| error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoPaymentsWithPositiveBalance))))
+			{
+				GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)_unitOfWork);
+				_unitOfWork.Session.GetCurrentTransaction().Commit();
+				ProgressBarDisplayable.Update($"Балансы {allocated - counterpartyNotDistributedCount} клиентов разнесены успешно");
+
+				_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Распределение успешно завершено");
+				return;
+			}
+
+			_unitOfWork.Session.GetCurrentTransaction().Rollback();
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				distributionResults.First(x => x.IsFailure).Errors.First().Message);
 		}
 
 		public void Dispose()
 		{
-			_uow?.Dispose();
+			_unitOfWork?.Dispose();
 		}
 	}
 }

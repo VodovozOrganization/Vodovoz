@@ -8,19 +8,19 @@ namespace Vodovoz.Views.Rent
 
 		private global::Gtk.HBox hboxButtons;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.Table datatable;
 
 		private global::Gamma.GtkWidgets.yEntry dataentryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryDepositService;
+		private global::QS.Views.Control.EntityEntry entryDailyRentServiceNomenclature;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryRentServiceDaily;
+		private global::QS.Views.Control.EntityEntry entryDepositServiceNomenclature;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryRentServiceMonthly;
+		private global::QS.Views.Control.EntityEntry entryLongTermRentServiceNomenclature;
 
 		private global::Gtk.HBox hbox6;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.Views.Rent
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -87,7 +87,7 @@ namespace Vodovoz.Views.Rent
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -123,41 +123,35 @@ namespace Vodovoz.Views.Rent
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
-			this.entryDepositService = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryDepositService.Events = ((global::Gdk.EventMask)(256));
-			this.entryDepositService.Name = "entryDepositService";
-			this.entryDepositService.CanEditReference = false;
-			this.entryDepositService.CanOpenWithoutTabParent = false;
-			this.datatable.Add(this.entryDepositService);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryDepositService]));
-			w7.TopAttach = ((uint)(7));
-			w7.BottomAttach = ((uint)(8));
+			this.entryDailyRentServiceNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryDailyRentServiceNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryDailyRentServiceNomenclature.Name = "entryDailyRentServiceNomenclature";
+			this.datatable.Add(this.entryDailyRentServiceNomenclature);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryDailyRentServiceNomenclature]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
-			this.entryRentServiceDaily = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryRentServiceDaily.Events = ((global::Gdk.EventMask)(256));
-			this.entryRentServiceDaily.Name = "entryRentServiceDaily";
-			this.entryRentServiceDaily.CanEditReference = false;
-			this.entryRentServiceDaily.CanOpenWithoutTabParent = false;
-			this.datatable.Add(this.entryRentServiceDaily);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryRentServiceDaily]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
+			this.entryDepositServiceNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryDepositServiceNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryDepositServiceNomenclature.Name = "entryDepositServiceNomenclature";
+			this.datatable.Add(this.entryDepositServiceNomenclature);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryDepositServiceNomenclature]));
+			w8.TopAttach = ((uint)(7));
+			w8.BottomAttach = ((uint)(8));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable.Gtk.Table+TableChild
-			this.entryRentServiceMonthly = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryRentServiceMonthly.Events = ((global::Gdk.EventMask)(256));
-			this.entryRentServiceMonthly.Name = "entryRentServiceMonthly";
-			this.entryRentServiceMonthly.CanEditReference = false;
-			this.entryRentServiceMonthly.CanOpenWithoutTabParent = false;
-			this.datatable.Add(this.entryRentServiceMonthly);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryRentServiceMonthly]));
+			this.entryLongTermRentServiceNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryLongTermRentServiceNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryLongTermRentServiceNomenclature.Name = "entryLongTermRentServiceNomenclature";
+			this.datatable.Add(this.entryLongTermRentServiceNomenclature);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable[this.entryLongTermRentServiceNomenclature]));
 			w9.TopAttach = ((uint)(4));
 			w9.BottomAttach = ((uint)(5));
 			w9.LeftAttach = ((uint)(1));

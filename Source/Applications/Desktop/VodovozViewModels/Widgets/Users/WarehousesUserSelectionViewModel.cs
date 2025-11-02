@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz.ViewModels.Widgets.Users
@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Widgets.Users
 			return warehouses;
 		}
 
-		private bool IsWarehouseAlreadyAdded(int warehouseId) => 
+		private bool IsWarehouseAlreadyAdded(int warehouseId) =>
 			ObservableWarehouses
 			.Where(w => w.WarehouseId == warehouseId)
 			.Any();
@@ -111,10 +111,10 @@ namespace Vodovoz.ViewModels.Widgets.Users
 						return;
 					}
 
-					var newWarehouseNode = new WarehouseNode 
-					{  
-						WarehouseId = addWarehouseId, 
-						WarehouseName = addWarehouseName 
+					var newWarehouseNode = new WarehouseNode
+					{
+						WarehouseId = addWarehouseId,
+						WarehouseName = addWarehouseName
 					};
 
 					ObservableWarehouses.Add(newWarehouseNode);

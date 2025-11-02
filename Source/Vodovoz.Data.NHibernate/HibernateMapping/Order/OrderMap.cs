@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using NHibernate.Type;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -7,7 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public OrderMap()
 		{
-			Table("orders");
+			Table(OrderEntity.Table);
 
 			OptimisticLock.Version();
 			Version(x => x.Version).Column("version");
@@ -42,7 +43,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OnRouteEditReason).Column("on_route_edit_reason");
 			Map(x => x.DriverCallId).Column("driver_call_id");
 			Map(x => x.Trifle).Column("trifle");
-			Map(x => x.OnlineOrder).Column("online_order");
+			Map(x => x.OnlinePaymentNumber).Column("online_order");
 			Map(x => x.ToClientText).Column("to_client_text");
 			Map(x => x.FromClientText).Column("from_client_text");
 			Map(x => x.IsContractCloser).Column("is_contract_closer");
@@ -66,7 +67,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DriverMobileAppComment).Column("driver_app_comment");
 			Map(x => x.DriverMobileAppCommentTime).Column("driver_app_comment_time");
 			Map(x => x.IsSecondOrder).Column("is_second_order");
-			Map(x => x.CounterpartyExternalOrderId).Column("counterparty_external_order_id");
+			Map(x => x.CounterpartyExternalOrderId).Column("client_external_order_id");
+			Map(x => x.IsDoNotMakeCallBeforeArrival).Column("is_do_not_make_call_before_arrival");
 
 			Map(x => x.OrderStatus).Column("order_status");
 			Map(x => x.SignatureType).Column("signature_type");
@@ -80,7 +82,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OrderAddressType).Column("order_address_type");
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 			Map(x => x.WaitUntilTime).Column("wait_until_time").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
+			Map(x => x.OrderPartsIds).Column("order_parts_ids");
 
+			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Client).Column("client_id");
 			References(x => x.Contract).Column("counterparty_contract_id").Cascade.SaveUpdate();
 			References(x => x.Author).Column("author_employee_id");

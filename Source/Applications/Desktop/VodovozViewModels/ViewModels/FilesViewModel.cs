@@ -82,6 +82,15 @@ namespace Vodovoz.ViewModels
 						}
 
 						complaintFile.ByteFile = File.ReadAllBytes(filePath);
+						
+						if(complaintFile.ByteFile.Length > 16_250_000)
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Warning,
+								$"Слишком большой размер файла: {complaintFile.FileStorageId} ");
+							continue;
+						}
+						
 						if(FilesList == null)
 						{
 							FilesList = new GenericObservableList<ComplaintFile>();

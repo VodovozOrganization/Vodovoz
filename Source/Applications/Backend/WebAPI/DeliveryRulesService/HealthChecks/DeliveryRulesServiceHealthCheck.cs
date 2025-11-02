@@ -16,7 +16,11 @@ namespace DeliveryRulesService.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public DeliveryRulesServiceHealthCheck(ILogger<DeliveryRulesServiceHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
+		public DeliveryRulesServiceHealthCheck(
+			ILogger<DeliveryRulesServiceHealthCheck> logger,
+			IHttpClientFactory httpClientFactory,
+			IConfiguration configuration,
+			IUnitOfWorkFactory unitOfWorkFactory)
 			: base(logger, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

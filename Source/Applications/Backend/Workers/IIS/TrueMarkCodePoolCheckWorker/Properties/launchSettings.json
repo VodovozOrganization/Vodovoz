@@ -1,12 +1,14 @@
 ﻿{
-	"$schema": "http://json.schemastore.org/launchsettings.json",
-	"profiles": {
-		"TrueMarkCodePoolCheckWorker": {
-			"commandName": "Project",
-			"launchBrowser": false,
-			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development"
-			}
-		}
-	}
+  "profiles": {
+    "TrueMarkCodePoolCheckWorker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
 }

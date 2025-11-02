@@ -1,59 +1,85 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Fuel;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
-using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
-	public class FuelDocumentViewModel : TabViewModelBase
+	public class FuelDocumentViewModel : TabViewModelBase, ITDICloseControlTab
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrackRepository _trackRepository;
-
-		private readonly CashDistributionCommonOrganisationProvider _commonOrganisationProvider =
-			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(new ParametersProvider()));
-
+		private readonly IFuelRepository _fuelRepository;
+		private readonly ISubdivisionRepository _subdivisionsRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICommonServices _commonServices;
+		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IFuelApiService _fuelApiService;
+		private readonly IFuelControlSettings _fuelControlSettings;
+		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IUserSettingsService _userSettingsService;
+		private readonly IYesNoCancelQuestionInteractive _yesNoCancelQuestionInteractive;
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
 		private FuelDocument _fuelDocument;
 		private Employee _cashier;
-		private Track _track;
-		private bool _canEdit = true;
+		private RouteList _routeList;
 		private bool _autoCommit;
-		private bool _fuelInMoney;
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
 		private decimal _fuelOutlayed;
+		private int _fuelLimitTransactionsCount;
+		private int _fuelLimitTransactionsCountMaxValue;
+		private bool _isOnlyDocumentsCreation;
+		private bool _isGiveFuelInMoneySelected;
+		private bool _isDocumentSavingInProcess;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
+		private int _fuelLimitMaxTransactionsCount;
+		private decimal _maxDailyFuelLimitForCar;
 
 		#region ctor
-
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
+		/// Создание нового документа из диалого закрытия МЛ
 		/// </summary>
 		public FuelDocumentViewModel
 		(
@@ -67,26 +93,35 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
+			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = new FuelDocument();
@@ -94,9 +129,15 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_autoCommit = false;
 			RouteList = rl;
 
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
+
 			Configure();
 		}
 
+		/// <summary>
+		/// Открытие существующего документа из диалога закрытия МЛ
+		/// </summary>
 		public FuelDocumentViewModel
 		(
 			IUnitOfWork uow,
@@ -109,26 +150,35 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
+			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
@@ -136,15 +186,20 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_autoCommit = false;
 			RouteList = FuelDocument.RouteList;
 
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
+
 			Configure();
 		}
 
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// Создание нового документа из журнала "Работа кассы с МЛ"
 		/// </summary>
 		public FuelDocumentViewModel
 		(
 			RouteList rl,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
@@ -153,39 +208,52 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
-			ILifetimeScope lifetimeScope) : base(commonServices?.InteractiveService, navigationManager)
+			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
+			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
+			ILifetimeScope lifetimeScope)
+			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(lifetimeScope is null)
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
-
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
+			var uow = _uowFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;
 			_autoCommit = true;
 			RouteList = UoW.GetById<RouteList>(rl.Id);
 
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
+
 			Configure();
 		}
-		
+
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
+		/// Создание нового документа из журнала "Журнал МЛ"
 		/// </summary>
 		public FuelDocumentViewModel
 		(
@@ -199,7 +267,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ITrackRepository trackRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ICarJournalFactory carJournalFactory,
+			IOrganizationRepository organizationRepository,
+			IFuelApiService fuelApiService,
+			IFuelControlSettings fuelControlSettings,
+			IGuiDispatcher guiDispatcher,
+			IUserSettingsService userSettingsService,
+			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -207,111 +280,94 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
-
-			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			SubdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
-			FuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_uowFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
+			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			EmployeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
-			CarAutocompleteSelector =
-				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
-				.CreateCarAutocompleteSelectorFactory(lifetimeScope);
 
-			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(unitOfWorkFactory);
+			var uow = entityUoWBuilder.CreateUoW<FuelDocument>(_uowFactory);
 			UoW = uow;
 			FuelDocument = uow.Root;
 			FuelDocument.UoW = UoW;
 			_autoCommit = true;
 
-			TabName = "Выдача топлива";
+			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
+			FuelTypeEntryViewModel = BuildFuelTypeEntryViewModel(lifetimeScope);
 
-			if(!InitActualCashier())
-			{
-				AbortOpening();
-				return;
-			}
-
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
-
-			CreateCommands();
-
-			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
-
-			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+			Configure();
 		}
 
 		private void Configure()
 		{
-			if(!CarHasFuelType() || !InitActualCashier())
+			if(!InitActualCashier() || !IsCurrentCashierCanGiveFuel())
 			{
 				AbortOpening();
 				return;
 			}
 
-			TabName = "Выдача топлива";
-			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_commonOrganisationProvider);
-			CreateCommands();
-			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
-
-			if(FuelDocument.Id == 0)
+			if(FuelDocument.Id == 0 && RouteList != null)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}
 
+			if(RouteList != null)
+			{
+				if(!CarHasFuelType())
+				{
+					AbortOpening();
+					return;
+				}
+
+				SetFuelLimitTransactionsCount();
+			}
+
+			TabName = "Выдача топлива";
+			_fuelCashOrganisationDistributor = new FuelCashOrganisationDistributor(_organizationRepository);
+
+			CreateCommands();
+
+			IsGiveFuelInMoneySelected = FuelDocument?.FuelOperation?.PayedLiters > 0m;
+
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 
-			OpenExpenseCommand = new DelegateCommand(OpenExpense);
+			OpenExpenseCommand = new DelegateCommand(OpenExpense, () => CanOpenExpense);
 		}
 
 		#endregion ctor
 
 		public virtual IUnitOfWork UoW { get; set; }
 
-		protected IFuelRepository FuelRepository { get; set; }
-		protected ISubdivisionRepository SubdivisionsRepository { get; }
-		protected IEmployeeRepository EmployeeRepository { get; }
-		protected ICommonServices CommonServices { get; }
-
-		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
+		[PropertyChangedAlso(nameof(FuelInfo), nameof(ResultInfo))]
 		public virtual FuelDocument FuelDocument
 		{
 			get => _fuelDocument;
 			set => SetField(ref _fuelDocument, value);
 		}
 
-		public RouteList RouteList { get; set; }
+		[PropertyChangedAlso(nameof(IsFuelLimitsCanBeEdited))]
+		public RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
+		}
 
-		[PropertyChangedAlso(nameof(CanEdit))]
+		[PropertyChangedAlso(nameof(IsDocumentCanBeEdited))]
 		public virtual Employee Cashier
 		{
 			get => _cashier;
 			set => SetField(ref _cashier, value);
-		}
-
-		public virtual Track Track
-		{
-			get => _track;
-			set => SetField(ref _track, value);
-		}
-
-		public virtual bool CanEdit
-		{
-			get => _canEdit;
-			set
-			{
-				SetField(ref _canEdit, value);
-				OnPropertyChanged(nameof(CanChangeDate));
-			}
-		}
-
-		public virtual bool FuelInMoney
-		{
-			get => _fuelInMoney;
-			set => SetField(ref _fuelInMoney, value);
 		}
 
 		public virtual bool CanOpenExpense
@@ -320,37 +376,86 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _canOpenExpense, value);
 		}
 
-		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
-
-		public virtual string BalanceState => $"Доступно к выдаче: {Balance} л.";
-
-		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && CanEdit;
-
-		public virtual bool CanChangeDate =>
-			CanEdit
-			&& CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
-				CommonServices.UserService.CurrentUserId);
-
-		public virtual decimal Balance
+		public virtual int FuelLimitTransactionsCount
 		{
-			get
+			get => _fuelLimitTransactionsCount;
+			set
 			{
-				if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null)
+				if(value > _fuelLimitTransactionsCountMaxValue)
 				{
-					return FuelRepository?.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel) ?? 0m;
+					SetField(ref _fuelLimitTransactionsCount, _fuelLimitTransactionsCountMaxValue);
+					return;
 				}
 
-				return 0m;
+				SetField(ref _fuelLimitTransactionsCount, value);
 			}
 		}
+
+		public virtual int FuelLimitTransactionsCountMaxValue
+		{
+			get => _fuelLimitTransactionsCountMaxValue;
+			set => SetField(ref _fuelLimitTransactionsCountMaxValue, value);
+		}
+
+		public virtual bool IsOnlyDocumentsCreation
+		{
+			get => _isOnlyDocumentsCreation;
+			set => SetField(ref _isOnlyDocumentsCreation, value);
+		}
+
+		[PropertyChangedAlso(nameof(CanChangeDate), nameof(IsFuelLimitsCanBeEdited))]
+		public virtual bool IsGiveFuelInMoneySelected
+		{
+			get => _isGiveFuelInMoneySelected;
+			set => SetField(ref _isGiveFuelInMoneySelected, value);
+		}
+
+		[PropertyChangedAlso(nameof(IsDocumentCanBeSaved))]
+		public virtual bool IsDocumentSavingInProcess
+		{
+			get => _isDocumentSavingInProcess;
+			set => SetField(ref _isDocumentSavingInProcess, value);
+		}
+
+		public virtual bool IsUserCanGiveFuelLimits =>
+			IsCurrentUserHasPermissonToGiveFuelLimit || IsUserWorkInCashSubdivisions;
+
+		public virtual bool IsUserCanGiveFuelInMoney =>
+			IsUserWorkInCashSubdivisions;
+
+		[PropertyChangedAlso(nameof(CanChangeDate), nameof(IsDocumentCanBeSaved))]
+		public virtual bool IsDocumentCanBeEdited =>
+			UoW.IsNew || FuelDocument.FuelLimitLitersAmount == 0;
+
+		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && !IsDocumentSavingInProcess;
+
+		public virtual bool IsFuelLimitsCanBeEdited =>
+			IsNewEditable
+			&& !IsGiveFuelInMoneySelected
+			&& IsUserCanGiveFuelLimits
+			&& _autoCommit
+			&& RouteList?.Date >= DateTime.Today;
+
+		public virtual bool IsFuelInMoneyCanBeEdited =>
+			IsNewEditable && IsUserCanGiveFuelInMoney;
+
+		public virtual string CashExpenseInfo => UpdateCashExpenseInfo();
+
+		public virtual bool IsNewEditable => FuelDocument.Id <= 0 && IsDocumentCanBeEdited;
+
+		public virtual bool CanChangeDate =>
+			IsDocumentCanBeEdited
+			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber,
+				_commonServices.UserService.CurrentUserId)
+			&& IsGiveFuelInMoneySelected;
 
 		public IList<Subdivision> AvailableSubdivisionsForUser
 		{
 			get
 			{
-				var user = CommonServices.UserService.GetCurrentUser();
-				var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
-				var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
+				var user = _commonServices.UserService.GetCurrentUser();
+				var employee = _employeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
+				var subdivisions = _subdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
 
 				if(subdivisions.Any(x => x.Id == employee.Subdivision.Id))
 				{
@@ -365,25 +470,61 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public string ResultInfo => UpdateResutlInfo();
 
-
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory CarAutocompleteSelector { get; }
+		public IEntityEntryViewModel CarEntryViewModel { get; }
+		public IEntityEntryViewModel FuelTypeEntryViewModel { get; }
+
+		private IEntityEntryViewModel BuildCarEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var carViewModelBuilder = new CommonEEVMBuilderFactory<FuelDocument>(this, FuelDocument, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = carViewModelBuilder
+				.ForProperty(x => x.Car)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
+
+			viewModel.IsEditable = false;
+			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		private IEntityEntryViewModel BuildFuelTypeEntryViewModel(ILifetimeScope lifetimeScope)
+		{
+			var fuelTypeViewModelBuilder = new CommonEEVMBuilderFactory<FuelDocument>(this, FuelDocument, UoW, NavigationManager, lifetimeScope);
+
+			var viewModel = fuelTypeViewModelBuilder
+				.ForProperty(x => x.Fuel)
+				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
+				.UseViewModelDialog<FuelTypeViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = false;
+			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
+
+			return viewModel;
+		}
 
 		public void SetRouteListById(int routeListId)
 		{
 			RouteList = UoW.GetById<RouteList>(routeListId);
-			Track = _trackRepository.GetTrackByRouteListId(UoW, RouteList.Id);
-
 
 			if(UoW.IsNew)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}
+
+			SetFuelLimitTransactionsCount();
+			OnPropertyChanged(nameof(FuelInfo));
 		}
 
 		private bool InitActualCashier()
 		{
-			Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(Cashier == null)
 			{
@@ -391,28 +532,168 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return false;
 			}
 
-			var cashSubdivisions = SubdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
-			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true)
+			return true;
+		}
+
+		private bool IsCurrentCashierCanGiveFuel()
+		{
+			if(!IsUserWorkInCashSubdivisions && !IsCurrentUserHasPermissonToGiveFuelLimit)
 			{
-				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
+				ShowWarningMessage("Выдать топливо может только сотрудник кассы, либо должно иметься право на выдачу топливных лимитов");
 				return false;
 			}
 
 			return true;
 		}
+
+		private void SetFuelLimitTransactionsCount()
+		{
+			SetFuelDispensingRestrictionsParameters();
+
+			if(UoW.IsNew)
+			{
+				FuelLimitTransactionsCountMaxValue = _fuelLimitMaxTransactionsCount;
+			}
+			else
+			{
+				FuelLimitTransactionsCountMaxValue = FuelDocument?.FuelLimit?.TransctionsCount ?? 1;
+			}
+
+			FuelLimitTransactionsCount = FuelLimitTransactionsCountMaxValue;
+		}
+
+		private void SetFuelDispensingRestrictionsParameters()
+		{
+			int maxTransactionsCount;
+			decimal maxDailyFuelLimit;
+
+			switch (FuelDocument.Car?.CarModel?.CarTypeOfUse)
+			{
+				case CarTypeOfUse.Largus:
+					maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.GAZelle:
+					maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Truck:
+					maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Loader:
+					maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Minivan:
+					maxTransactionsCount = _fuelControlSettings.MinivanFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.MinivanMaxDailyFuelLimit;
+					break;
+				default:
+					throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
+					                                    "Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
+			}
+
+			_fuelLimitMaxTransactionsCount = maxTransactionsCount;
+			_maxDailyFuelLimitForCar = maxDailyFuelLimit;
+		}
+
+		private IEnumerable<Subdivision> CashSubdivisions =>
+			_subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+
+		private bool IsUserWorkInCashSubdivisions =>
+			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
+
+		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{
 			if(RouteList.Car.FuelType == null)
 			{
-				ShowWarningMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
+				ShowErrorMessage($"У машины {RouteList.Car.CarModel.Name} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 
 			return true;
 		}
 
-		public bool SaveDocument()
+		private void CancelDocumentCreation()
+		{
+			if(!CanClose())
+			{
+				return;
+			}
+
+			Close(true, CloseSource.Cancel);
+		}
+
+		private void UpdateDependentDocumentsSaveAndClose()
+		{
+			if(FuelDocument.Id != 0 && FuelDocument.FuelLimitLitersAmount > 0)
+			{
+				ShowErrorMessage("Запрещено изменять документы, по которым выдавалось топливо лимитами");
+
+				return;
+			}
+
+			UpdateDocumentEditionInfo();
+
+			try
+			{
+				if(!IsFuelDocumentValid())
+				{
+					return;
+				}
+
+				if(IsMaxDailyFuelLimitExceededForCar())
+				{
+					return;
+				}
+
+				IsDocumentSavingInProcess = true;
+
+				if(FuelDocument.Id == 0)
+				{
+					var isNeedToCreateFuelLimitOnServer =
+						IsFuelLimitsCanBeEdited
+						&& FuelDocument.FuelLimitLitersAmount > 0
+						&& !IsOnlyDocumentsCreation;
+
+					if(isNeedToCreateFuelLimitOnServer)
+					{
+						var isGazpromServiceAuthDataNotSet =
+							string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiLogin)
+							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiPassword)
+							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiKey);
+
+						if(isGazpromServiceAuthDataNotSet)
+						{
+							ShowErrorMessageInGuiThread("У Вас не указаны данные для авторизации в сервисе Газпром");
+							IsDocumentSavingInProcess = false;
+							return;
+						}
+
+						CreateFuelLimitFuelOperationSaveAndClose(_cancellationTokenSource.Token);
+					}
+					else
+					{
+						CreateFuelOperationSaveAndClose();
+					}
+				}
+				else
+				{
+					FuelDocument.UpdateFuelOperation();
+					SaveAndClose();
+				}
+			}
+			catch(Exception ex)
+			{
+				LogAndShowExceptionMessageInGuiThread(ex);
+			}
+		}
+
+		private void UpdateDocumentEditionInfo()
 		{
 			if(FuelDocument.Author == null)
 			{
@@ -427,29 +708,131 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				FuelDocument.FuelCashExpense.Casher = _cashier;
 			}
+		}
 
-			var valid = CommonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
+		private bool IsFuelDocumentValid()
+		{
+			var isValid = _commonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
 
-			if(!valid)
+			return isValid;
+		}
+
+		private async void CreateFuelLimitFuelOperationSaveAndClose(CancellationToken token)
+		{
+			var fuelCardId = _fuelRepository.GetFuelCardIdByNumber(UoW, FuelDocument.FuelCardNumber);
+
+			if(fuelCardId == null)
 			{
-				return false;
+				return;
 			}
 
-			if(FuelDocument.Id == 0)
-			{
-				FuelDocument.CreateOperations(FuelRepository, _commonOrganisationProvider, _financialCategoriesGroupsSettings);
-				RouteList.ObservableFuelDocuments.Add(FuelDocument);
+			var fuelLimit = CreateFuelLimitForCard(fuelCardId);
+			var existingLimits = Enumerable.Empty<FuelLimit>();
+			var notUsedFuelLimits = Enumerable.Empty<FuelLimit>();
 
-				if(FuelInMoney && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+			try
+			{
+				existingLimits = await GetExistingFuleLimitsFromService(fuelCardId, token);
+				notUsedFuelLimits = existingLimits.Where(l => l.UsedAmount < l.Amount);
+			}
+			catch(Exception ex)
+			{
+				LogAndShowExceptionMessageInGuiThread(ex);
+				return;
+			}
+
+			_guiDispatcher.RunInGuiTread(async () =>
+			{
+				try
 				{
-					_fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
+					SummarizeNotUsedLimitsWithCurrentIfNeed(notUsedFuelLimits);
+
+					UpdateExistingFuelDocumentsWithNotUsedLimits(notUsedFuelLimits);
+
+					await RemoveFuelLimitsFromService(existingLimits.Select(l => l.LimitId), token);
+
+					fuelLimit.Amount = FuelDocument.FuelLimitLitersAmount;
+					fuelLimit.LimitId = await CreateNewFuelLimitInService(fuelLimit, token);
+					fuelLimit.CreateDate = DateTime.Now;
+
+					FuelDocument.FuelLimit = fuelLimit;
+
+					CreateFuelOperationSaveAndClose();
 				}
-			}
-			else
+				catch(Exception ex)
+				{
+					LogAndShowExceptionMessageInGuiThread(ex);
+				}
+			});
+		}
+
+		private void LogAndShowExceptionMessageInGuiThread(Exception ex)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
 			{
-				FuelDocument.UpdateFuelOperation();
+				IsDocumentSavingInProcess = false;
+				_logger.Error(ex);
+
+				ShowErrorMessage(ex.Message);
+			});
+		}
+
+		private void ShowErrorMessageInGuiThread(string message)
+		{
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				ShowErrorMessage(message);
+			});
+		}
+
+		private bool IsMaxDailyFuelLimitExceededForCar()
+		{
+			var givedLitersOnDate = _fuelRepository.GetGivedFuelInLitersOnDate(UoW, FuelDocument.Car.Id, FuelDocument.Date);
+			var totalFuelLitersAmount = givedLitersOnDate + FuelDocument.PayedLiters + FuelDocument.FuelLimitLitersAmount;
+
+			var isLimitExceeded = totalFuelLitersAmount > _maxDailyFuelLimitForCar;
+
+			if(isLimitExceeded)
+			{
+				ShowErrorMessage($"Выдать топливо нельзя! Достигнут максимальный лимит по выдаче топлива для авто.\n"
+					+ $"На выбранную дату уже выдано топлива: {givedLitersOnDate} л.\n"
+					+ $"Суточное ограничение по топливу: {_maxDailyFuelLimitForCar} л.");
 			}
 
+			return isLimitExceeded;
+		}
+
+		private void CreateFuelOperationSaveAndClose()
+		{
+			CreateFuelOperations();
+			SaveAndClose();
+		}
+
+		private void CreateFuelOperations()
+		{
+			FuelDocument.CreateOperations(_fuelRepository, _organizationRepository, _financialCategoriesGroupsSettings);
+			RouteList.ObservableFuelDocuments.Add(FuelDocument);
+
+			if(IsGiveFuelInMoneySelected && FuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+			{
+				_fuelCashOrganisationDistributor.DistributeCash(UoW, FuelDocument);
+			}
+		}
+
+		private void SaveAndClose()
+		{
+			SaveDocument();
+
+			IsDocumentSavingInProcess = false;
+
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				Close(false, CloseSource.Save);
+			});
+		}
+
+		private void SaveDocument()
+		{
 			_logger.Info("Сохраняем топливный документ...");
 
 			if(_autoCommit)
@@ -460,8 +843,94 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				UoW.Save(FuelDocument);
 			}
+		}
 
-			return true;
+		private void SummarizeNotUsedLimitsWithCurrentIfNeed(IEnumerable<FuelLimit> notUsedFuelLimits)
+		{
+			var amountSum = notUsedFuelLimits.Select(l => l.Amount).Sum() ?? 0;
+			var usedAmountSum = notUsedFuelLimits.Select(l => l.UsedAmount).Sum() ?? 0;
+			var notUsedFuelLimitsSum = amountSum - usedAmountSum;
+
+			if(notUsedFuelLimitsSum > 0)
+			{
+				var questionMessage = $"На сервере Газпром для данного авто имеется неиспользованные лимиты на {notUsedFuelLimitsSum} литров\n" +
+					$"Выдать лимит с суммарным значением?\n\n" +
+					$"\"Да\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum} л.\n" +
+					$"\"Нет\" - создастся лимит на {FuelDocument.FuelLimitLitersAmount} л.";
+
+				var summarizeQuestionResult = _yesNoCancelQuestionInteractive.Question(questionMessage);
+
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.Yes)
+				{
+					FuelDocument.FuelLimitLitersAmount = FuelDocument.FuelLimitLitersAmount + notUsedFuelLimitsSum;
+					return;
+				}
+
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.No)
+				{
+					return;
+				}
+
+				if(summarizeQuestionResult == YesNoCancelQuestionResult.Cancel)
+				{
+					throw new Exception("Выдача топлива отменена пользователем!");
+				}
+
+				throw new InvalidOperationException("Неизвестный результат выбора действия");
+			}
+		}
+
+		private void UpdateExistingFuelDocumentsWithNotUsedLimits(IEnumerable<FuelLimit> notUsedFuelLimits)
+		{
+			foreach(var limit in notUsedFuelLimits)
+			{
+				var fuelDocument = _fuelRepository.GetFuelDocumentByFuelLimitId(UoW, limit.LimitId);
+
+				if(fuelDocument != null)
+				{
+					fuelDocument.FuelLimitLitersAmount = limit.UsedAmount ?? 0;
+					fuelDocument.FuelOperation.LitersGived = fuelDocument.FuelLimitLitersAmount + fuelDocument.FuelOperation.PayedLiters;
+					fuelDocument.FuelLimit.UsedAmount = limit.UsedAmount ?? 0;
+					fuelDocument.FuelLimit.TransactionsOccured = limit.TransactionsOccured ?? 0;
+					fuelDocument.FuelLimit.LastEditDate = limit.LastEditDate;
+				}
+			}
+		}
+
+		private FuelLimit CreateFuelLimitForCard(string fuelCardId)
+		{
+			return new FuelLimit
+			{
+				CardId = fuelCardId,
+				ContractId = _fuelControlSettings.OrganizationContractId,
+				ProductType = _fuelControlSettings.FuelProductTypeId,
+				TermType = FuelLimitTermType.AllDays,
+				Period = 1,
+				PeriodUnit = FuelLimitPeriodUnit.OneTime,
+				TransctionsCount = FuelLimitTransactionsCount
+			};
+		}
+
+		private async Task<IEnumerable<FuelLimit>> GetExistingFuleLimitsFromService(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var fuelLimits = await _fuelApiService.GetFuelLimitsByCardId(fuelCardId, cancellationToken);
+
+			return fuelLimits;
+		}
+
+		private async Task RemoveFuelLimitsFromService(IEnumerable<string> limitIds, CancellationToken cancellationToken)
+		{
+			foreach(var limitId in limitIds)
+			{
+				await _fuelApiService.RemoveFuelLimitById(limitId, cancellationToken);
+			}
+		}
+
+		private async Task<string> CreateNewFuelLimitInService(FuelLimit fuelLimit, CancellationToken cancellationToken)
+		{
+			var result = await _fuelApiService.SetFuelLimit(fuelLimit, cancellationToken);
+
+			return result.First();
 		}
 
 		protected void SetRemain()
@@ -487,16 +956,24 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void FuelDocument_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(FuelDocument.FuelCoupons))
+			if(e.PropertyName == nameof(FuelDocument.FuelLimitLitersAmount))
 			{
 				OnPropertyChanged(nameof(ResultInfo));
 				OnPropertyChanged(nameof(CashExpenseInfo));
 			}
 
-			if(e.PropertyName == nameof(FuelDocument.Subdivision) || e.PropertyName == nameof(FuelDocument.Fuel))
+			if(e.PropertyName == nameof(FuelDocument.Date))
 			{
-				OnPropertyChanged(nameof(Balance));
-				OnPropertyChanged(nameof(BalanceState));
+				if(UoW.IsNew)
+				{
+					FuelDocument.SetFuelCardNumberByDocumentDate();
+					OnPropertyChanged(nameof(FuelInfo));
+				}
+			}
+
+			if(e.PropertyName == nameof(FuelDocument.FuelLimitLitersAmount))
+			{
+				OnPropertyChanged(nameof(IsDocumentCanBeEdited));
 			}
 		}
 
@@ -504,8 +981,14 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			OnPropertyChanged(nameof(ResultInfo));
 			OnPropertyChanged(nameof(CashExpenseInfo));
-			OnPropertyChanged(nameof(Balance));
-			OnPropertyChanged(nameof(BalanceState));
+		}
+
+		private void SetFuelDocumentTodayDateIfNeed()
+		{
+			if(UoW.IsNew && !IsGiveFuelInMoneySelected)
+			{
+				FuelDocument.Date = DateTime.Now;
+			}
 		}
 
 		#region FuelInfo
@@ -566,7 +1049,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					car = null;
 				}
 
-				_fuelBalance = FuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
+				_fuelBalance = _fuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
 
 				text.Add($"Остаток без документа {_fuelBalance:F2} л.");
 			}
@@ -580,7 +1063,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			text.Add($"Израсходовано топлива: {_fuelOutlayed:f2} л. ({fc:f2} л/100км)");
 			text.Add($"Номер топливной карты: {FuelDocument.FuelCardNumber}");
 
-			return String.Join("\n", text);
+			return string.Join("\n", text);
 		}
 
 		protected virtual string UpdateResutlInfo()
@@ -634,8 +1117,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public DelegateCommand SaveCommand { get; private set; }
 		public DelegateCommand CancelCommand { get; private set; }
 		public DelegateCommand SetRemainCommand { get; private set; }
-
 		public DelegateCommand OpenExpenseCommand { get; private set; }
+		public DelegateCommand SetFuelDocumentTodayDateIfNeedCommand { get; private set; }
 
 		private void OpenExpense()
 		{
@@ -647,38 +1130,28 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateCommands()
 		{
-			CreateSaveCommand();
-			CreateCancelCommand();
-			CreateSetRemainCommand();
-		}
-
-		private void CreateSetRemainCommand()
-		{
+			SaveCommand = new DelegateCommand(UpdateDependentDocumentsSaveAndClose, () => IsDocumentCanBeEdited);
+			CancelCommand = new DelegateCommand(CancelDocumentCreation, () => true);
 			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
-		}
-
-		private void CreateCancelCommand()
-		{
-			CancelCommand = new DelegateCommand(() => { Close(true, CloseSource.Cancel); }, () => true);
-		}
-
-		private void CreateSaveCommand()
-		{
-			SaveCommand = new DelegateCommand(
-				() =>
-				{
-					if(SaveDocument())
-					{
-						Close(false, CloseSource.Save);
-					}
-				},
-				() => CanEdit
-			);
-
-			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			SetFuelDocumentTodayDateIfNeedCommand = new DelegateCommand(SetFuelDocumentTodayDateIfNeed, () => true);
 		}
 
 		#endregion Commands
+
+		public bool CanClose()
+		{
+			if(!IsDocumentSavingInProcess)
+			{
+				return true;
+			}
+
+			var message = "В данный момент выполняется запрос к сервису Газпромнефть.\n" +
+				"Дождитесь заверешния операции и после этого закройте вкладку.";
+
+			_guiDispatcher.RunInGuiTread(() => ShowWarningMessage(message));
+
+			return false;
+		}
 
 		public override void Dispose()
 		{
@@ -686,6 +1159,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				UoW.Dispose();
 			}
+
+			_cancellationTokenSource?.Dispose();
+			_cancellationTokenSource = null;
 
 			base.Dispose();
 		}

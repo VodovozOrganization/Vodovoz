@@ -95,12 +95,5 @@ namespace Vodovoz.Domain.Chats
 		[Display (Name = "Чат с водителем")]
 		DriverAndLogists
 	}
-
-	public class ChatTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public ChatTypeStringType () : base (typeof(ChatType))
-		{
-		}
-	}
 }
 

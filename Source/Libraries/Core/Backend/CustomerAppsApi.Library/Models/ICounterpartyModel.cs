@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Counterparties;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -8,6 +9,6 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto);
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
-		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
+		CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId);
 	}
 }

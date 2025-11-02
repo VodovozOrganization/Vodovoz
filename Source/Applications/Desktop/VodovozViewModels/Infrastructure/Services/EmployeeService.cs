@@ -5,6 +5,7 @@ using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,54 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 using VodovozInfrastructure.Configuration;
+using Vodovoz.Settings.Common;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Infrastructure.Services
 {
 	public class EmployeeService : IEmployeeService
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUserService _userService;
+
+		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService)
+		{
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+		}
+
+		public Employee GetEmployee(int employeeId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return GetEmployee(uow, employeeId);
+			}
+		}
+
+		public Employee GetEmployee(IUnitOfWork uow, int employeeId)
+		{
+			return uow.GetById<Employee>(employeeId);
+		}
+
+		public Employee GetEmployeeForCurrentUser()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return GetEmployeeForCurrentUser(uow);
+			}
+		}
+
+		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
+		{
+			User userAlias = null;
+			return uow.Session.QueryOver<Employee>()
+				.JoinAlias(e => e.User, () => userAlias)
+				.Where(() => userAlias.Id == _userService.CurrentUserId)
+				.SingleOrDefault();
+		}
+
 		public Employee GetEmployeeForUser(IUnitOfWork uow, int userId)
 		{
 			User userAlias = null;
@@ -31,7 +72,7 @@ namespace Vodovoz.Infrastructure.Services
 
 		public void SendCounterpartyClassificationCalculationReportToEmail(
 			IUnitOfWork uow,
-			IEmailParametersProvider emailParametersProvider,
+			IEmailSettings emailSettings,
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData)
@@ -57,8 +98,8 @@ namespace Vodovoz.Infrastructure.Services
 			{
 				From = new EmailContact
 				{
-					Name = emailParametersProvider.DocumentEmailSenderName,
-					Email = emailParametersProvider.DocumentEmailSenderAddress
+					Name = emailSettings.DocumentEmailSenderName,
+					Email = emailSettings.DocumentEmailSenderAddress
 				},
 
 				To = emailContacts,
@@ -105,7 +146,9 @@ namespace Vodovoz.Infrastructure.Services
 				configuration.MessageBrokerHost,
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,
-				configuration.MessageBrokerVirtualHost);
+				configuration.MessageBrokerVirtualHost,
+				configuration.Port,
+				true);
 
 			var channel = connection.CreateModel();
 

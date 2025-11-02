@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -6,24 +7,34 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
-using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Services;
-using QS.Tdi;
 using QS.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Widgets.Search;
+
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
-	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
+	public class FinesJournalViewModel : EntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode>
 	{
+		private readonly FineFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly CompositeAlgebraicSearchViewModel _compositeAlgebraicSearchViewModel;
+		private readonly IFileDialogService _fileDialogService;
 
 		public FinesJournalViewModel(
 			FineFilterViewModel filterViewModel,
@@ -31,40 +42,58 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
+			IDeleteEntityService deleteEntityService,
+			ICurrentPermissionService currentPermissionService,
+			CompositeAlgebraicSearchViewModel compositeAlgebraicSearchViewModel,		
+			IFileDialogService fileDialogService,
 			Action<FineFilterViewModel> filterConfig = null)
-			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
+			if(filterViewModel is null)
+			{
+				throw new ArgumentNullException(nameof(filterViewModel));
+			}
+
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
+			_compositeAlgebraicSearchViewModel = compositeAlgebraicSearchViewModel ?? throw new ArgumentNullException(nameof(compositeAlgebraicSearchViewModel));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+
+
+			Search = _compositeAlgebraicSearchViewModel;
+			Search.OnSearch += OnFiltered;
+
+			JournalFilter = filterViewModel;
+			_filterViewModel = filterViewModel;
 			filterViewModel.JournalViewModel = this;
+
+			filterViewModel.OnFiltered += OnFiltered;
 
 			if(filterConfig != null)
 			{
-				FilterViewModel.SetAndRefilterAtOnce(filterConfig);
+				filterViewModel.ConfigureWithoutFiltering(filterConfig);
 			}
 
-			TabName = "Журнал штрафов";
+			TabName = $"Журнал {typeof(Fine).GetClassUserFriendlyName().GenitivePlural}";
 			UpdateOnChanges(typeof(Fine), typeof(FineItem));
+
+			UseSlider = true;
+		}
+
+		private void OnFiltered(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		public ILifetimeScope Scope => _lifetimeScope;
 
-		protected override void CreateNodeActions()
-		{
-			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateAddActions();
-			CreateEditAction();
-			CreateDefaultDeleteAction();
-		}
-
 		private string GetTotalSumInfo()
 		{
-			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSumm);
+			var total = Items.Cast<FineJournalNode>().Sum(node => node.FineSum);
 			return CurrencyWorks.GetShortCurrencyString(total);
 		}
 
@@ -74,168 +103,93 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			set { }
 		}
 
-		protected void CreateAddActions()
+		private new ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+			=> _compositeAlgebraicSearchViewModel.GetSearchCriterion(aliasPropertiesExpr);
+
+		protected override IQueryOver<Fine> ItemsQuery(IUnitOfWork unitOfWork)
 		{
-			if(!EntityConfigs.Any())
-			{
-				return;
-			}
-
-			var totalCreateDialogConfigs = EntityConfigs
-				.Where(x => x.Value.PermissionResult.CanCreate)
-				.Sum(x => x.Value.EntityDocumentConfigurations
-					.Select(y => y.GetCreateEntityDlgConfigs().Count())
-					.Sum());
-
-			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1)
-			{
-				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
-				foreach(var entityConfig in EntityConfigs.Values)
-				{
-					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
-					{
-						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
-						{
-							var childNodeAction = new JournalAction(createDlgConfig.Title,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => entityConfig.PermissionResult.CanCreate,
-								(selected) => {
-									createDlgConfig.OpenEntityDialogFunction.Invoke();
-
-									if(documentConfig.JournalParameters.HideJournalForCreateDialog)
-									{
-										HideJournal(TabParent);
-									}
-								});
-
-							addParentNodeAction.ChildActionsList.Add(childNodeAction);
-						}
-					}
-				}
-				NodeActionsList.Add(addParentNodeAction);
-			}
-			else
-			{
-				var entityConfig = EntityConfigs.First().Value;
-				var addAction = new JournalAction("Добавить",
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => entityConfig.PermissionResult.CanCreate,
-					(selected) => {
-						var docConfig = entityConfig.EntityDocumentConfigurations.First();
-						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction.Invoke();
-
-						if(tab is ITdiDialog)
-						{
-							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
-						}
-
-						if(docConfig.JournalParameters.HideJournalForCreateDialog)
-						{
-							HideJournal(TabParent);
-						}
-					},
-					"Insert");
-
-				NodeActionsList.Add(addAction);
-			};
-		}
-
-		private void CreateEditAction()
-		{
-			var editAction = new JournalAction("Изменить",
-				(selected) => {
-					var selectedNodes = selected.OfType<FineJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return false;
-					}
-					FineJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return false;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanRead;
-				},
-				(selected) => true,
-				(selected) => {
-					var selectedNodes = selected.OfType<FineJournalNode>();
-					if(selectedNodes == null || selectedNodes.Count() != 1) {
-						return;
-					}
-					FineJournalNode selectedNode = selectedNodes.First();
-					if(!EntityConfigs.ContainsKey(selectedNode.EntityType)) {
-						return;
-					}
-					var config = EntityConfigs[selectedNode.EntityType];
-					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
-
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog) {
-						HideJournal(TabParent);
-					}
-				}
-			);
-			if(SelectionMode == JournalSelectionMode.None) {
-				RowActivatedAction = editAction;
-			}
-			NodeActionsList.Add(editAction);
-		}
-
-		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => uow => {
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
-			Employee employeeAlias = null;
+			FineCategory fineCategoryAlias = null;
+			Employee finedEmployeeAlias = null;
+			Subdivision finedEmployeeSubdivision = null;
+			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<Fine>(() => fineAlias)
-				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias)
-				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+			var query = unitOfWork.Session.QueryOver(() => fineAlias)
+				.Left.JoinAlias(() => fineAlias.FineCategory, () => fineCategoryAlias)
+				.Left.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
+				.Left.JoinAlias(f => f.Items, () => fineItemAlias)
+				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.Left.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
+				.Left.JoinAlias(f => f.RouteList, () => routeListAlias);
 
-			if(FilterViewModel.Subdivision != null) {
-				query.Where(() => employeeAlias.Subdivision.Id == FilterViewModel.Subdivision.Id);
-			}
-
-			if(FilterViewModel.FineDateStart.HasValue) {
-				query.Where(() => fineAlias.Date >= FilterViewModel.FineDateStart.Value);
-			}
-
-			if(FilterViewModel.FineDateEnd.HasValue) {
-				query.Where(() => fineAlias.Date <= FilterViewModel.FineDateEnd.Value);
-			}
-
-			if(FilterViewModel.RouteListDateStart.HasValue) {
-				query.Where(() => routeListAlias.Date >= FilterViewModel.RouteListDateStart.Value);
-			}
-
-			if(FilterViewModel.RouteListDateEnd.HasValue) {
-				query.Where(() => routeListAlias.Date <= FilterViewModel.RouteListDateEnd.Value);
-			}
-
-			if (FilterViewModel.ExcludedIds != null && FilterViewModel.ExcludedIds.Any())
+			if(_filterViewModel.Subdivision != null)
 			{
-				query.WhereRestrictionOn(() => fineAlias.Id).Not.IsIn(FilterViewModel.ExcludedIds);
+				query.Where(() => finedEmployeeAlias.Subdivision.Id == _filterViewModel.Subdivision.Id);
 			}
 
-			if (FilterViewModel.FindFinesWithIds != null && FilterViewModel.FindFinesWithIds.Any())
-				{
-				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(FilterViewModel.FindFinesWithIds);
+			if(_filterViewModel.Author != null)
+			{
+				query.Where(() => fineAuthorAlias.Id == _filterViewModel.Author.Id);
 			}
 
-			var employeeProjection = CustomProjections.Concat_WS(
-				" ",
-				() => employeeAlias.LastName,
-				() => employeeAlias.Name,
-				() => employeeAlias.Patronymic
-			);
+			if(_filterViewModel.FineDateStart.HasValue)
+			{
+				query.Where(() => fineAlias.Date >= _filterViewModel.FineDateStart.Value);
+			}
+
+			if(_filterViewModel.FineDateEnd.HasValue)
+			{
+				query.Where(() => fineAlias.Date <= _filterViewModel.FineDateEnd.Value);
+			}
+
+			if(_filterViewModel.RouteListDateStart.HasValue)
+			{
+				query.Where(() => routeListAlias.Date >= _filterViewModel.RouteListDateStart.Value);
+			}
+
+			if(_filterViewModel.RouteListDateEnd.HasValue)
+			{
+				query.Where(() => routeListAlias.Date <= _filterViewModel.RouteListDateEnd.Value);
+			}
+
+			if(_filterViewModel.ExcludedIds != null && _filterViewModel.ExcludedIds.Any())
+			{
+				query.WhereRestrictionOn(() => fineAlias.Id).Not.IsIn(_filterViewModel.ExcludedIds);
+			}
+
+			if(_filterViewModel.FindFinesWithIds != null && _filterViewModel.FindFinesWithIds.Any())
+			{
+				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
+			}
+
+			if(_filterViewModel.SelectedFineCategoryIds != null)
+			{
+				query.WhereRestrictionOn(() => fineCategoryAlias.Id).IsIn(_filterViewModel.SelectedFineCategoryIds);
+			}	
+
+			CarEvent carEventAlias = null;
+			CarEventType carEventTypeAliase = null;
+			Fine finesAlias = null;
+
+			var carEventProjection = CustomProjections.Concat(
+					Projections.Property(() => carEventAlias.Id),
+					Projections.Constant(" - "),
+					Projections.Property(() => carEventTypeAliase.ShortName));
+
+			var carEventSubquery = QueryOver.Of<CarEvent>(() => carEventAlias)
+				.JoinAlias(() => carEventAlias.Fines, () => finesAlias)
+				.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAliase)
+				.Where(() => finesAlias.Id == fineAlias.Id)
+				.Select(CustomProjections.GroupConcat(carEventProjection, separator: ", "));
 
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,
 				() => fineAlias.TotalMoney,
 				() => fineAlias.FineReasonString,
-				() => employeeProjection
-			));
+				() => EmployeeProjections.FinedEmployeeFioProjection));
 
 			return query
 				.SelectList(list => list
@@ -247,19 +201,129 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
-							Projections.Property(() => employeeAlias.LastName),
-							Projections.Property(() => employeeAlias.Name),
-							Projections.Property(() => employeeAlias.Patronymic)
+							Projections.Property(() => finedEmployeeAlias.LastName),
+							Projections.Property(() => finedEmployeeAlias.Name),
+							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
-						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
+					.Select(() => fineCategoryAlias.Name).WithAlias(() => resultAlias.FineCategoryName)
+					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
-					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSumm)
-				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
+					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
+							NHibernateUtil.String,
+							Projections.Constant(" "),
+							Projections.Property(() => fineAuthorAlias.LastName),
+							Projections.Property(() => fineAuthorAlias.Name),
+							Projections.Property(() => fineAuthorAlias.Patronymic)
+						)).WithAlias(() => resultAlias.AuthorName)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(() => finedEmployeeSubdivision.Name),
+						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
+					.SelectSubQuery(carEventSubquery).WithAlias(() => resultAlias.CarEvent)
+				)
+				.OrderBy(o => o.Date).Desc
+				.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
-		};
+		}
 
-		protected override Func<FineViewModel> CreateDialogFunction => () => NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			base.CreateNodeActions();
+			CreateXLExportAction();
+		}
 
-		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
+		private void CreateXLExportAction()
+		{
+			const int fineReasonIdx = 5;
+
+			var xlExportAction = new JournalAction("Экспорт в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					var journalNodes = ItemsQuery(UoW).List<FineJournalNode>();
+
+					var rows = from row in journalNodes
+							   select new
+							   {
+								   row.Id,
+								   row.Date,
+								   row.FinedEmployeesNames,
+								   row.FineSum,
+								   row.FineReason,
+								   row.FineCategoryName,
+								   row.AuthorName,
+								   row.FinedEmployeesSubdivisions
+							   };
+
+					using(var wb = new XLWorkbook())
+					{
+						var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
+						var ws = wb.Worksheets.Add(sheetName);
+						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Категория штрафа", "Автор штрафа", "Подразделения сотрудников" };
+						var index = 1;
+
+						foreach(var name in columnNames)
+						{
+							ws.Cell(1, index).Value = name;
+							ws.Cell(1, index).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+							index++;
+						}
+
+						ws.Cell(2, 1).InsertData(rows);
+
+						const double maxColumnWidth = 120.0;
+
+						ws.Columns().AdjustToContents();
+
+						foreach(var column in ws.Columns())
+						{
+							if(column.Width > maxColumnWidth)
+							{
+								column.Width = maxColumnWidth;
+							}
+						}
+
+						int lastRow = ws.LastRowUsed().RowNumber();
+						int lastColumn = ws.LastColumnUsed().ColumnNumber();
+
+						for(int col = 1; col <= lastColumn; col++)
+						{
+							var alignment = col == fineReasonIdx
+								? XLAlignmentHorizontalValues.Left
+								: XLAlignmentHorizontalValues.Center;
+
+							for(int row = 2; row <= lastRow; row++)
+							{
+								var cell = ws.Cell(row, col);
+								cell.Style.Alignment.WrapText = true;
+								cell.Style.Alignment.Horizontal = alignment;
+								cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+							}
+						}
+
+
+						var extension = ".xlsx";
+						var dialogSettings = new DialogSettings
+						{
+							Title = "Сохранить",
+							FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{extension}"
+						};
+
+						dialogSettings.FileFilters.Add(new DialogFileFilter("XLSX File (*.xlsx)", $"*{extension}"));
+						var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+						if(result.Successful)
+						{
+							wb.SaveAs(result.Path);
+						}						
+					}
+				}
+			);
+
+			NodeActionsList.Add(xlExportAction);
+		}
 	}
 }

@@ -9,12 +9,19 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
 	public class DistrictJournalFactory : IDistrictJournalFactory
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public DistrictJournalFactory(IUnitOfWorkFactory uowFactory)
+		{
+			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateDistrictAutocompleteSelectorFactory(DistrictJournalFilterViewModel districtJournalFilterViewModel = null)
 		{
 			return new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{
 				var filter = districtJournalFilterViewModel ?? new DistrictJournalFilterViewModel();
-				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new DistrictJournalViewModel(filter, _uowFactory, ServicesConfig.CommonServices);
 			});
 		}
 
@@ -23,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 			return new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
 			{
 				var filter = districtJournalFilterViewModel ?? new DistrictJournalFilterViewModel();
-				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
+				return new DistrictJournalViewModel(filter, _uowFactory, ServicesConfig.CommonServices)
 				{
 					EnableDeleteButton = enableDfaultButtons,
 					EnableAddButton = enableDfaultButtons,

@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using MoreLinq;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -76,7 +78,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				OrdersToPrint.Add(new OrdersToPrintNode
 				{
 					Id = order.Id,
-					DeliveryDate = order.DeliveryDate.Value,
+					DeliveryDate = order.DeliveryDate,
 					Selected = true
 				});
 			}
@@ -99,6 +101,8 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			PrintCommand = CreatePrintCommand();
 			SaveCommand = CreateSaveCommand();
 			CloseDialogCommand = CreateCloseDialogCommand();
+			SelectAllOrdersCommand = CreateSelectAllOrdersCommand();
+			DeselectAllOrdersCommand = CreateDeselectAllOrdersCommand();
 		}
 
 		#region Properties
@@ -272,7 +276,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 						order,
 						signaturesAndStampsOfDocument);
 
-					printer.DocumentsToPrint.ForEach(d => d.Copies = PrintCopiesCount);
+					printer.MultiDocPrinterPrintableDocuments.ForEach(d => d.Copies = PrintCopiesCount);
 
 					printer.PrintingCanceled += (s, ea) =>
 					{
@@ -427,7 +431,33 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 		}
 
 		#endregion CloseDialogCommand
-		
+
+		#region SelectAllOrdersCommand
+
+		public DelegateCommand SelectAllOrdersCommand { get; }
+
+		public bool CanSelectAllOrders => true;
+
+		private void SelectAllOrders()
+		{
+			OrdersToPrint.ForEach(o => o.Selected = true);
+		}
+
+		#endregion SelectAllOrdersCommand
+
+		#region DeselectAllOrdersCommand
+
+		public DelegateCommand DeselectAllOrdersCommand { get; }
+
+		public bool CanDeselectAllOrders => true;
+
+		private void DeselectAllOrders()
+		{
+			OrdersToPrint.ForEach(o => o.Selected = false);
+		}
+
+		#endregion DeselectAllOrdersCommand
+
 		private DelegateCommand CreateCloseDialogCommand()
 		{
 			var closeDialogCommand = new DelegateCommand(CloseDialog, () => CanCloseDialog);
@@ -450,6 +480,22 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 			saveCommand.CanExecuteChangedWith(this, x => x.CanSave);
 
 			return saveCommand;
+		}
+
+		private DelegateCommand CreateSelectAllOrdersCommand()
+		{
+			var selectAllOrdersCommand = new DelegateCommand(SelectAllOrders, () => CanSelectAllOrders);
+			selectAllOrdersCommand.CanExecuteChangedWith(this, x => x.CanSelectAllOrders);
+
+			return selectAllOrdersCommand;
+		}
+
+		private DelegateCommand CreateDeselectAllOrdersCommand()
+		{
+			var deselectAllOrdersCommand = new DelegateCommand(DeselectAllOrders, () => CanDeselectAllOrders);
+			deselectAllOrdersCommand.CanExecuteChangedWith(this, x => x.CanDeselectAllOrders);
+
+			return deselectAllOrdersCommand;
 		}
 
 		#endregion Commands

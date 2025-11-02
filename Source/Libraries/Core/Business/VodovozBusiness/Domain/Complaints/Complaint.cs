@@ -1,14 +1,18 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -20,7 +24,7 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject
+	public class Complaint : BusinessObjectBase<Complaint>, IDomainObject, IValidatableObject, IHasAttachedFilesInformations<ComplaintFileInformation>
 	{
 		private const int _phoneLimit = 45;
 		private DateTime _version;
@@ -51,16 +55,31 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintDiscussion> _observableComplaintDiscussions;
 		private IList<ComplaintGuiltyItem> _guilties = new List<ComplaintGuiltyItem>();
 		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
-		private IList<ComplaintFile> _files = new List<ComplaintFile>();
-		private GenericObservableList<ComplaintFile> _observableFiles;
 		private ComplaintDetalization _complaintDetalization;
 		private IList<ComplaintArrangementComment> _arrangementComments = new List<ComplaintArrangementComment>();
 		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
 		private IList<ComplaintResultComment> _resultComments = new List<ComplaintResultComment>();
 		private GenericObservableList<ComplaintResultComment> _observableResultComments;
 		private Employee _driver;
+		private OrderRating _orderRating;
+		private IObservableList<ComplaintFileInformation> _attachedFileInformations = new ObservableList<ComplaintFileInformation>();
+		private int _id;
+		private ComplaintWorkWithClientResult? _workWithClientResult;
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(value == _id)
+				{
+					return;
+				}
+
+				_id = value;
+				UpdateFileInformations();
+			}
+		}
 
 		[Display(Name = "Версия")]
 		public virtual DateTime Version
@@ -138,6 +157,13 @@ namespace Vodovoz.Domain.Complaints
 			get => _order;
 			set => SetField(ref _order, value);
 		}
+		
+		[Display(Name = "Оценка заказа")]
+		public virtual OrderRating OrderRating
+		{
+			get => _orderRating;
+			set => SetField(ref _orderRating, value);
+		}
 
 		[Display(Name = "Телефон")]
 		public virtual string Phone
@@ -172,6 +198,13 @@ namespace Vodovoz.Domain.Complaints
 		{
 			get => _plannedCompletionDate;
 			set => SetField(ref _plannedCompletionDate, value);
+		}
+
+		[Display(Name = "Результат работы по клиенту")]
+		public virtual ComplaintWorkWithClientResult? WorkWithClientResult
+		{
+			get => _workWithClientResult;
+			set => SetField(ref _workWithClientResult, value);
 		}
 
 		[Display(Name = "Комментарии - результаты")]
@@ -327,25 +360,11 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		[Display(Name = "Файлы")]
-		public virtual IList<ComplaintFile> Files
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<ComplaintFileInformation> AttachedFileInformations
 		{
-			get => _files;
-			set => SetField(ref _files, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ComplaintFile> ObservableFiles
-		{
-			get
-			{
-				if(_observableFiles == null)
-				{
-					_observableFiles = new GenericObservableList<ComplaintFile>(Files);
-				}
-
-				return _observableFiles;
-			}
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
 		}
 
 		public virtual string Title => string.Format("Рекламация №{0}", Id);
@@ -367,22 +386,25 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		public virtual void AddFile(ComplaintFile file)
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(f => f.FileName == fileName))
 			{
 				return;
 			}
-			file.Complaint = this;
-			ObservableFiles.Add(file);
+
+			var fileInformation = new ComplaintFileInformation
+			{
+				ComplaintId = Id,
+				FileName = fileName,
+			};
+			
+			AttachedFileInformations.Add(fileInformation);
 		}
 
-		public virtual void RemoveFile(ComplaintFile file)
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
@@ -453,7 +475,6 @@ namespace Vodovoz.Domain.Complaints
 			return result;
 		}
 
-
 		public virtual string GetFineReason()
 		{
 			string result = $"Рекламация №{Id} от {CreationDate.ToShortDateString()}";
@@ -476,6 +497,19 @@ namespace Vodovoz.Domain.Complaints
 			}
 			message = string.Join<string>("\n", res);
 			return false;
+		}
+
+		public virtual (bool CanChange, string Message) CanChangeOrder()
+		{
+			return OrderRating != null ? (false, "Нельзя менять заказ у рекламации, созданной по оценке заказа!") : (true, null);
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.ComplaintId = Id;
+			}
 		}
 
 		#region IValidatableObject implementation

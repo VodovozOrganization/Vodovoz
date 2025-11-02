@@ -2191,283 +2191,298 @@ Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMiss
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox28">
-        <Height>54.00pt</Height>
-        <Width>200.00pt</Width>
-        <Value>Руководитель
-
-____________(                        )
-     м.п.</Value>
-        <ZIndex>0</ZIndex>
-        <Left>26.4pt</Left>
-        <Top>311.6pt</Top>
+      <List Name="TotalAntChiefList">
+        <Height>239.48pt</Height>
+        <Width>812.98pt</Width>
+        <Left>0.00pt</Left>
+        <Top>148.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>11pt</FontSize>
         </Style>
-      </Textbox>
-      <Textbox Name="Textbox30">
-        <Height>54pt</Height>
-        <Width>400pt</Width>
-        <Value>=First({full_name}, "Client")+
+        <DataSetName>Signatures</DataSetName>
+        <ReportItems>
+          <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>54.00pt</Height>
+            <Width>200.00pt</Width>
+            <Value>Руководитель
+
+____________(                        )
+     м.п.</Value>
+            <ZIndex>0</ZIndex>
+            <Left>26.5pt</Left>
+            <Top>163.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>54.75pt</Height>
+            <Width>400.00pt</Width>
+            <Value>=First({full_name}, "Client")+
 '
 
 ___________(                   )
       м.п.'</Value>
-        <ZIndex>0</ZIndex>
-        <Left>301pt</Left>
-        <Top>300pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>11pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox15">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Забрать бутылей:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0pt</Left>
-        <Top>148pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Right</TextAlign>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox20">
-        <Height>14.00pt</Height>
-        <Width>118.00pt</Width>
-        <Value>=First({bottle_balance}, 'Bottles')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210.00pt</Left>
-        <Top>148.00pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <Format>0 шт.</Format>
-          <TextAlign>Left</TextAlign>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Middle</VerticalAlign>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox31">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Вернуть залогов за бутыли:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0pt</Left>
-        <Top>162.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Right</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14pt</Height>
-        <Width>130pt</Width>
-        <Value>=Sum({bottles_deposit}, 'Data')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210pt</Left>
-        <Top>162pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Middle</VerticalAlign>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox33">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Вернуть залогов за оборудование:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0pt</Left>
-        <Top>176pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Right</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14pt</Height>
-        <Width>130pt</Width>
-        <Value>=Sum({equipment_deposit}, 'Data')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210pt</Left>
-        <Top>176pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Middle</VerticalAlign>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox57">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Оборудование клиента у нас:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>215pt</Top>
-        <Style>
-          <TextAlign>Right</TextAlign>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox58">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Наше оборудование у клиента:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>250pt</Top>
-        <Style>
-          <TextAlign>Right</TextAlign>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox59">
-        <Height>28pt</Height>
-        <Width>595pt</Width>
-        <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210pt</Left>
-        <Top>215pt</Top>
-        <Style>
-          <TextAlign>Left</TextAlign>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Normal</FontWeight>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-        <CanGrow>true</CanGrow>
-        <CanShrink>false</CanShrink>
-      </Textbox>
-      <Textbox Name="Textbox60">
-        <Height>28pt</Height>
-        <Width>595pt</Width>
-        <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210.00pt</Left>
-        <Top>250.00pt</Top>
-        <Style>
-          <TextAlign>Left</TextAlign>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Normal</FontWeight>
-          <VerticalAlign>Top</VerticalAlign>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-        <CanGrow>true</CanGrow>
-        <CanShrink>false</CanShrink>
-      </Textbox>
-      <Textbox Name="Textbox63" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14pt</Height>
-        <Width>210pt</Width>
-        <Value>Бутылей по акции "Бутыль" получено:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0pt</Left>
-        <Top>190pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <TextAlign>Right</TextAlign>
-          <VerticalAlign>Middle</VerticalAlign>
-        </Style>
-        <Visibility>
-          <Hidden>=!{?show_stock_bottle}</Hidden>
-        </Visibility>
-      </Textbox>
-      <Textbox Name="Textbox64" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>14pt</Height>
-        <Width>130pt</Width>
-        <Value>=First({bottle_by_stock}, 'BottleStock')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>210pt</Left>
-        <Top>190pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Left</TextAlign>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Middle</VerticalAlign>
-          <PaddingLeft>2pt</PaddingLeft>
-        </Style>
-        <Visibility>
-          <Hidden>=!{?show_stock_bottle}</Hidden>
-        </Visibility>
-      </Textbox>
-      <Image Name="Image1">
-        <Height>69.95pt</Height>
-        <Width>82.08pt</Width>
-        <Left>35.5pt</Left>
-        <Top>323.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <MIMEType>image/png</MIMEType>
-        <Source>Database</Source>
-        <Value>=First({chief}, "Signatures")</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
-      <Image Name="Image2">
-        <Height>108.41pt</Height>
-        <Width>108.41pt</Width>
-        <Left>119.8pt</Left>
-        <Top>315.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <MIMEType>image/png</MIMEType>
-        <Source>Database</Source>
-        <Value>=First({print}, "Signatures")</Value>
-        <Sizing>FitProportional</Sizing>
-      </Image>
+            <ZIndex>0</ZIndex>
+            <Left>301.1pt</Left>
+            <Top>151.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>11pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox28" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.00pt</Height>
+            <Width>210.00pt</Width>
+            <Value>Забрать бутылей:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Right</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.00pt</Height>
+            <Width>118.00pt</Width>
+            <Value>=First({bottle_balance}, 'Bottles')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <Format>0 шт.</Format>
+              <TextAlign>Left</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.00pt</Height>
+            <Width>210.00pt</Width>
+            <Value>Вернуть залогов за бутыли:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>13.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>130pt</Width>
+            <Value>=Sum({bottles_deposit}, 'Data')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>13.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>210pt</Width>
+            <Value>Вернуть залогов за оборудование:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>27.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>130pt</Width>
+            <Value>=Sum({equipment_deposit}, 'Data')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>27.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>210pt</Width>
+            <Value>Оборудование клиента у нас:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>66.6pt</Top>
+            <Style>
+              <TextAlign>Right</TextAlign>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox57" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>210pt</Width>
+            <Value>Наше оборудование у клиента:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>101.6pt</Top>
+            <Style>
+              <TextAlign>Right</TextAlign>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox58" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>28pt</Height>
+            <Width>595pt</Width>
+            <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>66.6pt</Top>
+            <Style>
+              <TextAlign>Left</TextAlign>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Normal</FontWeight>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <CanShrink>false</CanShrink>
+          </Textbox>
+          <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>28pt</Height>
+            <Width>595pt</Width>
+            <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>101.6pt</Top>
+            <Style>
+              <TextAlign>Left</TextAlign>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Normal</FontWeight>
+              <VerticalAlign>Top</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <CanShrink>false</CanShrink>
+          </Textbox>
+          <Textbox Name="Textbox60" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>210pt</Width>
+            <Value>Бутылей по акции "Бутыль" получено:</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.2pt</Left>
+            <Top>41.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <TextAlign>Right</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+            </Style>
+            <Visibility>
+              <Hidden>=!{?show_stock_bottle}</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox63" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14pt</Height>
+            <Width>130pt</Width>
+            <Value>=First({bottle_by_stock}, 'BottleStock')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>210.1pt</Left>
+            <Top>41.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <FontWeight>Bold</FontWeight>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+            </Style>
+            <Visibility>
+              <Hidden>=!{?show_stock_bottle}</Hidden>
+            </Visibility>
+          </Textbox>
+          <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>69.95pt</Height>
+            <Width>82.08pt</Width>
+            <Left>35.6pt</Left>
+            <Top>175.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures")</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+          <Image Name="Image2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>108.41pt</Height>
+            <Width>108.41pt</Width>
+            <Left>119.9pt</Left>
+            <Top>167.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <MIMEType>image/png</MIMEType>
+            <Source>Database</Source>
+            <Value>=First({print}, "Signatures")</Value>
+            <Sizing>FitProportional</Sizing>
+          </Image>
+        </ReportItems>
+        <KeepTogether>true</KeepTogether>
+      </List>
     </ReportItems>
-    <Height>452.0pt</Height>
+    <Height>426.3pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>14pt</Height>
+    <Height>18.8pt</Height>
     <ReportItems>
       <Textbox Name="Textbox21">
         <Top>1pt</Top>
@@ -2557,7 +2572,7 @@ ___________(                   )
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

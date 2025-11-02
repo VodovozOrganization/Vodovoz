@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
 namespace Vodovoz.Models

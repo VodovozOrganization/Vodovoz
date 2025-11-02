@@ -1,5 +1,7 @@
 ﻿using System;
 using CustomerAppsApi.Library.Dto;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace CustomerAppsApi.Library.Converters
@@ -16,6 +18,19 @@ namespace CustomerAppsApi.Library.Converters
 					return GoodsOnlineParameterType.ForVodovozWebSite;
 				case Source.KulerSaleWebSite:
 					return GoodsOnlineParameterType.ForKulerSaleWebSite;
+				default:
+					throw new InvalidOperationException("Неизвестный источник запроса");
+			}
+		}
+		
+		public CounterpartyFrom ConvertToCounterpartyFrom(Source source)
+		{
+			switch(source)
+			{
+				case Source.MobileApp:
+					return CounterpartyFrom.MobileApp;
+				case Source.VodovozWebSite:
+					return CounterpartyFrom.WebSite;
 				default:
 					throw new InvalidOperationException("Неизвестный источник запроса");
 			}

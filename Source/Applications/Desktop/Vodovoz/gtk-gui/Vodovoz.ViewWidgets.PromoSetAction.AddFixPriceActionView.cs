@@ -14,7 +14,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private global::Gtk.VBox vbox5;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryNomenclature;
+		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gtk.HBox hbox5;
 
@@ -24,7 +24,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAccept;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		protected virtual void Build()
 		{
@@ -71,12 +71,11 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			this.vbox5.Name = "vbox5";
 			this.vbox5.Spacing = 6;
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.entityviewmodelentryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityviewmodelentryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.entityviewmodelentryNomenclature.Name = "entityviewmodelentryNomenclature";
-			this.entityviewmodelentryNomenclature.CanEditReference = false;
-			this.vbox5.Add(this.entityviewmodelentryNomenclature);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.entityviewmodelentryNomenclature]));
+			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
+			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entryNomenclature.Name = "entryNomenclature";
+			this.vbox5.Add(this.entryNomenclature);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.entryNomenclature]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
@@ -120,7 +119,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;

@@ -12,7 +12,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gamma.GtkWidgets.yTextView ytextview;
 
-		private global::Gtk.Button buttonCreateTask;
+		private global::Gamma.GtkWidgets.yButton buttonCreateTask;
 
 		protected virtual void Build()
 		{
@@ -48,7 +48,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
 			w3.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonCreateTask = new global::Gtk.Button();
+			this.buttonCreateTask = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateTask.Sensitive = false;
 			this.buttonCreateTask.CanFocus = true;
 			this.buttonCreateTask.Name = "buttonCreateTask";

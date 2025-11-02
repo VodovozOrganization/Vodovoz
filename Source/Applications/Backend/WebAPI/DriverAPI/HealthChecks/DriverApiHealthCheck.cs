@@ -1,11 +1,12 @@
-﻿using DriverAPI.DTOs.V4;
-using DriverAPI.Library.DTOs;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V5;
+using DriverApi.Contracts.V5.Responses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -38,23 +39,23 @@ namespace DriverAPI.HealthChecks
 
 			var healthResult = new VodovozHealthResultDto();
 
-			var loginRequestDto = new LoginRequestDto
+			var loginRequestDto = new LoginRequest
 			{
 				Username = user,
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequestDto, TokenResponseDto>(
-				$"{baseAddress}/api/v4/Authenticate",
+			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
+				$"{baseAddress}/api/v5/Authenticate",
 				_httpClientFactory,
 				loginRequestDto);
 
-			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQRPaymentStatusResponseDto>(
-				$"{baseAddress}/api/v4/GetOrderQRPaymentStatus?orderId={orderId}",
+			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
+				$"{baseAddress}/api/v5/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 
-			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QRPaymentDTOStatus.Paid;
+			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QrPaymentDtoStatus.Paid;
 
 			if(!orderQrPaymentStatusIsHealthy)
 			{
@@ -62,7 +63,7 @@ namespace DriverAPI.HealthChecks
 			}
 
 			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
-				$"{baseAddress}/api/v4/GetRouteList?routeListId={routeListId}",
+				$"{baseAddress}/api/v5/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				tokenResponse.AccessToken);
 

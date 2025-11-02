@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents

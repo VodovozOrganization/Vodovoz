@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.Domain.Logistic
@@ -14,8 +16,9 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "график доставки")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject, IRoboatsEntity
+	public class DeliverySchedule: DeliveryScheduleEntity, IValidatableObject, IRoboatsEntity
 	{
+		public const string FastDelivery = "Доставка за час";
 		private string _name;
 		private TimeSpan _from;
 		private TimeSpan _to;
@@ -27,8 +30,6 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Name = String.Empty;
 		}
-
-		public virtual int Id { get; set; }
 
 		[Required (ErrorMessage = "Не заполнено название.")]
 		[Display (Name = "Название")]
@@ -104,6 +105,11 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+
+		public static Expression<Func<DeliverySchedule, bool>> GetNameCompareExpression(string searchText)
+		{
+			return entity => (entity.Name ?? string.Empty).IndexOf(searchText) >= 0;
+		}
 
 	}
 }

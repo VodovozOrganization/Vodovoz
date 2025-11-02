@@ -14,9 +14,9 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSaveComment;
+		private global::Gamma.GtkWidgets.yButton buttonSaveComment;
 
-		private global::Gtk.Button buttonEditComment;
+		private global::Gamma.GtkWidgets.yButton buttonEditComment;
 
 		protected virtual void Build()
 		{
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewWidgets
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSaveComment = new global::Gtk.Button();
+			this.buttonSaveComment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSaveComment.CanFocus = true;
 			this.buttonSaveComment.Name = "buttonSaveComment";
 			this.buttonSaveComment.UseUnderline = true;
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewWidgets
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonEditComment = new global::Gtk.Button();
+			this.buttonEditComment = new global::Gamma.GtkWidgets.yButton();
 			this.buttonEditComment.CanFocus = true;
 			this.buttonEditComment.Name = "buttonEditComment";
 			this.buttonEditComment.UseUnderline = true;

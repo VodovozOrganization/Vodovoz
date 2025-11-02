@@ -8,7 +8,9 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.ErrorReporting;
 using QS.Utilities;
+using QS.Utilities.Debug;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -32,6 +34,7 @@ namespace Vodovoz.Views.Logistic
 			enumcheckCarTypeOfUse.ExpandCheckButtons = false;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 

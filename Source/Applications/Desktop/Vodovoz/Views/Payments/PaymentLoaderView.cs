@@ -1,14 +1,14 @@
 ﻿using Gtk;
-using Vodovoz.ViewModels;
 using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Payments;
 using QS.Utilities;
 using System.Linq;
 using QS.Navigation;
-using System.Threading.Tasks;
 using System;
 using NLog;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Payments;
 using Vodovoz.Infrastructure;
 
@@ -40,15 +40,21 @@ namespace Vodovoz.Views
 			fileChooserBtn.AddFilter(txtFilter);
 			fileChooserBtn.AddFilter(allFilter);
 
-			btnUpload.Clicked += (sender, e) => SaveAsync();
-			btnUpload.Binding.AddBinding(ViewModel, v => v.CanSave, w => w.Sensitive).InitializeFromSource();
+			btnUpload.Clicked += (sender, e) => Save();
+			btnUpload.Binding
+				.AddBinding(ViewModel, v => v.CanSave, w => w.Sensitive)
+				.InitializeFromSource();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
-			btnCancel.Binding.AddBinding(ViewModel, v => v.CanCancel, w => w.Sensitive).InitializeFromSource();
+			btnCancel.Binding
+				.AddBinding(ViewModel, v => v.CanCancel, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ViewModel.UpdateProgress += UpdateProgress;
 
 			btnReadFile.Clicked += (sender, e) => ViewModel.ParseCommand.Execute(fileChooserBtn.Filename);
-			btnReadFile.Binding.AddBinding(ViewModel, vm => vm.CanReadFile, v => v.Sensitive).InitializeFromSource();
+			btnReadFile.Binding
+				.AddBinding(ViewModel, vm => vm.CanReadFile, v => v.Sensitive)
+				.InitializeFromSource();
 
 			ConfigureTree();
 		}
@@ -116,67 +122,72 @@ namespace Vodovoz.Views
 			GtkHelper.WaitRedraw();
 		}
 
-		private async void SaveAsync()
+		private void Save()
 		{
-			try
+			if(!ViewModel.ObservablePayments.Any())
 			{
-				if(!ViewModel.ObservablePayments.Any())
+				return;
+			}
+
+			ViewModel.IsSavingState = true;
+			UpdateProgress("Начинаем сохранение...", 0);
+
+			var countAll = 0;
+			var countErrors = 0;
+			
+			var totalPayments = ViewModel.ObservablePayments.Count;
+			var progress = 1d / totalPayments;
+
+			foreach(var payment in ViewModel.ObservablePayments)
+			{
+				try
 				{
-					return;
-				}
-
-				ViewModel.IsSavingState = true;
-				UpdateProgress("Начинаем сохранение...", 0);
-
-				var count = 0;
-				var totalPayments = ViewModel.ObservablePayments.Count();
-				var progress = 1d / totalPayments;
-
-				foreach(Payment payment in ViewModel.ObservablePayments)
-				{
-					if(payment.Status == PaymentState.distributed)
+					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot())
 					{
-						foreach(var paymentItem in payment.PaymentItems)
+						if(payment.Status == PaymentState.distributed)
 						{
-							var result = await Task.Run(() => ViewModel.SaveAllocatedOrderAsync(paymentItem));
-
-							if(!result)
+							foreach(var paymentItem in payment.Items)
 							{
-								Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
-									QS.Dialog.ImportanceLevel.Warning,
-									CloseSource.Self,
-									"Ошибка при сохранении заказа.",
-									0,
-									$"При сохранении заказа { paymentItem.Order.Id} произошла ошибка. Вкладка будет закрыта.\nДля продолжения работы снова откройте вкладку"));
-								return;
+								var order = uow.GetById<Order>(paymentItem.Order.Id);
+								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
 							}
+							ViewModel.CreateOperations(uow, payment);
 						}
-						ViewModel.CreateOperations(payment);
+						
+						uow.Save(payment);
+						uow.Commit();
+						countAll++;
+						UpdateProgress($"Сохранен {countAll} платеж из {totalPayments}", progress);
 					}
-
-					ViewModel.UoW.Save(payment);
-					ViewModel.UoW.Commit();
-					count++;
-					UpdateProgress($"Сохранен {count} платеж из {totalPayments}", progress);
 				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex);
+					countAll++;
+					countErrors++;
+					UpdateProgress($"Ошибка при сохранении {countAll} платежа из {totalPayments}", progress);
+				}
+			}
 
-				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
+			if(countErrors > 0)
+			{
+				var errorsMessage = $"Не сохранено {countErrors} платежей";
+				
+				ShowMessageAndClose(
+					QS.Dialog.ImportanceLevel.Info,
+					CloseSource.Save,
+					$"Сохранение закончено с ошибками. {errorsMessage}",
+					1,
+					$"{errorsMessage}. Вкладка будет зарыта.\nДля продолжения работы снова откройте вкладку");
+			}
+			else
+			{
+				ShowMessageAndClose(
 					QS.Dialog.ImportanceLevel.Info,
 					CloseSource.Save,
 					"Сохранение закончено...",
 					1,
-					"Сохранение прошло успешно")
-				);
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
-				Gtk.Application.Invoke((s, e) => ShowMessageAndClose(
-					QS.Dialog.ImportanceLevel.Warning,
-					CloseSource.Self,
-					"Ошибка при сохранении.",
-					0,
-					$"При сохранении произошла ошибка. Вкладка будет закрыта.\nДля продолжения работы снова откройте вкладку"));
+					"Сохранение прошло успешно");
 			}
 		}
 

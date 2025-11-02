@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GuiltyInUndeliveryView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
 		private readonly bool _canEditGuiltyPermission =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_guilty_in_undeliveries");
 
@@ -38,15 +38,8 @@ namespace Vodovoz.ViewWidgets
 			enumBtnGuiltySide.Sensitive = canEditGuilty;
 			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
 			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;
-			enumBtnGuiltySide.EnumItemClicked += (sender, e) => {
-				undeliveredOrder.AddGuilty(
-					new GuiltyInUndelivery {
-						GuiltySide = (GuiltyTypes)e.ItemEnum,
-						UndeliveredOrder = undeliveredOrder
-					}
-				);
-				SetWidgetApperance();
-			};
+			enumBtnGuiltySide.EnumItemClicked -= OnEnumBtnGuiltySideEnumItemClicked;
+			enumBtnGuiltySide.EnumItemClicked += OnEnumBtnGuiltySideEnumItemClicked;
 			btnRemove.Sensitive = canEditGuilty;
 
 			var colorBlack = GdkColors.PrimaryText;
@@ -95,6 +88,18 @@ namespace Vodovoz.ViewWidgets
 			SetWidgetApperance();
 		}
 
+		private void OnEnumBtnGuiltySideEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
+		{
+			_undeliveredOrder.AddGuilty(
+				new GuiltyInUndelivery
+				{
+					GuiltySide = (GuiltyTypes)e.ItemEnum,
+					UndeliveredOrder = _undeliveredOrder
+				}
+			);
+			SetWidgetApperance();
+		}
+
 		void ObservableGuilty_ElementAdded(object aList, int[] aIdx)
 		{
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !_undeliveredOrder.ObservableGuilty.Any());
@@ -121,6 +126,12 @@ namespace Vodovoz.ViewWidgets
 				GtkScrolledWindow.VscrollbarPolicy = Gtk.PolicyType.Never;
 				this.HeightRequest = 0;
 			}
+		}
+
+		public override void Destroy()
+		{
+			enumBtnGuiltySide.EnumItemClicked -= OnEnumBtnGuiltySideEnumItemClicked;
+			base.Destroy();
 		}
 	}
 }

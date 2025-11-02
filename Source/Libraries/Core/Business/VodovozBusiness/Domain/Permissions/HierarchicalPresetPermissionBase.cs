@@ -45,11 +45,4 @@ namespace Vodovoz.Domain.Permissions
 		[Display(Name = "Для подразделения")]
 		subdivision
 	}
-
-	public class PresetPermissionTypeCustomType : NHibernate.Type.EnumStringType
-	{
-		public PresetPermissionTypeCustomType() : base(typeof(PresetPermissionType))
-		{
-		}
-	}
 }

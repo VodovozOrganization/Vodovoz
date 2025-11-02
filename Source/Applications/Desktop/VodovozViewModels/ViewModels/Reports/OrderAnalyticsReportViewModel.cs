@@ -16,9 +16,10 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
+using QS.Utilities.Debug;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -31,7 +32,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports
 {
-    public class OrderAnalyticsReportViewModel : UowDialogViewModelBase
+	public class OrderAnalyticsReportViewModel : UowDialogViewModelBase
     {
         private readonly IInteractiveService interactiveService;
         private readonly Encoding encoding = Encoding.GetEncoding(1251);

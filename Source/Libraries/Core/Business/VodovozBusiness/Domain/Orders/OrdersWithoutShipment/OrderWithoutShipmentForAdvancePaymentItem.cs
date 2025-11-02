@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Models;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -318,7 +316,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		private bool CanUseVAT()
 		{
 			bool canUseVAT = true;
-			var organization = GetOrganization();
+			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
 			if(organization != null) {
 				canUseVAT = !organization.WithoutVAT;
 			}
@@ -326,26 +324,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return canUseVAT;
 		}
 		
-		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
-		private IOrganizationProvider orderOrganizationProvider;
-
-		private Organization GetOrganization()
-		{
-			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
-				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
-			}
-			
-			if(orderOrganizationProviderFactory == null) {
-				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
-				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				return orderOrganizationProvider.GetOrganizationForOrderWithoutShipment(uow,
-					OrderWithoutDeliveryForAdvancePayment);
-			}
-		}
-
 		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;

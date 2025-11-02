@@ -5,11 +5,13 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using Pango;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
@@ -27,19 +29,25 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
-		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly IOrderRepository _orderRepository;
+		private readonly ILogger<CounterpartyPanelView> _logger;
 		private readonly ICommonServices _commonServices;
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
 
-		public CounterpartyPanelView(ICommonServices commonServices)
+		public CounterpartyPanelView(
+			ILogger<CounterpartyPanelView> logger,
+			ICommonServices commonServices,
+			IOrderRepository orderRepository)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			Build();
 			_counterpartyPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		private void Configure()
@@ -87,9 +95,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveLogisticsRequirements()
 		{
 			using(var uow =
-					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
+					ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
 			{
-				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				if(uow.Root.LogisticsRequirements == null)
+				{
+					uow.Root.LogisticsRequirements = new LogisticsRequirements();
+				}
+
+				uow.Root.LogisticsRequirements.ForwarderRequired = logisticsRequirementsView.ViewModel.Entity.ForwarderRequired;
+				uow.Root.LogisticsRequirements.DocumentsRequired = logisticsRequirementsView.ViewModel.Entity.DocumentsRequired;
+				uow.Root.LogisticsRequirements.RussianDriverRequired = logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired;
+				uow.Root.LogisticsRequirements.PassRequired = logisticsRequirementsView.ViewModel.Entity.PassRequired;
+				uow.Root.LogisticsRequirements.LargusRequired = logisticsRequirementsView.ViewModel.Entity.LargusRequired;
+
 				uow.Save();
 			}
 		}
@@ -170,6 +188,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 
+			var isLogistcsRequirementsEditable = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
+			logisticsRequirementsView.Sensitive = isLogistcsRequirementsEditable;
+			buttonSaveLogisticsRequirements.Sensitive = isLogistcsRequirementsEditable;
+
 			if(InfoProvider is OrderDlg)
 			{
 				yvboxLogisticsRequirements.Visible = true;
@@ -233,7 +255,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SaveComment()
 		{
 			using(var uow =
-				UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
+				ServicesConfig.UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить комментарий» на панели контрагента"))
 			{
 				uow.Root.Comment = textviewComment.Buffer.Text;
 				uow.Save();
@@ -243,6 +265,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
+			_logger.LogInformation("Нажата кнопка сохранить комментарий в {ButtonClickedDateTime}",
+				DateTime.Now.ToString("g"));
+
 			SaveComment();
 		}
 
@@ -289,7 +314,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				DialogHelper.GenerateDialogHashName<Counterparty>(_counterparty.Id),
 				() =>
 				{
-					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), UnitOfWorkFactory.GetDefaultFactory);
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), ServicesConfig.UnitOfWorkFactory);
 					dlg.ActivateContactsTab();
 					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
 					return dlg;

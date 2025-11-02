@@ -9,10 +9,14 @@ using QS.Navigation;
 using Autofac;
 using QS.DomainModel.UoW;
 using QS.Report;
+using Vodovoz.Presentation.Reports;
+using QS.Validation;
+using System.ComponentModel.DataAnnotations;
+using QS.Commands;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
-	public class SetBillsReportViewModel : ReportParametersViewModelBase, IDisposable
+	public class SetBillsReportViewModel : ValidatableReportViewModelBase, IDisposable
 	{
 		private readonly RdlViewerViewModel _rdlViewerViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -25,14 +29,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			RdlViewerViewModel rdlViewerViewModel,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(rdlViewerViewModel)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IReportInfoFactory reportInfoFactory,
+			IValidator validator
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Title = "Отчет по выставленным счетам";
+			Identifier = "Sales.SetBillsReport";
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 
@@ -40,7 +47,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			EndDate = DateTime.Today;
 
 			SubdivisionViewModel = CreateSubdivisionViewModel();
+			GenerateReportCommand = new DelegateCommand(GenerateReport);
 		}
+
+		public DelegateCommand GenerateReportCommand { get; }
 
 		public DateTime? StartDate
 		{
@@ -64,13 +74,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public INavigationManager NavigationManager { get; }
 
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = "Sales.SetBillsReport",
-			Title = Title,
-			Parameters = Parameters
-		};
-
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{
 			{ "creationDate", DateTime.Now },
@@ -83,7 +86,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			_unitOfWork?.Dispose();
 		}
-
 		private IEntityEntryViewModel CreateSubdivisionViewModel()
 		{
 			return new CommonEEVMBuilderFactory<SetBillsReportViewModel>(_rdlViewerViewModel, this, _unitOfWork, NavigationManager, _lifetimeScope)
@@ -91,6 +93,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()
 				.Finish();
+		}
+		
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(EndDate == null)
+			{
+				yield return new ValidationResult("Заполните дату окончания выборки.", new[] { nameof(EndDate) });
+			}
 		}
 	}
 }

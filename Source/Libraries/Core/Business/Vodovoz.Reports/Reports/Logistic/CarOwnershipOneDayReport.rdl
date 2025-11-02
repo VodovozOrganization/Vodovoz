@@ -1,0 +1,990 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <Width>297mm</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>summary_report</DataSetName>
+        <NoRows>Автомобили соответствующие заданным параметрам не найдены</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>140pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Тип авто</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>ТС Компании</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>ТС в Раскате</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>ТС Водителя</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Всего</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>={model_info}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>={company_cars_count}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>={raskat_cars_count}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={driver_cars_count}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={total_cars_count}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>117.9pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                      <Value>Всего</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({company_cars_count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({raskat_cars_count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({driver_cars_count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({total_cars_count})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>detailed_report</DataSetName>
+        <NoRows>Автомобили, соответствующие заданным параметрам не найдены</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>46.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>97.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>94.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>91.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>311.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>130.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>24.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Кол-во общ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Кол-во по типу</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Тип авто</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Модель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Водитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Принадлежность</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={row_num}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>={row_num_by_car_type_of_use}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={car_type_of_use}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>={car_model_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={car_reg_number}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>={driver_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={car_own_type}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>197.5pt</Top>
+      </Table>
+      <Textbox Name="Textbox59">
+        <Height>16.52pt</Height>
+        <Width>816.11pt</Width>
+        <Value>Подробный отчёт по авто</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>169.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Table Name="Table5">
+        <DataSetName>criterions</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>820.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>25.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>="Принадлежность ТС на " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>14pt</FontSize>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>19.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>={filters_text}</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>6pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>12.1pt</Top>
+      </Table>
+      <Textbox Name="Textbox62" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.04pt</Height>
+        <Width>499.99pt</Width>
+        <Value>Распределение машин</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>88.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>248.9pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>19.3pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox14">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSets>
+    <DataSet Name="summary_report">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
+        <CommandText>SELECT 
+CASE t.car_type_of_use
+	WHEN 'Largus' THEN 'Легковая (Ларгус)'
+	WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
+	WHEN 'GAZelle' THEN 'Грузовой'
+	WHEN 'Truck' THEN 'Фура'
+	WHEN 'Loader' THEN 'Погрузчик'
+END as model_info,
+CONVERT(IFNULL(SUM(case when t.car_own_type = 'Company' then t.cars_count end ), '0'), UNSIGNED) as company_cars_count,
+CONVERT(IFNULL(SUM(case when t.car_own_type = 'Raskat' then t.cars_count end ), '0'), UNSIGNED) as raskat_cars_count,
+CONVERT(IFNULL(SUM(case when t.car_own_type = 'Driver' then t.cars_count end ), '0'), UNSIGNED) as driver_cars_count,
+CONVERT(IFNULL(SUM(t.cars_count), '-'), UNSIGNED) as total_cars_count
+FROM
+(
+SELECT cm.car_type_of_use, cv.car_own_type, COUNT(c.id) as cars_count
+FROM cars c
+JOIN car_models cm ON c.model_id = cm.id 
+JOIN car_versions cv ON c.id = cv.car_id 
+WHERE
+	(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt;= DATE_ADD(@date, INTERVAL 1 DAY)))
+    AND cv.start_date &lt;= @date
+    AND (cv.end_date is null OR cv.end_date &gt; @date)
+    AND cm.car_type_of_use IN (@car_type_of_use)
+    AND cv.car_own_type IN (@car_own_type)
+    AND c.id NOT IN (@excluded_car_ids)
+GROUP BY cm.car_type_of_use, cv.car_own_type) t
+GROUP BY t.car_type_of_use;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_type_of_use">
+            <Value>={?car_type_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_type">
+            <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="model_info">
+          <DataField>model_info</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="company_cars_count">
+          <DataField>company_cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="raskat_cars_count">
+          <DataField>raskat_cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="driver_cars_count">
+          <DataField>driver_cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="total_cars_count">
+          <DataField>total_cars_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="detailed_report">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
+        <CommandText>SELECT 
+ROW_NUMBER() OVER(ORDER BY car_type_of_use, car_own_type, car_model_name) AS row_num,
+ROW_NUMBER() OVER(PARTITION BY car_type_of_use ORDER BY car_type_of_use, car_own_type, car_model_name) AS row_num_by_car_type_of_use,
+t.*
+FROM 
+(
+	SELECT 
+	CASE cm.car_type_of_use
+		WHEN 'Largus' THEN 'Легковая'
+		WHEN 'Minivan' THEN 'Фургон'
+		WHEN 'Truck' THEN 'Фура'
+		WHEN 'GAZelle' THEN 'Грузовой'
+		WHEN 'Loader' THEN 'Погрузчик'
+	END as car_type_of_use,
+	cm.name as car_model_name,
+	c.reg_number as car_reg_number,
+	CONCAT(e.last_name, ' ', e.name, ' ', e.patronymic) as driver_name,
+	CASE cv.car_own_type
+		WHEN 'Company' THEN 'ТС компании'
+		WHEN 'Raskat' THEN 'ТС в Раскате'
+		WHEN 'Driver' THEN 'ТС водителя'
+	END as car_own_type
+	FROM cars c
+	JOIN car_models cm ON c.model_id = cm.id 
+	JOIN car_versions cv ON c.id = cv.car_id
+	LEFT JOIN employees e ON c.driver_id = e.id 
+	WHERE
+		(c.is_archive = 0 OR (c.is_archive = 1 and c.archiving_date &gt;= DATE_ADD(@date, INTERVAL 1 DAY)))
+	    AND cv.start_date &lt;= @date
+	    AND (cv.end_date is null OR cv.end_date &gt; @date)
+	    AND cm.car_type_of_use IN (@car_type_of_use)
+	    AND cv.car_own_type IN (@car_own_type)
+	    AND c.id NOT IN (@excluded_car_ids)
+) t
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_type_of_use">
+            <Value>={?car_type_of_use}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@car_own_type">
+            <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="car_type_of_use">
+          <DataField>car_type_of_use</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_model_name">
+          <DataField>car_model_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_reg_number">
+          <DataField>car_reg_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="car_own_type">
+          <DataField>car_own_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="row_num">
+          <DataField>row_num</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="row_num_by_car_type_of_use">
+          <DataField>row_num_by_car_type_of_use</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="criterions">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT @filters_text as filters_text;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@filters_text">
+            <Value>={?filters_text}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="filters_text">
+          <DataField>filters_text</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportParameters>
+    <ReportParameter Name="car_type_of_use">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="car_own_type">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="filters_text">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="excluded_car_ids">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

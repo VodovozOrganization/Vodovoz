@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Operations
@@ -54,11 +55,4 @@ namespace Vodovoz.Domain.Operations
 		PremiumWage
 	}
 
-	public class WagesTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public WagesTypeStringType () : base (typeof(WagesType))
-		{
-		}
-	}
 }
-

@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<UserSecretsId>dotnet-Vodovoz.SmsInformerWorker-495db85a-9345-40a4-9b63-083909aba867</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
+		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.Interface\Sms.External.Interface.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+		<ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+	</ItemGroup>
+</Project>

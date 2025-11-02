@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using ClosedXML.Excel;
 using DateTimeHelpers;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -16,6 +17,7 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.Drivers;
@@ -31,10 +33,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 	public class DriversWarehousesEventsReportViewModel : TabViewModelBase
 	{
 		public const string DateTitle = "Дата";
-		public const string DriverTitle = "Водитель";
+		public const string EmloyeeTitle = "Сотрудник";
 		public const string CarTitle = "Автомобиль";
 		public const string FirstEventTitle = "Первое событие";
-		public const string EventDistanceTitle = "Расстояние от места фиксации";
+		public const string DocumentTypeColumn = "Документ";
+		public const string DocumentNumberColumn = "Номер\nдокумента";
+		public const string EventDistanceTitle = "Расстояние от\nместа фиксации";
 		public const string EventTimeTitle = "Время фиксации";
 		public const string SecondEventTitle = "Второе событие";
 
@@ -53,6 +57,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 
 		private DelegateCommand _generateReportCommand;
 		private DelegateCommand _abortGenerateReportCommand;
+		private bool _isDateGroup = true;
+		private bool _isCarGroup;
+		private bool _isDriverGroup;
 
 		public DriversWarehousesEventsReportViewModel(
 			ILifetimeScope scope,
@@ -81,8 +88,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public IEntityEntryViewModel DriverViewModel { get; private set; }
 		public IEntityEntryViewModel CarViewModel { get; private set; }
 
-		public GenericObservableList<DriversWarehousesEventsReportNode> ReportNodes { get; } =
-			new GenericObservableList<DriversWarehousesEventsReportNode>();
+		public IList<DriversWarehousesEventsReportNode> ReportNodes { get; } =
+			new List<DriversWarehousesEventsReportNode>();
 
 		public DateTime? StartDate
 		{
@@ -118,6 +125,24 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		{
 			get => _car;
 			set => SetField(ref _car, value);
+		}
+
+		public bool IsDateGroup
+		{
+			get => _isDateGroup;
+			set => SetField(ref _isDateGroup, value);
+		}
+
+		public bool IsCarGroup
+		{
+			get => _isCarGroup;
+			set => SetField(ref _isCarGroup, value);
+		}
+
+		public bool IsDriverGroup
+		{
+			get => _isDriverGroup;
+			set => SetField(ref _isDriverGroup, value);
 		}
 
 		public CancellationTokenSource CancellationTokenSource { get; set; }
@@ -161,7 +186,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public async Task GenerateReport()
 		{
 			CancellationTokenSource = new CancellationTokenSource();
-			
+
 			CompletedDriverWarehouseEvent completedEventAlias = null;
 			DriverWarehouseEvent eventAlias = null;
 			Employee driverAlias = null;
@@ -170,6 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			DriversWarehousesEventNode resultAlias = null;
 
 			var eventIds = new int[] { FirstEvent.Id, SecondEvent.Id };
+
 
 			var query = _unitOfWork.Session.QueryOver(() => completedEventAlias)
 				.JoinAlias(ce => ce.DriverWarehouseEvent, () => eventAlias)
@@ -182,29 +208,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			{
 				query.And(ce => ce.Car.Id == Car.Id);
 			}
-			
+
 			if(Driver != null)
 			{
 				query.And(ce => ce.Employee.Id == Driver.Id);
 			}
-			
+
 			if(StartDate.HasValue)
 			{
 				query.And(ce => ce.CompletedDate >= StartDate);
 			}
-			
+
 			if(EndDate.HasValue)
 			{
 				query.And(ce => ce.CompletedDate <= EndDate.Value.LatestDayTime());
 			}
 
 			var nodes = query.SelectList(list => list
-				.Select(() => completedEventAlias.CompletedDate).WithAlias(() => resultAlias.EventDateTime)
-				.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverFio)
-				.Select(CarProjections.GetCarModelWithRegistrationNumber()).WithAlias(() => resultAlias.CarModelWithNumber)
-				.Select(() => eventAlias.Id).WithAlias(() => resultAlias.EventId)
-				.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
-				.Select(ce => ce.DistanceMetersFromScanningLocation).WithAlias(() => resultAlias.Distance)
+					.Select(() => completedEventAlias.CompletedDate).WithAlias(() => resultAlias.EventDateTime)
+					.Select(EmployeeProjections.GetDriverFullNameProjection()).WithAlias(() => resultAlias.DriverFio)
+					.Select(CarProjections.GetCarModelWithRegistrationNumber()).WithAlias(() => resultAlias.CarModelWithNumber)
+					.Select(() => eventAlias.Id).WithAlias(() => resultAlias.EventId)
+					.Select(() => eventAlias.EventName).WithAlias(() => resultAlias.EventName)
+					.Select(() => eventAlias.DocumentType).WithAlias(() => resultAlias.DocumentType)
+					.Select(ce => ce.DocumentId).WithAlias(() => resultAlias.DocumentNumber)
+					.Select(ce => ce.DistanceMetersFromScanningLocation).WithAlias(() => resultAlias.Distance)
 				)
 				.OrderBy(ce => ce.CompletedDate).Asc
 				.OrderBy(EmployeeProjections.GetDriverFullNameProjection()).Asc
@@ -214,8 +242,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			CancellationTokenSource.Token.ThrowIfCancellationRequested();
 
 			await CreateReportNodes(nodes);
+
 		}
-		
+
 		public void ExportReport()
 		{
 			using(var wb = new XLWorkbook())
@@ -223,7 +252,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 				var ws = wb.Worksheets.Add(sheetName);
 
-				InsertBalanceSummaryReportValues(ws);
+				InsertReportValues(ws);
 				ws.Columns().AdjustToContents();
 
 				if(TryGetSavePath(out string path))
@@ -249,7 +278,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			return result.Successful;
 		}
 		
-		private void InsertBalanceSummaryReportValues(IXLWorksheet ws)
+		private void InsertReportValues(IXLWorksheet ws)
 		{
 			var colNames = GetReportColumnTitles();
 			var rows = ReportNodes;
@@ -269,12 +298,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			return new[]
 			{
 				DateTitle,
-				DriverTitle,
+				EmloyeeTitle,
 				CarTitle,
 				FirstEventTitle,
+				DocumentTypeColumn,
+				DocumentNumberColumn,
 				EventDistanceTitle,
 				EventTimeTitle,
 				SecondEventTitle,
+				DocumentTypeColumn,
+				DocumentNumberColumn,
 				EventDistanceTitle,
 				EventTimeTitle,
 			};
@@ -315,31 +348,133 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			ReportNodes.Clear();
 			CancellationTokenSource.Token.ThrowIfCancellationRequested();
 			
-			if(nodes.Count == 0)
+			if(IsDateGroup)
 			{
-				return;
-			}
-			
-			var firstNode = nodes.First();
-			
-			var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
-			var nextNode = AddNextSingleEventNode(firstNode);
-
-			for(var i = 1; i < nodes.Count; i++)
-			{
-				var node = nodes[i];
-				if(date == node.EventDate && driver == node.DriverFio && eventId == FirstEvent.Id && eventId != node.EventId)
+				if(nodes.Count == 0)
 				{
-					nextNode.SecondEventName = node.EventName;
-					nextNode.SecondEventDistance = node.Distance;
-					nextNode.SecondEventTime = node.EventTime;
+					return;
 				}
-				else
+			
+				var firstNode = nodes.First();
+			
+				var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
+				var nextNode = AddNextSingleEventNode(firstNode);
+
+				for(var i = 1; i < nodes.Count; i++)
 				{
-					nextNode = AddNextSingleEventNode(node);
+					var node = nodes[i];
+					if(date == node.EventDate && driver == node.DriverFio && eventId == FirstEvent.Id && eventId != node.EventId)
+					{
+						nextNode.SecondEventName = node.EventName;
+						nextNode.SecondEventDistance = node.Distance;
+						nextNode.SecondEventTime = node.EventTime;
+					}
+					else
+					{
+						nextNode = AddNextSingleEventNode(node);
+					}
+				
+					date = UpdateLocalParams(node, out driver, out eventId);
+				}
+			}
+			else if(IsCarGroup)
+			{
+				if(nodes.Count == 0)
+				{
+					return;
 				}
 				
-				date = UpdateLocalParams(node, out driver, out eventId);
+				while(nodes.Count > 0)
+				{
+					var firstNode = nodes.First();
+					var currentCar = firstNode.CarModelWithNumber;
+					var nextNode = AddNextSingleEventNode(firstNode);
+					var nodeIndex = 1;
+					var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
+
+					while(true)
+					{
+
+						if(nodeIndex >= nodes.Count)
+						{
+							nodes.Remove(firstNode);
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].CarModelWithNumber == currentCar && 
+						        nodes[nodeIndex].EventId == FirstEvent.Id && firstNode.EventId == SecondEvent.Id && nodes[nodeIndex].EventTime <= firstNode.EventTime)
+						{
+							FillFirstEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].CarModelWithNumber == currentCar &&
+						        nodes[nodeIndex].EventId == SecondEvent.Id && firstNode.EventId == FirstEvent.Id && nodes[nodeIndex].EventTime >= firstNode.EventTime)
+						{
+							FillSecondEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else
+						{
+							nodeIndex++;
+						}
+					}
+				}
+			}
+			else if(IsDriverGroup)
+			{
+				if(nodes.Count == 0)
+				{
+					return;
+				}
+				
+				while(nodes.Count > 0)
+				{
+					var firstNode = nodes.First();
+					var currentFio = firstNode.DriverFio;
+					var nextNode = AddNextSingleEventNode(firstNode);
+					var nodeIndex = 1;
+					var date = UpdateLocalParams(firstNode, out var driver, out var eventId);
+
+					while(true)
+					{
+						if(nodeIndex >= nodes.Count)
+						{
+							nodes.Remove(firstNode);
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].DriverFio == currentFio && 
+						        nodes[nodeIndex].EventId == FirstEvent.Id && firstNode.EventId == SecondEvent.Id  && nodes[nodeIndex].EventTime <= firstNode.EventTime)
+						{
+							FillFirstEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else if(date == nodes[nodeIndex].EventDate && nodes[nodeIndex].DriverFio == currentFio &&
+						        nodes[nodeIndex].EventId == SecondEvent.Id && firstNode.EventId == FirstEvent.Id  && nodes[nodeIndex].EventTime >= firstNode.EventTime)
+						{
+							FillSecondEventData(nodes[nodeIndex], nextNode);
+
+							nodes.Remove(nodes[nodeIndex]);
+							nodes.Remove(firstNode);
+
+							break;
+						}
+						else
+						{
+							nodeIndex++;
+						}
+					}
+				}
 			}
 		}
 
@@ -362,19 +497,35 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 
 			if(node.EventId == FirstEvent.Id)
 			{
-				nextNode.FirstEventName = node.EventName;
-				nextNode.FirstEventDistance = node.Distance;
-				nextNode.FirstEventTime = node.EventTime;
+				FillFirstEventData(node, nextNode);
 			}
 			else
 			{
-				nextNode.SecondEventName = node.EventName;
-				nextNode.SecondEventDistance = node.Distance;
-				nextNode.SecondEventTime = node.EventTime;
+				FillSecondEventData(node, nextNode);
 			}
 
 			ReportNodes.Add(nextNode);
 			return nextNode;
+		}
+
+		private void FillFirstEventData(DriversWarehousesEventNode node, DriversWarehousesEventsReportNode nextNode)
+		{
+			nextNode.FirstEventId = node.EventId;
+			nextNode.FirstEventName = node.EventName;
+			nextNode.FirstEventDocumentType = node.DocumentType?.GetEnumTitle();
+			nextNode.FirstEventDocumentNumber = node.DocumentNumber;
+			nextNode.FirstEventDistance = node.Distance;
+			nextNode.FirstEventTime = node.EventTime;
+		}
+
+		private void FillSecondEventData(DriversWarehousesEventNode node, DriversWarehousesEventsReportNode nextNode)
+		{
+			nextNode.SecondEventId = node.EventId;
+			nextNode.SecondEventName = node.EventName;
+			nextNode.SecondEventDocumentType = node.DocumentType?.GetEnumTitle();
+			nextNode.SecondEventDocumentNumber = node.DocumentNumber;
+			nextNode.SecondEventDistance = node.Distance;
+			nextNode.SecondEventTime = node.EventTime;
 		}
 	}
 }

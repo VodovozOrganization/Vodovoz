@@ -2,7 +2,7 @@
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Models.CashReceipts.DTO;
 using ApiFiscalStatus = Vodovoz.Models.CashReceipts.DTO.FiscalDocumentStatus;
-using DomainFiscalStatus = Vodovoz.Domain.TrueMark.FiscalDocumentStatus;
+using DomainFiscalStatus = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus;
 
 namespace Vodovoz.Models.TrueMark
 {

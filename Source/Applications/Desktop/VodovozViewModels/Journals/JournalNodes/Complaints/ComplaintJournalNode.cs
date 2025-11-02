@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamma.Utilities;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Journals.JournalNodes
@@ -40,6 +41,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string TimeString => Date.ToString("t");
 
 		public ComplaintStatuses Status { get; set; }
+		public bool IsNeedWork { get; set; }
 		public string StatusString => Status.GetEnumTitle();
 
 		public string WorkInSubdivision { get; set; }
@@ -59,6 +61,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string Fines { get; set; }
 
 		public string ResultText { get; set; }
+		public string ResultCommentsAuthors { get; set; }
 
 		public DateTime? ActualCompletionDate { get; set; }
 		public string ActualCompletionDateString => ActualCompletionDate.HasValue ? ActualCompletionDate.Value.ToString("dd.MM.yy") : "-";

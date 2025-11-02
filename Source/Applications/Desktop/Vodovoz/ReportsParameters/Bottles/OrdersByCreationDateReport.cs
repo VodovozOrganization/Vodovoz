@@ -1,55 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersByCreationDateReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class OrdersByCreationDateReport : ViewBase<OrdersByCreationDateReportViewModel>
 	{
-		public OrdersByCreationDateReport()
+		public OrdersByCreationDateReport(OrdersByCreationDateReportViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
-			pkrDate.Date = DateTime.Today;
-		}
+			pkrDate.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.DateOrNull)
+				.InitializeFromSource();
 
-		#region IParametersWidget implementation
-
-		public string Title => "Отчет по дате создания заказа";
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		#endregion
-
-		void OnUpdate(bool hide = false)
-		{
-			if(LoadReport != null)
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			OnUpdate(true);
-		}
-
-		private ReportInfo GetReportInfo()
-		{
-			return new ReportInfo {
-				Identifier = "Bottles.OrdersByCreationDate",
-				Parameters = new Dictionary<string, object> {
-					{ "date", pkrDate.Date.ToString("yyyy-MM-dd") }
-				}
-			};
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 	}
 }

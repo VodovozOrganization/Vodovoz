@@ -1,7 +1,13 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using FirebaseAdmin;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using QS.HistoryLog;
+using QS.Project.Core;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 
 namespace PushNotificationsWorker
 {
@@ -13,7 +19,11 @@ namespace PushNotificationsWorker
 		{
 			try
 			{
-				CreateHostBuilder(args).Build().Run();
+				var host = CreateHostBuilder(args).Build();
+
+				host.Services.GetRequiredService<FirebaseApp>();
+
+				host.Run();
 			}
 			finally
 			{
@@ -33,8 +43,23 @@ namespace PushNotificationsWorker
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddPushNotificationsWorker(hostContext);
-				})
-			.UseWindowsService();
+					services
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(EmployeeWithLoginMap).Assembly
+						)
+						.AddDatabaseConnection()
+						.AddCore()
+						.AddTrackedUoW()
+						.AddPushNotificationsWorker(hostContext);
+
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					services.AddStaticHistoryTracker();
+				});
 	}
 }

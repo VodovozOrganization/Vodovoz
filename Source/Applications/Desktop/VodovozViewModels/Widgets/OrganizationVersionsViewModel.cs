@@ -1,4 +1,4 @@
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 
@@ -40,7 +40,8 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			ICommonServices commonServices,
 			IOrganizationVersionsController organizationVersionsController,
 			IStoredResourceRepository storedResourceRepository,
-			IEmployeeJournalFactory employeeJournalFactory)
+			IEmployeeJournalFactory employeeJournalFactory,
+			bool isEditable = true)
 			: base(entity, commonServices)
 		{
 			_organizationVersionsController = organizationVersionsController ?? throw new ArgumentNullException(nameof(organizationVersionsController));
@@ -58,12 +59,15 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 
 			var _storedResourceRepository = storedResourceRepository ?? throw new ArgumentNullException(nameof(storedResourceRepository));
 			_allSignatures = _storedResourceRepository.GetAllSignatures();
+
+			IsButtonsAvailable = isEditable;
 		}
 
 		public IEntityAutocompleteSelectorFactory LeaderSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory AccountantSelectorFactory { get; }
 		public bool IsEditAvailable => SelectedOrganizationVersion != null;
 		public bool IsNewOrganization => Entity.Id == 0;
+		public bool IsButtonsAvailable { get; }
 
 		public Employee Leader
 		{

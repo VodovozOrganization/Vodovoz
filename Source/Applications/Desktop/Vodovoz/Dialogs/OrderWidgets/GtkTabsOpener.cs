@@ -1,14 +1,15 @@
-﻿using Dialogs.Logistic;
+﻿using Autofac;
+using Dialogs.Logistic;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Tdi;
-using System;
-using System.Linq;
-using Autofac;
 using QS.Navigation;
 using QS.Report.ViewModels;
+using QS.Tdi;
 using QS.ViewModels.Dialog;
+using QSOrmProject;
+using System;
+using System.Linq;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -56,8 +58,8 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		}
 
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
-			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
-		
+			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment };
+
 		public ITdiTab CreateOrderDlg(int? orderId) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
 
 		public void OpenOrderDlg(ITdiTab tab, int id)
@@ -67,17 +69,17 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => CreateOrderDlg(id)
 			);
 		}
-		
+
 		public void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, int>(from, orderId);
 		}
-		
+
 		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
-			
+
 			tab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Order>(65656),
 				() => dlg
@@ -105,27 +107,11 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			}
 		}
 
-		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId) =>
-			tab.OpenTab(
-				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId));
-
-		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId, int[] selectedOrdersIds) =>
-			tab.OpenTab(
-				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds));
-
-		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds) =>
-			OpenRouteListKeepingDlg(tab.TabParent, routeListId, selectedOrdersIds);
-
-		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId) =>
-			OpenRouteListKeepingDlg(tab.TabParent, routeListId);
-
 		public void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<RouteListClosingDlg, int>(from, routeListId);
 		}
-		
+
 		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId) =>
 			OpenRouteListClosingDlg(master.TabParent, routelistId);
 
@@ -133,14 +119,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
 				() => new RouteListClosingDlg(routelistId));
-
-		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
-		{
-			return tab.TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<UndeliveredOrder>(id),
-				() => id > 0 ? new UndeliveredOrderDlg(id, isForSalesDepartment) : new UndeliveredOrderDlg(isForSalesDepartment)
-			);
-		}
 
 		public ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter)
 		{
@@ -209,9 +187,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null) =>
 			OpenDialogTabFor<ShiftChangeWarehouseDocumentDlg, ShiftChangeWarehouseDocument>(shiftChangeWarehouseDocumentId, master);
 
-		public ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null) =>
-			OpenDialogTabFor<RegradingOfGoodsDocumentDlg, RegradingOfGoodsDocument>(regradingOfGoodsDocumentId, master);
-
 		private ITdiTab OpenDialogTabFor<TDialog, TEntity>(int entityId, ITdiTab master = null)
 			where TDialog : ITdiTab
 			where TEntity : IDomainObject
@@ -254,6 +229,22 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			var dlg = new CarLoadDocumentDlg();
 			fillCarLoadDocumentFunc(dlg.Entity, dlg.UoW, routeListId, warehouseId);
 			tabParent.OpenTab(() => dlg);
+		}
+
+		public ITdiTab CreateWarehouseDocumentOrmMainDialog(ITdiTabParent tabParent, Core.Domain.Warehouses.Documents.DocumentType type)
+		{
+			switch(type)
+			{
+				case Core.Domain.Warehouses.Documents.DocumentType.IncomingWater:
+				case Core.Domain.Warehouses.Documents.DocumentType.SelfDeliveryDocument:
+				case Core.Domain.Warehouses.Documents.DocumentType.CarLoadDocument:
+				case Core.Domain.Warehouses.Documents.DocumentType.CarUnloadDocument:
+					return tabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName(type.ToDocType(), 0),
+						() => OrmMain.CreateObjectDialog(type.ToDocType()));
+				default:
+					throw new NotImplementedException("Тип документа не подерживается");
+			}
 		}
 
 		public void ShowTrackWindow(int id)

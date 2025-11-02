@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,28 +6,30 @@ using System.Linq;
 using System.Text.Json;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Models
 {
 	public class UnsubscribeViewModel : IValidatableObject
 	{
 		private IList<BulkEmailEventReason> _reasonsList;
+		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public UnsubscribeViewModel() { }
 
-		public UnsubscribeViewModel(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
-			Initialize(guid, emailRepository, emailParametersProvider);
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			Initialize(guid, emailRepository, emailSettings);
 		}
 
-		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailParametersProvider emailParametersProvider)
+		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
-			OtherReasonId = emailParametersProvider.BulkEmailEventOtherReasonId;
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Инициализация страницы отписки"))
+			OtherReasonId = emailSettings.BulkEmailEventOtherReasonId;
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки"))
 			{
 				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
-				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailParametersProvider, isForUnsubscribePage: true);
+				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailSettings, isForUnsubscribePage: true);
 			}
 			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
 		}
@@ -54,7 +56,7 @@ namespace UnsubscribePage.Models
 				}
 			};
 
-			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
+			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
 			{
 				unitOfWork.Save(unsubscribingEvent);
 				unitOfWork.Commit();

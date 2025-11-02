@@ -1,41 +1,120 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Payments;
+using VodovozBusiness.Domain.Cash.CashRequest;
+using VodovozBusiness.Domain.Payments;
 
 namespace Vodovoz.Domain.Cash
 {
+	/// <summary>
+	/// Заявка на оплату по безналу
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на оплату по безналу",
 		Nominative = "заявка на оплату по безналу",
 		Accusative = "заявку на оплату по безналу")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class CashlessRequest : PayoutRequestBase
+	public class CashlessRequest : PayoutRequestBase, IHasAttachedFilesInformations<CashlessRequestFileInformation>
 	{
+		private IObservableList<CashlessRequestComment> _comments = new ObservableList<CashlessRequestComment>();
+		private IObservableList<CashlessRequestFileInformation> _attachedFileInformations = new ObservableList<CashlessRequestFileInformation>();
+		private IObservableList<OutgoingPayment> _outgoingPayments = new ObservableList<OutgoingPayment>();
+
 		private decimal _sum;
 		private Counterparty _counterparty;
-		private IList<CashlessRequestFile> _files = new List<CashlessRequestFile>();
-		private GenericObservableList<CashlessRequestFile> _observableFiles;
+		private int? _financialResponsibilityCenterId;
+		private DateTime? _paymentDatePlanned;
+		private int? _ourOrganizationBankAccountId;
+		private int? _supplierBankAccountId;
+		private string _billNumber;
+		private DateTime? _billDate;
+		private string _paymentPurpose;
+		private bool _isImidiatelyBill;
+		private decimal _vatValue;
 
-		#region Свойства
+		public static readonly PayoutRequestState[] AllowedToChangeFinancialResponsibilityCenterIdStates = new[]
+		{
+			PayoutRequestState.New,
+			PayoutRequestState.Submited,
+			PayoutRequestState.AgreedBySubdivisionChief,
+			PayoutRequestState.OnClarification,
+			PayoutRequestState.Canceled
+		};
+
+		public static readonly PayoutRequestState[] AllowedToChangePlainPropertiesStates = new[]
+		{
+			PayoutRequestState.New,
+			PayoutRequestState.Submited,
+			PayoutRequestState.AgreedBySubdivisionChief,
+			PayoutRequestState.AgreedByFinancialResponsibilityCenter,
+			PayoutRequestState.WaitingForAgreedByExecutiveDirector,
+			PayoutRequestState.OnClarification,
+			PayoutRequestState.Canceled
+		};
+
+		public override int Id
+		{
+			get => base.Id;
+			protected set
+			{
+				if(base.Id != value)
+				{
+					base.Id = value;
+					UpdateOutgoingPayments();
+				}
+			}
+		}
 
 		public override string Title => $"Заявка на оплату по Б/Н №{Id} от {Date:d}";
 
 		public override PayoutRequestDocumentType PayoutRequestDocumentType => PayoutRequestDocumentType.CashlessRequest;
 
-		[Display(Name = "Сумма")]
-		public virtual decimal Sum
+		/// <summary>
+		/// Идентификатор центра финансовой ответственности
+		/// </summary>
+		[Display(Name = "ЦФО")]
+		[HistoryIdentifier(TargetType = typeof(FinancialResponsibilityCenter))]
+		public virtual int? FinancialResponsibilityCenterId
 		{
-			get => _sum;
-			set => SetField(ref _sum, value);
+			get => _financialResponsibilityCenterId;
+			set => SetField(ref _financialResponsibilityCenterId, value);
 		}
 
+		/// <summary>
+		/// Дата платежа (план)
+		/// </summary>
+		[Display(Name = "Дата платежа (план)")]
+		public virtual DateTime? PaymentDatePlanned
+		{
+			get => _paymentDatePlanned;
+			set => SetField(ref _paymentDatePlanned, value);
+		}
+
+		/// <summary>
+		/// Расчетный счет нашей организации
+		/// </summary>
+		[Display(Name = "Расчетный счёт (Н)")]
+		[HistoryIdentifier(TargetType = typeof(Account))]
+		public virtual int? OurOrganizationBankAccountId
+		{
+			get => _ourOrganizationBankAccountId;
+			set => SetField(ref _ourOrganizationBankAccountId, value);
+		}
+
+		/// <summary>
+		/// Поставщик
+		/// </summary>
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty Counterparty
 		{
@@ -43,21 +122,113 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _counterparty, value);
 		}
 
-
-		[Display(Name = "Файлы")]
-		public virtual IList<CashlessRequestFile> Files
+		/// <summary>
+		/// Расчетный счет поставщика
+		/// </summary>
+		[Display(Name = "Расчетный счёт (П)")]
+		[HistoryIdentifier(TargetType = typeof(Account))]
+		public virtual int? SupplierBankAccountId
 		{
-			get => _files;
-			set => SetField(ref _files, value, () => Files);
+			get => _supplierBankAccountId;
+			set => SetField(ref _supplierBankAccountId, value);
 		}
 
-		public virtual GenericObservableList<CashlessRequestFile> ObservableFiles =>
-			_observableFiles ?? (_observableFiles = new GenericObservableList<CashlessRequestFile>(Files));
+		/// <summary>
+		/// Номер счёта
+		/// </summary>
+		[Display(Name = "Номер счёта")]
+		public virtual string BillNumber
+		{
+			get => _billNumber;
+			set => SetField(ref _billNumber, value);
+		}
 
-		#endregion
+		/// <summary>
+		/// Дата счёта
+		/// </summary>
+		[Display(Name = "Дата счёта")]
+		public virtual DateTime? BillDate
+		{
+			get => _billDate;
+			set => SetField(ref _billDate, value);
+		}
+
+		/// <summary>
+		/// Сумма
+		/// </summary>
+		[Display(Name = "Сумма")]
+		public virtual decimal Sum
+		{
+			get => _sum;
+			set => SetField(ref _sum, value);
+		}
+
+		/// <summary>
+		/// Ставка НДС в счёте
+		/// </summary>
+		[Display(Name = "Ставка НДС в счёте")]
+		public virtual decimal VatValue
+		{
+			get => _vatValue;
+			set => SetField(ref _vatValue, value);
+		}
+
+		/// <summary>
+		/// Назначение платежа
+		/// </summary>
+		[Display(Name = "Назначение платежа")]
+		public virtual string PaymentPurpose
+		{
+			get => _paymentPurpose;
+			set => SetField(ref _paymentPurpose, value);
+		}
+
+		/// <summary>
+		/// Комментарии
+		/// </summary>
+		[Display(Name = "Комментарии")]
+		public virtual IObservableList<CashlessRequestComment> Comments
+		{
+			get => _comments;
+			set => SetField(ref _comments, value);
+		}
+
+		/// <summary>
+		/// Информация о прикрепленных файлах
+		/// </summary>
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<CashlessRequestFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
+
+		/// <summary>
+		/// Платежи
+		/// </summary>
+		[Display(Name = "Платежи")]
+		public virtual IObservableList<OutgoingPayment> OutgoingPayments
+		{
+			get => _outgoingPayments;
+			set => SetField(ref _outgoingPayments, value);
+		}
+
+		/// <summary>
+		/// Срочный платёж
+		/// </summary>
+		[Display(Name = "Срочный платёж")]
+		public virtual bool IsImidiatelyBill
+		{
+			get => _isImidiatelyBill;
+			set => SetField(ref _isImidiatelyBill, value);
+		}
 
 		#region Методы
 
+		/// <summary>
+		/// Изменение статуса
+		/// </summary>
+		/// <param name="newState">Новый статус</param>
 		public override void ChangeState(PayoutRequestState newState)
 		{
 			if(newState == PayoutRequestState)
@@ -68,26 +239,122 @@ namespace Vodovoz.Domain.Cash
 			PayoutRequestState = newState;
 		}
 
-		public virtual void AddFile(CashlessRequestFile file)
+		/// <summary>
+		/// Добавление информации о файле
+		/// </summary>
+		/// <param name="fileName">Имя файла</param>
+		public virtual void AddFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
+			if(AttachedFileInformations.Any(afi => afi.FileName == fileName))
 			{
 				return;
 			}
 
-			file.CashlessRequest = this;
-			ObservableFiles.Add(file);
+			AttachedFileInformations.Add(new CashlessRequestFileInformation
+			{
+				FileName = fileName,
+				CashlessReqwuestId = Id
+			});
 		}
 
-		public virtual void RemoveFile(CashlessRequestFile file)
+		/// <summary>
+		/// Удаление информации о файле
+		/// </summary>
+		/// <param name="fileName">Имя файла</param>
+		public virtual void RemoveFileInformation(string fileName)
 		{
-			if(ObservableFiles.Contains(file))
-			{
-				ObservableFiles.Remove(file);
-			}
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Обновление информации о файлах
+		/// 
+		/// Обновляет идентификатор заявки на оплату в информации о файлах
+		/// </summary>
+		protected override void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.CashlessReqwuestId = Id;
+			}
+		}
+
+		/// <summary>
+		/// Добавление комментария
+		/// </summary>
+		/// <param name="cashlessRequestComment">Комментарий</param>
+		public virtual void AddComment(CashlessRequestComment cashlessRequestComment)
+		{
+			cashlessRequestComment.CashlessRequestId = Id;
+			Comments.Add(cashlessRequestComment);
+		}
+
+		/// <summary>
+		/// Обновление комментариев
+		/// 
+		/// Обновляет идентификатор заявки на оплату в комментариях
+		/// </summary>
+		protected override void UpdateComments()
+		{
+			foreach(var comment in Comments)
+			{
+				comment.CashlessRequestId = Id;
+			}
+		}
+
+		public virtual CashlessRequest Copy1To11()
+		{
+			return new CashlessRequest
+			{
+				Date = Date,
+				Author = Author,
+				Subdivision = Subdivision,
+				FinancialResponsibilityCenterId = FinancialResponsibilityCenterId,
+				Organization = Organization,
+				OurOrganizationBankAccountId = OurOrganizationBankAccountId,
+				Counterparty = Counterparty,
+				SupplierBankAccountId = SupplierBankAccountId,
+				ExpenseCategoryId = ExpenseCategoryId,
+				BillNumber = BillNumber,
+				BillDate = BillDate,
+				Sum = Sum,
+				VatValue = VatValue,
+				PaymentPurpose = PaymentPurpose,
+			};
+		}
+
+		public virtual void RemoveOutgoingPayment(int id)
+		{
+			var paymentToRemove = OutgoingPayments.Where(x => id == x.Id).FirstOrDefault();
+			
+			if(paymentToRemove is null)
+			{
+				return;
+			}
+
+			paymentToRemove.CashlessRequestId = null;
+
+			OutgoingPayments.Remove(paymentToRemove);
+		}
+
+		public virtual void AddOutgoingPayments(IEnumerable<OutgoingPayment> outgoingPayments)
+		{
+			foreach(var payment in outgoingPayments)
+			{
+				payment.CashlessRequestId = Id;
+				OutgoingPayments.Add(payment);
+			}
+		}
+
+		public virtual void UpdateOutgoingPayments()
+		{
+			foreach(var outgoingPayment in OutgoingPayments)
+			{
+				outgoingPayment.CashlessRequestId = Id;
+			}
+		}
 
 		#region IValidationImplementation
 
@@ -95,24 +362,16 @@ namespace Vodovoz.Domain.Cash
 		{
 			#region Без учета статуса
 
-			foreach(var validationResult in base.Validate(validationContext))
+			if(Author == null)
 			{
-				yield return validationResult;
+				yield return new ValidationResult(
+					"Автор не указан. Ваш пользователь не привязан к сотруднику, которого можно указать в качестве автора",
+					new[] { nameof(Author) });
 			}
 
-			if(Sum <= 0)
+			if(Sum < 0)
 			{
-				yield return new ValidationResult("Сумма должна быть больше нуля", new[] { nameof(Sum) });
-			}
-
-			if(!Files.Any())
-			{
-				yield return new ValidationResult("Необходимо добавить хотя бы один файл", new[] { nameof(Files) });
-			}
-
-			if(Counterparty == null)
-			{
-				yield return new ValidationResult("Необходимо указать поставщика", new[] { nameof(Counterparty) });
+				yield return new ValidationResult("Сумма должна быть положительной", new[] { nameof(Sum) });
 			}
 
 			#endregion
@@ -123,43 +382,85 @@ namespace Vodovoz.Domain.Cash
 				yield break;
 			}
 
-			yield return ValidateState(nextState);
+			var stateValidationResult = ValidateState(nextState);
+
+			if(stateValidationResult != ValidationResult.Success)
+			{
+				yield return ValidateState(nextState);
+			}
 
 			switch(nextState)
 			{
-				case PayoutRequestState.Canceled:
-					if(string.IsNullOrWhiteSpace(CancelReason))
+				case PayoutRequestState.Submited:
+				case PayoutRequestState.AgreedBySubdivisionChief:
+					var submittedValidationsErrors = ValidateSubmited();
+
+					foreach(var error in submittedValidationsErrors)
 					{
-						yield return new ValidationResult("Не указана причина отмены", new[] { nameof(CancelReason) });
+						yield return error;
 					}
 
 					break;
+
 				case PayoutRequestState.GivenForTake:
-				{
-					if(Organization == null)
-					{
-						yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
-					}
-
-					break;
-				}
+				case PayoutRequestState.PartiallyClosed:
 				case PayoutRequestState.Closed:
-				{
-					if(ExpenseCategoryId == null)
+					var submittedValidationsErrors2 = ValidateSubmited();
+
+					foreach(var error in submittedValidationsErrors2)
 					{
-						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
+						yield return error;
+					}
+
+					if(OurOrganizationBankAccountId is null)
+					{
+						yield return new ValidationResult("Не указан расчетный счет нашей организации", new[] { nameof(OurOrganizationBankAccountId) });
 					}
 
 					break;
-				}
-				case PayoutRequestState.OnClarification:
-					if(string.IsNullOrWhiteSpace(ReasonForSendToReappropriate))
-					{
-						yield return new ValidationResult("Необходимо заполнить причину отправки на пересогласование",
-							new[] { nameof(ReasonForSendToReappropriate) });
-					}
+			}
+		}
 
-					break;
+		private IEnumerable<ValidationResult> ValidateSubmited()
+		{
+			if(Subdivision is null)
+			{
+				yield return new ValidationResult("Не указано подразделение", new[] { nameof(Subdivision) });
+			}
+
+			if(FinancialResponsibilityCenterId is null)
+			{
+				yield return new ValidationResult("Не указан ЦФО", new[] { nameof(FinancialResponsibilityCenterId) });
+			}
+
+			if(PaymentDatePlanned is null)
+			{
+				yield return new ValidationResult("Не указана дата платежа (план)", new[] { nameof(PaymentDatePlanned) });
+			}
+
+			if(Organization is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
+			}
+
+			if(Counterparty is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить поставщика", new[] { nameof(Counterparty) });
+			}
+
+			if(SupplierBankAccountId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить расчетный счет поставщика", new[] { nameof(SupplierBankAccountId) });
+			}
+
+			if(ExpenseCategoryId is null)
+			{
+				yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
+			}
+
+			if(Sum <= 0)
+			{
+				yield return new ValidationResult("Необходимо заполнить сумму", new[] { nameof(Sum) });
 			}
 		}
 
@@ -175,47 +476,75 @@ namespace Vodovoz.Domain.Cash
 			if(nextState == PayoutRequestState.Submited)
 			{
 				if(PayoutRequestState != PayoutRequestState.New
-				&& PayoutRequestState != PayoutRequestState.OnClarification)
+					&& PayoutRequestState != PayoutRequestState.OnClarification
+					&& PayoutRequestState != PayoutRequestState.Canceled)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
-			else if(nextState == PayoutRequestState.OnClarification)
-			{
-				if(PayoutRequestState != PayoutRequestState.Agreed
-				&& PayoutRequestState != PayoutRequestState.GivenForTake
-				&& PayoutRequestState != PayoutRequestState.Canceled)
-				{
-					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
-				}
-			}
-			else if(nextState == PayoutRequestState.Agreed)
+			else if(nextState == PayoutRequestState.AgreedBySubdivisionChief)
 			{
 				if(PayoutRequestState != PayoutRequestState.Submited)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
+			else if(nextState == PayoutRequestState.AgreedByFinancialResponsibilityCenter)
+			{
+				if(PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.WaitingForAgreedByExecutiveDirector)
+			{
+				if(PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
 			else if(nextState == PayoutRequestState.GivenForTake)
 			{
-				if(PayoutRequestState != PayoutRequestState.Agreed)
+				if(PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.PartiallyClosed)
+			{
+				if(PayoutRequestState != PayoutRequestState.GivenForTake)
+				{
+					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
+				}
+			}
+			else if(nextState == PayoutRequestState.OnClarification)
+			{
+				if(PayoutRequestState != PayoutRequestState.Submited
+					&& PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief
+					&& PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter
+					&& PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector
+					&& PayoutRequestState != PayoutRequestState.Agreed)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
 			else if(nextState == PayoutRequestState.Canceled)
 			{
-				if(PayoutRequestState != PayoutRequestState.Submited
-				&& PayoutRequestState != PayoutRequestState.OnClarification
-				&& PayoutRequestState != PayoutRequestState.GivenForTake
-				&& PayoutRequestState != PayoutRequestState.Agreed)
+				if(PayoutRequestState != PayoutRequestState.New
+					&& PayoutRequestState != PayoutRequestState.Submited
+					&& PayoutRequestState != PayoutRequestState.AgreedBySubdivisionChief
+					&& PayoutRequestState != PayoutRequestState.AgreedByFinancialResponsibilityCenter
+					&& PayoutRequestState != PayoutRequestState.WaitingForAgreedByExecutiveDirector
+					&& PayoutRequestState != PayoutRequestState.Agreed
+					&& PayoutRequestState != PayoutRequestState.GivenForTake)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
 			}
 			else if(nextState == PayoutRequestState.Closed)
 			{
-				if(PayoutRequestState != PayoutRequestState.GivenForTake)
+				if(PayoutRequestState != PayoutRequestState.GivenForTake
+					&& PayoutRequestState != PayoutRequestState.PartiallyClosed)
 				{
 					return new ValidationResult(errorMessage, new[] { nameof(PayoutRequestState) });
 				}
@@ -228,6 +557,6 @@ namespace Vodovoz.Domain.Cash
 			return ValidationResult.Success;
 		}
 
-		#endregion
+		#endregion IValidationImplementation
 	}
 }

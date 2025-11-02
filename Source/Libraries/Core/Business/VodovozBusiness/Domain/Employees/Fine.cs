@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -19,142 +20,208 @@ namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
-		Nominative = "штраф сотрудникам")]
+		Nominative = "штраф сотрудникам",
+		GenitivePlural = "штрафов")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Fine : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private FineTypes _fineType;
+		private FineCategory _fineCategory;
+		private DateTime _date = DateTime.Today;
+		private decimal _totalMoney;
+		private decimal _litersOverspending;
+		private string _fineReasonString;
+		private RouteList _routeList;
+		private UndeliveredOrder _undeliveredOrder;
+		private Employee _author;
+		private IList<FineItem> _items = new List<FineItem>();
+		private GenericObservableList<FineItem> _observableItems;
+		private IList<FineNomenclature> _nomenclatures = new List<FineNomenclature>();
+		private GenericObservableList<RouteListItem> _observableRouteListItems;
+		private IList<RouteListItem> _routeListItems = new List<RouteListItem>();
+
 		#region Свойства
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		[Display(Name = "Идентификатор")]
 		public virtual int Id { get; set; }
 
-		FineTypes fineType;
-
+		/// <summary>
+		/// Тип штрафа
+		/// </summary>
 		[Display(Name = "Тип штрафа")]
-		public virtual FineTypes FineType {
-			get => fineType;
-			set => SetField(ref fineType, value, () => FineType);
+		public virtual FineTypes FineType
+		{
+			get => _fineType;
+			set => SetField(ref _fineType, value);
 		}
 
-		private DateTime date = DateTime.Today;
+		/// <summary>
+		/// Категория штрафа
+		/// </summary>
+		[Display(Name = "Категория штрафа")]
+		public virtual FineCategory FineCategory
+		{
+			get => _fineCategory;
+			set => SetField(ref _fineCategory, value);
+		}
 
+		/// <summary>
+		/// Дата
+		/// </summary>
 		[Display(Name = "Дата")]
-		public virtual DateTime Date {
-			get => date;
-			set => SetField(ref date, value, () => Date);
+		public virtual DateTime Date
+		{
+			get => _date;
+			set => SetField(ref _date, value);
 		}
 
-		decimal totalMoney;
-
+		/// <summary>
+		/// Всего денег
+		/// </summary>
 		[Display(Name = "Всего денег")]
-		public virtual decimal TotalMoney {
-			get => totalMoney;
-			set => SetField(ref totalMoney, value, () => TotalMoney);
+		public virtual decimal TotalMoney
+		{
+			get => _totalMoney;
+			set => SetField(ref _totalMoney, value);
 		}
 
-		decimal litersOverspending;
 		/// <summary>
 		/// Перерасходовано литров.
 		/// Свойство без маппинга, данные записываются в FineItem
 		/// </summary>
 		[Display(Name = "Перерасходовано литров")]
-		public virtual decimal LitersOverspending {
-			get => litersOverspending;
-			set => SetField(ref litersOverspending, value, () => LitersOverspending);
+		public virtual decimal LitersOverspending
+		{
+			get => _litersOverspending;
+			set => SetField(ref _litersOverspending, value);
 		}
 
-		private string fineReasonString;
-
+		/// <summary>
+		/// Причина штрафа
+		/// </summary>
 		[Display(Name = "Причина штрафа")]
-		public virtual string FineReasonString {
-			get => fineReasonString;
-			set => SetField(ref fineReasonString, value, () => FineReasonString);
+		public virtual string FineReasonString
+		{
+			get => _fineReasonString;
+			set => SetField(ref _fineReasonString, value);
 		}
 
-		private RouteList routeList;
-
+		/// <summary>
+		/// Маршрутный лист
+		/// </summary>
 		[Display(Name = "Маршрутный лист")]
-		public virtual RouteList RouteList {
-			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
-		private UndeliveredOrder undeliveredOrder;
-
+		/// <summary>
+		/// Недовоз
+		/// </summary>
 		[Display(Name = "Недовоз")]
-		public virtual UndeliveredOrder UndeliveredOrder {
-			get => undeliveredOrder;
-			set {
-				if(SetField(ref undeliveredOrder, value, () => UndeliveredOrder))
+		public virtual UndeliveredOrder UndeliveredOrder
+		{
+			get => _undeliveredOrder;
+			set
+			{
+				if(SetField(ref _undeliveredOrder, value))
+				{
 					FineReasonString = string.Format(
 						"{0}, {1}, {2}",
 						UndeliveredOrder.Title,
 						UndeliveredOrder.OldOrder.Client.Name,
 						UndeliveredOrder.OldOrder.DeliveryPoint != null ? UndeliveredOrder.OldOrder.DeliveryPoint.ShortAddress : "Самовывоз"
 					);
+				}
 			}
 		}
 
-		private Employee author;
-
+		/// <summary>
+		/// Автор штрафа
+		/// </summary>
 		[Display(Name = "Автор штрафа")]
-		public virtual Employee Author {
-			get => author;
-			set => SetField(ref author, value, () => Author);
+		public virtual Employee Author
+		{
+			get => _author;
+			set => SetField(ref _author, value);
 		}
 
-		IList<FineItem> items = new List<FineItem>();
-
+		/// <summary>
+		/// Строки
+		/// </summary>
 		[Display(Name = "Строки")]
-		public virtual IList<FineItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+		public virtual IList<FineItem> Items
+		{
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		GenericObservableList<FineItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<FineItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<FineItem>(Items);
-				return observableItems;
+		public virtual GenericObservableList<FineItem> ObservableItems
+		{
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<FineItem>(Items);
+				}
+
+				return _observableItems;
 			}
 		}
 
-		IList<FineNomenclature> nomenclatures = new List<FineNomenclature>();
-
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
-		public virtual IList<FineNomenclature> Nomenclatures {
-			get => nomenclatures;
-			set => SetField(ref nomenclatures, value, () => Nomenclatures);
+		public virtual IList<FineNomenclature> Nomenclatures
+		{
+			get => _nomenclatures;
+			set => SetField(ref _nomenclatures, value);
 		}
 
-		IList<RouteListItem> routeListItems = new List<RouteListItem>();
+		/// <summary>
+		/// Адрес МЛ
+		/// </summary>
 		[Display(Name = "Адрес МЛ")]
-		public virtual IList<RouteListItem> RouteListItems {
-			get => routeListItems;
-			set => SetField(ref routeListItems, value);
+		public virtual IList<RouteListItem> RouteListItems
+		{
+			get => _routeListItems;
+			set => SetField(ref _routeListItems, value);
 		}
-		
-		GenericObservableList<RouteListItem> observableRouteListItems;
+
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<RouteListItem> ObservableRouteListItems {
-			get {
-				if(observableRouteListItems == null)
-					observableRouteListItems = new GenericObservableList<RouteListItem>(RouteListItems);
-				return observableRouteListItems;
+		public virtual GenericObservableList<RouteListItem> ObservableRouteListItems
+		{
+			get
+			{
+				if(_observableRouteListItems == null)
+				{
+					_observableRouteListItems = new GenericObservableList<RouteListItem>(RouteListItems);
+				}
+
+				return _observableRouteListItems;
 			}
 		}
 
 		public virtual void UpdateFuelOperations(IUnitOfWork uow)
 		{
-			if(FineType == FineTypes.FuelOverspending && ObservableItems.Any()) {
+			if(FineType == FineTypes.FuelOverspending && ObservableItems.Any())
+			{
 				var item = ObservableItems.FirstOrDefault();
-				if(item.FuelOutlayedOperation == null) {
-					item.FuelOutlayedOperation = new FuelOperation() {
+				if(item.FuelOutlayedOperation == null)
+				{
+					item.FuelOutlayedOperation = new FuelOperation()
+					{
 						Car = item.Fine.RouteList.Car,
 						Fuel = item.Fine.RouteList.Car.FuelType,
 						Driver = item.Employee,
@@ -163,7 +230,9 @@ namespace Vodovoz.Domain.Employees
 						OperationTime = DateTime.Now,
 						IsFine = true
 					};
-				} else {
+				}
+				else
+				{
 					item.FuelOutlayedOperation.Car = item.Fine.RouteList.Car;
 					item.FuelOutlayedOperation.Fuel = item.Fine.RouteList.Car.FuelType;
 					item.FuelOutlayedOperation.Driver = item.Employee;
@@ -183,15 +252,25 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual string Title => string.Format("Штраф №{0} от {1:d}", Id, Date);
 
-		public virtual string Description {
-			get {
+		public virtual string Description
+		{
+			get
+			{
 				if(Items.Count == 0)
+				{
 					return CurrencyWorks.GetShortCurrencyString(TotalMoney);
+				}
+
 				string persons;
 				if(Items.Count <= 3)
+				{
 					persons = string.Join(", ", Items.Select(x => x.Employee.ShortName));
+				}
 				else
+				{
 					persons = NumberToTextRus.FormatCase(Items.Count, "{0} сотрудник", "{0} сотрудника", "{0} сотрудников");
+				}
+
 				return string.Format("({0}) = {1}", persons,
 					CurrencyWorks.GetShortCurrencyString(TotalMoney));
 			}
@@ -207,12 +286,18 @@ namespace Vodovoz.Domain.Employees
 		{
 			Employee driver = RouteList?.Driver;
 			FineItem item = null;
+
 			ObservableItems.Clear();
-			if(driver != null) {
+
+			if(driver != null)
+			{
 				item = ObservableItems.FirstOrDefault(x => x.Employee == driver);
-				if(item != null) {
+				if(item != null)
+				{
 					ObservableItems.Add(item);
-				} else {
+				}
+				else
+				{
 					AddItem(driver);
 				}
 			}
@@ -221,7 +306,8 @@ namespace Vodovoz.Domain.Employees
 		public virtual void AddItem(Employee employee)
 		{
 			ObservableItems.Add(
-				new FineItem {
+				new FineItem
+				{
 					Employee = employee,
 					Fine = this
 				}
@@ -231,20 +317,26 @@ namespace Vodovoz.Domain.Employees
 		public virtual void RemoveItem(FineItem item)
 		{
 			if(ObservableItems.Contains(item))
+			{
 				ObservableItems.Remove(item);
+			}
 		}
-		
+
 		public virtual void AddAddress(RouteListItem address)
 		{
 			if(!ObservableRouteListItems.Contains(address))
+			{
 				ObservableRouteListItems.Add(address);
+			}
 		}
-		
+
 		public virtual void AddNomenclature(Dictionary<Nomenclature, decimal> nomenclatureAmounts)
 		{
-			foreach(var nom in nomenclatureAmounts) {
+			foreach(var nom in nomenclatureAmounts)
+			{
 				Nomenclatures.Add(
-					new FineNomenclature {
+					new FineNomenclature
+					{
 						Fine = this,
 						Nomenclature = nom.Key,
 						Amount = nom.Value
@@ -257,65 +349,83 @@ namespace Vodovoz.Domain.Employees
 		{
 			var nomenclaturesToRemove =
 				Nomenclatures.Where(nom =>
-					nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id));
-			
+					nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id))
+					.ToArray();
+
 			foreach(var nom in nomenclaturesToRemove)
 			{
 				Nomenclatures.Remove(nom);
 			}
 
-			foreach(var nom in nomenclatureAmounts) {
+			foreach(var nom in nomenclatureAmounts)
+			{
 				var item = Nomenclatures.FirstOrDefault(x => x.Nomenclature.Id == nom.Key.Id);
-				if(item == null) {
+				if(item == null)
+				{
 					Nomenclatures.Add(
-						new FineNomenclature {
+						new FineNomenclature
+						{
 							Fine = this,
 							Nomenclature = nom.Key,
 							Amount = nom.Value
 						}
 					);
-				} else
+				}
+				else
+				{
 					item.Amount = nom.Value;
+				}
 			}
 		}
 
 		public virtual void DivideAtAll()
 		{
 			if(!Items.Any())
+			{
 				return;
+			}
+
 			var part = Math.Round(TotalMoney / Items.Count, 2);
-			foreach(var item in Items) {
+
+			foreach(var item in Items)
+			{
 				item.Money = part;
 			}
 		}
 
 		public virtual void UpdateWageOperations(IUnitOfWork uow)
 		{
-			foreach(var item in Items) {
-				if(item.WageOperation == null) {
-					item.WageOperation = new WagesMovementOperations {
+			foreach(var item in Items)
+			{
+				if(item.WageOperation == null)
+				{
+					item.WageOperation = new WagesMovementOperations
+					{
 						OperationType = WagesType.HoldedFine,
 						Employee = item.Employee,
 						Money = item.Money * (-1),
-						OperationTime = this.Date
+						OperationTime = Date
 					};
-				} else {
+				}
+				else
+				{
 					item.WageOperation.OperationType = WagesType.HoldedFine;
 					item.WageOperation.Employee = item.Employee;
 					item.WageOperation.Money = item.Money * (-1);
 				}
+
 				uow.Save(item.WageOperation);
 			}
 		}
 
 		public virtual void Fill(decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees)
 		{
-			employees.ToList().ForEach(this.AddItem);
-			this.TotalMoney = money;
-			this.DivideAtAll();
-			this.FineReasonString = reasonString;
-			this.Date = date;
-			this.RouteList = routeList;
+			employees.ToList().ForEach(AddItem);
+			TotalMoney = money;
+			DivideAtAll();
+			FineReasonString = reasonString;
+			Date = date;
+			RouteList = routeList;
 		}
 
 		#endregion
@@ -325,24 +435,37 @@ namespace Vodovoz.Domain.Employees
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Items.Count == 0)
+			{
 				yield return new ValidationResult(string.Format("Отсутствуют сотрудники на которых назначен штраф."),
 					new[] { this.GetPropertyName(o => o.Items) });
+			}
 
 			var totalSum = Items.Sum(x => x.Money);
 			if(totalSum != TotalMoney)
+			{
 				yield return new ValidationResult(string.Format("Общая сумма штрафа {0:C}, отличается от суммы штрафов всех сотрудников {1:C}.",
 					TotalMoney, totalSum),
 					new[] { this.GetPropertyName(o => o.Items) });
+			}
 
 			if(string.IsNullOrWhiteSpace(FineReasonString))
+			{
 				yield return new ValidationResult(string.Format("Отсутствует причина выдачи штрафа."),
 					new[] { this.GetPropertyName(o => o.FineReasonString) });
+			}
 
-			if(FineType == FineTypes.FuelOverspending && RouteList == null) {
+			if(FineType == FineTypes.FuelOverspending && RouteList == null)
+			{
 				yield return new ValidationResult(string.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
 			}
 
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines") && Id > 0) {
+			if(FineCategory == null)
+			{
+				yield return new ValidationResult(string.Format("Невозможно сохранить изменения. Не выбрана категория штрафа"));
+			}
+
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines") && Id > 0)
+			{
 				yield return new ValidationResult(string.Format("Недостаточно прав для изменения штрафа!"));
 			}
 
@@ -355,18 +478,4 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 	}
-
-	public enum FineTypes
-	{
-		[Display(Name = "Стандартный")]
-		Standart,
-		[Display(Name = "Перерасход топлива")]
-		FuelOverspending
-	}
-
-	public class FineTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public FineTypeStringType() : base(typeof(FineTypes)) { }
-	}
 }
-

@@ -15,7 +15,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>434.6pt</Height>
+    <Height>400.1pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>ForwarderWage</DataSetName>
@@ -507,20 +507,6 @@
         <Left>0.0pt</Left>
         <Top>233.1pt</Top>
       </Table>
-      <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>19.52pt</Height>
-        <Width>69.94pt</Width>
-        <Value>Итого:</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>374.41pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>14pt</FontSize>
-        </Style>
-      </Textbox>
       <Table Name="Table3">
         <DataSetName>ForwarderWageBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -549,9 +535,6 @@
             <Width>60.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>18.0pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>129.3pt</Width>
           </TableColumn>
         </TableColumns>
@@ -576,6 +559,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -597,26 +582,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>=Iif({?showbalance} = 1, "на ", "")</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -624,9 +591,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>=Iif({?showbalance} = 1,  CDate({?end_date}), "")</Value>
+                      <Value>=Iif({?showbalance} = 1, "на " + CDate({?end_date}), "")</Value>
                       <Style>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -637,6 +604,8 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -647,7 +616,7 @@
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>0.0pt</Left>
-        <Top>404.4pt</Top>
+        <Top>364.4pt</Top>
       </Table>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>ForwarderFines</DataSetName>
@@ -1408,23 +1377,86 @@
           <Hidden>=!{?show_fines_outside_period}</Hidden>
         </Visibility>
       </Textbox>
-      <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>18.03pt</Height>
-        <Width>292.84pt</Width>
-        <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
-- Sum(Fields!money.Value, "ForwarderFines")</Value>
-        <ZIndex>0</ZIndex>
-        <Left>47.0pt</Left>
-        <Top>375.3pt</Top>
+      <Table Name="Table7">
+        <DataSetName>ForwarderWage</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
         <Style>
-          <BorderStyle />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <FontSize>14pt</FontSize>
-          <Format>#,##0.00</Format>
-          <TextAlign>Left</TextAlign>
         </Style>
-      </Textbox>
+        <TableColumns>
+          <TableColumn>
+            <Width>53.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>105.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>Итого:</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>14pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox72">
+                      <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances") - Sum(Fields!money.Value, "ForwarderFines")</Value>
+                      <Style>
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>14pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>347.5pt</Top>
+      </Table>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1728,7 +1760,7 @@ GROUP BY fines.id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderFinesInFuture">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fines.date,
@@ -1763,7 +1795,7 @@ GROUP BY fines.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>

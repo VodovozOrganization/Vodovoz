@@ -18,20 +18,24 @@ namespace Vodovoz.Domain.Logistic
 	[HistoryTrace]
 	public class FuelType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
+		private string _name;
+		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
 
-		string name;
+		public FuelType()
+		{
+			Name = string.Empty;
+		}
+
+		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
 		[Required(ErrorMessage = "Название должно быть заполнено.")]
 		[StringLength(20)]
 		public virtual string Name
 		{
-			get { return name; }
-			set { SetField(ref name, value, () => Name); }
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-
-		decimal cost;
 
 		[Display(Name = "Цена")]
 		[Required(ErrorMessage = "Цена должна быть заполнена.")]
@@ -43,7 +47,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
 		public virtual IList<FuelPriceVersion> FuelPriceVersions
 		{
 			get => _fuelPriceVersions;
@@ -54,16 +57,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual GenericObservableList<FuelPriceVersion> ObservableFuelPriceVersions => _observableFuelPriceVersions
 			?? (_observableFuelPriceVersions = new GenericObservableList<FuelPriceVersion>(FuelPriceVersions));
 
-		public FuelType()
-		{
-			Name = String.Empty;
-		}
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Cost < 0)
+			{
 				yield return new ValidationResult("Стоимость не может быть отрицательной",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Cost) });
+			}
 		}
 
 		public override bool Equals(object obj)

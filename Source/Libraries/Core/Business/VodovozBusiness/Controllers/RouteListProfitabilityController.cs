@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.Factories;
 using Vodovoz.Services;
+using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
 {
@@ -26,7 +27,7 @@ namespace Vodovoz.Controllers
 		public RouteListProfitabilityController(
 			ILogger<RouteListProfitabilityController> logger,
 			IRouteListProfitabilityFactory routeListProfitabilityFactory,
-			INomenclatureParametersProvider nomenclatureParametersProvider,
+			INomenclatureSettings nomenclatureSettings,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
 			IRouteListProfitabilityRepository routeListProfitabilityRepository,
 			IRouteListRepository routeListRepository)
@@ -40,8 +41,8 @@ namespace Vodovoz.Controllers
 				routeListProfitabilityRepository ?? throw new ArgumentNullException(nameof(routeListProfitabilityRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_paidDeliveriesNomenclaturesIds =
-				(nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider)))
-				.PaidDeliveriesNomenclaturesIds();
+				(nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings)))
+				.PaidDeliveriesNomenclaturesIds;
 		}
 
 		public void CalculateNewRouteListProfitability(IUnitOfWork uow, RouteList routeList)
@@ -83,10 +84,10 @@ namespace Vodovoz.Controllers
 			}
 		}
 		
-		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date)
+		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null, FuelType fuelType = null)
 		{
 			var routeListsWithProfitabilities =
-				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date);
+				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date, carModel, fuelType);
 
 			foreach(var routeList in routeListsWithProfitabilities)
 			{
@@ -232,6 +233,10 @@ namespace Vodovoz.Controllers
 					case CarTypeOfUse.Largus:
 						amortisationPerKm = nearestProfitabilityConstants.LargusAmortisationPerKm;
 						repairCostsPerKm = nearestProfitabilityConstants.LargusRepairCostPerKm;
+						break;
+					case CarTypeOfUse.Minivan:
+						amortisationPerKm = nearestProfitabilityConstants.MinivanAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.MinivanRepairCostPerKm;
 						break;
 					case CarTypeOfUse.Truck:
 						amortisationPerKm = nearestProfitabilityConstants.TruckAmortisationPerKm;

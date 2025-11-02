@@ -13,7 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 			Map(x => x.ReceivedDeposit).Column("received_deposit");
 			Map(x => x.RefundDeposit).Column("refund_deposit");
 			Map(x => x.OperationTime).Column("operation_time");
-			Map(x => x.DepositType).Column("deposit_type").CustomType<DepositTypeStringType>();
+			Map(x => x.DepositType).Column("deposit_type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

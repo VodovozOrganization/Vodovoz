@@ -1,8 +1,8 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
+	//TODO: Если не будет обращений по поводу VodInternalId, удалить его из таблицы
 	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()
@@ -34,7 +34,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type");
-			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
 			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
@@ -68,14 +67,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
+			Map(x => x.ExcludeFromAutoCalls).Column("exclude_from_auto_calls");
 			Map(x => x.ReasonForLeaving).Column("reason_for_leaving");
 			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status");
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
-			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status");
 			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
-			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
 			Map(x => x.SpecialContractDate).Column("special_contract_date");
 			Map(x => x.DoNotMixMarkedAndUnmarkedGoodsInOrder).Column("do_not_mix_marked_and_unmarked_goods_in_order");
@@ -84,6 +82,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Patronymic).Column("patronymic");
 			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
 			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
+			Map(x => x.CloseDeliveryDebtType).Column("close_delivery_debt_type");
+			Map(x => x.HideDeliveryPointForBill).Column("hide_delivery_point_for_bill");
+			Map(x => x.IsNewEdoProcessing).Column("is_new_edo_processing");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -99,6 +100,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.EdoOperator).Column("edo_operator_id");
 			References(x => x.LogisticsRequirements).Column("logistics_requirements_id").Cascade.All();
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
+			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
+			References(x => x.Referrer).Column("referrer_id");
+			References(x => x.DefaultAccount).Column("default_account_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -119,18 +123,29 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 				.KeyColumn("supplier_id");
-			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
-			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("counterparty_id");
+
+			HasMany(x => x.CounterpartyEdoOperators)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
+			HasMany(x => x.CounterpartyEdoAccounts)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
 				.KeyColumn("counterparty_id");
 
-			HasManyToMany(x => x.Tags).Table("counterparty_tags")
-									  .ParentKeyColumn("counterparty_id")
-									  .ChildKeyColumn("tag_id")
-									  .LazyLoad();
-			HasManyToMany(x => x.SalesChannels).Table("sales_channel_to_counterparty")
-						  .ParentKeyColumn("counterparty_id")
-						  .ChildKeyColumn("sales_channel_id")
-						  .LazyLoad();
+			HasManyToMany(x => x.Tags)
+				.Table("counterparty_tags")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("tag_id")
+				.LazyLoad();
+			HasManyToMany(x => x.SalesChannels)
+				.Table("sales_channel_to_counterparty")
+				.ParentKeyColumn("counterparty_id")
+				.ChildKeyColumn("sales_channel_id")
+				.LazyLoad();
 		}
 	}
 }

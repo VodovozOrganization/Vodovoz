@@ -6,7 +6,18 @@
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ClosedXML.Report" Version="0.2.6" />
+    <PackageReference Include="ReactiveUI" Version="19.5.1" />
+    <PackageReference Include="ReactiveUI.Validation" Version="3.1.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Core\Pacs.Core.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Desktop\QS.Project.Desktop.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
   </ItemGroup>
 </Project>

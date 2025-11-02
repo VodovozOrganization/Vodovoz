@@ -1,5 +1,6 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalViewModels;
@@ -27,10 +28,7 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxCurrentSubdivisionStatus.ItemsEnum = typeof(ComplaintDiscussionStatuses);
 			yenumcomboboxCurrentSubdivisionStatus.Binding.AddBinding(ViewModel, x => x.ComplaintDiscussionStatus, v => v.SelectedItemOrNull).InitializeFromSource();
 
-			entityentryComplaintKind.CanDisposeEntitySelectorFactory = false;
-			entityentryComplaintKind.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintKindSelectorFactory);
-			entityentryComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.Subject).InitializeFromSource();
-			entityentryComplaintKind.CanOpenWithoutTabParent = true;
+			entryComplaintKind.ViewModel = ViewModel.ComplaintKindViewModel;
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)

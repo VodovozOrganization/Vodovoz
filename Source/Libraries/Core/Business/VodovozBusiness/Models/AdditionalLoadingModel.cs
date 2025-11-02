@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.Services;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.Models
 {
@@ -16,17 +17,17 @@ namespace Vodovoz.Models
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IFlyerRepository _flyerRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IStockRepository _stockRepository;
 		private IList<Flyer> _activeFlyers;
 		private IDictionary<int, decimal> _flyersInStock;
 
 		public AdditionalLoadingModel(IEmployeeRepository employeeRepository, IFlyerRepository flyerRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider, IStockRepository stockRepository)
+			IDeliveryRulesSettings deliveryRulesSettings, IStockRepository stockRepository)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 		}
 
@@ -161,8 +162,8 @@ namespace Vodovoz.Models
 
 		private void AddFlyers(IList<AdditionalLoadingDocumentItem> items, IUnitOfWork uow, DateTime routelistDate)
 		{
-			var additionalFlyersEnabled = _deliveryRulesParametersProvider.AdditionalLoadingFlyerAdditionEnabled;
-			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesParametersProvider.FlyerForNewCounterpartyEnabled;
+			var additionalFlyersEnabled = _deliveryRulesSettings.AdditionalLoadingFlyerAdditionEnabled;
+			var additionalFlyersForNewCounterpartiesEnabled = _deliveryRulesSettings.FlyerForNewCounterpartyEnabled;
 
 			if(!additionalFlyersEnabled
 			&& !additionalFlyersForNewCounterpartiesEnabled)
@@ -174,9 +175,9 @@ namespace Vodovoz.Models
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L && x.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(x => x.Amount);
 
-			var flyerAmount = (int)water19LCount / _deliveryRulesParametersProvider.BottlesCountForFlyer;
+			var flyerAmount = (int)water19LCount / _deliveryRulesSettings.BottlesCountForFlyer;
 
-			var flyerForNewCounterpartiesAmount = (int)water19LCount / _deliveryRulesParametersProvider.FlyerForNewCounterpartyBottlesCount;
+			var flyerForNewCounterpartiesAmount = (int)water19LCount / _deliveryRulesSettings.FlyerForNewCounterpartyBottlesCount;
 
 			if(flyerAmount == 0 && flyerForNewCounterpartiesAmount == 0)
 			{

@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 
 		public override string InventoryNumber =>
 			InventoryNomenclatureInstance?.Nomenclature != null && InventoryNomenclatureInstance.Nomenclature.HasInventoryAccounting
-				? InventoryNomenclatureInstance.InventoryNumber
+				? InventoryNomenclatureInstance.GetInventoryNumber
 				: base.InventoryNumber;
 
 		public override bool CanEditAmount => false;

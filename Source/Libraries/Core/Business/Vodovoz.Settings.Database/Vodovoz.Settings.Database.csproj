@@ -9,12 +9,21 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="NHibernate" Version="5.4.1" />
+	<PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
+	<PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
+	<PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+	<PackageReference Include="System.Net.Primitives" Version="4.3.0" />
+	<PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Metric\" />
   </ItemGroup>
 
 </Project>

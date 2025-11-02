@@ -1,50 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using System;
+using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Mango;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
-namespace Vodovoz.ViewModels.Mango.Talks
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	public class UnknowTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IUnitOfWork _uow;
-		private ILifetimeScope _lifetimeScope;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
 		public UnknowTalkViewModel(
-			ILifetimeScope lifetimeScope,
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
-			MangoManager manager,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
+			MangoManager manager) : base(navigation, manager)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_uow = unitOfWorkFactory.CreateWithoutRoot();
+			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)))
+				.CreateWithoutRoot();
 		}
 
 		#region Действия View
@@ -95,21 +81,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void CreateComplaintCommand()
 		{
-			var employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
-			var counterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
-
-			var parameters = new Dictionary<string, object> {
-				{"uowBuilder", EntityUoWBuilder.ForCreate()},
-				{ "unitOfWorkFactory", UnitOfWorkFactory.GetDefaultFactory },
-				//Autofac: IEmployeeService 
-				{"employeeSelectorFactory", employeeSelectorFactory},
-				{"counterpartySelectorFactory", counterpartySelectorFactory},
-				//Autofac: ICommonServices
-				//Autofac: IUserRepository
-				{"phone", "+7" + ActiveCall.Phone.Number }
-			};
-			
-			_tdiNavigation.OpenTdiTabOnTdiNamedArgs<CreateComplaintViewModel>(null, parameters);
+			_tdiNavigation.OpenViewModel<CreateComplaintViewModel, IEntityUoWBuilder, string>(
+				null, EntityUoWBuilder.ForCreate(), "+7" + ActiveCall.Phone.Number);
 		}
 
 		public void StockBalanceCommand()
@@ -129,10 +102,8 @@ namespace Vodovoz.ViewModels.Mango.Talks
 				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
 			}
 
-			_lifetimeScope = null;
 			_uow?.Dispose();
 		}
-
 
 		#endregion
 	}

@@ -8,6 +8,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
 using QS.Services;
+using Vodovoz.Core.Domain.Employees;
 
 namespace VodovozBusinessTests.Employees
 {
@@ -172,7 +173,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNotNew_ThenDoNothing()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee { Id = 1 };
 			employee.WageParameters.Add(
@@ -184,7 +185,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
@@ -200,7 +201,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNewAndCategoryOfEmployeeIsVisitingMasterAndIsNotDriverForOneDay_ThenCreatePercentWageParameter()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee {
 				WageCalculationRepository = wageCalculationRepository,
@@ -212,7 +213,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
@@ -229,7 +230,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNewAndCategoryOfEmployeeIsNotVisitingMasterAndIsNotDriverForOneDay_ThenCreateRatesWageParameter()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee {
 				WageCalculationRepository = wageCalculationRepository,
@@ -240,7 +241,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
@@ -257,7 +258,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNewAndCategoryOfEmployeeIsDriverForOneDay_ThenCreateManualWageParameter()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee {
 				WageCalculationRepository = wageCalculationRepository,
@@ -269,7 +270,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
@@ -286,7 +287,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNewAndCategoryOfEmployeeIsForwarder_ThenCreateRatesWageParameter()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee {
 				WageCalculationRepository = wageCalculationRepository,
@@ -297,7 +298,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
@@ -314,7 +315,7 @@ namespace VodovozBusinessTests.Employees
 		public void CreateDefaultWageParameter_IfInstanceOfEmployeeIsNewAndCategoryOfEmployeeIsOffice_ThenCreateManualWageParameter()
 		{
 			//arrange
-			IWageParametersProvider wageParametersProvider = Substitute.For<IWageParametersProvider>();
+			IWageSettings wageSettings = Substitute.For<IWageSettings>();
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee {
 				WageCalculationRepository = wageCalculationRepository,
@@ -325,7 +326,7 @@ namespace VodovozBusinessTests.Employees
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 
 			//act
-			employee.CreateDefaultWageParameter(wageCalculationRepository, wageParametersProvider, interactiveService);
+			employee.CreateDefaultWageParameter(wageCalculationRepository, wageSettings, interactiveService);
 
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));

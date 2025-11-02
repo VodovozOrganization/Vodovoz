@@ -5,12 +5,12 @@ using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
-using System.Linq;
 using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModels.Cash.Transfer;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Cash.Transfer;
 
 namespace Vodovoz.Cash.Transfer
 {
@@ -47,9 +47,7 @@ namespace Vodovoz.Cash.Transfer
 				.AddBinding(vm => vm.EmployeeAutocompleteSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarAutocompleteSelectorFactory);
-			entityviewmodelentryCar.Binding.AddBinding(ViewModel.Entity, x => x.Car, x => x.Subject).InitializeFromSource();
-			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
 			comboboxCashSubdivisionFrom.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsFrom, w => w.ItemsList).InitializeFromSource();

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -11,6 +12,7 @@ namespace Vodovoz.Domain.Operations
 	public class BottlesMovementOperation: OperationBase
 	{
 		Order order;
+		private int _deliveredInDisposableTare;
 
 		public virtual Order Order {
 			get { return order; }
@@ -39,6 +41,15 @@ namespace Vodovoz.Domain.Operations
 		public virtual int Delivered {
 			get { return delivered; }
 			set { SetField (ref delivered, value, () => Delivered); }
+		}
+
+		/// <summary>
+		/// Движение воды в одноразовой таре к контрагенту
+		/// </summary>
+		public virtual int DeliveredInDisposableTare
+		{
+			get => _deliveredInDisposableTare;
+			set => SetField(ref _deliveredInDisposableTare, value);
 		}
 
 		int returned;

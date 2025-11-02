@@ -1,5 +1,6 @@
 ﻿using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -15,17 +16,17 @@ namespace FastPaymentsNotificationWorker
 	public class NotificationHandler
 	{
 		private readonly ILogger<NotificationHandler> _logger;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IFastPaymentRepository _repository;
 		private readonly SiteNotifier _siteNotifier;
 		private readonly MobileAppNotifier _mobileAppNotifier;
 		private readonly IEnumerable<int> _repeatsTimeline;
 
 		public NotificationHandler(
 			ILogger<NotificationHandler> logger,
+			IServiceScopeFactory serviceScopeFactory,
 			IConfiguration configuration,
-			IUnitOfWorkFactory uowFactory, 
-			IFastPaymentRepository repository, 
+			IUnitOfWorkFactory uowFactory,
 			SiteNotifier siteNotifier,
 			MobileAppNotifier mobileAppNotifier)
 		{
@@ -35,8 +36,8 @@ namespace FastPaymentsNotificationWorker
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_siteNotifier = siteNotifier ?? throw new ArgumentNullException(nameof(siteNotifier));
 			_mobileAppNotifier = mobileAppNotifier ?? throw new ArgumentNullException(nameof(mobileAppNotifier));
 
@@ -48,8 +49,10 @@ namespace FastPaymentsNotificationWorker
 
 		public async Task HandleNotifications(CancellationToken cancellationToken)
 		{
+			using var messageHandlingScope = _serviceScopeFactory.CreateScope();
 			using var uow = _uowFactory.CreateWithoutRoot();
-			var notifications = _repository.GetActiveNotifications(uow);
+			var fastPaymentRepository = messageHandlingScope.ServiceProvider.GetRequiredService<IFastPaymentRepository>();
+			var notifications = fastPaymentRepository.GetActiveNotifications(uow);
 
 			foreach (var notification in notifications)
 			{

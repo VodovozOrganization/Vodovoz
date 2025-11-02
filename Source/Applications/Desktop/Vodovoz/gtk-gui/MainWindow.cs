@@ -83,9 +83,15 @@ public partial class MainWindow
 
 	private global::Gamma.GtkWidgets.yButton btnOpenComplaint;
 
+	private global::Gamma.GtkWidgets.yButton ybuttonWiki;
+
 	private global::Gtk.HBox hbox2;
 
 	private global::Gtk.Toolbar toolbarMain;
+
+	private global::Vodovoz.Views.Pacs.PacsPanelView pacspanelview1;
+
+	private global::Gtk.VSeparator vseparator3;
 
 	private global::Gtk.Toolbar tlbComplaints;
 
@@ -118,7 +124,7 @@ public partial class MainWindow
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionOrders.Group;
+		this.ActionStock.Group = this.ActionLogistics.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
@@ -318,7 +324,7 @@ public partial class MainWindow
 		this.hbox2.Name = "hbox2";
 		this.hbox2.Spacing = 6;
 		// Container child hbox2.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/><toolitem name='ActionCarService' action='ActionCarService'/><toolitem name='ActionSalesDepartment' action='ActionSalesDepartment'/></toolbar></ui>");
+		this.UIManager.AddUiFromString(@"<ui><toolbar name='toolbarMain'><toolitem name='ActionOrders' action='ActionOrders'/><toolitem name='ActionServices' action='ActionServices'/><toolitem name='ActionLogistics' action='ActionLogistics'/><toolitem name='ActionStock' action='ActionStock'/><toolitem name='ActionCash' action='ActionCash'/><toolitem name='ActionAccounting' action='ActionAccounting'/><toolitem name='ActionArchive' action='ActionArchive'/><toolitem name='ActionStaff' action='ActionStaff'/><toolitem name='ActionCRM' action='ActionCRM'/><toolitem name='ActionSuppliers' action='ActionSuppliers'/><toolitem name='ActionCashRequest' action='ActionCashRequest'/><toolitem name='ActionRetail' action='ActionRetail'/><toolitem name='ActionCarService' action='ActionCarService'/><toolitem name='ActionSalesDepartment' action='ActionSalesDepartment'/><toolitem name='Action1SWork' action='Action1SWork'/><toolitem name='ActionTrueMark' action='ActionTrueMark'/></toolbar></ui>");
 		this.toolbarMain = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarMain")));
 		this.toolbarMain.Name = "toolbarMain";
 		this.toolbarMain.ShowArrow = false;
@@ -328,9 +334,29 @@ public partial class MainWindow
 		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
 		w12.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
+		this.pacspanelview1 = new global::Vodovoz.Views.Pacs.PacsPanelView();
+		this.pacspanelview1.Events = ((global::Gdk.EventMask)(256));
+		this.pacspanelview1.Name = "pacspanelview1";
+		this.hbox2.Add(this.pacspanelview1);
+		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.pacspanelview1]));
+		w16.PackType = ((global::Gtk.PackType)(1));
+		w16.Position = 1;
+		w16.Expand = false;
+		w16.Fill = false;
+		// Container child hbox2.Gtk.Box+BoxChild
+		this.vseparator3 = new global::Gtk.VSeparator();
+		this.vseparator3.Name = "vseparator3";
+		this.hbox2.Add(this.vseparator3);
+		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator3]));
+		w17.PackType = ((global::Gtk.PackType)(1));
+		w17.Position = 2;
+		w17.Expand = false;
+		w17.Fill = false;
+		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'UndeliveredOrdersAction\' action" +
 				"=\'UndeliveredOrdersAction\'/><toolitem name=\'ActionComplaints\' action=\'ActionComp" +
-				"laints\'/><toolitem name=\'MangoAction\' action=\'MangoAction\'/></toolbar></ui>");
+				"laints\'/><toolitem name=\'OrdersRatingsAction\' action=\'OrdersRatingsAction\'/></to" +
+				"olbar></ui>");
 		this.tlbComplaints = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/tlbComplaints")));
 		this.tlbComplaints.Name = "tlbComplaints";
 		this.tlbComplaints.ShowArrow = false;
@@ -405,7 +431,7 @@ public partial class MainWindow
 		{
 			this.Child.ShowAll();
 		}
-		this.DefaultWidth = 1369;
+		this.DefaultWidth = 1969;
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.ActionOrders.Toggled += new global::System.EventHandler(this.OnActionOrdersToggled);

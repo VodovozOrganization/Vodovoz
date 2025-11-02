@@ -3,8 +3,9 @@ using QS.Project.Filter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		private bool _restrictDisposbleTare;
 		private bool _restrictDilers;
 		private bool _restrictArchive;
+		private bool _onlyOnlineNomenclatures;
 		private SaleCategory[] _availableSalesCategories;
 		private IEnumerable<int> _restrictedExcludedIds;
 		private Warehouse _restrictedLoadedWarehouse;
@@ -94,10 +96,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			get => _restrictArchive;
 			set {
 				UpdateFilterField(ref _restrictArchive, value);
-				CanChangeShowArchive = true;
 			}
 		}
-		public bool CanChangeShowArchive { get; private set; } = true;
+
+		public bool CanChangeShowArchive{ get; set; } = true;
 
 		[PropertyChangedAlso(
 			nameof(IsDispossableTareApplicable),
@@ -140,6 +142,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			set => UpdateFilterField(ref _glassHolderType, value);
 		}
 
+		/// <summary>
+		/// Показывать только номенклатуры, отправляемые в ИПЗ(сайт и МП)
+		/// </summary>
+		public virtual bool OnlyOnlineNomenclatures
+		{
+			get => _onlyOnlineNomenclatures;
+			set => UpdateFilterField(ref _onlyOnlineNomenclatures, value);
+		}
+
+		public bool CanChangeOnlyOnlineNomenclatures{ get; set; } = true;
 
 		public bool IsSaleCategoryApplicable {
 			get {

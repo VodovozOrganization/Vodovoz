@@ -1,28 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
+using QS.Journal.GtkUI;
+using QS.Navigation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Parameters;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class CarLoadDocumentView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private readonly IStockRepository _stockRepository = new StockRepository();
-		private readonly IRouteListRepository _routeListRepository =
-			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
-		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		
+		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
+		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
+		private readonly ISubdivisionRepository _subdivisionRepository = ScopeProvider.Scope.Resolve<ISubdivisionRepository>();
+		private readonly INavigationManager _navigator = ScopeProvider.Scope.Resolve<INavigationManager>();
+		private bool _isCanEditDocument;
+
+		private Menu _itemsPopup = new Menu();
+		private MenuItem _itemsOpenOrderCodes = new MenuItem("Просмотр кодов по заказу");
+
 		public CarLoadDocumentView()
 		{
 			this.Build();
@@ -34,14 +42,56 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
-				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount ).Editing()
+				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount, new RoundedDecimalToStringConverter()).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
-				.AddSetter((w, x) => w.ForegroundGdk = CalculateAmountAndColor(x))
+				.AddSetter((w, x) =>
+				{
+					if(_isCanEditDocument)
+					{
+						w.ForegroundGdk = CalculateAmountAndColor(x);
+					}
+				})
+				.AddColumn("Заказ").AddNumericRenderer(x => x.OrderId)
 				.AddColumn("")
 				.Finish();
 
+			ytreeviewItems.Add(_itemsPopup);
+			_itemsPopup.Add(_itemsOpenOrderCodes);
+			_itemsOpenOrderCodes.Show();
+			_itemsPopup.Show();
+			_itemsOpenOrderCodes.Activated += OpenOrderCodesDialog;
+			ytreeviewItems.ButtonReleaseEvent += OnAddressRightClick;
+
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		private void OnAddressRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+			var onlyOneSelected = ytreeviewItems.Selection.CountSelectedRows() == 1;
+			var selectedItem = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
+			var canOpen = selectedItem != null && selectedItem.OrderId.HasValue && onlyOneSelected;
+			_itemsOpenOrderCodes.Sensitive = canOpen;
+			_itemsPopup.Popup();
+		}
+
+		private void OpenOrderCodesDialog(object sender, EventArgs e)
+		{
+			var onlyOneSelected = ytreeviewItems.Selection.CountSelectedRows() == 1;
+			if(!onlyOneSelected)
+			{
+				return;
+			}
+			var selectedItem = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
+			if(selectedItem == null)
+			{
+				return;
+			}
+			_navigator.OpenViewModel<OrderCodesViewModel, int>(null, selectedItem.OrderId.Value, OpenPageOptions.IgnoreHash);
 		}
 
 		public void FillItemsByWarehouse()
@@ -52,9 +102,10 @@ namespace Vodovoz
 			}
 		}
 
-		public void SetButtonEditing(bool isEditing)
+		public void SetIsCanEditDocument(bool isEditable)
 		{
-			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditing;
+			_isCanEditDocument = isEditable;
+			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditable;
 		}
 
 		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using DataAnnotationsExtensions;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -30,25 +31,34 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref product, value, () => Product);
 				if(ProduceOperation.Nomenclature != product)
+				{
 					ProduceOperation.Nomenclature = product;
+				}
 			}
 		}
 
 		int amount;
 
-		[Min(1)]
 		[Display(Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
 			set {
 				SetField(ref amount, value, () => Amount);
 				if(ProduceOperation.Amount != Amount)
+				{
 					ProduceOperation.Amount = Amount;
+				}
+
 				if(!NHibernate.NHibernateUtil.IsInitialized(Materials))
+				{
 					return;
+				}
+
 				foreach(var item in Materials) {
 					if(item.OneProductAmount.HasValue)
+					{
 						item.Amount = item.OneProductAmount.Value * Amount;
+					}
 				}
 			}
 		}
@@ -62,7 +72,9 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref _incomingWarehouse, value);
 				if(ProduceOperation.Warehouse != IncomingWarehouse)
+				{
 					ProduceOperation.Warehouse = IncomingWarehouse;
+				}
 			}
 		}
 
@@ -76,12 +88,14 @@ namespace Vodovoz.Domain.Documents
 				SetField(ref _writeOffWarehouse, value);
 				foreach(var item in Materials) {
 					if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.Warehouse != WriteOffWarehouse)
+					{
 						item.ConsumptionMaterialOperation.Warehouse = WriteOffWarehouse;
+					}
 				}
 			}
 		}
 
-		public virtual string Title => String.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
+		public virtual string Title => string.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
 
 		WarehouseBulkGoodsAccountingOperation produceOperation = new WarehouseBulkGoodsAccountingOperation {
 			OperationTime = DateTime.Now
@@ -108,7 +122,10 @@ namespace Vodovoz.Domain.Documents
 		public virtual GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
 			get {
 				if(observableMaterials == null)
+				{
 					observableMaterials = new GenericObservableList<IncomingWaterMaterial>(Materials);
+				}
+
 				return observableMaterials;
 			}
 		}
@@ -139,13 +156,17 @@ namespace Vodovoz.Domain.Documents
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Materials.Count == 0)
-				yield return new ValidationResult(String.Format("Табличная часть документа пустая."),
+			{
+				yield return new ValidationResult(string.Format("Табличная часть документа пустая."),
 					new[] { this.GetPropertyName(o => o.Materials) });
+			}
 
 			foreach(var item in Materials) {
 				if(item.Amount <= 0)
-					yield return new ValidationResult(String.Format("Для сырья <{0}> не указано количество.", item.Nomenclature.Name),
+				{
+					yield return new ValidationResult($"Для сырья <{item.Nomenclature.Name}> не указано количество.",
 						new[] { this.GetPropertyName(o => o.Materials) });
+				}
 			}
 
 			if(Nomenclature.CategoriesWithWeightAndVolume.Contains(Product.Category)
@@ -154,6 +175,11 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult(
 					"В продукте обязательно должны быть заполнены вес и объём",
 					new[] { nameof(Product) });
+			}
+
+			if(Amount < 1)
+			{
+				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
 			}
 		}
 	}

@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Concurrent;
-using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerAppsApi.Controllers
 {
 	[ApiController]
 	[Route("/api/")]
-	public class PromotionalSetController: ControllerBase
+	public class PromotionalSetController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
 		private readonly IPromotionalSetModel _promotionalSetModel;

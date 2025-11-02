@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using System.Collections;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {
@@ -17,16 +17,17 @@ namespace VodovozBusinessTests.Domain.Logistic
 		[OneTimeSetUp]
 		public void Init()
 		{
-			var generalSettingsParametersProviderMock = Substitute.For<IGeneralSettingsParametersProvider>();
-			generalSettingsParametersProviderMock.GetCanAddForwardersToLargus.Returns(true);
+			var generalSettingsSettingsMock = Substitute.For<IGeneralSettings>();
+			generalSettingsSettingsMock.GetCanAddForwardersToLargus.Returns(true);
+			generalSettingsSettingsMock.GetCanAddForwardersToMinivan.Returns(true);
 
-			RouteList.SetGeneralSettingsParametersProviderGap(generalSettingsParametersProviderMock);
+			RouteList.SetGeneralSettingsSettingsGap(generalSettingsSettingsMock);
 		}
 
 		[OneTimeTearDown]
 		public void Cleanup()
 		{
-			RouteList.SetGeneralSettingsParametersProviderGap(null);
+			RouteList.SetGeneralSettingsSettingsGap(null);
 		}
 
 		[Test(Description = "Если адрес перенесён из другого МЛ, то не удаляем и генерим сообщение")]
@@ -45,7 +46,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
-			routeListItemRepository.GetTransferedFrom(uow, routeListItemRemovingMock).Returns(routeListItemSourceMock);
+			routeListItemRepository.GetTransferredFrom(uow, routeListItemRemovingMock).Returns(routeListItemSourceMock);
 
 			RouteList routeListUnderTest = new RouteList {
 				UoW = uow

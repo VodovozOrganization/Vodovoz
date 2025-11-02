@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -15,7 +15,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>121.6pt</Height>
+    <Height>273.9pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
@@ -131,7 +131,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>="Сформировано: " + Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
+                      <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -451,7 +451,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -475,7 +475,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -483,7 +483,7 @@
                   <ReportItems>
                     <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Iif({expense} &gt; 0, '', {payment_number})</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -521,7 +521,7 @@
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -544,7 +544,7 @@
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -567,6 +567,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <FontSize>10pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -600,6 +601,269 @@
         <Left>0.0pt</Left>
         <Top>0.0pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>WriteOffs</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>80.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>89.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>179.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>115.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>93.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>103.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>151.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Дата списания</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Номер платежа</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Причина списания</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Организация</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Сумма списания</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Статья расхода</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Комментарий</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>=Fields!date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>=Fields!payment_number.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>=Fields!reason.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Fields!organization_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>=Fields!expense_sum.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Fields!financial_expense_category_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>=Fields!comment.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.8pt</Left>
+        <Top>150.3pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -653,13 +917,29 @@
     '' AS payment_description
 FROM orders o
     INNER JOIN order_items oi on o.id = oi.order_id
+    INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+    INNER JOIN organizations org ON cc.organization_id = org.id
+    LEFT JOIN counterparty c ON o.client_id = c.id
+    LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
 WHERE
     o.client_id = @counterparty_id
-  AND o.order_status IN (@order_statuses)
+  AND (
+             ('0' IN (@OrderStatus_include) OR (o.order_status IN (@OrderStatus_include)))
+				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
+         )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
   AND o.payment_type = 'Cashless'
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
-  AND (@exclude_closing_documents = FALSE OR o.delivery_schedule_id != @closing_document_delivery_schedule_id)
+  AND (
+      	@is_closing_documents IS NULL 
+      	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
+      	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
+      )
 GROUP BY o.id
 having expense &gt; 0
 UNION ALL
@@ -678,12 +958,20 @@ SELECT
     END AS doc_status,
     p.payment_purpose AS payment_description
 FROM payments_from_bank_client p
-    LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  LEFT JOIN counterparty c ON p.counterparty_id = c.id
+  LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
+  INNER JOIN organizations org ON p.organization_id = org.id
 WHERE
     p.counterparty_id = @counterparty_id
   AND p.status != 'Cancelled'
   AND (@start_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &gt;= @start_date)
   AND (@end_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &lt;= @end_date)
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
 ORDER BY date DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -695,14 +983,26 @@ ORDER BY date DESC;</CommandText>
           <QueryParameter Name="counterparty_id">
             <Value>={?counterparty_id}</Value>
           </QueryParameter>
-          <QueryParameter Name="order_statuses">
-            <Value>={?order_statuses}</Value>
+          <QueryParameter Name="OrderStatus_include">
+            <Value>={?OrderStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_exclude">
+            <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_closing_documents">
+            <Value>={?is_closing_documents}</Value>
           </QueryParameter>
           <QueryParameter Name="closing_document_delivery_schedule_id">
             <Value>={?closing_document_delivery_schedule_id}</Value>
           </QueryParameter>
-          <QueryParameter Name="exclude_closing_documents">
-            <Value>={?exclude_closing_documents}</Value>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -760,6 +1060,84 @@ WHERE c.id = @counterparty_id</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="WriteOffs">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	pwo.`date` AS `date`,
+	pwo.payment_number AS payment_number,
+	pwo.reason AS reason,
+	pwo.comment AS comment,
+	cmo.expense AS expense_sum,
+	fcg.title AS financial_expense_category_name,
+	o.name AS organization_name
+FROM payment_write_offs pwo
+INNER JOIN cashless_movement_operations cmo ON cmo.id = pwo.cashless_movement_operation_id 
+INNER JOIN organizations o ON o.id = pwo.organization_id 
+INNER JOIN financial_categories_groups fcg ON pwo.financial_expense_category_id = fcg.id
+LEFT JOIN counterparty c ON c.id = pwo.counterparty_id
+LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
+WHERE pwo.counterparty_id = @counterparty_id
+  AND (
+                (0 IN (@Organization_include) OR (o.id IN (@Organization_include)))
+          AND (NOT (o.id IN (@Organization_exclude)) OR o.id IS NULL)
+            )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
+  AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
+  AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
+ORDER BY `date` DESC;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="counterparty_id">
+            <Value>={?counterparty_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="payment_number">
+          <DataField>payment_number</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="expense_sum">
+          <DataField>expense_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="financial_expense_category_name">
+          <DataField>financial_expense_category_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="organization_name">
+          <DataField>organization_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
@@ -787,7 +1165,7 @@ WHERE c.id = @counterparty_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="counterparty_id">
+    <ReportParameter Name="closing_document_delivery_schedule_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -801,33 +1179,131 @@ WHERE c.id = @counterparty_id</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="creation_date">
-      <DataType>DateTime</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="order_statuses">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="closing_document_delivery_schedule_id">
+    <ReportParameter Name="counterparty_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="exclude_closing_documents">
-      <DataType>Boolean</DataType>
+    <ReportParameter Name="Counterparty_include">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Counterparty_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DebtType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="DebtType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_closing_documents">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_chain_stores">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_expired">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_liquidated">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_tender">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

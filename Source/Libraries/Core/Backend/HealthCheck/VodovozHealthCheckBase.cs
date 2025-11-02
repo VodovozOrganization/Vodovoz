@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using VodovozHealthCheck.Dto;
 
@@ -14,56 +15,98 @@ namespace VodovozHealthCheck
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger, IUnitOfWorkFactory unitOfWorkFactory)
+		public VodovozHealthCheckBase(ILogger<VodovozHealthCheckBase> logger, IUnitOfWorkFactory unitOfWorkFactory = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWorkFactory = unitOfWorkFactory;
 		}
 
-		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new ())
+		public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new())
 		{
-			_logger.LogInformation("Поступил запрос на информацию о здоровье.");
+			_logger.LogInformation("Поступил запрос на информацию о здоровье в базовый класс.");
 
+			var checkMessage = "Проверяем здоровье";
+
+			bool isDbConnected;
 			VodovozHealthResultDto healthResult;
 
 			try
 			{
-				CheckDbConnection();
+				if(_unitOfWorkFactory != null)
+				{
+					_logger.LogInformation("{CheckMessage}: Соединение с БД.", checkMessage);
+
+					isDbConnected = CheckDbConnection();
+
+					_logger.LogInformation("{CheckMessage}: Проверили соединение с БД, результат: {IsDbConnected}", checkMessage, isDbConnected);
+
+					if(!isDbConnected)
+					{
+						return HealthCheckResult.Unhealthy("Проблема с БД.");
+					}
+				}
+
+				_logger.LogInformation("{CheckMessage}: Вызываем проверку из сервиса.", checkMessage);
+
 				healthResult = await GetHealthResult();
+
+				_logger.LogInformation("{CheckMessage}: Проверка из сервиса завершена, результат: IsHealthy {IsHealthy}", checkMessage, healthResult.IsHealthy);
 			}
 			catch(Exception e)
 			{
+				_logger.LogError("{CheckMessage}: Не удалось выполнить проверку, ошибка: {HealthCheckException}", checkMessage, e);
+				
 				return HealthCheckResult.Unhealthy("Возникло искючение во время проверки здоровья.", e);
 			}
 
-			if(healthResult == null )
+			if(healthResult == null)
 			{
+				_logger.LogInformation("{CheckMessage}: Пустой результат проверки.", checkMessage);
+				
 				return HealthCheckResult.Unhealthy("Пустой результат проверки.");
 			}
 
-			if(healthResult.IsHealthy )
+			if(healthResult.IsHealthy)
 			{
-				return HealthCheckResult.Healthy();
+				_logger.LogInformation("{CheckMessage}: Возвращаем итоговый результат IsHealthy: {IsHealthy}", checkMessage, healthResult.IsHealthy);
+				
+				return HealthCheckResult.Healthy("Проверка пройдена успешно");
 			}
+			
+			Dictionary<string, object> unhealthyDictionary = null;
 
-			var unhealthyDictionary = new Dictionary<string, object>
+			if(Enumerable.Any(healthResult.AdditionalUnhealthyResults))
 			{
-				{ "results", healthResult.AdditionalUnhealthyResults }
-			};
-
+				unhealthyDictionary = new Dictionary<string, object>
+				{
+					{
+						"results",
+						healthResult.AdditionalUnhealthyResults
+					}
+				};
+			}
+			
 			var failedMessage = "Проверка не пройдена";
 
-			_logger.LogInformation(failedMessage);
-
+			_logger.LogWarning("{CheckMessage}: {FailedMessage}", checkMessage, failedMessage);
+			
 			return HealthCheckResult.Unhealthy(failedMessage, null, unhealthyDictionary);
 		}
 
-		private void CheckDbConnection()
+		private bool CheckDbConnection()
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("HealthCheck"))
 			{
 				var query = uow.Session.CreateSQLQuery("SELECT 1");
-				query.UniqueResult();
+				try
+				{
+					var result = query.UniqueResult();
+					return result != null;
+				}
+				catch(Exception)
+				{
+					return false;
+				}
 			}
 		}
 

@@ -1,10 +1,11 @@
-﻿using System;
 using Gamma.Utilities;
 using QS.Utilities;
+using System;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.FastPayments;
+using Vodovoz.Settings.Organizations;
 
 namespace PayPageAPI.Models
 {
@@ -14,18 +15,18 @@ namespace PayPageAPI.Models
 		private decimal _orderSum;
 		private FastPaymentStatus _fastPaymentStatus;
 
-		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		private readonly IOrganizationParametersProvider _organizationParametersProvider;
+		private readonly IFastPaymentSettings _fastPaymentSettings;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public PayViewModel(
-			IFastPaymentParametersProvider fastPaymentParametersProvider,
-			IOrganizationParametersProvider organizationParametersProvider,
+			IFastPaymentSettings fastPaymentSettings,
+			IOrganizationSettings organizationSettings,
 			FastPayment fastPayment)
 		{
-			_fastPaymentParametersProvider =
-				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
-			_organizationParametersProvider =
-				organizationParametersProvider ?? throw new ArgumentNullException(nameof(organizationParametersProvider));
+			_fastPaymentSettings =
+				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 
 			if(fastPayment == null)
 			{
@@ -40,17 +41,19 @@ namespace PayPageAPI.Models
 		public string Ticket { get; private set; }
 		public bool IsOnlineOrder { get; private set; }
 
-		public string PayUrl => $"{_fastPaymentParametersProvider.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
+		public string PayUrl => $"{_fastPaymentSettings.GetAvangardFastPayBaseUrl}?ticket={Ticket}";
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
+		public bool IsNotProcessingOrNotPaymentByCard => _fastPaymentStatus != FastPaymentStatus.Processing || !IsPaymentByCard;
 		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
 		public string PaymentAttemptMessage => IsOnlineOrder
 			? $"{_paymentAttemptMessage} вернитесь в свой заказ и попробуйте снова"
 			: $"{_paymentAttemptMessage} перезвоните нам для получения новой ссылки";
 		public string OfertaUrl { get; private set; }
-		
+		public bool IsPaymentByCard { get; private set; }
+
 		private void Initialize(FastPayment fastPayment)
 		{
 			if(fastPayment.Order != null)
@@ -65,18 +68,31 @@ namespace PayPageAPI.Models
 			
 			Ticket = fastPayment.Ticket;
 			_fastPaymentStatus = fastPayment.FastPaymentStatus;
+			IsPaymentByCard = fastPayment.FastPaymentPayType == FastPaymentPayType.ByCard;
 			FillOfertaUrl(fastPayment.Organization);
 		}
 
 		private void FillOfertaUrl(Organization organization)
 		{
-			if(organization == null || organization.Id == _organizationParametersProvider.VodovozNorthOrganizationId)
+			if(organization == null || organization.Id == _organizationSettings.VodovozNorthOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_north.pdf";
 			}
-			else if(organization.Id == _organizationParametersProvider.VodovozSouthOrganizationId)
+			else if(organization.Id == _organizationSettings.VodovozSouthOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_vv_south.pdf";
+			}
+			else if(organization.Id == _organizationSettings.VodovozEastOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_vv_east.pdf";
+			}
+			else if(organization.Id == _organizationSettings.VodovozOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_vv.pdf";
+			}
+			else if(organization.Id == _organizationSettings.KulerServiceOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_kuler_service.pdf";
 			}
 			else
 			{

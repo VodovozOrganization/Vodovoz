@@ -52,6 +52,10 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(ViewModel, vm => vm.ActiveAccounting, w => w.CurrentPage)
 				.InitializeFromSource();
 
+			ychkSortNomenclaturesByTitle.Binding
+				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
+				.InitializeFromSource();
+
 			employeeSenderEntry.ViewModel = ViewModel.EmployeeSenderEntryViewModel;
 			employeeSenderEntry.ViewModel.IsEditable = ViewModel.CanEdit || ViewModel.CanCreate;
 			employeeReceiverEntry.ViewModel = ViewModel.EmployeeReceiverEntryViewModel;
@@ -175,7 +179,7 @@ namespace Vodovoz.Views.Warehouse
 				.AddColumn("Экземпляр")
 					.AddTextRenderer(x => x.InventoryNomenclatureInstance.Name)
 				.AddColumn("Инвентарный номер")
-					.AddTextRenderer(x => x.InventoryNomenclatureInstance.InventoryNumber)
+					.AddTextRenderer(x => x.InventoryNomenclatureInstance.GetInventoryNumber)
 				.AddColumn("Сумма ущерба")
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло")

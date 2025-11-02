@@ -4,6 +4,7 @@ using Autofac;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -18,16 +19,24 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
+		private IEmployeeRepository _employeeRepository;
+		private IBottlesRepository _bottlesRepository;
+		private IDepositRepository _depositRepository;
 
 		public TransferOperationDocumentDlg()
 		{
+			ResolveDependencies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<TransferOperationDocument>();
 			TabName = "Новый перенос между точками доставки";
 			ConfigureDlg();
-			Entity.Author = Entity.ResponsiblePerson = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+
+			Entity.AuthorId = currentEmployee?.Id;
+			Entity.ResponsiblePerson = currentEmployee;
+
+			if(Entity.AuthorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
@@ -36,13 +45,21 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public TransferOperationDocumentDlg(int id)
 		{
+			ResolveDependencies();
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<TransferOperationDocument>(id);
 			ConfigureDlg();
 		}
 
 		public TransferOperationDocumentDlg(TransferOperationDocument sub) : this(sub.Id)
 		{
+		}
+
+		private void ResolveDependencies()
+		{
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_depositRepository = _lifetimeScope.Resolve<IDepositRepository>();
 		}
 
 		void ConfigureDlg()
@@ -60,28 +77,28 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			referenceCounterpartyTo.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;
 
 			if(Entity.FromClient != null)
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(_bottlesRepository, _depositRepository);
 		}
 
 		public override bool Save()
 		{
 			var messages = new List<string>();
 
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.LastEditor == null) {
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.LastEditorId == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
@@ -105,8 +122,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: {0}", d.ShortAddress, d.Id));
 				ySpecCmbDeliveryPointFrom.ItemsList = Entity.FromClient.DeliveryPoints;
 				ySpecCmbDeliveryPointFrom.Binding.AddBinding(Entity, t => t.FromDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
-				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(_bottlesRepository, _depositRepository);
+				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons(_bottlesRepository, _depositRepository);
 			}
 		}
 
@@ -123,7 +140,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnCheckbuttonLockToggled(object sender, EventArgs e)
 		{
 			if(Entity.FromClient != null)
-				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				RefreshSpinButtons(_bottlesRepository, _depositRepository);
 		}
 
 		protected void RefreshSpinButtons(IBottlesRepository bottlesRepository, IDepositRepository depositRepository)

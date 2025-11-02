@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 
@@ -48,17 +49,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public IList<SelectableParameter> CarStorages { get; private set; }
 		
 		public int[] NomenclaturesIds =>
-			_nomenclaturesIds ?? (_nomenclaturesIds = Nomenclatures?.Select(x => (int)x.Value).ToArray());
+			_nomenclaturesIds ?? (_nomenclaturesIds = Nomenclatures?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>() );
 		public int[] InstancesIds =>
-			_instancesIds ?? (_instancesIds = Instances?.Select(x => (int)x.Value).ToArray());
+			_instancesIds ?? (_instancesIds = Instances?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>());
 		public int[] WarehousesIds =>
-			_warehousesIds ?? (_warehousesIds = WarehouseStorages?.Select(x => (int)x.Value).ToArray());
+			_warehousesIds ?? (_warehousesIds = WarehouseStorages?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>());
 		public int[] EmployeesIds =>
-			_employeesIds ?? (_employeesIds = EmployeeStorages?.Select(x => (int)x.Value).ToArray());
+			_employeesIds ?? (_employeesIds = EmployeeStorages?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>());
 		public int[] CarsIds =>
-			_carsIds ?? (_carsIds = CarStorages?.Select(x => (int)x.Value).ToArray());
+			_carsIds ?? (_carsIds = CarStorages?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>());
 		public int[] NomenclatureGroupsIds =>
-			NomenclatureGroups?.Select(x => (int)x.Value).ToArray();
+			NomenclatureGroups?.Select(x => (int)x.Value).ToArray() ?? Array.Empty<int>();
 		public bool NomenclatureGroupsSelected => NomenclatureGroups?.Any() ?? false;
 		public bool NomenclatureTypesSelected => NomenclatureTypes?.Any() ?? false;
 		public bool NomenclaturesSelected => Nomenclatures?.Any() ?? false;

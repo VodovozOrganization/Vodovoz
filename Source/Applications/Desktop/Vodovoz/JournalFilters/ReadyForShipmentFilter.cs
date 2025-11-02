@@ -1,58 +1,31 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Services;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReadyForShipmentFilter : RepresentationFilterBase<ReadyForShipmentFilter>, ISingleUoWDialog
+	[ToolboxItem(true)]
+	public partial class ReadyForShipmentFilter : RepresentationFilterBase<ReadyForShipmentFilter>, ISingleUoWDialog, INotifyPropertyChanged
 	{
-        public Warehouse RestrictWarehouse { get; set; }
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private Warehouse _warehouse;
+		private DateTime? _startDate = DateTime.Today.AddMonths(-1);
+		private DateTime? _endDate;
 
-        protected override void ConfigureWithUow()
-		{
-            var warehousesList = new StoreDocumentHelper(new UserSettingsGetter())
-	            .GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
-				.OrderBy(w => w.Name).ToList();
-
-            bool accessToWarehouseAndComplaints =
-	            ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-	            && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
-            
-            if (warehousesList.Count > 5)
-            {
-                entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
-
-				var warehouseJournalFactory = new WarehouseJournalFactory();					 
-
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
-
-                entryWarehouses.Visible = true;
-                yspeccomboWarehouse.Visible = false;
-            }
-            else
-            {
-                yspeccomboWarehouse.ItemsList = warehousesList;
-                yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-
-                entryWarehouses.Visible = false;
-                yspeccomboWarehouse.Visible = true;
-            }
-
-            if(accessToWarehouseAndComplaints)
-            {
-	            entryWarehouses.Sensitive = yspeccomboWarehouse.Sensitive = false;
-            }
-		}
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		public ReadyForShipmentFilter(IUnitOfWork uow) : this()
 		{
@@ -61,25 +34,98 @@ namespace Vodovoz
 
 		public ReadyForShipmentFilter()
 		{
-			this.Build();
+			Build();
 		}
-
-		void UpdateCreteria()
+		
+		public DateTime? StartDate
 		{
-			OnRefiltered();
+			get => _startDate;
+			set
+			{
+				if(_startDate != value)
+				{
+					_startDate = value;
+					OnRefiltered();
+				}
+			}
 		}
-
-		protected void OnYspeccomboWarehouseItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		
+		public DateTime? EndDate
 		{
-            RestrictWarehouse = e.SelectedItem as Warehouse;
-            UpdateCreteria();
+			get => _endDate;
+			set
+			{
+				if(_endDate != value)
+				{
+					_endDate = value;
+					OnRefiltered();
+				}
+			}
 		}
 
-        protected void OnEntryWarehousesChangedByUser(object sender, System.EventArgs e)
-        {
-            RestrictWarehouse = entryWarehouses.Subject as Warehouse;
-            UpdateCreteria();
-        }
-    }
+		public Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				if(_warehouse != value)
+				{
+					_warehouse = value;
+					OnRefiltered();
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Warehouse)));
+				}
+			}
+		}
+
+		public ITdiTab ParentTab { get; set; }
+
+		public EntityEntryViewModel<Warehouse> WarehouseViewModel { get; private set; }
+
+		protected override void ConfigureWithUow()
+		{
+			var warehousesList = new StoreDocumentHelper(new UserSettingsService())
+				.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
+				.OrderBy(w => w.Name).ToList();
+
+			bool accessToWarehouseAndComplaints =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
+
+			var navigatiuonManager = _lifetimeScope.Resolve<INavigationManager>();
+
+			var builderFactory = new LegacyEEVMBuilderFactory<ReadyForShipmentFilter>(ParentTab, this, UoW, navigatiuonManager, _lifetimeScope);
+
+			WarehouseViewModel = builderFactory.ForProperty(x => x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			WarehouseViewModel.Entity = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+			
+			daterangepicker.Binding
+				.AddBinding(this, f => f.StartDate, w => w.StartDateOrNull)
+				.AddBinding(this, f =>  f.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			if(accessToWarehouseAndComplaints)
+			{
+				WarehouseViewModel.IsEditable = false;
+			}
+
+			entityentryWarehouse.ViewModel = WarehouseViewModel;
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(_lifetimeScope != null)
+			{
+				_lifetimeScope.Dispose();
+				_lifetimeScope = null;
+			}
+			base.OnDestroyed();
+		}
+	}
 }
-

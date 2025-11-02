@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
+	  <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
+	  <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
+	  <ProjectReference Include="..\Edo.Transfer\Edo.Transfer.csproj" />
+	</ItemGroup>
+
+</Project>

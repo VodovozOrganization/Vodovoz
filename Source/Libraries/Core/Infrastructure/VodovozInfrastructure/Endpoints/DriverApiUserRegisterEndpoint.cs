@@ -1,15 +1,16 @@
-﻿using System;
-using System.Net.Http;
-using System.Text.Json.Serialization;
+﻿using ApiClientProvider;
+using System;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using ApiClientProvider;
 
 namespace VodovozInfrastructure.Endpoints
 {
 	public class DriverApiUserRegisterEndpoint
 	{
 		private IApiClientProvider _apiHelper;
-		private readonly string _sendEndpointPath = "Register";
+		private const string _createUserEndpoint = "Register";
+		private const string _addRoleEndpoint = "AddRoleToUser";
+		private const string _removeRoleEndpoint = "RemoveRoleFromUser";
 		private const int _minPasswordLength = 3;
 
 		public DriverApiUserRegisterEndpoint(IApiClientProvider apiHelper)
@@ -17,7 +18,28 @@ namespace VodovozInfrastructure.Endpoints
 			_apiHelper = apiHelper;
 		}
 
-		public async Task Register(string username, string password)
+		public async Task RegisterUser(string username, string password, string userRole)
+		{
+			Validate(username, password);
+			var userData = new UserData { Username = username, Password = password, UserRole = userRole };
+			await Send(userData, _createUserEndpoint);
+		}
+		
+		public async Task AddRoleToUser(string username, string password, string userRole)
+		{
+			Validate(username, password);
+			var userData = new UserData { Username = username, Password = password, UserRole = userRole };
+			await Send(userData, _addRoleEndpoint);
+		}
+		
+		public async Task RemoveRoleFromUser(string username, string password, string userRole)
+		{
+			Validate(username, password);
+			var userData = new UserData { Username = username, Password = password, UserRole = userRole };
+			await Send(userData, _removeRoleEndpoint);
+		}
+
+		private static void Validate(string username, string password)
 		{
 			if(string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
 			{
@@ -28,10 +50,11 @@ namespace VodovozInfrastructure.Endpoints
 			{
 				throw new ArgumentException("Пароль не может быть короче 3х символов");
 			}
+		}
 
-			var payload = new RegisterPayload { Username = username, Password = password };
-			
-			using(HttpResponseMessage response = await _apiHelper.Client.PostAsJsonAsync(_sendEndpointPath, payload))
+		private async Task Send(UserData payload, string endpoint)
+		{
+			using(var response = await _apiHelper.Client.PostAsJsonAsync(endpoint, payload))
 			{
 				if(!response.IsSuccessStatusCode)
 				{
@@ -39,7 +62,7 @@ namespace VodovozInfrastructure.Endpoints
 
 					try
 					{
-						error = await response.Content.ReadAsAsync<ErrorMessage>();
+						error = await response.Content.ReadFromJsonAsync<ErrorMessage>();
 					}
 					catch {}
 
@@ -52,11 +75,5 @@ namespace VodovozInfrastructure.Endpoints
 				}
 			}
 		}
-	}
-
-	internal class ErrorMessage
-	{
-		[JsonPropertyName("error")]
-		public string Error { get; set; }
 	}
 }

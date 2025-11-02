@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters.Cash
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -44,7 +44,7 @@ namespace Vodovoz.ReportsParameters.Cash
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

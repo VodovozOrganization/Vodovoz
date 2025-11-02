@@ -1,11 +1,14 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Parameters;
+using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -16,14 +19,14 @@ namespace Vodovoz.EntityRepositories
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);
 		bool HasSendedEmailForUpd(int orderId);
-		bool NeedSendUpdByEmail(int id);
+		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
 		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
-		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false);
+		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false);
 		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
-		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
-		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
+		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailSettings emailSettings);
+		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 
 		#region EmailType
@@ -32,6 +35,14 @@ namespace Vodovoz.EntityRepositories
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
+
+		/// <summary>
+		/// Проверка уже отправленных писем, за исключением определенного письма
+		/// </summary>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="emailId">Идентификатор письма</param>
+		/// <returns></returns>
+		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
 
 		#endregion
 	}

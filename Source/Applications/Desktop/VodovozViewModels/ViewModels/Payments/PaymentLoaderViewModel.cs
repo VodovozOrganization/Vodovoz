@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -10,44 +9,52 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Orders;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class PaymentLoaderViewModel : DialogTabViewModelBase
 	{
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-		private readonly IProfitCategoryProvider _profitCategoryProvider;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly int _vodovozId;
-		private readonly int _vodovozSouthId;
+		private readonly IGenericRepository<Organization> _organizationRepository;
 		private IReadOnlyList<Organization> _organisations;
 		private IReadOnlyList<Organization> _allVodOrganisations;
 		//убираем из выписки Юмани и банк СИАБ (платежи от физ. лиц)
-		private readonly string[] _excludeInnForVodovozSouth = new []{ "2465037737", "7750005725" };
+		private readonly string[] _excludeInnPayers = new []{ "2465037737", "7750005725" };
 
 		private double _progress;
 		private int _saveAttempts;
 		private bool _isNotAutoMatchingMode = true;
 		private bool _isSavingState;
+		private readonly IResourceLocker _resourceLocker;
 
 		public PaymentLoaderViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
 			INavigationManager navigationManager,
-			IOrganizationParametersProvider organizationParametersProvider,
-			IProfitCategoryProvider profitCategoryProvider,
+			IOrganizationSettings organizationSettings,
+			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
-			IOrderRepository orderRepository) 
+			IOrderRepository orderRepository,
+			IGenericRepository<Organization> organizationRepository,
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -55,29 +62,54 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			_profitCategoryProvider = profitCategoryProvider ?? throw new ArgumentNullException(nameof(profitCategoryProvider));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 
-			if(organizationParametersProvider == null)
+			if(organizationSettings == null)
 			{
-				throw new ArgumentNullException(nameof(organizationParametersProvider));
+				throw new ArgumentNullException(nameof(organizationSettings));
+			}
+			
+			if(resourceLockerFactory == null)
+			{
+				throw new ArgumentNullException(nameof(resourceLockerFactory));
+			}
+
+			if(userRepository == null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
 			}
 
 			InteractiveService = commonServices.InteractiveService;
-			_vodovozId = organizationParametersProvider.VodovozOrganizationId;
-			_vodovozSouthId = organizationParametersProvider.VodovozSouthOrganizationId;
+			
+			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
+			
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
 
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
+			if(!lockResult.IsSuccess)
+			{
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Диалог уже открыт пользователем {ownerUser?.Name}",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
+			}
+			
+			UnitOfWorkFactory = unitOfWorkFactory;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
 			TabName = "Выгрузка выписки из банк-клиента";
 
-			GetOrganisations();
+			GetOrganisations(organizationSettings);
 			CreateCommands();
 			GetProfitCategories();
 		}
 
+		public IUnitOfWorkFactory UnitOfWorkFactory { get; }
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
@@ -121,18 +153,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public bool CanCancel => IsNotAutoMatchingMode && !IsSavingState;
 		public bool CanReadFile => IsNotAutoMatchingMode && !IsSavingState;
 
-		private void GetOrganisations()
+		private void GetOrganisations(IOrganizationSettings organizationSettings)
 		{
-			var orgs = new List<Organization>();
+			_organisations = _organizationRepository.Get(
+				UoW,
+				x => new []
+				{
+					organizationSettings.VodovozOrganizationId,
+					organizationSettings.VodovozSouthOrganizationId,
+					organizationSettings.VodovozMbnOrganizationId,
+					organizationSettings.KulerServiceOrganizationId
+				}.Contains(x.Id))
+				.ToList();
 
-			var vodovozOrg = UoW.GetById<Organization>(_vodovozId);
-			var vodovozSouthOrg = UoW.GetById<Organization>(_vodovozSouthId);
-			_allVodOrganisations = UoW.GetAll<Organization>().ToList();
-
-			orgs.Add(vodovozOrg);
-			orgs.Add(vodovozSouthOrg);
-
-			_organisations = orgs;
+			_allVodOrganisations = _organizationRepository.Get(UoW).ToList();
 		}
 
 		private void CreateCommands() 
@@ -155,6 +189,18 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		}
 
 		#endregion Команды
+		
+		public void CreateOperations(IUnitOfWork uow, Payment payment)
+		{
+			payment.CreateIncomeOperation();
+			uow.Save(payment.CashlessMovementOperation);
+
+			foreach(var item in payment.Items)
+			{
+				item.CreateOrUpdateExpenseOperation();
+				uow.Save(item.CashlessMovementOperation);
+			}
+		}
 
 		private void Match(
 			ref int count,
@@ -162,74 +208,52 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			int totalCount,
 			AutoPaymentMatching autoPaymentMatching,
 			ProfitCategory defaultProfitCategory,
-			IList<TransferDocument> parsedPayments,
-			Organization org)
+			IReadOnlyDictionary<Organization, List<TransferDocument>> parsedDocuments)
 		{
-			foreach(var doc in parsedPayments)
+			foreach(var transferDocsByOrganization in parsedDocuments)
 			{
-				var curDoc = ObservablePayments.SingleOrDefault(
-					x => x.Date == doc.Date
-					&& x.PaymentNum == int.Parse(doc.DocNum)
-					&& x.Organization.INN == doc.RecipientInn
-					&& x.CounterpartyInn == doc.PayerInn
-					&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
-
-				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
-					UoW,
-					doc.Date,
-					int.Parse(doc.DocNum),
-					doc.RecipientInn,
-					doc.PayerInn,
-					doc.PayerCurrentAccount) || curDoc != null)
+				foreach(var doc in transferDocsByOrganization.Value)
 				{
+					var docDate = doc.ReceivedDate ?? doc.Date;
+
+					var curDoc = ObservablePayments.SingleOrDefault(
+						x => x.Date == docDate
+							&& x.PaymentNum == int.Parse(doc.DocNum)
+							&& x.Organization.INN == doc.RecipientInn
+							&& x.CounterpartyInn == doc.PayerInn
+							&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
+							&& x.Total == doc.Total);
+
+					if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
+						UoW,
+						docDate,
+						int.Parse(doc.DocNum),
+						doc.RecipientInn,
+						doc.PayerInn,
+						doc.PayerCurrentAccount,
+						doc.Total) || curDoc != null)
+					{
+						count++;
+						countDuplicates++;
+						UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", _progress);
+						continue;
+					}
+
+					var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+					var curPayment = new Payment(doc, transferDocsByOrganization.Key, counterparty);
+
+					curPayment.Status =
+						!autoPaymentMatching.IncomePaymentMatch(curPayment)
+							? PaymentState.undistributed
+							: PaymentState.distributed;
+
 					count++;
-					countDuplicates++;
+					curPayment.ProfitCategory = defaultProfitCategory;
+
+					ObservablePayments.Add(curPayment);
+
 					UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", _progress);
-					continue;
 				}
-
-				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
-				var curPayment = new Payment(doc, org, counterparty);
-
-				curPayment.Status =
-					!autoPaymentMatching.IncomePaymentMatch(curPayment)
-						? PaymentState.undistributed
-						: PaymentState.distributed;
-
-				count++;
-				curPayment.ProfitCategory = defaultProfitCategory;
-
-				ObservablePayments.Add(curPayment);
-
-				UpdateProgress?.Invoke($"Обработан платеж {count} из {totalCount}", _progress);
-			}
-		}
-
-		public async Task<bool> SaveAllocatedOrderAsync(PaymentItem paymentItem)
-		{
-			try
-			{
-				var order = UoW.GetById<Order>(paymentItem.Order.Id);
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-
-				UoW.Save(order);
-				UoW.Commit();
-
-				return true;
-			}
-			catch(Exception ex)
-			{
-				UoW.Session.Clear();
-				_logger.Error(ex);
-				_saveAttempts++;
-
-				if(_saveAttempts >= 3)
-				{
-					return false;
-				}
-
-				await Task.Delay(1000);
-				return await SaveAllocatedOrderAsync(paymentItem);
 			}
 		}
 
@@ -239,7 +263,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_progress = 0;
 			UpdateProgress?.Invoke("Начинаем работу...", _progress);
 			Parser = new TransferDocumentsFromBankParser(docPath);
-			Parser.Parse();
+
+			try
+			{
+				Parser.Parse();
+			}
+			catch(Exception ex)
+			{
+				if(ex is NotSupportedException)
+				{
+					InteractiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+					UpdateProgress?.Invoke("Произошла ошибка во время загрузки", 0);
+					return;
+				}
+			}
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
@@ -250,25 +287,24 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			var count = 0;
 			var countDuplicates = 0;
 			
-			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
-			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_profitCategoryProvider.GetDefaultProfitCategory());
-			var paymentsToVodovoz = 
-				Parser.TransferDocuments.Where(x => 
-					x.RecipientInn == _organisations[0].INN
-					&& !_allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
-					.ToList();
-			var paymentsToVodovozSouth = 
-				Parser.TransferDocuments.Where(x => 
-					x.RecipientInn == _organisations[1].INN
-					&& !_excludeInnForVodovozSouth.Contains(x.PayerInn)
-					&& !_allVodOrganisations.Select(o => o.INN).Contains(x.PayerInn))
-					.ToList();
-			var totalCount = paymentsToVodovoz.Count + paymentsToVodovozSouth.Count;
+			var autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
+			var defaultProfitCategory = UoW.GetById<ProfitCategory>(_paymentSettings.DefaultProfitCategory);
+			var vodOrganizationsInn = _allVodOrganisations.Select(o => o.INN).ToArray();
+			var parsedDocumentsDictionary = new Dictionary<Organization, List<TransferDocument>>();
+			var totalCount = 0;
+			
+			foreach(var transferDoc in Parser.TransferDocuments)
+			{
+				//Индекс не должен быть >= vodOrganizationsInn.Count
+				var i = 0;
+				TryAddParsedDocument(transferDoc, vodOrganizationsInn, i, parsedDocumentsDictionary, ref totalCount);
+				TryAddParsedDocument(transferDoc, vodOrganizationsInn, ++i, parsedDocumentsDictionary, ref totalCount);
+				TryAddParsedDocument(transferDoc, vodOrganizationsInn, ++i, parsedDocumentsDictionary, ref totalCount);
+				TryAddParsedDocument(transferDoc, vodOrganizationsInn, ++i, parsedDocumentsDictionary, ref totalCount);
+			}
 
 			_progress = 1d / totalCount;
-
-			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovoz, _organisations[0]);
-			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, paymentsToVodovozSouth, _organisations[1]);
+			Match(ref count, ref countDuplicates, totalCount, autoPaymentMatching, defaultProfitCategory, parsedDocumentsDictionary);
 
 			var paymentsSum = ObservablePayments.Sum(x => x.Total);
 			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", _progress = 1);
@@ -276,16 +312,47 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IsNotAutoMatchingMode = true;
 		}
 
-		public void CreateOperations(Payment payment)
+		private void TryAddParsedDocument(
+			TransferDocument transferDoc,
+			string[] vodOrganizationsInn,
+			int index,
+			IDictionary<Organization, List<TransferDocument>> parsedDocumentsDictionary,
+			ref int totalCount)
 		{
-			payment.CreateIncomeOperation();
-			UoW.Save(payment.CashlessMovementOperation);
-
-			foreach(PaymentItem item in payment.ObservableItems)
+			if(GetPredicateForProcessParsedDocument(transferDoc, index, vodOrganizationsInn).Invoke())
 			{
-				item.CreateOrUpdateExpenseOperation();
-				UoW.Save(item.CashlessMovementOperation);
+				if(!parsedDocumentsDictionary.TryGetValue(_organisations[index], out var parsedDocuments))
+				{
+					parsedDocuments = new List<TransferDocument>();
+					parsedDocumentsDictionary.Add(_organisations[index], parsedDocuments);
+				}
+					
+				parsedDocuments.Add(transferDoc);
+				totalCount++;
 			}
+		}
+
+		private Func<bool> GetPredicateForProcessParsedDocument(
+			TransferDocument transferDoc,
+			int index,
+			string[] vodOrganizationsInn)
+		{
+			if(index > 0)
+			{
+				return () => transferDoc.RecipientInn == _organisations[index].INN
+					&& !vodOrganizationsInn.Contains(transferDoc.PayerInn);
+			}
+			
+			return () => transferDoc.RecipientInn == _organisations[index].INN
+					&& !vodOrganizationsInn.Contains(transferDoc.PayerInn)
+					&& !_excludeInnPayers.Contains(transferDoc.PayerInn);
+		}
+
+		public override void Dispose()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
+			
+			base.Dispose();
 		}
 	}
 }

@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -65,7 +66,7 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public DriverRouteListAddressesVM(int driverId)
-			: this(UnitOfWorkFactory.CreateWithoutRoot(), driverId)
+			: this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot(), driverId)
 		{
 		}
 

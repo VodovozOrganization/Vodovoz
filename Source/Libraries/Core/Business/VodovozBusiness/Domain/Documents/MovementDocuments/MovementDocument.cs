@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
@@ -363,7 +366,8 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IWarehouseRepository)}");
 				}
 
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+				using(var uow = uowFactory.CreateWithoutRoot())
 				{
 					var operationType = GetOperationTypeByStorageFrom();
 					var storageId = GetStorageFromId();
@@ -678,7 +682,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			}
 		}
 
-		public virtual void Receive(Employee employeeReceiver)
+		public virtual void Receive(Employee employeeReceiver, IUnitOfWork unitOfWork)
 		{
 			if(employeeReceiver == null) {
 				throw new ArgumentNullException(nameof(employeeReceiver));
@@ -703,6 +707,17 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 
 			foreach(var item in Items) {
 				item.UpdateIncomeOperation();
+
+				if(MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse
+				   && StorageFrom != StorageType.Warehouse)
+				{
+					item.TrySetIsUsed();
+
+					if(item is InstanceMovementDocumentItem instanceItem)
+					{
+						unitOfWork.Save(instanceItem.InventoryNomenclatureInstance);
+					}
+				}
 			}
 		}
 

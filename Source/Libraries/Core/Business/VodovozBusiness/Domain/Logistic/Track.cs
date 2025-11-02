@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Autofac;
+using GMap.NET;
+using QS.DomainModel.Entity;
+using QS.Osrm;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using GMap.NET;
-using QS.DomainModel.Entity;
-using QS.Osrm;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -20,7 +20,6 @@ namespace Vodovoz.Domain.Logistic
 	public class Track : PropertyChangedBase, IDomainObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		public virtual int Id { get; set; }
 
@@ -115,7 +114,10 @@ namespace Vodovoz.Domain.Logistic
 			Distance = new MapRoute(points, "").Distance;
 		}
 
-		public virtual RouteResponse CalculateDistanceToBase()
+		public virtual RouteResponse CalculateDistanceToBase(
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient
+			)
 		{
 			var lastAddress = RouteList.Addresses
 				.Where(x => x.Status == RouteListItemStatus.Completed)
@@ -146,7 +148,7 @@ namespace Vodovoz.Domain.Logistic
 				logger.Error("В подобранной части города не указаны координаты базы");
 				return null;
 			}
-			var response = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
+			var response = osrmClient.GetRoute(points, false, GeometryOverview.Simplified, osrmSettings.ExcludeToll);
 			if(response.Code == "Ok") {
 				DistanceToBase = (double)response.Routes.First().TotalDistanceKm;
 			} else

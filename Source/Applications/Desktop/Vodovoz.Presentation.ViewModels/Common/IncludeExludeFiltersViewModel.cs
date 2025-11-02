@@ -1,6 +1,5 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using NHibernate.Linq;
-using NHibernate.Util;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -11,7 +10,8 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Vodovoz.EntityRepositories;
+using System.Text;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Extensions;
 using Vodovoz.Tools;
 
@@ -107,13 +107,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand RaiseSelectionChangedCommand { get; }
 
-		public Dictionary<string, object> GetReportParametersSet()
+		public Dictionary<string, object> GetReportParametersSet(out StringBuilder sb, bool withCounts = true)
 		{
 			var result = new Dictionary<string, object>();
+			sb = new StringBuilder();
 
 			foreach(var filter in Filters)
 			{
-				foreach(var parameter in filter.GetReportParameters())
+				foreach(var parameter in filter.GetReportParameters(sb, withCounts))
 				{
 					result.Add(parameter.Key, parameter.Value);
 				}
@@ -145,6 +146,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var newFilter = new IncludeExcludeEntityFilter<TEntity>
 			{
 				Title = title,
+				GenitivePluralTitle = typeof(TEntity).GetClassUserFriendlyName().GenitivePlural,
 				Type = typeof(TEntity)
 			};
 
@@ -209,7 +211,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			Filters.Add(newFilter);
 		}
 
-		public void AddFilter<TEnum>(Action<IncludeExcludeEnumFilter<TEnum>> includeExcludeFilter = null)
+		public void AddFilter<TEnum>(Action<IncludeExcludeEnumFilter<TEnum>> includeExcludeFilter = null, bool isRadio = false)
 			where TEnum : Enum
 		{
 			var title = typeof(TEnum).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
@@ -217,8 +219,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var newFilter = new IncludeExcludeEnumFilter<TEnum>
 			{
 				Title = title,
+				GenitivePluralTitle = typeof(TEnum).GetClassUserFriendlyName().GenitivePlural,
 				Type = typeof(TEnum)
 			};
+
+			newFilter.IsRadio = isRadio;
 
 			newFilter.RefreshFunc = (filter) =>
 			{
@@ -233,7 +238,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 						&& (string.IsNullOrWhiteSpace(CurrentSearchString)
 							|| enumElement.GetEnumTitle().Contains(CurrentSearchString)))
 					{
-						filter.FilteredElements.Add(new IncludeExcludeElement<TEnum, TEnum>()
+						filter.FilteredElements.Add(new IncludeExcludeElement<TEnum, TEnum>(isRadio)
 						{
 							Id = enumElement,
 							Title = enumElement.GetEnumTitle(),
@@ -262,6 +267,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var newFilter = new IncludeExcludeEntityWithHierarchyFilter<TEntity>
 			{
 				Title = title,
+				GenitivePluralTitle = typeof(TEntity).GetClassUserFriendlyName().GenitivePlural,
 				Type = typeof(TEntity)
 			};
 
@@ -325,7 +331,10 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			Filters.Add(newFilter);
 		}
 
-		public void AddFilter(string title, Dictionary<string, string> boolParamsDictionary, Action<IncludeExcludeBoolParamsFilter> includeExcludeFilter = null)
+		public void AddFilter(
+			string title,
+			Dictionary<string, string> boolParamsDictionary,
+			Action<IncludeExcludeBoolParamsFilter> includeExcludeFilter = null)
 		{
 			var newFilter = new IncludeExcludeBoolParamsFilter
 			{
@@ -346,18 +355,24 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				}
 			};
 
-			newFilter.GetReportParametersFunc = (filter) =>
+			newFilter.GetReportParametersFunc = (filter, sb, withCounts) =>
 			{
+				const string only = "Только";
+				const string exclude = "Исключая";
 				var result = new Dictionary<string, object>();
 
 				foreach(var value in filter.IncludedElements)
 				{
 					result.Add(value.Number, true);
+					sb.AppendLine(value.Title.StartsWith(only) ? $"{value.Title}" : $"{only} {value.Title.ToLower()}");
 				}
 
 				foreach(var value in filter.ExcludedElements)
 				{
 					result.Add(value.Number, false);
+					sb.AppendLine(value.Title.StartsWith(only)
+						? $"{exclude}{value.Title.Remove(0, only.Length).ToLower()}"
+						: $"{exclude} {value.Title.ToLower()}");
 				}
 
 				return result;
@@ -376,6 +391,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			where TFilter : IncludeExcludeFilter
 		{
 			var filter = Filters.FirstOrDefault(x => x.GetType() == typeof(TFilter));
+			return (TFilter)filter;
+		}
+		
+		public TFilter GetFilter<TFilter>(string defaultName)
+			where TFilter : IncludeExcludeFilter
+		{
+			var filter = Filters.FirstOrDefault(x => x.GetType() == typeof(TFilter) && x.DefaultName == defaultName);
 			return (TFilter)filter;
 		}
 
@@ -492,5 +514,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
 		}
+
+		public bool WithExcludes { get; set; } = true;
 	}
 }

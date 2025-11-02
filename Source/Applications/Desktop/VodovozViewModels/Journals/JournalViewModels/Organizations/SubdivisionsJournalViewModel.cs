@@ -21,7 +21,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.Journals.JournalViewModels.Organizations
@@ -32,8 +31,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
@@ -47,8 +44,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			Action<SubdivisionFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -56,8 +51,6 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
@@ -133,8 +126,20 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 			return ((string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0) || parentId == null)
 			? (from subdivision in unitOfWork.Session.Query<Subdivision>()
-			   where ((string.IsNullOrWhiteSpace(searchString) && subdivision.ParentSubdivision.Id == parentId && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
-					   || ((string.IsNullOrWhiteSpace(searchString)
+			   where (
+						(
+							string.IsNullOrWhiteSpace(searchString)
+							&& (
+									subdivision.ParentSubdivision.Id == parentId
+									|| (
+											parentId == null
+											&& subdivision.SubdivisionType == _filterViewModel.SubdivisionType
+											&& subdivision.ParentSubdivision.SubdivisionType != _filterViewModel.SubdivisionType
+										)
+								)
+							&& _filterViewModel.IncludedSubdivisionsIds.Length == 0
+						)
+						|| ((string.IsNullOrWhiteSpace(searchString)
 								|| (subdivision.Name.ToLower().Like(searchString)
 								|| subdivision.ShortName.ToLower().Like(searchString)
 								|| subdivision.Id.ToString().Like(searchString)))

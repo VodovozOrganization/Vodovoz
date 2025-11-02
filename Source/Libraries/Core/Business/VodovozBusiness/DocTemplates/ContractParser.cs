@@ -20,7 +20,6 @@ namespace Vodovoz.DocTemplates
 
 			//Сам договор
 			AddField(x => x.Number, PatternFieldType.FString);
-			AddField(x => x.ContractFullNumber, PatternFieldType.FString);
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 
 			//Организаци
@@ -46,10 +45,13 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Counterparty.KPP, PatternFieldType.FString);
 			AddField(x => x.Counterparty.JurAddress, PatternFieldType.FString);
 			//Расчетный счет
-			AddField(x => x.Counterparty.DefaultAccount.Number, PatternFieldType.FString);
-			AddField(x => x.Counterparty.DefaultAccount.InBank.Bik, PatternFieldType.FString);
-			AddField(x => x.Counterparty.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
-			AddField(x => x.Counterparty.DefaultAccount.InBank.Name, PatternFieldType.FString);
+			if(RootObject?.Counterparty?.DefaultAccount != null)
+			{
+				AddField(x => x.Counterparty.DefaultAccount.Number, PatternFieldType.FString);
+				AddField(x => x.Counterparty.DefaultAccount.InBank.Bik, PatternFieldType.FString);
+				AddField(x => x.Counterparty.DefaultAccount.BankCorAccount.CorAccountNumber, PatternFieldType.FString);
+				AddField(x => x.Counterparty.DefaultAccount.InBank.Name, PatternFieldType.FString);
+			}
 			//Директор клиента
 			AddField(x => x.Counterparty.SignatoryFIO, PatternFieldType.FString);
 			AddField(x => x.Counterparty.SignatoryPost, PatternFieldType.FString);

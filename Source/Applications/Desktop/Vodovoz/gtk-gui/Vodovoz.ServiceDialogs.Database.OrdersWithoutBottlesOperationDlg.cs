@@ -8,9 +8,9 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonFindOrders;
+		private global::Gamma.GtkWidgets.yButton buttonFindOrders;
 
-		private global::Gtk.Button buttonCreateBottleOperations;
+		private global::Gamma.GtkWidgets.yButton buttonCreateBottleOperations;
 
 		private global::Gtk.Label labelOrdersCount;
 
@@ -33,7 +33,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonFindOrders = new global::Gtk.Button();
+			this.buttonFindOrders = new global::Gamma.GtkWidgets.yButton();
 			this.buttonFindOrders.TooltipMarkup = "Находит все заказы с самовывозом с водой, где есть документ отгрузки со склада, н" +
 				"о по которым не было создано операции передвижения бутылей";
 			this.buttonFindOrders.CanFocus = true;
@@ -49,7 +49,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCreateBottleOperations = new global::Gtk.Button();
+			this.buttonCreateBottleOperations = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateBottleOperations.TooltipMarkup = "Создает для каждого найденного заказа операцию передвижения бутылей";
 			this.buttonCreateBottleOperations.CanFocus = true;
 			this.buttonCreateBottleOperations.Name = "buttonCreateBottleOperations";

@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace Vodovoz.HibernateMapping.Goods
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 {
 	public class MobileAppNomenclatureOnlineParametersMap : SubclassMap<MobileAppNomenclatureOnlineParameters>
 	{

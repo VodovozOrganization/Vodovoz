@@ -1,22 +1,21 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
+using QS.DomainModel.UoW;
 using System;
-using Vodovoz.Domain.Logistic;
-using VodovozRouteList = Vodovoz.Domain.Logistic.RouteList;
+using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using QS.DomainModel.UoW;
-using System.ComponentModel.DataAnnotations;
-using System.Collections;
-using NSubstitute.Extensions;
-using Vodovoz;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database.Organizations;
+using VodovozRouteList = Vodovoz.Domain.Logistic.RouteList;
 
 namespace VodovozBusinessTests.Domain.Fuel
 {
@@ -26,7 +25,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		#region CreateFuelDocumentOperationsTests
 		
 		private ExpenseCategory expenseCategoryMock;
-		private IParametersProvider _parametersProvider = Substitute.For<IParametersProvider>();
+		private ISettingsController _settingsController = Substitute.For<ISettingsController>();
 
 		#region CreateFuelOperationTests
 
@@ -53,12 +52,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -68,16 +67,16 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			AssertsAccumulator.Create
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelLimitLitersAmount), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.Null, "Автомобиль не должен быть заполнен"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.SameAs(fuelDocument.Driver), "Водитель в операции не совпадает с водителем в документе"))
@@ -111,12 +110,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument
 			{
@@ -127,17 +126,17 @@ namespace VodovozBusinessTests.Domain.Fuel
 				Fuel = fuelTypeMock,
 				RouteList = routeListMock,
 				UoW = uowMock,
-				FuelCoupons = 40,
+				FuelLimitLitersAmount = 40,
 				PayedForFuel = null,
 				Subdivision = subdivisionMock
 			};
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			AssertsAccumulator.Create
-				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelCoupons), "Количество топлива в операции не совпадает с количеством в документе"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.LitersGived, Is.EqualTo(fuelDocument.FuelLimitLitersAmount), "Количество топлива в операции не совпадает с количеством в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.PayedLiters, Is.EqualTo(fuelDocument.PayedLiters), "Количество топлива оплаченного деньгами не совпадает с количеством топлива оплаченного деньгами в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Car, Is.SameAs(fuelDocument.Car), "Автомобиль в операции не совпадает с автомобилем в документе"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelOperation.Driver, Is.Null, "Водитель не должен быть заполнен"))
@@ -160,16 +159,16 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 			
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock = 
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
 			Assert.Throws(typeof(InvalidProgramException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.IsNull(fuelDocument.FuelOperation, "При исключении в момент создания операций, операции выдачи топлива не должно быть создано");
@@ -198,12 +197,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -213,12 +212,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 0;
+			fuelDocument.FuelLimitLitersAmount = 0;
 			fuelDocument.PayedForFuel = 0;
 
 			// act, assert
 			Assert.Throws(typeof(ValidationException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.That(fuelDocument.FuelOperation, Is.Null, "При исключении в момент создания операций, операции выдачи топлива не должно быть создано");
@@ -251,12 +250,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -266,18 +265,18 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			AssertsAccumulator.Create
 				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelDocument, Is.SameAs(fuelDocument), "Документ в операции должен совпадать с документом выдачи топлива"))
 				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelTransferDocument, Is.Null, "Документ перемещения топлива не должен быть заполнен"))
-				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelLiters, Is.EqualTo(fuelDocument.FuelCoupons), "Списанное топливо должно совпадать с топливом выданным талонами в документе выдачи"))
+				.Accumulate(() => Assert.That(fuelDocument.FuelExpenseOperation.FuelLiters, Is.EqualTo(fuelDocument.FuelLimitLitersAmount), "Списанное топливо должно совпадать с топливом выданным талонами в документе выдачи"))
 				.Release();
 		}
 
@@ -296,16 +295,16 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 			
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock = 
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
 			Assert.Throws(typeof(InvalidProgramException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.That(fuelDocument.FuelExpenseOperation, Is.Null, "При исключении в момент создания операций, операции списания топлива не должно быть создано");
@@ -334,12 +333,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -349,12 +348,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 0;
+			fuelDocument.FuelLimitLitersAmount = 0;
 			fuelDocument.PayedForFuel = null;
 
 			// act, assert
 			Assert.Throws(typeof(ValidationException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.That(fuelDocument.FuelExpenseOperation, Is.Null, "При исключении в момент создания операций, операции списания топлива не должно быть создано");
@@ -379,16 +378,16 @@ namespace VodovozBusinessTests.Domain.Fuel
 			Organization organisationMock = Substitute.For<Organization>();
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 			
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock = 
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock = 
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			// act, assert
 			Assert.Throws(typeof(InvalidProgramException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.That(fuelDocument.FuelCashExpense, Is.Null, "При исключении в момент создания операций, операции оплаты топлива не должно быть создано");
@@ -418,12 +417,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -437,7 +436,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			// act, assert
 			Assert.Throws(typeof(ValidationException),
-				() => fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock));
+				() => fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock));
 
 			// additional assert
 			Assert.That(fuelDocument.FuelCashExpense, Is.Null, "При исключении в момент создания операций, операции оплаты топлива не должно быть создано");
@@ -466,12 +465,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -481,12 +480,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = null;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			Assert.That(fuelDocument.FuelCashExpense, Is.Null);
@@ -515,12 +514,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -530,12 +529,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = 0;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			Assert.That(fuelDocument.FuelCashExpense, Is.Null);
@@ -562,12 +561,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			OrganizationParametersProvider organisationParametersProviderMock =
-				Substitute.For<OrganizationParametersProvider>(_parametersProvider);
+			OrganizationSettings organisationSettingsMock =
+				Substitute.For<OrganizationSettings>(_settingsController);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -578,12 +577,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = 500;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			AssertsAccumulator.Create
@@ -625,12 +624,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
 			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionMock, fuelTypeMock).Returns(50);
 
-			var organisationParametersProviderMock = Substitute.For<OrganizationParametersProvider>(_parametersProvider);
-			organisationParametersProviderMock.CommonCashDistributionOrganisationId.Returns(2);
+			var organisationSettingsMock = Substitute.For<OrganizationSettings>(_settingsController);
+			organisationSettingsMock.CommonCashDistributionOrganisationId.Returns(2);
 
-			CashDistributionCommonOrganisationProvider commonOrganisationProviderMock =
-				Substitute.For<CashDistributionCommonOrganisationProvider>(organisationParametersProviderMock);
-			commonOrganisationProviderMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
+			IOrganizationRepository organizationRepositoryMock =
+				Substitute.For<IOrganizationRepository>(organisationSettingsMock);
+			organizationRepositoryMock.GetCommonOrganisation(uowMock).Returns(organisationMock);
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
@@ -641,12 +640,12 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.Fuel = fuelTypeMock;
 			fuelDocument.RouteList = routeListMock;
 			fuelDocument.UoW = uowMock;
-			fuelDocument.FuelCoupons = 40;
+			fuelDocument.FuelLimitLitersAmount = 40;
 			fuelDocument.PayedForFuel = payedForFuel;
 			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
-			fuelDocument.CreateOperations(fuelRepositoryMock, commonOrganisationProviderMock, financialCategoriesGroupSettingsMock);
+			fuelDocument.CreateOperations(fuelRepositoryMock, organizationRepositoryMock, financialCategoriesGroupSettingsMock);
 
 			// assert
 			Assert.That(fuelDocument.FuelCashExpense.Money, Is.EqualTo(result));

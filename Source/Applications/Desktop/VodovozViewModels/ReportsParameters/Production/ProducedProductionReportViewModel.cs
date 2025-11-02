@@ -2,6 +2,7 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Report;
 using QS.Report.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,10 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.CommonEnums;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 
@@ -19,6 +21,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 {
 	public partial class ProducedProductionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -26,18 +29,20 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 
 		public ProducedProductionReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
+			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
-			IInteractiveService interactiveService
-		) : base(rdlViewerViewModel)
+			IInteractiveService interactiveService,
+			IReportInfoFactory reportInfoFactory
+		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			Title = "Отчет по произведенной продукции";
-
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot(Title);
+			_unitOfWork = _uowFactory.CreateWithoutRoot(Title);
 			
 			FilterViewModel = CreateReportIncludeExcludeFilter(_unitOfWork);
 			
@@ -60,6 +65,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			includeExcludeFiltersViewModel.AddFilter(unitOfWork, _nomenclatureRepository, config =>
 			{
 				config.Title = "Номенклатура";
+				config.GenitivePluralTitle = "Номенклатур";
 
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Nomenclature> filter) =>
 				{
@@ -95,6 +101,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			includeExcludeFiltersViewModel.AddFilter(unitOfWork, _warehouseRepository, config =>
 			{
 				config.Title = "Производство";
+				config.GenitivePluralTitle = "Производств";
 
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Warehouse> filter) =>
 				{
@@ -164,7 +171,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 				var monthNumMinus1 = reportDate.AddMonths(-1).Month;
 				string strMonthNameMinus1 = mfi.GetMonthName(monthNumMinus1).ToString();
 
-				var parameters = FilterViewModel.GetReportParametersSet();
+				var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 				parameters.Add("month_start", MonthStart(reportDate));
 				parameters.Add("month_end", MonthEnd(reportDate));

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\Pacs.Core\Pacs.Core.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Net.Http.Json" Version="6.0.1" />
+	</ItemGroup>
+
+</Project>

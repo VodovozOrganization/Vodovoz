@@ -1,37 +1,53 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-StoredEmailStatusUpdateWorker-AA703A0A-C987-49AC-9972-D51BECADFF54</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
-    <PackageReference Include="MySqlConnector" Version="2.2.6" />
-    <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.2.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<UserSecretsId>dotnet-StoredEmailStatusUpdateWorker-AA703A0A-C987-49AC-9972-D51BECADFF54</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<DockerfileContext>.</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+		<PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="NLog.config">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
+	</ItemGroup>
 </Project>

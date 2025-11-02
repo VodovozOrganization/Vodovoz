@@ -1,9 +1,11 @@
 ﻿using System;
+using Autofac;
 using Gamma.Widgets;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz
@@ -15,7 +17,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
-			speccomboStock.ItemsList =new WarehouseRepository().GetActiveWarehouse(UoW);
+			speccomboStock.ItemsList = ScopeProvider.Scope.Resolve<IWarehouseRepository>().GetActiveWarehouse(UoW);
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 		}
@@ -34,7 +36,7 @@ namespace Vodovoz
 			UoW = uow;
 		}
 
-		public StockBalanceFilter() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		public StockBalanceFilter() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 		}
 

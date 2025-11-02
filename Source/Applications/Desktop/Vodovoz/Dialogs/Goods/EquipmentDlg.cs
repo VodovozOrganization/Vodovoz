@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
@@ -8,26 +8,29 @@ using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Equipments;
+using QS.Project.Services;
+using Autofac;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {
 	public partial class EquipmentDlg : QS.Dialog.Gtk.EntityDialogBase<Equipment>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
+		private readonly IEquipmentRepository _equipmentRepository = ScopeProvider.Scope.Resolve<IEquipmentRepository>();
 
 		//FIXME Возможно нужно удалить конструктор, так как создание нового оборудования отсюда должно быть закрыто.
 		public EquipmentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Equipment>();
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Equipment>();
 			ConfigureDlg ();
 		}
 
 		public EquipmentDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Equipment> (id);
+			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Equipment> (id);
 			ConfigureDlg ();
 			FillLocation();
 		}
@@ -55,7 +58,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var validator = ServicesConfig.ValidationService;
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -107,4 +110,3 @@ namespace Vodovoz
 		}
 	}
 }
-

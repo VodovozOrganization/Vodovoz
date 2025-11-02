@@ -1,6 +1,4 @@
-using System;
-
-namespace PayPageAPI.Models
+﻿namespace PayPageAPI.Models
 {
 	public class ErrorViewModel
 	{

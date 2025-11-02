@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Permissions
 			var qsBanksAssembly = Assembly.GetAssembly(typeof(Bank));
 			var qsDomainAssembly = Assembly.GetAssembly(typeof(EntityUserPermission));
 			var vodovozDomainAssembly = Assembly.GetAssembly(typeof(Order));
-			return DomainHelper.GetHavingAttributeEntityTypes<EntityPermissionAttribute>(x => x.IsClass && !x.IsAbstract, qsDomainAssembly, vodovozDomainAssembly, qsBanksAssembly, qsCommonAssembly);
+			var coreData = Assembly.GetAssembly(typeof(Vodovoz.Core.Domain.AssemblyFinder));
+			return DomainHelper.GetHavingAttributeEntityTypes<EntityPermissionAttribute>(x => x.IsClass && !x.IsAbstract, qsDomainAssembly, vodovozDomainAssembly, qsBanksAssembly, qsCommonAssembly, coreData);
 		}
 	}
 }
