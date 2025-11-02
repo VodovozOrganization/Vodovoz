@@ -1,13 +1,16 @@
 ﻿using System;
+using Autofac;
 using Gtk;
 using QS.Navigation;
 using QS.Project.Services;
-using Vodovoz.Domain.Employees;
+using QS.Report;
+using QS.Report.ViewModels;
+using QSReport;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Logistic;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
@@ -30,17 +33,15 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			var logisticsMenu = new Menu();
 			logisticsMenuItem.Submenu = logisticsMenu;
 
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Заказы по районам и интервалам",
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Заказы по районам и интервалам доставки",
 				OnOrdersByDistrictsAndDeliverySchedulesPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по выдаче топлива по МЛ", OnFuelConsumptionReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по времени приема заказов", OnOrdersCreationTimeReportPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.WayBillReportAction));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по незакрытым МЛ за период", OnNonClosedRLByPeriodReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"График выхода на линию за смену", OnScheduleOnLinePerShiftReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Статистика по дням недели", OnOrderStatisticByWeekReportPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Аналитика эксплуатации ТС", OnCarsExploitationReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Основная информация по ЗП", OnLogisticsGeneralSalaryInfoPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Выгрузка по водителям", OnDriversInfoExportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
@@ -53,8 +54,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Отчёт по дозагрузке МЛ", OnFastDeliveryAdditionalLoadingReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Доступность услуги \"Доставка за час\"",
 				OnFastDeliveryPercentCoverageReportPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по событиям нахождения волителей на складе",
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по событиям нахождения водителей на складе",
 				OnDriversWarehousesEventsReportPressed));
+			logisticsMenu.Add(
+				_concreteMenuItemCreator.CreateMenuItem("Отчет по изменению формы оплаты водителями", OnDriversWarehousesEventsReportPressed));
 
 			return logisticsMenuItem;
 		}
@@ -66,9 +69,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrdersByDistrictsAndDeliverySchedulesPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
-				() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport()));
+			Startup.MainWin
+				.NavigationManager
+				.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictsAndDeliverySchedulesReportViewModel));
 		}
 
 		/// <summary>
@@ -78,10 +81,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnFuelConsumptionReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-				() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
-			);
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelConsumptionReportViewModel));
 		}
 
 		/// <summary>
@@ -91,9 +91,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrdersCreationTimeReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
-				() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport()));
+				() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport(reportInfoFactory)));
 		}
 
 		/// <summary>
@@ -103,9 +104,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnNonClosedRLByPeriodReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
-				() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NonClosedRLByPeriodReportViewModel));
 		}
 
 		/// <summary>
@@ -115,9 +114,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnScheduleOnLinePerShiftReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-				() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ScheduleOnLinePerShiftReportViewModel));
 		}
 
 		/// <summary>
@@ -127,19 +124,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderStatisticByWeekReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-				() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport()));
-		}
-
-		/// <summary>
-		/// Аналитика эксплуатации ТС
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCarsExploitationReportPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CarsExploitationReportViewModel>(null);
+				() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory, ServicesConfig.InteractiveService)));
 		}
 
 		/// <summary>
@@ -149,16 +137,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnLogisticsGeneralSalaryInfoPressed(object sender, ButtonPressEventArgs e)
 		{
-			var filter = new EmployeeFilterViewModel
-			{
-				Category = EmployeeCategory.driver
-			};
-
-			var employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, filter);
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-				() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				addingRegistrations: builder =>
+				{
+					builder.Register(c => new EmployeeFilterViewModel
+					{
+						Category = EmployeeCategory.driver
+					});
+					builder.RegisterType<GeneralSalaryInfoReport>().As<IParametersWidget>();
+				});
 		}
 
 		/// <summary>
@@ -178,14 +166,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnAddressesOverpaymentsReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-			var employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, driverFilter);
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
-				() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-					employeeJournalFactory,
-					ServicesConfig.InteractiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				addingRegistrations: builder =>
+				{
+					builder.Register(c => new EmployeeFilterViewModel
+					{
+						RestrictCategory = EmployeeCategory.driver
+					});
+					builder.RegisterType<AddressesOverpaymentsReport>().As<IParametersWidget>();
+				});
 		}
 
 		/// <summary>
@@ -205,9 +195,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnAnalyticsForUndeliveryPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
-				() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(AnalyticsForUndeliveryReportViewModel));
 		}
 
 		/// <summary>

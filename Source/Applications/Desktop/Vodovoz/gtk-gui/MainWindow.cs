@@ -338,20 +338,20 @@ public partial class MainWindow
 		this.pacspanelview1.Events = ((global::Gdk.EventMask)(256));
 		this.pacspanelview1.Name = "pacspanelview1";
 		this.hbox2.Add(this.pacspanelview1);
-		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.pacspanelview1]));
-		w16.PackType = ((global::Gtk.PackType)(1));
-		w16.Position = 1;
-		w16.Expand = false;
-		w16.Fill = false;
+		global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.pacspanelview1]));
+		w161.PackType = ((global::Gtk.PackType)(1));
+		w161.Position = 1;
+		w161.Expand = false;
+		w161.Fill = false;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.vseparator3 = new global::Gtk.VSeparator();
 		this.vseparator3.Name = "vseparator3";
 		this.hbox2.Add(this.vseparator3);
-		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator3]));
-		w17.PackType = ((global::Gtk.PackType)(1));
-		w17.Position = 2;
-		w17.Expand = false;
-		w17.Fill = false;
+		global::Gtk.Box.BoxChild w171 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator3]));
+		w171.PackType = ((global::Gtk.PackType)(1));
+		w171.Position = 2;
+		w171.Expand = false;
+		w171.Fill = false;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'UndeliveredOrdersAction\' action" +
 				"=\'UndeliveredOrdersAction\'/><toolitem name=\'ActionComplaints\' action=\'ActionComp" +

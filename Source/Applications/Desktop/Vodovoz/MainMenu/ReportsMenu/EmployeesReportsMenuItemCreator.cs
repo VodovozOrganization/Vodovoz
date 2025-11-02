@@ -1,8 +1,8 @@
 ﻿using System;
 using Gtk;
 using QS.Project.Services;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Employees;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -25,11 +25,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 			_employeesfines = _concreteMenuItemCreator.CreateMenuItem("Штрафы сотрудников", OnEmployeeFinesReportPressed);
 			employeesMenu.Add(_employeesfines);
-
 			_employeesBonuses = _concreteMenuItemCreator.CreateMenuItem("Премии сотрудников", OnEmployeesBonusesReportPressed);
 			employeesMenu.Add(_employeesBonuses);
-			
-			employeesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по сотрудникам", OnEmployeesReportPressed));
 
 			Configure();
 			
@@ -52,9 +49,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEmployeeFinesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesFinesViewModel));
 		}
 
 		/// <summary>
@@ -64,21 +59,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEmployeesBonusesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
-				() => new QSReport.ReportViewDlg(new EmployeesPremiums()));
-		}
-
-		/// <summary>
-		/// Отчет по сотрудникам
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnEmployeesReportPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-				() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesPremiumsViewModel));
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Permissions;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -81,7 +82,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 			var commonServices = ServicesConfig.CommonServices;
 			_userIsSalesRepresentative = 
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.IsSalesRepresentative)
+				commonServices.CurrentPermissionService.ValidatePresetPermission(UserPermissions.IsSalesRepresentative)
 					&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 

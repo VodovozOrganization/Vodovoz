@@ -1,18 +1,19 @@
 ﻿using System;
+using Autofac;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Orders;
-using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ViewModels.Counterparties;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Orders.Reports;
+using Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
+using Vodovoz.ViewModels.ReportsParameters.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
 using Vodovoz.ViewModels.ViewModels.Reports;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -67,9 +68,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCashierCommentsPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashierCommentsReport>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashierCommentsReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CashierCommentsReportViewModel));
 		}
 
 		/// <summary>
@@ -79,9 +78,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrdersByDistrictPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictReport>(),
-				() => new QSReport.ReportViewDlg(new OrdersByDistrictReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictReportViewModel));
 		}
 
 		/// <summary>
@@ -91,9 +88,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnLastOrderReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<LastOrderByDeliveryPointReport>(),
-				() => new QSReport.ReportViewDlg(new LastOrderByDeliveryPointReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(LastOrderByDeliveryPointReportViewModel));
 		}
 
 		/// <summary>
@@ -103,9 +98,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderIncorrectPricesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrderIncorrectPrices>(),
-				() => new QSReport.ReportViewDlg(new OrderIncorrectPrices()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderIncorrectPricesViewModel));
 		}
 
 		/// <summary>
@@ -115,9 +108,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrdersWithMinPriceLessThanPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrdersWithMinPriceLessThan>(),
-				() => new QSReport.ReportViewDlg(new OrdersWithMinPriceLessThan()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersWithMinPriceLessThanViewModel));
 		}
 
 		/// <summary>
@@ -127,9 +118,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSelfDeliveryReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<SelfDeliveryReport>(),
-				() => new QSReport.ReportViewDlg(new SelfDeliveryReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SelfDeliveryReportViewModel));
 		}
 
 		/// <summary>
@@ -139,9 +128,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSuburbWaterPricePressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<SuburbWaterPriceReport>(),
-				() => new QSReport.ReportViewDlg(new SuburbWaterPriceReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SuburbWaterPriceReportViewModel));
 		}
 
 		/// <summary>
@@ -161,9 +148,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnNotDeliveredOrdersPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<NotDeliveredOrdersReport>(),
-				() => new QSReport.ReportViewDlg(new NotDeliveredOrdersReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotDeliveredOrdersReportViewModel));
 		}
 
 		/// <summary>
@@ -173,9 +158,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderRegistryPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrderRegistryReport>(),
-				() => new QSReport.ReportViewDlg(new OrderRegistryReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderRegistryReportViewModel));
 		}
 
 		/// <summary>
@@ -185,9 +168,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCardPaymentsPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-				() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(UnitOfWorkFactory.GetDefaultFactory)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CardPaymentsOrdersReportViewModel));
 		}
 
 		/// <summary>
@@ -197,11 +178,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPayOnLineOrdersPressed(object sender, ButtonPressEventArgs e)
 		{
-			var paymentsRepository = new PaymentsRepository();
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<PaymentsFromTinkoffReport>(),
-				() => new QSReport.ReportViewDlg(new PaymentsFromTinkoffReport(paymentsRepository)));
+			Startup.MainWin.NavigationManager.OpenViewModel<OnlinePaymentsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -211,12 +188,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnFirstClientsPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-				() => new QSReport.ReportViewDlg(
-					new FirstClientsReport(
-						new DistrictJournalFactory(),
-						new DiscountReasonRepository())));
+			Startup.MainWin
+				.NavigationManager
+				.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FirstClientsReportViewModel), OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -226,9 +200,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSalesByDiscountReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<SalesByDiscountReport>(),
-				() => new QSReport.ReportViewDlg(new SalesByDiscountReport()));
+				() => new QSReport.ReportViewDlg(new SalesByDiscountReport(reportInfoFactory)));
 		}
 
 		/// <summary>
@@ -238,9 +213,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPotentialFreeloadersReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
-				() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<PotentialFreePromosetsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -260,9 +233,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEShopSalesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<EShopSalesReport>(),
-				() => new QSReport.ReportViewDlg(new EShopSalesReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EShopSalesReportViewModel));
 		}
 
 		/// <summary>
@@ -292,9 +263,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPaymentsFromAvangardReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
-				() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromAvangardReportViewModel));
 		}
 	}
 }

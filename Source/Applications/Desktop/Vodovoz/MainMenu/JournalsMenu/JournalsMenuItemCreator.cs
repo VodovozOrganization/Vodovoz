@@ -8,6 +8,7 @@ using Vodovoz.MainMenu.JournalsMenu.Logistics;
 using Vodovoz.MainMenu.JournalsMenu.Orders;
 using Vodovoz.MainMenu.JournalsMenu.Organization;
 using Vodovoz.MainMenu.JournalsMenu.Products;
+using Vodovoz.MainMenu.JournalsMenu.Transports;
 
 namespace Vodovoz.MainMenu.JournalsMenu
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 		private readonly LogisticsMenuItemCreator _logisticsMenuItemCreator;
 		private readonly HelpersMenuItemCreator _helpersMenuItemCreator;
 		private readonly OrdersMenuItemCreator _ordersMenuItemCreator;
+		private readonly TransportMenuItemCreator _transportMenuItemCreator;
 
 		public JournalsMenuItemCreator(
 			ConcreteMenuItemCreator concreteMenuItemCreator,
@@ -32,7 +34,8 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			CounterpartiesMenuItemCreator counterpartiesMenuItemCreator,
 			LogisticsMenuItemCreator logisticsMenuItemCreator,
 			HelpersMenuItemCreator helpersMenuItemCreator,
-			OrdersMenuItemCreator ordersMenuItemCreator)
+			OrdersMenuItemCreator ordersMenuItemCreator,
+			TransportMenuItemCreator transportMenuItemCreator)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 			_organizationMenuItemCreator =
@@ -45,6 +48,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			_logisticsMenuItemCreator = logisticsMenuItemCreator ?? throw new ArgumentNullException(nameof(logisticsMenuItemCreator));
 			_helpersMenuItemCreator = helpersMenuItemCreator ?? throw new ArgumentNullException(nameof(helpersMenuItemCreator));
 			_ordersMenuItemCreator = ordersMenuItemCreator ?? throw new ArgumentNullException(nameof(ordersMenuItemCreator));
+			_transportMenuItemCreator = transportMenuItemCreator ?? throw new ArgumentNullException(nameof(transportMenuItemCreator));
 		}
 
 		public MenuItem Create()
@@ -61,6 +65,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			journalsMenu.Add(_logisticsMenuItemCreator.Create());
 			journalsMenu.Add(_helpersMenuItemCreator.Create());
 			journalsMenu.Add(_ordersMenuItemCreator.Create());
+			journalsMenu.Add(_transportMenuItemCreator.Create());
 
 			return journalsMenuItem;
 		}

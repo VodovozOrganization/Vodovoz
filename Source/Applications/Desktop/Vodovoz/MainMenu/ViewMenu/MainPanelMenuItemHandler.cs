@@ -1,6 +1,6 @@
 ﻿using System;
 using Gtk;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using ToolbarStyle = Gtk.ToolbarStyle;
 
 namespace Vodovoz.MainMenu.ViewMenu
@@ -90,7 +90,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			if(_onlyTextToolbarAction.Active)
 			{
-				ToolBarMode(Domain.Employees.ToolbarStyle.Text);
+				ToolBarMode(Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Text);
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			if(_onlyIconsToolbarAction.Active)
 			{
-				ToolBarMode(Domain.Employees.ToolbarStyle.Icons);
+				ToolBarMode(Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Icons);
 			}
 		}
 
@@ -116,7 +116,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			if(_textAndIconsToolbarAction.Active)
 			{
-				ToolBarMode(Domain.Employees.ToolbarStyle.Both);
+				ToolBarMode(Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Both);
 			}
 		}
 
@@ -172,7 +172,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 			}
 		}
 
-		private void ToolBarMode(Vodovoz.Domain.Employees.ToolbarStyle style)
+		private void ToolBarMode(Vodovoz.Core.Domain.Users.Settings.ToolbarStyle style)
 		{
 			if(CurrentUserSettings.Settings.ToolbarStyle != style)
 			{
@@ -183,7 +183,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 			Startup.MainWin.ToolbarMain.ToolbarStyle = (ToolbarStyle)style;
 			Startup.MainWin.ToolbarComplaints.ToolbarStyle = (ToolbarStyle)style;
 
-			var result = style != Domain.Employees.ToolbarStyle.Text;
+			var result = style != Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Text;
 			_extraSmallIconsToolbarAction.Sensitive = result;
 			_smallIconsToolbarAction.Sensitive = result;
 			_middleIconsToolbarAction.Sensitive = result;
@@ -229,13 +229,13 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			switch(CurrentUserSettings.Settings.ToolbarStyle)
 			{
-				case Domain.Employees.ToolbarStyle.Both:
+				case Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Both:
 					_textAndIconsToolbarAction.Activate();
 					break;
-				case Domain.Employees.ToolbarStyle.Icons:
+				case Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Icons:
 					_onlyIconsToolbarAction.Activate();
 					break;
-				case Domain.Employees.ToolbarStyle.Text:
+				case Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Text:
 					_onlyTextToolbarAction.Activate();
 					break;
 			}

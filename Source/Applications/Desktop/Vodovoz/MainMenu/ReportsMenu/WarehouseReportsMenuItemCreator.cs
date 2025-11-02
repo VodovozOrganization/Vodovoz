@@ -1,7 +1,13 @@
 ﻿using System;
+using Autofac;
 using Gtk;
-using Vodovoz.EntityRepositories.Employees;
+using QS.Navigation;
+using QS.Report;
+using QS.Report.ViewModels;
+using QSReport;
+using Vodovoz.Presentation.ViewModels.Store.Reports;
 using Vodovoz.ReportsParameters.Store;
+using Vodovoz.ViewModels.ReportsParameters.Store;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 
@@ -32,6 +38,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Заявка на производство", OnProductionRequestReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Движение по инвентарному номеру", OnInventoryInstanceMovementReportPressed));
+			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Оборачиваемость складских остатков", OnTurnoverOfWarehouseBalancesReportPressed));
 
 			return warehouseReportsMenuItem;
 		}
@@ -53,9 +60,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEquipmentBalancePressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<EquipmentBalance>(),
-				() => new QSReport.ReportViewDlg(new EquipmentBalance()));
+				() => new QSReport.ReportViewDlg(new EquipmentBalance(reportInfoFactory)));
 		}
 
 		/// <summary>
@@ -65,9 +73,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnDefectiveItemsReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-				() => new QSReport.ReportViewDlg(new DefectiveItemsReport(Startup.MainWin.NavigationManager)));
+			Startup.MainWin.NavigationManager.OpenViewModel<Vodovoz.ViewModels.Store.Reports.DefectiveItemsReportViewModel>(null);
 		}
 
 		/// <summary>
@@ -77,9 +83,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnNotFullyLoadedRouteListsPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-				() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotFullyLoadedRouteListsReportViewModel));
 		}
 
 		/// <summary>
@@ -89,9 +93,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnForShipmentReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
-				() => new QSReport.ReportViewDlg(new NomenclatureForShipment()));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<NomenclatureForShipment>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -101,9 +106,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnStockMovementsAdvancedReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
-				() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport()));
+				() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport(reportInfoFactory)));
 		}
 
 		/// <summary>
@@ -113,11 +119,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnProductionRequestReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var employeeRepository = new EmployeeRepository();
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
-				() => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<ProductionRequestReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -128,6 +133,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnInventoryInstanceMovementReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Оборачиваемость складских остатков
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnTurnoverOfWarehouseBalancesReportPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<TurnoverOfWarehouseBalancesReportViewModel>(null);
 		}
 	}
 }

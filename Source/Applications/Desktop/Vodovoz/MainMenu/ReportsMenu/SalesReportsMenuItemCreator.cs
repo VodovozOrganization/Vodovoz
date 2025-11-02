@@ -1,9 +1,10 @@
 ﻿using System;
+using Autofac;
 using Gtk;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
 using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
@@ -73,9 +74,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderCreationDateReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
-				() => new QSReport.ReportViewDlg(new OrderCreationDateReport(Startup.MainWin.NavigationManager)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderCreationDateReportViewModel));
 		}
 
 		/// <summary>
@@ -85,9 +84,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPlanImplementationReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
-				() => new QSReport.ReportViewDlg(new PlanImplementationReport()));
+				() => new QSReport.ReportViewDlg(new PlanImplementationReport(reportInfoFactory)));
 		}
 
 		/// <summary>

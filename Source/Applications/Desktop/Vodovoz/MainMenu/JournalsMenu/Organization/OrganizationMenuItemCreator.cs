@@ -6,13 +6,16 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QSOrmProject;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.JournalViewers;
+using Vodovoz.Presentation.ViewModels.Employees.Journals;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -24,6 +27,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
 	public class OrganizationMenuItemCreator : MenuItemCreator
 	{
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
 		private readonly WageMenuItemCreator _wageMenuItemCreator;
 		private readonly ComplaintResultsMenuItemCreator _complaintResultsMenuItemCreator;
@@ -31,12 +35,14 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		private readonly UndeliveryClassificationMenuItemCreator _undeliveryClassificationMenuItemCreator;
 
 		public OrganizationMenuItemCreator(
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ConcreteMenuItemCreator concreteMenuItemCreator,
 			WageMenuItemCreator wageMenuItemCreator,
 			ComplaintResultsMenuItemCreator complaintResultsMenuItemCreator,
 			ComplaintClassificationMenuItemCreator complaintClassificationMenuItemCreator,
 			UndeliveryClassificationMenuItemCreator undeliveryClassificationMenuItemCreator)
 		{
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 			_wageMenuItemCreator = wageMenuItemCreator ?? throw new ArgumentNullException(nameof(wageMenuItemCreator));
 			_complaintResultsMenuItemCreator =
@@ -53,33 +59,29 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			var organizationMenu = new Menu();
 			organizationMenuItem.Submenu = organizationMenu;
 
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Организации", OnOrganizationsPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подразделения", OnSubdivisionsPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Склады", OnWarehousesPressed));
+			AddFirstSection(organizationMenu);
 			organizationMenu.Add(CreateSeparatorMenuItem());
-			organizationMenu.Add(_wageMenuItemCreator.Create());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Сотрудники", OnEmployeePressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Национальность", OnNationalityPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Иностранное гражданство", OnCitizenshipPressed));
+			AddSecondSection(organizationMenu);
 			organizationMenu.Add(CreateSeparatorMenuItem());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники рекламаций", OnComplaintSourcesPressed));
-			organizationMenu.Add(_complaintResultsMenuItemCreator.Create());
-			organizationMenu.Add(_complaintClassificationMenuItemCreator.Create());
-			organizationMenu.Add(_undeliveryClassificationMenuItemCreator.Create());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники проблем", OnUndeliveryProblemSourcesPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Причины рекламаций водителей", OnDriversComplaintReasonsPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ответственные за рекламации", OnResponsiblesPressed));
+			AddThirdSection(organizationMenu);
 			organizationMenu.Add(CreateSeparatorMenuItem());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы телефонов", OnPhoneTypesPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы e-mail адресов", OnEmailTypesPressed));
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины отписки от рассылки", OnUnsubscribingReasonsPressed));
+			AddFourthSection(organizationMenu);
 			organizationMenu.Add(CreateSeparatorMenuItem());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Справочники Roboats", OnRoboatsExportPressed));
+			AddFifthSection(organizationMenu);
 
 			return organizationMenuItem;
 		}
-		
+
+		#region FirstSection
+
+		private void AddFirstSection(Menu organizationMenu)
+		{
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Организации", OnOrganizationsPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подразделения", OnSubdivisionsPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Центры финансовой ответственности", OnFinancialResponsibilityCenterJournalActivated));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Склады", OnWarehousesPressed));
+		}
+
 		/// <summary>
 		/// Организации
 		/// </summary>
@@ -101,6 +103,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
 		}
+		
+		/// <summary>
+		/// Центры финансовой ответственности
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnFinancialResponsibilityCenterJournalActivated(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<FinancialResponsibilityCenterJournalViewModel>(null);
+		}
 
 		/// <summary>
 		/// Склады
@@ -110,6 +122,18 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		private void OnWarehousesPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<WarehousesView>(null);
+		}
+
+		#endregion
+		
+		#region SecondSection
+		
+		private void AddSecondSection(Menu organizationMenu)
+		{
+			organizationMenu.Add(_wageMenuItemCreator.Create());
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Сотрудники", OnEmployeePressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Национальность", OnNationalityPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Иностранное гражданство", OnCitizenshipPressed));
 		}
 		
 		/// <summary>
@@ -153,6 +177,22 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			Startup.MainWin.TdiMain.AddTab(refWin);
 		}
 		
+		#endregion
+
+		#region ThirdSection
+		//TODO: посмотреть регистрации журнала
+		private void AddThirdSection(Menu organizationMenu)
+		{
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники рекламаций", OnComplaintSourcesPressed));
+			organizationMenu.Add(_complaintResultsMenuItemCreator.Create());
+			organizationMenu.Add(_complaintClassificationMenuItemCreator.Create());
+			organizationMenu.Add(_undeliveryClassificationMenuItemCreator.Create());
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники проблем", OnUndeliveryProblemSourcesPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Причины рекламаций водителей", OnDriversComplaintReasonsPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ответственные за рекламации", OnResponsiblesPressed));
+		}
+		
 		/// <summary>
 		/// Источники рекламаций
 		/// </summary>
@@ -162,9 +202,9 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		{
 			var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 				x => x.Name,
-				() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-				(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
-				UnitOfWorkFactory.GetDefaultFactory,
+				() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, ServicesConfig.CommonServices),
+				(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, ServicesConfig.CommonServices),
+				_unitOfWorkFactory,
 				ServicesConfig.CommonServices
 			);
 			Startup.MainWin.TdiMain.AddTab(complaintSourcesViewModel);
@@ -181,15 +221,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 				x => x.Name,
 				() => new UndeliveryProblemSourceViewModel(
 					EntityUoWBuilder.ForCreate(),
-					UnitOfWorkFactory.GetDefaultFactory,
+					_unitOfWorkFactory,
 					ServicesConfig.CommonServices
 				),
 				(node) => new UndeliveryProblemSourceViewModel(
 					EntityUoWBuilder.ForOpen(node.Id),
-					UnitOfWorkFactory.GetDefaultFactory,
+					_unitOfWorkFactory,
 					ServicesConfig.CommonServices
 				),
-				UnitOfWorkFactory.GetDefaultFactory,
+				_unitOfWorkFactory,
 				ServicesConfig.CommonServices
 			);
 			undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
@@ -217,6 +257,28 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			Startup.MainWin.NavigationManager.OpenViewModel<ResponsibleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
+		#endregion
+		
+		#region FourthSection
+
+		private void AddFourthSection(Menu organizationMenu)
+		{
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Внутренние телефоны", OnInnerPhonesActionActivated));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы телефонов", OnPhoneTypesPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы e-mail адресов", OnEmailTypesPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины отписки от рассылки", OnUnsubscribingReasonsPressed));
+		}
+		
+		/// <summary>
+		/// Внутренние телефоны
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnInnerPhonesActionActivated(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<InnerPhonesJournalViewModel>(null);
+		}
+		
 		/// <summary>
 		/// Типы телефонов
 		/// </summary>
@@ -247,6 +309,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			Startup.MainWin.NavigationManager.OpenViewModel<BulkEmailEventReasonJournalViewModel>(null);
 		}
 
+		#endregion
+
+		#region FifthSection
+		
+		private void AddFifthSection(Menu organizationMenu)
+		{
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Справочники Roboats", OnRoboatsExportPressed));
+		}
+
 		/// <summary>
 		/// Справочники Roboats
 		/// </summary>
@@ -256,5 +327,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
 		}
+
+		#endregion
 	}
 }

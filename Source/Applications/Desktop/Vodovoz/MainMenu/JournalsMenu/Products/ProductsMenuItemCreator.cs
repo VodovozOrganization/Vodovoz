@@ -9,10 +9,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Journals;
-using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -46,6 +46,23 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			var productsMenu = new Menu();
 			productsMenuItem.Submenu = productsMenu;
 
+			AddFirstSection(productsMenu);
+			productsMenu.Add(CreateSeparatorMenuItem());
+			AddSecondSection(productsMenu);
+			productsMenu.Add(CreateSeparatorMenuItem());
+			AddThirdSection(productsMenu);
+			productsMenu.Add(CreateSeparatorMenuItem());
+			AddFourthSection(productsMenu);
+
+			Configure();
+
+			return productsMenuItem;
+		}
+
+		#region FirstSection
+
+		private void AddFirstSection(Menu productsMenu)
+		{
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Номенклатуры", OnNomenclaturesPressed));
 			productsMenu.Add(_inventoryAccountingMenuItemCreator.Create());
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Единицы измерения", OnUnitsPressed));
@@ -58,41 +75,6 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			productsMenu.Add(_additionalLoadSettingsMenuItem);
 			
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Групповое заполнение себестоимости", OnGroupPricingPressed));
-			productsMenu.Add(CreateSeparatorMenuItem());
-
-			var equipmentsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Оборудование", OnEquipmentsPressed);
-			equipmentsMenuItem.Sensitive = false;
-			
-			productsMenu.Add(equipmentsMenuItem);
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды оборудования", OnEquipmentKindsPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Производители оборудования", OnManufacturersPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Цвета", OnEquipmentColorsPressed));
-			productsMenu.Add(CreateSeparatorMenuItem());
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Спецификация продукции", OnProductSpecificationPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Сертификаты продукции", OnCertificatesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны для пересортицы", OnRegardingOfGoodsTemplatesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории выбраковки", OnCullingCategoriesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Фуры", OnTransportationWagonPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины пересортицы", OnRegradingOfGoodsReasonsPressed));
-			productsMenu.Add(CreateSeparatorMenuItem());
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Пакеты бесплатной аренды", OnFreeRentPackagesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Условия платной аренды", OnPaidRentPackagesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Основания для скидок", OnDiscountReasonsPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины несдачи тары", OnNonReturnReasonsPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины забора тары", OnReturnTareReasonsPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории забора тары", OnReturnTareReasonCategoriesPressed));
-			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рекламные листовки", OnFlyersPressed));
-			productsMenu.Add(_externalSourcesMenuItemCreator.Create());
-
-			Configure();
-
-			return productsMenuItem;
-		}
-
-		private void Configure()
-		{
-			_additionalLoadSettingsMenuItem.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
-				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 		}
 		
 		/// <summary>
@@ -124,7 +106,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		/// <param name="e"></param>
 		private void OnProductGroupsPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.NavigationManager.OpenTdiTab<ProductGroupView>(null);
+			Startup.MainWin.NavigationManager.OpenTdiTab<ProductGroupsJournalViewModel>(null);
 		}
 
 		/// <summary>
@@ -169,6 +151,21 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		private void OnGroupPricingPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
+		}
+
+		#endregion
+
+		#region SecondSection
+
+		private void AddSecondSection(Menu productsMenu)
+		{
+			var equipmentsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Оборудование", OnEquipmentsPressed);
+			equipmentsMenuItem.Sensitive = false;
+
+			productsMenu.Add(equipmentsMenuItem);
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды оборудования", OnEquipmentKindsPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Производители оборудования", OnManufacturersPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Цвета оборудования", OnEquipmentColorsPressed));
 		}
 
 		/// <summary>
@@ -216,7 +213,21 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			OrmReference refWin = new OrmReference(typeof(EquipmentColors));
 			Startup.MainWin.TdiMain.AddTab(refWin);
 		}
+		
+		#endregion
+		
+		#region ThirdSection
 
+		private void AddThirdSection(Menu productsMenu)
+		{
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Спецификация продукции", OnProductSpecificationPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Сертификаты продукции", OnCertificatesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны для пересортицы", OnRegardingOfGoodsTemplatesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории выбраковки", OnCullingCategoriesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Фуры", OnTransportationWagonPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины пересортицы", OnRegradingOfGoodsReasonsPressed));
+		}
+		
 		/// <summary>
 		/// Спецификация продукции
 		/// </summary>
@@ -287,6 +298,22 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		private void OnRegradingOfGoodsReasonsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<RegradingOfGoodsReasonsJournalViewModel>(null);
+		}
+
+		#endregion
+		
+		#region FourthSection
+
+		private void AddFourthSection(Menu productsMenu)
+		{
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Пакеты бесплатной аренды", OnFreeRentPackagesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Условия платной аренды", OnPaidRentPackagesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Основания для скидок", OnDiscountReasonsPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины несдачи тары", OnNonReturnReasonsPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины забора тары", OnReturnTareReasonsPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории забора тары", OnReturnTareReasonCategoriesPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рекламные листовки", OnFlyersPressed));
+			productsMenu.Add(_externalSourcesMenuItemCreator.Create());
 		}
 
 		/// <summary>
@@ -361,6 +388,14 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		private void OnFlyersPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<FlyersJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+		
+		#endregion
+
+		private void Configure()
+		{
+			_additionalLoadSettingsMenuItem.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
 		}
 	}
 }

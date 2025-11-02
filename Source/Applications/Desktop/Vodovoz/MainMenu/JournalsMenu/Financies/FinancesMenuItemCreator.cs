@@ -5,6 +5,7 @@ using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Profitability;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Financies
@@ -12,11 +13,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 	public class FinancesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private readonly CompanyBalanceMenuItemCreator _companyBalanceMenuItemCreator;
 		private MenuItem _profitabilityConstantsMenuItem;
 
-		public FinancesMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
+		public FinancesMenuItemCreator(
+			ConcreteMenuItemCreator concreteMenuItemCreator,
+			CompanyBalanceMenuItemCreator companyBalanceMenuItemCreator)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
+			_companyBalanceMenuItemCreator = companyBalanceMenuItemCreator ?? throw new ArgumentNullException(nameof(companyBalanceMenuItemCreator));
 		}
 
 		public MenuItem Create()
@@ -33,6 +38,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 			financesMenu.Add(_profitabilityConstantsMenuItem);
 			
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Финансовые статьи", OnFinancialCategoriesGroupsPressed));
+			financesMenu.Add(_companyBalanceMenuItemCreator.Create());
+			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории штрафов", OnFineCategoryJournalPressed));
 
 			Configure();
 
@@ -84,6 +91,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 		private void OnFinancialCategoriesGroupsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Категории штрафов
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnFineCategoryJournalPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
 		}
 	}
 }

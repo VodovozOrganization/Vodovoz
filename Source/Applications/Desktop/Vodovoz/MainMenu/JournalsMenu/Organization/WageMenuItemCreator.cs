@@ -43,12 +43,11 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 
 		private void Configure()
 		{
-			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
-			var canEditWage = permissionService.ValidatePresetPermission("can_edit_wage");
+			var canEditWage = Startup.MainWin.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 			_wageDistricts.Sensitive = canEditWage;
 			_rates.Sensitive = canEditWage;
 
-			var canEditWageBySelfSubdivision = permissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
+			var canEditWageBySelfSubdivision = Startup.MainWin.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
 			_salesPlans.Sensitive = canEditWageBySelfSubdivision;
 		}
 

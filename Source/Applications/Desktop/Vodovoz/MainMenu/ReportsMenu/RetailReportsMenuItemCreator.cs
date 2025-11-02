@@ -1,9 +1,11 @@
 ﻿using System;
+using Autofac;
 using Gtk;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
+using QS.Report;
+using QSReport;
 using Vodovoz.ReportsParameters.Retail;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -36,16 +38,12 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnQualityRetailReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-				() => new QSReport.ReportViewDlg(new QualityReport(
-					new CounterpartyJournalFactory(),
-					new EmployeeJournalFactory(Startup.MainWin.NavigationManager),
-					new SalesChannelJournalFactory(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.InteractiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				addingRegistrations: builder => builder.RegisterType<QualityReport>().As<IParametersWidget>());
 		}
 
+		//TODO: проверить новый формат загрузки старых отчетов
 		/// <summary>
 		/// Отчет по контрагентам
 		/// </summary>
@@ -53,14 +51,18 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCounterpartyRetailReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var interactiveService = Startup.AppDIContainer.Resolve<IInteractiveService>();
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
+			var uowFactory = Startup.AppDIContainer.Resolve<IUnitOfWorkFactory>();
+
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 				() => new QSReport.ReportViewDlg(new CounterpartyReport(
+					reportInfoFactory,
 					new SalesChannelJournalFactory(),
-					new DistrictJournalFactory(),
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.InteractiveService)));
-
+					Startup.AppDIContainer.Resolve<IDistrictJournalFactory>(),
+					uowFactory,
+					interactiveService)));
 		}
 	}
 }

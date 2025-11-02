@@ -3,6 +3,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Project.Services;
 using QSOrmProject;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Filters.ViewModels;
@@ -33,6 +34,79 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			var counterpartiesMenu = new Menu();
 			counterpartiesMenuItem.Submenu = counterpartiesMenu;
 
+			AddFirstSection(counterpartiesMenu);
+			counterpartiesMenu.Add(CreateSeparatorMenuItem());
+			AddSecondSection(counterpartiesMenu);
+			counterpartiesMenu.Add(CreateSeparatorMenuItem());
+			AddThirdSection(counterpartiesMenu);
+			counterpartiesMenu.Add(CreateSeparatorMenuItem());
+			AddFourthSection(counterpartiesMenu);
+
+			Configure();
+
+			return counterpartiesMenuItem;
+		}
+
+		#region ThirdSection
+
+		private void AddThirdSection(Menu counterpartiesMenu)
+		{
+			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Имена контрагентов Roboats", OnRoboAtsCounterpartyNamesPressed));
+
+			counterpartiesMenu.Add(
+				_concreteMenuItemCreator.CreateMenuItem(
+					"Отчества контрагентов Roboats", OnRoboAtsCounterpartyPatronymicsPressed));
+		}
+		
+		/// <summary>
+		/// Имена контрагентов Roboats
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnRoboAtsCounterpartyNamesPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<RoboAtsCounterpartyNameJournalViewModel>(null);
+		}
+
+		/// <summary>
+		/// Отчества контрагентов Roboats
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnRoboAtsCounterpartyPatronymicsPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
+		}
+		
+		#endregion
+
+		#region SecondSection
+
+		private void AddSecondSection(Menu counterpartiesMenu)
+		{
+			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Должности сотрудников контрагента", OnCounterpartyPostsPressed));
+		}
+		
+		/// <summary>
+		/// Должности сотрудников контрагента
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		[Obsolete("Старый диалог, заменить")]
+		private void OnCounterpartyPostsPressed(object sender, ButtonPressEventArgs e)
+		{
+			var refWin = new OrmReference(typeof(Post));
+			Startup.MainWin.TdiMain.AddTab(refWin);
+		}
+
+		#endregion
+
+		#region FirstSection
+
+		private void AddFirstSection(Menu counterpartiesMenu)
+		{
 			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.CounterpartiesJournalAction));
 			
 			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Точки доставки", OnDeliveryPointsPressed));
@@ -54,48 +128,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			counterpartiesMenu.Add(
 				_concreteMenuItemCreator.CreateMenuItem(
 					"Формы собственности контрагентов", OnOrganizationOwnershipTypesPressed));
-			
-			counterpartiesMenu.Add(CreateSeparatorMenuItem());
-			
-			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Должности сотрудников контрагента", OnCounterpartyPostsPressed));
-			
-			counterpartiesMenu.Add(CreateSeparatorMenuItem());
-			
-			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Имена контрагентов Roboats", OnRoboAtsCounterpartyNamesPressed));
-			
-			counterpartiesMenu.Add(
-				_concreteMenuItemCreator.CreateMenuItem(
-					"Отчества контрагентов Roboats", OnRoboAtsCounterpartyPatronymicsPressed));
-			
-			counterpartiesMenu.Add(CreateSeparatorMenuItem());
-			
-			_externalCounterpartiesMatchingMenuItem = _concreteMenuItemCreator
-				.CreateMenuItem("Сопоставление клиентов из внешних источников", OnExternalCounterpartiesMatchingPressed);
-			counterpartiesMenu.Add(_externalCounterpartiesMatchingMenuItem);
-
-			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подтипы контрагентов", OnCounterpartySubtypesPressed));
-
-			_counterpartyClassificationCalculationMenuItem = _concreteMenuItemCreator
-				.CreateMenuItem("Пересчёт классификации", OnCounterpartyClassificationCalculationPressed);
-			counterpartiesMenu.Add(_counterpartyClassificationCalculationMenuItem);
-			
-			Configure();
-
-			return counterpartiesMenuItem;
 		}
-
-		private void Configure()
-		{
-			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
-			_externalCounterpartiesMatchingMenuItem.Sensitive =
-				permissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
-			
-			_counterpartyClassificationCalculationMenuItem.Sensitive = 
-				permissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
-		}
-
+		
 		/// <summary>
 		/// Точки доставки
 		/// </summary>
@@ -177,36 +211,21 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			Startup.MainWin.NavigationManager.OpenViewModel<OrganizationOwnershipTypeJournalViewModel>(null);
 		}
 
-		/// <summary>
-		/// Должности сотрудников контрагента
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		[Obsolete("Старый диалог, заменить")]
-		private void OnCounterpartyPostsPressed(object sender, ButtonPressEventArgs e)
-		{
-			var refWin = new OrmReference(typeof(Post));
-			Startup.MainWin.TdiMain.AddTab(refWin);
-		}
+		#endregion
 
-		/// <summary>
-		/// Имена контрагентов Roboats
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnRoboAtsCounterpartyNamesPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<RoboAtsCounterpartyNameJournalViewModel>(null);
-		}
+		#region FourthSection
 
-		/// <summary>
-		/// Отчества контрагентов Roboats
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnRoboAtsCounterpartyPatronymicsPressed(object sender, ButtonPressEventArgs e)
+		private void AddFourthSection(Menu counterpartiesMenu)
 		{
-			Startup.MainWin.NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
+			_externalCounterpartiesMatchingMenuItem = _concreteMenuItemCreator
+				.CreateMenuItem("Сопоставление клиентов из внешних источников", OnExternalCounterpartiesMatchingPressed);
+			counterpartiesMenu.Add(_externalCounterpartiesMatchingMenuItem);
+
+			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подтипы контрагентов", OnCounterpartySubtypesPressed));
+
+			_counterpartyClassificationCalculationMenuItem = _concreteMenuItemCreator
+				.CreateMenuItem("Пересчёт классификации", OnCounterpartyClassificationCalculationPressed);
+			counterpartiesMenu.Add(_counterpartyClassificationCalculationMenuItem);
 		}
 
 		/// <summary>
@@ -237,6 +256,18 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 		private void OnCounterpartyClassificationCalculationPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<CounterpartyClassificationCalculationViewModel>(null);
+		}
+		
+		#endregion
+
+		private void Configure()
+		{
+			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
+			_externalCounterpartiesMatchingMenuItem.Sensitive =
+				permissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
+			
+			_counterpartyClassificationCalculationMenuItem.Sensitive = 
+				permissionService.ValidatePresetPermission(CounterpartyPermissions.CanCalculateCounterpartyClassifications);
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Gtk;
-using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.AdministrationTools;
@@ -27,8 +26,6 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рассчет расстояний до точек", OnDistanceFromCenterPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Заказы без операций движения бутылей", OnOrdersWithoutBottlesOperationsPressed));
-			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Загрузка 1с", OnLoad1cCounterpartyAndDeliveryPointsPressed));
-			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Выгрузка в интернет-магазин", OnExportToOnlineStorePressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Переотправка почты", OnResendEmailsPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Пересчет ЗП водителей", OnRecalculateDriverWagesPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
@@ -75,26 +72,6 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 		private void OnOrdersWithoutBottlesOperationsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<OrdersWithoutBottlesOperationDlg>(null);
-		}
-
-		/// <summary>
-		/// Загрузка 1с
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnLoad1cCounterpartyAndDeliveryPointsPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenTdiTab<LoadFrom1cClientsAndDeliveryPoints>(null, QS.Navigation.OpenPageOptions.IgnoreHash);
-		}
-
-		/// <summary>
-		/// Выгрузка в интернет-магазин
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnExportToOnlineStorePressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenTdiTab<ExportToSiteDlg>(null);
 		}
 
 		/// <summary>

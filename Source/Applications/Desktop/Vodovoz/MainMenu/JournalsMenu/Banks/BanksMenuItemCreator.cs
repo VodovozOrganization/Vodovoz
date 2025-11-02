@@ -23,15 +23,20 @@ namespace Vodovoz.MainMenu.JournalsMenu.Banks
 			var banksMenu = new Menu();
 			banksMenuItem.Submenu = banksMenu;
 
-			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Банки РФ", OnBanksRfPressed));
+			AddFirstSection(banksMenu);
 			banksMenu.Add(CreateSeparatorMenuItem());
-			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
-				"Обновить с сайта Центрального банка", OnUpdateBanksFromCbrPressed));
-			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Операторы ЭДО", OnEdoOperatorsPressed));
+			AddSecondSection(banksMenu);
 
 			return banksMenuItem;
 		}
 		
+		#region FirstSection
+
+		private void AddFirstSection(Menu banksMenu)
+		{
+			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Банки РФ", OnBanksRfPressed));
+		}
+
 		/// <summary>
 		/// Банки РФ
 		/// </summary>
@@ -43,7 +48,18 @@ namespace Vodovoz.MainMenu.JournalsMenu.Banks
 			OrmReference refWin = new OrmReference(typeof(Bank));
 			Startup.MainWin.TdiMain.AddTab(refWin);
 		}
+		
+		#endregion
 
+		#region SecondSection
+
+		private void AddSecondSection(Menu banksMenu)
+		{
+			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Обновить с сайта Центрального банка", OnUpdateBanksFromCbrPressed));
+			banksMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Операторы ЭДО", OnEdoOperatorsPressed));
+		}
+		
 		/// <summary>
 		/// Обновить с сайта Центрального банка
 		/// </summary>
@@ -63,5 +79,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Banks
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
+
+		#endregion
 	}
 }

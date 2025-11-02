@@ -12,6 +12,7 @@ using QS.Project.Services;
 using QS.Report.ViewModels;
 using QSReport;
 using System;
+using QS.Report;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
@@ -35,6 +36,7 @@ using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
@@ -80,10 +82,6 @@ public partial class MainWindow : Window
 
 	Action ActionServiceClaims;
 	Action ActionServiceDeliveryRules;
-	Action ActionWarehouseDocuments;
-	Action ActionWarehouseStock;
-	Action ActionClientBalance;
-	Action ActionWarehouseDocumentsItemsJournal;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -108,9 +106,14 @@ public partial class MainWindow : Window
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
 	Action ActionWarehouseStock;
-	public Action StockMovementsAction { get; private set; }
-	Action ActionClientBalance;
 	Action ActionWarehouseDocumentsItemsJournal;
+	public Action StockMovementsAction { get; private set; }
+
+
+	Action ActionClientBalance;
+	
+	public Action CarsJournalAction { get; private set; }
+	public Action WayBillReportAction { get; private set; }
 
 	
 	Action ActionFinesJournal;
@@ -373,7 +376,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionWarehouseStock, null);
-		w1.Add(ActionCar, null);
+		w1.Add(CarsJournalAction, null);
 		w1.Add(ActionMileageWriteOffJournal, null);
 
 		//Отдел продаж
@@ -557,9 +560,14 @@ public partial class MainWindow : Window
 	/// <param name="e"></param>
 	private void OnStockMovementsActivated(object sender, EventArgs e)
 	{
-		Startup.MainWin.TdiMain.OpenTab(
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var report = new StockMovements(reportInfoFactory, NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var dlg = new ReportViewDlg(report);
+		report.ParentTab = dlg;
+
+		tdiMain.OpenTab(
 			ReportViewDlg.GenerateHashName<StockMovements>(),
-			() => new ReportViewDlg(new StockMovements()));
+			() => dlg);
 	}
 
 	/// <summary>

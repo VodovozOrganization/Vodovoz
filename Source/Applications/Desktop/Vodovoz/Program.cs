@@ -33,20 +33,15 @@ using QS.Report.ViewModels;
 using QS.Services;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
 using QSReport;
-using RevenueService.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using QS.ChangePassword.Views;
 using QS.Project.DB.Passwords;
-using QS.Project.Repositories;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Mango;
@@ -74,8 +69,6 @@ using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewers;
-using Vodovoz.MainMenu;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -96,7 +89,6 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
-using Vodovoz.Settings.Counterparty;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
@@ -117,6 +109,7 @@ using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.Passwords;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
@@ -569,7 +562,6 @@ namespace Vodovoz
 				.ConfigureServices((hostingContext, services) =>
 				{
 					services.AddWaterDeliveryDesktop(hostingContext.Configuration);
-						.AddMainMenuDependencies();
 				});
 	}
 }

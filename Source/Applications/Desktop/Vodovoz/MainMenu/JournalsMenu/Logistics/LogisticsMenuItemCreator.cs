@@ -4,9 +4,10 @@ using QS.Navigation;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 {
@@ -30,26 +31,24 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 			var logisticsMenu = new Menu();
 			logisticsMenuItem.Submenu = logisticsMenu;
 
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Графики доставки", OnDeliverySchedulesPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Правила для цен доставки", OnDeliveryPriceRulesPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Тарифные зоны", OnTariffZonesPressed));
+			AddFirstSection(logisticsMenu);
 			logisticsMenu.Add(CreateSeparatorMenuItem());
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("График работы водителя", OnDeliveryDaySchedulesPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Смены доставки", OnDeliveryShiftsPressed));
-			logisticsMenu.Add(_driverWarehouseEventsMenuItemCreator.Create());
+			AddSecondSection(logisticsMenu);
 			logisticsMenu.Add(CreateSeparatorMenuItem());
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.CarsJournalAction));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды топлива", OnFuelTypesPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Модели автомобилей", OnCarModelsPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Производители автомобилей", OnCarManufacturersPressed));
-			logisticsMenu.Add(CreateSeparatorMenuItem());
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Колонки номенклатуры", OnRouteColumnsPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины опозданий водителей", OnLateArrivalReasonsPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды событий ТС", OnCarEventTypesPressed));
+			AddThirdSection(logisticsMenu);
 
 			return logisticsMenuItem;
 		}
-		
+
+		#region FirstSection
+
+		private void AddFirstSection(Menu logisticsMenu)
+		{
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Графики доставки", OnDeliverySchedulesPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Правила для цен доставки", OnDeliveryPriceRulesPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Тарифные зоны", OnTariffZonesPressed));
+		}
+
 		/// <summary>
 		/// Графики доставки
 		/// </summary>
@@ -79,7 +78,18 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<TariffZoneJournalViewModel>(null);
 		}
+		
+		#endregion
 
+		#region SecondSection
+
+		private void AddSecondSection(Menu logisticsMenu)
+		{
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("График работы водителя", OnDeliveryDaySchedulesPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Смены доставки", OnDeliveryShiftsPressed));
+			logisticsMenu.Add(_driverWarehouseEventsMenuItemCreator.Create());
+		}
+		
 		/// <summary>
 		/// График работы водителя
 		/// </summary>
@@ -105,37 +115,19 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 			var refWin = new OrmReference(typeof(DeliveryShift));
 			Startup.MainWin.TdiMain.AddTab(refWin);
 		}
+		
+		#endregion
 
-		/// <summary>
-		/// Виды топлива
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnFuelTypesPressed(object sender, ButtonPressEventArgs e)
+		#region ThirdSection
+
+		private void AddThirdSection(Menu logisticsMenu)
 		{
-			Startup.MainWin.NavigationManager.OpenViewModel<FuelTypeJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Колонки номенклатуры", OnRouteColumnsPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины опозданий водителей", OnLateArrivalReasonsPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Топливные карты", OnFuelCardsPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Причины списания километража", OnMileageWriteOffReasonsPressed));
 		}
-
-		/// <summary>
-		/// Модели автомобилей
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCarModelsPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
-		}
-
-		/// <summary>
-		/// Производители автомобилей
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnCarManufacturersPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CarManufacturerJournalViewModel>(null);
-		}
-
+		
 		/// <summary>
 		/// Колонки номенклатуры
 		/// </summary>
@@ -157,15 +149,27 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<LateArrivalReasonsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
-
+		
 		/// <summary>
-		/// Виды событий ТС
+		/// Топливные карты
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnCarEventTypesPressed(object sender, ButtonPressEventArgs e)
+		protected void OnFuelCardsPressed(object sender, EventArgs e)
 		{
-			Startup.MainWin.NavigationManager.OpenViewModel<CarEventTypeJournalViewModel>(null);
+			Startup.MainWin.NavigationManager.OpenViewModel<FuelCardJournalViewModel>(null);
 		}
+
+		/// <summary>
+		/// Причины списания километража
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnMileageWriteOffReasonsPressed(object sender, EventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<MileageWriteOffReasonJournalViewModel>(null);
+		}
+		
+		#endregion
 	}
 }

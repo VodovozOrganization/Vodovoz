@@ -1,15 +1,11 @@
 ﻿using System;
-using Autofac;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Services;
-using Vodovoz.Parameters;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Bookkeeping;
-using Vodovoz.ReportsParameters.Orders;
-using Vodovoz.ReportsParameters.Payments;
-using Vodovoz.TempAdapters;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
+using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
+using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -36,6 +32,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Отчет по изменениям заказа при доставке", OnOrderChangesReportPressed));
 			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Долги по безналу", OnCounterpartyCashlessDebtsReportPressed));
 			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по УПД в ЧЗ", OnEdoUpdReportPressed));
+			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Контроль за ЭДО", OnEdoControlReportPressed));
 			
 			return accountingDepMenuItem;
 		}
@@ -47,9 +44,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCloseDeliveryReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
-				() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCloseDeliveryReportViewModel));
 		}
 
 		/// <summary>
@@ -59,9 +54,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPaymentsFinDepartmentReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
-				() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport()));
+			Startup.MainWin
+				.NavigationManager
+				.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromBankClientFinDepartmentReportViewModel));
 		}
 
 		/// <summary>
@@ -71,18 +66,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnChainStoreDelayReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-			var report = new ChainStoreDelayReport(
-				lifetimeScope,
-				lifetimeScope.Resolve<IEmployeeJournalFactory>(),
-				lifetimeScope.Resolve<ICounterpartyJournalFactory>(),
-				lifetimeScope.Resolve<Vodovoz.Settings.Counterparty.ICounterpartySettings>());
-			
-			report.Destroyed += (o, args) => lifetimeScope.Dispose();
-			
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-				() => new QSReport.ReportViewDlg(report));
+			Startup.MainWin
+				.NavigationManager
+				.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ChainStoreDelayReportViewModel), OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -92,15 +78,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderChangesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var paramProvider = new ParametersProvider();
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-				() => new QSReport.ReportViewDlg(
-					new OrderChangesReport(
-						new ReportDefaultsProvider(paramProvider),
-						ServicesConfig.InteractiveService,
-						new ArchiveDataSettings(paramProvider))));
+			Startup.MainWin.NavigationManager.OpenViewModel<OrderChangesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -110,20 +88,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCounterpartyCashlessDebtsReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
-			
-			var report = new CounterpartyCashlessDebtsReport(
-				scope,
-				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				ServicesConfig.InteractiveService,
-				new CounterpartyJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory);
-
-			report.Destroyed += (o, args) =>  scope.Dispose();
-			
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-				() => new QSReport.ReportViewDlg(report));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCashlessDebtsReportViewModel));
 		}
 
 		/// <summary>
@@ -134,6 +99,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnEdoUpdReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+		
+		/// <summary>
+		/// Контроль за ЭДО
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnEdoControlReportPressed(object sender, EventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<EdoControlReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 	}
 }

@@ -463,6 +463,10 @@
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Financies\CompanyBalanceMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Orders\OnlineOrdersSourcesMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Orders\OrdersRatingsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Transports\TransportMenuItemCreator.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />

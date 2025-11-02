@@ -4,8 +4,8 @@ using QS.Project.Domain;
 using QS.Project.Services;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -37,6 +37,19 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			var adminMenu = new Menu();
 			_adminMenuItem.Submenu = adminMenu;
 
+			AddFirstSection(adminMenu);
+			adminMenu.Add(CreateSeparatorMenuItem());
+			AddSecondSection(adminMenu);
+
+			Configure();
+			
+			return _adminMenuItem;
+		}
+
+		#region FirstSection
+
+		private void AddFirstSection(Menu adminMenu)
+		{
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Типы документов", OnTypesOfEntitiesPressed));
 
 			_usersMenuItem = _concreteMenuItemCreator.CreateMenuItem("Пользователи", OnUsersPressed);
@@ -48,28 +61,6 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			
 			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Параметры", OnParametersPressed));
 			adminMenu.Add(_adminServiceMenuItemCreator.Create());
-			adminMenu.Add(CreateSeparatorMenuItem());
-
-			_docTemplatesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Шаблоны документов", OnDocTemplatesPressed);
-			adminMenu.Add(_docTemplatesMenuItem);
-			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Географические группы", OnGeographicGroupsPressed));
-			adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Изображения", OnImagesPressed));
-			
-			Configure();
-			
-			return _adminMenuItem;
-		}
-
-		private void Configure()
-		{
-			var admin = QSMain.User.Admin;
-			var userCanManageRegisteredRMs =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
-
-			_registeredRmMenuItem.Visible = userCanManageRegisteredRMs;
-			_adminMenuItem.Sensitive = admin;
-			_usersMenuItem.Sensitive = admin;
-			_docTemplatesMenuItem.Visible = admin;
 		}
 		
 		/// <summary>
@@ -127,42 +118,68 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<BaseParametersViewModel>(null);
 		}
+
+		#endregion
 		
-		/// <summary>
-		/// Шаблоны документов
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		[Obsolete("Старый диалог, заменить")]
-		private void OnDocTemplatesPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.TdiMain.OpenTab(
-				OrmReference.GenerateHashName<DocTemplate>(),
-				() => new OrmReference(typeof(DocTemplate)));
-		}
+		#region SecondSection
+        
+        private void AddSecondSection(Menu adminMenu)
+        {
+        	_docTemplatesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Шаблоны документов", OnDocTemplatesPressed);
+        	adminMenu.Add(_docTemplatesMenuItem);
+        	adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Географические группы", OnGeographicGroupsPressed));
+        	adminMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Изображения", OnImagesPressed));
+        }
+        
+        /// <summary>
+        /// Шаблоны документов
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        [Obsolete("Старый диалог, заменить")]
+        private void OnDocTemplatesPressed(object sender, ButtonPressEventArgs e)
+        {
+        	Startup.MainWin.TdiMain.OpenTab(
+        		OrmReference.GenerateHashName<DocTemplate>(),
+        		() => new OrmReference(typeof(DocTemplate)));
+        }
 
-		/// <summary>
-		/// Географические группы
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnGeographicGroupsPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null);
-		}
+        /// <summary>
+        /// Географические группы
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnGeographicGroupsPressed(object sender, ButtonPressEventArgs e)
+        {
+        	Startup.MainWin.NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null);
+        }
 
-		/// <summary>
-		/// Изображения
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		[Obsolete("Старый диалог, заменить")]
-		private void OnImagesPressed(object sender, ButtonPressEventArgs e)
+        /// <summary>
+        /// Изображения
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        [Obsolete("Старый диалог, заменить")]
+        private void OnImagesPressed(object sender, ButtonPressEventArgs e)
+        {
+        	Startup.MainWin.TdiMain.OpenTab(
+        		OrmReference.GenerateHashName<StoredResource>(),
+        		() => new OrmReference(typeof(StoredResource))
+        	);
+        }
+
+        #endregion
+
+		private void Configure()
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				OrmReference.GenerateHashName<StoredResource>(),
-				() => new OrmReference(typeof(StoredResource))
-			);
+			var admin = QSMain.User.Admin;
+			var userCanManageRegisteredRMs =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
+
+			_registeredRmMenuItem.Visible = userCanManageRegisteredRMs;
+			_adminMenuItem.Sensitive = admin;
+			_usersMenuItem.Sensitive = admin;
+			_docTemplatesMenuItem.Visible = admin;
 		}
 	}
 }

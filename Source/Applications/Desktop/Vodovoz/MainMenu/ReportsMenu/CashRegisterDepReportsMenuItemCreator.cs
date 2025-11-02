@@ -4,19 +4,22 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Report;
 using QS.Report.ViewModels;
-using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Employees;
+using QS.Services;
+using QSReport;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
+using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Sales;
-using Vodovoz.TempAdapters;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Cash.Reports;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Fuel;
+using Vodovoz.ViewModels.ReportsParameters.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -83,6 +86,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			
 			cashRegisterDepMenu.Add(
 				_concreteMenuItemCreator.CreateMenuItem("Контроль оплаты перемещений", OnMovementsPaymentControlReportPressed));
+			
+			cashRegisterDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по запросам Газпром-нефть", OnFuelApiRequestReportPressed));
 
 			Configure();
 			
@@ -95,7 +100,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			
 			var hasAccessToSalaries = permissionService.ValidatePresetPermission("access_to_salaries");
 			_hasAccessToSalariesForLogistics = permissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
-			var cashier = permissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 
 			_incomeBalanceMenuItem.Sensitive = cashier;
 			_cashBookMenuItem.Sensitive = cashier;
@@ -106,7 +112,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_employeesTaxesMenuItem.Sensitive = hasAccessToSalaries;
 			
 			_cashFlowAnalysisMenuItem.Sensitive =
-				permissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+				permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CanGenerateCashFlowDdsReport);
 		}
 
 		/// <summary>
@@ -116,9 +122,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnIncomeBalanceReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-				() => new QSReport.ReportViewDlg(new IncomeBalanceReport()));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(IncomeBalanceReportViewModel));
 		}
 
 		/// <summary>
@@ -128,10 +132,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnDriverWagesPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-				() => new QSReport.ReportViewDlg(
-					new Vodovoz.Reports.DriverWagesReport(Startup.MainWin.NavigationManager)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverWagesReportViewModel));
 		}
 
 		/// <summary>
@@ -141,9 +142,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnDriversWageBalancePressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
-				() => new QSReport.ReportViewDlg(new DriversWageBalanceReport()));
+				() => new QSReport.ReportViewDlg(new DriversWageBalanceReport(reportInfoFactory)));
 		}
 
 		/// <summary>
@@ -153,15 +155,14 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnFuelReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var dlg = Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+					null,
+					options: OpenPageOptions.IgnoreHash,
+					addingRegistrations: builder => builder.RegisterType<FuelReport>().As<IParametersWidget>())
+				.TdiTab;
 
-			var report = scope.Resolve<Vodovoz.Reports.FuelReport>();
-
-			var tab = Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-				() => new QSReport.ReportViewDlg(report));
-
-			report.Destroyed += (_, _2) => scope?.Dispose();
+			var report = (dlg as ReportViewDlg).ParametersWidget;
+			(report as FuelReport).ParentTab = dlg;
 		}
 
 		/// <summary>
@@ -171,9 +172,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnForwarderWagesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(Startup.MainWin.NavigationManager)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ForwarderWageReportViewModel));
 		}
 
 		/// <summary>
@@ -183,27 +182,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnWagesOperationsPressed(object sender, ButtonPressEventArgs e)
 		{
-			EmployeeFilterViewModel employeeFilter;
-
-			if(_hasAccessToSalariesForLogistics)
-			{
-				employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
-				employeeFilter.SetAndRefilterAtOnce(
-					x => x.Category = EmployeeCategory.driver,
-					x => x.Status = EmployeeStatus.IsWorking);
-			}
-			else
-			{
-				employeeFilter = new EmployeeFilterViewModel();
-				employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-			}
-
-			employeeFilter.HidenByDefault = true;
-			var employeeJournalFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager, employeeFilter);
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(WagesOperationsReportViewModel));
 		}
 
 		/// <summary>
@@ -213,10 +192,12 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCashBookReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
+			var commonServices = Startup.AppDIContainer.Resolve<ICommonServices>();
+			var subdivisionRepository = Startup.AppDIContainer.Resolve<ISubdivisionRepository>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-				() => new QSReport.ReportViewDlg(new CashBookReport(
-					new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices)));
+				() => new QSReport.ReportViewDlg(new CashBookReport(reportInfoFactory, subdivisionRepository, commonServices)));
 		}
 
 		/// <summary>
@@ -256,11 +237,15 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSalaryRatesReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var uowFactory = Startup.AppDIContainer.Resolve<IUnitOfWorkFactory>();
+			var wageSettings = Startup.AppDIContainer.Resolve<IWageSettings>();
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 				() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-					UnitOfWorkFactory.GetDefaultFactory,
-					new BaseParametersProvider(new ParametersProvider()),
+					reportInfoFactory,
+					uowFactory,
+					wageSettings,
 					ServicesConfig.CommonServices)));
 		}
 
@@ -271,9 +256,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEmployeesTaxesPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-				() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+				() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(reportInfoFactory, ServicesConfig.UnitOfWorkFactory)));
 		}
 
 		/// <summary>
@@ -284,6 +270,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnCashFlowAnalysisPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Отчет по запросам к API Газпром-нефть
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnFuelApiRequestReportPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelApiRequestReportViewModel));
 		}
 	}
 }

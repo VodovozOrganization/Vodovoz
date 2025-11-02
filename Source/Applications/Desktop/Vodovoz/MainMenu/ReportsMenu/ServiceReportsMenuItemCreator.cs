@@ -1,8 +1,10 @@
 ﻿using System;
+using Autofac;
 using Gtk;
-using QS.Project.Services;
-using Vodovoz.ReportsParameters;
-using Vodovoz.TempAdapters;
+using QS.Dialog;
+using QS.Report;
+using QS.Report.ViewModels;
+using Vodovoz.ViewModels.ReportsParameters.Service;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -35,9 +37,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnMastersReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-				() => new QSReport.ReportViewDlg(new MastersReport(Startup.MainWin.NavigationManager)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersReportViewModel));
 		}
 
 		/// <summary>
@@ -47,9 +47,11 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEquipmentReportPressed(object sender, ButtonPressEventArgs e)
 		{
+			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
+			var interactiveService = Startup.AppDIContainer.Resolve<IInteractiveService>();
 			Startup.MainWin.TdiMain.OpenTab(
 				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService)));
+				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(reportInfoFactory, interactiveService)));
 		}
 
 		/// <summary>
@@ -59,10 +61,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnMastersVisitReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-				() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
+			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersVisitReportViewModel));
 		}
 	}
 }

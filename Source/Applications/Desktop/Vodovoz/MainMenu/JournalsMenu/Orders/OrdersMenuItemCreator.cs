@@ -9,10 +9,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Orders
 	public class OrdersMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private readonly OnlineOrdersSourcesMenuItemCreator _onlineOrdersSourcesMenuItemCreator;
 
-		public OrdersMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
+		public OrdersMenuItemCreator(
+			ConcreteMenuItemCreator concreteMenuItemCreator,
+			OnlineOrdersSourcesMenuItemCreator onlineOrdersSourcesMenuItemCreator)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
+			_onlineOrdersSourcesMenuItemCreator =
+				onlineOrdersSourcesMenuItemCreator ?? throw new ArgumentNullException(nameof(onlineOrdersSourcesMenuItemCreator));
 		}
 
 		public MenuItem Create()
@@ -25,10 +30,11 @@ namespace Vodovoz.MainMenu.JournalsMenu.Orders
 			ordersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("План продаж для КЦ", OnSalesPlanPressed));
 			ordersMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Причины отсутствия переноса", OnUndeliveryTransferAbsenceReasonsPressed));
+			ordersMenu.Add(_onlineOrdersSourcesMenuItemCreator.Create());
 
 			return ordersMenuItem;
 		}
-		
+
 		/// <summary>
 		/// Типы оплаты по карте
 		/// </summary>

@@ -12,7 +12,7 @@ public partial class MainWindow
 {
 	private Dictionary<string, string> _themes;
 	private bool _themeResetInProcess = false;
-
+	/*
 	#region Главная панель
 
 	/// <summary>
@@ -300,4 +300,5 @@ public partial class MainWindow
 	}
 
 	#endregion Темы оформления
+	*/
 }
