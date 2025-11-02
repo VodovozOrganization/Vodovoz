@@ -206,7 +206,7 @@ public partial class MainWindow : Gtk.Window
 		var userHaveAccessToRetail = CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
-		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
+		//ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
 	}
 
 	private void ConfigureMainMenu()

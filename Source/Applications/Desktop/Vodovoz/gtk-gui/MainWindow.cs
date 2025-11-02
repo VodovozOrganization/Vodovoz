@@ -27,37 +27,27 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionComplaints;
 
+	private global::Gtk.Action OrdersRatingsAction;
+
 	private global::Gtk.RadioAction ActionSuppliers;
 
-	private global::Gtk.Action Action69;
-
-	private global::Gtk.Action ActionProduction;
-
 	private global::Gtk.Action MangoAction;
-
-	private global::Gtk.Action ActionWayBillGenerator;
-
-	private global::Gtk.Action ActionCashRequestJournal;
 
 	private global::Gtk.RadioAction ActionCashRequest;
 
 	private global::Gtk.RadioAction ActionRetail;
-
-	private global::Gtk.Action ActionRetailOrdersJournal;
-
-	private global::Gtk.Action ActionRetailCounterpartyJournal;
-
-	private global::Gtk.Action ActionRetailUndeliveredOrdersJournal;
-
-	private global::Gtk.Action ActionRetailComplaintsJournal;
-
-	private global::Gtk.Action Action72;
 
 	private global::Gtk.RadioAction ActionCarService;
 
 	private global::Gtk.RadioAction ActionSalesDepartment;
 
 	private global::Gtk.Action UndeliveredOrdersAction;
+
+	private global::Gtk.Action Action77;
+
+	private global::Gtk.RadioAction Action1SWork;
+
+	private global::Gtk.RadioAction ActionTrueMark;
 
 	private global::Gtk.HBox hbox1;
 
@@ -124,7 +114,7 @@ public partial class MainWindow
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionLogistics.Group;
+		this.ActionStock.Group = this.ActionOrders.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
@@ -132,81 +122,68 @@ public partial class MainWindow
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionStock.Group;
+		this.ActionAccounting.Group = this.ActionCash.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionAccounting.Group;
+		this.ActionReports.Group = this.ActionCash.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionAccounting.Group;
+		this.ActionArchive.Group = this.ActionCash.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionArchive.Group;
+		this.ActionStaff.Group = this.ActionCash.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionCRM = new global::Gtk.RadioAction("ActionCRM", global::Mono.Unix.Catalog.GetString("Работа с кл."), null, "CRM", 0);
-		this.ActionCRM.Group = this.ActionArchive.Group;
+		this.ActionCRM.Group = this.ActionCash.Group;
 		this.ActionCRM.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с кл.");
 		w1.Add(this.ActionCRM, null);
 		this.ActionComplaints = new global::Gtk.Action("ActionComplaints", global::Mono.Unix.Catalog.GetString("рекламации"), null, "complaints");
 		this.ActionComplaints.ShortLabel = global::Mono.Unix.Catalog.GetString("Рекламации");
 		w1.Add(this.ActionComplaints, null);
+		this.OrdersRatingsAction = new global::Gtk.Action("OrdersRatingsAction", global::Mono.Unix.Catalog.GetString("Оценки заказов"), null, "orders_ratings");
+		this.OrdersRatingsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Оценки заказов");
+		w1.Add(this.OrdersRatingsAction, null);
 		this.ActionSuppliers = new global::Gtk.RadioAction("ActionSuppliers", global::Mono.Unix.Catalog.GetString("Закупки"), null, "suppliers", 0);
-		this.ActionSuppliers.Group = this.ActionArchive.Group;
+		this.ActionSuppliers.Group = this.ActionCash.Group;
 		this.ActionSuppliers.ShortLabel = global::Mono.Unix.Catalog.GetString("Закупки");
 		w1.Add(this.ActionSuppliers, null);
-		this.Action69 = new global::Gtk.Action("Action69", global::Mono.Unix.Catalog.GetString("Производство"), null, null);
-		this.Action69.ShortLabel = global::Mono.Unix.Catalog.GetString("Производство");
-		w1.Add(this.Action69, null);
-		this.ActionProduction = new global::Gtk.Action("ActionProduction", global::Mono.Unix.Catalog.GetString("Производство"), null, null);
-		this.ActionProduction.ShortLabel = global::Mono.Unix.Catalog.GetString("Производство");
-		w1.Add(this.ActionProduction, null);
 		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "phone-disable");
 		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
 		w1.Add(this.MangoAction, null);
-		this.ActionWayBillGenerator = new global::Gtk.Action("ActionWayBillGenerator", global::Mono.Unix.Catalog.GetString("Журнал Путевых листов ФО"), null, null);
-		this.ActionWayBillGenerator.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал Путевых листов ФО");
-		w1.Add(this.ActionWayBillGenerator, null);
-		this.ActionCashRequestJournal = new global::Gtk.Action("ActionCashRequestJournal", global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС"), null, "gtk-file");
-		this.ActionCashRequestJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС");
-		w1.Add(this.ActionCashRequestJournal, null);
 		this.ActionCashRequest = new global::Gtk.RadioAction("ActionCashRequest", global::Mono.Unix.Catalog.GetString("Общее"), null, "gtk-file", 0);
-		this.ActionCashRequest.Group = this.ActionArchive.Group;
+		this.ActionCashRequest.Group = this.ActionCash.Group;
 		this.ActionCashRequest.ShortLabel = global::Mono.Unix.Catalog.GetString("Общее");
 		w1.Add(this.ActionCashRequest, null);
 		this.ActionRetail = new global::Gtk.RadioAction("ActionRetail", global::Mono.Unix.Catalog.GetString("Розница"), null, "retail", 0);
-		this.ActionRetail.Group = this.ActionArchive.Group;
+		this.ActionRetail.Group = this.ActionCashRequest.Group;
 		this.ActionRetail.ShortLabel = global::Mono.Unix.Catalog.GetString("Розница");
 		w1.Add(this.ActionRetail, null);
-		this.ActionRetailOrdersJournal = new global::Gtk.Action("ActionRetailOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал заказов"), null, null);
-		this.ActionRetailOrdersJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал заказов");
-		w1.Add(this.ActionRetailOrdersJournal, null);
-		this.ActionRetailCounterpartyJournal = new global::Gtk.Action("ActionRetailCounterpartyJournal", global::Mono.Unix.Catalog.GetString("Журнал контрагентов"), null, null);
-		this.ActionRetailCounterpartyJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал контрагентов");
-		w1.Add(this.ActionRetailCounterpartyJournal, null);
-		this.ActionRetailUndeliveredOrdersJournal = new global::Gtk.Action("ActionRetailUndeliveredOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал недовозов"), null, null);
-		this.ActionRetailUndeliveredOrdersJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал недовозов");
-		w1.Add(this.ActionRetailUndeliveredOrdersJournal, null);
-		this.ActionRetailComplaintsJournal = new global::Gtk.Action("ActionRetailComplaintsJournal", global::Mono.Unix.Catalog.GetString("Журнал рекламаций"), null, null);
-		this.ActionRetailComplaintsJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Журнал рекламаций");
-		w1.Add(this.ActionRetailComplaintsJournal, null);
-		this.Action72 = new global::Gtk.Action("Action72", global::Mono.Unix.Catalog.GetString("Типы ответственных за точку доставки лиц"), null, null);
-		this.Action72.ShortLabel = global::Mono.Unix.Catalog.GetString("Типы ответственных за точку доставки лиц");
-		w1.Add(this.Action72, null);
 		this.ActionCarService = new global::Gtk.RadioAction("ActionCarService", global::Mono.Unix.Catalog.GetString("ТрО"), null, "car_events", 0);
-		this.ActionCarService.Group = this.ActionArchive.Group;
+		this.ActionCarService.Group = this.ActionCashRequest.Group;
 		this.ActionCarService.ShortLabel = global::Mono.Unix.Catalog.GetString("ТрО");
 		w1.Add(this.ActionCarService, null);
 		this.ActionSalesDepartment = new global::Gtk.RadioAction("ActionSalesDepartment", global::Mono.Unix.Catalog.GetString("Отдел продаж"), null, "sales_department", 0);
-		this.ActionSalesDepartment.Group = this.ActionArchive.Group;
+		this.ActionSalesDepartment.Group = this.ActionCashRequest.Group;
 		this.ActionSalesDepartment.ShortLabel = global::Mono.Unix.Catalog.GetString("Отдел продаж");
 		w1.Add(this.ActionSalesDepartment, null);
 		this.UndeliveredOrdersAction = new global::Gtk.Action("UndeliveredOrdersAction", global::Mono.Unix.Catalog.GetString("Недовозы"), null, "undelivered_orders");
 		this.UndeliveredOrdersAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Недовозы");
 		w1.Add(this.UndeliveredOrdersAction, null);
+		this.Action77 = new global::Gtk.Action("Action77", global::Mono.Unix.Catalog.GetString("СКУД"), null, null);
+		this.Action77.ShortLabel = global::Mono.Unix.Catalog.GetString("СКУД");
+		w1.Add(this.Action77, null);
+		this.Action1SWork = new global::Gtk.RadioAction("Action1SWork", global::Mono.Unix.Catalog.GetString("Работа с 1С"), null, "1s_default", 0);
+		this.Action1SWork.Group = this.ActionCashRequest.Group;
+		this.Action1SWork.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с 1С");
+		w1.Add(this.Action1SWork, null);
+		this.ActionTrueMark = new global::Gtk.RadioAction("ActionTrueMark", global::Mono.Unix.Catalog.GetString("Маркировка"), null, "true_mark", 0);
+		this.ActionTrueMark.Group = this.ActionCashRequest.Group;
+		this.ActionTrueMark.ShortLabel = global::Mono.Unix.Catalog.GetString("Маркировка");
+		w1.Add(this.ActionTrueMark, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -314,11 +291,25 @@ public partial class MainWindow
 		w10.Position = 2;
 		w10.Expand = false;
 		w10.Fill = false;
+		// Container child hboxNotifications.Gtk.Box+BoxChild
+		this.ybuttonWiki = new global::Gamma.GtkWidgets.yButton();
+		this.ybuttonWiki.CanFocus = true;
+		this.ybuttonWiki.Name = "ybuttonWiki";
+		this.ybuttonWiki.UseUnderline = true;
+		global::Gtk.Image w11 = new global::Gtk.Image();
+		w11.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.wiki.png");
+		this.ybuttonWiki.Image = w11;
+		this.hboxNotifications.Add(this.ybuttonWiki);
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.ybuttonWiki]));
+		w12.PackType = ((global::Gtk.PackType)(1));
+		w12.Position = 4;
+		w12.Expand = false;
+		w12.Fill = false;
 		this.vboxMain.Add(this.hboxNotifications);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxNotifications]));
-		w11.Position = 0;
-		w11.Expand = false;
-		w11.Fill = false;
+		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxNotifications]));
+		w13.Position = 1;
+		w13.Expand = false;
+		w13.Fill = false;
 		// Container child vboxMain.Gtk.Box+BoxChild
 		this.hbox2 = new global::Gtk.HBox();
 		this.hbox2.Name = "hbox2";
@@ -331,27 +322,27 @@ public partial class MainWindow
 		this.toolbarMain.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
 		this.toolbarMain.IconSize = ((global::Gtk.IconSize)(5));
 		this.hbox2.Add(this.toolbarMain);
-		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
-		w12.Position = 0;
+		global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
+		w14.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.pacspanelview1 = new global::Vodovoz.Views.Pacs.PacsPanelView();
 		this.pacspanelview1.Events = ((global::Gdk.EventMask)(256));
 		this.pacspanelview1.Name = "pacspanelview1";
 		this.hbox2.Add(this.pacspanelview1);
-		global::Gtk.Box.BoxChild w161 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.pacspanelview1]));
-		w161.PackType = ((global::Gtk.PackType)(1));
-		w161.Position = 1;
-		w161.Expand = false;
-		w161.Fill = false;
+		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.pacspanelview1]));
+		w15.PackType = ((global::Gtk.PackType)(1));
+		w15.Position = 1;
+		w15.Expand = false;
+		w15.Fill = false;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.vseparator3 = new global::Gtk.VSeparator();
 		this.vseparator3.Name = "vseparator3";
 		this.hbox2.Add(this.vseparator3);
-		global::Gtk.Box.BoxChild w171 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator3]));
-		w171.PackType = ((global::Gtk.PackType)(1));
-		w171.Position = 2;
-		w171.Expand = false;
-		w171.Fill = false;
+		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator3]));
+		w16.PackType = ((global::Gtk.PackType)(1));
+		w16.Position = 2;
+		w16.Expand = false;
+		w16.Fill = false;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'UndeliveredOrdersAction\' action" +
 				"=\'UndeliveredOrdersAction\'/><toolitem name=\'ActionComplaints\' action=\'ActionComp" +
@@ -363,15 +354,15 @@ public partial class MainWindow
 		this.tlbComplaints.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
 		this.tlbComplaints.IconSize = ((global::Gtk.IconSize)(5));
 		this.hbox2.Add(this.tlbComplaints);
-		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.tlbComplaints]));
-		w13.PackType = ((global::Gtk.PackType)(1));
-		w13.Position = 1;
-		w13.Expand = false;
+		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.tlbComplaints]));
+		w17.PackType = ((global::Gtk.PackType)(1));
+		w17.Position = 3;
+		w17.Expand = false;
 		this.vboxMain.Add(this.hbox2);
-		global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox2]));
-		w14.Position = 1;
-		w14.Expand = false;
-		w14.Fill = false;
+		global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox2]));
+		w18.Position = 2;
+		w18.Expand = false;
+		w18.Fill = false;
 		// Container child vboxMain.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'toolbarSub\'/></ui>");
 		this.toolbarSub = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarSub")));
@@ -380,10 +371,10 @@ public partial class MainWindow
 		this.toolbarSub.ToolbarStyle = ((global::Gtk.ToolbarStyle)(1));
 		this.toolbarSub.IconSize = ((global::Gtk.IconSize)(2));
 		this.vboxMain.Add(this.toolbarSub);
-		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.toolbarSub]));
-		w15.Position = 2;
-		w15.Expand = false;
-		w15.Fill = false;
+		global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.toolbarSub]));
+		w19.Position = 3;
+		w19.Expand = false;
+		w19.Fill = false;
 		// Container child vboxMain.Gtk.Box+BoxChild
 		this.tdiMain = new global::QS.Tdi.Gtk.TdiNotebook();
 		this.tdiMain.Name = "tdiMain";
@@ -394,8 +385,8 @@ public partial class MainWindow
 		this.tdiMain.KeepColors = false;
 		this.tdiMain.AllowToReorderTabs = false;
 		this.vboxMain.Add(this.tdiMain);
-		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tdiMain]));
-		w16.Position = 3;
+		global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tdiMain]));
+		w20.Position = 4;
 		// Container child vboxMain.Gtk.Box+BoxChild
 		this.statusbarMain = new global::Gtk.Statusbar();
 		this.statusbarMain.Name = "statusbarMain";
@@ -404,28 +395,28 @@ public partial class MainWindow
 		this.labelUser = new global::Gtk.Label();
 		this.labelUser.Name = "labelUser";
 		this.statusbarMain.Add(this.labelUser);
-		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
-		w17.Position = 0;
-		w17.Expand = false;
-		w17.Fill = false;
+		global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
+		w21.Position = 0;
+		w21.Expand = false;
+		w21.Fill = false;
 		this.vboxMain.Add(this.statusbarMain);
-		global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.statusbarMain]));
-		w18.PackType = ((global::Gtk.PackType)(1));
-		w18.Position = 4;
-		w18.Expand = false;
-		w18.Fill = false;
+		global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.statusbarMain]));
+		w22.PackType = ((global::Gtk.PackType)(1));
+		w22.Position = 5;
+		w22.Expand = false;
+		w22.Fill = false;
 		this.hbox1.Add(this.vboxMain);
-		global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxMain]));
-		w19.Position = 0;
+		global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxMain]));
+		w23.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.infopanel = new global::Vodovoz.SidePanel.InfoPanel();
 		this.infopanel.Events = ((global::Gdk.EventMask)(256));
 		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
-		global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
-		w20.Position = 1;
-		w20.Expand = false;
-		w20.Fill = false;
+		global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
+		w24.Position = 1;
+		w24.Expand = false;
+		w24.Fill = false;
 		this.Add(this.hbox1);
 		if ((this.Child != null))
 		{
@@ -444,18 +435,15 @@ public partial class MainWindow
 		this.ActionStaff.Toggled += new global::System.EventHandler(this.OnActionStaffToggled);
 		this.ActionCRM.Activated += new global::System.EventHandler(this.OnActionCRMActivated);
 		this.ActionComplaints.Activated += new global::System.EventHandler(this.OnActionComplaintsActivated);
+		this.OrdersRatingsAction.Activated += new global::System.EventHandler(this.OnOrdersRatingsActionActivated);
 		this.ActionSuppliers.Activated += new global::System.EventHandler(this.OnActionSuppliersActivated);
-		this.ActionWayBillGenerator.Activated += new global::System.EventHandler(this.OnActionWayBillJournalActivated);
-		this.ActionCashRequestJournal.Activated += new global::System.EventHandler(this.OnActionCashRequestReportActivated);
 		this.ActionCashRequest.Activated += new global::System.EventHandler(this.OnActionGeneralActivated);
 		this.ActionRetail.Activated += new global::System.EventHandler(this.OnActionRetailActivated);
-		this.ActionRetailOrdersJournal.Activated += new global::System.EventHandler(this.OnActionRetailOrdersJournalActivated);
-		this.ActionRetailCounterpartyJournal.Activated += new global::System.EventHandler(this.OnActionRetailCounterpartyJournalActivated);
-		this.ActionRetailUndeliveredOrdersJournal.Activated += new global::System.EventHandler(this.OnActionRetailUndeliveredOrdersJournalActivated);
-		this.ActionRetailComplaintsJournal.Activated += new global::System.EventHandler(this.OnActionRetailComplaintsJournalActivated);
 		this.ActionCarService.Activated += new global::System.EventHandler(this.OnActionCarServiceAcivated);
 		this.ActionSalesDepartment.Activated += new global::System.EventHandler(this.OnActionSalesDepartmentAcivated);
 		this.UndeliveredOrdersAction.Activated += new global::System.EventHandler(this.OnUndeliveredOrdersActionActivated);
+		this.Action1SWork.Activated += new global::System.EventHandler(this.OnAction1SWorkAcivated);
+		this.ActionTrueMark.Activated += new global::System.EventHandler(this.OnActionTrueMarkActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
