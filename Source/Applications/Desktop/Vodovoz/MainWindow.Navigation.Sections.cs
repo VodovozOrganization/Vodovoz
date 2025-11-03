@@ -203,26 +203,7 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<OrdersRatingsJournalViewModel>(null);
 	}
 
-	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
-	{
-		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport(reportInfoFactory))
-		);
-	}
-
-	protected void OpenRoutesListRegisterReport()
-	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RoutesListRegisterReportViewModel));
-	}
-
-	protected void OpenDriverRoutesListRegisterReport()
-	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverRoutesListRegisterReportViewModel));
-	}
-
-	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
+	protected void OnActionCashRequestJournalActivated(object sender, EventArgs e)
 	{
 		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, bool, bool, Action<EmployeeFilterViewModel>>(
 			null,

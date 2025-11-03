@@ -2,7 +2,6 @@ using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
@@ -115,7 +114,9 @@ public partial class MainWindow : Window
 	public Action CarsJournalAction { get; private set; }
 	public Action WayBillReportAction { get; private set; }
 
-	
+	//Общее
+	private Action CashRequestJournalAction;
+
 	Action ActionFinesJournal;
 	Action ActionPremiumJournal;
 	Action ActionCarProxiesJournal;
@@ -132,6 +133,7 @@ public partial class MainWindow : Window
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
 	Action ActionImportPaymentsFromAvangard;
+	private Action WayBillsJournalAction;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -165,6 +167,12 @@ public partial class MainWindow : Window
 	private Action ActionSalesUndeliveredOrdersJournal;
 	private Action ActionSalesComplaintsJournal;
 
+	//Розница
+	private Action RetailOrdersJournalAction;
+	private Action RetailCounterpartyJournalAction;
+	private Action RetailUndeliveredOrdersJournalAction;
+	private Action RetailComplaintsJournalAction;
+	
 	//Работа с 1С
 	Action ActionRevision;
 	Action ActionExportTo1c;
@@ -243,6 +251,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
+		WayBillsJournalAction = new Action("WayBillsJournalAction", "Путевые листы для ФО");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -262,10 +271,21 @@ public partial class MainWindow : Window
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки", null, "table");
+		
+		//Общее
+		CashRequestJournalAction = new Action("CashRequestJournalAction", "Заявка на выдачу ДС");
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
 		ActionMileageWriteOffJournal = new Action("ActionMileageWriteOffJournal", "Пробег без МЛ", null, "table");
+		CarsJournalAction = new Action("CarsJournalAction", "Автомобили");
+		WayBillReportAction = new Action("WayBillReportAction", "Путевой лист");
+		
+		//Розница
+		RetailOrdersJournalAction = new Action("RetailOrdersJournalAction", "Журнал заказов");
+		RetailCounterpartyJournalAction = new Action("RetailCounterpartyJournalAction", "Журнал контрагентов");
+		RetailUndeliveredOrdersJournalAction = new Action("RetailUndeliveredOrdersJournalAction", "Журнал недовозов");
+		RetailComplaintsJournalAction = new Action("RetailComplaintsJournalAction", "Журнал рекламаций");
 
 		//Отдел продаж
 		ActionSalesOrdersJournal = new Action("ActionSalesOrdersJournal", "Журнал заказов", null, "table");
@@ -344,6 +364,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
 		w1.Add(ActionImportPaymentsFromAvangard, null);
+		w1.Add(WayBillsJournalAction, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -367,6 +388,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		w1.Add(ActionWarehousesBalanceSummary, null);
+
+		//Общее
+		w1.Add(CashRequestJournalAction, null);
 		
 		//ТрО
 		w1.Add(ActionCarEventsJournal, null);
@@ -378,6 +402,12 @@ public partial class MainWindow : Window
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(CarsJournalAction, null);
 		w1.Add(ActionMileageWriteOffJournal, null);
+		
+		//Розница
+		w1.Add(RetailOrdersJournalAction, null);
+		w1.Add(RetailCounterpartyJournalAction, null);
+		w1.Add(RetailUndeliveredOrdersJournalAction, null);
+		w1.Add(RetailComplaintsJournalAction, null);
 
 		//Отдел продаж
 		w1.Add(ActionSalesOrdersJournal, null);
@@ -455,6 +485,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
 		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
+		WayBillsJournalAction.Activated += OnActionWayBillJournalActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -480,10 +511,21 @@ public partial class MainWindow : Window
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
 		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 		ActionWarehousesBalanceSummary.Activated += ActionWarehousesBalanceSummary_Activated;
+		
+		//Общее
+		CashRequestJournalAction.Activated += OnActionCashRequestJournalActivated;
 
 		//ТрО
 		ActionCarEventsJournal.Activated += ActionCarEventsJournalActivated;
 		ActionMileageWriteOffJournal.Activated += OnActionMileageWriteOffJournalActivated;
+		CarsJournalAction.Activated += OnCarsJournalActivated;
+		WayBillReportAction.Activated += OnWayBillReportActivated;
+		
+		//Розница
+		RetailOrdersJournalAction.Activated += OnActionRetailOrdersJournalActivated;
+		RetailCounterpartyJournalAction.Activated += OnActionRetailCounterpartyJournalActivated;
+		RetailUndeliveredOrdersJournalAction.Activated += OnActionRetailUndeliveredOrdersJournalActivated;
+		RetailComplaintsJournalAction.Activated += OnActionRetailComplaintsJournalActivated;
 
 		//Отдел продаж
 		ActionSalesOrdersJournal.Activated += OnActionSalesOrdersJournalActivated;

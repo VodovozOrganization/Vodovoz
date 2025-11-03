@@ -1,5 +1,4 @@
 using Autofac;
-using MassTransit;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -41,26 +40,23 @@ public partial class MainWindow : Gtk.Window
 	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 	private readonly IInteractiveService _interactiveService;
 	private readonly IWikiSettings _wikiSettings;
-	private readonly OperatorService _operatorService;
+	private OperatorService _operatorService;
 	private IComplaintNotificationController _complaintNotificationController;
 	private IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
 	private bool _accessOnlyToWarehouseAndComplaints;
 	private bool _hideComplaintsNotifications;
-	private bool _hasAccessToSalariesForLogistics;
 	private int _currentUserSubdivisionId;
 
 	public MainWindow(
 		IInteractiveService interactiveService,
 		IApplicationInfo applicationInfo,
 		ICurrentPermissionService currentPermissionService,
-		IWikiSettings wikiSettings,
-		OperatorService operatorService) : base(Gtk.WindowType.Toplevel)
+		IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
 		ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 		_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
-		_operatorService = operatorService ?? throw new ArgumentNullException(nameof(operatorService));
 		CurrentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 		
 		Build();
@@ -105,10 +101,12 @@ public partial class MainWindow : Gtk.Window
 		
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
-		var cashier = CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+		var cashier = CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 		ActionCash.Sensitive = cashier;
 		ActionAccounting.Sensitive = CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
-		//Action1SWork.Sensitive = CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.Work1S.HasAccessTo1sWork);
+		Action1SWork.Sensitive = CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.Work1S.HasAccessTo1sWork);
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
@@ -206,7 +204,7 @@ public partial class MainWindow : Gtk.Window
 		var userHaveAccessToRetail = CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
-		//ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
+		RetailUndeliveredOrdersJournalAction.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
 	}
 
 	private void ConfigureMainMenu()
@@ -257,6 +255,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		MangoManager = _autofacScope.Resolve<MangoManager>();
+		_operatorService = _autofacScope.Resolve<OperatorService>();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
@@ -279,9 +278,5 @@ public partial class MainWindow : Gtk.Window
         }*/
 
 		base.OnDestroyed();
-	}
-
-	protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
-	{
 	}
 }

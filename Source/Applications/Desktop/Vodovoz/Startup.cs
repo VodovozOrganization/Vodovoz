@@ -355,8 +355,7 @@ namespace Vodovoz
 				AppDIContainer.Resolve<IInteractiveService>(),
 				AppDIContainer.Resolve<IApplicationInfo>(),
 				currentPermissionService,
-				wikiSettings,
-				AppDIContainer.Resolve<OperatorService>());
+				wikiSettings);
 			
 			MainWin.Configure();
 			MainWin.InitializeManagers();
