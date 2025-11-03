@@ -91,10 +91,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrdersCreationTimeReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
-				() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<OrdersCreationTimeReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -124,10 +124,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnOrderStatisticByWeekReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-				() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory, ServicesConfig.InteractiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<OrderStatisticByWeekReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

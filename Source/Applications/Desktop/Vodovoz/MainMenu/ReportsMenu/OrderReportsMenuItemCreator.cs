@@ -4,6 +4,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Report;
 using QS.Report.ViewModels;
+using QSReport;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Orders.Reports;
@@ -200,10 +201,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSalesByDiscountReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<SalesByDiscountReport>(),
-				() => new QSReport.ReportViewDlg(new SalesByDiscountReport(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<SalesByDiscountReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

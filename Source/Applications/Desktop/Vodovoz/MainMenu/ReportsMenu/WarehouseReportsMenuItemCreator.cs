@@ -60,10 +60,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEquipmentBalancePressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<EquipmentBalance>(),
-				() => new QSReport.ReportViewDlg(new EquipmentBalance(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<EquipmentBalance>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -95,7 +95,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
 				null,
-				options: OpenPageOptions.IgnoreHash,
+				OpenPageOptions.IgnoreHash,
 				addingRegistrations: builder => builder.RegisterType<NomenclatureForShipment>().As<IParametersWidget>());
 		}
 
@@ -106,10 +106,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnStockMovementsAdvancedReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
-				() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<StockMovementsAdvancedReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

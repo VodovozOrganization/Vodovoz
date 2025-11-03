@@ -29,7 +29,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 		public MenuItem Create()
 		{
-			var oskOkkReportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Отчеты");
+			var oskOkkReportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Отчеты ОСК/ОКК");
 			var menu = new Menu();
 			oskOkkReportsMenuItem.Submenu = menu;
 
@@ -187,11 +187,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnReturnedTareReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var interactiveService = Startup.AppDIContainer.Resolve<IInteractiveService>();
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-				() => new QSReport.ReportViewDlg(new ReturnedTareReport(reportInfoFactory, interactiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<ReturnedTareReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

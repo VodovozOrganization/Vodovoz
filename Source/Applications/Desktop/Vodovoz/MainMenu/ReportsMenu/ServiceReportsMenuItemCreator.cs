@@ -1,9 +1,10 @@
 ﻿using System;
 using Autofac;
 using Gtk;
-using QS.Dialog;
-using QS.Report;
+using QS.Navigation;
 using QS.Report.ViewModels;
+using QSReport;
+using Vodovoz.Reports;
 using Vodovoz.ViewModels.ReportsParameters.Service;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -47,11 +48,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEquipmentReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			var interactiveService = Startup.AppDIContainer.Resolve<IInteractiveService>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-				() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(reportInfoFactory, interactiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<EquipmentReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

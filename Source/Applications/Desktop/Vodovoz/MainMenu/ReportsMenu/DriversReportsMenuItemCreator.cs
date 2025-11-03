@@ -22,7 +22,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 		public MenuItem Create()
 		{
-			var driversMenuItem = _concreteMenuItemCreator.CreateMenuItem("Сотрудники");
+			var driversMenuItem = _concreteMenuItemCreator.CreateMenuItem("Водители");
 			var driversMenu = new Menu();
 			driversMenuItem.Submenu = driversMenu;
 

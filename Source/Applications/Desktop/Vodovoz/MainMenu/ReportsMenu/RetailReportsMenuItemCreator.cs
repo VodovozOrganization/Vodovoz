@@ -3,6 +3,7 @@ using Autofac;
 using Gtk;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Report;
 using QSReport;
 using Vodovoz.ReportsParameters.Retail;
@@ -40,10 +41,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
 				null,
+				OpenPageOptions.IgnoreHash,
 				addingRegistrations: builder => builder.RegisterType<QualityReport>().As<IParametersWidget>());
 		}
 
-		//TODO: проверить новый формат загрузки старых отчетов
 		/// <summary>
 		/// Отчет по контрагентам
 		/// </summary>
@@ -51,18 +52,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCounterpartyRetailReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var interactiveService = Startup.AppDIContainer.Resolve<IInteractiveService>();
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			var uowFactory = Startup.AppDIContainer.Resolve<IUnitOfWorkFactory>();
-
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-				() => new QSReport.ReportViewDlg(new CounterpartyReport(
-					reportInfoFactory,
-					new SalesChannelJournalFactory(),
-					Startup.AppDIContainer.Resolve<IDistrictJournalFactory>(),
-					uowFactory,
-					interactiveService)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<CounterpartyReport>().As<IParametersWidget>());
 		}
 	}
 }

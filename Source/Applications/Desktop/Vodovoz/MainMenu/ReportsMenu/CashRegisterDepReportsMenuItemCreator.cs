@@ -142,10 +142,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnDriversWageBalancePressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
-				() => new QSReport.ReportViewDlg(new DriversWageBalanceReport(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<DriversWageBalanceReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -192,12 +192,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnCashBookReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			var commonServices = Startup.AppDIContainer.Resolve<ICommonServices>();
-			var subdivisionRepository = Startup.AppDIContainer.Resolve<ISubdivisionRepository>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-				() => new QSReport.ReportViewDlg(new CashBookReport(reportInfoFactory, subdivisionRepository, commonServices)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<CashBookReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -237,16 +235,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnSalaryRatesReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var uowFactory = Startup.AppDIContainer.Resolve<IUnitOfWorkFactory>();
-			var wageSettings = Startup.AppDIContainer.Resolve<IWageSettings>();
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
-				() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-					reportInfoFactory,
-					uowFactory,
-					wageSettings,
-					ServicesConfig.CommonServices)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<SalaryRatesReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -256,10 +248,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnEmployeesTaxesPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-				() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(reportInfoFactory, ServicesConfig.UnitOfWorkFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				options: OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<EmployeesTaxesSumReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>

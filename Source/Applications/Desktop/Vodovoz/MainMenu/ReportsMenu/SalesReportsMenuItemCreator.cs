@@ -2,8 +2,8 @@
 using Autofac;
 using Gtk;
 using QS.Navigation;
-using QS.Report;
 using QS.Report.ViewModels;
+using QSReport;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
@@ -84,10 +84,10 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// <param name="e"></param>
 		private void OnPlanImplementationReportPressed(object sender, ButtonPressEventArgs e)
 		{
-			var reportInfoFactory = Startup.AppDIContainer.Resolve<IReportInfoFactory>();
-			Startup.MainWin.TdiMain.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
-				() => new QSReport.ReportViewDlg(new PlanImplementationReport(reportInfoFactory)));
+			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				addingRegistrations: builder => builder.RegisterType<PlanImplementationReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
