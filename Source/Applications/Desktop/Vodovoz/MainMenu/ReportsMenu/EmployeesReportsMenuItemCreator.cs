@@ -6,6 +6,9 @@ using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Сотрудники
+	/// </summary>
 	public class EmployeesReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -17,7 +20,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var employeesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Сотрудники");
 			var employeesMenu = new Menu();

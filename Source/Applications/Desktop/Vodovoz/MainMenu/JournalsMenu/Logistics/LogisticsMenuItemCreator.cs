@@ -11,6 +11,9 @@ using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 {
+	/// <summary>
+	/// Создатель меню Справочники - Логистика
+	/// </summary>
 	public class LogisticsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -25,7 +28,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 				driverWarehouseEventsMenuItemCreator ?? throw new ArgumentNullException(nameof(driverWarehouseEventsMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var logisticsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Логистика");
 			var logisticsMenu = new Menu();

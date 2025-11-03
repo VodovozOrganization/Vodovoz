@@ -8,6 +8,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Banks
 {
+	/// <summary>
+	/// Создатель меню Справочники - Банки/Операторы ЭДО
+	/// </summary>
 	public class BanksMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -16,8 +19,9 @@ namespace Vodovoz.MainMenu.JournalsMenu.Banks
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
-		
-		public MenuItem Create()
+
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var banksMenuItem = _concreteMenuItemCreator.CreateMenuItem("Банки/Операторы ЭДО");
 			var banksMenu = new Menu();

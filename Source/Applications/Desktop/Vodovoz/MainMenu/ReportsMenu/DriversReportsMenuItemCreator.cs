@@ -11,6 +11,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Водители
+	/// </summary>
 	public class DriversReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -20,7 +23,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var driversMenuItem = _concreteMenuItemCreator.CreateMenuItem("Водители");
 			var driversMenu = new Menu();

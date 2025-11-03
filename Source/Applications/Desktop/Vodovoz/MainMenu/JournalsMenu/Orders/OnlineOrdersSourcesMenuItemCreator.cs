@@ -5,6 +5,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Orders
 {
+	/// <summary>
+	/// Создатель меню Справочники - Заказы - ИПЗ
+	/// </summary>
 	public class OnlineOrdersSourcesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -18,7 +21,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Orders
 			_ordersRatingsMenuItemCreator = ordersRatingsMenuItemCreator ?? throw new ArgumentNullException(nameof(ordersRatingsMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var onlineOrdersSourcesMenuItem = _concreteMenuItemCreator.CreateMenuItem("ИПЗ");
 			var onlineOrdersSourcesMenu = new Menu();

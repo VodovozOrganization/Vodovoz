@@ -17,6 +17,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 {
+	/// <summary>
+	/// Создатель меню Справочники - Контрагенты
+	/// </summary>
 	public class CounterpartiesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -28,7 +31,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var counterpartiesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Контрагенты");
 			var counterpartiesMenu = new Menu();

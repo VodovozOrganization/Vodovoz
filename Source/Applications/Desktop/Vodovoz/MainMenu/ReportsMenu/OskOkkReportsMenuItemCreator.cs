@@ -1,9 +1,7 @@
 ﻿using System;
 using Autofac;
 using Gtk;
-using QS.Dialog;
 using QS.Navigation;
-using QS.Report;
 using QS.Report.ViewModels;
 using QSReport;
 using Vodovoz.ReportsParameters;
@@ -18,6 +16,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Отчеты ОСК/ОКК
+	/// </summary>
 	public class OskOkkReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -27,7 +28,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var oskOkkReportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Отчеты ОСК/ОКК");
 			var menu = new Menu();

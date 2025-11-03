@@ -21,6 +21,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Products
 {
+	/// <summary>
+	/// Создатель меню Справочники - ТМЦ
+	/// </summary>
 	public class ProductsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -40,7 +43,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 				externalSourcesMenuItemCreator ?? throw new ArgumentNullException(nameof(externalSourcesMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var productsMenuItem = _concreteMenuItemCreator.CreateMenuItem("ТМЦ");
 			var productsMenu = new Menu();

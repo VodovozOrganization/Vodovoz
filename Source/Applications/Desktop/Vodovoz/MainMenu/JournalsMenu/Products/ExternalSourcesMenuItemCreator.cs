@@ -4,6 +4,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Products
 {
+	/// <summary>
+	/// Создатель меню Справочники - ТМЦ - ИПЗ
+	/// </summary>
 	public class ExternalSourcesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -18,7 +21,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 				externalSourceCatalogsMenuItemCreator ?? throw new ArgumentNullException(nameof(externalSourceCatalogsMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var externalSourcesMenuItem = _concreteMenuItemCreator.CreateMenuItem("ИПЗ");
 			var externalSourcesMenu = new Menu();

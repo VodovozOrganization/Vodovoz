@@ -1,16 +1,15 @@
 ﻿using System;
 using Autofac;
 using Gtk;
-using QS.Dialog;
-using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Report;
 using QSReport;
 using Vodovoz.ReportsParameters.Retail;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Розница
+	/// </summary>
 	public class RetailReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -20,7 +19,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var retailMenuItem = _concreteMenuItemCreator.CreateMenuItem("Розница");
 			var retailMenu = new Menu();

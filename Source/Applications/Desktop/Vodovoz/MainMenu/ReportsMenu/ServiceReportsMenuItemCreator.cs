@@ -9,6 +9,9 @@ using Vodovoz.ViewModels.ReportsParameters.Service;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Сервисный центр
+	/// </summary>
 	public class ServiceReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -18,7 +21,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var serviceMenuItem = _concreteMenuItemCreator.CreateMenuItem("Сервисный центр");
 			var serviceMenu = new Menu();

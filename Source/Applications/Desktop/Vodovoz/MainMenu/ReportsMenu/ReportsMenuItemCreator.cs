@@ -5,6 +5,9 @@ using Vodovoz.Core.Domain.Permissions;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты
+	/// </summary>
 	public class ReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -86,7 +89,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 					&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var reportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Отчеты");
 			var reportsMenu = new Menu();
@@ -95,7 +99,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_orderReportsMenuItem = _orderReportsMenuItemCreator.Create();
 			reportsMenu.Add(_orderReportsMenuItem);
 			
-			reportsMenu.Add(_salesReportsMenuItemCreator.Create(_userIsSalesRepresentative));
+			reportsMenu.Add(_salesReportsMenuItemCreator.Create());
 			reportsMenu.Add(CreateSeparatorMenuItem());
 
 			_warehouseReportsMenuItem = _warehouseReportsMenuItemCreator.Create();

@@ -11,6 +11,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesRe
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Транспорт
+	/// </summary>
 	public class TransportReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -21,7 +24,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var transportMenuItem = _concreteMenuItemCreator.CreateMenuItem("Транспорт");
 			var transportMenu = new Menu();

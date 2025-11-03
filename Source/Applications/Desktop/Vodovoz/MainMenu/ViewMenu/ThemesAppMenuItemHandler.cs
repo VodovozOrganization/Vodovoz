@@ -5,6 +5,9 @@ using QS.Dialog.GtkUI;
 
 namespace Vodovoz.MainMenu.ViewMenu
 {
+	/// <summary>
+	/// Обработчик для создания и работы с меню Темы оформления
+	/// </summary>
 	public class ThemesAppMenuItemHandler : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -21,7 +24,8 @@ namespace Vodovoz.MainMenu.ViewMenu
 			};
 		}
 		
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var themesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Темы оформления");
 			var themesMenu = new Menu();

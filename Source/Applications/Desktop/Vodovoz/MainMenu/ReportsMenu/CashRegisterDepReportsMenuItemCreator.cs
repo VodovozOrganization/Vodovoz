@@ -1,19 +1,14 @@
 ﻿using System;
 using Autofac;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
-using QS.Report;
 using QS.Report.ViewModels;
-using QS.Services;
 using QSReport;
-using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Sales;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
@@ -23,6 +18,9 @@ using Vodovoz.ViewModels.ReportsParameters.Wages;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Касса
+	/// </summary>
 	public class CashRegisterDepReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -42,7 +40,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var cashRegisterDepMenuItem = _concreteMenuItemCreator.CreateMenuItem("Касса");
 			var cashRegisterDepMenu = new Menu();

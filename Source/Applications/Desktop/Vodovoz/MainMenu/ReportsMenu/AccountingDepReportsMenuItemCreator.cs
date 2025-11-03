@@ -10,6 +10,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
+	/// <summary>
+	/// Создатель меню Отчеты - Бухгалтерия
+	/// </summary>
 	public class AccountingDepReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -19,7 +22,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		///<inheritdoc/>
+		public override MenuItem Create()
 		{
 			var accountingDepMenuItem = _concreteMenuItemCreator.CreateMenuItem("Бухгалтерия");
 			var accountingDepMenu = new Menu();

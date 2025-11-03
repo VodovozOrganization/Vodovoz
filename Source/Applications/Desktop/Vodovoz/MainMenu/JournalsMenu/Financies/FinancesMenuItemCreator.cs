@@ -10,6 +10,9 @@ using Vodovoz.ViewModels.Profitability;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Financies
 {
+	/// <summary>
+	/// Создатель меню Справочники - Финансы
+	/// </summary>
 	public class FinancesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -24,7 +27,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 			_companyBalanceMenuItemCreator = companyBalanceMenuItemCreator ?? throw new ArgumentNullException(nameof(companyBalanceMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var financesMenuItem = _concreteMenuItemCreator.CreateMenuItem("Финансы");
 			var financesMenu = new Menu();

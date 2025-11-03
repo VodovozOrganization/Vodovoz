@@ -6,6 +6,9 @@ using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Financies
 {
+	/// <summary>
+	/// Создатель меню Справочники - Финансы - Остатки ден.средств по компании
+	/// </summary>
 	public class CompanyBalanceMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -15,7 +18,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var companyBalanceMenuItem = _concreteMenuItemCreator.CreateMenuItem("Остатки ден.средств по компании");
 			var companyBalanceMenu = new Menu();

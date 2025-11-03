@@ -12,6 +12,9 @@ using Vodovoz.MainMenu.JournalsMenu.Transports;
 
 namespace Vodovoz.MainMenu.JournalsMenu
 {
+	/// <summary>
+	/// Создатель меню Справочники
+	/// </summary>
 	public class JournalsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -51,7 +54,8 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			_transportMenuItemCreator = transportMenuItemCreator ?? throw new ArgumentNullException(nameof(transportMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var journalsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Справочники");
 			var journalsMenu = new Menu();

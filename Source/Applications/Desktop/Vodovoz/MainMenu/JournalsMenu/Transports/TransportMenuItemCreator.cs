@@ -7,6 +7,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Transports
 {
+	/// <summary>
+	/// Создатель меню Справочники - Транспорт
+	/// </summary>
 	public class TransportMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -16,7 +19,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Transports
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var transportsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Транспорт");
 			var transportsMenu = new Menu();

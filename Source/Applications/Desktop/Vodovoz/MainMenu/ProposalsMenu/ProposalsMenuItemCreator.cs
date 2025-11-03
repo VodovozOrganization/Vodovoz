@@ -6,6 +6,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 
 namespace Vodovoz.MainMenu.ProposalsMenu
 {
+	/// <summary>
+	/// Создатель меню Предложения
+	/// </summary>
 	public class ProposalsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -15,7 +18,8 @@ namespace Vodovoz.MainMenu.ProposalsMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var proposalsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Предложения");
 			var proposalsMenu = new Menu();

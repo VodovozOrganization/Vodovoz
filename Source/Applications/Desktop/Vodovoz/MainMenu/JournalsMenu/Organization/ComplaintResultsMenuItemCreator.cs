@@ -5,6 +5,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
+	/// <summary>
+	/// Создатель меню Справочники - Наша организация - Результаты рассмотрения рекламаций
+	/// </summary>
 	public class ComplaintResultsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -14,7 +17,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var complaintResultsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Результаты рассмотрения рекламаций");
 			var complaintResultsMenu = new Menu();

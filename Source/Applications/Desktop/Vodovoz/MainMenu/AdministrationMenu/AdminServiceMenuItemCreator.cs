@@ -6,6 +6,9 @@ using Vodovoz.ViewModels.AdministrationTools;
 
 namespace Vodovoz.MainMenu.AdministrationMenu
 {
+	/// <summary>
+	/// Создатель меню Администрирование - Обслуживание
+	/// </summary>
 	public class AdminServiceMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -15,7 +18,8 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var adminServiceMenuItem = _concreteMenuItemCreator.CreateMenuItem("Обслуживание");
 			var adminServiceMenu = new Menu();

@@ -4,6 +4,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 {
+	/// <summary>
+	/// Создатель меню Справочники - Логистика - События нахождения водителей на складе
+	/// </summary>
 	public class DriverWarehouseEventsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -13,7 +16,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var eventsMenuItem = _concreteMenuItemCreator.CreateMenuItem("События нахождения водителей на складе");
 			var eventsMenu = new Menu();

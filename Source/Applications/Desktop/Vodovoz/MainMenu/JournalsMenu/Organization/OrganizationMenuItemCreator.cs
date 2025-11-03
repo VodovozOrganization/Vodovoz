@@ -26,6 +26,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
+	/// <summary>
+	/// Создатель меню Справочники - Наша организация
+	/// </summary>
 	public class OrganizationMenuItemCreator : MenuItemCreator
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -54,7 +57,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 				undeliveryClassificationMenuItemCreator ?? throw new ArgumentNullException(nameof(undeliveryClassificationMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var organizationMenuItem = new MenuItem("Наша организация");
 			var organizationMenu = new Menu();

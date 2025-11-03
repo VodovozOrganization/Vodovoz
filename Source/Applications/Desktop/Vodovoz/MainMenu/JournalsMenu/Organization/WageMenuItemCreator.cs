@@ -1,12 +1,14 @@
 ﻿using System;
 using Gtk;
 using QS.Navigation;
-using QS.Project.Services;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
+	/// <summary>
+	/// Создатель меню Справочники - Наша организация - Зарплата
+	/// </summary>
 	public class WageMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -19,7 +21,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var wageMenuItem = _concreteMenuItemCreator.CreateMenuItem("Зарплата");
 			var wageMenu = new Menu();

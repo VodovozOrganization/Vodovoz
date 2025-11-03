@@ -4,6 +4,9 @@ using QS.Dialog.GtkUI;
 
 namespace Vodovoz.MainMenu.ViewMenu
 {
+	/// <summary>
+	/// Обработчик для создания и управления меню Вкладки
+	/// </summary>
 	public class TabsMenuItemHandler : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -16,7 +19,8 @@ namespace Vodovoz.MainMenu.ViewMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var tabsMenuItem = _concreteMenuItemCreator.CreateMenuItem("Вкладки");
 			var tabsMenu = new Menu();

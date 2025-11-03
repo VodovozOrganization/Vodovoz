@@ -5,8 +5,17 @@ using Action = Gtk.Action;
 
 namespace Vodovoz.MainMenu
 {
+	/// <summary>
+	/// Создатель различных элементов меню
+	/// </summary>
 	public class ConcreteMenuItemCreator : MenuItemCreator
 	{
+		/// <summary>
+		/// Создание строки меню с возможной привязкой обработчика нажатия кнопки ButtonPressEventHandler
+		/// </summary>
+		/// <param name="title">Название</param>
+		/// <param name="eventHandler">Обработчик нажатия кнопки</param>
+		/// <returns></returns>
 		public MenuItem CreateMenuItem(
 			string title,
 			ButtonPressEventHandler eventHandler = null)
@@ -21,16 +30,22 @@ namespace Vodovoz.MainMenu
 			return menuItem;
 		}
 
-		public Widget CreateMenuItem(Action action, EventHandler eventHandler = null)
+		/// <summary>
+		/// Создание строки меню с использованием <see cref="Gtk.Action"/>
+		/// </summary>
+		/// <param name="action">Экшен хранящий название и обработчик</param>
+		/// <returns></returns>
+		public Widget CreateMenuItem(Action action)
 		{
-			if(eventHandler != null)
-			{
-				action.Activated += eventHandler;
-			}
-			
 			return action.CreateMenuItem();
 		}
 
+		/// <summary>
+		/// Создание чек-бокс строки меню
+		/// </summary>
+		/// <param name="title">Название</param>
+		/// <param name="eventHandler">Обработчик действия</param>
+		/// <returns></returns>
 		public CheckMenuItem CreateCheckMenuItem(
 			string title,
 			EventHandler eventHandler = null)
@@ -45,6 +60,15 @@ namespace Vodovoz.MainMenu
 			return menuItem;
 		}
 
+		/// <summary>
+		/// Создание строки меню с картинкой
+		/// </summary>
+		/// <param name="name">Название для виджета</param>
+		/// <param name="title">Отображаемое название</param>
+		/// <param name="imageId">Зарегистрированный Id картинки</param>
+		/// <param name="tooltip">Всплывающее подсказка</param>
+		/// <param name="eventHandler">Обработчик</param>
+		/// <returns></returns>
 		public Widget CreateImageMenuItem(
 			string name,
 			string title,
@@ -62,6 +86,13 @@ namespace Vodovoz.MainMenu
 			return action.CreateMenuItem();
 		}
 		
+		/// <summary>
+		/// Создание радио строки меню
+		/// </summary>
+		/// <param name="title">Отображаемое название</param>
+		/// <param name="eventHandler">Обработчик</param>
+		/// <param name="group">Принадлежность группе</param>
+		/// <returns></returns>
 		public RadioMenuItem CreateRadioMenuItem(
 			string title,
 			EventHandler eventHandler,
@@ -73,6 +104,17 @@ namespace Vodovoz.MainMenu
 			return menuitem;
 		}
 		
+		/// <summary>
+		/// Создание радио строки меню
+		/// </summary>
+		/// <param name="name">Название для виджета</param>
+		/// <param name="title">Отображаемое название</param>
+		/// <param name="tooltip">Всплывающее подсказка</param>
+		/// <param name="imageId">Зарегистрированный Id картинки</param>
+		/// <param name="actionValue"></param>
+		/// <param name="eventHandler">Обработчик</param>
+		/// <param name="actionGroup">Принадлежность группе</param>
+		/// <returns></returns>
 		public RadioAction CreateRadioAction(
 			string name,
 			string title,
@@ -91,6 +133,12 @@ namespace Vodovoz.MainMenu
 			}
 
 			return action;
+		}
+
+		
+		public override MenuItem Create()
+		{
+			return new MenuItem();
 		}
 	}
 }

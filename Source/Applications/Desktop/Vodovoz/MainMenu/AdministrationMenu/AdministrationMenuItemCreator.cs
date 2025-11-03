@@ -14,6 +14,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 namespace Vodovoz.MainMenu.AdministrationMenu
 {
+	/// <summary>
+	/// Создатель меню Администрирование
+	/// </summary>
 	public class AdministrationMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -31,7 +34,8 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			_adminServiceMenuItemCreator = adminServiceMenuItemCreator ?? throw new ArgumentNullException(nameof(adminServiceMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			_adminMenuItem = _concreteMenuItemCreator.CreateMenuItem("Администрирование");
 			var adminMenu = new Menu();

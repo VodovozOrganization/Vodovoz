@@ -10,6 +10,9 @@ using Vodovoz.MainMenu.ViewMenu;
 
 namespace Vodovoz.MainMenu
 {
+	/// <summary>
+	/// Создатель меню главного окна
+	/// </summary>
 	public class MainMenuBarCreator : MenuBarCreator
 	{
 		private readonly BaseMenuItemCreator _baseMenuItemCreator;
@@ -39,6 +42,7 @@ namespace Vodovoz.MainMenu
 			_proposalsMenuItemCreator = proposalsMenuItemCreator ?? throw new ArgumentNullException(nameof(proposalsMenuItemCreator));
 		}
 		
+		///<inheritdoc/>
 		public override MenuBar CreateMenuBar()
 		{
 			var mainMenuBar = new MenuBar();

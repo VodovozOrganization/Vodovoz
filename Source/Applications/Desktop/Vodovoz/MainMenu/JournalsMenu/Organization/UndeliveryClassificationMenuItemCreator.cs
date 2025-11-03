@@ -5,6 +5,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
+	/// <summary>
+	/// Создатель меню Справочники - Наша организация - Классификация недовозов
+	/// </summary>
 	public class UndeliveryClassificationMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -14,7 +17,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var undeliveryClassificationMenuItem = _concreteMenuItemCreator.CreateMenuItem("Классификация недовозов");
 			var undeliveryClassificationMenu = new Menu();

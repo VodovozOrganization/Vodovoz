@@ -7,6 +7,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Helpers
 {
+	/// <summary>
+	/// Создатель меню Справочники - Помощники
+	/// </summary>
 	public class HelpersMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -16,7 +19,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Helpers
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var helpersMenuItem = _concreteMenuItemCreator.CreateMenuItem("Помощники");
 			var helpersMenu = new Menu();

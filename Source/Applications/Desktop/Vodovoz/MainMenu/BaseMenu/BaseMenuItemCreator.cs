@@ -15,6 +15,9 @@ using VodovozInfrastructure.Passwords;
 
 namespace Vodovoz.MainMenu.BaseMenu
 {
+	/// <summary>
+	/// Создатель меню База
+	/// </summary>
 	public class BaseMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -24,7 +27,8 @@ namespace Vodovoz.MainMenu.BaseMenu
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var baseMenuItem = _concreteMenuItemCreator.CreateMenuItem("База");
 			var baseMenu = new Menu();

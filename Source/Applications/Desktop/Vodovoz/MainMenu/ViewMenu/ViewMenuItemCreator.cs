@@ -3,6 +3,9 @@ using Gtk;
 
 namespace Vodovoz.MainMenu.ViewMenu
 {
+	/// <summary>
+	/// Создатель меню Вид
+	/// </summary>
 	public class ViewMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
@@ -22,7 +25,8 @@ namespace Vodovoz.MainMenu.ViewMenu
 			_themesAppMenuItemHandler = themesAppMenuItemHandler ?? throw new ArgumentNullException(nameof(themesAppMenuItemHandler));
 		}
 		
-		public MenuItem Create()
+		/// <inheritdoc/>
+		public override MenuItem Create()
 		{
 			var viewMenuItem = _concreteMenuItemCreator.CreateMenuItem("Вид");
 			var viewMenu = new Menu();
