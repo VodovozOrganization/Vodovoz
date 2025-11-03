@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -180,14 +181,14 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		#endregion
 
 		#region ThirdSection
-		//TODO: посмотреть регистрации журнала
+		
 		private void AddThirdSection(Menu organizationMenu)
 		{
 			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники рекламаций", OnComplaintSourcesPressed));
 			organizationMenu.Add(_complaintResultsMenuItemCreator.Create());
 			organizationMenu.Add(_complaintClassificationMenuItemCreator.Create());
 			organizationMenu.Add(_undeliveryClassificationMenuItemCreator.Create());
-			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники проблем", OnUndeliveryProblemSourcesPressed));
+			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Источники проблем недовозов", OnUndeliveryProblemSourcesPressed));
 			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Причины рекламаций водителей", OnDriversComplaintReasonsPressed));
 			organizationMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ответственные за рекламации", OnResponsiblesPressed));
@@ -200,41 +201,38 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		/// <param name="e"></param>
 		private void OnComplaintSourcesPressed(object sender, ButtonPressEventArgs e)
 		{
-			var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
-				x => x.Name,
-				() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, ServicesConfig.CommonServices),
-				(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, ServicesConfig.CommonServices),
-				_unitOfWorkFactory,
-				ServicesConfig.CommonServices
-			);
-			Startup.MainWin.TdiMain.AddTab(complaintSourcesViewModel);
+			Startup.MainWin.NavigationManager.OpenViewModel<
+				SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>,
+				Expression<Func<ComplaintSource, object>>,
+				Func<ComplaintSourceViewModel>,
+				Func<CommonJournalNode, ComplaintSourceViewModel>>
+				(
+					null,
+					x => x.Name,
+					() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, ServicesConfig.CommonServices),
+					(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, ServicesConfig.CommonServices));
 		}
 		
 		/// <summary>
-		/// Источники проблем
+		/// Источники проблем недовозов
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void OnUndeliveryProblemSourcesPressed(object sender, ButtonPressEventArgs e)
 		{
-			var undeliveryProblemSourcesViewModel = new SimpleEntityJournalViewModel<UndeliveryProblemSource, UndeliveryProblemSourceViewModel>(
+			var undeliveryProblemSourcesViewModel = Startup.MainWin.NavigationManager.OpenViewModel<
+				SimpleEntityJournalViewModel<UndeliveryProblemSource, UndeliveryProblemSourceViewModel>,
+				Expression<Func<UndeliveryProblemSource, object>>,
+				Func<UndeliveryProblemSourceViewModel>,
+				Func<CommonJournalNode, UndeliveryProblemSourceViewModel>>
+			(
+				null,
 				x => x.Name,
-				() => new UndeliveryProblemSourceViewModel(
-					EntityUoWBuilder.ForCreate(),
-					_unitOfWorkFactory,
-					ServicesConfig.CommonServices
-				),
-				(node) => new UndeliveryProblemSourceViewModel(
-					EntityUoWBuilder.ForOpen(node.Id),
-					_unitOfWorkFactory,
-					ServicesConfig.CommonServices
-				),
-				_unitOfWorkFactory,
-				ServicesConfig.CommonServices
-			);
-			undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
+				() => new UndeliveryProblemSourceViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, ServicesConfig.CommonServices),
+				(node) => new UndeliveryProblemSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, ServicesConfig.CommonServices))
+			.ViewModel;
 			
-			Startup.MainWin.TdiMain.AddTab(undeliveryProblemSourcesViewModel);
+			undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
 		}
 		
 		/// <summary>

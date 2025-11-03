@@ -85,6 +85,7 @@ using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 using Osrm;
+using QS.Project.Journal;
 using Vodovoz.MainMenu;
 using Vodovoz.MainMenu.AdministrationMenu;
 using Vodovoz.MainMenu.BaseMenu;
@@ -248,6 +249,7 @@ namespace Vodovoz
 
 				.AddVodovozDesktopResourceLocker()
 				.AddMainMenuDependencies()
+				.AddTransient(typeof(SimpleEntityJournalViewModel<,>))
 				;
 
 			services.AddStaticHistoryTracker();
