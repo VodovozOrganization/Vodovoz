@@ -19,6 +19,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.RouteList).Column("route_list_id");
 			References(x => x.Author).Column("author_id");
 			References(x => x.UndeliveredOrder).Column("undelivery_id");
+			References(x => x.FineCategory).Column("fine_category_id");
 
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("fine_id");
 			HasMany(x => x.Nomenclatures).Cascade.AllDeleteOrphan().Inverse().KeyColumn("fine_id");

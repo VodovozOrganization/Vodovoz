@@ -361,7 +361,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 		}
 
-		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
+		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

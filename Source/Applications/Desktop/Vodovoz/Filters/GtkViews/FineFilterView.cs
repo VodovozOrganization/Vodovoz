@@ -1,6 +1,8 @@
 ﻿using QS.Views.GtkUI;
+using System;
 using System.ComponentModel;
 using Vodovoz.FilterViewModels.Employees;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -26,6 +28,32 @@ namespace Vodovoz.Filters.GtkViews
 			ydateperiodpickerRouteList.Binding.AddBinding(ViewModel, vm => vm.RouteListDateStart, w => w.StartDateOrNull).InitializeFromSource();
 			ydateperiodpickerRouteList.Binding.AddBinding(ViewModel, vm => vm.RouteListDateEnd, w => w.EndDateOrNull).InitializeFromSource();
 			ydateperiodpickerRouteList.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListDate, w => w.Sensitive).InitializeFromSource();
+
+			ytreeviewFineCategory.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<EmployeeFineCategoryNode>.Create()
+				.AddColumn("Категория штрафа").AddTextRenderer(x => x.FineCategoryName)
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.Finish();
+			ytreeviewFineCategory.ItemsDataSource = ViewModel.FineCategoryNodes;
+
+			ycheckbuttonShowArchieve.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)
+				.InitializeFromSource();
+
+			buttonCategoryNone.Clicked += OnCategoryNoneClicked;
+
+			buttonCategoryAll.Clicked += OnCategoryAllClicked;
+		}
+
+		private void OnCategoryAllClicked(object sender, EventArgs args)
+		{
+			ViewModel.SelectAllFineCategories();
+			ytreeviewFineCategory.YTreeModel.EmitModelChanged();
+		}
+
+		private void OnCategoryNoneClicked(object sender, EventArgs args)
+		{
+			ViewModel.DeselectAllFineCategories();
+			ytreeviewFineCategory.YTreeModel.EmitModelChanged();
 		}
 	}
 }

@@ -9,10 +9,13 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private int _saveAttempts;
 		private bool _isNotAutoMatchingMode = true;
 		private bool _isSavingState;
+		private readonly IResourceLocker _resourceLocker;
 
 		public PaymentLoaderViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
@@ -48,7 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOrderRepository orderRepository,
-			IGenericRepository<Organization> organizationRepository) 
+			IGenericRepository<Organization> organizationRepository,
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -66,9 +72,33 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				throw new ArgumentNullException(nameof(organizationSettings));
 			}
+			
+			if(resourceLockerFactory == null)
+			{
+				throw new ArgumentNullException(nameof(resourceLockerFactory));
+			}
+
+			if(userRepository == null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
+			}
 
 			InteractiveService = commonServices.InteractiveService;
+			
+			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
+			
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
 
+			if(!lockResult.IsSuccess)
+			{
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Диалог уже открыт пользователем {ownerUser?.Name}",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
+			}
+			
 			UnitOfWorkFactory = unitOfWorkFactory;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			
@@ -184,8 +214,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				foreach(var doc in transferDocsByOrganization.Value)
 				{
+					var docDate = doc.ReceivedDate ?? doc.Date;
+
 					var curDoc = ObservablePayments.SingleOrDefault(
-						x => x.Date == doc.Date
+						x => x.Date == docDate
 							&& x.PaymentNum == int.Parse(doc.DocNum)
 							&& x.Organization.INN == doc.RecipientInn
 							&& x.CounterpartyInn == doc.PayerInn
@@ -194,7 +226,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 					if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
 						UoW,
-						doc.Date,
+						docDate,
 						int.Parse(doc.DocNum),
 						doc.RecipientInn,
 						doc.PayerInn,
@@ -314,6 +346,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return () => transferDoc.RecipientInn == _organisations[index].INN
 					&& !vodOrganizationsInn.Contains(transferDoc.PayerInn)
 					&& !_excludeInnPayers.Contains(transferDoc.PayerInn);
+		}
+
+		public override void Dispose()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
+			
+			base.Dispose();
 		}
 	}
 }

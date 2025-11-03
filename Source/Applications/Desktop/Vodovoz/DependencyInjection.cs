@@ -37,6 +37,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
+using ResourceLocker.Library;
 using System;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
@@ -83,6 +84,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using Osrm;
 
 namespace Vodovoz
 {
@@ -176,7 +178,7 @@ namespace Vodovoz
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<RouteGeometryCalculator>()
-				.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
 				.AddFiasClient()
@@ -226,6 +228,8 @@ namespace Vodovoz
 				.AddScoped<EmailDirectSender>()
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
+
+				.AddVodovozDesktopResourceLocker()
 				;
 
 			services.AddStaticHistoryTracker();

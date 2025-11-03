@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,8 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 
 		private readonly ILogger<Vodovoz.ViewModels.Services.RouteOptimization.ExtDistanceCalculator> _logger;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
-		private readonly IGlobalSettings _globalSettings;
+		private readonly IOsrmSettings _osrmSettings;
+		private readonly IOsrmClient _osrmClient;
 		private IUnitOfWork _unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 		private int _proposeNeedCached = 0;
 		private readonly Action<string> _statisticsTxtAction;
@@ -84,7 +85,8 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
 		public ExtDistanceCalculator(
 			ILogger<Vodovoz.ViewModels.Services.RouteOptimization.ExtDistanceCalculator> logger,
-			IGlobalSettings globalSettings,
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient,
 			ICachedDistanceRepository cachedDistanceRepository,
 			DeliveryPoint[] points,
 			IEnumerable<GeoGroupVersion> geoGroupVersions,
@@ -92,7 +94,8 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 			bool multiThreadLoad = true)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_statisticsTxtAction = statisticsTxtAction;
 			_unitOfWork.Session.SetBatchSize(SaveBy);
@@ -395,7 +398,7 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 					CachedDistance.GetPointOnEarth(toHash)
 				};
 
-				var result = OsrmClientFactory.Instance.GetRoute(points, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+				var result = _osrmClient.GetRoute(points, false, GeometryOverview.False, _osrmSettings.ExcludeToll);
 				ok = result?.Code == "Ok";
 
 				if(ok && result.Routes.Any())

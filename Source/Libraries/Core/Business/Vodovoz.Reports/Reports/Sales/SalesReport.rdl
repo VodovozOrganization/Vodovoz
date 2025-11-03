@@ -540,6 +540,7 @@
     T.nomen_group_level_2_id,
     T.nomen_group_level_3_id,
     sales_manager_name,
+    order_author_name,
     counterparty_classification,
     promotional_set
    
@@ -603,7 +604,8 @@ FROM
          IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
          IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
          IFNULL(ps.name, ' Без промонабора')  as promotional_set,
-         IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name
+         IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name,
+         IFNULL(CONCAT(e.last_name,  ' ', e.name, ' ', e.patronymic), ' Без автора заказа')  as order_author_name
          
      FROM
          order_items
@@ -742,8 +744,8 @@ FROM
 				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
          )
        AND (
-             (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
-				AND NOT (orders.author_employee_id IN (@Employee_exclude))
+             (0 IN (@OrderAuthor_include) OR (orders.author_employee_id IN (@OrderAuthor_include)))
+				AND NOT (orders.author_employee_id IN (@OrderAuthor_exclude))
          )
        AND (
              (0 IN (@SalesManager_include) OR (counterparty.sales_manager_id IN (@SalesManager_include)))
@@ -907,11 +909,11 @@ GROUP BY T.order_items_id
           <QueryParameter Name="Counterparty_exclude">
             <Value>=Parameters!Counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>=Parameters!Employee_include</Value>
+          <QueryParameter Name="OrderAuthor_include">
+            <Value>=Parameters!OrderAuthor_include</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>=Parameters!Employee_exclude</Value>
+          <QueryParameter Name="OrderAuthor_exclude">
+            <Value>=Parameters!OrderAuthor_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="SalesManager_include">
             <Value>=Parameters!SalesManager_include</Value>
@@ -1105,6 +1107,10 @@ GROUP BY T.order_items_id
           <DataField>sales_manager_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="order_author_name">
+          <DataField>order_author_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
@@ -1178,11 +1184,11 @@ FROM
           <QueryParameter Name="Subdivision_exclude">
             <Value>={?Subdivision_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>={?Employee_include}</Value>
+          <QueryParameter Name="OrderAuthor_include">
+            <Value>={?OrderAuthor_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>={?Employee_exclude}</Value>
+          <QueryParameter Name="OrderAuthor_exclude">
+            <Value>={?OrderAuthor_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="GeoGroup_include">
             <Value>={?GeoGroup_include}</Value>
@@ -1382,7 +1388,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_include">
+    <ReportParameter Name="OrderAuthor_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1390,7 +1396,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_exclude">
+    <ReportParameter Name="OrderAuthor_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

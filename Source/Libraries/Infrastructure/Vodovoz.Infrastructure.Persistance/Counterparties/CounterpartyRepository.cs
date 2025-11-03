@@ -301,7 +301,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			CounterpartyEdoOperator edoAccountAlias = null;
-			
+
 			return uow.Session.QueryOver<Counterparty>()
 				.JoinAlias(c => c.CounterpartyEdoAccounts, () => edoAccountAlias)
 				.Where(() => edoAccountAlias.PersonalAccountIdInEdo == edxClientId)
@@ -656,6 +656,41 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			return Math.Round(result ?? 0m, 2);
 		}
+
+		public IDictionary<int, Email[]> GetCounterpartyEmails(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			uow.Session.Query<Email>()
+			.Where(x => x.Counterparty != null && counterparties.Contains(x.Counterparty.Id))
+			.GroupBy(x => x.Counterparty.Id)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
+
+		public IDictionary<int, Phone[]> GetCounterpartyPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			uow.Session.Query<Phone>()
+			.Where(x => x.Counterparty.Id != null && counterparties.Contains(x.Counterparty.Id))
+			.GroupBy(x => x.Counterparty.Id)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
+
+		public IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			(from order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
+			 join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
+			 where
+				order.Client.Id != null
+				&& counterparties.Contains(order.Client.Id)
+				&& order.ContactPhone.Id != null
+			 group phone by order.Client.Id into g
+			 select g)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
 	}
 }
 

@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -41,6 +42,7 @@ using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -53,6 +55,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
@@ -72,6 +75,7 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IPermissionResult _permissionResult;
+		private readonly IOrderContractUpdater _orderContractUpdater;
 
 		private Employee _previousForwarder = null;
 
@@ -117,7 +121,8 @@ namespace Vodovoz
 			MessageService messageService,
 			ICounterpartyEdoAccountController edoAccountController,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
-			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService)
+			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
+			IOrderContractUpdater orderContractUpdater)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -143,6 +148,7 @@ namespace Vodovoz
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
+			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -220,7 +226,16 @@ namespace Vodovoz
 			}
 		}
 
-		public string BottlesInfo { get; private set; }
+        public Enum[] ExcludedPaymentTypes =
+        {
+            PaymentType.Barter,
+            PaymentType.Cashless,
+            PaymentType.ContractDocumentation,
+            PaymentType.PaidOnline,
+            PaymentType.SmsQR
+        };
+
+        public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
 		#region EEVMs
@@ -706,7 +721,15 @@ namespace Vodovoz
 			try
 			{
 				IsCanClose = false;
-				
+
+				foreach(var node in Items.Where(x => x.PaymentTypeHasChanged))
+				{
+					var order = node.RouteListItem.Order;
+					var newPaymentType = node.PaymentType;
+					order.Contract = null;
+					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
+				}
+
 				UoWGeneric.Save();
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);

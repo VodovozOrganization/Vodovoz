@@ -75,6 +75,7 @@ namespace ExportTo1c.Library.Exporters
 						"Строка",
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
+						new XAttribute("НоменклатураОфициальноеНазвание", item.Nomenclature.OfficialName),
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("ЕдиницаИзмерения", item.Nomenclature.Unit.Name),
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
@@ -82,7 +83,8 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
-						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle())
+						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
+						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)
 					);
 
 					salesElement.Add(rowElement);

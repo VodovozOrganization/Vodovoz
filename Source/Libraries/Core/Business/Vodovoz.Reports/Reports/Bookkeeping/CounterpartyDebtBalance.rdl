@@ -26,16 +26,18 @@
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+          <PaddingBottom>0pt</PaddingBottom>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>20.0pt</Width>
+            <Width>20.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.0pt</Width>
+            <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.6pt</Width>
+            <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>80.0pt</Width>
@@ -62,10 +64,10 @@
             <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.7pt</Width>
+            <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.3pt</Width>
+            <Width>27.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>40.9pt</Width>
@@ -73,7 +75,6 @@
           <TableColumn>
             <Width>20.5pt</Width>
           </TableColumn>
-          
         </TableColumns>
         <Header>
           <TableRows>
@@ -130,11 +131,11 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox49">
+                    <Textbox Name="Textbox46">
                       <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -153,7 +154,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>11</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -173,6 +174,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -190,6 +192,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,6 +210,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -214,7 +218,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Организация</Value>
+                      <Value>=Iif({?show_phones}, "Телефоны", "Организация")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -224,6 +228,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -244,6 +249,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -264,6 +270,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,6 +288,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -298,6 +306,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -315,6 +324,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -322,7 +332,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DebtorDebtHeader">
-                      <Value>Дебиторская задолженность</Value>
+                      <Value>Дебиторская задол-женность</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -340,7 +350,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="OverdueDebtorDebtHeader">
-                      <Value>Просроченная дебиторская задолженность</Value>
+                      <Value>Просроченная дебиторская задол-женность</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -358,7 +368,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Отсрочка контра-гента</Value>
+                      <Value>Отс-рочка конт-раген-та</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -376,8 +386,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Max дней просро-
-чки</Value>
+                      <Value>Max дней прос-рочки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -395,8 +404,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>Тип задол-
-женности</Value>
+                      <Value>Тип задол-жен-ности</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -414,9 +422,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Ликви-
-диро-
-ван</Value>
+                      <Value>Лик-ви-ди-ро-ван</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -513,6 +519,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -535,6 +542,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -557,6 +565,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -579,6 +588,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -601,6 +611,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -623,6 +634,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -645,6 +657,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -667,6 +680,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -828,7 +842,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>={org_name}</Value>
+                      <Value>=Iif({?show_phones}, {phones}, {org_name})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -840,8 +854,12 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
-                        <PaddingTop>1pt</PaddingTop>
-                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>=Iif(
+    {?show_phones},
+    CStr((Len({phones}) / 20)) + "pt",
+    "1pt"
+)</PaddingTop>
+                        <PaddingBottom>=Len({phones}) / 20 + "pt"</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -866,6 +884,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -888,6 +907,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -910,6 +930,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -932,7 +953,9 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -953,6 +976,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -975,6 +999,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -997,6 +1022,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1019,6 +1045,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1041,6 +1068,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1126,12 +1154,18 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
         c.inn AS inn,
         c.name AS counterparty_name,
+        IF
+        (
+	        EXISTS(SELECT 1 FROM phones p WHERE p.counterparty_id = o.client_id AND p.digits_number IS NOT NULL),
+	        (SELECT GROUP_CONCAT(DISTINCT CONCAT('+7', p.digits_number) SEPARATOR ',\n') FROM phones p WHERE p.counterparty_id = o.client_id ORDER BY p.id DESC),
+	        GROUP_CONCAT(DISTINCT (SELECT CONCAT('+7', p.digits_number) FROM phones p WHERE p.id = o.contact_phone_id ORDER BY p.id DESC) SEPARATOR ',\n')	        
+	    ) AS phones,
         org.name AS org_name,
         (
             (SELECT IFNULL(SUM(cmo.income), 0)
@@ -1225,9 +1259,9 @@
                 ) AS debtor_debt,
         c.delay_days_for_buyers,
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
-        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
+        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
-              WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Краткосрочный"
+              WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
          	  ELSE ""
          	  END as counterparty_debt_type,
         CASE WHEN c.is_liquidating = 0 THEN "Нет"
@@ -1292,7 +1326,7 @@
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
       AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
-      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
+      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
       AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
     GROUP BY org.id, c.id
     ) AS T
@@ -1367,7 +1401,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
@@ -1419,6 +1453,10 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
         <Field Name="overdue_debtor_debt">
           <DataField>overdue_debtor_debt</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="phones">
+          <DataField>phones</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1602,6 +1640,13 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_phones">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -10,7 +10,7 @@ using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Pacs;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Users.Settings;
@@ -384,6 +384,9 @@ namespace Vodovoz
 				.AddRemoveFromDependence<CarEvent>(x => x.Fines)
 				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
+
+			DeleteConfig.AddHibernateDeleteInfo<FineCategory>()
+				.AddClearDependence<Fine>(x => x.FineCategory);
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)

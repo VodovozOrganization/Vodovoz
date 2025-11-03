@@ -88,6 +88,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Заказ", item.Order.Id),
 						new XAttribute("Код", item.Nomenclature.Code1c),
 						new XAttribute("Номенклатура", item.Nomenclature.Name),
+						new XAttribute("НоменклатураОфициальноеНазвание", item.Nomenclature.OfficialName),
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("ЕдиницаИзмерения", item.Nomenclature.Unit.Name),
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
@@ -95,7 +96,9 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
-						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар")
+						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар"),
+						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare),
+						new XAttribute("ТипОплаты", order.PaymentByTerminalSource?.GetEnumTitle() ?? order.PaymentByCardFrom?.Name ?? order.PaymentType.GetEnumTitle())
 						);
 
 					xElements.Add(rowItem);
