@@ -1021,121 +1021,134 @@ First({total_string}, 'Initial')
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox74">
-        <Height>15.02pt</Height>
-        <Width>370.43pt</Width>
-        <Value>="От "+ First(Fields!org_name, 'Organization')</Value>
-        <ZIndex>0</ZIndex>
+      <List Name="SignaturesList">
+        <DataSetName>Organization</DataSetName>
+        <Height>78pt</Height>
+        <Width>809pt</Width>
         <Left>0.00pt</Left>
         <Top>325.10pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+          <BorderStyle/>
         </Style>
-      </Textbox>
-      <Line Name="Line1">
-        <Height>-0.01pt</Height>
-        <Width>113.70pt</Width>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <Left>0.00pt</Left>
-        <Top>359.20pt</Top>
-      </Line>
-      <Line Name="Line2">
-        <Height>0.02pt</Height>
-        <Width>201.81pt</Width>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <Left>0.80pt</Left>
-        <Top>382.30pt</Top>
-      </Line>
-      <Textbox Name="Textbox75">
-        <Height>13.52pt</Height>
-        <Width>177.68pt</Width>
-        <Value>(____________________________)</Value>
-        <ZIndex>0</ZIndex>
-        <Left>206.7pt</Left>
-        <Top>372.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox76">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>М.П.</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>390.0pt</Top>
-      </Textbox>
-      <Line Name="Line3">
-        <Height>-0.01pt</Height>
-        <Width>113.70pt</Width>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Left>394.9pt</Left>
-        <Top>360.3pt</Top>
-      </Line>
-      <Line Name="Line4">
-        <Height>0.02pt</Height>
-        <Width>201.81pt</Width>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <Left>395.7pt</Left>
-        <Top>383.4pt</Top>
-      </Line>
-      <Textbox Name="Textbox6">
-        <Height>13.52pt</Height>
-        <Width>177.68pt</Width>
-        <Value>(____________________________)</Value>
-        <ZIndex>0</ZIndex>
-        <Left>601.6pt</Left>
-        <Top>373.6pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox7">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>М.П.</Value>
-        <ZIndex>0</ZIndex>
-        <Left>394.9pt</Left>
-        <Top>391.1pt</Top>
-        <Style />
-      </Textbox>
-      <Textbox Name="Textbox8">
-        <Height>15.02pt</Height>
-        <Width>370.43pt</Width>
-        <Value>="От "+ First(Fields!counterparty_name,'Counterparty')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>390.70pt</Left>
-        <Top>325.70pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
+        <KeepTogether>true</KeepTogether>
+        <ReportItems>
+          <Textbox Name="Textbox74">
+            <Height>15.02pt</Height>
+            <Width>370.43pt</Width>
+            <Value>="От "+ First(Fields!org_name, 'Organization')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Line Name="Line1">
+            <Height>-0.01pt</Height>
+            <Width>113.70pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+            </Style>
+            <Left>0.00pt</Left>
+            <Top>34.10pt</Top>
+          </Line>
+          <Line Name="Line2">
+            <Height>0.02pt</Height>
+            <Width>201.81pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+            </Style>
+            <Left>0.80pt</Left>
+            <Top>57.20pt</Top>
+          </Line>
+          <Textbox Name="Textbox75">
+            <Height>13.52pt</Height>
+            <Width>177.68pt</Width>
+            <Value>(____________________________)</Value>
+            <ZIndex>0</ZIndex>
+            <Left>206.7pt</Left>
+            <Top>47.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox76">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>М.П.</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>64.9pt</Top>
+          </Textbox>
+          <Line Name="Line3">
+            <Height>-0.01pt</Height>
+            <Width>113.70pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Left>394.9pt</Left>
+            <Top>35.2pt</Top>
+          </Line>
+          <Line Name="Line4">
+            <Height>0.02pt</Height>
+            <Width>201.81pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+            </Style>
+            <Left>395.7pt</Left>
+            <Top>58.3pt</Top>
+          </Line>
+          <Textbox Name="Textbox6">
+            <Height>13.52pt</Height>
+            <Width>177.68pt</Width>
+            <Value>(____________________________)</Value>
+            <ZIndex>0</ZIndex>
+            <Left>601.6pt</Left>
+            <Top>48.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox7">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>М.П.</Value>
+            <ZIndex>0</ZIndex>
+            <Left>394.9pt</Left>
+            <Top>66.0pt</Top>
+            <Style />
+          </Textbox>
+          <Textbox Name="Textbox8">
+            <Height>15.02pt</Height>
+            <Width>370.43pt</Width>
+            <Value>="От "+ First(Fields!counterparty_name,'Counterparty')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>390.70pt</Left>
+            <Top>0.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+        </ReportItems>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>

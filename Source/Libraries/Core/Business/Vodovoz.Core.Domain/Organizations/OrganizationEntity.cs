@@ -33,6 +33,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
+		private string _emailForMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private int? _avangardShopId;
@@ -54,6 +55,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
+			EmailForMailing = string.Empty;
 		}
 
 		/// <summary>
@@ -144,6 +146,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _email;
 			set => SetField(ref _email, value);
+		}
+
+		/// <summary>
+		/// E-mail адрес
+		/// </summary>
+		[Display(Name = "E-mail адреса")]
+		public virtual string EmailForMailing
+		{
+			get => _emailForMailing;
+			set => SetField(ref _emailForMailing, value);
 		}
 
 		/// <summary>
@@ -328,6 +340,21 @@ namespace Vodovoz.Core.Domain.Organizations
 				yield return new ValidationResult(
 					"Номера ОКВЭД не должны превышать 100 знаков.",
 					new[] { nameof(OKVED) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Email))
+			{
+				yield return new ValidationResult(
+					"E-mail организации должен быть заполнен.",
+					new[] { nameof(Email) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(EmailForMailing) 
+				&& !Regex.IsMatch(EmailForMailing, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
+			{
+				yield return new ValidationResult(
+					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(Email) });
 			}
 		}
 

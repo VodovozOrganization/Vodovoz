@@ -2870,7 +2870,12 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
 
-			_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
+			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
+			
+			if(addingToRouteListResult.IsFailure)
+			{
+				return (false, addingToRouteListResult);
+			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
 			ProcessSmsNotification();

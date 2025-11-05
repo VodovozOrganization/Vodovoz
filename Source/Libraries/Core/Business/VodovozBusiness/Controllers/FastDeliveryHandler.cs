@@ -134,13 +134,20 @@ namespace Vodovoz.Controllers
 			return Result.Success();
 		}
 
-		public void TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, ICallTaskWorker callTaskWorker)
+		public Result TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, ICallTaskWorker callTaskWorker)
 		{
 			RouteListItem fastDeliveryAddress = null;
 
 			if(RouteListToAddFastDeliveryOrder != null)
 			{
 				uow.Session.Refresh(RouteListToAddFastDeliveryOrder);
+
+				if(RouteListToAddFastDeliveryOrder.Status != RouteListStatus.EnRoute)
+				{
+					return Result.Failure(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryNotOnTheWay(
+						RouteListToAddFastDeliveryOrder.Id, RouteListToAddFastDeliveryOrder.Status));
+				}
+
 				fastDeliveryAddress = RouteListToAddFastDeliveryOrder.AddAddressFromOrder(order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
@@ -156,6 +163,7 @@ namespace Vodovoz.Controllers
 			}
 			
 			NotifyDriverOfFastDeliveryOrderAdded(order.Id);
+			return Result.Success();
 		}
 
 		public void NotifyDriverOfFastDeliveryOrderAdded(int orderId)
