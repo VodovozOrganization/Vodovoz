@@ -9,8 +9,9 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
-using System.Text;
-using System.Text.Json;
+using MassTransit;
+using MassTransit.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MailganerEventsDistributorApi.Controllers
 {
@@ -18,27 +19,18 @@ namespace MailganerEventsDistributorApi.Controllers
 	[ApiController]
 	public class MailganerEventsDistributeController : ControllerBase
 	{
-		private const string _queuesConfigurationSection = "Queues";
-		private const string _messageBrockerConfigurationSection = "MessageBroker";
-		private const string _emailStatusUpdateExchangeParameter = "EmailStatusUpdateExchange";
-		private const string _emailStatusUpdateKeyParameter = "EmailStatusUpdateKey";
-
 		private readonly ILogger<MailganerEventsDistributeController> _logger;
 		private readonly IInstanceData _instanceData;
-		private readonly RabbitMQConnectionFactory _queueConnectionFactory;
-		private readonly IConfiguration _configuration;
-		private readonly string _mailEventKey;
-		private readonly string _mailEventExchange;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 
-		public MailganerEventsDistributeController(ILogger<MailganerEventsDistributeController> logger, IInstanceData instanceData,
-										  RabbitMQConnectionFactory queueConnectionFactory, IConfiguration configuration)
+		public MailganerEventsDistributeController(
+			ILogger<MailganerEventsDistributeController> logger,
+			IInstanceData instanceData,
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_instanceData = instanceData ?? throw new ArgumentNullException(nameof(instanceData));
-			_queueConnectionFactory = queueConnectionFactory ?? throw new ArgumentNullException(nameof(queueConnectionFactory));
-			_mailEventExchange = configuration.GetSection(_queuesConfigurationSection).GetValue<string>(_emailStatusUpdateExchangeParameter);
-			_mailEventKey = configuration.GetSection(_queuesConfigurationSection).GetValue<string>(_emailStatusUpdateKeyParameter);
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
 		[HttpPost]
@@ -84,44 +76,55 @@ namespace MailganerEventsDistributorApi.Controllers
 				return;
 			}
 
-			var instance = _instanceData.GetInstanceByDatabaseId(instanceId);
-			var messageBrockerSection = _configuration.GetSection(_messageBrockerConfigurationSection);
+			PublishMessage(message, instanceId, trackId);
+		}
 
-			var username = messageBrockerSection.GetValue<string>("Username");
-			var password = messageBrockerSection.GetValue<string>("Password");
-
-			var connection = _queueConnectionFactory.CreateConnection(instance.MessageBrockerHost, username, password, instance.MessageBrockerVirtualHost, instance.Port, messageBrockerSection.GetValue("UseSsl", true));
-			var channel = connection.CreateModel();
-
-			channel.QueueDeclare(_mailEventKey, true, false, false, null);
-
-			var dateTimeRecieved = DateTimeOffset.FromUnixTimeSeconds(message.Timestamp).DateTime.ToLocalTime();
-
-			var payload = new EmailPayload
+		private void PublishMessage(EmailEventMessage message, int instanceId, int trackId)
+		{
+			try
 			{
-				Trackable = true,
-				Id = trackId,
-				InstanceId = instanceId
-			};
+				var instance = _instanceData.GetInstanceByDatabaseId(instanceId);
+				
+				IPublishEndpoint endpoint = null;
+				using var scope = _serviceScopeFactory.CreateScope();
 
-			var eventMessage = new UpdateStoredEmailStatusMessage
+				switch (instance.MessageBrockerVirtualHost)
+				{
+					case "email_host":
+						endpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+						break;
+					case "email_host_test":
+						endpoint = scope.ServiceProvider.GetRequiredService<Bind<IEmailDevBus, IPublishEndpoint>>().Value;
+						break;
+					default:
+						_logger.LogError("Неизвестный хост {VirtualHost}", instance.MessageBrockerVirtualHost);
+						return;
+				}
+
+				var dateTimeRecieved = DateTimeOffset.FromUnixTimeSeconds(message.Timestamp).DateTime.ToLocalTime();
+
+				var payload = new EmailPayload
+				{
+					Trackable = true,
+					Id = trackId,
+					InstanceId = instanceId
+				};
+
+				var eventMessage = new UpdateStoredEmailStatusMessage
+				{
+					EventPayload = payload,
+					RecievedAt = dateTimeRecieved,
+					Status = ConvertStatus(message.Status),
+					MailjetMessageId = message.MessageId,
+					ErrorInfo = message.Reason
+				};
+				
+				endpoint.Publish(eventMessage);
+			}
+			catch(Exception e)
 			{
-				EventPayload = payload,
-				RecievedAt = dateTimeRecieved,
-				Status = ConvertStatus(message.Status),
-				MailjetMessageId = message.MessageId,
-				ErrorInfo = message.Reason
-			};
-
-			var serializedMessage = JsonSerializer.Serialize(eventMessage);
-			var body = Encoding.UTF8.GetBytes(serializedMessage);
-
-			var properties = channel.CreateBasicProperties();
-			properties.Persistent = true;
-
-			channel.BasicPublish(_mailEventExchange, _mailEventKey, false, properties, body);
-
-			return;
+				_logger.LogError(e, "Произошла ошибка при попытке отправки уведомления о смене статуса отправки письма");
+			}
 		}
 
 		private MailEventType ConvertStatus(string status)
