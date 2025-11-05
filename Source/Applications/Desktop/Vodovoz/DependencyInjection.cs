@@ -87,6 +87,7 @@ using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 using Osrm;
+using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 
 namespace Vodovoz
 {
@@ -232,6 +233,7 @@ namespace Vodovoz
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
 				.AddVodovozDesktopResourceLocker()
+				.AddScoped<BankAccountsMovementsJournalReport>()
 				;
 
 			services.AddStaticHistoryTracker();

@@ -29,6 +29,13 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 {
 	internal sealed class PaymentsRepository : IPaymentsRepository
 	{
+		private readonly IPaymentSettings _paymentSettings;
+
+		public PaymentsRepository(IPaymentSettings paymentSettings)
+		{
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
+		}
+		
 		public IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date)
 		{
 			PaymentByCardOnlineNode resultAlias = null;
@@ -110,23 +117,22 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 				.SingleOrDefault<int>();
 		}
 
-		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings paymentSettings)
+		public IEnumerable<Payment> GetAllUndistributedPayments(IUnitOfWork uow)
 		{
-			var undistributedPayments = uow.Session.QueryOver<Payment>()
-				.Where(x => x.Status == PaymentState.undistributed)
-				.And(x => x.ProfitCategory.Id == paymentSettings.DefaultProfitCategory)
-				.List();
-
-			return undistributedPayments;
+			return (from payment in  uow.Session.Query<Payment>()
+				where payment.Status == PaymentState.undistributed
+					&& payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId
+				select payment)
+				.ToList();
 		}
 
-		public IList<Payment> GetAllDistributedPayments(IUnitOfWork uow)
+		public IEnumerable<Payment> GetAllDistributedPayments(IUnitOfWork uow)
 		{
-			var distributedPayments = uow.Session.QueryOver<Payment>()
-				.Where(x => x.Status == PaymentState.distributed)
-				.List();
-
-			return distributedPayments;
+			return (from payment in  uow.Session.Query<Payment>()
+					where payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId
+						&& payment.Status == PaymentState.distributed
+					select payment)
+				.ToList();
 		}
 
 		public IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
@@ -146,7 +152,8 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 
 			var query = uow.Session.QueryOver(() => paymentAlias)
 				.Where(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId);
+				.And(p => p.Organization.Id == organizationId)
+				.And(p => p.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId);
 
 			if(allocateCompletedPayments)
 			{
@@ -198,8 +205,9 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver<Payment>()
-				.Inner.JoinAlias(cmo => cmo.Counterparty, () => counterpartyAlias)
-				.Inner.JoinAlias(cmo => cmo.Organization, () => organizationAlias);
+				.Inner.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Inner.JoinAlias(p => p.Organization, () => organizationAlias)
+				.Where(p => p.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId);
 
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
