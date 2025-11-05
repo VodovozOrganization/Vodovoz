@@ -67,7 +67,7 @@ namespace Vodovoz.Services.Logistics
 		void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
 			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker,  bool isEditAtCashier = false);
 
-		void SetAddressStatusWithoutOrderChange(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
+		void SetAddressStatusWithoutOrderChange(IUnitOfWork unitOfWork, RouteList routeList, RouteListItem routeListAddress,
 			RouteListItemStatus newAddressStatus, bool needCreateDeliveryFreeBalanceOperation = true);
 		
 		#endregion
