@@ -3,8 +3,17 @@ using System.Collections.Generic;
 
 namespace Core.Infrastructure
 {
+	/// <summary>
+	/// Генератор дат
+	/// </summary>
 	public static class DateGenerator
 	{
+		/// <summary>
+		/// Генерация дат в указанном диапазоне включая границы
+		/// </summary>
+		/// <param name="startDate">Начальная дата</param>
+		/// <param name="endDate">Конечная дата</param>
+		/// <returns>Список дат</returns>
 		public static IEnumerable<DateTime> GenerateDates(DateTime startDate, DateTime endDate)
 		{
 			var dateTimes = new List<DateTime>();

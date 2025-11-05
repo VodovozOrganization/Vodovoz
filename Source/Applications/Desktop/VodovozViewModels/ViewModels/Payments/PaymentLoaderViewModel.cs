@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			InteractiveService = commonServices.InteractiveService;
 			UnitOfWorkFactory = unitOfWorkFactory;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot("Выгрузка выписки из банк-клиента");
 			
 			_resourceLocker = resourceLockerFactory.Create($"{nameof(PaymentLoaderViewModel)}");
 			

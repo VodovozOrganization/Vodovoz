@@ -177,10 +177,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 			if(_filterViewModel.OnlyWithDiscrepancies)
 			{
 				query.Where(
-					//Restrictions.Not(
-						Restrictions.NotEqProperty(
-							paymentsSubquery,
-							Projections.Property(() => accountMovementDataAlias.Amount)));
+					Restrictions.NotEqProperty(
+						paymentsSubquery,
+						Projections.Property(() => accountMovementDataAlias.Amount)));
 			}
 
 			if(_filterViewModel.OrganizationAccount != null)
