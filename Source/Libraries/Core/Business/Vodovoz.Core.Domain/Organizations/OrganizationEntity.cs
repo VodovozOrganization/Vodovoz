@@ -37,6 +37,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private int? _avangardShopId;
+		private bool _isNeedCashlessMovementControl;
 		private OrganizationEdoType _organizationEdoType;
 		private Guid? _cashBoxTokenFromTrueMark;
 
@@ -175,6 +176,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _withoutVAT;
 			set => SetField(ref _withoutVAT, value);
+		}
+		
+		/// <summary>
+		/// Требуется контроль движения средств по безналу
+		/// </summary>
+		[Display(Name = "Требуется контроль движения средств по безналу")]
+		public virtual bool IsNeedCashlessMovementControl
+		{
+			get => _isNeedCashlessMovementControl;
+			set => SetField(ref _isNeedCashlessMovementControl, value);
 		}
 
 		/// <summary>

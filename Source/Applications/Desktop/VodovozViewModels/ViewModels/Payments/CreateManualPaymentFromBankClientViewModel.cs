@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			ProfitCategories = profitCategoryRepository.GetAllProfitCategories(UoW);
 			Entity.Date = DateTime.Today;
 			Entity.Organization = _organizationRepository.GetOrganizationById(UoW, _organizationSettings.VodovozOrganizationId);
-			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategory);
+			Entity.ProfitCategory = profitCategoryRepository.GetProfitCategoryById(UoW, paymentSettings.DefaultProfitCategoryId);
 			Entity.Status = PaymentState.undistributed;
 			Entity.IsManuallyCreated = true;
 

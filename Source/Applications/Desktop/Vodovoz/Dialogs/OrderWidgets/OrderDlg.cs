@@ -678,6 +678,7 @@ namespace Vodovoz
 			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
+			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -690,12 +691,6 @@ namespace Vodovoz
 
 			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
-			_paymentFromBankClientController = new PaymentFromBankClientController(
-				_paymentItemsRepository, 
-				_orderRepository, 
-				_paymentsRepository,
-				_paymentService
-			);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));

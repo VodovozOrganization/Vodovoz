@@ -45,6 +45,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.WithoutVAT)
 				.Column("without_vat")
 				.ReadOnly();
+			
+			Map(x => x.IsNeedCashlessMovementControl)
+				.Column("is_need_cashless_movement_control");
 
 			Map(x => x.CashBoxId)
 				.Column("cash_box_id");
