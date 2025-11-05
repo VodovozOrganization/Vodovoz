@@ -1,13 +1,13 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using EmailStatusUpdateWorker.Consumers;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
-using RabbitMQ.Client;
-using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -49,20 +49,12 @@ namespace EmailStatusUpdateWorker
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddTransient<RabbitMQConnectionFactory>();
-
-					services.AddTransient((sp) =>
-						sp.GetRequiredService<RabbitMQConnectionFactory>()
-							.CreateConnection(sp.GetRequiredService<IConfiguration>()));
-
-					services.AddTransient((sp) =>
-					{
-						var channel = sp.GetRequiredService<IConnection>().CreateModel();
-						channel.BasicQos(0, 1, false);
-						return channel;
-					});
-
-					services.AddHostedService<EmailStatusUpdateWorker>();
+					services.AddConfig(hostContext.Configuration)
+						.AddMassTransit(busConf =>
+						{
+							busConf.AddConsumer<EmailStatusUpdateConsumer>();
+							busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddUpdateEmailStatusTopology(context));
+						});
 				});
 	}
 }
