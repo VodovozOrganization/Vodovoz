@@ -1,4 +1,7 @@
-﻿using QS.Commands;
+﻿using System;
+using MySqlConnector;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,11 +21,33 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			TabName = "Настройка уведомления для онлайн заказов";
 
-			SaveCommand = new DelegateCommand(SaveAndClose);
+			SaveCommand = new DelegateCommand(TrySave);
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
-		public DelegateCommand SaveCommand { get; set; }
-		public DelegateCommand CloseCommand { get; set; }
+		private void TrySave()
+		{
+			try
+			{
+				SaveAndClose();
+			}
+			catch(Exception ex)
+			{
+				var sqlException = ex.InnerException as MySqlException;
+
+				if (sqlException != null && sqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Вы добавляете дубль: настройка с таким статусом заказа уже существует в справочнике.");
+				}
+				else
+				{
+					throw;
+				}
+			}
+		}
+
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseCommand { get; }
 	}
 }
