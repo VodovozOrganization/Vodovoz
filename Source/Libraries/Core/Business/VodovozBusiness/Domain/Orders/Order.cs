@@ -2838,7 +2838,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+					routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2849,12 +2849,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					}
 					break;
 			}

@@ -75,6 +75,7 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderDiscountsController _discountsController;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
@@ -95,8 +96,6 @@ namespace Vodovoz
 		private int? _oldCounterpartyId;
 
 		public IUnitOfWork UoW { get; }
-		
-		public ICallTaskWorker CallTaskWorker { get; }
 		
 		private Order BaseOrder { get; set; }
 		
@@ -197,6 +196,7 @@ namespace Vodovoz
 
 			UoW = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_discountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_counterpartyService = counterpartyService ?? throw new ArgumentNullException(nameof(counterpartyService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -636,7 +636,7 @@ namespace Vodovoz
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
 			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, _routeListItemStatusToChange, 
-				CallTaskWorker, true);
+				_callTaskWorker, true);
 			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 			_routeListItem.BottlesReturned = 0;
 			UpdateButtonsState();
@@ -652,7 +652,7 @@ namespace Vodovoz
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
-				CallTaskWorker, true);
+				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();

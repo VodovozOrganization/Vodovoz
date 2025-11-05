@@ -845,15 +845,15 @@ namespace Vodovoz.Application.Logistics
 			UpdateStatus(unitOfWork, routeList);
 		}
 
-		public void SetAddressStatusWithoutOrderChange(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
+		public void SetAddressStatusWithoutOrderChange(IUnitOfWork unitOfWork, RouteList routeList, RouteListItem routeListAddress,
 			RouteListItemStatus newAddressStatus, bool needCreateDeliveryFreeBalanceOperation = true)
 		{
-			if(routeList is null)
+			if(routeList is null || routeListAddress is null)
 			{
 				return;
 			}
 
-			routeList.Addresses.First(a => a.Id == routeListAddressid)
+			routeList.Addresses.First(a => a.Id == routeListAddress.Id)
 				.SetStatusWithoutOrderChange(unitOfWork, newAddressStatus, needCreateDeliveryFreeBalanceOperation);
 			UpdateStatus(unitOfWork, routeList);
 		}
