@@ -1,14 +1,16 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets.Additions;
 using Gtk;
-using QS.Navigation;
 using QS.Project.Search;
 using QS.Project.Search.GtkUI;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Payments;
 
 namespace Vodovoz.Views
@@ -36,18 +38,23 @@ namespace Vodovoz.Views
 
 			#endregion
 
-			btnSave.Clicked += (sender, args) => ViewModel.SaveViewModelCommand.Execute();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonComplete.Clicked += (sender, args) => ViewModel.CompleteAllocationCommand.Execute();
-			btnAddCounterparty.Clicked += (sender, args) => ViewModel.AddCounterpatyCommand.Execute();
+			btnSave.BindCommand(ViewModel.SaveViewModelCommand);
+			btnCancel.BindCommand(ViewModel.CloseCommand);
+			buttonComplete.BindCommand(ViewModel.CompleteAllocationCommand);
+			btnAddCounterparty.BindCommand(ViewModel.AddCounterpatyCommand);
 			btnAddCounterparty.Binding
 				.AddBinding(ViewModel, vm => vm.CounterpartyIsNull, w => w.Sensitive)
 				.InitializeFromSource();
-			ybtnRevertPayment.Clicked += (sender, args) => ViewModel.RevertAllocatedSum.Execute();
-			ybtnRevertPayment.Binding.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive).InitializeFromSource();
+			
+			ybtnRevertPayment.BindCommand(ViewModel.RevertAllocatedSum);
+			ybtnRevertPayment.Binding
+				.AddBinding(ViewModel, vm => vm.CanRevertPay, w => w.Sensitive)
+				.InitializeFromSource();
 
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
-			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
+			daterangepicker1.Binding
+				.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 			daterangepicker1.PeriodChangedByUser += (sender, e) => ViewModel.UpdateNodes();
 
 			enumchecklistOrdersStatuses.EnumType = typeof(OrderStatus);
@@ -61,11 +68,19 @@ namespace Vodovoz.Views
 				.InitializeFromSource();
 
 			labelTotalSum.Text = ViewModel.Entity.Total.ToString();
-			labelLastBalance.Binding.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
-			labelToAllocate.Binding.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter()).InitializeFromSource();
+			labelLastBalance.Binding
+				.AddBinding(ViewModel, vm => vm.LastBalance, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+			labelToAllocate.Binding
+				.AddBinding(ViewModel, vm => vm.SumToAllocate, w => w.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
 
-			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
-			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			ylabelCurBalance.Binding
+				.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
+			ylabelAllocated.Binding
+				.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter())
+				.InitializeFromSource();
 
 			ylabelWaitForPaymentValue.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0.00", w => w.Text)
@@ -89,38 +104,51 @@ namespace Vodovoz.Views
 				.AddBinding(e => e.IsManuallyCreated, w => w.Editable)
 				.InitializeFromSource();
 
-			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
-
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.ChangedByUser += (sender, e) =>
-			{
-				ViewModel.UpdateCMOCounterparty();
-				ViewModel.UpdateNodes();
-				ViewModel.GetLastBalance();
-				ViewModel.UpdateSumToAllocate();
-				ViewModel.UpdateCurrentBalance();
-				ViewModel.GetCounterpartyDebt();
-			};
+			ytextviewComments.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text)
+				.InitializeFromSource();
 
 			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
 			hboxSearch.Add(searchView);
 			searchView.Show();
 
-			hbox6.Sensitive = ViewModel.CanChangeCounterparty;
-
 			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			ConfigureTrees();
+			ConfigureEntityEntries();
+		}
+
+		private void ConfigureEntityEntries()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<Payment>(
+				ViewModel, null, ViewModel.Entity, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+				.ForProperty(x => x.Counterparty)
+				.UseTdiDialog<CounterpartyDlg>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			viewModel.ChangedByUser += UpdateData;
+			counterpartyEntry.ViewModel =  viewModel;
+			counterpartyEntry.ViewModel.IsEditable = ViewModel.CanChangeCounterparty;
+			
+			profitCategoryEntry.ViewModel = ViewModel.ProfitCategoryEntryViewModel;
+		}
+
+		private void UpdateData(object sender, EventArgs e)
+		{
+			ViewModel.UpdateCMOCounterparty();
+			ViewModel.UpdateNodes();
+			ViewModel.GetLastBalance();
+			ViewModel.UpdateSumToAllocate();
+			ViewModel.UpdateCurrentBalance();
+			ViewModel.GetCounterpartyDebt();
 		}
 
 		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(ViewModel.CanChangeCounterparty))
 			{
-				hbox6.Sensitive = ViewModel.CanChangeCounterparty;
-				return;
+				counterpartyEntry.ViewModel.IsEditable = ViewModel.CanChangeCounterparty;
 			}
 		}
 

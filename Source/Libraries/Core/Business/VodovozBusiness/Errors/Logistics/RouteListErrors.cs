@@ -25,6 +25,13 @@ namespace Vodovoz.Errors.Logistics
 				nameof(NotEnRouteState),
 				$"Маршрутный лист не в статусе {RouteListStatus.EnRoute}");
 
+		[Display(Name = "Неподходящий статус для закрытия МЛ")]
+		public static Error IncorrectStatusForClose(string message = null) =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(IncorrectStatusForClose),
+				$"Неподходящий статус для закрытия МЛ. {message}");
+
 		public static Error NotFoundAssociatedWithOrder =>
 			new Error(
 				typeof(RouteListErrors),
@@ -43,6 +50,13 @@ namespace Vodovoz.Errors.Logistics
 				nameof(CarIsEmpty),
 				"Не заполнен автомобиль");
 
+		[Display(Name = "Должен быть заполнен кассир")]
+		public static Error CashierIsEmpty =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(CashierIsEmpty),
+				"Должен быть заполнен кассир");
+
 		public static Error IncorrectStatusForAccept =>
 			new Error(
 				typeof(RouteListErrors),
@@ -54,6 +68,7 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListErrors),
 				nameof(IncorrectStatusForEdit),
 				"Неподходящий статус для редактирования МЛ");
+
 
 		public static Error HasCarLoadingDocuments =>
 			new Error(

@@ -3,12 +3,17 @@ using QS.Navigation;
 using QS.Project.Filter;
 using QS.Tdi;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using QS.Banks.Domain;
+using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Banks;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Banks;
 using Vodovoz.ViewModels.Organizations;
@@ -17,6 +22,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public partial class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Bank> _organizationBankViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Account> _organizationAccountViewModelBuilder;
@@ -33,6 +39,7 @@ namespace Vodovoz.Filters.ViewModels
 		private Organization _organization;
 		private Bank _organizationBank;
 		private Account _organizationAccount;
+		private IObservableList<SelectableNode<ProfitCategory>> _profitCategories;
 		private PaymentJournalSortType _sortType;
 		private Type _documentType;
 		private bool _canChangeDocumentType = true;
@@ -42,10 +49,12 @@ namespace Vodovoz.Filters.ViewModels
 			ILifetimeScope scope,
 			INavigationManager navigationManager,
 			ITdiTab journalTab,
+			IPaymentSettings paymentSettings,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
 			ViewModelEEVMBuilder<Bank> organizationBankViewModelBuilder,
 			ViewModelEEVMBuilder<Account> organizationAccountViewModelBuilder)
 		{
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_organizationViewModelBuilder = organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
 			_organizationBankViewModelBuilder =
 				organizationBankViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationBankViewModelBuilder));
@@ -55,12 +64,31 @@ namespace Vodovoz.Filters.ViewModels
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			JournalTab = journalTab ?? throw new ArgumentNullException(nameof(journalTab));
 
+			Initialize();
+		}
+
+		private void Initialize()
+		{
 			ConfigureEntryViewModels();
 		}
 
 		public ILifetimeScope Scope { get; }
 		public INavigationManager NavigationManager { get; }
-		public ITdiTab JournalTab { get; }
+		public ITdiTab JournalTab { get; private set; }
+
+		public IObservableList<SelectableNode<ProfitCategory>> ProfitCategories
+		{
+			get
+			{
+				if(!(_profitCategories is null))
+				{
+					return _profitCategories;
+				}
+
+				InitializeProfitCategories();
+				return _profitCategories;
+			}
+		}
 
 		public DateTime? StartDate
 		{
@@ -202,11 +230,40 @@ namespace Vodovoz.Filters.ViewModels
 		public IEntityEntryViewModel OrganizationEntryViewModel { get; private set; }
 		public IEntityEntryViewModel OrganizationBankEntryViewModel { get; private set; }
 		public IEntityEntryViewModel OrganizationAccountEntryViewModel { get; private set; }
+
+		public IEnumerable<int> GetSelectedProfitCategoriesIds()
+		{
+			return ProfitCategories
+				.Where(x => x.Selected)
+				.Select(x => x.Value.Id)
+				.ToList();
+		}
 		
+		private void InitializeProfitCategories()
+		{
+			var list = new ObservableList<SelectableNode<ProfitCategory>>();
+			var selectableNodes = UoW.GetAll<ProfitCategory>()
+				.Where(x => !x.IsArchive)
+				.ToList()
+				.Select(SelectableNode<ProfitCategory>.Create);
+					
+			foreach(var node in selectableNodes)
+			{
+				if(node.Value.Id == _paymentSettings.DefaultProfitCategoryId
+					|| node.Value.Id == _paymentSettings.RefundCancelOrderProfitCategoryId)
+				{
+					node.Selected = true;
+				}
+				list.Add(node);
+			}
+
+			_profitCategories = list;
+		}
+
 		private void ConfigureEntryViewModels()
 		{
 			var journal = JournalTab as DialogViewModelBase;
-			var organizationViewModel =  _organizationViewModelBuilder
+			var organizationViewModel = _organizationViewModelBuilder
 				.SetViewModel(journal)
 				.SetUnitOfWork(UoW)
 				.ForProperty(this, x => x.Organization)
@@ -217,7 +274,7 @@ namespace Vodovoz.Filters.ViewModels
 			organizationViewModel.CanViewEntity = false;
 			OrganizationEntryViewModel = organizationViewModel;
 			
-			var organizationBankViewModel =  _organizationBankViewModelBuilder
+			var organizationBankViewModel = _organizationBankViewModelBuilder
 				.SetViewModel(journal)
 				.SetUnitOfWork(UoW)
 				.ForProperty(this, x => x.OrganizationBank)
@@ -228,7 +285,7 @@ namespace Vodovoz.Filters.ViewModels
 			organizationBankViewModel.CanViewEntity = false;
 			OrganizationBankEntryViewModel = organizationBankViewModel;
 			
-			var organizationAccountViewModel =  _organizationAccountViewModelBuilder
+			var organizationAccountViewModel = _organizationAccountViewModelBuilder
 				.SetViewModel(journal)
 				.SetUnitOfWork(UoW)
 				.ForProperty(this, x => x.OrganizationAccount)
@@ -238,6 +295,12 @@ namespace Vodovoz.Filters.ViewModels
 
 			organizationAccountViewModel.CanViewEntity = false;
 			OrganizationAccountEntryViewModel = organizationAccountViewModel;
+		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+			JournalTab = null;
 		}
 	}
 }

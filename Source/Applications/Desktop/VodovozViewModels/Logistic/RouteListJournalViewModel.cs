@@ -538,7 +538,7 @@ namespace Vodovoz.ViewModels.Logistic
 								continue;
 							}
 
-							_routeListService.SendEnRoute(uowLocal, routeListId);
+							_routeListService.SendEnRoute(uowLocal, routeListId, _callTaskWorker);
 						}
 
 						Refresh();
@@ -584,7 +584,7 @@ namespace Vodovoz.ViewModels.Logistic
 								isSlaveTabActive = true;
 								continue;
 							}
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
+							_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing, _callTaskWorker);
 							uowLocal.Save(routeList);
 						}
 
@@ -759,12 +759,12 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
+				_routeListService.ChangeStatusAndCreateTask(localUow, routeList, RouteListStatus.InLoading, _callTaskWorker);
 
 				var carLoadDocument = new CarLoadDocument();
 				FillCarLoadDocument(carLoadDocument, localUow, routeList.Id, warehouse.Id);
 
-				var routeListFullyShipped = _routeListService.TrySendEnRoute(localUow, routeList, out var notLoadedGoods, carLoadDocument);
+				var routeListFullyShipped = _routeListService.TrySendEnRoute(localUow, routeList, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
 				
 				localUow.Save(routeList);
 
@@ -978,7 +978,7 @@ namespace Vodovoz.ViewModels.Logistic
 						}
 					}
 
-					routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
+					_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.InLoading, _callTaskWorker);
 					uowLocal.Save(routeList);
 				}
 

@@ -267,6 +267,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				}
 			}
 
+			var selectedProfitCategories = _filterViewModel.GetSelectedProfitCategoriesIds();
+
+			if(selectedProfitCategories.Any())
+			{
+				paymentQuery.WhereRestrictionOn(() => paymentAlias.ProfitCategory.Id).IsInG(selectedProfitCategories);
+			}
+
 			#endregion filter
 
 			paymentQuery.Where(GetSearchCriterion(
@@ -331,8 +338,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(_filterViewModel != null)
 			{
-				if(_filterViewModel.DocumentType != null
-					&& _filterViewModel.DocumentType != typeof(PaymentWriteOff))
+				var selectedProfitCategories = _filterViewModel.GetSelectedProfitCategoriesIds();
+				
+				if((_filterViewModel.DocumentType != null && _filterViewModel.DocumentType != typeof(PaymentWriteOff))
+					|| selectedProfitCategories.Any())
 				{
 					paymentQuery.Where(p => p.Id == -1);
 				}
@@ -455,8 +464,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			if(_filterViewModel != null)
 			{
-				if(_filterViewModel.DocumentType != null
-					&& _filterViewModel.DocumentType != typeof(OutgoingPayment))
+				var selectedProfitCategories = _filterViewModel.GetSelectedProfitCategoriesIds();
+
+				if((_filterViewModel.DocumentType != null && _filterViewModel.DocumentType != typeof(OutgoingPayment))
+					|| selectedProfitCategories.Any())
 				{
 					paymentQuery.Where(p => p.Id == -1);
 				}
