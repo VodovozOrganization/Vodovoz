@@ -1,6 +1,7 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Orders
@@ -18,6 +19,12 @@ namespace Vodovoz.Errors.Orders
 				typeof(FastDeliveryErrors),
 				nameof(RouteListForFastDeliveryIsMissing),
 				"Не указан маршрутный лист для доставки на час.");
+		
+		public static Error RouteListForFastDeliveryNotOnTheWay(int routeListId, RouteListStatus routeListStatus) =>
+			new Error(
+				typeof(FastDeliveryErrors),
+				nameof(RouteListForFastDeliveryIsMissing),
+				$"Маршрутный лист №{routeListId} уже не в статусе В пути, а в статусе {routeListStatus.GetEnumDisplayName()}");
 
 		public static Error InvalidDate =>
 			new Error(

@@ -206,18 +206,20 @@ namespace Vodovoz.Domain.Payments
 		/// <param name="paymentSum">Сумма возврата</param>
 		/// <param name="orderId">Id заказа</param>
 		/// <param name="refundPaymentReason">Причина возврата</param>
+		/// <param name="profitCategory">Категория прихода для возвратного платежа</param>
 		/// <returns>Созданный платеж</returns>
 		public virtual Payment CreatePaymentForReturnAllocatedSumToClientBalance(
 			decimal paymentSum,
 			int orderId,
-			RefundPaymentReason refundPaymentReason)
+			RefundPaymentReason refundPaymentReason,
+			ProfitCategory profitCategory)
 		{
 			return new Payment
 			{
 				PaymentNum = PaymentNum,
 				Date = DateTime.Now,
 				Total = paymentSum,
-				ProfitCategory = ProfitCategory,
+				ProfitCategory = profitCategory,
 				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента. Причина: {refundPaymentReason.GetEnumTitle()}",
 				Organization = Organization,
 				Counterparty = Counterparty,
@@ -236,6 +238,15 @@ namespace Vodovoz.Domain.Payments
 			CounterpartyInn = Counterparty.INN;
 			CounterpartyKpp = Counterparty.KPP;
 			CounterpartyName = Counterparty.Name;
+		}
+		
+		/// <summary>
+		/// Платеж не для распределения(платежи межу нашими компаниями, приходы от физ лиц)
+		/// </summary>
+		public virtual void OtherIncome(ProfitCategory profitCategory)
+		{
+			ProfitCategory = profitCategory;
+			Status = PaymentState.undistributed;
 		}
 
 		/// <summary>
