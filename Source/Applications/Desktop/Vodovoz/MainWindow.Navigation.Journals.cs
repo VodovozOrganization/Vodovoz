@@ -1183,7 +1183,17 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-
+	
+	/// <summary>
+	/// Настройка текстов пуш-уведомлений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPushNotificationTextSettingsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
 	#endregion Помощники
 
 	#region Заказы

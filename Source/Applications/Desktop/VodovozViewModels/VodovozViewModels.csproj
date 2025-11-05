@@ -111,9 +111,11 @@
     <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\ProfitCategoriesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\OnlineOrderNotificationSettingJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Employees\FineCategoryJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\BankAccountsMovementsJournalViewModel.cs" />
@@ -808,6 +810,7 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OnlineOrderNotificationSettingViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderCancellationReasonViewModel.cs" />

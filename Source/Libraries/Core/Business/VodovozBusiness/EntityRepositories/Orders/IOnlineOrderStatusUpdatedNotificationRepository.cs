@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -8,5 +9,8 @@ namespace Vodovoz.EntityRepositories.Orders
 	{
 		IEnumerable<OnlineOrderStatusUpdatedNotification> GetNotificationsForSend(
 			IUnitOfWork uow, int days, int notificationCount);
+
+		OnlineOrderNotificationSetting GetNotificationSetting(IUnitOfWork unitOfWork, ExternalOrderStatus externalOrderStatus);
+		bool HasNotificationSentByOnlineOrder(IUnitOfWork unitOfWork, int onlineOrderId);
 	}
 }
