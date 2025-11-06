@@ -49,16 +49,6 @@ public partial class MainWindow
 
 	private global::Gtk.RadioAction ActionTrueMark;
 
-	private global::Gtk.Action ActionFineCategoryJournal;
-
-	private global::Gtk.Action AccountingJournalsAction;
-
-	private global::Gtk.Action NotAllocatedCounterpartiesJournalAction;
-
-	private global::Gtk.Action ProfitCategoriesJournalAction;
-
-	private global::Gtk.Action ActionPushNotificationTextSettings;
-
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vboxMain;
@@ -194,21 +184,6 @@ public partial class MainWindow
 		this.ActionTrueMark.Group = this.Action1SWork.Group;
 		this.ActionTrueMark.ShortLabel = global::Mono.Unix.Catalog.GetString("Маркировка");
 		w1.Add(this.ActionTrueMark, null);
-		this.ActionFineCategoryJournal = new global::Gtk.Action("ActionFineCategoryJournal", global::Mono.Unix.Catalog.GetString("Категории штрафов"), null, null);
-		this.ActionFineCategoryJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории штрафов");
-		w1.Add(this.ActionFineCategoryJournal, null);
-		this.AccountingJournalsAction = new global::Gtk.Action("AccountingJournalsAction", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, null);
-		this.AccountingJournalsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
-		w1.Add(this.AccountingJournalsAction, null);
-		this.NotAllocatedCounterpartiesJournalAction = new global::Gtk.Action("NotAllocatedCounterpartiesJournalAction", global::Mono.Unix.Catalog.GetString("Контрагенты, которые не участвуют в распределении"), null, null);
-		this.NotAllocatedCounterpartiesJournalAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Контрагенты, которые не участвуют в распределении");
-		w1.Add(this.NotAllocatedCounterpartiesJournalAction, null);
-		this.ProfitCategoriesJournalAction = new global::Gtk.Action("ProfitCategoriesJournalAction", global::Mono.Unix.Catalog.GetString("Категории дохода"), null, null);
-		this.ProfitCategoriesJournalAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории дохода");
-		w1.Add(this.ProfitCategoriesJournalAction, null);
-		this.ActionPushNotificationTextSettings = new global::Gtk.Action("ActionPushNotificationTextSettings", global::Mono.Unix.Catalog.GetString("Настройка текстов пуш-уведомлений"), null, null);
-		this.ActionPushNotificationTextSettings.ShortLabel = global::Mono.Unix.Catalog.GetString("Настройка текстов пуш-уведомлений");
-		w1.Add(this.ActionPushNotificationTextSettings, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -469,10 +444,6 @@ public partial class MainWindow
 		this.UndeliveredOrdersAction.Activated += new global::System.EventHandler(this.OnUndeliveredOrdersActionActivated);
 		this.Action1SWork.Activated += new global::System.EventHandler(this.OnAction1SWorkAcivated);
 		this.ActionTrueMark.Activated += new global::System.EventHandler(this.OnActionTrueMarkActivated);
-		this.ActionFineCategoryJournal.Activated += new global::System.EventHandler(this.OnActionFineCategoryJournalActivated);
-		this.NotAllocatedCounterpartiesJournalAction.Activated += new global::System.EventHandler(this.OnNotAllocatedCounterpartiesJournalActionActivated);
-		this.ProfitCategoriesJournalAction.Activated += new global::System.EventHandler(this.OnProfitCategoriesJournalActionActivated);
-		this.ActionPushNotificationTextSettings.Activated += new global::System.EventHandler(this.OnActionPushNotificationTextSettingsActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

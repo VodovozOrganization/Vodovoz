@@ -94,6 +94,7 @@ using Vodovoz.MainMenu.AdministrationMenu;
 using Vodovoz.MainMenu.BaseMenu;
 using Vodovoz.MainMenu.HelpMenu;
 using Vodovoz.MainMenu.JournalsMenu;
+using Vodovoz.MainMenu.JournalsMenu.Accounting;
 using Vodovoz.MainMenu.JournalsMenu.Banks;
 using Vodovoz.MainMenu.JournalsMenu.Counterparties;
 using Vodovoz.MainMenu.JournalsMenu.Financies;
@@ -391,6 +392,7 @@ namespace Vodovoz
 			.AddSingleton<OnlineOrdersSourcesMenuItemCreator>()
 			.AddSingleton<OrdersRatingsMenuItemCreator>()
 			.AddSingleton<TransportMenuItemCreator>()
+			.AddSingleton<AccountingMenuItemCreator>()
 			.AddSingleton<ReportsMenuItemCreator>()
 			.AddSingleton<OrderReportsMenuItemCreator>()
 			.AddSingleton<SalesReportsMenuItemCreator>()

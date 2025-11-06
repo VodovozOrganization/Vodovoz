@@ -467,6 +467,7 @@
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OnlineOrderNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Accounting\AccountingMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Financies\CompanyBalanceMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Orders\OnlineOrdersSourcesMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Orders\OrdersRatingsMenuItemCreator.cs" />

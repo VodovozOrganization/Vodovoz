@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using Vodovoz.MainMenu.JournalsMenu.Accounting;
 using Vodovoz.MainMenu.JournalsMenu.Banks;
 using Vodovoz.MainMenu.JournalsMenu.Counterparties;
 using Vodovoz.MainMenu.JournalsMenu.Financies;
@@ -27,6 +28,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 		private readonly HelpersMenuItemCreator _helpersMenuItemCreator;
 		private readonly OrdersMenuItemCreator _ordersMenuItemCreator;
 		private readonly TransportMenuItemCreator _transportMenuItemCreator;
+		private readonly AccountingMenuItemCreator _accountingMenuItemCreator;
 
 		public JournalsMenuItemCreator(
 			ConcreteMenuItemCreator concreteMenuItemCreator,
@@ -38,7 +40,8 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			LogisticsMenuItemCreator logisticsMenuItemCreator,
 			HelpersMenuItemCreator helpersMenuItemCreator,
 			OrdersMenuItemCreator ordersMenuItemCreator,
-			TransportMenuItemCreator transportMenuItemCreator)
+			TransportMenuItemCreator transportMenuItemCreator,
+			AccountingMenuItemCreator accountingMenuItemCreator)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 			_organizationMenuItemCreator =
@@ -52,6 +55,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			_helpersMenuItemCreator = helpersMenuItemCreator ?? throw new ArgumentNullException(nameof(helpersMenuItemCreator));
 			_ordersMenuItemCreator = ordersMenuItemCreator ?? throw new ArgumentNullException(nameof(ordersMenuItemCreator));
 			_transportMenuItemCreator = transportMenuItemCreator ?? throw new ArgumentNullException(nameof(transportMenuItemCreator));
+			_accountingMenuItemCreator = accountingMenuItemCreator ?? throw new ArgumentNullException(nameof(accountingMenuItemCreator));
 		}
 
 		/// <inheritdoc/>
@@ -70,6 +74,7 @@ namespace Vodovoz.MainMenu.JournalsMenu
 			journalsMenu.Add(_helpersMenuItemCreator.Create());
 			journalsMenu.Add(_ordersMenuItemCreator.Create());
 			journalsMenu.Add(_transportMenuItemCreator.Create());
+			journalsMenu.Add(_accountingMenuItemCreator.Create());
 
 			return journalsMenuItem;
 		}
