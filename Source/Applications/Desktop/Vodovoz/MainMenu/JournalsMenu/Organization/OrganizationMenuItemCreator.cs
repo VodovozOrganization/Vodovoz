@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
@@ -95,8 +96,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		[Obsolete("Старый диалог")]
 		private void OnOrganizationsPressed(object sender, ButtonPressEventArgs e)
 		{
-			var refWin = new OrmReference(typeof(Domain.Organizations.Organization));
-			Startup.MainWin.TdiMain.AddTab(refWin);
+			Startup.MainWin.NavigationManager.OpenViewModel<OrganizationJournalViewModel>(null);
 		}
 		
 		/// <summary>
