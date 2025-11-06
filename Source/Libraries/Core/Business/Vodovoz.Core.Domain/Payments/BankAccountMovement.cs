@@ -9,6 +9,11 @@ namespace Vodovoz.Core.Domain.Payments
 	/// <summary>
 	/// Движение средств по р/сч
 	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "движения средств по р/сч",
+		Nominative = "движение средств по р/сч",
+		Prepositional = "движении средств по р/сч",
+		PrepositionalPlural = "движениях средств по р/сч")]
 	[EntityPermission]
 	public class BankAccountMovement : PropertyChangedBase, IDomainObject
 	{

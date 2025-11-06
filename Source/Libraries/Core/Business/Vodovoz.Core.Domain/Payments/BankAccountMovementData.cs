@@ -6,6 +6,11 @@ namespace Vodovoz.Core.Domain.Payments
 	/// <summary>
 	/// Данные из выписки банка клиента
 	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "данные из выписки банка клиента",
+		Nominative = "данные из выписки банка клиента",
+		Prepositional = "данных из выписки банка клиента",
+		PrepositionalPlural = "данных из выписки банка клиента")]
 	[EntityPermission]
 	public class BankAccountMovementData : PropertyChangedBase, IDomainObject
 	{
