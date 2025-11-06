@@ -15,11 +15,13 @@ using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -60,8 +62,9 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
-						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()						
-						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
+						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+						.AddScoped<IOnlineOrderService, OnlineOrderService>()
+						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()						
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
