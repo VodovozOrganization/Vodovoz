@@ -377,19 +377,27 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		
 		private void MatchBankAccountMovement()
 		{
-			foreach(var bankAccountMovement in BankAccountMovements)
+			var i = 0;
+			while(i < BankAccountMovements.Count)
 			{
+				var bankAccountMovement = BankAccountMovements[i];
+				
 				var accountMovementFromBase = _accountMovementRepository.Get(
-					UoW,
-					x => x.StartDate == bankAccountMovement.StartDate
-						&& x.EndDate == bankAccountMovement.EndDate
-						&& x.Account.Number == bankAccountMovement.Account.Number)
+						UoW,
+						x => x.StartDate == bankAccountMovement.StartDate
+							&& x.EndDate == bankAccountMovement.EndDate
+							&& x.Account.Number == bankAccountMovement.Account.Number)
 					.FirstOrDefault();
 
-				if(accountMovementFromBase != null)
+				if(accountMovementFromBase is null)
 				{
-					bankAccountMovement.Id = accountMovementFromBase.Id;
+					i++;
+					continue;
 				}
+
+				accountMovementFromBase.UpdateData(bankAccountMovement.BankAccountMovements);
+				BankAccountMovements[i] = accountMovementFromBase;
+				i++;
 			}
 		}
 		
