@@ -72,7 +72,10 @@ namespace CustomerAppsApi
 				.AddOsrm()
 				.AddRabbitConfig(Configuration)
 				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMassTransit(busConf =>
+				{
+					busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
+				})
 				.AddControllers()
 				;
 

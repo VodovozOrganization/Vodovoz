@@ -66,7 +66,7 @@ namespace EmailSendWorker
 					.AddMassTransit(busConf =>
 					{
 						busConf.AddConsumer<EmailSendConsumer, EmailSendConsumerDefinition>();
-						busConf.ConfigureRabbitMq();
+						busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
 					})
 					
 					.AddHostedService<EmailSendWorker>();

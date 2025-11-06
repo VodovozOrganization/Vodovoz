@@ -1,0 +1,65 @@
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+
+namespace Vodovoz.Core.Domain.Payments
+{
+	/// <summary>
+	/// Данные из выписки банка клиента
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "данные из выписки банка клиента",
+		Nominative = "данные из выписки банка клиента",
+		Prepositional = "данных из выписки банка клиента",
+		PrepositionalPlural = "данных из выписки банка клиента")]
+	[EntityPermission]
+	public class BankAccountMovementData : PropertyChangedBase, IDomainObject
+	{
+		private decimal _amount;
+		private BankAccountMovement _accountMovement;
+		private BankAccountMovementDataType _accountMovementDataType;
+
+		public BankAccountMovementData() { }
+
+		protected BankAccountMovementData(
+			BankAccountMovement accountMovement,
+			decimal amount,
+			BankAccountMovementDataType accountMovementDataType)
+		{
+			_accountMovement = accountMovement;
+			_amount = amount;
+			_accountMovementDataType = accountMovementDataType;
+		}
+
+		public virtual int Id { get; set; }
+
+		public virtual BankAccountMovement AccountMovement
+		{
+			get => _accountMovement;
+			set => SetField(ref _accountMovement, value);
+		}
+
+		/// <summary>
+		/// Сумма
+		/// </summary>
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set => SetField(ref _amount, value);
+		}
+
+		/// <summary>
+		/// Тип информации из выписки
+		/// </summary>
+		public virtual BankAccountMovementDataType AccountMovementDataType
+		{
+			get => _accountMovementDataType;
+			set => SetField(ref _accountMovementDataType, value);
+		}
+
+		public static BankAccountMovementData Create(
+			BankAccountMovement accountMovement,
+			decimal amount,
+			BankAccountMovementDataType accountMovementDataType) =>
+			new BankAccountMovementData(accountMovement, amount, accountMovementDataType);
+	}
+}
