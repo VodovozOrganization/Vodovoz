@@ -55,6 +55,11 @@ namespace Vodovoz.Core.Domain.Payments
 			get => _accountMovementDataType;
 			set => SetField(ref _accountMovementDataType, value);
 		}
+		
+		public virtual void UpdateAmount(BankAccountMovementData newData)
+		{
+			Amount = newData.Amount;
+		}
 
 		public static BankAccountMovementData Create(
 			BankAccountMovement accountMovement,

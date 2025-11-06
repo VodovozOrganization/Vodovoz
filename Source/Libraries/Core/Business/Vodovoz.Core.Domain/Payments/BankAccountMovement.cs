@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -96,6 +99,15 @@ namespace Vodovoz.Core.Domain.Payments
 		public virtual void AddData(decimal amount, BankAccountMovementDataType dataType)
 		{
 			BankAccountMovements.Add(BankAccountMovementData.Create(this, amount, dataType));
+		}
+
+		public virtual void UpdateData(IEnumerable<BankAccountMovementData> bankAccountMovementData)
+		{
+			foreach(var newData in bankAccountMovementData)
+			{
+				var data = BankAccountMovements.SingleOrDefault(x => x.AccountMovementDataType == newData.AccountMovementDataType);
+				data?.UpdateAmount(newData);
+			}
 		}
 	}
 }
