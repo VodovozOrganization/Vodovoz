@@ -120,6 +120,7 @@ ORDER BY clmn_for_sorting;</CommandText>
               IF(drivers.patronymic = '',
                  '',
                  CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    (SELECT p.number FROM phones p WHERE p.employee_id = drivers.id LIMIT 1) as driver_phone,
     CONCAT_WS('',
               CONCAT(forwaders.last_name, ' '),
               IF(forwaders.name = '',
@@ -194,6 +195,10 @@ LIMIT 1
         <Field Name="has_fast_delivery">
           <DataField>has_fast_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="driver_phone">
+          <DataField>driver_phone</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -895,6 +900,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         <TextAlign>Left</TextAlign>
                         <FontWeight>Bold</FontWeight>
                       </Style>
+                      <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -926,6 +932,50 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                   <ReportItems>
                     <Textbox Name="Textbox57">
                       <Value>={model} + "(" + {reg_number}+ ")"</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Телефон:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>=Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
