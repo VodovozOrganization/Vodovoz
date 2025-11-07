@@ -49,10 +49,10 @@
             <Width>37.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.2pt</Width>
+            <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.2pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>162.8pt</Width>
@@ -70,7 +70,10 @@
             <Width>108.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.8pt</Width>
+            <Width>60pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.1pt</Width>
@@ -118,7 +121,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>№ заказа</Value>
+                      <Value>№ первого заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -219,8 +222,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
+                    <Textbox Name="Textbox24">
                       <Value>Дата второго заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>№ второго заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -437,8 +457,28 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
+                    <Textbox Name="Textbox25">
                       <Value>=Format({second_order_delivery_date}, "dd.MM.yy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>={second_order_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -634,6 +674,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox55">
                       <Style>
                         <BorderStyle>
@@ -646,7 +704,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>="Кол-во вторичек: " + Count({second_order_id})</Value>
+                      <Value>="Кол-во вторичек: " + Count({second_order_delivery_date})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -733,6 +791,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>180</Timeout>
         <CommandText>WITH first_orders_data as(
 SELECT
     c.id AS client_id,

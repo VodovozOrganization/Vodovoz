@@ -13,8 +13,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public int OrderId { get; set; }
 		public DateTime OrderDate { get; set; }
 		public OrderStatus OrderStatus { get; set; }
+		public OrderPaymentStatus OrderPaymentStatus { get; set; }
 		public decimal Bottles { get; set; }
 		public decimal OrderSum { get; set; }
 		public string DeliveryAddress { get; set; }
+		public string OrganizationName { get; set; }
 	}
 }

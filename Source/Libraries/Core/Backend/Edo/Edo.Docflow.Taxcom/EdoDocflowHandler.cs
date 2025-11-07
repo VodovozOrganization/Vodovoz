@@ -178,17 +178,6 @@ namespace Edo.Docflow.Taxcom
 			return edoDocflowUpdatedEvent;
 		}
 
-		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
-		{
-			_logger.LogInformation(
-				"Сохраняем изменения документооборота {DocflowId} по документу {DocumentId}",
-				taxcomDocflow.DocflowId,
-				taxcomDocflow.MainDocumentId);
-			
-			await _uow.SaveAsync(taxcomDocflow);
-			await _uow.CommitAsync();
-		}
-
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
@@ -198,6 +187,15 @@ namespace Edo.Docflow.Taxcom
 			if(taxcomDocflow is null)
 			{
 				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}", @event.MainDocumentId);
+				return;
+			}
+			
+			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
+				&& (DateTime.Now - taxcomDocflow.AcceptingIngoingDocflowTime.Value).TotalHours < 1)
+			{
+				_logger.LogWarning("По ДО {DocflowId} была уже отправка титула покупателя {SendTime}, ждем час",
+					taxcomDocflow.DocflowId,
+					taxcomDocflow.AcceptingIngoingDocflowTime.Value.ToShortDateString());
 				return;
 			}
 
@@ -210,10 +208,26 @@ namespace Edo.Docflow.Taxcom
 			if(!result)
 			{
 				_logger.LogError(
-					"Не удалось подписать входящий документ {ExternalIdentifier} документооборота {Docflow}",
+					"Не удалось подписать входящий документ {ExternalIdentifier} документооборота {DocflowId}",
 					taxcomDocflow.MainDocumentId,
 					@event.DocFlowId);
 			}
+			else
+			{
+				taxcomDocflow.AcceptingIngoingDocflowTime = DateTime.Now;
+				await SaveTaxcomDocflow(taxcomDocflow);
+			}
+		}
+		
+		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
+		{
+			_logger.LogInformation(
+				"Сохраняем изменения документооборота {DocflowId} по документу {DocumentId}",
+				taxcomDocflow.DocflowId,
+				taxcomDocflow.MainDocumentId);
+			
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
 		}
 	}
 }

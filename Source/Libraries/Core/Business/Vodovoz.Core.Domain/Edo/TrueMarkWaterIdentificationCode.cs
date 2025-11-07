@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System;
+using QS.DomainModel.Entity;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 
@@ -22,18 +23,37 @@ namespace Vodovoz.Core.Domain.Edo
 		PrepositionalPlural = "кодах честного знака")]
 	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode, ITrueMarkCodesProvider
 	{
+		private int _id;
+		private int? _parentWaterGroupCodeId;
+		private int? _parentTransportCodeId;
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
-		private bool _isTagValid;
+		private bool _isTag1260Valid;
 		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
 
-		public virtual int Id { get; set; }
+		[Display(Name = "Код")]
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
-		public virtual int? ParentWaterGroupCodeId { get; set; }
-		public virtual int? ParentTransportCodeId { get; set; }
+		[Display(Name = "Групповой код")]
+		public virtual int? ParentWaterGroupCodeId
+		{
+			get => _parentWaterGroupCodeId;
+			set => SetField(ref _parentWaterGroupCodeId, value);
+		}
+
+		[Display(Name = "Транспортный код")]
+		public virtual int? ParentTransportCodeId
+		{
+			get => _parentTransportCodeId;
+			set => SetField(ref _parentTransportCodeId, value);
+		}
 
 		[Display(Name = "Необработанный код")]
 		public virtual string RawCode
@@ -50,7 +70,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Код GTIN")]
-		public virtual string GTIN
+		public virtual string Gtin
 		{
 			get => _gtin;
 			set => SetField(ref _gtin, value);
@@ -77,9 +97,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _tag1260CodeCheckResult, value);
 		}
 
-		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";
+		public virtual string IdentificationCode => $"01{Gtin}21{SerialNumber}";
 
-		public virtual string FullCode => $"\u001d01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FullCode => $"\u001d01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
 
 		/// <summary>
 		/// Получение КИ(кода идентификации) для документа по ЭДО
@@ -88,8 +108,8 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "Код валиден для тэга 1260")]
 		public virtual bool IsTag1260Valid
 		{
-			get => _isTagValid;
-			set => SetField(ref _isTagValid, value);
+			get => _isTag1260Valid;
+			set => SetField(ref _isTag1260Valid, value);
 		}
 
 		/// <summary>
@@ -104,9 +124,9 @@ namespace Vodovoz.Core.Domain.Edo
 		public virtual string ConvertToGroupPackagingIdentificationCode() => GetIdentificationCodeForEdoDocument();
 
 
-		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string CashReceiptCode => $"01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
 
-		public virtual string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string FormatForCheck1260 => $"01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{
@@ -184,5 +204,7 @@ namespace Vodovoz.Core.Domain.Edo
 
 			return sb.ToString();
 		}
+
+		public virtual string Title => $"Код ЧЗ экземпляра: {Id}, сырой код: {RawCode}";
 	}
 }

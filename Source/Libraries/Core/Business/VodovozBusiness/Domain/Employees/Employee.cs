@@ -36,7 +36,8 @@ namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
-		Nominative = "сотрудник")]
+		Nominative = "сотрудник",
+		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Employee : EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
@@ -395,7 +396,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) &&
-				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Employee.CanManageUsers))
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanManageUsers))
 			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });

@@ -20,7 +20,7 @@ namespace Vodovoz.Converters
 				FullName = organization.FullName,
 				Inn = organization.INN,
 				Kpp = organization.KPP,
-				TaxcomEdoAccountId = organization.TaxcomEdoAccountId,
+				TaxcomEdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 				JurAddress = organizationVersion?.JurAddress
 			};
 		}

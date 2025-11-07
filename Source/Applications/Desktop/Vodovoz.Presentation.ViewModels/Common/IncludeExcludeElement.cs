@@ -9,6 +9,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		private bool _include = false;
 
 		private bool _exclude = false;
+		private bool _isEditable = true;
 
 		public delegate void OnElementIncluded(IncludeExcludeElement sender, EventArgs eventArgs);
 		public delegate void OnElementExcluded(IncludeExcludeElement sender, EventArgs eventArgs);
@@ -79,6 +80,16 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Возможность редактирования элемента(установки включен/исключен)
+		/// В текущей реализации сделано не полноценно. Только под блокировку выбора автора заказа текущего сотрудника, если нет спец прав
+		/// </summary>
+		public bool IsEditable
+		{
+			get => _isEditable;
+			set =>  SetField(ref _isEditable, value);
 		}
 
 		public IncludeExcludeElement Parent { get; set; } = null;

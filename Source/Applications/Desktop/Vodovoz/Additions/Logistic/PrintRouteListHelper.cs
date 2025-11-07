@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
-using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -21,6 +21,7 @@ using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using QS.Osrm;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -332,8 +333,9 @@ namespace Vodovoz.Additions.Logistic
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
 			var uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
-			using(var calc = new RouteGeometryCalculator(uowFactory, globalSettings, cachedDistanceRepository))
+			var osrmSettings = ScopeProvider.Scope.Resolve<IOsrmSettings>();
+			var osrmClient = ScopeProvider.Scope.Resolve<IOsrmClient>();
+			using(var calc = new RouteGeometryCalculator(uowFactory, osrmSettings, osrmClient, cachedDistanceRepository))
 			{
 				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
 			}
@@ -380,7 +382,7 @@ namespace Vodovoz.Additions.Logistic
 			return reportInfo;
 		}
 
-		public static ReportInfo GetRDLFine(RouteList routeList)
+		public static ReportInfo GetRDLFine(RouteList routeList, IUnitOfWork uow)
 		{
 			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Title = $"Штрафы сотрудника { routeList.Driver.LastName }";
@@ -391,7 +393,8 @@ namespace Vodovoz.Additions.Logistic
 				{ "startDate", routeList.Date },
 				{ "endDate", routeList.Date },
 				{ "routelist", routeList.Id },
-				{ "showbottom", true}
+				{ "showbottom", true},
+				{ "fineCategories", uow.GetAll<FineCategory>().Where(x => !x.IsArchive).Select(x => x.Id).ToList() }
 			};
 			return reportInfo;
 		}

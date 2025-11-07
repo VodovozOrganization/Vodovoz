@@ -8,6 +8,7 @@
 		<!-- <toolitem name='ActionAccountingTable' action='ActionAccountingTable'/> -->
 		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
         <toolitem name='ActionWayBillGenerator' action='ActionWayBillGenerator'/>
+		<toolitem name='BankAccountsMovementsJournalAction' action='BankAccountsMovementsJournalAction'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
 	</toolbar>
 </ui>

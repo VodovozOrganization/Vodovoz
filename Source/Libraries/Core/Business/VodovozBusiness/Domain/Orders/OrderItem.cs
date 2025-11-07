@@ -357,7 +357,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
-		: Count;
+			: Count;
 
 		public virtual bool IsTrueMarkCodesMustBeAdded =>
 			Nomenclature?.IsAccountableInTrueMark == true
@@ -632,7 +632,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Count != count)
 			{
-				Count = count;
+				Count = count < 0 ? 0 : count;
 				Order?.RecalculateItemsPrice();
 				RecalculateDiscount();
 				RecalculateVAT();

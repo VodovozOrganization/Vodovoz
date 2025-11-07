@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -62,5 +63,17 @@ namespace TrueMark.Contracts
 		/// </summary>
 		[JsonPropertyName("parent")]
 		public string Parent { get; set; }
+
+		/// <summary>
+		/// Дата производства
+		/// </summary>
+		[JsonPropertyName("producedDate")]
+		public string ProducedDate { get; set; }
+
+		/// <summary>
+		/// Дата истечения срока годности
+		/// </summary>
+		[JsonPropertyName("expirationDate")]
+		public string ExpirationDate { get; set; }
 	}
 }

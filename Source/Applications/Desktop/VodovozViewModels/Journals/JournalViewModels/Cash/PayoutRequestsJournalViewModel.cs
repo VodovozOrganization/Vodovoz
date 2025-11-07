@@ -193,13 +193,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_financier_cash_request", userId);
 			_cashRequestCoordinator =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_coordinator_cash_request", userId);
-			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier, userId);
+			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier, userId);
 			_roleSecurityService =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 			_hasAccessToHiddenFinancialCategories =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
 		private IEnumerable<int> GetSubdivisionsControlledByCurrentEmployee(IUnitOfWork uow)
@@ -617,7 +617,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => authorProjection,
 				() => accauntableProjection,
 				() => accountableEmployeeAlias.Id,
-				() => cashRequestAlias.Basis
+				() => cashRequestAlias.Basis,
+				() => financialExpenseCategoryAlias.Title
 			));
 
 			result.SelectList(list => list
@@ -783,7 +784,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				() => cashlessRequestAlias.Id,
 				() => authorAlias.Id,
 				() => authorProjection,
-				() => cashlessRequestAlias.Basis
+				() => cashlessRequestAlias.Basis,
+				() => financialExpenseCategoryAlias.Title
 			));
 
 			result.SelectList(list => list

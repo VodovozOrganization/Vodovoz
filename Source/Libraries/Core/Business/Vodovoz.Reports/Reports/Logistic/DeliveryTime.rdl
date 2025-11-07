@@ -32,6 +32,7 @@
     delivery_schedule.to_time AS max_time,
     counterparty.name AS client,
     delivery_points.compiled_address_short,
+    DATE_FORMAT(orders.wait_until_time, '%H:%i') AS wait_until_time,
     GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM route_lists
 LEFT JOIN
@@ -125,6 +126,10 @@ ORDER BY driver_name, max_time
           <DataField>compiled_address_short</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="wait_until_time">
+          <DataField>wait_until_time</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="visiting_master">
           <DataField>visiting_master</DataField>
           <rd:TypeName>System.Boolean</rd:TypeName>
@@ -158,13 +163,16 @@ ORDER BY driver_name, max_time
             <Width>41.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>291.6pt</Width>
+            <Width>266.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>317.0pt</Width>
+            <Width>292.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -270,6 +278,21 @@ ORDER BY driver_name, max_time
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxWaitUntilTimeHeader">
+                      <Value>Ожидает до</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -399,6 +422,21 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxWaitUntilTime">
+                      <Value>=Fields!wait_until_time.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>

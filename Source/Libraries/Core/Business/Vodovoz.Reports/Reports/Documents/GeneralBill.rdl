@@ -1,0 +1,2271 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>11.69in</PageHeight>
+  <PageWidth>8.27in</PageWidth>
+  <Width>.1pt</Width>
+  <TopMargin>0mm</TopMargin>
+  <LeftMargin>0mm</LeftMargin>
+  <RightMargin>0mm</RightMargin>
+  <BottomMargin>0mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    o.id AS order_id,
+    DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
+    DATE_FORMAT(o.bill_date,'%d.%m.%Y') AS bill_date,
+    c.full_name AS client_name,
+    c.jur_address AS client_address,
+    c.inn,
+    c.kpp,
+    c.use_special_doc_fields,
+    c.special_cargo_receiver,
+    c.special_customer,
+    IF(!IS_NULL_OR_WHITESPACE(c.special_contract_number) and c.special_contract_date is not null,
+       CONCAT(c.special_contract_name, ' №', c.special_contract_number, ' от ', DATE_FORMAT(c.special_contract_date, '%d.%m.%y')),
+       c.special_contract_name) AS special_contract_number,
+    c.payer_special_kpp,
+    c.special_gov_contract,
+    c.special_delivery_address,
+    p.`number` AS contact_phone,
+    (
+        Select
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_delivery_point.number,
+                            IF(
+                                    p_delivery_point.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_delivery_point.comment)
+                                )
+                        )
+                    SEPARATOR '; '
+                )
+        from phones p_delivery_point
+        where dp.id = p_delivery_point.delivery_point_id
+          and p_delivery_point.is_archive = 0
+    )AS delivery_point_contact,
+    (
+        Select
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_counterparty.number,
+                            IF(
+                                    p_counterparty.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_counterparty.comment)
+                            )
+                    )
+                    SEPARATOR '; '
+            )
+        from phones p_counterparty
+        where c.id = p_counterparty.counterparty_id
+          and p_counterparty.is_archive = 0
+    )AS client_contact,
+    CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author,
+    dp.compiled_address_short AS delivery_address,
+    (
+        select NUMBER_TO_STRING_DESCRIPTION(sum(ROUND(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)))
+        from order_items oi
+        where oi.order_id = o.id
+    ) AS order_sum_string
+FROM
+    orders o
+        LEFT JOIN
+    counterparty c ON o.client_id = c.id
+        LEFT JOIN
+    delivery_points dp ON dp.id = o.delivery_point_id
+        LEFT JOIN
+    employees ON employees.id = o.author_employee_id
+    	LEFT JOIN
+    phones p ON o.contact_phone_id = p.id
+WHERE
+        o.id IN (@order_id)
+        LIMIT 1;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="kpp">
+          <DataField>kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_point_contact">
+          <DataField>delivery_point_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contact">
+          <DataField>client_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bill_date">
+          <DataField>bill_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="use_special_doc_fields">
+          <DataField>use_special_doc_fields</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="special_cargo_receiver">
+          <DataField>special_cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_customer">
+          <DataField>special_customer</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payer_special_kpp">
+          <DataField>payer_special_kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_gov_contract">
+          <DataField>special_gov_contract</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_delivery_address">
+          <DataField>special_delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contact_phone">
+          <DataField>contact_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_address">
+          <DataField>delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_sum_string">
+          <DataField>order_sum_string</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Goods">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>
+SELECT
+	  order_items.order_id as order_id,
+    nomenclature.id AS id,
+    nomenclature.official_name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    measurement_units.digits as digits,
+    IFNULL(actual_count, count) AS count,
+    order_items.count AS required_count,
+    order_items.actual_count AS actual_count,
+    order_items.price AS item_price,
+    IFNULL(order_items.include_nds, 0) as include_nds,
+    order_items.discount,
+    order_items.discount_money,
+    order_items.price * IFNULL(actual_count, count) AS sum,
+    order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total
+FROM
+    order_items
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
+WHERE
+	order_items.order_id IN (@order_id)
+ORDER BY 
+	order_items.order_id;
+      </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="unit_code">
+          <DataField>unit_code</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="mu_name">
+          <DataField>mu_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="item_price">
+          <DataField>item_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="discount">
+          <DataField>discount</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="discount_money">
+          <DataField>discount_money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="digits">
+          <DataField>digits</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Organization">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    organizations.full_name,
+    organizations.name as org_name,
+    organizations.INN,
+    organizations.KPP,
+    accounts.`number` as account,
+    ov.jur_address AS address,
+    organizations.email AS email,
+    CONCAT('+7 ', phones.number) AS phone,
+    banks.name,
+    banks.bik,
+    cor_account.cor_account_number as cor_account,
+    banks.city,
+    accounts.number,
+    leader.last_name AS leader_last_name,
+    leader.name AS leader_name,
+    leader.patronymic AS leader_patronymic,
+    buh.last_name AS buh_last_name,
+    buh.name AS buh_name,
+    buh.patronymic AS buh_patronymic
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
+   organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+        LEFT JOIN
+    accounts ON 
+    		(((NOT counterparty.use_special_doc_fields OR counterparty.our_organization_account_for_bills is NULL) and accounts.id = organizations.default_account_id) 
+    		or (counterparty.use_special_doc_fields and accounts.id = counterparty.our_organization_account_for_bills))
+    	LEFT JOIN
+    banks_cor_accounts cor_account ON accounts.bank_cor_account_id = cor_account.id 
+    	LEFT JOIN
+    banks ON banks.id = accounts.bank_id
+        LEFT JOIN
+    employees leader ON leader.id = ov.leader_id
+        LEFT JOIN
+    employees buh ON buh.id = ov.accountant_id 
+        LEFT JOIN
+    phones ON organizations.id = phones.org_id AND phones.is_archive = 0
+WHERE
+    orders.id IN (@order_id)
+    LIMIT 1;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="INN">
+          <DataField>INN</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="KPP">
+          <DataField>KPP</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="phone">
+          <DataField>phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bik">
+          <DataField>bik</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="city">
+          <DataField>city</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="number">
+          <DataField>number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_last_name">
+          <DataField>buh_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_name">
+          <DataField>buh_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_patronymic">
+          <DataField>buh_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cor_account">
+          <DataField>cor_account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="email">
+          <DataField>email</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="account">
+          <DataField>account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Images">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 19; #Бесплатная доставка продуктов
+SET @id2 = 20; #Сервисное обслуживание оборудования
+*/
+
+SELECT
+
+stored_resource.id AS ID1,
+stored_resource.binary_file AS IM1 ,
+
+R2.id as ID2 ,
+R2.binary_file as IM2
+
+FROM stored_resource
+
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id2
+) as R2 ON R2.id = @id2
+
+WHERE stored_resource.id = @id1</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>19</Value>
+          </QueryParameter>
+          <QueryParameter Name="id2">
+            <Value>20</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM2">
+          <DataField>IM2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Stamp">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+        SELECT DISTINCT sr.binary_file as image
+        FROM orders o 
+        LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+        LEFT JOIN organizations org ON cc.organization_id = org.id 
+        LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
+        WHERE org.id = @organization_id
+        LIMIT 1
+        </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="image">
+          <DataField>image</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Signatures">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+        SELECT 
+        (SELECT binary_file FROM stored_resource WHERE id = 
+          (SELECT DISTINCT
+            ov.signature_leader_id
+          FROM
+              orders
+                  LEFT JOIN
+              counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+                  LEFT JOIN
+              organizations ON organizations.id = counterparty_contract.organization_id
+                  LEFT JOIN    
+              organization_versions ov
+                  ON
+                      organizations.id = ov.organization_id 
+                  AND
+                      ov.start_date &lt;= orders.bill_date 
+                  AND
+                    (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+              WHERE
+                ov.signature_accountant_id IS NOT NULL
+                AND organizations.id = @organization_id LIMIT 1)) as chief,
+        (SELECT binary_file FROM stored_resource WHERE id = 
+          (SELECT DISTINCT
+            ov.signature_accountant_id
+          FROM
+              orders
+                  LEFT JOIN
+              counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+                  LEFT JOIN
+              organizations ON organizations.id = counterparty_contract.organization_id
+                  LEFT JOIN    
+              organization_versions ov
+                  ON
+                      organizations.id = ov.organization_id 
+                  AND
+                      ov.start_date &lt;= orders.bill_date 
+                  AND
+                      (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+              WHERE
+                ov.signature_accountant_id IS NOT NULL
+                AND organizations.id = @organization_id LIMIT 1)) as bookkeeper;
+        </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!organization_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="chief">
+          <DataField>chief</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bookkeeper">
+          <DataField>bookkeeper</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StoredImages">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	(SELECT binary_file FROM stored_resource WHERE id = 3) as logo
+;</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="logo">
+          <DataField>logo</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="AdditionalInfo">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT bp.str_value as info_str
+FROM base_parameters bp 
+WHERE bp.name = 'bill_additional_info';</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="info_str">
+          <DataField>info_str</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>847.4pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Image Name="Image1">
+        <Height>57.44pt</Height>
+        <Width>80.87pt</Width>
+        <Left>44.30pt</Left>
+        <Top>12.30pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+        <Source>Database</Source>
+        <Value>=First({logo}, "StoredImages")</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+      </Image>
+      <Textbox Name="Textbox1">
+        <Height>13.52pt</Height>
+        <Width>331.33pt</Width>
+        <Value>Образец заполнения платежного поручения</Value>
+        <ZIndex>0</ZIndex>
+        <Left>174.20pt</Left>
+        <Top>77.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2">
+        <Height>37.62pt</Height>
+        <Width>333.36pt</Width>
+        <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
+        <ZIndex>0</ZIndex>
+        <Left>208.7pt</Left>
+        <Top>34.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>8pt</FontSize>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <List Name="List2">
+        <Height>105.57pt</Height>
+        <Width>597.65pt</Width>
+        <Left>0.00pt</Left>
+        <Top>94.30pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>30.00pt</Height>
+            <Width>220.00pt</Width>
+            <Value>={name} + ' г.' + {city}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>40.00pt</Left>
+            <Top>0.10pt</Top>
+            <Style>
+              <BorderStyle>
+                <Left>Double</Left>
+                <Top>Double</Top>
+                <Right>Double</Right>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth>
+                <Left>1pt</Left>
+                <Top>1pt</Top>
+              </BorderWidth>
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+              <PaddingBottom>5pt</PaddingBottom>
+              <PaddingRight>5pt</PaddingRight>
+              <PaddingTop>5pt</PaddingTop>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.00pt</Height>
+            <Width>110pt</Width>
+            <Value>='ИНН ' + {INN}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>40pt</Left>
+            <Top>45.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15pt</Height>
+            <Width>40pt</Width>
+            <Value>БИК</Value>
+            <ZIndex>0</ZIndex>
+            <Left>260pt</Left>
+            <Top>0.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>30.00pt</Height>
+            <Width>40.00pt</Width>
+            <Value>Сч. №</Value>
+            <ZIndex>0</ZIndex>
+            <Left>260.0pt</Left>
+            <Top>15.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>30.00pt</Height>
+            <Width>130.00pt</Width>
+            <Value>={cor_account}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>300.0pt</Left>
+            <Top>15.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>None</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>60.00pt</Height>
+            <Width>40.00pt</Width>
+            <Value>Сч. №</Value>
+            <ZIndex>0</ZIndex>
+            <Left>260pt</Left>
+            <Top>45.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>30.00pt</Height>
+            <Width>220.00pt</Width>
+            <Value>={full_name}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>40.00pt</Left>
+            <Top>60.10pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>None</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+              <PaddingRight>5pt</PaddingRight>
+              <PaddingTop>5pt</PaddingTop>
+              <PaddingBottom>5pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.00pt</Height>
+            <Width>130.00pt</Width>
+            <Value>={bik}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>300.00pt</Left>
+            <Top>0.10pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.00pt</Height>
+            <Width>110.00pt</Width>
+            <Value>='КПП ' + {KPP} </Value>
+            <ZIndex>0</ZIndex>
+            <Left>150.00pt</Left>
+            <Top>45.10pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+              <PaddingBottom>0pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>60pt</Height>
+            <Width>130.00pt</Width>
+            <Value>={number}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>300.00pt</Left>
+            <Top>45.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Double</Default>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Top>Double</Top>
+                <Bottom>Double</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15pt</Height>
+            <Width>220pt</Width>
+            <Value>Получатель</Value>
+            <ZIndex>0</ZIndex>
+            <Left>40pt</Left>
+            <Top>90.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Left>Double</Left>
+                <Bottom>Double</Bottom>
+                <Right>Double</Right>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15pt</Height>
+            <Width>220pt</Width>
+            <Value>Банк получателя</Value>
+            <ZIndex>0</ZIndex>
+            <Left>40pt</Left>
+            <Top>30.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Left>Double</Left>
+                <Right>Double</Right>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily>Calibri</FontFamily>
+              <PaddingLeft>5pt</PaddingLeft>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <DataSetName>Organization</DataSetName>
+      </List>
+      <Table Name="Table2">
+        <DataSetName>Goods</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>28.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>38.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>196.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>39.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>27.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>23.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>Номер заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Товар</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Ед.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Сумма без 
+скидки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>Скидка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>Сумма со 
+скидкой</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>=RowNumber()</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>=Fields!order_id.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>=Fields!name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>="N" + {digits}</Format>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>=Fields!mu_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>=Fields!item_price.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Fields!sum.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>=Fields!discount_money.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>=Fields!total.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>N2</Format>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>18.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>Итого:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>8</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>=Sum({total}, 'Goods')</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Bottom</VerticalAlign>
+                        <Format>N2</Format>
+                        <FontFamily>Calibri</FontFamily>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=Iif({?without_vat}, "Без налога (НДС)", "В том числе НДС:")</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>8</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=Iif({?without_vat}, "-", Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'))</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontFamily>Calibri</FontFamily>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Iif({?without_vat}, "Всего к оплате:", "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>8</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Iif({?without_vat}, Format(Sum({total}, 'Goods'), "N2"), "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>='Всего наименований ' + Count({id}, 'Goods') + ', на сумму ' + Format(Sum({total}, 'Goods'), "N2") + ' руб.'</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Left</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>9</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>21.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=First({order_sum_string}, "Order")</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Bottom>2pt</Bottom>
+                        </BorderWidth>
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Left</TextAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <ZIndex>0</ZIndex>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>9</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>31.0pt</Left>
+        <Top>420.7pt</Top>
+        <ZIndex>0</ZIndex>
+      </Table>
+      <List Name="List3">
+        <Height>103.22pt</Height>
+        <Width>535.30pt</Width>
+        <Left>31.4pt</Left>
+        <Top>534.8pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox24">
+            <Height>16.50pt</Height>
+            <Width>173.52pt</Width>
+            <Value>Руководитель________________</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>76.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox25">
+            <Height>12.00pt</Height>
+            <Width>121.77pt</Width>
+            <Value>='(' + {leader_last_name}
++ ' '
++ Left({leader_name},1)
++ '.'
++ Left({leader_patronymic},1)
++ '.)'</Value>
+            <ZIndex>0</ZIndex>
+            <Left>156.8pt</Left>
+            <Top>76.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <CanGrow>false</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox26">
+            <Height>12.00pt</Height>
+            <Width>118.77pt</Width>
+            <Value>='(' + {buh_last_name}
++ ' '
++ Left({buh_name},1)
++ '.'
++ Left({buh_patronymic},1)
++ '.)'</Value>
+            <ZIndex>0</ZIndex>
+            <Left>407.8pt</Left>
+            <Top>77.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox27">
+            <Height>12.00pt</Height>
+            <Width>154.77pt</Width>
+            <Value>Бухгалтер______________</Value>
+            <ZIndex>1</ZIndex>
+            <Left>283.4pt</Left>
+            <Top>75.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <FontSize>10pt</FontSize>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+          </Textbox>
+          <Image Name="Image2">
+            <Height>60.21pt</Height>
+            <Width>80.53pt</Width>
+            <Left>72.9pt</Left>
+            <Top>44.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures")</Value>
+            <Sizing>Fit</Sizing>
+            <ZIndex>0</ZIndex>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <MIMEType>image/png</MIMEType>
+          </Image>
+          <Image Name="Image4">
+            <Height>60.21pt</Height>
+            <Width>80.53pt</Width>
+            <Left>323.8pt</Left>
+            <Top>52.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <Source>Database</Source>
+            <Value>=First({bookkeeper}, "Signatures")</Value>
+            <Sizing>FitProportional</Sizing>
+            <ZIndex>0</ZIndex>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <MIMEType>image/png</MIMEType>
+          </Image>
+          <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>290.0pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>2</ZIndex>
+          </Image>
+        </ReportItems>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <DataSetName>Organization</DataSetName>
+      </List>
+      <Textbox Name="Textbox31">
+        <Height>32.25pt</Height>
+        <Width>326.52pt</Width>
+        <Value>В назначении платежа ОБЯЗАТЕЛЬНО указывайте
+номер и дату составления счета. СПАСИБО.</Value>
+        <ZIndex>0</ZIndex>
+        <Left>136.1pt</Left>
+        <Top>804.9pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <PaddingTop>1pt</PaddingTop>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <List Name="List4">
+        <Height>15.81pt</Height>
+        <Width>438.13pt</Width>
+        <Left>120.3pt</Left>
+        <Top>8.9pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportItems>
+          <Textbox Name="Textbox39">
+            <Height>12.73pt</Height>
+            <Width>420.89pt</Width>
+            <Value>="Автор: " + {author}</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>1.6pt</Top>
+            <Style>
+              <TextAlign>Right</TextAlign>
+              <FontFamily>Calibri</FontFamily>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Order</DataSetName>
+      </List>
+      <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>17.26pt</Height>
+        <Width>500.69pt</Width>
+        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
+        <ZIndex>0</ZIndex>
+        <Left>39.2pt</Left>
+        <Top>230.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>0.00pt</Height>
+        <Width>500.00pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>2pt</Default>
+          </BorderWidth>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+        <Left>40.7pt</Left>
+        <Top>247.3pt</Top>
+      </Line>
+      <Table Name="Table1">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>81.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>432.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>35.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Поставщик:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>=First({org_name}, 'Organization') + ', ИНН ' + First({INN}, 'Organization') + ', КПП ' + First({KPP}, 'Organization') + '\n' + First({address}, 'Organization') + 
+Iif(First({phone}, 'Organization') = null, '', '\nтел. ') + First({phone}, 'Organization') + 
+Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Organization')</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>34.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Покупатель:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_customer}) = false,{special_customer},{client_name})
++ ', ИНН ' 
++ {inn} 
++ ', КПП ' 
++ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp}) 
++ '\n' 
++ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false,{special_delivery_address},{client_address} )
++ ', ' 
++
+Iif(
+    Iif(
+        {client_contact} = null,
+        {delivery_point_contact},
+        {client_contact}
+    ) = null,
+    '',
+    Iif(
+        {client_contact} = null,
+        {delivery_point_contact},
+        {client_contact}
+    )
+)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>21.4pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_contract_number})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Основание:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={special_contract_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>23.8pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_cargo_receiver})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Грузополучатель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={special_cargo_receiver}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>24.5pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_gov_contract})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>ИГК:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>={special_gov_contract}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>24.5pt</Height>
+              <Visibility>
+                <Hidden>=Fields!delivery_address.IsMissing OR {?hide_delivery_point}</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Адрес доставки:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>={delivery_address}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>28.9pt</Left>
+        <Top>253.5pt</Top>
+      </Table>
+      <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>112.04pt</Height>
+        <Width>222.99pt</Width>
+        <Left>203.0pt</Left>
+        <Top>635.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontFamily>Calibri</FontFamily>
+          <TextAlign>Center</TextAlign>
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM1} , "Images" )</Value>
+        <Sizing>FitProportional</Sizing>
+        <ZIndex>0</ZIndex>
+        <Visibility></Visibility>
+        <MIMEType>image/jpeg</MIMEType>
+      </Image>
+      <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>50pt</Height>
+        <Width>326.52pt</Width>
+        <Value>ВНИМАНИЕ! Срок действия счета на все товары, кроме бутилированной воды объемом 19 литров, три рабочих дня с момента выставления.</Value>
+        <ZIndex>0</ZIndex>
+        <Left>136.1pt</Left>
+        <Top>747.3pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+            <Left>3pt</Left>
+            <Right>3pt</Right>
+            <Top>3pt</Top>
+            <Bottom>3pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <PaddingTop>1pt</PaddingTop>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.73pt</Height>
+        <Width>420.89pt</Width>
+        <Value>="Номер для связи: +7" + First({contact_phone}, 'Order')</Value>
+        <ZIndex>0</ZIndex>
+        <Left>120.0pt</Left>
+        <Top>23.2pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Type>QR Code</Type>
+        <Height>145.00pt</Height>
+        <Width>145.00pt</Width>
+        <CustomProperties>
+          <CustomProperty>
+            <Name>QrCode</Name>
+            <Value>= "ST00012|Name=" + First({org_name},'Organization') + "|PersonalAcc=" + First({account},'Organization') + "|BankName=" + First({name},'Organization') + "|BIC=" + First({bik},'Organization') + "|CorrespAcc="+First({cor_account},'Organization') + "|Sum=" + Format(Sum({total}, 'Goods'), "N0") * 100 + "|Purpose=Оплата заказа " + First({order_id},'Order') + "|PayeeINN=" + First({INN},'Organization') + "|KPP=" + First({KPP},'Organization')</Value>
+          </CustomProperty>
+        </CustomProperties>
+        <Left>431.5pt</Left>
+        <Top>63.0pt</Top>
+        <ZIndex>10</ZIndex>
+      </CustomReportItem>
+      <Textbox Name="Textbox46">
+        <Height>21.73pt</Height>
+        <Width>500pt</Width>
+        <Value>=First( {info_str} , "AdditionalInfo" )</Value>
+        <ZIndex>2</ZIndex>
+        <Left>39.2pt</Left>
+        <Top>207.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Left</TextAlign>
+          <Color>Red</Color>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+        <CanGrow>false</CanGrow>
+        <CanShrink>false</CanShrink>
+      </Textbox>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <MultiValue>true</MultiValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_id">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_signature">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>True</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="special">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="without_vat">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="special_contract_number">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_delivery_point">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+  </ReportParameters>
+</Report>

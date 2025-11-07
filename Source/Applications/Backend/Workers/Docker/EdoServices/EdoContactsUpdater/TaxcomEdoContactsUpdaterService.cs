@@ -141,6 +141,12 @@ namespace EdoContactsUpdater
 
 										var consentForEdoStatus =
 											_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.State.Code);
+
+										if(string.IsNullOrWhiteSpace(contact.EdxClientId))
+										{
+											_logger.LogWarning("Пришел контакт с пустым аккаунтом");
+											continue;
+										}
 										
 										foreach(var counterparty in counterparties)
 										{

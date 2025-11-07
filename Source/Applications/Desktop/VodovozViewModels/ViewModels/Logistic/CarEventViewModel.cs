@@ -14,11 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Warehouses.Documents;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -91,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_canCreateFuelBalanceCalibrationCarEvent = commonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Core.Domain.Permissions.Logistic.Car.CanCreateFuelBalanceCalibrationCarEvent);
+				Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanCreateFuelBalanceCalibrationCarEvent);
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 			UpdateFileItems();
 
@@ -584,7 +582,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			_interactiveService.ShowMessage(
 				ImportanceLevel.Info,
-				"Калибровку можно делать только утром до первого рейса на дату"
+				"Ограничения при проведении калибровки:\n" +
+				"1. Калибровку можно делать только утром до первого рейса на дату\n" +
+				"2. На автомобиль не должно быть выдано топливо на текущую дату\n" +
+				"3. У автомобиля не должно быть завершенных заказов по МЛ на текущую дату"
 			);
 		}
 

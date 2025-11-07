@@ -93,11 +93,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);
 		void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms);
-		Task<IList<RouteList>> GetCarsRouteListsForPeriod(IUnitOfWork uow, CarTypeOfUse? carTypeOfUse, CarOwnType carOwnType, Car car,
+		Task<IList<RouteList>> GetCarsRouteListsForPeriod(IUnitOfWork uow, CarTypeOfUse[] carTypesOfUse, CarOwnType[] carOwnTypes, Car car,
 			int[] includedCarModelIds, int[] excludedCarModelIds, DateTime startDate, DateTime endDate,
 			bool isOnlyCarsWithCompletedFastDelivery, bool isOnlyCarsWithCompletedCommonDelivery, CancellationToken cancellationToken);
 		IQueryable<ExploitationReportRouteListDataNode> GetExploitationReportRouteListDataNodes(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
 		IQueryable<int> GetOrderIdsByRouteLists(IUnitOfWork unitOfWork, IEnumerable<int> routeListsIds);
 		decimal GetCarsConfirmedDistanceForPeriod(IUnitOfWork unitOfWork, int carId, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Возвращает список идентификаторов заказов, которые были завершены в маршрутных листах за текущую дату для указанного автомобиля
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="carId">Id автомобиля</param>
+		/// <returns>Список идентификаторов заказов</returns>
+		IEnumerable<int> GetCompletedOrdersInTodayRouteListsByCarId(IUnitOfWork uow, int carId);
 	}
 }

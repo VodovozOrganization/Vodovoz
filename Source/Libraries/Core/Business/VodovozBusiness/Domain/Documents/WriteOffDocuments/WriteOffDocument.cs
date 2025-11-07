@@ -253,6 +253,13 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 					yield return new ValidationResult ($"На складе недостаточное количество <{item.Nomenclature.Name}>",
 						new[] { nameof(Items) });
 				}
+
+				if((item.Type == WriteOffDocumentItemType.InstanceWriteOffFromCarDocumentItem 
+					|| item.Type == WriteOffDocumentItemType.BulkWriteOffFromCarDocumentItem) 
+						&& item.CullingCategory is null)
+				{
+					yield return new ValidationResult($"Для номенклатуры <{item.Nomenclature.Name}> \nПоле \"Причина выбраковки\" не должно быть пустым", new[] { nameof(item.Type) });
+				}
 			}
 		}
 

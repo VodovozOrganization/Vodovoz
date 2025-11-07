@@ -255,10 +255,10 @@ namespace Receipt.Dispatcher.Tests
 			Assert.All(
 				receiptEdoTask.Items
 					.Where(x => x.ProductCode.SourceCode != null)
-					.Select(x => x.ProductCode.SourceCode.GTIN),
+					.Select(x => x.ProductCode.SourceCode.Gtin),
 				x => Assert
 					.DoesNotContain(x, receiptEdoTask.FiscalDocuments
-					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.GTIN))));
+					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.Gtin))));
 		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
@@ -365,7 +365,7 @@ namespace Receipt.Dispatcher.Tests
 
 					if(groupCode.GTIN == null)
 					{
-						groupCode.GTIN = currentWaterIdentificationCode.GTIN;
+						groupCode.GTIN = currentWaterIdentificationCode.Gtin;
 					}
 
 					groupCode.RawCode ??= $"{groupCode.GTIN}Raw{groupCodesCounter++}";
@@ -428,7 +428,7 @@ namespace Receipt.Dispatcher.Tests
 			return new TrueMarkWaterIdentificationCode
 			{
 				Id = id,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = CreateNewGtinSerial(id),
 				CheckCode = CreateNewGtinCheckCode(id),
 				IsInvalid = isInvalid
@@ -513,7 +513,6 @@ namespace Receipt.Dispatcher.Tests
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<TrueMarkApiClient>());
-			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var saveCodesService = Substitute.For<ISaveCodesService>();
@@ -529,7 +528,7 @@ namespace Receipt.Dispatcher.Tests
 				edoRepository,
 				edoReceiptSettings,
 				localCodesValidator,
-				trueMarkCodesPool,
+				Substitute.For<ITrueMarkCodesPool>() as ReceiptTrueMarkCodesPool, 
 				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),

@@ -1,6 +1,6 @@
 ﻿using System;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {

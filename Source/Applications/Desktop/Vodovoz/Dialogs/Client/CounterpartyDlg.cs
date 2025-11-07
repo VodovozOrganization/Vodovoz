@@ -113,7 +113,7 @@ namespace Vodovoz
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditClientRefer =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer);
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -149,6 +149,7 @@ namespace Vodovoz
 		private IEdoService _edoService;
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
+		private IGeneralSettings _generalSettings;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
 		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 
@@ -321,6 +322,7 @@ namespace Vodovoz
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -387,11 +389,12 @@ namespace Vodovoz
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			ConfigureClientReferEntityEntry();
+			ConfigureDelayDaysFromGeneralSettings();
 		}
 
 		private void InitializeEdoAccountsWidget()
 		{
-			_counterpartyEdoAccountController.AddDefaultEdoAccountsToNewCounterparty(Entity);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(Entity);
 			
 			_counterpartyEdoAccountsViewModel = _lifetimeScope.Resolve<CounterpartyEdoAccountsViewModel>(
 				new TypedParameter(typeof(IUnitOfWork), UoW),
@@ -421,6 +424,16 @@ namespace Vodovoz
 			entityentryClientRefer.ViewModel.DisposeViewModel = false;
 		}
 
+		private void ConfigureDelayDaysFromGeneralSettings()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.DelayDaysForBuyers = _generalSettings.DefaultPaymentDeferment;
+		}
+		
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.SalesManager)
@@ -538,7 +551,9 @@ namespace Vodovoz
 			lblVodovozNumber.Visible = false;
 
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0 || _canEditClientRefer;
-
+			
+			
+			
 			yhboxReferrer.Binding.AddSource(Entity)
 				.AddFuncBinding(e => 
 						(e.CameFrom != null && e.CameFrom.Id == _counterpartySettings.ReferFriendPromotionCameFromId),
@@ -871,7 +886,6 @@ namespace Vodovoz
 			{
 				entrySalesManager.SetEntityAutocompleteSelectorFactory(GetEmployeeFactoryWithResetFilter(employeeJournalFactory));
 			}
-
 			entrySalesManager.Binding
 				.AddBinding(Entity, e => e.SalesManager, w => w.Subject)
 				.InitializeFromSource();

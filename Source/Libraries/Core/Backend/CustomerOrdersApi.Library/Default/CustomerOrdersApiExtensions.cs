@@ -10,6 +10,8 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Vodovoz.Application.Orders.Services;
+using Vodovoz.Handlers;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
@@ -19,7 +21,9 @@ namespace CustomerOrdersApi.Library.Default
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
+			services
+				.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position))
+				.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
 			
 			return services;
 		}
@@ -27,10 +31,14 @@ namespace CustomerOrdersApi.Library.Default
 		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>();
 			
 			return services;
 		}

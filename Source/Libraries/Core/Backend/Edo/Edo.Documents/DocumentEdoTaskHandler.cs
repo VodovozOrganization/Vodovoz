@@ -83,14 +83,6 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest.Order.Contract.Organization.WithoutVAT
-				&& edoTask.DocumentType == EdoDocumentType.UPD)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<NotAvailableSentUpdForNotVatOrganization>(
-					edoTask, cancellationToken, "Запрос отправки УПД для организации без НДС");
-				return;
-			}
-
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)

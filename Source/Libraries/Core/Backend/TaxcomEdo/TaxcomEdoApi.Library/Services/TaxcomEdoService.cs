@@ -95,6 +95,7 @@ namespace TaxcomEdoApi.Library.Services
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
 					infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.RepresentativeInn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}
@@ -155,6 +156,7 @@ namespace TaxcomEdoApi.Library.Services
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
 					updInfo.Seller.Organization.Inn,
+					_warrantOptions.RepresentativeInn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}
@@ -179,6 +181,7 @@ namespace TaxcomEdoApi.Library.Services
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
 					data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.RepresentativeInn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}
@@ -203,6 +206,7 @@ namespace TaxcomEdoApi.Library.Services
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
 					data.OrderWithoutShipmentInfo.OrganizationInfoForEdo.Inn,
+					_warrantOptions.RepresentativeInn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);
 			}

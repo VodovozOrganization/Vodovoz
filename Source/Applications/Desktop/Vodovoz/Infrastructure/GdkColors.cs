@@ -94,6 +94,8 @@ namespace Vodovoz.Infrastructure
 		public static Color LightPurple { get; } = new Color(199, 206, 255);
 		public static Color LightCoral { get; } = new Color(240, 128, 128);
 		public static Color Turquoise { get; } = new Color(64, 224, 208);
+		public static Color DarkBlue { get; } = new Color(0, 12, 123);
+		public static Color DarkViolet { get; } = new Color(88, 19, 94);
 		public static Color DarkMustard { get; } = IsLight ? new Color(0xb3, 0xb3, 0x00) : new Color(255, 219, 88);
 		public static Color CashFlowTotalColor { get; } = IsLight ? new Color(249, 191, 143) : new Color(233, 84, 32);
 		public static Color DiscussionCommentBase { get; } = IsLight ? new Color(230, 230, 245) : new Color(62, 62, 65);

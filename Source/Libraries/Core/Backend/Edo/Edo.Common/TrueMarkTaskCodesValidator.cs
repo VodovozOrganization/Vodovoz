@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -51,6 +51,14 @@ namespace Edo.Common
 			if(productInstanceStatus.Status != ProductInstanceStatusEnum.Introduced)
 			{
 				codeValidationResult.IsIntroduced = false;
+				codeValidationResult.IsValid = false;
+				codeValidationResult.ReadyToSell = false;
+			}
+
+			// проверка на то что продукт не просрочен
+			if(productInstanceStatus.ExpirationDate < DateTime.Today)
+			{
+				codeValidationResult.IsExpired = true;
 				codeValidationResult.IsValid = false;
 				codeValidationResult.ReadyToSell = false;
 			}

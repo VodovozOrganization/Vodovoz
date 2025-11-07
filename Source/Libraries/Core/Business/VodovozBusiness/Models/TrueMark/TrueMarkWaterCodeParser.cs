@@ -101,7 +101,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};
@@ -144,7 +144,7 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				exceptionAction(ex);
-				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCode.TrueMarkCodeParsingError);
+				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCodeErrors.TrueMarkCodeParsingError);
 			}
 		}
 
@@ -171,7 +171,7 @@ namespace Vodovoz.Models.TrueMark
 			var gtinGroup = match.Groups[_gtinGroupName];
 			if(gtinGroup != null)
 			{
-				result.GTIN = gtinGroup.Value;
+				result.Gtin = gtinGroup.Value;
 			}
 
 			var serialGroup = match.Groups[_serialGroupName];
@@ -204,19 +204,19 @@ namespace Vodovoz.Models.TrueMark
 		[Obsolete("Используйте свойство IdentificationCode в коде")]
 		public string GetWaterIdentificationCode(ITrueMarkWaterCode trueMarkWaterCode)
 		{
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}";
 		}
 
 		[Obsolete("Используйте свойство CashReceiptCode в коде")]
 		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
 		{
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
 		[Obsolete("Используйте свойство Tag1260Code в коде")]
 		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
 		{			
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
@@ -251,7 +251,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};
@@ -287,7 +287,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};

@@ -501,6 +501,13 @@
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
+    <ReportParameter Name="excluded_car_ids">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
   </ReportParameters>
   <DataSets>
     <DataSet Name="car_changes">
@@ -516,7 +523,8 @@ CASE cv.car_own_type
 END as car_own_type,
 cv.car_own_type as current_own_type,
 CASE cm.car_type_of_use 
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая'
+	WHEN 'Minivan' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
@@ -547,6 +555,7 @@ LEFT JOIN employees e ON c.driver_id = e.id
 WHERE 
 	cv.start_date &gt;= @start_date and cv.start_date &lt;= @end_date
     AND cm.car_type_of_use IN (@car_type_of_use)
+    AND c.id NOT IN (@excluded_car_ids)
 HAVING 
     current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 UNION
@@ -560,7 +569,8 @@ CONCAT('В архиве (',
 	END, ')')   as car_own_type,
 cv2.car_own_type as current_own_type,
 CASE cm2.car_type_of_use 
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая'
+	WHEN 'Minivan' THEN 'Фургон'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
@@ -577,13 +587,15 @@ CONCAT(e2.last_name, ' ', e2.name, ' ', e2.patronymic) as driver_name,
 (SELECT car_own_type
     FROM car_versions WHERE car_id = c2.id ORDER BY start_date DESC LIMIT 1) AS previous_car_own_type
 FROM cars c2
-JOIN car_versions cv2 ON cv2.car_id = c2.id
+JOIN car_versions cv2 ON cv2.car_id = c2.id and cv2.start_date &lt;= c2.archiving_date and (cv2.end_date &gt;= c2.archiving_date or cv2.end_date is null)
 JOIN car_models cm2 ON c2.model_id = cm2.id 
 LEFT JOIN employees e2 ON c2.driver_id = e2.id 
 WHERE 
 	c2.archiving_date &gt;= @start_date and c2.archiving_date &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY)
 	AND c2.is_archive = 1
     AND cv2.car_own_type IN (@car_own_type)
+    AND c2.id NOT IN (@excluded_car_ids)
+    AND cm2.car_type_of_use IN (@car_type_of_use)
 HAVING 
     current_own_type IN (@car_own_type) OR previous_car_own_type IN (@car_own_type)
 ORDER BY change_date DESC, car_own_type
@@ -600,6 +612,9 @@ ORDER BY change_date DESC, car_own_type
           </QueryParameter>
           <QueryParameter Name="@car_own_type">
             <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>

@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Dialogs;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -276,6 +276,17 @@ namespace Vodovoz.Logistic
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
+				.AddColumn("Форма оплаты")
+					.AddEnumRenderer(node => 
+						node.PaymentType,
+						excludeItems: ViewModel.ExcludedPaymentTypes
+					)
+					.AddSetter((c, n) =>
+					{
+						c.Editable = ViewModel.AllEditing 
+						&& n.RouteListItem.Status == RouteListItemStatus.EnRoute 
+						&& Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
+					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
@@ -299,6 +310,18 @@ namespace Vodovoz.Logistic
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
+				.AddColumn("Клиент")
+					.AddTextRenderer(node => node.RouteListItem.Order.Client != null
+						? node.RouteListItem.Order.Client.Name
+						: "")
+				.AddColumn("Телефон")
+					.AddTextRenderer(node => node.RouteListItem.Order.ContactPhone != null
+						? node.RouteListItem.Order.ContactPhone.Additional + node.RouteListItem.Order.ContactPhone
+						: "")
+				.AddColumn("Отзвон за")
+					.AddTextRenderer(node => node.RouteListItem.Order.CallBeforeArrivalMinutes.HasValue
+						? $"{node.RouteListItem.Order.CallBeforeArrivalMinutes.Value} мин."
+						: "")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, node) =>
 					{

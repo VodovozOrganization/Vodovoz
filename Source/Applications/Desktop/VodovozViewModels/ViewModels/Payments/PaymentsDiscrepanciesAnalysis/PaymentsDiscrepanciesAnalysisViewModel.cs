@@ -428,17 +428,23 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			var orders1C = _counterpartySettlementsReconciliation1C.Orders;
 
-			var allocations = GetAllocationsFromDatabase(SelectedClient.Id, orders1C.Select(o => o.OrderId).ToList());
+			var allocations =
+				GetAllocationsFromDatabase(SelectedClient.Id, SelectedClient.INN, orders1C.Select(o => o.OrderId).ToList());
 
 			_orderDiscrepanciesNodes = CreateOrderDiscrepanciesNodes(orders1C, allocations);
 		}
 
-		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, IList<int> orderIds)
+		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, string clientInn, IList<int> orderIds)
 		{
 			var allocations = _orderRepository.GetOrdersWithAllocationsOnDayByOrdersIds(_unitOfWork, orderIds);
-			var ordersMissingFromDocument = _orderRepository.GetOrdersWithAllocationsOnDayByCounterparty(_unitOfWork, clientId, orderIds);
+			var ordersMissingFromDocumentAllocatedToClient = _orderRepository.GetOrdersWithAllocationsOnDayByCounterparty(_unitOfWork, clientId, orderIds);
+			var ordersMissingFromDocumentAllocatedToAnotherClient =
+				_orderRepository.GetAllocationsToOrdersWithAnotherClient(_unitOfWork, clientId, clientInn, orderIds);
 
-			return allocations.Concat(ordersMissingFromDocument).ToList();
+			return allocations
+				.Concat(ordersMissingFromDocumentAllocatedToClient)
+				.Concat(ordersMissingFromDocumentAllocatedToAnotherClient)
+				.ToList();
 		}
 
 		private IDictionary<int, OrderDiscrepanciesNode> CreateOrderDiscrepanciesNodes(

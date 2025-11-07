@@ -27,7 +27,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
@@ -36,7 +36,7 @@ namespace Edo.Documents
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -120,7 +120,7 @@ namespace Edo.Documents
 						{
 							var gtin = (
 									from gtinEntity in _uow.Session.Query<GtinEntity>()
-									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.Gtin
 									select gtinEntity
 								)
 								.FirstOrDefault();
@@ -254,7 +254,7 @@ namespace Edo.Documents
 						{
 							if(unprocessedCodes[i].ProductCode.SourceCode != null
 								&& unprocessedCodes[i].ProductCode.ResultCode is null
-								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.GTIN))
+								&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == unprocessedCodes[i].ProductCode.SourceCode.Gtin))
 							{
 								await _trueMarkCodesPool.PutCodeAsync(unprocessedCodes[i].ProductCode.SourceCode.Id, cancellationToken);
 								documentEdoTask.Items.Remove(unprocessedCodes[i]);
@@ -334,7 +334,7 @@ namespace Edo.Documents
 						var availableGtins = orderItem.Nomenclature.Gtins;
 						foreach(var availableGtin in availableGtins)
 						{
-							var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.GTIN == availableGtin.GtinNumber);
+							var availableCode = validUnprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.Gtin == availableGtin.GtinNumber);
 							if(availableCode == null)
 							{
 								continue;
@@ -420,7 +420,8 @@ namespace Edo.Documents
 							ResultCode = forNewCode,
 							SourceCode = forNewCode,
 							SourceCodeStatus = SourceProductCodeStatus.Accepted,
-							Problem = ProductCodeProblem.None
+							Problem = ProductCodeProblem.None,
+							CustomerEdoRequest = documentEdoTask.OrderEdoRequest
 						};
 
 						await _uow.SaveAsync(newAutoTrueMarkProductCode, cancellationToken: cancellationToken);
@@ -470,7 +471,7 @@ namespace Edo.Documents
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
 		{
 			int codeId = 0;
-			var problemGtins = new List<EdoProblemCustomItem>();
+			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
 			try
@@ -480,10 +481,13 @@ namespace Edo.Documents
 			catch(EdoCodePoolMissingCodeException ex)
 			{
 				exception = ex;
-				problemGtins.Add(new EdoProblemGtinItem
+				if(!problemGtins.Any(x => x.Gtin == gtin))
 				{
-					Gtin = gtin
-				});
+					problemGtins.Add(new EdoProblemGtinItem
+					{
+						Gtin = gtin
+					});
+				}
 			}
 
 			if(codeId == 0)

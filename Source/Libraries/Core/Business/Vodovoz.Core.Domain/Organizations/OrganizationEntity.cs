@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.StoredResources;
 
 namespace Vodovoz.Core.Domain.Organizations
@@ -32,10 +33,11 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
+		private string _emailForMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private int? _avangardShopId;
-		private string _taxcomEdoAccountId;
+		private bool _isNeedCashlessMovementControl;
 		private OrganizationEdoType _organizationEdoType;
 		private Guid? _cashBoxTokenFromTrueMark;
 
@@ -53,6 +55,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			KPP = string.Empty;
 			OGRN = string.Empty;
 			Email = string.Empty;
+			EmailForMailing = string.Empty;
 		}
 
 		/// <summary>
@@ -146,6 +149,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 
 		/// <summary>
+		/// E-mail адрес
+		/// </summary>
+		[Display(Name = "E-mail адреса")]
+		public virtual string EmailForMailing
+		{
+			get => _emailForMailing;
+			set => SetField(ref _emailForMailing, value);
+		}
+
+		/// <summary>
 		/// ID Кассового аппарата
 		/// </summary>
 		[Display(Name = "ID Кассового аппарата")]
@@ -163,6 +176,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _withoutVAT;
 			set => SetField(ref _withoutVAT, value);
+		}
+		
+		/// <summary>
+		/// Требуется контроль движения средств по безналу
+		/// </summary>
+		[Display(Name = "Требуется контроль движения средств по безналу")]
+		public virtual bool IsNeedCashlessMovementControl
+		{
+			get => _isNeedCashlessMovementControl;
+			set => SetField(ref _isNeedCashlessMovementControl, value);
 		}
 
 		/// <summary>
@@ -184,17 +207,6 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _avangardShopId;
 			set => SetField(ref _avangardShopId, value);
-		}
-
-		/// <summary>
-		/// Id кабинета в Такскоме
-		/// </summary>
-		[IgnoreHistoryTrace]
-		[Display(Name = "Id кабинета в Такскоме")]
-		public virtual string TaxcomEdoAccountId
-		{
-			get => _taxcomEdoAccountId;
-			set => SetField(ref _taxcomEdoAccountId, value);
 		}
 
 		/// <summary>
@@ -224,6 +236,13 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _cashBoxTokenFromTrueMark;
 			set => SetField(ref _cashBoxTokenFromTrueMark, value);
 		}
+		
+		/// <summary>
+		/// Различные параметры для ЭДО Такскома
+		/// </summary>
+		[IgnoreHistoryTrace]
+		[Display(Name = "Конфигурации ЭДО по Такскому")]
+		public virtual TaxcomEdoSettings TaxcomEdoSettings { get; }
 
 		/// <summary>
 		/// Версии
@@ -321,6 +340,21 @@ namespace Vodovoz.Core.Domain.Organizations
 				yield return new ValidationResult(
 					"Номера ОКВЭД не должны превышать 100 знаков.",
 					new[] { nameof(OKVED) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Email))
+			{
+				yield return new ValidationResult(
+					"E-mail организации должен быть заполнен.",
+					new[] { nameof(Email) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(EmailForMailing) 
+				&& !Regex.IsMatch(EmailForMailing, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
+			{
+				yield return new ValidationResult(
+					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(Email) });
 			}
 		}
 

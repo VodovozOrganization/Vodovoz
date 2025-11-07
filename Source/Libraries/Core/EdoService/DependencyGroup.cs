@@ -14,7 +14,6 @@ namespace EdoService.Library
 				.AddScoped<IContactListService, ContactListService>()
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
-				.AddScoped<ContactListParser>()
 				;
 			
 			return services;

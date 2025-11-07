@@ -63,9 +63,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 						routeList => routeList.Car.Id,
 						carVersion => carVersion.Car.Id,
 						(routeList, carVersion) => new { routeList, carVersion })
-					.Where(x => forDriver ? x.routeList.Driver.Id == employee.Id : x.routeList.Forwarder.Id == employee.Id)
-					.Where
-						(x => RouteList.DeliveredRouteListStatuses.Contains(x.routeList.Status)
+					.Where(x =>
+						(forDriver && x.routeList.Driver.Id == employee.Id)
+						|| (!forDriver && x.routeList.Forwarder.Id == employee.Id))
+					.Where(x =>
+						RouteList.DeliveredRouteListStatuses.Contains(x.routeList.Status)
 						&& x.carVersion.StartDate <= DateTime.Now
 						&& (x.carVersion.EndDate >= DateTime.Now || x.carVersion.EndDate == null)
 						&& _includedCarOwn.Contains(x.carVersion.CarOwnType)
@@ -75,8 +77,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 					.FirstOrDefault()
 			};
 
-			
-			
 			var query = unitOfWork.Session.Query<Employee>()
 				.Where(employeeFilter)
 				.Select(LastRouteListIdSelector)
@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				.GetFilter<IncludeExcludeEnumFilter<EmployeeCategoryFilterType>>()
 				.GetIncluded();
 
-			_filterParameters = filterViewModel.GetReportParametersSet();
+			_filterParameters = filterViewModel.GetReportParametersSet(out var sb);
 			
 			List<LastRouteListReportRow> driverRows = new List<LastRouteListReportRow>();
 

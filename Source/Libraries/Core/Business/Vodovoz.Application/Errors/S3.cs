@@ -21,5 +21,11 @@ namespace Vodovoz.Application.Errors
 				typeof(S3),
 				nameof(ServiceUnavailable),
 				"Сервис S3 недосутпен");
+
+		public static Error OperationCanceled =>
+			new Error(
+				typeof(S3),
+				nameof(OperationCanceled),
+				"Операция была отменена (таймаут или отмена токена)");
 	}
 }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Results;
@@ -43,7 +44,7 @@ namespace Vodovoz.FirebaseCloudMessaging
 				$"Заказ №{orderId} с доставкой за час был добавлен в ваш маршрутный лист");
 		}
 
-		public async Task<Result> SendMessage(string recipientToken, string title, string body)
+		public async Task<Result> SendMessage(string recipientToken, string title, string body, Dictionary<string, string> data = null)
 		{
 			try
 			{
@@ -56,6 +57,11 @@ namespace Vodovoz.FirebaseCloudMessaging
 						Body = body
 					}
 				};
+
+				if(data != null)
+				{
+					message.Data = data;
+				}
 
 				var options = _optionsMonitor.CurrentValue;
 
@@ -124,7 +130,8 @@ namespace Vodovoz.FirebaseCloudMessaging
 
 				return Result.Success();
 			}
-			catch(FirebaseMessagingException firebaseMessagingException) when (firebaseMessagingException.MessagingErrorCode == MessagingErrorCode.Unregistered)
+			catch(FirebaseMessagingException firebaseMessagingException)
+				when(firebaseMessagingException.MessagingErrorCode == MessagingErrorCode.Unregistered)
 			{
 				_logger.LogError(firebaseMessagingException, "Ошибка отправки PUSH-сообщения, токен {Token} не зарегистрирован", recipientToken);
 				return Result.Failure(FirebaseCloudMessagingServiceErrors.Unregistered);

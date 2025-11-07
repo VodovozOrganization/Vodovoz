@@ -38,9 +38,19 @@ namespace Vodovoz.ViewModels.Store.Reports
 			public int NomenclatureId { get; set; }
 			
 			/// <summary>
+			/// Old ID Номенклатуры
+			/// </summary>
+			public int OldNomenclatureId { get; set; }
+			
+			/// <summary>
 			/// Название бракованой номенклатуры
 			/// </summary>
 			public string DefectiveItemName { get; set; }
+			
+			/// <summary>
+			/// Название бракованой номенклатуры до пересортицы
+			/// </summary>
+			public string DefectiveItemOldName { get; set; }
 			
 			/// <summary>
 			/// Фамилия водителя

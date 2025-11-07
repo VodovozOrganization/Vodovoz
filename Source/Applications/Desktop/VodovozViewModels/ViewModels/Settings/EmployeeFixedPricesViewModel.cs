@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			CanChangeEmployeesFixedPrices =
 				(currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService)))
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Settings.CanEditEmployeeFixedPrices);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.SettingsPermissions.CanEditEmployeeFixedPrices);
 			InitializeEmployeesFixedPricesSettings();
 		}
 

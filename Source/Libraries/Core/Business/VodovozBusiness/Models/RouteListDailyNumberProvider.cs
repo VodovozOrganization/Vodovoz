@@ -2,6 +2,9 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Data;
+using System.Linq;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Models
 {
@@ -18,46 +21,44 @@ namespace Vodovoz.Models
 		{
 			for(var i = 0; i < 3; i++)
 			{
-				using(var uow = _uowFactory.CreateWithoutRoot(GetType().Name))
-				using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
-				{
-					var existingNumberSql = @"SELECT daily_number FROM car_loading_daily_queue WHERE route_list_id = :route_list_id and date = :date;";
-					var existingNumberQuery = uow.Session.CreateSQLQuery(existingNumberSql)
-						.SetParameter("route_list_id", routeListId)
-						.SetParameter("date", date);
+                using(var uow = _uowFactory.CreateWithoutRoot(GetType().Name))
+                {
+                    using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
+                    {
+                        try
+                        {
+                            var existingRecord = uow.Session.Query<CarLoadingDailyQueue>()
+                                .FirstOrDefault(x => x.RouteList.Id == routeListId && x.Date == date);
 
-					var dailyNumber = (int)existingNumberQuery.UniqueResult<uint>();
+                            if(existingRecord != null)
+                            {
+                                return existingRecord.DailyNumber;
+                            }
 
-					if(dailyNumber > 0)
-					{
-						return dailyNumber;
-					}
+                            var maxNumber = uow.Session.Query<CarLoadingDailyQueue>()
+                                .Where(x => x.Date == date)
+                                .Max(x => (int?)x.DailyNumber) ?? 0;
 
-					var maxNumberSql = @"SELECT MAX(daily_number) FROM car_loading_daily_queue WHERE date = :date;";
-					var maxNumberQuery = uow.Session.CreateSQLQuery(maxNumberSql)
-						.SetParameter("date", date);
+                            var dailyNumber = maxNumber + 1;
 
-					dailyNumber = (int)maxNumberQuery.UniqueResult<uint>();
-					dailyNumber++;
+                            var newRecord = new CarLoadingDailyQueue
+                            {
+                                RouteList = new RouteListEntity { Id = routeListId },
+                                DailyNumber = dailyNumber,
+                                Date = date
+                            };
 
-					try
-					{
-						var insertNumberSql = @"INSERT INTO car_loading_daily_queue (route_list_id, daily_number, date) VALUES(:route_list_id, :daily_number, :date);";
-						uow.Session.CreateSQLQuery(insertNumberSql)
-							.SetParameter("route_list_id", routeListId)
-							.SetParameter("daily_number", dailyNumber)
-							.SetParameter("date", date)
-							.ExecuteUpdate();
+                            uow.Session.Save(newRecord);
+                            transaction.Commit();
 
-						transaction.Commit();
-					}
-					catch(Exception ex) when((ex.InnerException as MySqlException)?.Number == 1062)
-					{
-						continue;
-					}
-
-					return dailyNumber;
-				}
+                            return dailyNumber;
+                        }
+                        catch(Exception ex) when((ex.InnerException as MySqlException)?.Number == 1062)
+                        {
+                            continue;
+                        }
+                    }
+                }
 			}
 
 			return 0;

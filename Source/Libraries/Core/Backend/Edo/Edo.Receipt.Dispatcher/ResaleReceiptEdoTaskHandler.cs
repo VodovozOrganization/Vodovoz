@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using TrueMark.Library;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -88,19 +89,16 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
 				return;
 			}
 			
-			var cashPaymentKulerService =
-				order.PaymentType == PaymentType.Cash
-				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
-			
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
 
-			if(cashPaymentKulerService && !hasManualSend)
+			if(!hasManualSend)
 			{
 				await SaveCodesToPool(receiptEdoTask, cancellationToken);
 				receiptEdoTask.Status = EdoTaskStatus.Completed;
@@ -406,7 +404,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				var matchEdoTaskItem = resultCodes
-					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.ResultCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -457,7 +455,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			else
 			{
-				inventPosition.Vat = FiscalVat.Vat20;
+				inventPosition.Vat = orderItem.Nomenclature.VAT.ToFiscalVat();
 			}
 
 			return inventPosition;
@@ -467,24 +465,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask, 
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return false;
-			}
-
 			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(
 				_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return false;
-			}
 
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
@@ -498,6 +480,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+				
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask, 
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return false;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return false;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(

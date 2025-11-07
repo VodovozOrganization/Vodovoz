@@ -97,5 +97,60 @@ namespace Vodovoz.JournalViewModels
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
 		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+
+			bool canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanCreate;
+			bool canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanUpdate;
+			bool canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(CarModel)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+				(selected) => canCreate,
+				(selected) => VisibleCreateAction,
+				(selected) => CreateEntityDialog(),
+				"Insert"
+			);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+				(selected) => canEdit && selected.Any(),
+				(selected) => VisibleEditAction,
+				(selected) => selected.Cast<CarModelJournalNode>().ToList().ForEach(EditEntityDialog)
+			);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+				RowActivatedAction = editAction;
+
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => canDelete && selected.Any(),
+				(selected) => VisibleDeleteAction,
+				(selected) =>
+				{
+					var selectedItems = selected.Cast<CarModelJournalNode>().ToList();
+
+					foreach(var selectedItem in selectedItems)
+					{
+						var cars = UoW.GetAll<Car>()
+							.Where(car => car.CarModel.Id == selectedItem.Id);
+
+						if(!cars.Any())
+						{
+							continue;
+						}
+
+						ShowErrorMessage($"Нельзя удалять сущность {selectedItem.Id} т.к. к данной модели привязаны автомобили");
+						return;
+					}
+					
+					DeleteEntities(selected.Cast<CarModelJournalNode>().ToArray());
+				},
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
+		}
 	}
 }

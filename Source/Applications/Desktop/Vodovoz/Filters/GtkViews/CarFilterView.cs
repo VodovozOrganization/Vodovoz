@@ -60,6 +60,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.IsOnlyCarsWithoutInsurer, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonUsedInDelivery.Binding
+				.AddBinding(ViewModel, vm => vm.IsUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonNotUsedInDelivery.Binding
+				.AddBinding(ViewModel, vm => vm.IsNotUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
+
 			ConfigureInsurerEntityEntry();
 			ConfigureCarOwnerEntityEntry();
 

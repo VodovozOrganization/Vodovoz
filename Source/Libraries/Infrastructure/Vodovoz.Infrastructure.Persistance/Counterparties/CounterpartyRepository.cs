@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -14,9 +14,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
 using VodovozBusiness.Domain.Operations;
@@ -301,7 +301,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId)
 		{
 			CounterpartyEdoOperator edoAccountAlias = null;
-			
+
 			return uow.Session.QueryOver<Counterparty>()
 				.JoinAlias(c => c.CounterpartyEdoAccounts, () => edoAccountAlias)
 				.Where(() => edoAccountAlias.PersonalAccountIdInEdo == edxClientId)
@@ -502,6 +502,195 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			return query;
 		}
+
+		public decimal GetTotalDebt(IUnitOfWork unitOfWork, int counterpartyId)
+		{
+			var orderStatuses = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			PaymentItem paymentItemAlias = null;
+			Payment paymentAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+
+			var unallocatedIncomeSubquery = QueryOver.Of(() => cashlessMovementOperationAlias)
+				.Where(() => cashlessMovementOperationAlias.Counterparty.Id == counterpartyId)
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<CashlessMovementOperation>(x => x.Income));
+
+			var paymentItemsSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.Payment, () => paymentAlias)
+				.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+				.Where(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum<PaymentItem>(x => x.Sum));
+
+			var unallocatedBalanceProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(unallocatedIncomeSubquery),
+				Projections.SubQuery(paymentItemsSumSubquery)
+			);
+
+			var notPaidOrdersSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
+
+			var partialPaidOrdersSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
+
+			var debtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Decimal,
+					"(IFNULL(?1, 0) - IFNULL(?2, 0) - IFNULL(?3, 0))"
+				),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(notPaidOrdersSumSubquery),
+				unallocatedBalanceProjection,
+				Projections.SubQuery(partialPaidOrdersSumSubquery)
+			);
+
+			var result = unitOfWork.Session.QueryOver<Counterparty>()
+				.Where(c => c.Id == counterpartyId)
+				.Select(debtProjection)
+				.SingleOrDefault<decimal?>();
+
+			return Math.Round(result ?? 0m, 2);
+		}
+
+		public decimal GetDebtByOrganization(IUnitOfWork unitOfWork, int counterpartyId, int organizationId)
+		{
+			var orderStatuses = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			OrderItem orderItemAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization organizationAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+
+			var notPaidOrdersSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => organizationAlias.Id == organizationId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
+
+			var partialPaidOrdersSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => organizationAlias.Id == organizationId)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(orderStatuses))
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
+
+			var debtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.Decimal,
+					"(IFNULL(?1, 0) - IFNULL(?2, 0))"
+				),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(notPaidOrdersSumSubquery),
+				Projections.SubQuery(partialPaidOrdersSumSubquery)
+			);
+
+			var result = unitOfWork.Session.QueryOver<Counterparty>()
+				.Where(c => c.Id == counterpartyId)
+				.Select(debtProjection)
+				.SingleOrDefault<decimal?>();
+
+			return Math.Round(result ?? 0m, 2);
+		}
+
+		public IDictionary<int, Email[]> GetCounterpartyEmails(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			uow.Session.Query<Email>()
+			.Where(x => x.Counterparty != null && counterparties.Contains(x.Counterparty.Id))
+			.GroupBy(x => x.Counterparty.Id)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
+
+		public IDictionary<int, Phone[]> GetCounterpartyPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			uow.Session.Query<Phone>()
+			.Where(x => x.Counterparty.Id != null && counterparties.Contains(x.Counterparty.Id))
+			.GroupBy(x => x.Counterparty.Id)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
+
+		public IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(
+			IUnitOfWork uow,
+			IEnumerable<int> counterparties) =>
+			(from order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
+			 join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
+			 where
+				order.Client.Id != null
+				&& counterparties.Contains(order.Client.Id)
+				&& order.ContactPhone.Id != null
+			 group phone by order.Client.Id into g
+			 select g)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Distinct().ToArray());
 	}
 }
 

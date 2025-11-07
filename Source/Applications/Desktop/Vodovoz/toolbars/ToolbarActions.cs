@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -61,6 +61,7 @@ using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Service;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 
@@ -118,6 +119,7 @@ public partial class MainWindow : Window
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
 	Action ActionImportPaymentsFromAvangard;
+	Action BankAccountsMovementsJournalAction;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -226,6 +228,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
+		BankAccountsMovementsJournalAction = new Action("BankAccountsMovementsJournalAction", "Движения средств по расчетным счетам", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -323,6 +326,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
 		w1.Add(ActionImportPaymentsFromAvangard, null);
+		w1.Add(BankAccountsMovementsJournalAction, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -426,6 +430,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
 		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
+		BankAccountsMovementsJournalAction.Activated += OnBankAccountsMovementsJournalActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -730,10 +735,7 @@ public partial class MainWindow : Window
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
-		);
+		NavigationManager.OpenViewModel<ExportTo1CViewModel>(null);
 	}
 
 	void ActionExportCounterpartiesTo1c_Activated(object sender, System.EventArgs e)
@@ -950,5 +952,15 @@ public partial class MainWindow : Window
 	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Открытие журнала движения средств по расчетным счетам
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	private void OnBankAccountsMovementsJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BankAccountsMovementsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

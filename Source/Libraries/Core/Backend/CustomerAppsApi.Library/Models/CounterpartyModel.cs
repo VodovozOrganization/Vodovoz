@@ -6,6 +6,7 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
@@ -38,6 +39,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
 		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private readonly IConfigurationSection _cacheExpirationSection;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -53,7 +55,8 @@ namespace CustomerAppsApi.Library.Models
 			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
-			ICounterpartyEdoAccountController counterpartyEdoAccountController)
+			ICounterpartyEdoAccountController counterpartyEdoAccountController,
+			IConfiguration configuration)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -73,6 +76,9 @@ namespace CustomerAppsApi.Library.Models
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
 			_counterpartyEdoAccountController =
 				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
+			_cacheExpirationSection =
+				(configuration ?? throw new ArgumentNullException(nameof(configuration)))
+				.GetSection("CacheExpirationTime");
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
@@ -223,7 +229,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			//Создаем нового контрагента и валидируем полученную сущность
 			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
-			_counterpartyEdoAccountController.AddDefaultEdoAccountsToNewCounterparty(counterparty);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(counterparty);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента
@@ -316,10 +322,11 @@ namespace CustomerAppsApi.Library.Models
 			};
 		}
 
-		public async Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId)
+		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId)
 		{
 			_logger.LogInformation("Поступил запрос на выборку долга по бутылям клиента {CounterpartyId}", counterpartyId);
-			var debt = await _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(_uow, counterpartyId);
+			var debt = _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(
+				_uow, counterpartyId, _cacheExpirationSection.GetValue<int>("CounterpartyDebtCacheMinutes"));
 			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}
 		

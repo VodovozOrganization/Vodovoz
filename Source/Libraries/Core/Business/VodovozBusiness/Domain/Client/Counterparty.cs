@@ -647,7 +647,6 @@ namespace Vodovoz.Domain.Client
 			var counterpartyRepository = validationContext.GetRequiredService<ICounterpartyRepository>();
 			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
 			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
-			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
 			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
 			var commonServices = validationContext.GetRequiredService<ICommonServices>();
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
@@ -748,13 +747,12 @@ namespace Vodovoz.Domain.Client
 							new[] { nameof(CounterpartyContracts) });
 					}
 
-					var balance = moneyRepository.GetCounterpartyDebt(uow, this);
+					var debt = orderRepository.GetCounterpartyDebt(uow, Id);
 
-					if(balance != 0)
+					if(debt != 0)
 					{
 						yield return new ValidationResult(
-							string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}",
-								CurrencyWorks.GetShortCurrencyString(balance)));
+							$"Вы не можете сдать контрагента в архив так как у него имеется долг: {CurrencyWorks.GetShortCurrencyString(debt)}");
 					}
 
 					var activeOrders = orderRepository.GetCurrentOrders(uow, this);
@@ -785,7 +783,7 @@ namespace Vodovoz.Domain.Client
 				}
 
 				if(CameFrom == null
-					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer)))
+					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer)))
 				{
 					yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
 				}
@@ -944,6 +942,24 @@ namespace Vodovoz.Domain.Client
 			{
 				yield return new ValidationResult("Клиент не мог привести сам себя");
 			}
+
+			#region Counterparty Edo account duplicates
+
+			var counterpartyEdoAccountDuplicates = CounterpartyEdoAccounts?
+				.Where(x => !string.IsNullOrWhiteSpace(x.PersonalAccountIdInEdo))
+				.GroupBy(a => new { a.OrganizationId, a.PersonalAccountIdInEdo })
+				.Where(g => g.Count() > 1)
+				.Select(g => g.First())
+				.ToArray();
+
+			if(counterpartyEdoAccountDuplicates != null && counterpartyEdoAccountDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты аккаунтов ЭДО в рамках одной организации: " +
+					$"{string.Join(", ", counterpartyEdoAccountDuplicates.Select(x => x.PersonalAccountIdInEdo))}");
+			}
+
+			#endregion Counterparty Edo account duplicates
 		}
 
 		#endregion

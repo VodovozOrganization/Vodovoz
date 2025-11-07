@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	  <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <UserSecretsId>dotnet-EmailSendingWorkerService-D47D98F9-5F1A-43FE-A38E-EE38C8049D46</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..\..\..\..</DockerfileContext>

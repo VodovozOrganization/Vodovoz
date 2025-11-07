@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -19,18 +19,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Logistic;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -40,6 +44,8 @@ namespace Vodovoz.Representations
 		private readonly ILogger<SelfDeliveriesJournalViewModel> _logger;
 		private readonly ICommonServices _commonServices;
 		private readonly ICashRepository _cashRepository;
+		private readonly IGenericRepository<Income> _incomeRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _userCanChangePayTypeToByCard;
 
@@ -53,14 +59,18 @@ namespace Vodovoz.Representations
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ICashRepository cashRepository,
+			IOrderRepository orderRepository,
+			IGenericRepository<Income> incomeRepository,
 			INavigationManager navigationManager,
 			IGuiDispatcher guiDispatcher,
-			Action<OrderJournalFilterViewModel> filterConfig = null) 
+			Action<OrderJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_incomeRepository = incomeRepository ?? throw new ArgumentNullException(nameof(incomeRepository));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -81,7 +91,7 @@ namespace Vodovoz.Representations
 
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
-			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanLoadSelfDeliveryDocument);
+			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) =>
@@ -437,6 +447,68 @@ namespace Vodovoz.Representations
 						}
 					}
 
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Изменить самовывоз",
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						return selectedNodes.Count() == 1;
+					},
+					selectedItems => true,
+					selectedItems =>
+					{
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+						{
+							using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+							{
+								var order = uow.GetById<VodovozOrder>(selectedNode.Id);
+
+								var incomes = _incomeRepository
+									.Get(uow, x => x.Order.Id == order.Id)
+									.ToList();
+
+								bool isSentEdoUpd = _orderRepository.OrderHasSentUPD(uow, order.Id);
+								bool isSentReceipt = _orderRepository.OrderHasSentReceipt(uow, order.Id);
+
+								if(isSentReceipt)
+								{
+									_commonServices.InteractiveService.ShowMessage(
+										ImportanceLevel.Warning, 
+										$"Невозможно изменить самовывоз, т.к. имеется чек по заказу №{order.Id}");
+
+									return;
+								}
+
+								if(incomes.Any() || isSentEdoUpd)
+								{
+									var message = "Для изменения самовывоза необходимо сперва ";
+									if(incomes.Any())
+									{
+										var incomeNumbers = string.Join(", ", incomes.Select(i => $"№{i.Id}"));
+										message += $"удалить ПКО {incomeNumbers}";
+										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+									}
+									else if (isSentEdoUpd)
+									{
+										message += $"аннулировать УПД по ЭДО по заказу №{order.Id}";
+										_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+									}
+									return;
+								}
+								NavigationManager.OpenViewModel<SelfDeliveringOrderEditViewModel, IEntityUoWBuilder>(
+									this,
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									OpenPageOptions.AsSlave);
+							}
+
+						}
+					}
 				)
 			);
 		}

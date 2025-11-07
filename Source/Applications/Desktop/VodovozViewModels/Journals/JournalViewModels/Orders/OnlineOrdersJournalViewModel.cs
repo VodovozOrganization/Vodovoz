@@ -59,7 +59,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			dataLoader.AddQuery(RequestsForCallQuery);
 			
 			dataLoader.MergeInOrderBy(x => x.OrderByStatusValue);
-			dataLoader.MergeInOrderBy(x => x.EntityTypeString, true);
 			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
 			DataLoader = dataLoader;
 
@@ -161,6 +160,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			if(_filterViewModel.RestrictPaymentType.HasValue)
 			{
 				query.Where(o => o.OnlineOrderPaymentType == _filterViewModel.RestrictPaymentType);
+			}
+			
+			if(_filterViewModel.RestrictOnlinePaymentSource.HasValue)
+			{
+				query.Where(o => o.OnlinePaymentSource == _filterViewModel.RestrictOnlinePaymentSource);
 			}
 
 			if(_filterViewModel.EmployeeWorkWith != null)
@@ -290,6 +294,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == _filterViewModel.GeographicGroup.Id));
 			}
 
+			if(_filterViewModel.WithoutDeliverySchedule)
+			{
+				query.Where(() => onlineOrderAlias.DeliverySchedule.Id == null);
+			}
+
 			#endregion
 
 			query.Where(_filterViewModel.SearchByAddressViewModel?.GetSearchCriterion(
@@ -371,13 +380,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders)
 				|| _filterViewModel.OnlineOrderPaymentStatus.HasValue
 				|| _filterViewModel.RestrictPaymentType.HasValue
+				|| _filterViewModel.RestrictOnlinePaymentSource.HasValue
 				|| _filterViewModel.DeliveryPoint != null
 				|| _filterViewModel.RestrictSelfDelivery.HasValue
 				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null
-				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+				|| _filterViewModel.WithoutDeliverySchedule)
 			{
 				query.Where(r => r.Id == null);
 			}
@@ -426,7 +437,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					
 					if(endDate.HasValue)
 					{ 
-						query.Where(r => r.Created <= endDate); 
+						query.Where(r => r.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
 			}

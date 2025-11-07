@@ -284,9 +284,8 @@ namespace Vodovoz.Tools.Orders
 		}
 
 		static bool GetConditionForUPD(OrderStateKey key) =>
-		(
-			!key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
-			&& ConditionForUPD(key)
+		(	
+			ConditionForUPD(key)
 			&& !key.HaveSpecialFields
 		);
 
@@ -312,8 +311,8 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForTorg12(OrderStateKey key) =>
 		(
-			key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
-			|| ConditionForUPD(key)
+			(key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			|| ConditionForUPD(key))
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
 		);
 		

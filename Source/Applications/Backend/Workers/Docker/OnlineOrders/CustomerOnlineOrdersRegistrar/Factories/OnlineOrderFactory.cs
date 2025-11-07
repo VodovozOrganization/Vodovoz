@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using QS.DomainModel.UoW;
@@ -122,6 +122,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
+					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,

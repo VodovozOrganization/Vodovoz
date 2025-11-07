@@ -1,8 +1,10 @@
 ﻿using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
+using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
+using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
+using ResourceLocker.Library;
 using System;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
@@ -42,6 +45,7 @@ using Vodovoz.Additions;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
@@ -65,6 +69,7 @@ using Vodovoz.Presentation.Views;
 using Vodovoz.Reports;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Counterparty;
@@ -77,9 +82,12 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using Osrm;
+using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 
 namespace Vodovoz
 {
@@ -171,9 +179,9 @@ namespace Vodovoz
 
 				.AddScoped<IScanDialogService, ScanDialogService>()
 
-				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<RouteGeometryCalculator>()
-				.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+		
+				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
 				.AddFiasClient()
@@ -217,11 +225,47 @@ namespace Vodovoz
 				.AddPacs()
 				.AddScoped<MessageService>()
 				.AddSingleton<EntityToJournalMappings>()
-				.AddScoped<EntityJournalOpener>();
+				.AddScoped<EntityJournalOpener>()
+
+				.AddMailganerApiClient()
+				.AddScoped<EmailDirectSender>()
+				
+				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
+
+				.AddVodovozDesktopResourceLocker()
+				.AddScoped<BankAccountsMovementsJournalReport>()
+				;
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();
+
+			return services;
+		}
+		public static IServiceCollection AddMailganerApiClient(this IServiceCollection services)
+		{
+			services.AddOptions<MailganerSettings>().Configure<IConfiguration>((options, config) =>
+			{
+				config.GetSection("MailganerSettings").Bind(options);
+			});
+
+			services.AddTransient<MailganerClientV1>();
+			services.AddTransient<MailganerClientV2>();
+
+			services.AddHttpClient<MailganerClientV2>((sp, httpClient) =>
+			{
+				var settingsController = sp.GetRequiredService<ISettingsController>();
+				var apiKey = settingsController.GetStringValue("MailganerSettings");
+
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v2/");
+				httpClient.DefaultRequestHeaders.Clear();
+				httpClient.DefaultRequestHeaders.Add("Authorization", $"{apiKey}");
+			});
+
+			services.AddHttpClient<MailganerClientV1>((sp, httpClient) =>
+			{
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v1/");
+			});
 
 			return services;
 		}

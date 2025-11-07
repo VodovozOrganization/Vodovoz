@@ -10,6 +10,7 @@ using Gtk;
 using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.Control;
+using ReactiveUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -58,6 +59,15 @@ namespace Vodovoz.Views.Settings
 			ycheckCanAddForwardersToLargus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnSaveCanAddForwardersToMinivan.Clicked += (sender, args) => ViewModel.SaveCanAddForwardersToMinivanCommand.Execute();
+			btnSaveCanAddForwardersToMinivan.Binding.AddBinding(ViewModel, vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckCanAddForwardersToMinivan.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanAddForwardersToMinivan, w => w.Active)
+				.AddBinding(vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinbuttonRouteListsCount.Binding
@@ -134,6 +144,7 @@ namespace Vodovoz.Views.Settings
 			ConfigureOrdersSettings();
 
 			#region Вкладка Склад
+			
 			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
 
 			yentryCarLoadDocumentInfoString.Binding
@@ -144,6 +155,7 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
+			
 			#endregion Вкладка Склад
 
 			#region Вкладка Бухгалтерия
@@ -201,6 +213,22 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
+			
+			yspinbuttonTargetPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			yspinbuttonNewPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonCalculatePaymentDeferent.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
+			
+			yspinbuttonDefaultPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
 		}
 		
 		private void ConfigureEmployeesFixedPrices()
@@ -551,6 +579,10 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
 				.InitializeFromSource();
 
+			yspinbuttonMinivanMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.MinivanMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 
@@ -617,7 +649,6 @@ namespace Vodovoz.Views.Settings
 				return;
 			}
 		}
-
 		public override void Destroy()
 		{
 			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
