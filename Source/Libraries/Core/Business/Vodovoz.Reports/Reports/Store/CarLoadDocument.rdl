@@ -864,7 +864,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")" + " Телефон: " + Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
+                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")" + "\nТелефон: " + Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
