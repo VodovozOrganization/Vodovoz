@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters

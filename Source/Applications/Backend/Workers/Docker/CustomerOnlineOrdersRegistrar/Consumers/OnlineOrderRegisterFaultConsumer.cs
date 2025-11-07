@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -23,7 +24,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
-			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings)
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService
+			)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -32,7 +35,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				discountReasonSettings,
 				onlineOrderRepository,
 				onlineOrderCancellationReasonSettings,
-				orderService)
+				orderService,
+				routeListService)
 		{
 		}
 		

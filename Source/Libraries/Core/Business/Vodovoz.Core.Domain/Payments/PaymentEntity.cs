@@ -6,6 +6,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Core.Domain.Payments
 {

@@ -1,4 +1,15 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.Bindings.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using Autofac;
 using Core.Infrastructure;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
@@ -9,7 +20,7 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
-using NHibernate;
+using NHibernate.Criterion;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -36,17 +47,6 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Data.Bindings.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
@@ -54,7 +54,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
@@ -72,7 +72,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
@@ -95,6 +94,9 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Errors.Edo;
+using Vodovoz.Errors.Logistics;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
@@ -109,6 +111,7 @@ using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
@@ -126,6 +129,7 @@ using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -141,7 +145,6 @@ using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
-using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Models.Orders;
@@ -153,13 +156,15 @@ using VodovozInfrastructure.Utils;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using LogLevel = NLog.LogLevel;
+using Order = Vodovoz.Domain.Orders.Order;
+using Selection = Gdk.Selection;
 
 namespace Vodovoz
 {
 	public partial class OrderDlg : EntityDialogBase<Order>,
 		INotifyPropertyChanged,
 		ICounterpartyInfoProvider,
-		Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider,
+		IDeliveryPointInfoProvider,
 		ICustomWidthInfoProvider,
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
@@ -178,6 +183,7 @@ namespace Vodovoz
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
+		private readonly IRouteListService _routeListService = ScopeProvider.Scope.Resolve<IRouteListService>();
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
 		private readonly INomenclatureService _nomenclatureService = ScopeProvider.Scope.Resolve<INomenclatureService>();
@@ -678,6 +684,7 @@ namespace Vodovoz
 			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
+			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -690,12 +697,6 @@ namespace Vodovoz
 
 			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
-			_paymentFromBankClientController = new PaymentFromBankClientController(
-				_paymentItemsRepository, 
-				_orderRepository, 
-				_paymentsRepository,
-				_paymentService
-			);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
@@ -1257,7 +1258,7 @@ namespace Vodovoz
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Errors.Orders.OrderErrors.PaidCashlessOrderClientReplacementError.Message);
+					OrderErrors.PaidCashlessOrderClientReplacementError.Message);
 
 				e.CanChange = false;
 				return;
@@ -1282,7 +1283,7 @@ namespace Vodovoz
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
-				Vodovoz.Core.Domain.Permissions.OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
+				OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
 			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
@@ -1293,9 +1294,9 @@ namespace Vodovoz
 			_canAddOnlineStoreNomenclaturesToOrder =
 				currentPermissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_canEditOrder = currentPermissionService.ValidatePresetPermission("can_edit_order");
-			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument);
+			_allowLoadSelfDelivery = currentPermissionService.ValidatePresetPermission(StorePermissions.Documents.CanLoadSelfDeliveryDocument);
 			_acceptCashlessPaidSelfDelivery = currentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
-			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditGoodsInRouteList);
+			_canEditGoodsInRouteList = currentPermissionService.ValidatePresetPermission(OrderPermissions.CanEditGoodsInRouteList);
 		}
 
 		private void OnSelectPaymentTypeClicked(object sender, EventArgs e)
@@ -1569,7 +1570,7 @@ namespace Vodovoz
 
 			if(isValidateFailure)
 			{
-				if(edoValidateResult.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd || error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
+				if(edoValidateResult.Any(error => error.Code == EdoErrors.AlreadyPaidUpd || error.Code == EdoErrors.AlreadySuccefullSended)
 					&& !ServicesConfig.InteractiveService.Question(
 						"Вы уверены, что хотите отправить повторно?\n" +
 						string.Join("\n - ", errorMessages),
@@ -2502,7 +2503,7 @@ namespace Vodovoz
 
 				if(!Validate(validationContext))
 				{
-					_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Validation);
+					_lastSaveResult = Result.Failure(OrderErrors.Validation);
 
 					return false;
 				}
@@ -2564,7 +2565,7 @@ namespace Vodovoz
 			}
 			catch(Exception e)
 			{
-				_lastSaveResult = Result.Failure(Errors.Orders.OrderErrors.Save);
+				_lastSaveResult = Result.Failure(OrderErrors.Save);
 
 				_logger.Log(LogLevel.Error, e);
 
@@ -2677,7 +2678,7 @@ namespace Vodovoz
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
-					return Result.Failure(Errors.Orders.OrderErrors.AcceptException);
+					return Result.Failure(OrderErrors.AcceptException);
 				}
 			}
 		}
@@ -2686,7 +2687,7 @@ namespace Vodovoz
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return Result.Failure(Errors.Orders.OrderErrors.CantEdit);
+				return Result.Failure(OrderErrors.CantEdit);
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
@@ -2694,7 +2695,7 @@ namespace Vodovoz
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return Result.Failure(Errors.Orders.OrderErrors.Accept.HasNoDefaultWater);
+				return Result.Failure(OrderErrors.Accept.HasNoDefaultWater);
 			}
 
 			var validationResult = ValidateAndFormOrder();
@@ -2706,7 +2707,7 @@ namespace Vodovoz
 
 			if(!CheckCertificates(canSaveFromHere: true))
 			{
-				return Result.Failure(Errors.Orders.OrderErrors.HasNoValidCertificates);
+				return Result.Failure(OrderErrors.HasNoValidCertificates);
 			}
 
 			var promosetDuplicateFinder = new PromosetDuplicateFinder(_freeLoaderChecker, new CastomInteractiveService());
@@ -2729,7 +2730,7 @@ namespace Vodovoz
 					"В заказ добавлен промонабор для новых клиентов, но это не первый заказ клиента\n" +
 					"Хотите продолжить сохранение?"))
 				{
-					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
+					return Result.Failure(OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2737,13 +2738,13 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.Id, DeliveryPoint, phones))
 				{
-					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
+					return Result.Failure(OrderErrors.AcceptAbortedByUser);
 				}
 			}
 			if(hasPromoSetForNewClients && _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
 				UoW, Entity.SelfDelivery, Counterparty, DeliveryPoint))
 			{
-				return Result.Failure(Errors.Orders.OrderErrors.UnableToShipPromoSet);
+				return Result.Failure(OrderErrors.UnableToShipPromoSet);
 			}
 
 			PrepareSendBillInformation();
@@ -2753,14 +2754,14 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || CurrentCounterpartyEdoAccount().ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
+				return Result.Failure(OrderErrors.AcceptAbortedByUser);
 			}
 
 			var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(UoW, Entity);
 
 			if(fastDeliveryResult.IsFailure)
 			{
-				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryIsMissing)))
+				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(FastDeliveryErrors.RouteListForFastDeliveryIsMissing)))
 				{
 					var fastDeliveryVerificationViewModel =
 						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
@@ -2796,10 +2797,10 @@ namespace Vodovoz
 						return Result.Success();
 					}
 
-					return Result.Failure(Errors.Orders.OrderErrors.Save);
+					return Result.Failure(OrderErrors.Save);
 				}
 
-				return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
+				return Result.Failure(OrderErrors.AcceptAbortedByUser);
 			}
 
 			if(PaymentType == PaymentType.Cashless)
@@ -2810,7 +2811,7 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser);
+					return Result.Failure(OrderErrors.AcceptAbortedByUser);
 				}
 			}
 
@@ -2836,7 +2837,7 @@ namespace Vodovoz
 					" И т.к. он содержит позиции, продаваемые от разных организаций," +
 					" то сумма каждого отдельного заказа меньше возвращаемого залога, что не позволяет разбить его вместе с залогом");
 
-				return (false, Result.Failure(Errors.Orders.OrderErrors.UnableToPartitionOrderWithBigDeposit));
+				return (false, Result.Failure(OrderErrors.UnableToPartitionOrderWithBigDeposit));
 			}
 
 			var partsOrder = orderPartsByOrganizations.OrderParts.Count();
@@ -2858,7 +2859,7 @@ namespace Vodovoz
 					$" Будет произведено автоматическое разбиение на {partsOrder} заказа(ов), с последующим сохранением." +
 					" Продолжаем?"))
 				{
-					return (false, Result.Failure(Errors.Orders.OrderErrors.AcceptAbortedByUser));
+					return (false, Result.Failure(OrderErrors.AcceptAbortedByUser));
 				}
 
 				SplitOrder(orderPartsByOrganizations);
@@ -2875,7 +2876,12 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
 
-			_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, CallTaskWorker);
+			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, _routeListService, CallTaskWorker);
+			
+			if(addingToRouteListResult.IsFailure)
+			{
+				return (false, addingToRouteListResult);
+			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
 			ProcessSmsNotification();
@@ -2943,12 +2949,12 @@ namespace Vodovoz
 
 		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.OrderErrors.AcceptException))
+			if(errors.All(x => x == OrderErrors.AcceptException))
 			{
 				return;
 			}
 
-			if(errors.All(x => x != Errors.Orders.OrderErrors.AcceptException))
+			if(errors.All(x => x != OrderErrors.AcceptException))
 			{
 				EditOrder();
 			}
@@ -2958,8 +2964,8 @@ namespace Vodovoz
 
 		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{
-			if(errors.All(x => x == Errors.Orders.OrderErrors.Validation
-				|| x == Errors.Orders.OrderErrors.AcceptAbortedByUser))
+			if(errors.All(x => x == OrderErrors.Validation
+				|| x == OrderErrors.AcceptAbortedByUser))
 			{
 				return;
 			}
@@ -2992,7 +2998,7 @@ namespace Vodovoz
 
 			if(!Validate(validationContext))
 			{
-				return Result.Failure(Errors.Orders.OrderErrors.Validation);
+				return Result.Failure(OrderErrors.Validation);
 			}
 
 			if(DeliveryPoint != null && !DeliveryPoint.CalculateDistricts(UoW, _deliveryRepository).Any())
@@ -4307,7 +4313,8 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			Entity.SetUndeliveredStatus(UoW, _nomenclatureSettings, CallTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
+			Entity.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, CallTaskWorker, 
+				needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 			if(routeListItem != null)
@@ -4330,7 +4337,7 @@ namespace Vodovoz
 						ImportanceLevel.Error,
 						string.Join(", ",
 						result.Errors
-						.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
+						.Where(x => x.Code == RouteListErrors.RouteListItem.TransferTypeNotSet)
 						.Select(x => x.Message))
 						);
 				}
@@ -4402,7 +4409,7 @@ namespace Vodovoz
 
 			if(listDriverCallType != (DriverCallType)enumDiverCallType.SelectedItem)
 			{
-				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
+				var max = UoW.Session.QueryOver<Order>().Select(Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
 				Entity.DriverCallId = max != 0 ? max + 1 : 1;
 			}
 		}
@@ -4529,7 +4536,7 @@ namespace Vodovoz
 
 		private void OnButtonCopyManagerCommentClicked(object sender, EventArgs e)
 		{
-			var cb = textManagerComments.GetClipboard(Gdk.Selection.Clipboard);
+			var cb = textManagerComments.GetClipboard(Selection.Clipboard);
 			cb.Text = textManagerComments.Buffer.Text;
 		}
 
@@ -5357,7 +5364,7 @@ namespace Vodovoz
 		{
 			if(Entity.OrderItems == null ||
 				_currentPermissionService.ValidatePresetPermission(
-					Core.Domain.Permissions.OrderPermissions.CanFormOrderWithDepositWithoutPayment))
+					OrderPermissions.CanFormOrderWithDepositWithoutPayment))
 			{
 				return true;
 			}
@@ -5906,13 +5913,13 @@ namespace Vodovoz
 		{
 			if(Entity.Id > 0)
 			{
-				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+				GetClipboard(Selection.Clipboard).Text = Entity.Id.ToString();
 			}
 		}
 
 		private void OnBtnCopySummaryInfoClicked(object sender, EventArgs e)
 		{
-			GetClipboard(Gdk.Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
+			GetClipboard(Selection.Clipboard).Text = _summaryInfoBuilder.ToString();
 		}
 
 		#region CustomCancellationConfirmationDialog

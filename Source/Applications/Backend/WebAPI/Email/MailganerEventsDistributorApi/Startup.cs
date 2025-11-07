@@ -1,6 +1,8 @@
 ﻿using MailganerEventsDistributorApi.DataAccess;
 using MailganerEventsDistributorApi.HealthChecks;
 using MailganerEventsDistributorApi.Middleware;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +13,7 @@ using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using NLog.Web;
 using QS.Project.Core;
-using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
@@ -52,9 +54,26 @@ namespace MailganerEventsDistributorApi
 				.AddDatabaseInfo()
 				.AddDatabaseSingletonSettings()
 				.AddCore()
-				.AddTrackedUoW();
+				.AddTrackedUoW()
+				.AddMassTransit(busConf =>
+				{
+					var transportSettings = new ConfigTransportSettings();
+					Configuration.Bind("RabbitMQEmailProdHost", transportSettings);
+					
+					busConf.ConfigureRabbitMq(
+						(rabbitMq, context) => rabbitMq.AddUpdateEmailStatusTopology(context),
+						transportSettings);
+				})
+				.AddMassTransit<IEmailDevBus>(busConf =>
+				{
+					var transportSettings = new ConfigTransportSettings();
+					Configuration.Bind("RabbitMQEmailDevHost", transportSettings);
+					
+					busConf.ConfigureRabbitMq(
+						(rabbitMq, context) => rabbitMq.AddUpdateEmailStatusTopology(context),
+						transportSettings);
+				});
 
-			services.AddTransient<RabbitMQConnectionFactory>();
 			services.AddTransient<IInstanceData, InstanceData>();
 
 			services.AddControllers();

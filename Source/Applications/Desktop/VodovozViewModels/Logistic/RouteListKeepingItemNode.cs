@@ -1,7 +1,8 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
@@ -100,16 +101,16 @@ namespace Vodovoz
 
 		#endregion Контроль отмены автоотмены автопереноса
 
-		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)
+		public void UpdateStatus(IRouteListService routeListService, RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
+			routeListService.ChangeAddressStatusAndCreateTask(uow, RouteListItem.RouteList, RouteListItem.Id, value, callTaskWorker);
 
 			if(RouteListItem.Status == RouteListItemStatus.Overdue || RouteListItem.Status == RouteListItemStatus.Canceled)
 			{
 				RouteListItem.SetOrderActualCountsToZeroOnCanceled();
 			}
-			
+
 			HasChanged = true;
 			OnPropertyChanged(() => Status);
 		}
