@@ -144,7 +144,7 @@ namespace Vodovoz.Controllers
 						RouteListToAddFastDeliveryOrder.Id, RouteListToAddFastDeliveryOrder.Status));
 				}
 
-				routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
+				fastDeliveryAddress = routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 				order.UpdateDocuments();
