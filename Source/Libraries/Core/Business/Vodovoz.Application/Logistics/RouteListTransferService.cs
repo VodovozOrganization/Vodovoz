@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -221,6 +221,21 @@ namespace Vodovoz.Application.Logistics
 			if(transferType != AddressTransferType.FromFreeBalance)
 			{
 				return Result.Failure<string>(RouteListErrors.RouteListItem.CreateInvalidOrderTransferType(order.Id));
+			}
+
+			var deliveryPointId = order?.DeliveryPoint?.Id;
+			if(deliveryPointId != null)
+			{
+				var canceledExistsInTarget = targetRouteList.Addresses
+					.Any(target => target.Order?.DeliveryPoint != null
+							  && target.Order.DeliveryPoint.Id == deliveryPointId
+							  && target.Status == RouteListItemStatus.Canceled);
+
+				if(canceledExistsInTarget)
+				{
+					return Result.Failure<string>(
+						RouteListErrors.RouteListItem.CreateOrderRecentlyCanceled(order.Id));
+				}
 			}
 
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(unitOfWork, order, targetRouteList);
