@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
@@ -72,7 +73,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOrganizationSettings _organizationSettings;
-
+		private readonly IRouteListService _routeListService;
 		private Employee _employee;
 		private bool _excludeTrucks;
 		private Employee _driverFromRouteList;
@@ -125,7 +126,9 @@ namespace Vodovoz.ViewModels.Logistic
 			IOsrmClient osrmClient,
 			ICachedDistanceRepository cachedDistanceRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IOrganizationSettings organizationSettings)
+			IOrganizationSettings organizationSettings,
+			IRouteListService routeListService
+			)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(geographicGroupRepository == null)
@@ -148,6 +151,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -1461,7 +1465,7 @@ namespace Vodovoz.ViewModels.Logistic
 						UoW.Save(alreadyIn);
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1482,7 +1486,7 @@ namespace Vodovoz.ViewModels.Logistic
 						return false;
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1773,7 +1777,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					foreach(var order in propose.Orders)
 					{
-						var address = rl.AddAddressFromOrder(order.Order);
+						var address = _routeListService.AddAddressFromOrder(UoW, rl, order.Order);
 						address.PlanTimeStart = order.ProposedTimeStart;
 						address.PlanTimeEnd = order.ProposedTimeEnd;
 					}

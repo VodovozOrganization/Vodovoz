@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IRouteListService _routeListService;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -71,7 +73,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			ICallTaskWorker callTaskWorker,
 			IEmployeeRepository employeeRepository,
 			ICallTaskRepository callTaskRepository,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IRouteListService routeListService
 			)
 			: base(tdinavigation, manager)
 		{
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
@@ -111,7 +115,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository);
+						_callTaskRepository,
+						_routeListService);
 
 					CounterpartyOrdersViewModels.Add(model);
 				}
@@ -170,7 +175,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository);
+						_callTaskRepository,
+						_routeListService);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -207,7 +213,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository);
+						_callTaskRepository,
+						_routeListService);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;

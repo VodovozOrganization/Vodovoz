@@ -15,6 +15,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Services;
@@ -33,21 +34,22 @@ namespace Vodovoz.Application.Payments
 		private readonly IGenericRepository<Payment> _paymentRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
+		private readonly IPaymentSettings _paymentSettings;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			IPaymentItemsRepository paymentItemsRepository
-			)
+			IPaymentItemsRepository paymentItemsRepository,
+			IPaymentSettings paymentSettings)
 		{
-			_paymentRepository = paymentRepository
-				?? throw new ArgumentNullException(nameof(paymentRepository));
-			_orderRepository = orderRepository
-				?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
-			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
-					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
+
+			_closingDocumentDeliveryScheduleId =
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 		}
 
@@ -267,6 +269,7 @@ namespace Vodovoz.Application.Payments
 			=> (from payment in unitOfWork.Session.Query<Payment>()
 				where payment.Counterparty.Id == counterpartyId
 					&& payment.Organization.Id == organizationId
+					&& payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId 
 					&& (allocateCompletedPayments
 						? payment.Status == PaymentState.completed
 						: payment.Status != PaymentState.Cancelled)

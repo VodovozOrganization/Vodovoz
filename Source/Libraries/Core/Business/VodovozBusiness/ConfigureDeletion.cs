@@ -1,4 +1,4 @@
-﻿using QS.Banks;
+using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -10,6 +10,8 @@ using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;
@@ -791,6 +793,8 @@ namespace Vodovoz
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<UndeliveryTransferAbsenceReason>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<OnlineOrderNotificationSetting>();
 
 			#endregion
 

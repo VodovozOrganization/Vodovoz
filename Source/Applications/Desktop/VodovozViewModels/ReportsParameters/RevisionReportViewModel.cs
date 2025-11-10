@@ -305,17 +305,27 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет документов для отправки.");
 					return;
 				}
+
+				var email = !string.IsNullOrEmpty(Organization.EmailForMailing) 
+					? Organization.EmailForMailing 
+					: Organization.Email;
+
+				string messageText = string.IsNullOrEmpty(Organization.EmailForMailing) || 
+									 string.Equals(email, Organization.Email, StringComparison.OrdinalIgnoreCase) 
+					? "Акт сверки."
+					: $"Пожалуйста, не отвечайте на это письмо. Для ответа используйте адрес: {Organization.Email}.";
+
 				var instanceId = Convert.ToInt32(UnitOfWork.Session
 					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 					.List<object>()
 					.FirstOrDefault());
-				string messageText = "Акт сверки";
+
 				var emailMessage = new SendEmailMessage
 				{
 					From = new EmailContact
 					{
-						Name = _emailSettings.DefaultEmailSenderName,
-						Email = _emailSettings.DefaultEmailSenderAddress
+						Name = Organization.FullName,
+						Email = email
 					},
 					To = new List<EmailContact>
 					{
@@ -434,6 +444,21 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			if(Emails.Count == 0 || Emails == null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "У контрагента не указан адрес электронной почты");
+				return false;
+			}
+
+			if(string.IsNullOrWhiteSpace(Organization.Email))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Не удалось отправить. Необходимо заполнить E-mail и E-mail для расслыки в карточке организации.");
+				return false;
+			}
+
+			if(!string.IsNullOrWhiteSpace(Organization.Email) 
+				&& !Organization.Email.EndsWith("@vodovoz-spb.ru")
+				&& string.IsNullOrWhiteSpace(Organization.EmailForMailing))
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Адрес электронной почты организации должен быть в домене @vodovoz-spb.ru");
 				return false;
 			}
 

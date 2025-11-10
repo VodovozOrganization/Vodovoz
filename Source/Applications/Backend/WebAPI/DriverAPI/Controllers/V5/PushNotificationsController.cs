@@ -19,7 +19,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using ApiRouteListService = DriverAPI.Library.V5.Services.IRouteListService;
-using IRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 
 namespace DriverAPI.Controllers.V5
 {
@@ -33,7 +33,7 @@ namespace DriverAPI.Controllers.V5
 		private readonly ILogger<PushNotificationsController> _logger;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ApiRouteListService _apiRouteListService;
-		private readonly IRouteListService _routeListService;
+		private readonly IRouteListTransferService _routeListTransferService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 		private readonly IFirebaseCloudMessagingService _firebaseCloudMessagingService;
@@ -52,7 +52,7 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="firebaseCloudMessagingService"></param>
 		/// <param name="cashRequestRepository"></param>
 		/// <param name="routeListItemRepository"></param>
-		/// <param name="routeListService"></param>
+		/// <param name="routeListTransferService"></param>
 		/// <param name="addressTransferDocumentItemRepository"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
@@ -64,7 +64,7 @@ namespace DriverAPI.Controllers.V5
 			IFirebaseCloudMessagingService firebaseCloudMessagingService,
 			IGenericRepository<CashRequest> cashRequestRepository,
 			IGenericRepository<RouteListItem> routeListItemRepository,
-			IRouteListService routeListService,
+			IRouteListTransferService routeListTransferService,
 			IGenericRepository<AddressTransferDocumentItem> addressTransferDocumentItemRepository) : base(logger)
 		{
 			_logger = logger
@@ -83,8 +83,8 @@ namespace DriverAPI.Controllers.V5
 				?? throw new ArgumentNullException(nameof(cashRequestRepository));
 			_routeListItemRepository = routeListItemRepository
 				?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_routeListService = routeListService
-				?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListTransferService = routeListTransferService
+				?? throw new ArgumentNullException(nameof(routeListTransferService));
 			_routeListAddressTransferItemRepository = addressTransferDocumentItemRepository
 				?? throw new ArgumentNullException(nameof(addressTransferDocumentItemRepository));
 		}
@@ -352,9 +352,9 @@ namespace DriverAPI.Controllers.V5
 
 			var targetDriverFirebaseToken = _employeeService.GetDriverPushTokenById(targetAddress.RouteList.Driver.Id);
 
-			var source = _routeListService.FindTransferSource(unitOfWork, targetAddress);
+			var source = _routeListTransferService.FindTransferSource(unitOfWork, targetAddress);
 
-			var previousItemResult = _routeListService.FindPrevious(unitOfWork, targetAddress);
+			var previousItemResult = _routeListTransferService.FindPrevious(unitOfWork, targetAddress);
 
 			if(previousItemResult.IsFailure)
 			{

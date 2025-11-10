@@ -13,6 +13,7 @@ using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
 using System.Threading.Tasks;
 using System.Threading;
+using Vodovoz.Services.Logistics;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -25,7 +26,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
-		
+		private readonly IRouteListService _routeListService;
+
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
 		protected OnlineOrderConsumer(
@@ -36,7 +38,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
-			IOrderService orderService)
+			IOrderService orderService,
+			IRouteListService routeListService
+			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -47,6 +51,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_onlineOrderCancellationReasonSettings =
 				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 		
 		protected virtual async Task TryRegisterOnlineOrderAsync(OnlineOrderInfoDto message, CancellationToken cancellationToken)
@@ -98,6 +103,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					orderId = await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
 						uow,
 						onlineOrder,
+						_routeListService,
 						cancellationToken
 					);
 				}

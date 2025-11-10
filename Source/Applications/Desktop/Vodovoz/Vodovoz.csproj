@@ -438,6 +438,7 @@
     <Compile Include="Infrastructure\Converters\TextToColoredTextConverter.cs" />
     <Compile Include="Infrastructure\Services\GtkYesNoCancelQuestionInteractive.cs" />
     <Compile Include="JournalColumnsConfigs\AccountJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\BankAccountsMovementsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BanksJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
@@ -449,6 +450,8 @@
     <Compile Include="JournalColumnsConfigs\GtinJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
@@ -462,7 +465,9 @@
     <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrderNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Accounting\AccountingMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Financies\CompanyBalanceMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Orders\OnlineOrdersSourcesMenuItemCreator.cs" />
     <Compile Include="MainMenu\JournalsMenu\Orders\OrdersRatingsMenuItemCreator.cs" />
@@ -2122,6 +2127,18 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.ExportTo1CView.cs" />
     <Compile Include="Filters\GtkViews\BanksJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.BanksJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ProfitCategoriesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ProfitCategoriesJournalFilterView.cs" />
+    <Compile Include="Views\Payments\ProfitCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.ProfitCategoryView.cs" />
+    <Compile Include="Filters\Views\BankAccountsMovementsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.BankAccountsMovementsJournalFilterView.cs" />
+    <Compile Include="Views\Payments\NotAllocatedCounterpartyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Payments.NotAllocatedCounterpartyView.cs" />
+    <Compile Include="Filters\GtkViews\NotAllocatedCounterpartiesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NotAllocatedCounterpartiesJournalFilterView.cs" />
+    <Compile Include="Views\Orders\OnlineOrderNotificaionSettingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderNotificationSettingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -19,14 +19,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 		private uint _tableHeadersCellFormatId;
 		private uint _tableTitleCellFormatId;
 
-		private readonly IEnumerable<PaymentJournalNode> _orderJournalNodes;
+		private readonly IEnumerable<PaymentJournalNode> _paymentsJournalNodes;
 
 		public PaymentsFromBankClientReport(
 			DateTime startDate,
 			DateTime? endDate,
-			IEnumerable<PaymentJournalNode> orderJournalNodes)
+			IEnumerable<PaymentJournalNode> paymentsJournalNodes)
 		{
-			_orderJournalNodes = orderJournalNodes ?? new List<PaymentJournalNode>();
+			_paymentsJournalNodes = paymentsJournalNodes ?? new List<PaymentJournalNode>();
 
 			StartDate = startDate;
 			EndDate = endDate;
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 				sheetData.Append(GetBlankRow());
 				sheetData.Append(GetTableHeadersRow());
 
-				foreach(var node in _orderJournalNodes)
+				foreach(var node in _paymentsJournalNodes)
 				{
 					sheetData.Append(GetTableDataRow(node));
 				}
@@ -150,21 +150,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Payments
 		{
 			var row = new Row();
 
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.IdColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.NumberColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.DateColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.TotalColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrdersColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.PayerColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.CounterpartyColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationBankColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationAccountColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.PurposeColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.ProfitCategoryColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.IsManuallyCreatedColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.UnAllocatedSumColumn));
-			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.DocumentTypeColumn));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Id));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Number));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Date));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Total));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Orders));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Payer));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Counterparty));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Organization));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationBank));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.OrganizationAccount));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.Purpose));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.ProfitCategory));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.IsManuallyCreated));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.UnAllocatedSum));
+			row.AppendChild(GetTableHeaderStringCell(PaymentsJournalColumns.DocumentType));
 
 			return row;
 		}

@@ -25,8 +25,18 @@ namespace Vodovoz.EntityRepositories.Payments
 			decimal sum);
 		decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId);
 		int GetMaxPaymentNumFromManualPayments(IUnitOfWork uow, int counterpartyId, int organizationId);
-		IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings profitCategoryProvider);
-		IList<Payment> GetAllDistributedPayments(IUnitOfWork uow);
+		/// <summary>
+		/// Получение всех не распределенных платежей
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		IEnumerable<Payment> GetAllUndistributedPayments(IUnitOfWork uow);
+		/// <summary>
+		/// Получение всех распределенных платежей
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		IEnumerable<Payment> GetAllDistributedPayments(IUnitOfWork uow);
 		IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId);
 		IList<NotFullyAllocatedPaymentNode> GetAllNotFullyAllocatedPaymentsByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);

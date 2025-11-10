@@ -1,4 +1,4 @@
-﻿<ui>
+<ui>
 	<toolbar name='toolbarSub'>
 		<!-- <toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/> -->
 		<toolitem name='ActionPaymentFromBank' action='ActionPaymentFromBank'/>
@@ -8,6 +8,7 @@
 		<!-- <toolitem name='ActionAccountingTable' action='ActionAccountingTable'/> -->
 		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
         <toolitem name='WayBillsJournalAction' action='WayBillsJournalAction'/>
+		<toolitem name='BankAccountsMovementsJournalAction' action='BankAccountsMovementsJournalAction'/>
 		<toolitem name='ActionFinancialDistrictsSetsJournal' action='ActionFinancialDistrictsSetsJournal'/>
 	</toolbar>
 </ui>

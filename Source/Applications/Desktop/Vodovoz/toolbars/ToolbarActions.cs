@@ -134,6 +134,7 @@ public partial class MainWindow : Window
 	Action ActionUnallocatedBalancesJournal;
 	Action ActionImportPaymentsFromAvangard;
 	private Action WayBillsJournalAction;
+	Action BankAccountsMovementsJournalAction;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -252,6 +253,7 @@ public partial class MainWindow : Window
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
 		WayBillsJournalAction = new Action("WayBillsJournalAction", "Путевые листы для ФО");
+		BankAccountsMovementsJournalAction = new Action("BankAccountsMovementsJournalAction", "Движения средств по расчетным счетам", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -365,6 +367,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionUnallocatedBalancesJournal, null);
 		w1.Add(ActionImportPaymentsFromAvangard, null);
 		w1.Add(WayBillsJournalAction, null);
+		w1.Add(BankAccountsMovementsJournalAction, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -486,6 +489,7 @@ public partial class MainWindow : Window
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
 		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
 		WayBillsJournalAction.Activated += OnActionWayBillJournalActivated;
+		BankAccountsMovementsJournalAction.Activated += OnBankAccountsMovementsJournalActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -1075,5 +1079,15 @@ public partial class MainWindow : Window
 	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Открытие журнала движения средств по расчетным счетам
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	private void OnBankAccountsMovementsJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BankAccountsMovementsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }
