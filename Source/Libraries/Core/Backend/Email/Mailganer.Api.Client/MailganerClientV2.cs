@@ -1,5 +1,8 @@
 ﻿using Mailganer.Api.Client.Dto;
+using Mailganer.Api.Client.Dto.Responses;
+using MassTransit;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -34,7 +37,62 @@ namespace Mailganer.Api.Client
 					return result;
 				}
 
+				if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+				{
+					var errorResponse = await response.Content.ReadFromJsonAsync<SendResponse>();
+					if(errorResponse != null && errorResponse.Code == "500")
+					{
+						throw new Exceptions.EmailInStopListException(
+							emailMessage.To,
+							errorResponse.Message);
+					}
+				}
+
 				throw new Exception(response.ReasonPhrase);
+			}
+		}
+
+		public async Task<string> GetEmailBounseMessageInStopList(string email)
+		{
+			using(var response = await _httpClient.GetAsync($"stop-list/search?email={email}"))
+			{
+				if(!response.IsSuccessStatusCode)
+				{
+					throw new HttpRequestException($"Ошибка запроса: {(int)response.StatusCode} {response.ReasonPhrase}");
+				}
+
+				var result = await response.Content.ReadFromJsonAsync<StopListSearchResponse>()
+					?? throw new InvalidOperationException("Сервис Mailganer вернул пустой ответ");
+
+				if(result.Status != MailganerResponseStatusTypeDto.Ok)
+				{
+					throw new InvalidOperationException($"Сервис Mailganer вернул ответ с ошибкой: {result.ErrorMessage}");
+				}
+
+				var bounceMessage =
+					result.Bounces.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.BounceMessage))?.BounceMessage
+					?? string.Empty;
+
+				return bounceMessage;
+			}
+		}
+
+		public async Task RemoveEmailFromStopList(string mailFrom, string email)
+		{
+			using(var response = await _httpClient.PostAsync($"/stop-list/remove?mail_from={mailFrom}&email={email}", null))
+			{
+				if(!response.IsSuccessStatusCode)
+				{
+					throw new HttpRequestException($"Ошибка запроса: {(int)response.StatusCode} {response.ReasonPhrase}");
+				}
+
+				var result = await response.Content.ReadFromJsonAsync<MailganerResponseBase>()
+					?? throw new InvalidOperationException("Сервис Mailganer вернул пустой ответ");
+
+				if(result.Status != MailganerResponseStatusTypeDto.Ok)
+				{
+					throw new InvalidOperationException($"Сервис Mailganer вернул ответ с ошибкой: {result.ErrorMessage}");
+				}
 			}
 		}
 	}

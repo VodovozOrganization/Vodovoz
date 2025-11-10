@@ -1,6 +1,7 @@
 ﻿using CustomerAppsApi.Library.Configs;
 using Mailganer.Api.Client;
 using Mailganer.Api.Client.Dto;
+using Mailganer.Api.Client.Exceptions;
 using Mailjet.Api.Abstractions.Events;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -169,6 +170,20 @@ namespace EmailSendWorker
 						messagePayloadId);
 
 					PublishStoredEmailStatusUpdateMessage(messagePayloadId, MailEventType.sent, string.Empty);
+					break;
+				}
+				catch(EmailInStopListException ex)
+				{
+					_logger.LogWarning(
+						"Email is in stop list. Email address: {Email}. MessagePayloadId: {MessagePayloadId}. Bounce message: {BounceMessage}",
+						email.To,
+						messagePayloadId,
+						ex.BounceMessage);
+
+					PublishStoredEmailStatusUpdateMessage(
+						messagePayloadId,
+						MailEventType.bounce,
+						$"Email is in stop list. Bounce message: {ex.BounceMessage}");
 					break;
 				}
 				catch(Exception ex)
