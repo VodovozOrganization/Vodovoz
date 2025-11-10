@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 

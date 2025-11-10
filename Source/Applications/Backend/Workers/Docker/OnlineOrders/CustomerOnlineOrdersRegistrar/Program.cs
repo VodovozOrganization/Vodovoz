@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.V4;
@@ -20,6 +20,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Services.Logistics;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar
 {

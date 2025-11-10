@@ -1,7 +1,7 @@
 ﻿using CustomerOrdersApi.Library.Config;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.Services
+namespace CustomerOrdersApi.Library
 {
 	/// <summary>
 	/// Сервис для работы с подписью

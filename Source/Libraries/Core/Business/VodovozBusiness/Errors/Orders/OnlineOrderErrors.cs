@@ -64,7 +64,7 @@ namespace Vodovoz.Errors.Orders
 		
 		public static Error IsEmptyOnlineOrder =>
 			new Error(
-				typeof(OnlineOrder),
+				typeof(OnlineOrderErrors),
 				nameof(IsEmptyOnlineOrder),
 				"Не найден онлайн заказ");
 		public static Error OnlineOrderNotFound =>

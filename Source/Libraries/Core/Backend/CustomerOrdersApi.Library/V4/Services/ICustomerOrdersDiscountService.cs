@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Default.Services
+namespace CustomerOrdersApi.Library.V4.Services
 {
 	/// <summary>
 	/// Интерфейс работы со скидками в онлайн заказе

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using CustomerOrdersApi.Library.Dto.Orders;
-using CustomerOrdersApi.Library.Services;
+using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace CustomerOrdersApi.Controllers
+namespace CustomerOrdersApi.Controllers.Default
 {
 	public class DiscountController : SignatureControllerBase
 	{

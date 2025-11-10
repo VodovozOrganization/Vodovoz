@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.Dto.Orders.FixedPrice
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice
 {
 	/// <summary>
 	/// Информация для применения фиксы

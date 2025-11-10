@@ -1,47 +1,73 @@
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrdersApi.Library/V4/Dto/Orders/OnlineOrderItemDto.cs
-﻿namespace CustomerOrdersApi.Library.V4.Dto.Orders
-========
+﻿using System;
 using VodovozBusiness.Domain.Orders;
 
-namespace VodovozBusiness.Nodes
->>>>>>>> master:Source/Libraries/Core/Business/VodovozBusiness/Nodes/OnlineOrderItemWithFixedPrice.cs
+namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 {
 	/// <summary>
-	/// Позиция онлайн заказа с фиксой
+	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemWithFixedPrice :  IOnlineOrderedProductWithFixedPrice
+	public class OnlineOrderItemDto : IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
 		/// </summary>
 		public int NomenclatureId { get; set; }
+
 		/// <summary>
-		/// Старая цена
+		/// Цена
 		/// </summary>
-		public decimal OldPrice { get; set; }
-		/// <summary>
-		/// Новая цена(фикса)
-		/// </summary>
-		public decimal? NewPrice { get; set; }
+		public decimal Price { get; set; }
+
 		/// <summary>
 		/// Количество
 		/// </summary>
 		public decimal Count { get; set; }
+
 		/// <summary>
 		/// Скидка в деньгах?
 		/// </summary>
 		public bool IsDiscountInMoney { get; set; }
+
 		/// <summary>
 		/// Скидка
 		/// </summary>
 		public decimal Discount { get; set; }
+		
 		/// <summary>
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; set; }
+		
 		/// <summary>
 		/// Id скидки/промокода
 		/// </summary>
 		public int? DiscountReasonId { get; set; }
+		
+		/// <summary>
+		/// Фикса
+		/// </summary>
+		public bool IsFixedPrice { get; set; }
+
+		public decimal PriceWithDiscount
+		{
+			get
+			{
+				if(Discount > 0)
+				{
+					return !IsDiscountInMoney
+						? Math.Round(Price * (100 - Discount) / 100, 2)
+						: Math.Round((Price * Count - Discount) / Count, 2);
+				}
+
+				return Price;
+			}
+		}
+
+		public void ClearDiscount()
+		{
+			Discount = 0;
+			IsDiscountInMoney = false;
+			DiscountReasonId = null;
+		}
 	}
 }

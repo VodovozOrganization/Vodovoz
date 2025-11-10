@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+namespace CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice
 {
 	/// <summary>
-	/// Информация для проверки применимости промокода
+	/// Информация для применения фиксы
 	/// </summary>
-	public class ApplyPromoCodeDto
+	public class ApplyFixedPriceDto
 	{
 		/// <summary>
 		/// Источник заказа
@@ -24,6 +23,10 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public int? ErpCounterpartyId { get; set; }
 		/// <summary>
+		/// Id точки доставки в ДВ
+		/// </summary>
+		public int? ErpDeliveryPointId { get; set; }
+		/// <summary>
 		/// Контрольная сумма, для проверки валидности отправителя
 		/// </summary>
 		public string Signature { get; set; }
@@ -32,14 +35,12 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
 		/// <summary>
-		/// Промокод
+		/// Самовывоз
 		/// </summary>
-		public string PromoCode { get; set; }
+		public bool IsSelfDelivery { get; set; }
 		/// <summary>
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
-		[JsonIgnore]
-		public DateTime RequestTime { get; } = DateTime.UtcNow;
 	}
 }

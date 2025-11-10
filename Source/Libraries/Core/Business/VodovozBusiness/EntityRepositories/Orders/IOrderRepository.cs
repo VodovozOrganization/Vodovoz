@@ -1,12 +1,12 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.Default;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -14,7 +14,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
@@ -277,6 +276,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="tenderCameFromId">Id источника клиента Тендер</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, int tenderCameFromId, CancellationToken cancellationToken);
+		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
+			IUnitOfWork uow,
+			int organizationId,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<CounterpartyType> counterpartyTypes,
+			int tenderCameFromId, CancellationToken cancellationToken);
 	}
 }

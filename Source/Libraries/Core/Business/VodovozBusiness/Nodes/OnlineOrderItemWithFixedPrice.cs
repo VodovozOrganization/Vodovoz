@@ -1,10 +1,6 @@
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrdersApi.Library/V4/Dto/Orders/OnlineOrderItemDto.cs
-﻿namespace CustomerOrdersApi.Library.V4.Dto.Orders
-========
-using VodovozBusiness.Domain.Orders;
+﻿using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Nodes
->>>>>>>> master:Source/Libraries/Core/Business/VodovozBusiness/Nodes/OnlineOrderItemWithFixedPrice.cs
 {
 	/// <summary>
 	/// Позиция онлайн заказа с фиксой

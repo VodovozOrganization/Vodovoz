@@ -1,7 +1,7 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+namespace CustomerOrdersApi.Library.Default.Dto.Orders
 {
 	/// <summary>
 	/// Информация для проверки применимости промокода

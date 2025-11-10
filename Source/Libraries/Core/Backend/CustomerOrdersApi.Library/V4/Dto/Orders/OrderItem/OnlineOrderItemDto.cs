@@ -1,7 +1,7 @@
 ﻿using System;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem
 {
 	/// <summary>
 	/// Товар онлайн заказа

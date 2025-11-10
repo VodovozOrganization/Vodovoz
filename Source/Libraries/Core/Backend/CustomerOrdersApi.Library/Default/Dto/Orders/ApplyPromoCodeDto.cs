@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+namespace CustomerOrdersApi.Library.Default.Dto.Orders
 {
 	/// <summary>
 	/// Информация для проверки применимости промокода

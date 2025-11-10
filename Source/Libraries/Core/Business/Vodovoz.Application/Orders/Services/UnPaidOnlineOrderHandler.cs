@@ -84,12 +84,12 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			if(onlineOrder is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.OnlineOrderNotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
 			}
 
 			if(onlineOrder.OnlineOrderStatus != OnlineOrderStatus.WaitingForPayment)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOnlineOrderNotWaitForPayment);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderNotWaitForPayment);
 			}
 
 			var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
@@ -97,7 +97,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(onlineOrderTimers is null)
 			{
 				_logger.LogWarning("Не найдены таймеры онлайн заказов");
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOnlineOrderTimersEmpty);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderTimersEmpty);
 			}
 
 			var timeForPay = onlineOrder.IsFastDelivery
@@ -106,17 +106,17 @@ namespace Vodovoz.Application.Orders.Services
 
 			if((DateTime.Now - onlineOrder.Created).TotalSeconds >= timeForPay.TotalSeconds)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.HasTimeToPayOrderExpired);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.HasTimeToPayOrderExpired);
 			}
 			
 			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOnlineOrderPaid);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderPaid);
 			}
 
 			if(onlineOrder.OnlineOrderPaymentType != OnlineOrderPaymentType.PaidOnline)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.CantChangePaymentType);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.CantChangePaymentType);
 			}
 			
 			return Result.Success();
@@ -131,17 +131,17 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			if(onlineOrder is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.OnlineOrderNotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
 			}
 			
 			if(data.PaymentStatus == OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.OnlineOrderIsPaidButOnlinePaymentIsEmpty);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderIsPaidButOnlinePaymentIsEmpty);
 			}
 			
 			if(data.DeliveryScheduleId.HasValue && deliverySchedule is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsUnknownDeliverySchedule);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsUnknownDeliverySchedule);
 			}
 			
 			//у оплаченных мы меняем только информацию по доставке в нужных состояниях
@@ -152,12 +152,12 @@ namespace Vodovoz.Application.Orders.Services
 				if(orders.Any())
 				{
 					_logger.LogWarning("Оплаченный онлайн {OnlineOrderId} с уже выставленными заказом(ми), бракуем", onlineOrder.Id);
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 
 				if(onlineOrder.EmployeeWorkWith != null)
 				{
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 				
 				onlineOrder.UpdateOnlineOrderDeliveryData(
@@ -199,7 +199,7 @@ namespace Vodovoz.Application.Orders.Services
 							"Пришел запрос на изменение неоплаченного онлайна {OnlineOrderId} с уже выставленным заказом(ми), бракуем",
 							onlineOrder.Id);
 					
-						return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+						return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
 					}
 
 					onlineOrder.UpdateOnlineOrderPaymentData(
@@ -241,7 +241,7 @@ namespace Vodovoz.Application.Orders.Services
 				
 				if(onlineOrder.EmployeeWorkWith != null)
 				{
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrder.IsOrderAlreadyProcessingAndCannotChanged);
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 			}
 			

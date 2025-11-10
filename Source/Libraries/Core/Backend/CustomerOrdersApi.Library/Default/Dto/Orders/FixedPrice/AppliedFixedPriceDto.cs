@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice
+namespace CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice
 {
 	public class AppliedFixedPriceDto
 	{
