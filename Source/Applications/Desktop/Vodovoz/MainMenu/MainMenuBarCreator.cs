@@ -16,7 +16,6 @@ namespace Vodovoz.MainMenu
 	public class MainMenuBarCreator : MenuBarCreator
 	{
 		private readonly BaseMenuItemCreator _baseMenuItemCreator;
-		private readonly ViewMenuItemCreator _viewMenuItemCreator;
 		private readonly JournalsMenuItemCreator _journalsMenuItemCreator;
 		private readonly ReportsMenuItemCreator _reportsMenuItemCreator;
 		private readonly AdministrationMenuItemCreator _administrationMenuItemCreator;
@@ -33,7 +32,7 @@ namespace Vodovoz.MainMenu
 			ProposalsMenuItemCreator proposalsMenuItemCreator)
 		{
 			_baseMenuItemCreator = baseMenuItemCreator ?? throw new ArgumentNullException(nameof(baseMenuItemCreator));
-			_viewMenuItemCreator = viewMenuItemCreator ?? throw new ArgumentNullException(nameof(viewMenuItemCreator));
+			ViewMenuItemCreator = viewMenuItemCreator ?? throw new ArgumentNullException(nameof(viewMenuItemCreator));
 			_journalsMenuItemCreator = journalsMenuItemCreator ?? throw new ArgumentNullException(nameof(journalsMenuItemCreator));
 			_reportsMenuItemCreator = reportsMenuItemCreator ?? throw new ArgumentNullException(nameof(reportsMenuItemCreator));
 			_administrationMenuItemCreator =
@@ -42,13 +41,15 @@ namespace Vodovoz.MainMenu
 			_proposalsMenuItemCreator = proposalsMenuItemCreator ?? throw new ArgumentNullException(nameof(proposalsMenuItemCreator));
 		}
 		
+		public ViewMenuItemCreator ViewMenuItemCreator { get; }
+		
 		///<inheritdoc/>
 		public override MenuBar CreateMenuBar()
 		{
 			var mainMenuBar = new MenuBar();
 
 			mainMenuBar.Add(_baseMenuItemCreator.Create());
-			mainMenuBar.Add(_viewMenuItemCreator.Create());
+			mainMenuBar.Add(ViewMenuItemCreator.Create());
 			mainMenuBar.Add(_journalsMenuItemCreator.Create());
 			mainMenuBar.Add(_reportsMenuItemCreator.Create());
 			mainMenuBar.Add(_administrationMenuItemCreator.Create());

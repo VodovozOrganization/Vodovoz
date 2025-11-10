@@ -9,7 +9,6 @@ namespace Vodovoz.MainMenu.ViewMenu
 	public class ViewMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
-		private readonly MainPanelMenuItemHandler _mainPanelMenuItemHandler;
 		private readonly TabsMenuItemHandler _tabsMenuItemHandler;
 		private readonly ThemesAppMenuItemHandler _themesAppMenuItemHandler;
 
@@ -20,11 +19,13 @@ namespace Vodovoz.MainMenu.ViewMenu
 			ThemesAppMenuItemHandler themesAppMenuItemHandler)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
-			_mainPanelMenuItemHandler = mainPanelMenuItemHandler ?? throw new ArgumentNullException(nameof(mainPanelMenuItemHandler));
+			MainPanelMenuItemHandler = mainPanelMenuItemHandler ?? throw new ArgumentNullException(nameof(mainPanelMenuItemHandler));
 			_tabsMenuItemHandler = tabsMenuItemHandler ?? throw new ArgumentNullException(nameof(tabsMenuItemHandler));
 			_themesAppMenuItemHandler = themesAppMenuItemHandler ?? throw new ArgumentNullException(nameof(themesAppMenuItemHandler));
 		}
-		
+
+		public MainPanelMenuItemHandler MainPanelMenuItemHandler { get; }
+
 		/// <inheritdoc/>
 		public override MenuItem Create()
 		{
@@ -32,7 +33,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 			var viewMenu = new Menu();
 			viewMenuItem.Submenu = viewMenu;
 
-			viewMenu.Add(_mainPanelMenuItemHandler.Create());
+			viewMenu.Add(MainPanelMenuItemHandler.Create());
 			viewMenu.Add(_tabsMenuItemHandler.Create());
 			viewMenu.Add(_themesAppMenuItemHandler.Create());
 

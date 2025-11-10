@@ -137,11 +137,9 @@ namespace Vodovoz.MainMenu.JournalsMenu.Logistics
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		[Obsolete("Старый диалог, заменить")]
 		private void OnRouteColumnsPressed(object sender, ButtonPressEventArgs e)
 		{
-			var refWin = new OrmReference(typeof(RouteColumn));
-			Startup.MainWin.TdiMain.AddTab(refWin);
+			Startup.MainWin.NavigationManager.OpenViewModel<RouteColumnJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>

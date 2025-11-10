@@ -76,7 +76,6 @@ namespace Vodovoz.MainMenu.ReportsMenu
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Время доставки", OnDeliveryTimeReportPressed));
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Загрузка наших автомобилей", OnCompanyTrucksPressed));
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчёт по отгрузке", OnShipmentReportPressed));
-        	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчёт по километражу", OnMileageReportPressed));
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчёт по водительскому телефону", OnDriverCallsPressed));
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по распределению водителей на районы",
         		OnDriversToDistrictsAssignmentReportPressed));
@@ -134,23 +133,6 @@ namespace Vodovoz.MainMenu.ReportsMenu
         }
 
         /// <summary>
-        /// Отчёт по километражу
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnMileageReportPressed(object sender, ButtonPressEventArgs e)
-        {
-			var dlg = Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
-					null,
-					options: OpenPageOptions.IgnoreHash,
-					addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>())
-				.TdiTab;
-
-			var report = (dlg as ReportViewDlg).ParametersWidget;
-			(report as MileageReport).ParentTab = dlg;
-        }
-
-        /// <summary>
         /// Отчёт по водительскому телефону
         /// </summary>
         /// <param name="sender"></param>
@@ -175,7 +157,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		protected void OnLastRouteListReportPressed(object sender, EventArgs e)
+		private void OnLastRouteListReportPressed(object sender, EventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<LastRouteListReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}

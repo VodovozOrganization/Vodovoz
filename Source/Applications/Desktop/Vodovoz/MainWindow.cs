@@ -24,6 +24,7 @@ using Vodovoz.Core;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.MainMenu;
+using Vodovoz.MainMenu.ViewMenu;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -31,6 +32,7 @@ using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Mango;
+using Vodovoz.Views.Pacs;
 using Order = Vodovoz.Domain.Orders.Order;
 
 public partial class MainWindow : Gtk.Window
@@ -65,10 +67,11 @@ public partial class MainWindow : Gtk.Window
 		InfoPanel = infopanel;
 		ToolbarMain = toolbarMain;
 		ToolbarComplaints = tlbComplaints;
+		PacsPanelView = pacspanelview1;
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 	}
-	
+
 	public void Configure()
 	{
 		BuildToolbarActions();
@@ -97,7 +100,7 @@ public partial class MainWindow : Gtk.Window
 		//Настраиваем модули
 		var admin = QSMain.User.Admin;
 
-		pacspanelview1.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
+		PacsPanelView.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
 		
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
@@ -129,6 +132,8 @@ public partial class MainWindow : Gtk.Window
 			CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		ActionDistricts.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 		ActionDriversStopLists.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
+		
+		MainPanelMenuItemHandler.Initialize();
 
 		// Отдел продаж
 
@@ -211,6 +216,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
 		MainMenuBar = menuCreator.CreateMenuBar();
+		MainPanelMenuItemHandler = menuCreator.ViewMenuItemCreator.MainPanelMenuItemHandler;
 		vboxMain.Add(MainMenuBar);
 
 		//InitializeThemesMenuItem();
@@ -231,6 +237,8 @@ public partial class MainWindow : Gtk.Window
 	public Toolbar ToolbarMain { get; }
 	public Toolbar ToolbarComplaints { get; }
 	public MenuBar MainMenuBar { get; private set; }
+	public PacsPanelView PacsPanelView { get; private set; }
+	public MainPanelMenuItemHandler MainPanelMenuItemHandler { get; private set; }
 	
 
 	private void OnKeyPressed(object o, Gtk.KeyPressEventArgs args)

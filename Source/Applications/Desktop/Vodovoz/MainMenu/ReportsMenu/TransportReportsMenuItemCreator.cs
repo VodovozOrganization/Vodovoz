@@ -1,8 +1,11 @@
 ﻿using System;
+using Autofac;
 using Gtk;
 using QS.Navigation;
 using QS.Report.ViewModels;
+using QSReport;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
 using Vodovoz.ViewModels.Transport.Reports.IncorrectFuel;
 using Vodovoz.ViewModels.ViewModels.Reports;
@@ -85,7 +88,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 		private void AddThirdSection(Menu transportMenu)
 		{
-			transportMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по километражу", OnCarsExploitationReportPressed));
+			transportMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по километражу", OnMileageReportPressed));
 			transportMenu.Add(_concreteMenuItemCreator.CreateMenuItem(Startup.MainWin.WayBillReportAction));
 
 			_carOwnershipReportItem = _concreteMenuItemCreator.CreateMenuItem("Отчет о принадлежности ТС", OnCarOwnershipReportActionActivated);
@@ -94,6 +97,23 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			transportMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по расходу топлива", OnAverageFlowDiscrepancyReportPressed));
 			transportMenu.Add(
 				_concreteMenuItemCreator.CreateMenuItem("Отчет по заправкам некорректным типом топлива", OnIncorrectFuelReportPressed));
+		}
+		
+		/// <summary>
+		/// Отчёт по километражу
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMileageReportPressed(object sender, ButtonPressEventArgs e)
+		{
+			var dlg = Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
+					null,
+					options: OpenPageOptions.IgnoreHash,
+					addingRegistrations: builder => builder.RegisterType<MileageReport>().As<IParametersWidget>())
+				.TdiTab;
+		
+			var report = (dlg as ReportViewDlg).ParametersWidget;
+			(report as MileageReport).ParentTab = dlg;
 		}
 		
 		/// <summary>

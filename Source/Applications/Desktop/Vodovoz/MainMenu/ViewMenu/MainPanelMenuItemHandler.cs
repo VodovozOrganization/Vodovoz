@@ -80,8 +80,6 @@ namespace Vodovoz.MainMenu.ViewMenu
 			mainPanelMenu.Add(_middleIconsToolbarAction.CreateMenuItem());
 			mainPanelMenu.Add(_largeIconsToolbarAction.CreateMenuItem());
 			
-			Initialize();
-
 			return mainPanelMenuItem;
 		}
 
@@ -207,23 +205,27 @@ namespace Vodovoz.MainMenu.ViewMenu
 				case IconsSize.ExtraSmall:
 					Startup.MainWin.ToolbarMain.IconSize = IconSize.SmallToolbar;
 					Startup.MainWin.ToolbarComplaints.IconSize = IconSize.SmallToolbar;
+					Startup.MainWin.PacsPanelView.IconSize = IconSize.SmallToolbar;
 					break;
 				case IconsSize.Small:
 					Startup.MainWin.ToolbarMain.IconSize = IconSize.LargeToolbar;
 					Startup.MainWin.ToolbarComplaints.IconSize = IconSize.LargeToolbar;
+					Startup.MainWin.PacsPanelView.IconSize = IconSize.LargeToolbar;
 					break;
 				case IconsSize.Middle:
 					Startup.MainWin.ToolbarMain.IconSize = IconSize.Dnd;
 					Startup.MainWin.ToolbarComplaints.IconSize = IconSize.Dnd;
+					Startup.MainWin.PacsPanelView.IconSize = IconSize.Dnd;
 					break;
 				case IconsSize.Large:
 					Startup.MainWin.ToolbarMain.IconSize = IconSize.Dialog;
 					Startup.MainWin.ToolbarComplaints.IconSize = IconSize.Dialog;
+					Startup.MainWin.PacsPanelView.IconSize = IconSize.Dialog;
 					break;
 			}
 		}
 		
-		private void Initialize()
+		public void Initialize()
 		{
 			ConfigureIconSize();
 			ConfigureToolbarStyle();
