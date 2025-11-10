@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
-using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -55,8 +54,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
 						.Configure<NotifierOptions>(hostContext.Configuration.GetSection(NotifierOptions.Path))
-
-						.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
+						
 						.AddSingleton(_ => new JsonSerializerOptions
 						{
 							PropertyNamingPolicy = JsonNamingPolicy.CamelCase

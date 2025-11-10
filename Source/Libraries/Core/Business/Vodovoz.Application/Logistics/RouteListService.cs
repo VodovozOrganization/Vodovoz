@@ -379,7 +379,10 @@ namespace Vodovoz.Application.Logistics
 							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
+							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
+								_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, item.Order.OnlineOrder);
+							}
 						}
 
 						routeList.Status = RouteListStatus.EnRoute;
@@ -556,6 +559,7 @@ namespace Vodovoz.Application.Logistics
 								if(!isInvalidStatus)
 								{
 									address.Order.OrderStatus = OrderStatus.OnTheWay;
+									_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, address.Order.OnlineOrder);
 								}
 							}
 						}
@@ -802,8 +806,6 @@ namespace Vodovoz.Application.Logistics
 				WithForwarder = routeList.Forwarder != null
 			};
 
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
-
 			routeList.ObservableAddresses.Add(item);
 
 			return item;
@@ -823,8 +825,6 @@ namespace Vodovoz.Application.Logistics
 			{
 				WithForwarder = routeList.Forwarder != null
 			};
-
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
 
 			routeList.ObservableAddresses.Add(item);
 			return item;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -237,8 +237,6 @@ namespace Vodovoz.Application.Logistics
 				AddressTransferType = AddressTransferType.FromFreeBalance
 			};
 
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
-
 			targetRouteList.ObservableAddresses.Add(newRouteListItem);
 			targetRouteList.CalculateWages(wageParameterService);
 
@@ -250,6 +248,7 @@ namespace Vodovoz.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
+			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

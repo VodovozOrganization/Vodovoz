@@ -1,4 +1,4 @@
-using CustomerAppsApi.Factories;
+﻿using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -84,7 +84,8 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
-				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+				.AddScoped<IOnlineOrderService, OnlineOrderService>();
 
 			return services;
 		}
