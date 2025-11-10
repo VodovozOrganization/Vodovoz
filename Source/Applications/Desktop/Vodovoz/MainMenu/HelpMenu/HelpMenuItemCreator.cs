@@ -1,5 +1,6 @@
 ﻿using System;
 using Gtk;
+using Vodovoz.ViewModels;
 
 namespace Vodovoz.MainMenu.HelpMenu
 {
@@ -39,12 +40,7 @@ namespace Vodovoz.MainMenu.HelpMenu
 		/// <param name="e"></param>
 		private void OnAboutPressed(object sender, EventArgs e)
 		{
-			Startup.MainWin.NavigationManager.OpenViewModel<Vodovoz.ViewModels.AboutViewModel>(null);
-			/*var aboutViewModel = new AboutViewModel(Startup.MainWin.ApplicationInfo);
-			var aboutView = new AboutView(aboutViewModel);
-			aboutView.ShowAll();
-			aboutView.Run();
-			aboutView.Destroy();*/
+			Startup.MainWin.NavigationManager.OpenViewModel<AboutViewModel>(null);
 		}
 	}
 }
