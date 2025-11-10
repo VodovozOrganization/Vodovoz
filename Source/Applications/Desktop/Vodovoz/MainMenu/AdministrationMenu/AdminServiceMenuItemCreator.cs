@@ -27,7 +27,7 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Замена ссылок", OnChangesReferencesPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Дубликаты адресов", OnAddressDuplicatesPressed));
-			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рассчет расстояний до точек", OnDistanceFromCenterPressed));
+			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Расчет расстояний до точек", OnDistanceFromCenterPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Заказы без операций движения бутылей", OnOrdersWithoutBottlesOperationsPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Переотправка почты", OnResendEmailsPressed));
