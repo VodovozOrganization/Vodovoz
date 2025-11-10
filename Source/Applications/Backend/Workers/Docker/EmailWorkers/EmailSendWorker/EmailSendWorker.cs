@@ -23,6 +23,7 @@ namespace EmailSendWorker
 	{
 		private const int _retryCount = 5;
 		private const int _retryDelay = 5 * 1000; // sec => milisec
+		private const int _errorInfoMaxLength = 1000;
 
 		private readonly ILogger<EmailSendWorker> _logger;
 		private readonly MailganerClientV2 _mailganerClient;
@@ -214,7 +215,7 @@ namespace EmailSendWorker
 		{
 			var statusUpdateMessage = new UpdateStoredEmailStatusMessage
 			{
-				ErrorInfo = errorInfo,
+				ErrorInfo = errorInfo[.._errorInfoMaxLength],
 				EventPayload = new EmailPayload { Id = messagePayloadId, Trackable = true },
 				Status = mailEventType,
 				RecievedAt = DateTime.Now
