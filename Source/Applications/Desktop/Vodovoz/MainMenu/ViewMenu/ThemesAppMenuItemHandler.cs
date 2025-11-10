@@ -32,17 +32,18 @@ namespace Vodovoz.MainMenu.ViewMenu
 			themesMenuItem.Submenu = themesMenu;
 
 			var currentTheme = Gtk.Settings.Default.ThemeName;
-			RadioMenuItem lastItem = null;
+			RadioAction lastItem = null;
 
 			foreach(var theme in _themes)
 			{
-				var themeItem = lastItem is null
-					? _concreteMenuItemCreator.CreateRadioMenuItem(theme.Key, ChangeTheme)
-					: _concreteMenuItemCreator.CreateRadioMenuItem(theme.Key, ChangeTheme, lastItem);
-
-				lastItem = themeItem;
-				themeItem.Active = theme.Value == currentTheme;
-				themesMenu.Add(themeItem);
+				var themeAction = lastItem is null
+					? _concreteMenuItemCreator.CreateRadioAction(theme.Value, theme.Key)
+					: _concreteMenuItemCreator.CreateRadioAction(theme.Value, theme.Key, actionGroup: lastItem);
+				
+				lastItem = themeAction;
+				themeAction.Active = theme.Value == currentTheme;
+				themeAction.Toggled += ChangeTheme;
+				themesMenu.Add(themeAction.CreateMenuItem());
 			}
 
 			return themesMenuItem;
@@ -50,12 +51,12 @@ namespace Vodovoz.MainMenu.ViewMenu
 		
 		private void ChangeTheme(object sender, EventArgs args)
         {
-        	if(!(sender is RadioMenuItem menu))
+        	if(!(sender is RadioAction themeAction))
         	{
         		return;
         	}
     
-        	if(!menu.Active)
+        	if(!themeAction.Active)
         	{
         		return;
         	}
@@ -69,7 +70,7 @@ namespace Vodovoz.MainMenu.ViewMenu
         	{
         		var userGtkRc = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".gtkrc-2.0");
     
-        		System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{_themes[menu.Name]}\"");
+        		System.IO.File.WriteAllText(userGtkRc, $"gtk-theme-name = \"{_themes[themeAction.Label]}\"");
     
         		Gtk.Application.Quit();
         	}
@@ -77,11 +78,11 @@ namespace Vodovoz.MainMenu.ViewMenu
         	{
         		_themeResetInProcess = true;
     
-        		string currentTheme = Gtk.Settings.Default.ThemeName;
+        		var currentTheme = Gtk.Settings.Default.ThemeName;
     
-        		foreach(RadioMenuItem menuItem in menu.Group)
+        		foreach(RadioMenuItem menuItem in themeAction.Group)
         		{
-        			menuItem.Active = _themes[menuItem.Name] == currentTheme;
+        			menuItem.Active = _themes[themeAction.Label] == currentTheme;
         		}
     
         		_themeResetInProcess = false;

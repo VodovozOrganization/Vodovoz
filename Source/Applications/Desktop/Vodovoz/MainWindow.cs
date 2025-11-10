@@ -219,8 +219,6 @@ public partial class MainWindow : Gtk.Window
 		MainPanelMenuItemHandler = menuCreator.ViewMenuItemCreator.MainPanelMenuItemHandler;
 		vboxMain.Add(MainMenuBar);
 
-		//InitializeThemesMenuItem();
-
 		OpenWikiCommand = new DelegateCommand(OpenWiki);
 		ybuttonWiki.BindCommand(OpenWikiCommand);
 

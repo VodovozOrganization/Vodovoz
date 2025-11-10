@@ -702,7 +702,6 @@
     <Compile Include="MainWindow.Navigation.cs" />
     <Compile Include="MainWindow.Navigation.Sections.cs" />
     <Compile Include="MainWindow.Notifications.cs" />
-    <Compile Include="MainWindow.View.cs" />
     <Compile Include="Options\ConfigureS3Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
