@@ -18,5 +18,11 @@ namespace Vodovoz.Core.Domain.Edo
 		/// </summary>
 		[Display(Name = "Счет")]
 		Bill,
+
+		/// <summary>
+		/// Акт приёма-передачи оборудования
+		/// </summary>
+		[Display(Name = "Акт приёма-передачи оборудования")]
+		EquipmentTransfer,
 	}
 }

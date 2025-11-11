@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Edo.Tender;
 using Edo.Withdrawal;
 using Taxcom.Docflow.Utility;
+using Edo.EquipmentTransfer;
 
 namespace CustomTaskDebugExecutor
 {
@@ -113,6 +114,10 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку документа вывода из оборота");
 			Console.WriteLine();
 
+			Console.WriteLine("21. EquipmentTransferTaskCreatedEvent (отправка акта приёма-передачи) - [Edo.EquipmentTransfer]");
+			Console.WriteLine("    Первичная подготовка данных в задаче на отправку акта приёма-передачи");
+			Console.WriteLine();
+
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
 
@@ -177,6 +182,9 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 20:
 					await ReceiveWithdrawalCreateEvent(cancellationToken);
+					break;
+				case 21:
+					await ReceiveEquipmentTransferCreateEvent(cancellationToken);
 					break;
 				default:
 					break;
@@ -531,7 +539,27 @@ and ecr.source != 'Manual'
 			var service = _serviceProvider.GetRequiredService<WithdrawalTaskCreatedHandler>();
 			await service.HandleWithdrawal(id, cancellationToken);
 		}
-		
+
+		private async Task ReceiveEquipmentTransferCreateEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом EquipmentTransfer (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			//var service = _serviceProvider.GetRequiredService<EquipmentTransferEdoTaskHandler>();
+			//await service.HandleNew(id, cancellationToken);
+			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
+			await service.HandleEquipmentTransfer(id, cancellationToken);
+		}
+
 
 		private async Task RehandleTaxcomAcceptDocuments(CancellationToken cancellationToken)
 		{

@@ -8,6 +8,8 @@ namespace Edo.Docflow.Taxcom
 	{
 		Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event);
 
+		Task CreateTaxcomDocFlowAndSendEquipmentTransferDocument(TaxcomDocflowEquipmentTransferSendEvent @event);
+
 		Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, 
 			CancellationToken cancellationToken = default

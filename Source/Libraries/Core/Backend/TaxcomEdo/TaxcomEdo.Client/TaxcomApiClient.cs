@@ -49,7 +49,14 @@ namespace TaxcomEdo.Client
 			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
 			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
 		}
-		
+
+		public async Task SendDataForCreateEquipmentTransferByEdo(InfoForCreatingEdoEquipmentTransfer data, CancellationToken cancellationToken = default)
+		{
+			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
+			// Поправить, изменить эндпоинт на акт приема-передачи оборудования
+			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
+		}
+
 		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(
 			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken = default)
 		{

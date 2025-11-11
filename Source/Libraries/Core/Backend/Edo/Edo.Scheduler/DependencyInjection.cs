@@ -20,6 +20,7 @@ namespace Edo.Scheduler
 			services.TryAddScoped<BillForAdvanceEdoRequestTaskScheduler>();
 			services.TryAddScoped<BillForDebtEdoRequestTaskScheduler>();
 			services.TryAddScoped<BillForPaymentEdoRequestTaskScheduler>();
+			services.TryAddScoped<EquipmentTransferEdoRequestTaskScheduler>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;

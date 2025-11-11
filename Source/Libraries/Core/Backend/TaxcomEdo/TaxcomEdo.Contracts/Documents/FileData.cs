@@ -6,6 +6,7 @@ namespace TaxcomEdo.Contracts.Documents
 	/// Данные файла
 	/// </summary>
 	[JsonDerivedType(typeof(BillFileData))]
+	[JsonDerivedType(typeof(EquipmentTransferFileData))]
 	public abstract class FileData
 	{
 		/// <summary>
