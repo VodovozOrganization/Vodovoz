@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Dadata.Model;
 using Gamma.Utilities;
 using RevenueService.Client.Enums;
@@ -93,7 +94,10 @@ namespace RevenueService.Client.Dto
 		public string RevenueStatusName => State.ConvertToRevenueStatus().GetEnumTitle();
 
 		[ReportExportIgnore]
-		[Display(Name = "Активен")]
+		[Display(Name = "Статус в налоговой")]
 		public bool IsActive => State == PartyStatus.ACTIVE;
+
+		[Display(Name = "Дата статуса в налоговой")]
+		public DateTime? StateDate { get; set; }
 	}
 }

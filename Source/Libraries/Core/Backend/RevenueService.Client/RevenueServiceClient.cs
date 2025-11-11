@@ -71,7 +71,8 @@ namespace RevenueService.Client
 					OpfFull = suggestion.data.opf?.@full,
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
 					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
-					State = suggestion.data.state.status
+					State = suggestion.data.state.status,
+					StateDate = suggestion.data.state.actuality_date,
 				};
 
 				var postalCode = suggestion.data.address?.data.postal_code;
