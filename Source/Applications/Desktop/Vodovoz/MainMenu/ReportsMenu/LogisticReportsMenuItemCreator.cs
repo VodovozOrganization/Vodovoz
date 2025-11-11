@@ -13,6 +13,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByDriversReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -56,10 +57,12 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Отчёт по дозагрузке МЛ", OnFastDeliveryAdditionalLoadingReportPressed));
 			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Доступность услуги \"Доставка за час\"",
 				OnFastDeliveryPercentCoverageReportPressed));
-			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по событиям нахождения водителей на складе",
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по событиям нахождения водителей на складе",
 				OnDriversWarehousesEventsReportPressed));
-			logisticsMenu.Add(
-				_concreteMenuItemCreator.CreateMenuItem("Отчет по изменению формы оплаты водителями", OnDriversWarehousesEventsReportPressed));
+			logisticsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по изменению формы оплаты водителями",
+				OnChangingFormOfPaymentByDriversReportPressed));
 
 			return logisticsMenuItem;
 		}
@@ -141,6 +144,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
 				null,
+				OpenPageOptions.IgnoreHash,
 				addingRegistrations: builder =>
 				{
 					builder.Register(c => new EmployeeFilterViewModel
@@ -170,6 +174,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
 				null,
+				OpenPageOptions.IgnoreHash,
 				addingRegistrations: builder =>
 				{
 					builder.Register(c => new EmployeeFilterViewModel
@@ -231,13 +236,23 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		}
 
 		/// <summary>
-		/// Отчет по событиям нахождения волителей на складе
+		/// Отчет по событиям нахождения водителей на складе
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		private void OnDriversWarehousesEventsReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<DriversWarehousesEventsReportViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Отчет по изменению формы оплаты водителями
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnChangingFormOfPaymentByDriversReportPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<ChangingPaymentTypeByDriversReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 	}
 }
