@@ -128,6 +128,30 @@ namespace TaxcomEdoApi.Controllers
 			return CreateAndSendBillWithoutShipment(data);
 		}
 
+		[HttpPost]
+		public IActionResult CreateAndSendEquipmentTransfer(InfoForCreatingEdoEquipmentTransfer data)
+		{
+			var orderId = data.OrderInfoForEdo.Id;
+			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
+
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithEquipmentTransfer(data);
+
+				_logger.LogInformation("Отправляем контейнер с актом приёма-передачи по заказу №{OrderId}", orderId);
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки акта приёма-передачи",
+					orderId);
+				return Problem();
+			}
+		}
+
 		[HttpGet]
 		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
 		{
