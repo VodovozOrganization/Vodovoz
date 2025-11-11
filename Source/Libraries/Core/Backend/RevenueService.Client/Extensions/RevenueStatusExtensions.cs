@@ -6,6 +6,9 @@ namespace RevenueService.Client.Extensions
 {
 	public static class RevenueStatusExtensions
 	{
+		/// <summary>
+		/// Конвертация статусов контрагента в налоговой из DaData в RevenueStatus 
+		/// </summary>
 		public static RevenueStatus ConvertToRevenueStatus(this PartyStatus status)
 		{
 			switch(status)
