@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Core.Domain.Clients
 {
@@ -6,6 +7,9 @@ namespace Vodovoz.Core.Domain.Clients
 	/// Статус контрагента в налоговой
 	/// </summary>
 	
+	[Appellative(
+		Nominative = "Статус контрагента в налоговой",
+		NominativePlural = "Статусы контрагента в налоговой")]
 	public enum RevenueStatus
 	{
 		/// <summary>
