@@ -1,7 +1,7 @@
 ﻿using CustomerAppsApi.Library.Configs;
-using Mailganer.Api.Client;
+using EmailSendWorker.Factoies;
+using EmailSendWorker.Services;
 using Mailganer.Api.Client.Dto;
-using Mailganer.Api.Client.Exceptions;
 using Mailjet.Api.Abstractions.Events;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -27,7 +26,8 @@ namespace EmailSendWorker
 		private const int _errorInfoMaxLength = 1000;
 
 		private readonly ILogger<EmailSendWorker> _logger;
-		private readonly MailganerClientV2 _mailganerClient;
+		private readonly IEmailMessageFactory _emailMessageFactory;
+		private readonly IEmailSendService _emailSendService;
 		private readonly RabbitOptions _rabbitOptions;
 
 		private readonly IModel _consumerChannel;
@@ -40,11 +40,13 @@ namespace EmailSendWorker
 			ILogger<EmailSendWorker> logger,
 			IConnection connection,
 			IOptions<RabbitOptions> rabbitOptions,
-			MailganerClientV2 mailganerClient
+			IEmailMessageFactory emailMessageFactory,
+			IEmailSendService emailSendService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
+			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
+			_emailSendService = emailSendService ?? throw new ArgumentNullException(nameof(emailSendService));
 			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
 
 			_consumerChannel = connection.CreateModel();
@@ -92,6 +94,10 @@ namespace EmailSendWorker
 				var message = JsonSerializer.Deserialize<SendEmailMessage>(body.Span);
 				await SendEmails(message);
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Error processing message from queue: {ErrorMessage}", ex.Message);
+			}
 			finally
 			{
 				_logger.LogInformation("Free message from queue");
@@ -101,8 +107,13 @@ namespace EmailSendWorker
 
 		private async Task SendEmails(SendEmailMessage message)
 		{
-			if(!IsSendEmailMessageValid(message))
+			var emailsCreateResult = _emailMessageFactory.CreateEmailMessages(message);
+
+			if(emailsCreateResult.IsFailure)
 			{
+				_logger.LogError(
+					"Failed to create email messages. Errors: {Errors}",
+					emailsCreateResult.GetErrorsString());
 				return;
 			}
 
@@ -114,27 +125,47 @@ namespace EmailSendWorker
 				message.Subject,
 				message.Attachments?.Count ?? 0);
 
-
 			if(message.EventPayload == null)
 			{
 				message.Payload = new EmailPayload();
 			}
 
-			var emails = CreateEmailMessages(message);
-
-			foreach(var email in emails)
+			foreach(var email in emailsCreateResult.Value)
 			{
-				await SendEmailMessage(message.Payload.Id, email);
+				var sendMessageResult = await SendEmailMessage(message.Payload.Id, email);
+
+				if(sendMessageResult.IsSuccess)
+				{
+					_logger.LogInformation(
+						"Email sent successfully to {Email}. MessagePayloadId: {MessagePayloadId}",
+						email.To,
+						message.Payload.Id);
+
+					PublishStoredEmailStatusUpdateMessage(
+						message.Payload.Id,
+						MailEventType.sent,
+						string.Empty);
+				}
+				else
+				{
+					var errors = sendMessageResult.GetErrorsString();
+
+					_logger.LogError(
+						"Failed to send email to {Email}. MessagePayloadId: {MessagePayloadId}. Errors: {Errors}",
+						email.To,
+						message.Payload.Id,
+						sendMessageResult.GetErrorsString());
+
+					PublishStoredEmailStatusUpdateMessage(
+						message.Payload.Id,
+						MailEventType.bounce,
+						errors);
+				}
 			}
 		}
 
-		private async Task SendEmailMessage(int messagePayloadId, EmailMessage emailMessage)
+		private async Task<Result> SendEmailMessage(int messagePayloadId, EmailMessage emailMessage)
 		{
-			if(!IsEmailMessageValid(emailMessage, messagePayloadId))
-			{
-				return;
-			}
-
 			for(var i = 0; i < _retryCount; i++)
 			{
 				_logger.LogInformation(
@@ -144,113 +175,35 @@ namespace EmailSendWorker
 					i + 1,
 					_retryCount);
 
-				var sendEmailResult = await TrySendEmail(emailMessage);
+				var sendEmailResult = await _emailSendService.SendEmail(emailMessage);
 
 				if(sendEmailResult.IsSuccess)
 				{
-					PublishStoredEmailStatusUpdateMessage(messagePayloadId, MailEventType.sent, string.Empty);
-					break;
+					return Result.Success();
 				}
 
-				if(sendEmailResult.IsFailure && sendEmailResult.Errors.Any(e => e.Code == "500"))
+				if(sendEmailResult.IsFailure && sendEmailResult.Errors.Any(e => e.Code == _emailSendService.EmaiInStopListErrorCodeString))
 				{
-					var removeEmailFromStopListResult = await TryRemoveEmailFromStopList(emailMessage);
+					var removeEmailFromStopListResult =
+						await _emailSendService.CheckAndRemoveSpamEmailFromStopList(emailMessage.To, emailMessage.From);
 
 					if(removeEmailFromStopListResult.IsFailure)
 					{
-						PublishStoredEmailStatusUpdateMessage(
-							messagePayloadId,
-							MailEventType.bounce,
-							"Email is in stop list and could not be removed.");
-						break;
+						return removeEmailFromStopListResult;
 					}
 
-					var reSendEmailResult = await TrySendEmail(emailMessage);
+					var reSendEmailResult = await _emailSendService.SendEmail(emailMessage);
 
 					if(reSendEmailResult.IsSuccess)
 					{
-						PublishStoredEmailStatusUpdateMessage(messagePayloadId, MailEventType.sent, string.Empty);
-						break;
+						return Result.Success();
 					}
 				}
 
 				await Task.Delay(_retryDelay);
-
-				if(i >= _retryCount - 1)
-				{
-					PublishStoredEmailStatusUpdateMessage(
-						messagePayloadId,
-						MailEventType.bounce,
-						$"SendWorker unable to send message to MailGaner. MessagePayloadId: {messagePayloadId}");
-				}
 			}
-		}
 
-		private async Task<Result> TrySendEmail(EmailMessage email)
-		{
-			_logger.LogInformation("Trying to send email to: {Email}", email.To);
-			try
-			{
-				await _mailganerClient.Send(email);
-			}
-			catch(EmailInStopListException ex)
-			{
-				_logger.LogError(ex, "Email is in stop list: {Email}", email.To);
-				return Result.Failure(new Error("500", "Email is in stop list"));
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Failed to send email: {Email}", email.To);
-				return Result.Failure(new Error(string.Empty, $"Failed to send email: {ex.Message}"));
-			}
-			_logger.LogInformation("Email sent successfully to: {Email}", email.To);
-			return Result.Success();
-		}
-
-		private async Task<Result> TryRemoveEmailFromStopList(EmailMessage email)
-		{
-			try
-			{
-				_logger.LogInformation(
-					"Trying to remove email from stop list. Email address: {Email}",
-					email.To);
-
-				var bounceInfo = await _mailganerClient.GetEmailBounseMessageInStopList(email.To);
-
-				if(string.IsNullOrEmpty(bounceInfo))
-				{
-					_logger.LogWarning(
-						"Bounce info is empty. Cannot determine if email should be removed from stop list. Email address: {Email}",
-						email.To);
-					return Result.Failure(new Error(string.Empty, "Bounce info is empty"));
-				}
-
-				if(!bounceInfo.ToLower().Contains("spam"))
-				{
-					_logger.LogWarning(
-						"Bounce info does not indicate spam. Email will not be removed from stop list. Email address: {Email}. Bounce info: {BounceInfo}",
-						email.To,
-						bounceInfo);
-					return Result.Failure(new Error(string.Empty, "Bounce info does not indicate spam"));
-				}
-
-				await _mailganerClient.RemoveEmailFromStopList(email.From, email.To);
-
-				_logger.LogInformation(
-					"Email removed from stop list successfully. Email address: {Email}",
-					email.To);
-
-				return Result.Success();
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Failed to remove email from stop list. Email address: {Email}",
-					email.To);
-
-				return Result.Failure(new Error(string.Empty, $"Failed to remove email from stop list: {ex.Message}"));
-			}
+			return Result.Failure(new Error(string.Empty, $"SendWorker unable to send message to MailGaner. MessagePayloadId: {messagePayloadId}"));
 		}
 
 		private void PublishStoredEmailStatusUpdateMessage(
@@ -301,76 +254,6 @@ namespace EmailSendWorker
 					message.EventPayload.Id,
 					message.Status);
 			}
-		}
-
-		private bool IsSendEmailMessageValid(SendEmailMessage message)
-		{
-			if(message is null)
-			{
-				_logger.LogWarning("Received null message to send.");
-				return false;
-			}
-
-			if(message.To is null)
-			{
-				_logger.LogWarning("Message has no recipients. MessagePayloadId: {MessagePayloadId}", message.Payload?.Id);
-				return false;
-			}
-
-			return true;
-		}
-
-		public bool IsEmailMessageValid(EmailMessage emailMessage, int messagePayloadId)
-		{
-			if(emailMessage is null)
-			{
-				_logger.LogWarning("Received null email to send. MessagePayloadId: {MessagePayloadId}", messagePayloadId);
-				return false;
-			}
-
-			if(emailMessage.To is null)
-			{
-				_logger.LogWarning("Email has no recipient. MessagePayloadId: {MessagePayloadId}", messagePayloadId);
-				return false;
-			}
-
-			if(emailMessage.From is null)
-			{
-				_logger.LogWarning("Email has no sender. MessagePayloadId: {MessagePayloadId}", messagePayloadId);
-				return false;
-			}
-
-			return true;
-		}
-
-		private static IEnumerable<EmailMessage> CreateEmailMessages(SendEmailMessage message)
-		{
-			var emailMessages = new List<EmailMessage>();
-			foreach(var to in message.To)
-			{
-				var email = new EmailMessage
-				{
-					From = $"{message.From.Name} <{message.From.Email}>",
-					To = to.Email,
-					Subject = message.Subject,
-					MessageText = message.HTMLPart,
-					TrackOpen = true,
-					TrackClick = true,
-					TrackId = $"{message.Payload.InstanceId}-{message.Payload.Id}",
-				};
-
-				if(message.Attachments != null && message.Attachments.Any())
-				{
-					email.Attachments = message.Attachments.Select(x => new EmailAttachment
-					{
-						Filename = x.Filename,
-						Base64Content = x.Base64Content,
-					}).ToList();
-				}
-
-				emailMessages.Add(email);
-			}
-			return emailMessages;
 		}
 	}
 }

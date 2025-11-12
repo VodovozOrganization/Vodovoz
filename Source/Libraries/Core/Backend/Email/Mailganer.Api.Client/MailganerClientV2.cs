@@ -12,6 +12,8 @@ namespace Mailganer.Api.Client
 {
 	public class MailganerClientV2
 	{
+		public const int EmailInStopListErrorCode = 550;
+
 		private readonly HttpClient _httpClient;
 
 		public MailganerClientV2(HttpClient httpClient)
@@ -39,7 +41,7 @@ namespace Mailganer.Api.Client
 				if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
 				{
 					var errorResponse = await response.Content.ReadFromJsonAsync<SendResponse>();
-					if(errorResponse != null && errorResponse.Code == "500")
+					if(errorResponse != null && errorResponse.Code == EmailInStopListErrorCode)
 					{
 						throw new Exceptions.EmailInStopListException(
 							emailMessage.To,

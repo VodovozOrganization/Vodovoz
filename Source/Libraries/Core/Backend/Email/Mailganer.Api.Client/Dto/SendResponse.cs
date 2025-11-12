@@ -14,6 +14,6 @@ namespace Mailganer.Api.Client.Dto
 		public string Message { get; set; }
 
 		[JsonPropertyName("code")]
-		public string Code { get; set; }
+		public int? Code { get; set; }
 	}
 }
