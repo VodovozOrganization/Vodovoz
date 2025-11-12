@@ -184,7 +184,7 @@ namespace CustomTaskDebugExecutor
 					await ReceiveWithdrawalCreateEvent(cancellationToken);
 					break;
 				case 21:
-					await ReceiveEquipmentTransferCreateEvent(cancellationToken);
+					await HandleEquipmentTransferTask(cancellationToken);
 					break;
 				default:
 					break;
@@ -540,7 +540,7 @@ and ecr.source != 'Manual'
 			await service.HandleWithdrawal(id, cancellationToken);
 		}
 
-		private async Task ReceiveEquipmentTransferCreateEvent(CancellationToken cancellationToken)
+		private async Task HandleEquipmentTransferTask(CancellationToken cancellationToken)
 		{
 			Console.WriteLine();
 			Console.WriteLine("Необходимо ввести Id задачи с типом EquipmentTransfer (edo_tasks)");
