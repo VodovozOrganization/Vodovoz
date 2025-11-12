@@ -15,9 +15,11 @@ using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Edo;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
@@ -36,6 +38,9 @@ namespace EdoContactsUpdater
 		private readonly IEdoContactStateCodeConverter _edoContactStateCodeConverter;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
+		private TaxcomEdoDocflowLastProcessTime _lastEventsProcessTime;
+		private DateTime? _lastStateChangedTime;
 
 		public TaxcomEdoContactsUpdaterService(
 			ILogger<TaxcomEdoContactsUpdaterService> logger,
@@ -47,7 +52,8 @@ namespace EdoContactsUpdater
 			IServiceScopeFactory serviceScopeFactory,
 			IEdoContactStateCodeConverter edoContactStateCodeConverter,
 			ICounterpartyRepository counterpartyRepository,
-			IOrganizationRepository organizationRepository)
+			IOrganizationRepository organizationRepository,
+			ITaxcomEdoDocflowLastProcessTimeRepository edoDocflowLastProcessTimeRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -59,16 +65,16 @@ namespace EdoContactsUpdater
 				edoContactStateCodeConverter ?? throw new ArgumentNullException(nameof(edoContactStateCodeConverter));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_edoDocflowLastProcessTimeRepository =
+				edoDocflowLastProcessTimeRepository ?? throw new ArgumentNullException(nameof(edoDocflowLastProcessTimeRepository));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Процесс обновления контактов запущен");
-			var lastCheckContactsUpdates = _settingsController.GetValue<DateTime>("last_check_contacts_updates");
-			await StartWorkingAsync(cancellationToken, lastCheckContactsUpdates);
+			await StartWorkingAsync(cancellationToken);
 		}
 
-		private async Task StartWorkingAsync(CancellationToken cancellationToken, DateTime lastCheckContactsUpdates)
+		private async Task StartWorkingAsync(CancellationToken cancellationToken)
 		{
 			while(!cancellationToken.IsCancellationRequested)
 			{
@@ -76,10 +82,24 @@ namespace EdoContactsUpdater
 
 				try
 				{
-					_logger.LogInformation("Обновление списка контактов...");
-
-					using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки контактов ЭДО"))
+					using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки контактов ЭДО");
+					try
 					{
+						_logger.LogInformation("Обновление списка контактов...");
+
+						_lastEventsProcessTime =
+							_edoDocflowLastProcessTimeRepository.GetTaxcomEdoDocflowLastProcessTime(
+								uow,
+								_contactsUpdaterOptions.EdoAccount);
+
+						if(_lastEventsProcessTime is null)
+						{
+							_logger.LogCritical("Не найдены временные метки по указанному кабинету в ЭДО");
+							continue;
+						}
+
+						_lastStateChangedTime ??= _lastEventsProcessTime.LastProcessedContactsUpdates;
+
 						var contactUpdates = new EdoContactList();
 						var organization =
 							_organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, _contactsUpdaterOptions.EdoAccount);
@@ -89,7 +109,7 @@ namespace EdoContactsUpdater
 							_logger.LogError(
 								"Не найдена организация с аккаунтом {EdoAccount} в Такском",
 								_contactsUpdaterOptions.EdoAccount);
-							
+
 							continue;
 						}
 
@@ -97,20 +117,18 @@ namespace EdoContactsUpdater
 						{
 							using var scope = _serviceScopeFactory.CreateScope();
 							var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-							
+
 							try
 							{
 								_logger.LogInformation("Получаем список...");
-								
-								contactUpdates = await taxcomApiClient.GetContactListUpdates(
-									lastCheckContactsUpdates, null, cancellationToken);
+								contactUpdates = await taxcomApiClient.GetContactListUpdates(_lastStateChangedTime, null, cancellationToken);
 							}
 							catch(Exception e)
 							{
 								const string errorMessage = "Ошибка при запросе списка контактов";
 								_logger.LogError(e, errorMessage);
 							}
-							
+
 							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
 
 							if(contactUpdates.Contacts is null)
@@ -147,101 +165,116 @@ namespace EdoContactsUpdater
 											_logger.LogWarning("Пришел контакт с пустым аккаунтом");
 											continue;
 										}
-										
-										foreach(var counterparty in counterparties)
-										{
-											var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
-											var edoOperator = _counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
-											
-											if(edoAccount != null)
-											{
-												_logger.LogInformation(
-													"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
-													" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
-													counterparty.Id,
-													edoAccount.ConsentForEdoStatus,
-													consentForEdoStatus);
-												
-												edoAccount.EdoOperator = edoOperator;
-												edoAccount.ConsentForEdoStatus = consentForEdoStatus;
-					
-												await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
-												await uow.CommitAsync(cancellationToken);
-												continue;
-											}
-				
-											var defaultEdoAccount = counterparty.DefaultEdoAccount(organization.Id);
-											edoAccount = defaultEdoAccount;
 
-											if(edoAccount is null)
-											{
-												_logger.LogWarning(
-													"Не нашли основной аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
-													contact.EdxClientId,
-													counterparty.Name,
-													organization.Name,
-													consentForEdoStatus
-												);
-												
-												edoAccount = CreateEdoAccount(
-													contact, organization, counterparty, edoOperator, true, consentForEdoStatus);
-											}
-											else
-											{
-												if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
-												{
-													_logger.LogInformation(
-														"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
-														" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
-														counterparty.Id,
-														edoAccount.ConsentForEdoStatus,
-														consentForEdoStatus);
-													
-													edoAccount.PersonalAccountIdInEdo = contact.EdxClientId;
-													edoAccount.EdoOperator = edoOperator;
-													edoAccount.ConsentForEdoStatus = consentForEdoStatus;
-												}
-												else
-												{
-													_logger.LogWarning(
-														"Не нашли аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
-														contact.EdxClientId,
-														counterparty.Name,
-														organization.Name,
-														consentForEdoStatus
-													);
-													
-													edoAccount = CreateEdoAccount(
-														contact,
-														organization,
-														counterparty,
-														edoOperator,
-														defaultEdoAccount is null,
-														consentForEdoStatus);
-												}
-											}
-											
-											await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
-											await uow.CommitAsync(cancellationToken);
-										}
+										await ProcessEdoAccountStateChanges(cancellationToken, counterparties, organization, contact, uow, consentForEdoStatus);
 
 										break;
 								}
 
-								lastCheckContactsUpdates = contact.State.Changed;
+								_lastStateChangedTime = contact.State.Changed;
 							}
 						} while(contactUpdates.Contacts != null && contactUpdates.Contacts.Length >= 100);
+
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(e, "Ошибка при обновлении списка контактов");
+					}
+					finally
+					{
+						await SaveLastEventProcessTime(uow);
 					}
 				}
 				catch(Exception e)
 				{
-					const string errorMessage = "Ошибка при обновлении списка контактов";
-					_logger.LogError(e, errorMessage);
+					_logger.LogError(e, "Ошибка при обновлении списка контактов");
 				}
-				finally
+			}
+		}
+
+		private async Task ProcessEdoAccountStateChanges(
+			CancellationToken cancellationToken,
+			IList<Counterparty> counterparties,
+			Organization organization,
+			EdoContactInfo contact,
+			IUnitOfWork uow,
+			ConsentForEdoStatus consentForEdoStatus)
+		{
+			foreach(var counterparty in counterparties)
+			{
+				var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
+				var edoOperator = _counterpartyRepository.GetEdoOperatorByCode(uow, contact.EdxClientId[..3]);
+
+				if(edoAccount != null)
 				{
-					_settingsController.CreateOrUpdateSetting("last_check_contacts_updates", $"{lastCheckContactsUpdates:s}");
+					_logger.LogInformation(
+						"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
+						" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
+						counterparty.Id,
+						edoAccount.ConsentForEdoStatus,
+						consentForEdoStatus);
+
+					edoAccount.EdoOperator = edoOperator;
+					edoAccount.ConsentForEdoStatus = consentForEdoStatus;
+
+					await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+					continue;
 				}
+
+				var defaultEdoAccount = counterparty.DefaultEdoAccount(organization.Id);
+				edoAccount = defaultEdoAccount;
+
+				if(edoAccount is null)
+				{
+					_logger.LogWarning(
+						"Не нашли основной аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
+						contact.EdxClientId,
+						counterparty.Name,
+						organization.Name,
+						consentForEdoStatus
+					);
+
+					edoAccount = CreateEdoAccount(
+						contact, organization, counterparty, edoOperator, true, consentForEdoStatus);
+				}
+				else
+				{
+					if(string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo))
+					{
+						_logger.LogInformation(
+							"Обновляем согласие на ЭДО у клиента Id {CounterpartyId}" +
+							" с {CounterpartyConsentForEdoStatus} на {ConsentForEdoStatus}",
+							counterparty.Id,
+							edoAccount.ConsentForEdoStatus,
+							consentForEdoStatus);
+
+						edoAccount.PersonalAccountIdInEdo = contact.EdxClientId;
+						edoAccount.EdoOperator = edoOperator;
+						edoAccount.ConsentForEdoStatus = consentForEdoStatus;
+					}
+					else
+					{
+						_logger.LogWarning(
+							"Не нашли аккаунт {ContactEdoAccount} у клиента {Counterparty} для {Organization} согласие {ConsentForEdoStatus}, создаем...",
+							contact.EdxClientId,
+							counterparty.Name,
+							organization.Name,
+							consentForEdoStatus
+						);
+
+						edoAccount = CreateEdoAccount(
+							contact,
+							organization,
+							counterparty,
+							edoOperator,
+							defaultEdoAccount is null,
+							consentForEdoStatus);
+					}
+				}
+
+				await uow.SaveAsync(edoAccount, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 			}
 		}
 
@@ -351,6 +384,24 @@ namespace EdoContactsUpdater
 				isDefault,
 				consentForEdoStatus
 			);
+		}
+		
+		private async Task SaveLastEventProcessTime(IUnitOfWork uow)
+		{
+			try
+			{
+				if(_lastStateChangedTime.HasValue)
+				{
+					_lastEventsProcessTime.LastProcessedContactsUpdates = _lastStateChangedTime.Value;
+				}
+				
+				await uow.SaveAsync(_lastEventsProcessTime);
+				await uow.CommitAsync();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Не удалось сохранить временную метку");
+			}
 		}
 	}
 }
