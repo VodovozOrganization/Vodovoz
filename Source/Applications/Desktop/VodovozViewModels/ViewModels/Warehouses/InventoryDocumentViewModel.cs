@@ -236,7 +236,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 			));
 
-		public bool CanHandleInventoryItems => Entity.Warehouse != null || Entity.Employee != null || Entity.Car != null;
+		public bool CanHandleInventoryItems => CanEdit 
+		    && (Entity.Warehouse != null || Entity.Employee != null || Entity.Car != null);
 
 		#region Объемный учет
 		
