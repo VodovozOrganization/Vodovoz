@@ -80,7 +80,7 @@ namespace Mailganer.Api.Client
 
 		public async Task RemoveEmailFromStopList(string mailFrom, string email)
 		{
-			using(var response = await _httpClient.PostAsync($"/stop-list/remove?mail_from={mailFrom}&email={email}", null))
+			using(var response = await _httpClient.PostAsync($"stop-list/remove?mail_from={mailFrom}&email={email}", null))
 			{
 				if(!response.IsSuccessStatusCode)
 				{

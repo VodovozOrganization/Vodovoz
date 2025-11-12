@@ -170,7 +170,7 @@ namespace EmailSendWorker
 				if(sendEmailResult.IsFailure && sendEmailResult.Errors.Any(e => e.Code == _emailSendService.EmaiInStopListErrorCodeString))
 				{
 					var removeEmailFromStopListResult =
-						await _emailSendService.CheckAndRemoveSpamEmailFromStopList(emailMessage.To, emailMessage.From);
+						await _emailSendService.CheckAndRemoveSpamEmailFromStopList(emailMessage.To, emailMessage.FromAddress);
 
 					if(removeEmailFromStopListResult.IsFailure)
 					{

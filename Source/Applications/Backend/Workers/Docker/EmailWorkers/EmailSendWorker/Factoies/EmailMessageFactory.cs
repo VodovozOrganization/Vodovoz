@@ -38,6 +38,7 @@ namespace EmailSendWorker.Factoies
 				var email = new EmailMessage
 				{
 					From = $"{message.From.Name} <{message.From.Email}>",
+					FromAddress = message.From.Email,
 					To = to.Email,
 					Subject = message.Subject,
 					MessageText = message.HTMLPart,
