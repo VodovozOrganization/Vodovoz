@@ -1,6 +1,5 @@
 ﻿using Mailganer.Api.Client.Dto;
 using Mailganer.Api.Client.Dto.Responses;
-using MassTransit;
 using System;
 using System.Linq;
 using System.Net.Http;
