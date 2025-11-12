@@ -30,38 +30,32 @@ namespace EmailSendWorker
 		private readonly IEmailSendService _emailSendService;
 		private readonly RabbitOptions _rabbitOptions;
 
-		private readonly IModel _consumerChannel;
-		private readonly IModel _publisherChannel;
+		private readonly IModel _channel;
 		private readonly object _publisherLock = new object();
 
 		private readonly AsyncEventingBasicConsumer _consumer;
 
 		public EmailSendWorker(
 			ILogger<EmailSendWorker> logger,
-			IConnection connection,
+			IModel channel,
 			IOptions<RabbitOptions> rabbitOptions,
 			IEmailMessageFactory emailMessageFactory,
 			IEmailSendService emailSendService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_emailSendService = emailSendService ?? throw new ArgumentNullException(nameof(emailSendService));
 			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
-
-			_consumerChannel = connection.CreateModel();
-			_publisherChannel = connection.CreateModel();
-
-			_consumerChannel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
-			_publisherChannel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
-
-			_consumer = new AsyncEventingBasicConsumer(_consumerChannel);
+			_channel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
+			_consumer = new AsyncEventingBasicConsumer(_channel);
 			_consumer.Received += MessageReceived;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_consumerChannel.BasicConsume(_rabbitOptions.EmailSendQueue, false, _consumer);
+			_channel.BasicConsume(_rabbitOptions.EmailSendQueue, false, _consumer);
 			await Task.Delay(0, stoppingToken);
 		}
 
@@ -74,15 +68,6 @@ namespace EmailSendWorker
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Stopping Email Send Worker...");
-
-			_consumer.Received -= MessageReceived;
-
-			_consumerChannel?.Close();
-			_consumerChannel?.Dispose();
-
-			_publisherChannel?.Close();
-			_publisherChannel?.Dispose();
-
 			await base.StopAsync(cancellationToken);
 		}
 
@@ -101,7 +86,7 @@ namespace EmailSendWorker
 			finally
 			{
 				_logger.LogInformation("Free message from queue");
-				_consumerChannel.BasicAck(e.DeliveryTag, false);
+				_channel.BasicAck(e.DeliveryTag, false);
 			}
 		}
 
@@ -236,9 +221,10 @@ namespace EmailSendWorker
 
 				lock(_publisherLock)
 				{
-					var properties = _publisherChannel.CreateBasicProperties();
+					_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
+					var properties = _channel.CreateBasicProperties();
 					properties.Persistent = true;
-					_publisherChannel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+					_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
 				}
 
 				_logger.LogInformation(
