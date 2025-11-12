@@ -157,16 +157,13 @@ namespace EdoContactsUpdater
 											break;
 										}
 
-										var consentForEdoStatus =
-											_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.State.Code);
-
 										if(string.IsNullOrWhiteSpace(contact.EdxClientId))
 										{
 											_logger.LogWarning("Пришел контакт с пустым аккаунтом");
 											continue;
 										}
 
-										await ProcessEdoAccountStateChanges(cancellationToken, counterparties, organization, contact, uow, consentForEdoStatus);
+										await ProcessEdoAccountStateChanges(cancellationToken, counterparties, organization, contact, uow);
 
 										break;
 								}
@@ -197,9 +194,11 @@ namespace EdoContactsUpdater
 			IList<Counterparty> counterparties,
 			Organization organization,
 			EdoContactInfo contact,
-			IUnitOfWork uow,
-			ConsentForEdoStatus consentForEdoStatus)
+			IUnitOfWork uow)
 		{
+			var consentForEdoStatus =
+				_edoContactStateCodeConverter.ConvertStateToConsentForEdoStatus(contact.State.Code);
+			
 			foreach(var counterparty in counterparties)
 			{
 				var edoAccount = counterparty.EdoAccount(organization.Id, contact.EdxClientId);
