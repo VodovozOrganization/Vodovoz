@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
@@ -519,7 +519,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			GetParameterValues<CounterpartyCompositeClassification>(sb2);
 			GetBoolParamsValues(sb2);
 
-			filters = sb2.ToString().Trim('\n');
+			var filters = sb2.ToString().Trim('\n');
 
 			var selectedGroupings = SelectedGroupings;
 

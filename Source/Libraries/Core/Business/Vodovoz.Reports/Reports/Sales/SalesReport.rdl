@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -742,12 +742,10 @@ FROM
        AND (
              (0 IN (@Subdivision_include) OR (e.subdivision_id IN (@Subdivision_include)))
 				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
-             (0 IN (@Recomendation_include) OR (order_items.recomendation_id IN (@Recomendation_include)))
-				AND (order_items.recomendation_id IS NULL OR NOT (order_items.recomendation_id IN (@Recomendation_exclude)))
          )
        AND (
-             (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
-				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
+             (0 IN (@Recomendation_include) OR (order_items.recomendation_id IN (@Recomendation_include)))
+				AND (order_items.recomendation_id IS NULL OR NOT (order_items.recomendation_id IN (@Recomendation_exclude)))
          )
        AND (
              (0 IN (@OrderAuthor_include) OR (orders.author_employee_id IN (@OrderAuthor_include)))
@@ -1117,6 +1115,7 @@ GROUP BY T.order_items_id
         </Field>
         <Field Name="sales_manager_name">
           <DataField>sales_manager_name</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -5316,7 +5316,7 @@ namespace Vodovoz
 			
 			foreach(var item in rightNodes)
 			{
-				Entity.AddNomenclature(nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
+				Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
 			}
 
 			PrepareConfirmationPage();

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -2086,13 +2086,6 @@ namespace Vodovoz.Domain.Orders
 			bool isDiscountInMoney = false,
 			bool needGetFixedPrice = true,
 			DiscountReason reason = null,
-			PromotionalSet proSet = null)
-		public virtual void AddWaterForSale(
-			Nomenclature nomenclature,
-			decimal count,
-			decimal discount = 0,
-			bool isDiscountInMoney = false,
-			DiscountReason reason = null,
 			PromotionalSet proSet = null,
 			int? recomendationId = null)
 		{
@@ -2119,10 +2112,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
-			decimal price = GetWaterPrice(nomenclature, proSet, count);
-
-			AddOrderItem(OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, recomendationId));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, recomendationId));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2304,8 +2294,8 @@ namespace Vodovoz.Domain.Orders
 						discountInMoney,
 						needGetFixedPrice,
 						discountReason,
-						proSet);
-					AddWaterForSale(nomenclature, count, discount, discountInMoney, discountReason, proSet, recomendationId);
+						proSet,
+						recomendationId);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
