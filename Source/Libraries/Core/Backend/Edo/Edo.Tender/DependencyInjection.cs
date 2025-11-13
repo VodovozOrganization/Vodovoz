@@ -19,7 +19,7 @@ namespace Edo.Documents
 			services.TryAddScoped<TenderEdoTaskHandler>();
 
 			services.AddEdo();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 
 			return services;
 		}

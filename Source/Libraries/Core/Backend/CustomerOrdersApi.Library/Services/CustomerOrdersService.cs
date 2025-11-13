@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Repositories;
@@ -178,7 +179,7 @@ namespace CustomerOrdersApi.Library.Services
 				var order = uow.GetById<Order>(getDetailedOrderInfoDto.OrderId.Value);
 				orderRating = _genericRatingRepository.Get(
 						uow,
-						x => x.OnlineOrder.Order.Id == order.Id)
+						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 
 				return _customerOrderFactory.CreateDetailedOrderInfo(
@@ -201,11 +202,18 @@ namespace CustomerOrdersApi.Library.Services
 			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
 
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			var orders = _orderRepository.GetCounterpartyOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
-			var onlineOrders =
+			var ordersWithoutOnlineOrders =
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
+			var onlineOrdersWithoutOrders =
 				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
-			var allOrders = orders.Concat(onlineOrders).ToArray();
+			var allOrders = 
+				ordersWithoutOnlineOrders
+					.Concat(onlineOrdersWithOrders)
+					.Concat(onlineOrdersWithoutOrders)
+					.ToArray();
+
 			var res = allOrders
 					.OrderByDescending(x => x.DeliveryDate)
 					.ThenByDescending(x => x.CreationDate)
@@ -218,6 +226,62 @@ namespace CustomerOrdersApi.Library.Services
 				Orders = res,
 				OrdersCount = allOrders.Length
 			};
+		}
+
+		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(GetOrdersDto getOrdersDto, IUnitOfWork uow, DateTime dateAvailabilityRating)
+		{
+			var onlineOrdersInfo = new List<OrderDto>();
+			var ordersFromOnlineOrders =
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+					.ToLookup(x => x.OnlineOrderId);
+
+			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)
+			{
+				OrderDto onlineOrderInfo;
+				if(ordersFromOnlineOrdersGroup.Count() == 1)
+				{
+					var orderDto = ordersFromOnlineOrdersGroup.First();
+					onlineOrderInfo = new OrderDto
+					{
+						OnlineOrderId = orderDto.OnlineOrderId,
+						DeliveryDate = orderDto.DeliveryDate,
+						CreationDate = orderDto.CreationDate,
+						DeliveryAddress = orderDto.DeliveryAddress,
+						DeliverySchedule = orderDto.DeliverySchedule,
+						RatingValue = orderDto.RatingValue,
+						IsRatingAvailable = orderDto.IsRatingAvailable,
+						IsNeedPayment = false,
+						DeliveryPointId = orderDto.DeliveryPointId,
+						OrderSum = orderDto.OrderSum,
+						OrderStatus = orderDto.OrderStatus
+					};
+
+					onlineOrdersInfo.Add(onlineOrderInfo);
+				}
+				else
+				{
+					foreach(var orderDto in ordersFromOnlineOrdersGroup)
+					{
+						onlineOrderInfo = new OrderDto
+						{
+							OrderId = orderDto.OrderId,
+							DeliveryDate = orderDto.DeliveryDate,
+							CreationDate = orderDto.CreationDate,
+							DeliveryAddress = orderDto.DeliveryAddress,
+							DeliverySchedule = orderDto.DeliverySchedule,
+							RatingValue = orderDto.RatingValue,
+							IsRatingAvailable = orderDto.IsRatingAvailable,
+							IsNeedPayment = false,
+							DeliveryPointId = orderDto.DeliveryPointId,
+							OrderSum = orderDto.OrderSum,
+							OrderStatus = orderDto.OrderStatus
+						};
+						onlineOrdersInfo.Add(onlineOrderInfo);
+					}
+				}
+			}
+			
+			return onlineOrdersInfo;
 		}
 
 		public IEnumerable<OrderRatingReasonDto> GetOrderRatingReasons()

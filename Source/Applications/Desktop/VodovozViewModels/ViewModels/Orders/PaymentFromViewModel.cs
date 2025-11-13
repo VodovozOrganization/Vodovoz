@@ -2,54 +2,114 @@
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Settings.Orders;
-using Vodovoz.ViewModels.Organizations;
+using Vodovoz.EntityRepositories.Settings;
+using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class PaymentFromViewModel : EntityTabViewModelBase<PaymentFrom>, IAskSaveOnCloseViewModel
 	{
+		private string _organizationsCriterion;
+		private OnlinePaymentTypeOrganizationSettings _onlinePaymentTypeOrganizationSettings;
+
 		public PaymentFromViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IPaymentFromRepository paymentFromRepository,
-			IOrderSettings orderSettings,
-			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder)
+			IOrderOrganizationSettingsRepository orderOrganizationSettingsRepository,
+			AddOrRemoveIDomainObjectViewModel addOrRemoveIDomainObjectViewModel)
 			: base(uoWBuilder, uowFactory, commonServices)
 		{
-			if(paymentFromRepository is null)
-			{
-				throw new ArgumentNullException(nameof(paymentFromRepository));
-			}
+			OrganizationsViewModel =
+				addOrRemoveIDomainObjectViewModel ?? throw new ArgumentNullException(nameof(addOrRemoveIDomainObjectViewModel));
 
-			if(organizationViewModelEEVMBuilder is null)
-			{
-				throw new ArgumentNullException(nameof(organizationViewModelEEVMBuilder));
-			}
-
-			CanShowOrganization = true;
-			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
-			ValidationContext.ServiceContainer.AddService(typeof(IOrderSettings), orderSettings);
-
-			OrganizationViewModel = organizationViewModelEEVMBuilder
-				.SetUnitOfWork(UoW)
-				.SetViewModel(this)
-				.ForProperty(Entity, x => x.OrganizationForOnlinePayments)
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.UseViewModelDialog<OrganizationViewModel>()
-				.Finish();
+			Configure();
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 		public bool AskSaveOnClose => CanEdit;
-		public bool CanShowOrganization { get; }
-		public IEntityEntryViewModel OrganizationViewModel { get; }
+		public bool CanShowOrganizations { get; private set; }
+		public AddOrRemoveIDomainObjectViewModel OrganizationsViewModel { get; }
+
+		public string OrganizationsCriterion
+		{
+			get => _organizationsCriterion;
+			set => SetField(ref _organizationsCriterion, value);
+		}
+
+		protected override bool BeforeValidation()
+		{
+			if(Entity.Id != 0)
+			{
+				return true;
+			}
+
+			return CommonServices.ValidationService.Validate(_onlinePaymentTypeOrganizationSettings,
+				new ValidationContext(_onlinePaymentTypeOrganizationSettings));
+		}
+
+		protected override bool BeforeSave()
+		{
+			if(Entity.Id != 0)
+			{
+				return true;
+			}
+
+			_onlinePaymentTypeOrganizationSettings.CriterionForOrganization = OrganizationsCriterion;
+			return true;
+		}
+
+		private void InitializePaymentTypeOrganizationSettings()
+		{
+			_onlinePaymentTypeOrganizationSettings =
+				UoW.GetAll<OnlinePaymentTypeOrganizationSettings>()
+					.FirstOrDefault(s =>
+						s.PaymentFrom.Id == Entity.Id);
+
+			if(_onlinePaymentTypeOrganizationSettings is null)
+			{
+				_onlinePaymentTypeOrganizationSettings = new OnlinePaymentTypeOrganizationSettings
+				{
+					PaymentFrom = Entity
+				};
+				
+				UoW.Save(_onlinePaymentTypeOrganizationSettings);
+			}
+			
+			OrganizationsViewModel.Configure(
+				typeof(Organization),
+				CanEdit && Entity.Id == 0,
+				"Организации для подбора в заказе: ",
+				UoW,
+				parentViewModel: this,
+				_onlinePaymentTypeOrganizationSettings.Organizations);
+		}
+
+		private void Configure()
+		{
+			if(Entity.Id == 0)
+			{
+				CanShowOrganizations = true;
+				SetDefaultOrganizationCriterion();
+			}
+			else
+			{
+				OrganizationsCriterion = Entity.OrganizationSettingsCriterion;
+			}
+			
+			InitializePaymentTypeOrganizationSettings();
+		}
+
+		private void SetDefaultOrganizationCriterion()
+		{
+			OrganizationsCriterion = "Должны быть сохранены настройки для обмена с Модуль-кассой";
+		}
 	}
 }

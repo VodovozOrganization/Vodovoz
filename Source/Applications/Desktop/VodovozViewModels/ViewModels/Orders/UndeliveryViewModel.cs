@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
+		private readonly IRouteListService _routeListService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -73,7 +75,8 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService)
+			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
+			IRouteListService routeListService)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModels.Orders
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 
 		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false, bool isFromRouteListClosing = false)
@@ -133,11 +137,13 @@ namespace Vodovoz.ViewModels.Orders
 				TabName = Entity.Title;
 			}
 
-			UndeliveredOrderViewModel = _undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
+			UndeliveredOrderViewModel =
+				_undeliveredOrderViewModelFactory.CreateUndeliveredOrderViewModel(Entity, _scope, this, UoW);
 
 			UndeliveredOrderViewModel.SaveUndelivery += SaveUndelivery;
 
-			UndeliveryDiscussionsViewModel = _undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
+			UndeliveryDiscussionsViewModel = 
+				_undeliveryDiscussionsViewModelFactory.CreateUndeliveryDiscussionsViewModel(Entity, this, _scope, UoW);
 
 			CanEdit = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveredOrder)).CanUpdate;
 
@@ -242,9 +248,10 @@ namespace Vodovoz.ViewModels.Orders
 				return false;
 			}
 
-			if(Entity.Id == 0)
+			if(Entity.Id == 0 && !_isExternalUoW)
 			{
-				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
+				Entity.OldOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: 
+					!_isFromRouteListClosing);
 			}
 
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();

@@ -511,7 +511,7 @@ namespace Vodovoz.Core.Domain.Users.Settings
 
 			var notAvailableAnymore = CashSubdivisionSortingSettings
 				.Where(x => x.CashSubdivisionId != null
-					&& availableSubdvisionsIdsArray.Contains(x.CashSubdivisionId.Value))
+					&& !availableSubdvisionsIdsArray.Contains(x.CashSubdivisionId.Value))
 				.ToList();
 
 			// убираем кассы, к которым больше нет доступа

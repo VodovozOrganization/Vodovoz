@@ -12,6 +12,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.Factories
 {
@@ -35,7 +36,8 @@ namespace Vodovoz.ViewModels.Factories
 				scope.Resolve<IEmployeeJournalFactory>(),
 				scope.Resolve<IEmployeeRepository>(),
 				scope.Resolve<IGtkTabsOpener>(),
-				scope.Resolve<IRouteListItemRepository>()
+				scope.Resolve<IRouteListItemRepository>(),
+				scope.Resolve<IOrderContractUpdater>()
 				);
 		}
 	}

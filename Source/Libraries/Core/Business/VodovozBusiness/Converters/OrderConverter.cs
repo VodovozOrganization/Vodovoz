@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaxcomEdo.Contracts.Orders;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Converters
 {
@@ -12,23 +13,29 @@ namespace Vodovoz.Converters
 		private readonly IDeliveryPointConverter _deliveryPointConverter;
 		private readonly ICounterpartyContractConverter _counterpartyContractConverter;
 		private readonly IOrderItemConverter _orderItemConverter;
+		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 
 		public OrderConverter(
 			ICounterpartyConverter counterpartyConverter,
 			IDeliveryPointConverter deliveryPointConverter,
 			ICounterpartyContractConverter counterpartyContractConverter,
-			IOrderItemConverter orderItemConverter)
+			IOrderItemConverter orderItemConverter,
+			ICounterpartyEdoAccountController counterpartyEdoAccountController)
 		{
 			_counterpartyConverter = counterpartyConverter ?? throw new ArgumentNullException(nameof(counterpartyConverter));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			_counterpartyContractConverter =
 				counterpartyContractConverter ?? throw new ArgumentNullException(nameof(counterpartyContractConverter));
 			_orderItemConverter = orderItemConverter ?? throw new ArgumentNullException(nameof(orderItemConverter));
+			_counterpartyEdoAccountController = counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 		
 		public OrderInfoForEdo ConvertOrderToOrderInfoForEdo(Order order)
 		{
-			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(order.Client);
+			var counterpartyInfo =
+				_counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
+					order.Client,
+					_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id));
 			var deliveryPointInfo = _deliveryPointConverter.ConvertDeliveryPointToDeliveryPointInfoForEdo(order.DeliveryPoint);
 			var contractInfo = _counterpartyContractConverter.ConvertCounterpartyContractToCounterpartyContractInfoForEdo(
 				order.Contract, order.DeliveryDate.Value);

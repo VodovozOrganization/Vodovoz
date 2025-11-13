@@ -11,6 +11,7 @@ using TrueMark.Contracts;
 using TrueMark.Contracts.Documents;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -26,6 +27,7 @@ namespace Edo.Withdrawal
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
 		private readonly IGenericRepository<TrueMarkDocument> _trueMarkDocumentRepository;
 
 		public WithdrawalTaskCreatedHandler(
@@ -34,6 +36,7 @@ namespace Edo.Withdrawal
 			IUnitOfWorkFactory uowFactory,
 			ITrueMarkApiClient trueMarkApiClient,
 			IEdoDocflowRepository edoDocflowRepository,
+			ICounterpartyEdoAccountEntityController edoAccountEntityController,
 			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,6 +44,7 @@ namespace Edo.Withdrawal
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
+			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 			_trueMarkDocumentRepository = trueMarkDocumentRepository ?? throw new ArgumentNullException(nameof(trueMarkDocumentRepository));
 		}
 
@@ -91,12 +95,15 @@ namespace Edo.Withdrawal
 						$"Вывод из оборота невозможен");
 				}
 
-				if(client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+				var edoAccount =
+					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, order.Contract.Organization.Id);
+
+				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
 					throw new InvalidOperationException(
-						$"От клиента {client.Id} получено согласие на ЭДО и клиента зарегистрирован в ЧЗ. " +
-						$"Вывод из оборота невозможен");
+						$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
+						"Вывод из оборота невозможен");
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository

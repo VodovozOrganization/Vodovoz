@@ -84,10 +84,10 @@ namespace Vodovoz.Controllers
 			}
 		}
 		
-		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date)
+		public void RecalculateRouteListProfitabilitiesByDate(IUnitOfWork uow, DateTime date, CarModel carModel = null, FuelType fuelType = null)
 		{
 			var routeListsWithProfitabilities =
-				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date);
+				_routeListProfitabilityRepository.GetAllRouteListsWithProfitabilitiesByDate(uow, date, carModel, fuelType);
 
 			foreach(var routeList in routeListsWithProfitabilities)
 			{
@@ -233,6 +233,10 @@ namespace Vodovoz.Controllers
 					case CarTypeOfUse.Largus:
 						amortisationPerKm = nearestProfitabilityConstants.LargusAmortisationPerKm;
 						repairCostsPerKm = nearestProfitabilityConstants.LargusRepairCostPerKm;
+						break;
+					case CarTypeOfUse.Minivan:
+						amortisationPerKm = nearestProfitabilityConstants.MinivanAmortisationPerKm;
+						repairCostsPerKm = nearestProfitabilityConstants.MinivanRepairCostPerKm;
 						break;
 					case CarTypeOfUse.Truck:
 						amortisationPerKm = nearestProfitabilityConstants.TruckAmortisationPerKm;

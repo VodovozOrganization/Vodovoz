@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
 using Sms.Internal.Client.Framework;
@@ -42,10 +42,9 @@ namespace Vodovoz
 				.AddService<IDistanceCalculator>(sp => sp.GetService<RouteGeometryCalculator>(), serviceLifetime)
 				.AddService<IRouteListProfitabilityFactory, RouteListProfitabilityFactory>(serviceLifetime)
 				.AddService<IFastPaymentSender, FastPaymentSender>(serviceLifetime)
-				.AddService<IOrganizationProvider, Stage2OrganizationProvider>(serviceLifetime)
 				.AddService<ISmsClientChannelFactory, SmsClientChannelFactory>(serviceLifetime)
 				.AddService<IDeliveryPriceCalculator, DeliveryPriceCalculator>(serviceLifetime)
-				.AddService<FastDeliveryHandler>(serviceLifetime)
+				.AddService<IFastDeliveryHandler, FastDeliveryHandler>(serviceLifetime)
 				.AddService<IFastDeliveryValidator, FastDeliveryValidator>(serviceLifetime)
 				.AddService<ICallTaskWorker, CallTaskWorker>(serviceLifetime)
 				.AddService<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance(), serviceLifetime)

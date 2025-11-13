@@ -24,7 +24,8 @@ namespace Vodovoz.Core.Domain.Clients
 			NominativePlural = "контрагенты",
 			Nominative = "контрагент",
 			Accusative = "контрагента",
-			Genitive = "контрагента"
+			Genitive = "контрагента",
+			GenitivePlural = "контрагентов"
 		)
 	]
 	[HistoryTrace]
@@ -33,7 +34,6 @@ namespace Vodovoz.Core.Domain.Clients
 	{
 		private int _id;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
-		private ConsentForEdoStatus _consentForEdoStatus;
 		private bool _isNewEdoProcessing = true;
 
 		private bool _roboatsExclude;
@@ -43,7 +43,6 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _isNotSendDocumentsByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
-		private string _personalAccountIdInEdo;
 		private string _specialContractName;
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
@@ -111,12 +110,15 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
+		private RevenueStatus? _revenueStatus;
+		private DateTime? _revenueStatusDate;
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 		private IObservableList<EmailEntity> _emails = new ObservableList<EmailEntity>();
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<SpecialNomenclature> _specialNomenclatures = new ObservableList<SpecialNomenclature>();
+		private IObservableList<CounterpartyEdoAccountEntity> _counterpartyEdoAccounts = new ObservableList<CounterpartyEdoAccountEntity>();
 
 		/// <summary>
 		/// Идентификатор<br/>
@@ -133,16 +135,6 @@ namespace Vodovoz.Core.Domain.Clients
 					UpdateFileInformations();
 				}
 			}
-		}
-
-		/// <summary>
-		/// Согласие клиента на ЭДО
-		/// </summary>
-		[Display(Name = "Согласие клиента на ЭДО")]
-		public virtual ConsentForEdoStatus ConsentForEdoStatus
-		{
-			get => _consentForEdoStatus;
-			set => SetField(ref _consentForEdoStatus, value);
 		}
 
 		/// <summary>
@@ -308,6 +300,26 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isLiquidating;
 			set => SetField(ref _isLiquidating, value);
+		}
+		
+		/// <summary>
+		/// Статус в налоговой
+		/// </summary>
+		[Display(Name = "Статус в налоговой")]
+		public virtual RevenueStatus? RevenueStatus
+		{
+			get => _revenueStatus;
+			set => SetField(ref _revenueStatus, value);
+		}
+		
+		/// <summary>
+		/// Дата статуса в налоговой
+		/// </summary>
+		[Display(Name = "Дата статуса в налоговой")]
+		public virtual DateTime? RevenueStatusDate
+		{
+			get => _revenueStatusDate;
+			set => SetField(ref _revenueStatusDate, value);
 		}
 
 		/// <summary>
@@ -797,22 +809,12 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _needSendBillByEdo;
 			set => SetField(ref _needSendBillByEdo, value);
 		}
-
-		/// <summary>
-		/// Код личного кабинета в ЭДО
-		/// </summary>
-		[Display(Name = "Код личного кабинета в ЭДО")]
-		public virtual string PersonalAccountIdInEdo
+		
+		[Display(Name = "ЭДО аккаунты контрагента")]
+		public virtual IObservableList<CounterpartyEdoAccountEntity> CounterpartyEdoAccounts
 		{
-			get => _personalAccountIdInEdo;
-			set
-			{
-				var cleanedId = value == null
-					? null
-					: Regex.Replace(value, @"\s+", string.Empty);
-
-				SetField(ref _personalAccountIdInEdo, cleanedId?.ToUpper());
-			}
+			get => _counterpartyEdoAccounts;
+			set => SetField(ref _counterpartyEdoAccounts, value);
 		}
 
 		#endregion ЭДО и Честный знак
@@ -1005,6 +1007,17 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
 		}
+		
+		public virtual CounterpartyEdoAccountEntity DefaultEdoAccount(int organizationId)
+		{
+			return CounterpartyEdoAccounts
+				.FirstOrDefault(x => x.OrganizationId == organizationId && x.IsDefault);
+		}
+
+		public virtual bool LegalAndHasAnyDefaultAccountAgreedForEdo =>
+			PersonType == PersonType.legal
+			&& CounterpartyEdoAccounts.Any(
+				x => x.IsDefault && x.ConsentForEdoStatus == ConsentForEdoStatus.Agree);
 
 		/// <summary>
 		/// Обновление информации о прикрепленных файлах

@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
@@ -21,7 +23,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 	[Appellative(Nominative = "Отчет о сканировании водителями маркировки ЧЗ")]
 	public partial class ProductCodesScanningReport
 	{
-		public ProductCodesScanningReport(DateTime createDateFrom, DateTime createDateTo, IList<Row> rows)
+		public ProductCodesScanningReport(
+			DateTime createDateFrom,
+			DateTime createDateTo,
+			IList<Row> rows)
 		{
 			CreateDateFrom = createDateFrom;
 			CreateDateTo = createDateTo;
@@ -39,62 +44,78 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 
 		public IList<Row> Rows { get; set; }
 
-		public static async Task<ProductCodesScanningReport> GenerateAsync(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
+		public static async Task<ProductCodesScanningReport> GenerateAsync(
+			IUnitOfWork unitOfWork, IOrganizationSettings organizationSettings, DateTime createDateFrom, DateTime createDateTo)
 		{
-			var report = await Task.Run(() => Generate(unitOfWork, createDateFrom, createDateTo));
+			var report = await Task.Run(() => Generate(unitOfWork, organizationSettings, createDateFrom, createDateTo));
 			return report;
 		}
 
-		public static ProductCodesScanningReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
+		public static ProductCodesScanningReport Generate(
+			IUnitOfWork unitOfWork, IOrganizationSettings organizationSettings, DateTime createDateFrom, DateTime createDateTo)
 		{
-			var scannedCodesData =
-				(from routeList in unitOfWork.Session.Query<RouteList>()
-				 join routeListItem in unitOfWork.Session.Query<RouteListItem>() on routeList.Id equals routeListItem.RouteList.Id
-				 join order in unitOfWork.Session.Query<Domain.Orders.Order>() on routeListItem.Order.Id equals order.Id
-				 join client in unitOfWork.Session.Query<Domain.Client.Counterparty>() on order.Client.Id equals client.Id
-				 join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
-				 join sd in unitOfWork.Session.Query<Subdivision>() on driver.Subdivision.Id equals sd.Id into subdivisions
-				 from subdivision in subdivisions.DefaultIfEmpty()
-				 join gg in unitOfWork.Session.Query<GeoGroup>() on subdivision.GeographicGroup.Id equals gg.Id into geoGroups
-				 from geoGroup in geoGroups.DefaultIfEmpty()
-				 join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals sc.RouteListItem.Id into scannedCodes
-				 from scannedCode in scannedCodes.DefaultIfEmpty()
-				 join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
-				 from identificationCode in identificationCodes.DefaultIfEmpty()
+			var scannedCodesData = 
+				(
+					from routeList in unitOfWork.Session.Query<RouteList>()
+					join routeListItem in unitOfWork.Session.Query<RouteListItem>() on routeList.Id equals routeListItem.RouteList.Id
+					join order in unitOfWork.Session.Query<Domain.Orders.Order>() on routeListItem.Order.Id equals order.Id
+					join contract in unitOfWork.Session.Query<CounterpartyContract>()
+						on order.Contract.Id equals contract.Id
+					join client in unitOfWork.Session.Query<Domain.Client.Counterparty>() on order.Client.Id equals client.Id
+					join driver in unitOfWork.Session.Query<Employee>() on routeList.Driver.Id equals driver.Id
+					join sd in unitOfWork.Session.Query<Subdivision>() on driver.Subdivision.Id equals sd.Id into subdivisions
+					from subdivision in subdivisions.DefaultIfEmpty()
+					join gg in unitOfWork.Session.Query<GeoGroup>() on subdivision.GeographicGroup.Id equals gg.Id into geoGroups
+					from geoGroup in geoGroups.DefaultIfEmpty()
+					join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals sc.RouteListItem.Id into scannedCodes
+					from scannedCode in scannedCodes.DefaultIfEmpty()
+					join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
+					from identificationCode in identificationCodes.DefaultIfEmpty()
+					join defaultEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }
+						equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+					into edoAccountsByOrder
+					from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+					join defaultVodovozEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)organizationSettings.VodovozOrganizationId, c = true }
+						equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 
-				 let markedProductsInOrderCount =
-					 (int?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+					let markedProductsInOrderCount =
+						(int?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
 							join Nomenclature in unitOfWork.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals Nomenclature.Id
 							where
-							 orderItem.Order.Id == order.Id
-							 && Nomenclature.IsAccountableInTrueMark
+								orderItem.Order.Id == order.Id
+								&& Nomenclature.IsAccountableInTrueMark
 							select orderItem.ActualCount)
 							.Sum() ?? 0
 
-				 where
-					 routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
-					 && routeListItem.Status == RouteListItemStatus.Completed
-					 && !(order.PaymentType == Domain.Client.PaymentType.Cashless
-						 && client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-						 && client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
-					 && markedProductsInOrderCount > 0
+					where
+						routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
+						&& routeListItem.Status == RouteListItemStatus.Completed
+						&& !(order.PaymentType == Domain.Client.PaymentType.Cashless
+							&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+								|| defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+							&& client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+						&& markedProductsInOrderCount > 0
 
-				 select new ScannedCodeInfo
-				 {
-					 DriverId = driver.Id,
-					 DriverFIO = driver.FullName,
-					 CarOwnType = driver.DriverOfCarOwnType,
-					 DriverSubdivisionGeoGroup = geoGroup.Name,
-					 OrderId = order.Id,
-					 MarkedProdictsInOrderCount = markedProductsInOrderCount,
-					 ScannedCodeData = scannedCode == null ? default : new ScannedCodeData
-					 {
-						 Problem = scannedCode.Problem,
-						 DuplicatesCount = scannedCode.DuplicatesCount,
-						 IsInvalid = identificationCode == null ? false : identificationCode.IsInvalid
-					 }
-				 })
-				.ToList();
+					select new ScannedCodeInfo
+					{
+						 DriverId = driver.Id,
+						 DriverFIO = driver.FullName,
+						 CarOwnType = driver.DriverOfCarOwnType,
+						 DriverSubdivisionGeoGroup = geoGroup.Name,
+						 OrderId = order.Id,
+						 MarkedProdictsInOrderCount = markedProductsInOrderCount,
+						 ScannedCodeData = scannedCode == null
+							? default
+							: new ScannedCodeData
+								{
+									 Problem = scannedCode.Problem,
+									 DuplicatesCount = scannedCode.DuplicatesCount,
+									 IsInvalid = identificationCode == null ? false : identificationCode.IsInvalid
+								}
+					})
+					.ToList();
 
 			var groupedByDriverCodesData = scannedCodesData
 				.GroupBy(c => new { c.DriverId, c.DriverFIO, c.CarOwnType, c.DriverSubdivisionGeoGroup })

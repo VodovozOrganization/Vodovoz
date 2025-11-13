@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly bool _canViewReportSalesWithCashReceipts;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
@@ -70,7 +72,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports);
+			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports);
+			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -86,10 +89,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
-			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanGetContactsInSalesReports);
+			_canSeePhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
 
 			SetupFilter();
 
@@ -158,19 +161,119 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative && CanAccessSalesReports);
+			var onlyCurrentEmployee = _userIsSalesRepresentative || !CanAccessSalesReports;
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				onlyCurrentEmployee ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
 				{ "Самовывоз", "is_self_delivery" },
 			};
 
+			if(_canViewReportSalesWithCashReceipts)
+			{
+				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
+			}
+			
+			additionalParams.Add("Только заказы в МЛ", "only_orders_from_route_lists");
+
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+			_filterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
+		}
+
+		private void CheckAndRefreshSelectedGroupsForCashReceiptOnly()
+		{
+			if(!(_filterViewModel.ActiveFilter is IncludeExcludeBoolParamsFilter))
+			{
+				return;
+			}
+
+			var parameters = FilterViewModel.GetReportParametersSet(out var sb);
+
+			if(!parameters.TryGetValue("only_with_cash_receipts", out object value))
+			{
+				return;
+			}
+
+			if(!(value is bool included) || !included)
+			{
+				return;
+			}
+
+			try
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+
+				_leftRightListViewModelFactory.SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(GroupingSelectViewModel);
+
+				var leftGroupingItems = GroupingSelectViewModel.LeftItems;
+
+				var organizationGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Organization);
+
+				var nomenclatureGroup = leftGroupingItems
+					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
+				
+				//Сначала организация, потом номенклатура
+
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != organizationGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+				
+				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
+				{
+					if(item != nomenclatureGroup)
+					{
+						continue;
+					}
+
+					if(!GroupingSelectViewModel.RightItems.Contains(item))
+					{
+						GroupingSelectViewModel.RightItems.Add(item);
+					}
+
+					if(GroupingSelectViewModel.LeftItems.Contains(item))
+					{
+						GroupingSelectViewModel.LeftItems.Remove(item);
+					}
+				}
+			}
+			finally
+			{
+				GroupingSelectViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
+			}
+		}
+
+		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
+		{
+			CheckAndRefreshSelectedGroupsForCashReceiptOnly();
 		}
 
 		private void SetupGroupings()
 		{
 			_groupViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
+
+			_groupViewModel.RightItems.ContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
 
 		private void ShowInfoWindow()
@@ -184,9 +287,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				$"\t'{OrderStatus.Shipped.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'\n" +
 				$"\t'{OrderStatus.Closed.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' и заказ - самовывоз с оплатой после отгрузки.\n" +
 				"В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.\n" +
 				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\n\n" +
+				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
 				"<b>2.</b> Подсчет тары ведется следующим образом:\n" +
 				"\tПлановое значение - сумма бутылей на возврат попавших в отчет заказов;\n" +
 				"\tФактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа.\n" +
@@ -199,7 +302,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				$"\t\t <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или " +
 				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
 				$"или '{RouteListStatus.OnClosing.GetEnumTitle()}'.\n" +
-				$"По умолчаению используется группировка Тип номенклатуры | Номенклатура\n\n" +
+				$"По умолчанию используется группировка Тип номенклатуры | Номенклатура\n\n" +
 				"Детальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
@@ -246,19 +349,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate?.ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("end_date", EndDate?.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
-
-			if(_userIsSalesRepresentative || !CanAccessSalesReports)
-			{
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
-
-				_parameters.Add("Employee_include", new[] { currentEmployee.Id.ToString() });
-				_parameters.Add("Employee_exclude", new[] { "0" });
-			}
+			_parameters.Add("filters", sb.ToString());
 
 			var groupParameters = GetGroupingParameters();
 

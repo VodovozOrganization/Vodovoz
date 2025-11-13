@@ -107,15 +107,13 @@ namespace Vodovoz
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			var userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
+			var warehouseViewModelBuilderFactory = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope);
 
-			var sourceWarehouseViewModelBuilderFactory = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope);
-			var targetWarehouseViewModelBuilderFactory = new LegacyEEVMBuilderFactory<IncomingWater>(this, Entity, UoW, NavigationManager, _lifetimeScope);
-
-			SourceWarehouseViewModel = sourceWarehouseViewModelBuilderFactory
+			var sourceWarehouseViewModel = warehouseViewModelBuilderFactory
 				.ForProperty(x => x.WriteOffWarehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
 				{
@@ -124,7 +122,7 @@ namespace Vodovoz
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
-			DestinationWarehouseViewModel = sourceWarehouseViewModelBuilderFactory
+			var destinationWarehouseViewModel = warehouseViewModelBuilderFactory
 				.ForProperty(x => x.IncomingWarehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
 				{
@@ -133,8 +131,11 @@ namespace Vodovoz
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
-			SourceWarehouseViewModel.IsEditable = !userHasOnlyAccessToWarehouseAndComplaints;
-			DestinationWarehouseViewModel.IsEditable = !userHasOnlyAccessToWarehouseAndComplaints;
+			sourceWarehouseViewModel.CanViewEntity = !userHasOnlyAccessToWarehouseAndComplaints;
+			destinationWarehouseViewModel.CanViewEntity = !userHasOnlyAccessToWarehouseAndComplaints;
+
+			SourceWarehouseViewModel = sourceWarehouseViewModel;
+			DestinationWarehouseViewModel = destinationWarehouseViewModel;
 
 			entityentrySourceWarehouse.ViewModel = SourceWarehouseViewModel;
 			entityentryDestinationWarehouse.ViewModel = DestinationWarehouseViewModel;

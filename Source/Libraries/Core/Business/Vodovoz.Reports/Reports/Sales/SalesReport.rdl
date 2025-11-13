@@ -1,7 +1,9 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
@@ -114,7 +116,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -140,7 +143,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -166,7 +170,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -337,7 +342,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=First({criterions}, "Criterions")</Value>
+                      <Value>={?filters}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -505,7 +510,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -534,8 +539,11 @@
     T.nomen_group_level_1_id,
     T.nomen_group_level_2_id,
     T.nomen_group_level_3_id,
+    sales_manager_name,
+    order_author_name,
     counterparty_classification,
     promotional_set
+   
 FROM
     (SELECT
          counterparty.name as counterparty,
@@ -551,6 +559,7 @@ FROM
          cst.name AS counterparty_subtype,
          cst.id AS counterparty_subtype_id,
          org.name AS organization,
+         counterparty.sales_manager_id as sales_manager_id,
          delivery_points.compiled_address as delivery_point,
          orders.id as order_id,
          CASE WHEN orders.payment_type = 'Cash' THEN "Наличная"
@@ -594,7 +603,9 @@ FROM
          IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
          IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
          IFNULL(CONCAT(cc.classification_by_bottles_count, cc.classification_by_orders_count), 'Новый') as counterparty_classification,
-         IFNULL(ps.name, ' Без промонабора')  as promotional_set
+         IFNULL(ps.name, ' Без промонабора')  as promotional_set,
+         IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name,
+         IFNULL(CONCAT(e.last_name,  ' ', e.name, ' ', e.patronymic), ' Без автора заказа')  as order_author_name
          
      FROM
          order_items
@@ -619,9 +630,11 @@ FROM
              LEFT JOIN
          organizations org ON counterparty_contract.organization_id = org.id
              LEFT JOIN
-         employees ON orders.author_employee_id = employees.id
+         employees e ON orders.author_employee_id = e.id
+             LEFT JOIN
+         employees e_manager ON counterparty.sales_manager_id = e_manager.id
          	 LEFT JOIN
-         subdivisions s ON employees.subdivision_id = s.id       	 
+         subdivisions s ON e.subdivision_id = s.id       	 
              LEFT JOIN
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
@@ -678,17 +691,14 @@ FROM
 					LIMIT 1)
 		    	LEFT JOIN
 		    promotional_sets ps ON ps.id = order_items.promotional_set_id
+         	 LEFT JOIN
+     	 route_lists rl ON rla.route_list_id = rl.id
+          	 LEFT JOIN
+	 cars c ON rl.car_id = c.id
+          	 LEFT JOIN
+     	 car_models cm ON c.model_id= cm.id
      WHERE
-         (order_status = 'Accepted'
-             OR order_status = 'InTravelList'
-             OR order_status = 'OnLoading'
-             OR order_status = 'OnTheWay'
-             OR order_status = 'Shipped'
-             OR order_status = 'UnloadingOnStock'
-             OR order_status = 'Closed'
-             OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
-             )
-       AND (delivery_date &gt;= @start_date
+        (delivery_date &gt;= @start_date
          AND delivery_date &lt;= @end_date)
        AND !orders.is_contract_closer
        AND (
@@ -730,6 +740,8 @@ FROM
 				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
          )
        AND (
+             (0 IN (@Subdivision_include) OR (e.subdivision_id IN (@Subdivision_include)))
+				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
              (0 IN (@Recomendation_include) OR (order_items.recomendation_id IN (@Recomendation_include)))
 				AND (order_items.recomendation_id IS NULL OR NOT (order_items.recomendation_id IN (@Recomendation_exclude)))
          )
@@ -738,8 +750,12 @@ FROM
 				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
          )
        AND (
-             (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
-				AND NOT (orders.author_employee_id IN (@Employee_exclude))
+             (0 IN (@OrderAuthor_include) OR (orders.author_employee_id IN (@OrderAuthor_include)))
+				AND NOT (orders.author_employee_id IN (@OrderAuthor_exclude))
+         )
+       AND (
+             (0 IN (@SalesManager_include) OR (counterparty.sales_manager_id IN (@SalesManager_include)))
+                AND (counterparty.sales_manager_id IS NULL OR NOT (counterparty.sales_manager_id IN (@SalesManager_exclude)))
          )
        AND (
              (0 IN (@GeoGroup_include) OR gg.id IN (@GeoGroup_include))
@@ -787,33 +803,10 @@ FROM
              (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
 				AND (NOT (nomenclature_groups.id IN (@ProductGroup_exclude)) OR nomenclature_groups.id IS NULL)
          )
-       AND (
-            (
-            (
-              (
-                (
-                  orders.order_status IN (@OrderStatus_include)
-                  AND
-                  orders.order_status != 'WaitForPayment'
-                )
-                OR
-                (
-                  orders.order_status = 'WaitForPayment' 
-                  AND 'WaitForPayment' IN (@OrderStatus_include) 
-                  AND self_delivery 
-                  AND pay_after_shipment
-                )
-              )
-              AND '0' IN (@OrderStatus_exclude) 
-            )
-            OR
-            (orders.order_status NOT IN (@OrderStatus_exclude) AND '0' IN (@OrderStatus_include))
-          )
-	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
-	    )
-       AND (
-       	     ('0' IN (@OrderStatus_include) OR (orders.order_status IN (@OrderStatus_include)))
-       	     	AND NOT (orders.order_status IN (@OrderStatus_exclude))
+       AND 
+	       (
+             ('0' IN (@OrderStatus_include) OR orders.order_status IN (@OrderStatus_include))
+				AND ('0' IN (@OrderStatus_exclude) OR orders.order_status NOT IN (@OrderStatus_exclude))
          )
        AND (
        	     (
@@ -843,13 +836,48 @@ FROM
        	     	AND NOT (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
        	     OR ('New' IN (@CounterpartyCompositeClassification_exclude) AND (ISNULL(cc.classification_by_bottles_count) OR ISNULL(cc.classification_by_orders_count)))
        	     )
-       	     AND (@is_self_delivery IS NULL OR orders.self_delivery = @is_self_delivery)
-         )
+       	   )
+       AND (@is_self_delivery IS NULL OR orders.self_delivery = @is_self_delivery)
+       AND (
+    		 @only_with_cash_receipts IS NULL
+    		 OR (
+   	    		 	@only_with_cash_receipts = TRUE
+   	    			AND EXISTS
+		       	    (
+		       	     	select efd.id from edo_fiscal_documents efd 
+						join edo_tasks et on efd.receipt_edo_task_id = et.id
+						join edo_customer_requests ecr on ecr.order_task_id = et.id
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
+						and ecr.order_id = orders.id
+					)
+				)
+			OR (
+   	    		 	@only_with_cash_receipts = FALSE
+   	    			AND NOT EXISTS
+		       	    (
+		       	     	select efd.id from edo_fiscal_documents efd 
+						join edo_tasks et on efd.receipt_edo_task_id = et.id
+						join edo_customer_requests ecr on ecr.order_task_id = et.id
+						where efd.status in ('WaitingForCallBack','Printed','Completed')
+						and ecr.order_id = orders.id
+					)
+				)
+     	)
+     	AND (
+     		@only_orders_from_route_lists IS NULL
+     		OR (
+     			@only_orders_from_route_lists = TRUE
+     			AND	rla.id is not null AND cm.car_type_of_use != 'Truck'
+ 		)
+     		OR (
+     			@only_orders_from_route_lists = FALSE
+     			AND	rla.id is null
+     		)
+ 	)
      GROUP BY order_items.id
     ) as T
 GROUP BY T.order_items_id
-;
-</CommandText>
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -887,11 +915,17 @@ GROUP BY T.order_items_id
           <QueryParameter Name="Counterparty_exclude">
             <Value>=Parameters!Counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>=Parameters!Employee_include</Value>
+          <QueryParameter Name="OrderAuthor_include">
+            <Value>=Parameters!OrderAuthor_include</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>=Parameters!Employee_exclude</Value>
+          <QueryParameter Name="OrderAuthor_exclude">
+            <Value>=Parameters!OrderAuthor_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="Subdivision_include">
             <Value>=Parameters!Subdivision_include</Value>
@@ -962,6 +996,12 @@ GROUP BY T.order_items_id
           <QueryParameter Name="is_self_delivery">
             <Value>={?is_self_delivery}</Value>
           </QueryParameter>
+          <QueryParameter Name="only_with_cash_receipts">
+            <Value>={?only_with_cash_receipts}</Value>
+          </QueryParameter>
+          <QueryParameter Name="only_orders_from_route_lists">
+            <Value>={?only_orders_from_route_lists}</Value>
+          </QueryParameter>
           <QueryParameter Name="Recomendation_include">
             <Value>=Parameters!Recomendation_include</Value>
           </QueryParameter>
@@ -970,7 +1010,7 @@ GROUP BY T.order_items_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature_name">
           <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1075,6 +1115,8 @@ GROUP BY T.order_items_id
           <DataField>promotional_set</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="sales_manager_name">
+          <DataField>sales_manager_name</DataField>
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
@@ -1545,6 +1587,10 @@ FROM
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="order_author_name">
+          <DataField>order_author_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
@@ -1618,11 +1664,11 @@ FROM
           <QueryParameter Name="Subdivision_exclude">
             <Value>={?Subdivision_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_include">
-            <Value>={?Employee_include}</Value>
+          <QueryParameter Name="OrderAuthor_include">
+            <Value>={?OrderAuthor_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="Employee_exclude">
-            <Value>={?Employee_exclude}</Value>
+          <QueryParameter Name="OrderAuthor_exclude">
+            <Value>={?OrderAuthor_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="GeoGroup_include">
             <Value>={?GeoGroup_include}</Value>
@@ -1711,7 +1757,8 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString></ConnectString>
+        <ConnectString>
+        </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -1722,280 +1769,336 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="NomenclatureCategory_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="NomenclatureCategory_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="DiscountReason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="DiscountReason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_include">
+    <ReportParameter Name="OrderAuthor_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
-    <ReportParameter Name="Employee_exclude">
+    <ReportParameter Name="OrderAuthor_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="Subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="GeoGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="GeoGroup_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PromotionalSet_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PromotionalSet_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="ProductGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="ProductGroup_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentByTerminalSource_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentByTerminalSource_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentFrom_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentFrom_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="grouping_title">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="order_ids">
       <DataType>Integer</DataType>
@@ -2008,28 +2111,55 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyCompositeClassification_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyCompositeClassification_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="is_self_delivery">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="only_with_cash_receipts">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="only_orders_from_route_lists">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="filters">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
     <ReportParameter Name="Recomendation_include">
       <DataType>Integer</DataType>

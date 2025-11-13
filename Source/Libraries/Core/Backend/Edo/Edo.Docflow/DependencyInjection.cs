@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Vodovoz.Core.Domain.Controllers;
 
 namespace Edo.Documents
 {
@@ -18,6 +19,7 @@ namespace Edo.Documents
 			services.TryAddScoped<DocflowHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
 			services.TryAddScoped<TransferOrderUpdInfoFactory>();
+			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;
 		}

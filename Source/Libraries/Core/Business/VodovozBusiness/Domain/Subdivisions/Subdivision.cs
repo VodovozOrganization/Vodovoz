@@ -24,7 +24,7 @@ namespace Vodovoz
 		GenitivePlural = "подразделений")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Subdivision : SubdivisionEntity, IValidatableObject, INamed, IArchivable
+	public class Subdivision : SubdivisionEntity, IValidatableObject, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
 		private string _shortName;

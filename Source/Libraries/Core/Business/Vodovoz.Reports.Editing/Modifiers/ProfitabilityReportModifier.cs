@@ -12,6 +12,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private const string _tableName = "TableSales";
 
 		private const string _itemDataName = "TextboxItemData";
+		private const string _marginPercentTextboxName = "TextboxMarginPercent";
 
 		private const string _groupLevel1Name = "group1";
 		private const string _groupLevel2Name = "group2";
@@ -28,14 +29,20 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		private readonly ExpressionRowProvider _expressionRowProvider;
 		private readonly SourceRowProvider _sourceRowProvider;
 
+		private bool _isGroupingByRouteListOnly;
+
 		public ProfitabilityReportModifier()
 		{
 			_expressionRowProvider = new FooterExpressionRowProvider();
 			_sourceRowProvider = new DetailsSourceRowProvider();
 		}
 
-		public void Setup(IEnumerable<GroupingType> groupings, bool isShowRouteListInfo)
+		public static int NoMarginPercentValue = -999999;
+
+		public void Setup(IEnumerable<GroupingType> groupings, bool isGroupingByRouteListOnly)
 		{
+			_isGroupingByRouteListOnly = isGroupingByRouteListOnly;
+
 			var groupingActions = GetGroupingActions(groupings);
 			foreach (var action in groupingActions)
 			{
@@ -54,18 +61,33 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			var removeFooterAction = new RemoveFooter(_tableName);
 			AddAction(removeFooterAction);
 
-			if(!isShowRouteListInfo)
+			if(_isGroupingByRouteListOnly)
 			{
-				var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
-				AddAction(setColumnWidthAction);
-
-				var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
-				AddAction(removeAutoTypeColumn);
-
-				var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
-				AddAction(removeAutoOwnerTypeColumn);
+				AddAction(GetModifyMarginPercenTexboxAction());
+				return;
 			}
+
+			var setColumnWidthAction = new SetColumnWidth(_tableName, _itemDataHeaderTextBox, _itemDataColumnIncreasedWidth);
+			AddAction(setColumnWidthAction);
+
+			var removeAutoTypeColumn = new RemoveColumn(_tableName, _autoTypeHeaderTextBox);
+			AddAction(removeAutoTypeColumn);
+
+			var removeAutoOwnerTypeColumn = new RemoveColumn(_tableName, _autoOwnerTypeHeaderTextBox);
+			AddAction(removeAutoOwnerTypeColumn);
 		}
+
+		private ModifierAction GetModifyMarginPercenTexboxAction() =>
+			new FindAndModifyTextbox(
+					$"{_marginPercentTextboxName}_group1",
+					textbox =>
+					{
+						textbox.Value =
+							"=Round(Iif(Sum({total_price})=0,"
+							+ NoMarginPercentValue +
+							", Sum({profitability})*100/Sum({total_price})), 2)";
+					});
+
 
 		private IEnumerable<ModifierAction> GetGroupingActions(IEnumerable<GroupingType> groupings)
 		{
@@ -121,7 +143,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 
 			NewTableGroupWithCellsFromDetails groupModifyAction;
 
-			if(groupingType == GroupingType.RouteList && groupsCount == 1)
+			if(_isGroupingByRouteListOnly)
 			{
 				groupModifyAction = new NewTableGroupWithCellsFromDetails(
 					_tableName, 
@@ -225,6 +247,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.Organization: return "={organization}";
 				case GroupingType.CounterpartyClassification: return "={counterparty_classification}";
 				case GroupingType.PromotionalSet: return "={promotional_set}";
+				case GroupingType.CounterpartyManager: return "={sales_manager_name}";
+				case GroupingType.OrderAuthor: return "={order_author_name}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}
@@ -249,6 +273,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 				case GroupingType.Organization: return "{organization}";
 				case GroupingType.CounterpartyClassification: return "{counterparty_classification}";
 				case GroupingType.PromotionalSet: return "{promotional_set}";
+				case GroupingType.CounterpartyManager: return "{sales_manager_name}";
+				case GroupingType.OrderAuthor: return "{order_author_name}";
 				default:
 					throw new NotSupportedException("Неизвестная группировка");
 			}

@@ -1,4 +1,5 @@
-﻿using QS.Project.Filter;
+﻿using QS.Banks.Domain;
+using QS.Project.Filter;
 
 namespace Vodovoz.ViewModels.Organizations
 {
@@ -6,6 +7,7 @@ namespace Vodovoz.ViewModels.Organizations
 	{
 		private int? _restrictOrganizationId;
 		private int? _restrictCounterpartyId;
+		private Bank _bank;
 
 		public int? RestrictOrganizationId
 		{
@@ -17,6 +19,12 @@ namespace Vodovoz.ViewModels.Organizations
 		{
 			get => _restrictCounterpartyId;
 			set => UpdateFilterField(ref _restrictCounterpartyId, value);
+		}
+		
+		public Bank Bank
+		{
+			get => _bank;
+			set => UpdateFilterField(ref _bank, value);
 		}
 	}
 }

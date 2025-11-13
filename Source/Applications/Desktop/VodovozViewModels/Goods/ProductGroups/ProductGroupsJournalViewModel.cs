@@ -32,7 +32,6 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		private readonly HierarchicalChunkLinqLoader<ProductGroup, ProductGroupsJournalNode> _hierarchicalChunkLinqLoader;
 		private readonly Type[] _domainObjectsTypes;
 		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
-		private readonly ProductGroupsJournalFilterViewModel _filter;
 		private readonly IInteractiveService _interactiveService;
 		private readonly INavigationManager _navigationManager;
 		private readonly ICommonServices _commonServices;
@@ -56,14 +55,15 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				filter.SetAndRefilterAtOnce(filterAction);
 			}
 
-			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_currentPermissionService = _commonServices.CurrentPermissionService;
 
-			JournalFilter = _filter;
-			_filter.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = Filter;
+			Filter.OnFiltered += OnFilterViewModelFiltered;
+			Filter.PropertyChanged += OnFilterPropertyChanged;
 
 			Title = "Журнал групп товаров";
 
@@ -100,8 +100,9 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
+		public ProductGroupsJournalFilterViewModel Filter { get; }
 
-		public bool IsGroupSelectionMode => _filter.IsGroupSelectionMode;
+		public bool IsGroupSelectionMode => Filter.IsGroupSelectionMode;
 
 		private void InitializePermissionsMatrix()
 		{
@@ -113,7 +114,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		private void UpdateGroupAndNomenclatureNodes(IUnitOfWork unitOfWork)
 		{
-			var searchString = _filter.SqlSearchString;
+			var searchString = Filter.SqlSearchString;
 
 			_groupNodes =
 				(from productGroup in unitOfWork.GetAll<ProductGroup>()
@@ -121,7 +122,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				 (string.IsNullOrWhiteSpace(searchString)
 					 || productGroup.Name.ToLower().Like(searchString)
 					 || productGroup.Id.ToString().Like(searchString))
-				 && (!_filter.IsHideArchived || !productGroup.IsArchive)
+				 && (!Filter.IsHideArchived || !productGroup.IsArchive)
 				 orderby productGroup.Id
 				 select new ProductGroupsJournalNode
 				 {
@@ -139,7 +140,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 				 (string.IsNullOrWhiteSpace(searchString)
 					 || nomenclature.Name.ToLower().Like(searchString)
 					 || nomenclature.Id.ToString().Like(searchString))
-				 && (!_filter.IsHideArchived || !nomenclature.IsArchive)
+				 && (!Filter.IsHideArchived || !nomenclature.IsArchive)
 				 orderby nomenclature.Id
 				 select new ProductGroupsJournalNode
 				 {
@@ -161,7 +162,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		private IQueryable<ProductGroupsJournalNode> GetSubNodes(int? parentId)
 		{
-			if(!_filter.IsSearchStringEmpty && parentId != null)
+			if(!Filter.IsSearchStringEmpty && parentId != null)
 			{
 				return Enumerable.Empty<ProductGroupsJournalNode>().AsQueryable();
 			}
@@ -178,8 +179,8 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			var groups =
 				from productGroup in _groupNodes
 				where
-					(_filter.IsSearchStringEmpty && productGroup.ParentId == parentId)
-					|| !_filter.IsSearchStringEmpty
+					(Filter.IsSearchStringEmpty && productGroup.ParentId == parentId)
+					|| !Filter.IsSearchStringEmpty
 
 				let children = GetSubNodes(productGroup.Id)
 
@@ -199,7 +200,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		private IEnumerable<ProductGroupsJournalNode> GetNomenclatures(int? parentId)
 		{
-			if((!_filter.IsSearchStringEmpty && parentId != null) || IsGroupSelectionMode)
+			if((!Filter.IsSearchStringEmpty && parentId != null) || IsGroupSelectionMode)
 			{
 				return Enumerable.Empty<ProductGroupsJournalNode>();
 			}
@@ -207,8 +208,8 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			var nomenclatures =
 				from nomenclature in _nomenclatureNodes
 				where
-					(_filter.IsSearchStringEmpty && nomenclature.ParentId == parentId)
-					|| !_filter.IsSearchStringEmpty
+					(Filter.IsSearchStringEmpty && nomenclature.ParentId == parentId)
+					|| !Filter.IsSearchStringEmpty
 				orderby nomenclature.Id
 				select new ProductGroupsJournalNode
 				{
@@ -437,13 +438,22 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		{
 			if(e.PropertyName == nameof(Search.SearchValues))
 			{
-				_filter.SearchString = string.Join(" ", Search.SearchValues);
+				Filter.SearchString = string.Join(" ", Search.SearchValues);
+			}
+		}
+		
+		private void OnFilterPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ProductGroupsJournalFilterViewModel.IsGroupSelectionMode))
+			{
+				RowActivatedAction = Filter.IsGroupSelectionMode ? NodeActionsList[0] : NodeActionsList[2];
 			}
 		}
 
 		public override void Dispose()
 		{
-			_filter.OnFiltered -= OnFilterViewModelFiltered;
+			Filter.OnFiltered -= OnFilterViewModelFiltered;
+			Filter.PropertyChanged -= OnFilterPropertyChanged;
 
 			if(_selectProductGroupJournalViewModel != null)
 			{

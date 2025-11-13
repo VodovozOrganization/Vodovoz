@@ -131,7 +131,7 @@ namespace Vodovoz.Models.TrueMark
 			{
 				IsInvalid = false,
 				RawCode = code.SourceCode.Substring(0, Math.Min(255, code.SourceCode.Length)),
-				GTIN = code.GTIN,
+				Gtin = code.Gtin,
 				SerialNumber = code.SerialNumber,
 				CheckCode = code.CheckCode
 			};

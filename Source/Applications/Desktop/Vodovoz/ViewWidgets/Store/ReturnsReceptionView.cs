@@ -19,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -59,7 +60,7 @@ namespace Vodovoz
 				.AddColumn("№ Кулера").AddTextRenderer(node => node.Redhead)
 					.AddSetter((cell, node) => cell.Editable = node.NomenclatureCategory == NomenclatureCategory.additional)
 				.AddColumn("Кол-во")
-					.AddNumericRenderer(node => node.Amount, false)
+					.AddNumericRenderer(node => node.Amount, new RoundedDecimalToStringConverter(), false)
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
 					.AddSetter((cell, node) => CalculateAmount(node))
@@ -302,7 +303,7 @@ namespace Vodovoz
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+						Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

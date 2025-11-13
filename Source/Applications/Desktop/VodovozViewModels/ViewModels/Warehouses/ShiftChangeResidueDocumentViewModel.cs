@@ -178,7 +178,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 				var reportInfo = _reportInfoFactory.Create();
 
-				if(Entity.Car != null && (Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle))
+				var carTypeOfUsesForDefectionAct = new List<CarTypeOfUse> { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
+
+				if(Entity.Car != null
+					&& Entity.Car.CarModel != null
+					&& carTypeOfUsesForDefectionAct.Contains(Entity.Car.CarModel.CarTypeOfUse))
 				{
 					reportInfo.Title = $"Акт передачи остатков №{Entity.Id} от {Entity.TimeStamp:d}";
 					reportInfo.Identifier = "Store.ShiftChangeWarehouseWithCarDefectionAct";
@@ -186,7 +190,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					{
 						{ "document_id", Entity.Id },
 						{ "car_id", Entity.Car?.Id },
-						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus },
+						{ "include_largus_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus || Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Minivan },
 						{ "include_GAZelle_defects_act", Entity.Car.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle },
 						{ "order_by_nomenclature_name", Entity.SortedByNomenclatureName },
 						{ "sender_fio", Entity.Sender.FullName },
@@ -870,6 +874,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			foreach(var instanceData in instancesOnStorageBalance)
 			{
+				if(_instancesDiscrepancies.ContainsKey(instanceData.Id))
+				{
+					continue;
+				}
+				
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
 					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");

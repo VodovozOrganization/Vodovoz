@@ -47,8 +47,7 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var counterpartyContractRepository = _lifetimeScope.Resolve<ICounterpartyContractRepository>();
-			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var contractType = CounterpartyContractEntity.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;

@@ -1,7 +1,7 @@
-﻿using Dadata.Model;
-using RevenueService.Client.Dto;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using Dadata.Model;
+using RevenueService.Client.Dto;
 
 namespace RevenueService.Client
 {

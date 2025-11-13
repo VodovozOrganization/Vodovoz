@@ -8,12 +8,11 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
-using Vodovoz.Factories;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -22,29 +21,24 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ILogger<OrderFromOnlineOrderCreator> _logger;
 		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly ICounterpartyContractRepository _counterpartyContractRepository;
-		private readonly ICounterpartyContractFactory _counterpartyContractFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IPhoneRepository _phoneRepository;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public OrderFromOnlineOrderCreator(
 			ILogger<OrderFromOnlineOrderCreator> logger,
 			IOrderSettings orderSettings,
 			INomenclatureRepository nomenclatureRepository,
-			ICounterpartyContractRepository counterpartyContractRepository,
-			ICounterpartyContractFactory counterpartyContractFactory,
 			INomenclatureSettings nomenclatureSettings,
-			IPhoneRepository phoneRepository)
+			IPhoneRepository phoneRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_counterpartyContractRepository =
-				counterpartyContractRepository ?? throw new ArgumentNullException(nameof(counterpartyContractRepository));
-			_counterpartyContractFactory =
-				counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -54,35 +48,36 @@ namespace Vodovoz.Application.Orders.Services
 				UoW = uow
 			};
 
-			return FillOrderFromOnlineOrder(order, onlineOrder, orderCreator);
+			return FillOrderFromOnlineOrder(uow, order, onlineOrder, author: orderCreator);
 		}
 
 		public Order FillOrderFromOnlineOrder(
+			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			Employee employee = null,
+			Employee author = null,
 			bool manualCreation = false)
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
-				? order.UoW.GetById<PaymentFrom>(
+				? uow.GetById<PaymentFrom>(
 					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderSettings))
 				: null;
 
-			if(employee != null)
+			if(author != null)
 			{
-				order.Author = employee;
+				order.Author = author;
 			}
 			
-			order.Client = onlineOrder.Counterparty;
-			order.DeliveryPoint = onlineOrder.DeliveryPoint;
+			order.UpdateClient(onlineOrder.Counterparty, _contractUpdater, out var updateClientMessage);
+			order.UpdateDeliveryPoint(onlineOrder.DeliveryPoint, _contractUpdater);
 			order.SelfDelivery = onlineOrder.IsSelfDelivery;
-			order.DeliveryDate = onlineOrder.DeliveryDate;
+			order.UpdateDeliveryDate(onlineOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
 			order.DeliverySchedule = onlineOrder.DeliverySchedule;
 			order.IsFastDelivery = onlineOrder.IsFastDelivery;
-			order.PaymentType = onlineOrder.OnlineOrderPaymentType.ConvertToOrderPaymentType();
+			order.UpdatePaymentType(onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(), _contractUpdater);
 			order.BottlesReturn = onlineOrder.BottlesReturn;
-			order.OnlineOrder = onlineOrder.OnlinePayment;
-			order.PaymentByCardFrom = paymentFrom;
+			order.OnlinePaymentNumber = onlineOrder.OnlinePayment;
+			order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
 			order.Trifle = onlineOrder.Trifle;
 			order.DontArriveBeforeInterval = onlineOrder.DontArriveBeforeInterval;
 
@@ -104,18 +99,20 @@ namespace Vodovoz.Application.Orders.Services
 				order.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
 			}
 			
-			order.UpdateOrCreateContract(order.UoW, _counterpartyContractRepository, _counterpartyContractFactory);
+			//TODO: скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
+			_contractUpdater.UpdateOrCreateContract(uow, order);
 
-			if(order.Client != null)
+			if(order.Client is null)
 			{
-				if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
-				{
-					order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
-				}
-				
-				AddOrderItems(order, onlineOrder.OnlineOrderItems, manualCreation);
-				AddFreeRentPackages(order, onlineOrder.OnlineRentPackages);
+				return order;
 			}
+			
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+			{
+				order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
+			}
+			
+			FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
 			
 			return order;
 		}
@@ -169,34 +166,62 @@ namespace Vodovoz.Application.Orders.Services
 			order.ContactPhone = clientPhone;
 		}
 
-		private void AddOrderItems(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
+		private void FillOrderGoodsFromPartOrder(
+			IUnitOfWork uow,
+			Order order,
+			PartOrderWithGoods partOrder)
 		{
-			AddNomenclatures(order, onlineOrderItems, manualCreation);
+			AddOrderItems(uow, order, partOrder.Goods);
+			AddOrderEquipments(uow, order, partOrder.OrderEquipments);
 		}
 
-		private void AddNomenclatures(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems, bool manualCreation = false)
+		private void FillOrderGoodsFromOnlineOrder(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<IProduct> onlineOrderItems,
+			IEnumerable<OnlineFreeRentPackage> onlineRentPackages,
+			bool manualCreation)
+		{
+			AddOrderItems(uow, order, onlineOrderItems, manualCreation);
+			AddFreeRentPackages(uow, order, onlineRentPackages);
+		}
+
+		private void AddOrderItems(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<IProduct> onlineOrderItems,
+			bool manualCreation = false)
+		{
+			AddNomenclatures(uow, order, onlineOrderItems, manualCreation);
+		}
+
+		private void AddNomenclatures(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<IProduct> onlineOrderItems,
+			bool manualCreation = false)
 		{
 			var onlineOrderPromoSets = onlineOrderItems
 				.Where(x => x.PromoSet != null)
-				.ToLookup(x => x.PromoSetId);
+				.ToLookup(x => x.PromoSet.Id);
 
 			var otherItems =
 				onlineOrderItems
 					.Where(x => x.PromoSet is null);
 
-			TryAddPromoSets(order, onlineOrderPromoSets);
+			TryAddPromoSets(uow, order, onlineOrderPromoSets);
 
 			if(manualCreation)
 			{
-				TryAddOtherItemsFromManualCreationOrder(order, otherItems);
+				TryAddOtherItemsFromManualCreationOrder(uow, order, otherItems);
 			}
 			else
 			{
-				TryAddOtherItemsFromAutoCreationOrder(order, otherItems);
+				TryAddOtherItemsFromAutoCreationOrder(uow, order, otherItems);
 			}
 		}
 
-		private void TryAddPromoSets(Order order, ILookup<int?, OnlineOrderItem> onlineOrderPromoSets)
+		private void TryAddPromoSets(IUnitOfWork uow, Order order, ILookup<int, IProduct> onlineOrderPromoSets)
 		{
 			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
 			
@@ -223,10 +248,13 @@ namespace Vodovoz.Application.Orders.Services
 					foreach(var proSetItem in promoSet.PromotionalSetItems)
 					{
 						order.AddNomenclature(
+							uow,
+							_contractUpdater,
 							proSetItem.Nomenclature,
 							proSetItem.Count,
 							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 							proSetItem.IsDiscountInMoney,
+							true,
 							null,
 							proSetItem.PromoSet);
 					}
@@ -242,46 +270,55 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 		
-		private void TryAddOtherItemsFromManualCreationOrder(Order order, IEnumerable<OnlineOrderItem> otherItems)
+		private void TryAddOtherItemsFromManualCreationOrder(IUnitOfWork uow, Order order, IEnumerable<IProduct> otherItems)
 		{
-			foreach(var onlineOrderItem in otherItems)
+			foreach(var product in otherItems)
 			{
-				if(onlineOrderItem.Nomenclature is null)
+				if(product.Nomenclature is null)
 				{
 					continue;
 				}
 				
-				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id
-					|| _nomenclatureSettings.FastDeliveryNomenclatureId == onlineOrderItem.Nomenclature.Id)
+				if(_nomenclatureSettings.PaidDeliveryNomenclatureId == product.Nomenclature.Id
+					|| _nomenclatureSettings.FastDeliveryNomenclatureId == product.Nomenclature.Id)
 				{
 					continue;
 				}
 
-				if(onlineOrderItem.OnlineOrderErrorState.HasValue
+				if(product is OnlineOrderItem onlineOrderItem
+					&& onlineOrderItem.OnlineOrderErrorState.HasValue
 					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
-					order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+					order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
 				}
 				else
 				{
-					if(onlineOrderItem.DiscountReason is null)
+					if(product.DiscountReason is null)
 					{
-						order.AddNomenclature(onlineOrderItem.Nomenclature, onlineOrderItem.Count);
+						order.AddNomenclature(
+							uow,
+							_contractUpdater,
+							product.Nomenclature,
+							product.Count,
+							needGetFixedPrice: product.IsFixedPrice);
 					}
 					else
 					{
 						order.AddNomenclature(
-							onlineOrderItem.Nomenclature,
-							onlineOrderItem.Count,
-							onlineOrderItem.GetDiscount,
-							onlineOrderItem.IsDiscountInMoney,
-							onlineOrderItem.DiscountReason);
+							uow,
+							_contractUpdater,
+							product.Nomenclature,
+							product.Count,
+							product.GetDiscount,
+							product.IsDiscountInMoney,
+							product.IsFixedPrice,
+							discountReason: product.DiscountReason);
 					}
 				}
 			}
 		}
 		
-		private void TryAddOtherItemsFromAutoCreationOrder(Order order, IEnumerable<OnlineOrderItem> onlineOrderItems)
+		private void TryAddOtherItemsFromAutoCreationOrder(IUnitOfWork uow, Order order, IEnumerable<IProduct> onlineOrderItems)
 		{
 			foreach(var onlineOrderItem in onlineOrderItems)
 			{
@@ -291,15 +328,18 @@ namespace Vodovoz.Application.Orders.Services
 				}
 				
 				order.AddNomenclature(
+					uow,
+					_contractUpdater,
 					onlineOrderItem.Nomenclature,
 					onlineOrderItem.Count,
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
+					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReason);
 			}
 		}
 
-		private void AddFreeRentPackages(Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)
+		private void AddFreeRentPackages(IUnitOfWork uow, Order order, IEnumerable<OnlineFreeRentPackage> onlineRentPackages)
 		{
 			foreach(var onlineRentPackage in onlineRentPackages)
 			{
@@ -321,8 +361,23 @@ namespace Vodovoz.Application.Orders.Services
 					rentPackage.EquipmentKind,
 					existingItems);
 				
-				order.AddFreeRent(rentPackage, anyNomenclature);
+				order.AddFreeRent(uow, _contractUpdater, rentPackage, anyNomenclature);
 			}
+		}
+		
+		private void AddOrderEquipments(IUnitOfWork uow, Order order, IEnumerable<OrderEquipment> partOrderEquipments)
+		{
+			if(!partOrderEquipments.Any())
+			{
+				return;
+			}
+
+			foreach(var equipment in partOrderEquipments)
+			{
+				order.AddEquipmentFromPartOrder(equipment);
+			}
+			
+			order.UpdateRentsCount();
 		}
 	}
 }

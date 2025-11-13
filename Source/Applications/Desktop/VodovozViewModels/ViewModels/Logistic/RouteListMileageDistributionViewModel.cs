@@ -16,6 +16,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly WageParameterService _wageParameterService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
+		private readonly IRouteListService _routeListService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IValidator _validator;
 		private readonly IRouteListRepository _routeListRepository;
@@ -45,7 +47,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
-			IValidationContextFactory validationContextFactory)
+			IValidationContextFactory validationContextFactory,
+			IRouteListService routeListService)
 			: base(navigationManager)
 		{
 			if(navigationManager is null)
@@ -63,6 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 
 			InitializeCommands();
 			AskSaveOnClose = CanEdit;
@@ -286,7 +290,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			if(!routeList.AcceptMileage(_callTaskWorker, _validator))
+			if(!_routeListService.AcceptMileage(_uow, routeList, _validator, _callTaskWorker))
 			{
 				return false;
 			}
@@ -322,7 +326,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void ChangeStatusAndCreateTaskFromDelivered(RouteList routeList)
 		{
-			routeList.ChangeStatusAndCreateTask(
+			_routeListService.ChangeStatusAndCreateTask(_uow,  routeList,
 				routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 					? RouteListStatus.MileageCheck
 					: RouteListStatus.OnClosing,

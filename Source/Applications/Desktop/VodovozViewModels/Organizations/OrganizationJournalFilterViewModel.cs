@@ -4,12 +4,27 @@ namespace Vodovoz.ViewModels.Organizations
 {
 	public class OrganizationJournalFilterViewModel : FilterViewModelBase<OrganizationJournalFilterViewModel>
 	{
-		private bool _isAvangardShop;
+		private bool _hasAvangardShopId;
+		private bool _hasCashBoxId;
+		private bool _hasTaxcomEdoAccountId;
 
-		public bool IsAvangardShop
+
+		public bool HasAvangardShopId
 		{
-			get => _isAvangardShop;
-			set => UpdateFilterField(ref _isAvangardShop, value);
+			get => _hasAvangardShopId;
+			set => UpdateFilterField(ref _hasAvangardShopId, value);
+		}
+
+		public bool HasCashBoxId
+		{
+			get => _hasCashBoxId;
+			set => UpdateFilterField(ref _hasCashBoxId, value);
+		}
+
+		public bool HasTaxcomEdoAccountId
+		{
+			get => _hasTaxcomEdoAccountId;
+			set => UpdateFilterField(ref _hasTaxcomEdoAccountId, value);
 		}
 	}
 }

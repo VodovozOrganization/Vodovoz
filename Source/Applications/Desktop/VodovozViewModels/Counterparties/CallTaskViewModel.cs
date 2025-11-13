@@ -43,7 +43,6 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _bottleReserve;
 		private string _oldComments;
 		private string _counterpartyDebt;
-		private readonly IOrderOrganizationProviderFactory _orderOrganizationProviderFactory;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly IBottlesRepository _bottlesRepository;
@@ -64,7 +63,6 @@ namespace Vodovoz.ViewModels.Counterparties
 			INavigationManager navigation,
 			IValidator validator,
 			IEmployeeService employeeService,
-			IOrderOrganizationProviderFactory orderOrganizationProviderFactory,
 			ViewModelEEVMBuilder<Employee> attachedEmployyeeViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelEEVMBuilder,
 			IPhoneTypeSettings phoneTypeSettings,
@@ -87,8 +85,6 @@ namespace Vodovoz.ViewModels.Counterparties
 				throw new ArgumentNullException(nameof(deliveryPointViewModelEEVMBuilder));
 			}
 
-			_orderOrganizationProviderFactory = orderOrganizationProviderFactory
-				?? throw new ArgumentNullException(nameof(orderOrganizationProviderFactory));
 			_phoneTypeSettings = phoneTypeSettings
 				?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_phoneRepository = phoneRepository

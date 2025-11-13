@@ -99,6 +99,32 @@ namespace EmailSendWorker
 						try
 						{
 							await _mailganerClient.Send(email);
+
+							var semaphore = new object();
+
+							try
+							{
+								lock(semaphore)
+								{
+									var statusUpdateMessage = new UpdateStoredEmailStatusMessage
+									{
+										EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
+										Status = Mailjet.Api.Abstractions.Events.MailEventType.sent,
+										RecievedAt = DateTime.Now
+									};
+									_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
+									var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
+									var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
+									var properties = _channel.CreateBasicProperties();
+									properties.Persistent = true;
+									_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+								}
+							}
+							catch(Exception ex)
+							{
+								_logger.LogError(ex, "Произошла ошибка при попытке отправки сообщения об изменении статуса в очередь");
+							}
+							
 							break;
 						}
 						catch(Exception exc)
@@ -123,8 +149,6 @@ namespace EmailSendWorker
 								properties.Persistent = true;
 								_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
 							}
-
-							continue;
 						}
 					}
 				}

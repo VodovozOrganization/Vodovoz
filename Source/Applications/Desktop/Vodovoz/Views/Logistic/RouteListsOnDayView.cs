@@ -445,7 +445,6 @@ namespace Vodovoz.Views.Logistic
 					{
 						HasChanges = false
 					};
-					dlg.SetDlgToReadOnly();
 					Tab.TabParent.AddSlaveTab(Tab, dlg);
 				};
 				popupMenu.Add(item);

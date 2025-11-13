@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Controllers;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
@@ -20,9 +21,10 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailRepository emailRepository,
 			IUnitOfWork unitOfWork,
 			IEmailDocumentPreparer emailDocumentPreparer,
+			ICounterpartyEdoAccountController edoAccountController,
 			CounterpartyEmail counterpartyEmail,
 			int instanceId) 
-			: base(unitOfWork, emailSettings, emailRepository, emailDocumentPreparer, counterpartyEmail, instanceId)
+			: base(unitOfWork, emailSettings, emailRepository, emailDocumentPreparer, edoAccountController, counterpartyEmail, instanceId)
 		{
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));

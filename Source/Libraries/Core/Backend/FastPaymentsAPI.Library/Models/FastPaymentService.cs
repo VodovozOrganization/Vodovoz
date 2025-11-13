@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
@@ -8,14 +9,17 @@ using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Models
@@ -24,47 +28,51 @@ namespace FastPaymentsAPI.Library.Models
 	{
 		private readonly ILogger<FastPaymentService> _logger;
 		private readonly IUnitOfWork _uow;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISignatureManager _signatureManager;
 		private readonly FastPaymentFileCache _fastPaymentFileCache;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IFastPaymentManager _fastPaymentManager;
-		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRequestFromConverter _requestFromConverter;
+		private readonly IOrganizationForOnlinePaymentService _organizationForOnlinePaymentService;
 
 		public FastPaymentService(
 			ILogger<FastPaymentService> logger,
 			IUnitOfWork uow,
+			IOrderSettings orderSettings,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,
 			ISignatureManager signatureManager,
 			FastPaymentFileCache fastPaymentFileCache,
 			IFastPaymentFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
-			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationSettings,
-			IRequestFromConverter requestFromConverter)
+			IRequestFromConverter requestFromConverter,
+			IOrganizationForOnlinePaymentService organizationForOnlinePaymentService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_fastPaymentFileCache = fastPaymentFileCache ?? throw new ArgumentNullException(nameof(fastPaymentFileCache));
 			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_organizationSettings =
-				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_requestFromConverter = requestFromConverter ?? throw new ArgumentNullException(nameof(requestFromConverter));
+			_organizationForOnlinePaymentService =
+				organizationForOnlinePaymentService ?? throw new ArgumentNullException(nameof(organizationForOnlinePaymentService));
 		}
 
-		public Organization GetOrganization(RequestFromType requestFromType)
+		public Result<Organization> GetOrganization(
+			TimeSpan requestTime,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
+			Order order = null)
 		{
-			var organization = _organizationRepository.GetPaymentFromOrganizationById(_uow, (int)requestFromType);
-			return organization ?? _organizationRepository.GetOrganizationById(_uow, _organizationSettings.VodovozSouthOrganizationId);
+			return order is null 
+				? _organizationForOnlinePaymentService.GetOrganizationForFastPayment(_uow, requestTime, fastPaymentRequestFromType)
+				: _organizationForOnlinePaymentService.GetOrganizationForFastPayment(_uow, order, requestTime, fastPaymentRequestFromType);
 		}
 
 		public FastPayment GetFastPaymentByTicket(string ticket)
@@ -88,13 +96,13 @@ namespace FastPaymentsAPI.Library.Models
 			Guid fastPaymentGuid,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			PaymentType paymentType,
 			string phoneNumber = null)
 		{
 			Order order;
 			var creationDate = DateTime.Now;
-			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, fastPaymentRequestFromType);
 
 			try
 			{
@@ -141,11 +149,11 @@ namespace FastPaymentsAPI.Library.Models
 			decimal onlineOrderSum,
 			FastPaymentPayType payType,
 			Organization organization,
-			RequestFromType requestFromType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			string callbackUrl)
 		{
 			var creationDate = DateTime.Now;
-			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, requestFromType);
+			var paymentByCardFrom = _requestFromConverter.ConvertRequestFromTypeToPaymentFrom(_uow, fastPaymentRequestFromType);
 			
 			var fastPayment = _fastPaymentApiFactory.GetFastPayment(
 				orderRegistrationResponseDto,
@@ -225,6 +233,28 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			_uow.Save(entity);
 			_uow.Commit();
+		}
+		
+		private IOrganizations GetOrganizationsSettings(FastPaymentRequestFromType fastPaymentRequestFromType)
+		{
+			switch(fastPaymentRequestFromType)
+			{
+				case FastPaymentRequestFromType.FromDesktopByQr:
+					return _uow.GetAll<SmsQrPaymentTypeOrganizationSettings>().SingleOrDefault();
+				case FastPaymentRequestFromType.FromDriverAppByQr:
+					return _uow.GetAll<DriverAppQrPaymentTypeOrganizationSettings>().SingleOrDefault();
+				case FastPaymentRequestFromType.FromSiteByQr:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId);
+				case FastPaymentRequestFromType.FromDesktopByCard:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromAvangardId);
+				case FastPaymentRequestFromType.FromMobileAppByQr:
+					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
+				default:
+					throw new ArgumentOutOfRangeException(nameof(fastPaymentRequestFromType), fastPaymentRequestFromType, null);
+			}
 		}
 	}
 }

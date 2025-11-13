@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
 using VodovozBusiness.Services.TrueMark;
-using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocument;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace WarehouseApi.Library.Errors
 {
@@ -33,6 +34,7 @@ namespace WarehouseApi.Library.Errors
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountController;
 
 		public CarLoadDocumentProcessingErrorsChecker(
 			ILogger<CarLoadDocumentProcessingErrorsChecker> logger,
@@ -41,7 +43,8 @@ namespace WarehouseApi.Library.Errors
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
-			IGenericRepository<OrderEntity> orderRepository)
+			IGenericRepository<OrderEntity> orderRepository,
+			ICounterpartyEdoAccountEntityController counterpartyEdoAccountController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -50,7 +53,8 @@ namespace WarehouseApi.Library.Errors
 			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-
+			_counterpartyEdoAccountController =
+				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 
 		public Result IsCarLoadDocumentLoadingCanBeStarted(
@@ -145,9 +149,12 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(carLoadDocument);
+
 			var isNotAllCodesAdded = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
+					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
@@ -160,6 +167,27 @@ namespace WarehouseApi.Library.Errors
 			}
 
 			return Result.Success();
+		}
+
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(CarLoadDocumentEntity carLoadDocument)
+		{
+			var ordersInDocument = carLoadDocument.Items
+				.Where(x => x.OrderId != null)
+				.Select(x => x.OrderId.Value)
+				.Distinct()
+				.ToList();
+
+			var undeliveredStatuses = new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+			
+			var cancelledOrders =
+				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
+
+			return cancelledOrders.Select(o => o.Id);
 		}
 
 		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
@@ -206,13 +234,15 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public Result IsTrueMarkCodeCanBeAdded(
+		public async Task<Result> IsTrueMarkCodesCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			TrueMarkWaterIdentificationCode trueMarkWaterCode,
+			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterCodes,
 			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
 			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItemEntity documentItemToEdit)
+			CarLoadDocumentItemEntity documentItemToEdit,
+			CancellationToken cancellationToken
+			)
 		{
 			var result = IsOrderNeedIndividualSetOnLoad(orderId);
 
@@ -229,13 +259,6 @@ namespace WarehouseApi.Library.Errors
 			}
 
 			result = IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id);
-
-			if(result.IsFailure)
-			{
-				return result;
-			}
-
-			result = IsScannedCodeValid(trueMarkWaterCode);
 
 			if(result.IsFailure)
 			{
@@ -263,14 +286,24 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
-
-			if(result.IsFailure)
+			foreach(var trueMarkWaterCode in trueMarkWaterCodes)
 			{
-				return result;
+				result = IsScannedCodeValid(trueMarkWaterCode);
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
+
+				result = IsTrueMarkCodeNotUsedAndHasRequiredGtin(trueMarkWaterCode, documentItemToEdit.Nomenclature.Gtins.Select(x => x.GtinNumber));
+
+				if(result.IsFailure)
+				{
+					return result;
+				}
 			}
 
-			return Result.Success();
+			return await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(trueMarkWaterCodes, cancellationToken);
 		}
 
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
@@ -353,7 +386,7 @@ namespace WarehouseApi.Library.Errors
 				return result;
 			}
 
-			return await IsTrueMarkCodeIntroducedAndHasCorrectInn(newTrueMarkWaterCode, cancellationToken);
+			return await _trueMarkWaterCodeService.IsTrueMarkCodeValid(newTrueMarkWaterCode, cancellationToken);
 		}
 
 		public Result IsOrderNeedIndividualSetOnLoad(int orderId)
@@ -366,7 +399,7 @@ namespace WarehouseApi.Library.Errors
 				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
-			if(!order.IsNeedIndividualSetOnLoad && !order.IsNeedIndividualSetOnLoadForTender)
+			if(!order.IsNeedIndividualSetOnLoad(_counterpartyEdoAccountController) && !order.IsNeedIndividualSetOnLoadForTender)
 			{
 				if(order.PaymentType != PaymentType.Cashless)
 				{
@@ -380,7 +413,10 @@ namespace WarehouseApi.Library.Errors
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(orderId);
 				}
 
-				if(order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				var edoAccount = _counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+					order.Client, order.Contract.Organization.Id);
+
+				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
 					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отправки документов по ЭДО, сканирование не требуется", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);
@@ -451,7 +487,7 @@ namespace WarehouseApi.Library.Errors
 		{
 			if(!carLoadDocumentItem
 				.TrueMarkCodes.Select(x => x.SourceCode)
-				.Any(x => x.GTIN == trueMarkWaterCode.GTIN && x.SerialNumber == trueMarkWaterCode.SerialNumber && x.CheckCode == trueMarkWaterCode.CheckCode))
+				.Any(x => x.Gtin == trueMarkWaterCode.Gtin && x.SerialNumber == trueMarkWaterCode.SerialNumber && x.CheckCode == trueMarkWaterCode.CheckCode))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeForCarLoadDocumentItemNotFound(trueMarkWaterCode.RawCode);
 				LogError(error);
@@ -489,7 +525,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodeGtinsEqualsNomenclatureGtin(TrueMarkWaterIdentificationCode trueMarkWaterCode, IEnumerable<string> nomenclatureGtins)
 		{
-			if(!nomenclatureGtins.Contains(trueMarkWaterCode.GTIN))
+			if(!nomenclatureGtins.Contains(trueMarkWaterCode.Gtin))
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodeGtinIsNotEqualsNomenclatureGtin(trueMarkWaterCode.RawCode);
 				LogError(error);
@@ -501,7 +537,7 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsTrueMarkCodesHasEqualGtins(TrueMarkWaterIdentificationCode trueMarkWaterCode1, TrueMarkWaterIdentificationCode trueMarkWaterCode2)
 		{
-			if(trueMarkWaterCode1.GTIN != trueMarkWaterCode2.GTIN)
+			if(trueMarkWaterCode1.Gtin != trueMarkWaterCode2.Gtin)
 			{
 				var error = TrueMarkCodeErrors.CreateTrueMarkCodesGtinsNotEqual(trueMarkWaterCode1.RawCode, trueMarkWaterCode2.RawCode);
 				LogError(error);
@@ -514,13 +550,6 @@ namespace WarehouseApi.Library.Errors
 		private Result IsTrueMarkCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterCode)
 		{
 			return _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterCode);
-		}
-
-		private async Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(
-			TrueMarkWaterIdentificationCode trueMarkWaterCode,
-			CancellationToken cancellationToken)
-		{
-			return await _trueMarkWaterCodeService.IsTrueMarkCodeIntroducedAndHasCorrectInn(trueMarkWaterCode, cancellationToken);
 		}
 
 		private void LogError(Error error)

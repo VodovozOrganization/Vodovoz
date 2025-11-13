@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly bool _canCreateGiveOutSchedulePermissionGranted;
 
 		private bool _canChangeFinancialExpenseCategory
-			=> CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.CanChangeFinancialExpenseCategory);
+			=> CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.CanChangeFinancialExpenseCategory);
 
 		private PayoutRequestState[] _expenseCategoriesForAll => new[]
 		{
@@ -335,7 +335,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				? VatValues.First(x => x.Value == Entity.VatValue).Key
 				: VatValues.Keys.Last();
 
-			_canCreateGiveOutSchedulePermissionGranted = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.CashlessRequest.CanCreateGiveOutSchedule);
+			_canCreateGiveOutSchedulePermissionGranted = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CashlessRequest.CanCreateGiveOutSchedule);
 
 			Entity.OutgoingPayments.CollectionChanged += OnOutgoingPaymentsChanged;
 
@@ -1110,7 +1110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.RequestCreator);
 			}
 
-			foreach(var permissionToRole in Vodovoz.Core.Domain.Permissions.Cash.CashlessRequest.PermissionsToRoles)
+			foreach(var permissionToRole in Vodovoz.Core.Domain.Permissions.CashPermissions.CashlessRequest.PermissionsToRoles)
 			{
 				if(CommonServices.PermissionService
 					.ValidateUserPresetPermission(permissionToRole.Key, userId))

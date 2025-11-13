@@ -26,11 +26,12 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
-using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.Order.CashReceipt;
+using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly bool _canResendDuplicateReceipts;
 
 		private CashReceiptJournalFilterViewModel _filter;
@@ -56,6 +58,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			ICashReceiptRepository cashReceiptRepository,
 			ReceiptManualController receiptManualController,
 			IFileDialogService fileDialogService,
+			IOrganizationSettings organizationSettings,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -68,6 +71,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
@@ -308,11 +312,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
 					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
 					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
-					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
+					.Select(() => sourceCodeAlias.Gtin).WithAlias(() => resultAlias.SourceGtin)
 					.Select(() => productCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedProductCode)
 					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateProductCode)
 					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceCodeSerialNumber)
-					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
+					.Select(() => resultCodeAlias.Gtin).WithAlias(() => resultAlias.ResultGtin)
 					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
 					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
 				)
@@ -693,7 +697,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				report = await ProductCodesScanningReport.GenerateAsync(unitOfWork, Filter.StartDate.Value, Filter.EndDate.Value);
+				report = await ProductCodesScanningReport.GenerateAsync(
+					unitOfWork, _organizationSettings, Filter.StartDate.Value, Filter.EndDate.Value);
 			}
 
 			await report?.ExportReportToExcelAsync(result.Path);

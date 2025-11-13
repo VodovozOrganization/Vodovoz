@@ -10,6 +10,7 @@ using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
@@ -46,7 +47,8 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
-				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>();
+				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
+				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			services
 				.AddMessageTransportSettings()

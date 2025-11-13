@@ -39,5 +39,14 @@ namespace Vodovoz.Settings.Edo
 		/// Процент добавочной цены к себестоимости для трансфера
 		/// </summary>
 		int AdditionalPurchasePricePrecentForTransfer { get; }
+
+		/// <summary>
+		/// Время после которого трансфер можно считать зависшим
+		/// По истечении этого времени задачу можно отменить 
+		/// а по трансферу отправить предложение об аннулировании.
+		/// Время трансфера вычисляется с момента отправки его в систему ЭДО
+		/// записывается в TransferStartTime
+		/// </summary>
+		TimeSpan TransferTimeoutInterval { get; }
 	}
 }

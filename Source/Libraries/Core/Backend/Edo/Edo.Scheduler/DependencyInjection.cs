@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Vodovoz.Core.Domain.Controllers;
 
 namespace Edo.Scheduler
 {
@@ -19,6 +20,7 @@ namespace Edo.Scheduler
 			services.TryAddScoped<BillForAdvanceEdoRequestTaskScheduler>();
 			services.TryAddScoped<BillForDebtEdoRequestTaskScheduler>();
 			services.TryAddScoped<BillForPaymentEdoRequestTaskScheduler>();
+			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;
 		}

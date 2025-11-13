@@ -7,10 +7,10 @@ using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Application.Payments;
 using NHibernate;
 using QS.DomainModel.Tracking;
 using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.ViewModels.Payments
 {
@@ -190,14 +190,14 @@ namespace Vodovoz.ViewModels.Payments
 			}
 
 			var counterpartyNotDistributedCount = distributionResults.Count(result => result.Errors.All(error => error.Code ==
-				typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)
-				|| error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance)));
+				typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoOrdersToDistribute)
+				|| error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoPaymentsWithPositiveBalance)));
 
 			if(!distributionResults.Any()
 				|| distributionResults.All(result => result.IsSuccess)
 				|| distributionResults.Any(result => result.Errors.All(error =>
-					error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoOrdersToDistribute)
-					|| error.Code == typeof(Errors.Payments.PaymentsDistribution).FullName + "." + nameof(Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance))))
+					error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoOrdersToDistribute)
+					|| error.Code == typeof(Errors.Payments.PaymentsDistributionErrors).FullName + "." + nameof(Errors.Payments.PaymentsDistributionErrors.NoPaymentsWithPositiveBalance))))
 			{
 				GlobalUowEventsTracker.OnPostCommit((IUnitOfWorkTracked)_unitOfWork);
 				_unitOfWork.Session.GetCurrentTransaction().Commit();

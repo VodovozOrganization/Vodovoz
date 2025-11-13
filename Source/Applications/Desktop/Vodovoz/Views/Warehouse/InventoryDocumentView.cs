@@ -24,8 +24,6 @@ namespace Vodovoz.Views.Warehouse
 		private void ConfigureView()
 		{
 			vbox4.Sensitive = ViewModel.CanEdit;
-			vboxNomenclatureItems.Sensitive = ViewModel.CanEdit;
-			vboxNomenclatureInstanceItems.Sensitive = ViewModel.CanEdit;
 			
 			ConfigureCommonButtons();
 			
@@ -207,6 +205,7 @@ namespace Vodovoz.Views.Warehouse
 			treeViewNomenclatureItems.ItemsDataSource = ViewModel.Entity.ObservableNomenclatureItems;
 			treeViewNomenclatureItems.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedNomenclatureItem, w => w.SelectedRow)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
@@ -306,6 +305,7 @@ namespace Vodovoz.Views.Warehouse
 			treeViewInstanceItems.ItemsDataSource = ViewModel.Entity.ObservableInstanceItems;
 			treeViewInstanceItems.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedInstanceItem, w => w.SelectedRow)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 

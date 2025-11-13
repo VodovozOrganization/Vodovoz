@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yLabel lblDriver;
 
-		private global::Gtk.Label lblOrderRating;
+		private global::Gamma.GtkWidgets.yLabel lblOrderRating;
 
 		private global::QS.Views.Control.EntityEntry orderEntry;
 
@@ -597,7 +597,7 @@ namespace Vodovoz.Views.Complaints
 			w43.XOptions = ((global::Gtk.AttachOptions)(4));
 			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFields.Gtk.Table+TableChild
-			this.lblOrderRating = new global::Gtk.Label();
+			this.lblOrderRating = new global::Gamma.GtkWidgets.yLabel();
 			this.lblOrderRating.Name = "lblOrderRating";
 			this.lblOrderRating.Xalign = 1F;
 			this.lblOrderRating.LabelProp = global::Mono.Unix.Catalog.GetString("Оценка заказа:");

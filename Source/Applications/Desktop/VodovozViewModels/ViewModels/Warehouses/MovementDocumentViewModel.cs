@@ -356,7 +356,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				e => e.CanDeleteItems,
 				() => CanDeleteItems);
 
-			//TODO неиспользуемое свойство CanSelectWarehouseTo
+			//TODO: неиспользуемое свойство CanSelectWarehouseTo
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
 			
 			SetPropertyChangeRelation(
@@ -405,7 +405,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			HasAccessToCarStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_car_storage_in_warehouse_documents");
 			_canEditStoreMovementDocumentTransporterData =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Documents.MovementDocument.CanEditStoreMovementDocumentTransporterData);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanEditStoreMovementDocumentTransporterData);
 		}
 		
 		private void SetStoragesViewModels()

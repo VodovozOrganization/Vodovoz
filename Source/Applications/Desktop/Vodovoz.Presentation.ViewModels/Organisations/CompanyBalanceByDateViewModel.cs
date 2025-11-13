@@ -470,7 +470,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			IDatePickerViewModelFactory datePickerViewModelFactory, ICurrentPermissionService permissionService)
 		{
 			CanEditCompanyBalanceByDayInPreviousPeriods =
-				permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CompanyBalanceByDay.CanEditCompanyBalanceByDayInPreviousPeriods);
+				permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CompanyBalanceByDayPermissions.CanEditCompanyBalanceByDayInPreviousPeriods);
 			CompanyBalances = new List<CompanyBalanceByDay>();
 			DatePickerViewModel = datePickerViewModelFactory.CreateNewDatePickerViewModel(
 				DateTime.Today,

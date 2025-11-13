@@ -1,4 +1,4 @@
-﻿using EdoDocumentsPreparer.Factories;
+using EdoDocumentsPreparer.Factories;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,6 @@ using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
@@ -30,6 +29,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Converters;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
@@ -57,6 +57,7 @@ namespace EdoDocumentsPreparer
 		private readonly IFileDataFactory _fileDataFactory;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IHostApplicationLifetime _applicationLifetime;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly DateTime _startDate;
 
 		public EdoDocumentsPreparerWorker(
@@ -77,7 +78,8 @@ namespace EdoDocumentsPreparer
 			IInfoForCreatingEdoBillFactory billInfoFactory,
 			IFileDataFactory fileDataFactory,
 			IPublishEndpoint publishEndpoint,
-			IHostApplicationLifetime applicationLifetime)
+			IHostApplicationLifetime applicationLifetime,
+			ICounterpartyEdoAccountController edoAccountController)
 		{
 			_logger = logger;
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -98,6 +100,7 @@ namespace EdoDocumentsPreparer
 			_fileDataFactory = fileDataFactory ?? throw new ArgumentNullException(nameof(fileDataFactory));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_startDate = DateTime.Now;
 		}
 
@@ -115,20 +118,46 @@ namespace EdoDocumentsPreparer
 						_applicationLifetime.StopApplication();
 						return;
 					}
-					
+
 					await Task.Delay(1000 * _documentFlowOptions.DelayBetweenPreparingInSeconds, stoppingToken);
 
 					using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-					var organization = GetOrganization(uow);
 
-					if(organization is null)
+					var mainOrganization = (await GetOrganizations(uow, new[] { _edoOptions.OurMainEdoAccountId }, stoppingToken)).SingleOrDefault();
+
+					if(mainOrganization != null)
 					{
-						continue;
+						await PrepareUpdDocumentsForSend(uow, mainOrganization.Id);						
+					}
+					else
+					{
+						var errorMessage = "Не настроена основная организация";
+
+						_logger.LogError(errorMessage);
+
+						await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, errorMessage, stoppingToken);
 					}
 
-					await PrepareUpdDocumentsForSend(uow, organization.Id);
-					await PrepareBillsForSend(uow, organization.Id);
-					await PrepareBillsWithoutShipmentForSend(uow, organization);
+					var edoAccountIds = _edoOptions.OurEdoAccountsIds;
+					var organizations = await GetOrganizations(uow, edoAccountIds, stoppingToken);
+
+					if(organizations != null)
+					{
+						foreach(var organization in organizations)
+						{
+							await PrepareBillsForSend(uow, organization.Id, stoppingToken);
+
+							await PrepareBillsWithoutShipmentForSend(uow, organization);
+						}
+					}
+					else
+					{
+						var errorMessage = "Не настроены дополнительные организации";
+
+						_logger.LogError(errorMessage);
+
+						await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, errorMessage, stoppingToken);
+					}
 
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}
@@ -166,7 +195,7 @@ namespace EdoDocumentsPreparer
 					.Where(o => o.OrderDocuments.Any(
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 					.ToDictionary(x => x.Id);
-				
+
 				_logger.LogInformation(
 					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
 					document,
@@ -256,7 +285,7 @@ namespace EdoDocumentsPreparer
 					bulkAccountingEdoTasks.RemoveAt(i);
 					filteredOrdersDictionary.Remove(orderEntity.Id);
 				}
-				
+
 				_logger.LogInformation("Обрабатываем оставшиеся заказы для формирования {Document} без тасок. Всего {FilteredOrdersCount}",
 					document,
 					filteredOrdersDictionary.Count);
@@ -281,7 +310,7 @@ namespace EdoDocumentsPreparer
 				}
 
 				_logger.LogInformation("Обрабатываем запросы на переотправку без тасок");
-				
+
 				var actionsWithoutTasks = uow
 					.GetAll<OrderEdoTrueMarkDocumentsActions>()
 					.Where(x => x.IsNeedToResendEdoUpd && x.Created > DateTime.Today)
@@ -301,11 +330,11 @@ namespace EdoDocumentsPreparer
 					{
 						continue;
 					}
-					
+
 					_logger.LogInformation("Отправляем {Document} по заказу {OrderId}",
 						document,
 						reSentOrder.Id);
-				
+
 					await GenerateUpdAndSendMessage(uow, reSentOrder, document);
 				}
 			}
@@ -324,11 +353,11 @@ namespace EdoDocumentsPreparer
 			var orderPayments = _orderRepository.GetOrderPayments(uow, order.Id)
 				.Where(p => order.DeliveryDate.HasValue && p.Date < order.DeliveryDate.Value.AddDays(1))
 				.Distinct();
-					
+
 			var updInfo = InfoForCreatingEdoUpd.Create(
 				_orderConverter.ConvertOrderToOrderInfoForEdo(order),
 				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
-					
+
 			var edoContainer = EdoContainerBuilder
 				.Create()
 				.Empty()
@@ -340,12 +369,12 @@ namespace EdoDocumentsPreparer
 			{
 				edoContainer.EdoTaskId = task.Id;
 			}
-			
+
 			_logger.LogInformation("Сохраняем контейнер с {Document} {OrderId}", document, order.Id);
 			await uow.SaveAsync(edoContainer);
 			await uow.CommitAsync();
 
-			if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, document, task))
+			if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, order.Contract.Organization.Id, document, task))
 			{
 				return;
 			}
@@ -384,7 +413,7 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task PrepareBillsForSend(IUnitOfWork uow, int organizationId)
+		private async Task PrepareBillsForSend(IUnitOfWork uow, int organizationId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
 
@@ -394,13 +423,13 @@ namespace EdoDocumentsPreparer
 				var newOrdersToSend =
 					_orderRepository.GetOrdersForEdoSendBills(
 						uow, startDate, organizationId, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
-				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow);
+				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow, organizationId);
 
 				var orders = newOrdersToSend.Union(ordersToResend).ToList();
 
 				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
 
-				await SendBillsData(uow, orders);
+				await SendBillsData(uow, orders, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -409,7 +438,7 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task SendBillsData(IUnitOfWork uow, IEnumerable<Order> orders)
+		private async Task SendBillsData(IUnitOfWork uow, IEnumerable<Order> orders, CancellationToken cancellationToken)
 		{
 			foreach(var order in orders)
 			{
@@ -452,12 +481,12 @@ namespace EdoDocumentsPreparer
 					await uow.SaveAsync(edoContainer);
 					await uow.CommitAsync();
 
-					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, "Счет"))
+					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, order.Contract.Organization.Id, "Счет"))
 					{
 						continue;
 					}
 
-					await SendBillData(order, infoForCreatingEdoBill);
+					await SendBillData(order, infoForCreatingEdoBill, cancellationToken);
 				}
 				catch(Exception e)
 				{
@@ -467,12 +496,13 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task SendBillData(Order order, InfoForCreatingEdoBill infoForCreatingEdoBill)
+		private async Task SendBillData(Order order, InfoForCreatingEdoBill infoForCreatingEdoBill, CancellationToken cancellationToken)
 		{
 			try
 			{
 				_logger.LogInformation("Отправляем данные по счету {OrderId} в очередь", order.Id);
-				await _publishEndpoint.Publish(infoForCreatingEdoBill);
+
+				await _publishEndpoint.Publish(infoForCreatingEdoBill, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -526,6 +556,7 @@ namespace EdoDocumentsPreparer
 						uow,
 						edoContainer,
 						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id,
+						organization.Id,
 						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle()))
 					{
 						continue;
@@ -627,12 +658,16 @@ namespace EdoDocumentsPreparer
 			IUnitOfWork uow,
 			EdoContainer edoContainer,
 			int documentId,
+			int organizationId,
 			string document,
 			BulkAccountingEdoTask task = null)
 		{
-			if(edoContainer.Counterparty != null
-			   && (string.IsNullOrWhiteSpace(edoContainer.Counterparty.PersonalAccountIdInEdo)
-				   || edoContainer.Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree))
+			var edoAccount =
+				_edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(edoContainer.Counterparty, organizationId);
+
+			if(edoAccount is null
+				|| string.IsNullOrWhiteSpace(edoAccount.PersonalAccountIdInEdo)
+				|| edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			{
 				await TrySaveContainerByErrorState(
 					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО", task);
@@ -661,7 +696,7 @@ namespace EdoDocumentsPreparer
 					task.Status = EdoTaskStatus.Problem;
 					await uow.SaveAsync(task);
 				}
-				
+
 				await uow.SaveAsync(edoContainer);
 				await uow.CommitAsync();
 			}
@@ -676,22 +711,23 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private Organization GetOrganization(IUnitOfWork uow)
+		private async Task<IList<Organization>> GetOrganizations(IUnitOfWork uow, string[] edoAccountIds, CancellationToken cancellationToken)
 		{
-			var edoAccountId = _edoOptions.EdxClientId;
-			var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+			var organizations = await _organizationRepository.GetOrganizationsByTaxcomEdoAccountIds(uow, edoAccountIds, cancellationToken);
 
-			if(organization is null)
+			if(organizations is null)
 			{
-				_logger.LogError("Не найдена организация по edxClientId {EdoAccountId}", edoAccountId);
+				_logger.LogError("Не найдены организации по edxClientId {EdoAccountId}", edoAccountIds);
 				return null;
 			}
 
-			_logger.LogInformation(
-				"Найдена организация по edxClientId {EdoAccountId} - [{OrganizationId}]:\"{OrganizationName}\"",
-				edoAccountId, organization.Id, organization.FullName);
+			var organizationsNames = string.Join(",", organizations.Select(x => $"{x.Id}:{x.FullName}"));
 
-			return organization;
+			_logger.LogInformation(
+				"Найдены организация по edxClientId {EdoAccountId} - {OrganizationName}",
+				edoAccountIds, organizationsNames);
+
+			return organizations;
 		}
 	}
 }

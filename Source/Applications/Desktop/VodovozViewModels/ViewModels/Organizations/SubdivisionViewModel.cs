@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ReplaceSubdivisionPermissionsCommand = new DelegateCommand(ReplaceSubdivisionPermissions);
 
 			_canEnablePacs = CommonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Core.Domain.Permissions.Pacs.CanEnablePacs,
+				Vodovoz.Core.Domain.Permissions.PacsPermissions.CanEnablePacs,
 				CommonServices.UserService.CurrentUserId);
 
 			if(Entity.Id != 0)

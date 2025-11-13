@@ -4,9 +4,9 @@ using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using QS.Project.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Core.Domain.Payments
 {
@@ -43,7 +43,6 @@ namespace Vodovoz.Core.Domain.Payments
 		private Account _organizationAccount;
 		private ProfitCategory _profitCategory;
 		private PaymentEntity _refundedPayment;
-		private UserBase _currentEditorUser;
 		private IObservableList<PaymentItemEntity> _items = new ObservableList<PaymentItemEntity>();
 
 		public virtual int Id { get; set; }
@@ -277,17 +276,22 @@ namespace Vodovoz.Core.Domain.Payments
 			set => SetField(ref _isManuallyCreated, value);
 		}
 
-		/// <summary>
-		/// Пользователь, работающий с диалогом ручного распределения
-		/// </summary>
-		[Display(Name = "Пользователь, работающий с диалогом ручного распределения")]
-		[IgnoreHistoryTrace]
-		public virtual UserBase CurrentEditorUser
-		{
-			get => _currentEditorUser;
-			set => SetField(ref _currentEditorUser, value);
-		}
-
 		public virtual string NumOrders { get; set; }
+
+		public virtual PaymentEntity GetFirstParentRefundedPaymentOrCurrent()
+		{
+			if(RefundedPayment is null)
+			{
+				return this;
+			}
+
+			var payment = RefundedPayment;
+			while(payment.RefundedPayment != null)
+			{
+				payment = payment.RefundedPayment;
+			}
+			
+			return payment;
+		}
 	}
 }

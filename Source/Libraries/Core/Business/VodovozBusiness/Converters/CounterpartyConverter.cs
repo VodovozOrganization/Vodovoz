@@ -6,6 +6,7 @@ using TaxcomEdo.Contracts.Goods;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using VodovozBusiness.Converters;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Converters
 {
@@ -30,7 +31,8 @@ namespace Vodovoz.Converters
 				cargoReceiverSourceConverter ?? throw new ArgumentNullException(nameof(cargoReceiverSourceConverter));
 		}
 		
-		public CounterpartyInfoForEdo ConvertCounterpartyToCounterpartyInfoForEdo(Counterparty counterparty)
+		public CounterpartyInfoForEdo ConvertCounterpartyToCounterpartyInfoForEdo(
+			Counterparty counterparty, CounterpartyEdoAccount counterpartyEdoAccount)
 		{
 			var specialNomenclatures = ConvertCounterpartyDeliveryPointsToDeliveryPointInfoForEdo(counterparty.SpecialNomenclatures);
 			
@@ -49,7 +51,7 @@ namespace Vodovoz.Converters
 				SpecialContractNumber = counterparty.SpecialContractNumber,
 				UseSpecialDocFields = counterparty.UseSpecialDocFields,
 				JurAddress = counterparty.JurAddress,
-				PersonalAccountIdInEdo = counterparty.PersonalAccountIdInEdo,
+				PersonalAccountIdInEdo = counterpartyEdoAccount.PersonalAccountIdInEdo,
 				ReasonForLeaving = _reasonForLeavingConverter.ConvertReasonForLeavingToReasonForLeavingType(counterparty.ReasonForLeaving),
 				CargoReceiverSource = 
 					_cargoReceiverSourceConverter.ConvertCargoReceiverSourceToCargoReceiverSourceType(counterparty.CargoReceiverSource),

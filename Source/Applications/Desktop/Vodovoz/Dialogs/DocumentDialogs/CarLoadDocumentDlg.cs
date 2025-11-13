@@ -21,6 +21,7 @@ using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -29,6 +30,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Print;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
@@ -44,6 +46,8 @@ namespace Vodovoz
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private IEventsQrPlacer _eventsQrPlacer;
+		private ICounterpartyEdoAccountController _edoAccountController;
+		private ICallTaskWorker _callTaskWorker;
 
 		public INavigationManager NavigationManager { get; private set; }
 
@@ -93,6 +97,8 @@ namespace Vodovoz
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
+			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
 
 		private void ConfigureNewDoc()
@@ -262,7 +268,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			_logger.LogInformation("Меняем статус маршрутного листа...");
-			if(_routeListService.TrySendEnRoute(UoW, Entity.RouteList, out _))
+			if(_routeListService.TrySendEnRoute(UoW, Entity.RouteList, _callTaskWorker,  out _))
 			{
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			}
@@ -282,7 +288,8 @@ namespace Vodovoz
 
 			var isAllItemsMustBeLoaded =
 				(isNewEntity && Entity.RouteList.Addresses
-					.Select(a => a.Order).Any(o => o.IsNeedIndividualSetOnLoad || o.IsNeedIndividualSetOnLoadForTender))
+					.Select(a => a.Order)
+					.Any(o => o.IsNeedIndividualSetOnLoad(_edoAccountController) || o.IsNeedIndividualSetOnLoadForTender))
 				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
 
 			if(!isAllItemsMustBeLoaded)

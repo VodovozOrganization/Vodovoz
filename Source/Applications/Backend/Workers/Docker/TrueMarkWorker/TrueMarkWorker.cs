@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Infrastructure;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Controllers;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace TrueMarkWorker
@@ -121,6 +122,7 @@ namespace TrueMarkWorker
 				var organizationRepository = serviceProvider.GetRequiredService<IOrganizationRepository>();
 				var httpClientFactory = serviceProvider.GetRequiredService<IHttpClientFactory>();
 				var orderRepository = serviceProvider.GetRequiredService<IOrderRepository>();
+				var edoAccountController = serviceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
 
 				foreach(var certificate in _options.Value.OrganizationCertificates)
 				{
@@ -131,7 +133,8 @@ namespace TrueMarkWorker
 										   "Id кабинета ЭДО {OrganizationCertificateEdxClientId}",
 						organization.Id, certificate.CertificateThumbPrint, certificate.Inn, certificate.EdxClientId);
 
-					await ProcessOrganizationDocuments(uow, httpClientFactory, orderRepository, startDate, organization, certificate, stoppingToken);
+					await ProcessOrganizationDocuments(
+						uow, httpClientFactory, orderRepository, edoAccountController, startDate, organization, certificate, stoppingToken);
 				}
 			}
 			catch(Exception e)
@@ -144,6 +147,7 @@ namespace TrueMarkWorker
 			IUnitOfWork uow,
 			IHttpClientFactory httpClientFactory,
 			IOrderRepository orderRepository,
+			ICounterpartyEdoAccountController edoAccountController,
 			DateTime startDate,
 			Organization organization,
 			OrganizationCertificate certificate,
@@ -163,7 +167,16 @@ namespace TrueMarkWorker
 
 				var externalHttpClient = GetHttpClient(httpClientFactory, token, _options.Value.ExternalTrueMarkBaseUrl);
 
-				await ProcessNewOrders(uow, orderRepository, httpClientFactory, externalHttpClient, startDate, organization, certificate, cancellationToken);
+				await ProcessNewOrders(
+					uow,
+					orderRepository,
+					httpClientFactory,
+					edoAccountController,
+					externalHttpClient,
+					startDate,
+					organization,
+					certificate,
+					cancellationToken);
 
 				await ProcessOldOrdersWithErrors(uow, orderRepository, httpClientFactory, externalHttpClient, startDate, organization, certificate, cancellationToken);
 
@@ -180,6 +193,7 @@ namespace TrueMarkWorker
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IHttpClientFactory httpClientFactory,
+			ICounterpartyEdoAccountController edoAccountController,
 			HttpClient httpClient,
 			DateTime startDate,
 			Organization organization,
@@ -190,7 +204,7 @@ namespace TrueMarkWorker
 								   "отпечаток сертификата {OrganizationCertificateThumbPrint}, " +
 								   "ИНН {Inn}, ",
 								   "код личного кабинета {OrganizationTaxcomEdoAccountId}, по которым надо осуществить вывод из оборота",
-								   organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
+								   organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoSettings.EdoAccount);
 
 			var orders = orderRepository.GetOrdersForTrueMark(uow, startDate, organization.Id);
 
@@ -203,7 +217,7 @@ namespace TrueMarkWorker
 
 			try
 			{
-				await CheckAndSaveRegistrationInTrueApi(orders, httpClientFactory, uow, cancellationToken);
+				await CheckAndSaveRegistrationInTrueApi(orders, httpClientFactory, uow, edoAccountController, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -215,7 +229,7 @@ namespace TrueMarkWorker
 				_logger.LogInformation("Создаем вывод из оборота по заказу №{OrderId} для организации {OrganizationId}, " +
 									   "отпечаток сертификата {OrganizationCertificateThumbPrint}, ИНН {Inn}" +
 									   "код личного кабинета {OrganizationTaxcomEdoAccountId}",
-					order.Id, organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoAccountId);
+					order.Id, organization.Id, certificate.CertificateThumbPrint, certificate.Inn, organization.TaxcomEdoSettings.EdoAccount);
 
 				try
 				{
@@ -419,7 +433,10 @@ namespace TrueMarkWorker
 			return await RecieveDocument(httpClient, documentId, cancellationToken);
 		}
 
-		private async Task<TrueMarkDocument> RecieveDocument(HttpClient httpClient, string documentId, CancellationToken cancellationToken)
+		private async Task<TrueMarkDocument> RecieveDocument(
+			HttpClient httpClient,
+			string documentId,
+			CancellationToken cancellationToken)
 		{
 			var resultInfoUrl = $"v4/true-api/doc/{documentId}/info";
 
@@ -487,9 +504,14 @@ namespace TrueMarkWorker
 			};
 		}
 
-		private async Task CheckAndSaveRegistrationInTrueApi(IList<Order> orders, IHttpClientFactory httpClientFactory, IUnitOfWork uow, CancellationToken cancellationToken)
+		private async Task CheckAndSaveRegistrationInTrueApi(
+			IList<Order> orders,
+			IHttpClientFactory httpClientFactory,
+			IUnitOfWork uow,
+			ICounterpartyEdoAccountController edoAccountController,
+			CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Проверям регистрацию клиентов в Четсном Знаке");
+			_logger.LogInformation("Проверям регистрацию клиентов в Честном Знаке");
 
 			var notRegisteredInns =
 				orders.Where(o => o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
@@ -526,7 +548,7 @@ namespace TrueMarkWorker
 
 						uow.Save(counterparty);
 
-						CheckAndRemoveOrderFromProcessingList(orders, orderForUpdate);
+						CheckAndRemoveOrderFromProcessingList(edoAccountController, orders, orderForUpdate);
 					}
 				}
 			}
@@ -555,10 +577,20 @@ namespace TrueMarkWorker
 			return new List<ParticipantRegistrationDto>();
 		}
 
-		private void CheckAndRemoveOrderFromProcessingList(IList<Order> orders, Order order)
+		private void CheckAndRemoveOrderFromProcessingList(
+			ICounterpartyEdoAccountController edoAccountController,
+			IList<Order> orders,
+			Order order)
 		{
-			if(order.Client is Counterparty counterparty
-			   && counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+			if(order.Client == null)
+			{
+				return;
+			}
+
+			var edoAccount =
+				edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
+
+			if(edoAccount is { ConsentForEdoStatus: ConsentForEdoStatus.Agree })
 			{
 				orders.Remove(order);
 			}

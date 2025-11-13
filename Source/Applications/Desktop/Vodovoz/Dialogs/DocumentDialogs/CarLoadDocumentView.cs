@@ -1,7 +1,10 @@
 ﻿using Autofac;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Journal.GtkUI;
+using QS.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +14,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Gtk;
-using QS.Journal.GtkUI;
-using QS.Navigation;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.TrueMark;
 
 namespace Vodovoz
@@ -41,7 +42,7 @@ namespace Vodovoz
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
-				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount ).Editing()
+				.AddColumn("Отгружаемое кол-во").AddNumericRenderer(x => x.Amount, new RoundedDecimalToStringConverter()).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddSetter((w, x) =>
@@ -90,7 +91,7 @@ namespace Vodovoz
 			{
 				return;
 			}
-			_navigator.OpenViewModel<OrderCodesViewModel, int>(null, selectedItem.OrderId.Value);
+			_navigator.OpenViewModel<OrderCodesViewModel, int>(null, selectedItem.OrderId.Value, OpenPageOptions.IgnoreHash);
 		}
 
 		public void FillItemsByWarehouse()

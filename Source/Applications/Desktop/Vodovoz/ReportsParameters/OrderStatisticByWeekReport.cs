@@ -13,6 +13,11 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using QS.Commands;
+using QS.Dialog;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Logistic;
 
@@ -25,15 +30,20 @@ namespace Vodovoz.ReportsParameters
 		private bool _showPotentialOrders;
 		private OrderStatisticsByWeekReportType _reportType;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IInteractiveService _iInteractiveService;
 
-		public OrderStatisticByWeekReport(IReportInfoFactory reportInfoFactory)
+		public OrderStatisticByWeekReport(
+			IReportInfoFactory reportInfoFactory,
+			IInteractiveService iInteractiveService)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_iInteractiveService = iInteractiveService ?? throw new ArgumentNullException(nameof(iInteractiveService));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, 1, 1);
-			dateperiodpicker.EndDate = DateTime.Today;
+			dateperiodpicker.EndDate = DateTime.Today.AddDays(-1);
+			dateperiodpicker.PeriodChangedByUser += OnPeriodChangedByUser;
 
 			cmbReportType.ItemsEnum = typeof(OrderStatisticsByWeekReportType);
 			cmbReportType.Binding
@@ -55,6 +65,9 @@ namespace Vodovoz.ReportsParameters
 				.AddBinding(this, e => e.ShowPotentialOrders, w => w.Active)
 				.AddBinding(this, e => e.CanChangeShowPotentialOrders, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			InfoCommand = new DelegateCommand(ShowInfo);
+			buttonInfo.BindCommand(InfoCommand);
 		}
 
 		private bool CanChangeShowPotentialOrders => ReportType == OrderStatisticsByWeekReportType.Plan;
@@ -64,6 +77,8 @@ namespace Vodovoz.ReportsParameters
 			get => _showPotentialOrders;
 			set => SetField(ref _showPotentialOrders, value);
 		}
+		
+		private ICommand InfoCommand { get; set; }
 		
 		private OrderStatisticsByWeekReportType ReportType
 		{
@@ -168,6 +183,16 @@ namespace Vodovoz.ReportsParameters
 			
 			return result;
 		}
+		
+		private void OnPeriodChangedByUser(object sender, EventArgs e)
+		{
+			if((dateperiodpicker.EndDate.Date >= DateTime.Today)
+				|| (dateperiodpicker.EndDate == default && dateperiodpicker.StartDate.Date <= DateTime.Today))
+			{
+				MessageDialogHelper.RunWarningDialog("Внимание! В отчет попадают заказы, которые добавлены в МЛ." +
+					" В текущем дне информация меняется в онлайне и некорректна для статистики");
+			}
+		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -182,6 +207,27 @@ namespace Vodovoz.ReportsParameters
 			field = value;
 			OnPropertyChanged(propertyName);
 			return true;
+		}
+		
+		private void ShowInfo()
+		{
+			_iInteractiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"В отчет попадают заказы в выбранном интервале\n" +
+				$"не в статусах <b>{ OrderStatus.NewOrder.GetEnumTitle() }, { OrderStatus.Canceled.GetEnumTitle() }, { OrderStatus.WaitForPayment.GetEnumTitle() }</b>\n" +
+				"не самовывозы, не закрывашки по контракту, исключая сервисные\n" +
+				$"с заполненным графиком доставки и точкой доставки. Находящиеся в МЛ не с фурой, не в статусе <b>{ RouteListItemStatus.Transfered.GetEnumTitle() }</b>\n" +
+				$"Если выбран тип отчета Факт, то дополнительно исключаются заказы со статусами <b>{ OrderStatus.DeliveryCanceled.GetEnumTitle() }, { OrderStatus.NotDelivered.GetEnumTitle() }</b>\n" +
+				"При выборе Показать потенциальные заказы, дополнительно выдается выборка по заказам, у которых менялась дата доставки, которая теперь не входит в интервал\n\r" +
+				"Если текущий день попадает в выборку, то будет всплывающее окно с сообщением \"Внимание! В отчет попадают заказы, которые добавлены в МЛ. " +
+				"В текущем дне информация меняется в онлайне и некорректна для статистики\""
+				);
+		}
+
+		public override void Destroy()
+		{
+			dateperiodpicker.PeriodChangedByUser -= OnPeriodChangedByUser;
+			base.Destroy();
 		}
 	}
 }

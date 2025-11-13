@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -107,7 +108,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "bill_ws_for_payment_id", Id },
 				{ "special_contract_number", SpecialContractNumber },
-				{ "organization_id", settings.GetCashlessOrganisationId },
+				{ "organization_id", Organization.Id },
 				{ "hide_signature", HideSignature },
 				{ "special", false }
 			};
@@ -119,7 +120,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
 
 		public virtual string Name => string.Format($"Счет №Ф{Id}");
-
+		
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.GetSpecialContractString() : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
@@ -133,7 +134,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => copiesToPrint;
 			set => copiesToPrint = value;
 		}
-
+		
 		#region Свои свойства
 
 		private bool hideSignature;
@@ -145,7 +146,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
 
@@ -204,5 +205,5 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(OrderWithoutDeliveryForPaymentItems)}
 				);
 		}
-	}
+	} 
 }

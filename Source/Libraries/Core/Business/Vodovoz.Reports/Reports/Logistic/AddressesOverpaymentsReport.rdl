@@ -605,7 +605,7 @@
           <TextAlign>Left</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.25pt</Height>
@@ -654,7 +654,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     master.emplName as empl_name,
@@ -687,6 +687,7 @@ FROM
                     WHEN 'Largus' THEN 'Л'
                     WHEN 'Truck' THEN 'Ф'
                     WHEN 'GAZelle' THEN 'Г'
+                    WHEN 'Minivan' THEN 'Т'
                     WHEN NULL THEN '-'
                     ELSE 'Неизв.'
                 END,
@@ -802,7 +803,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="empl_name">
           <DataField>empl_name</DataField>
           <TypeName>System.String</TypeName>
@@ -852,7 +853,7 @@ FROM
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

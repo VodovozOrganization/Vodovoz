@@ -15,21 +15,13 @@ using Vodovoz.Settings.Orders;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "место, откуда проведены оплаты",
-		Nominative = "место, откуда проведена оплата")]
+		NominativePlural = "Источники оплат",
+		GenitivePlural = "Источников оплат",
+		Nominative = "Источник оплаты")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class PaymentFrom : PaymentFromEntity, IValidatableObject
 	{
-		private Organization _organizationForOnlinePayments;
-
-		[Display(Name = "Организация для онлайн оплаты")]
-		public virtual Organization OrganizationForOnlinePayments
-		{
-			get => _organizationForOnlinePayments;
-			set => SetField(ref _organizationForOnlinePayments, value);
-		}
-
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
@@ -48,15 +40,6 @@ namespace Vodovoz.Domain.Orders
 			if(string.IsNullOrWhiteSpace(Name))
 			{
 				yield return new ValidationResult("Название должно быть заполнено", new[] { nameof(Name) });
-			}
-
-			if(Id > 0
-				&& OrganizationForOnlinePayments != null
-				&& orderSettings.PaymentsByCardFromAvangard.Contains(Id)
-				&& !OrganizationForOnlinePayments.AvangardShopId.HasValue)
-			{
-				yield return new ValidationResult("Организация присвоена источнику Авангарда, но в базе не заполнено avangard_shop_Id",
-					new[] { nameof(OrganizationForOnlinePayments.AvangardShopId) });
 			}
 
 			using(var uow = uowFactory.CreateWithoutRoot())

@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>bitrix.api</ContainerRepository>
+  </PropertyGroup>
+</Project>

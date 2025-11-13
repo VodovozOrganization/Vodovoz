@@ -88,11 +88,11 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 		                      $"Статус отправки: {Entity.Stage.GetEnumDisplayName()}";
 
 		public IList<string> Codes => Entity.Items.Select(x =>
-			string.Concat("\"01", x.ProductCode.ResultCode.GTIN, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
+			string.Concat("\"01", x.ProductCode.ResultCode.Gtin, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
 
 		public DelegateCommand ExportCodesCommand { get; }
 
 		public bool CanCloseTenderEdoTask =>
-			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Edo.CanCloseTenderEdoTask, CurrentUser.Id);
+			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoPermissions.CanCloseTenderEdoTask, CurrentUser.Id);
 	}
 }

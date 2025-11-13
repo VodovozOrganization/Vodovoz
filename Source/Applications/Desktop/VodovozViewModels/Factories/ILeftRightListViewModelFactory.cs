@@ -7,6 +7,7 @@ namespace Vodovoz.ViewModels.Factories
 	{
 		LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor();
 		LeftRightListViewModel<GroupingNode> CreateSalesWithDynamicsReportGroupingsConstructor();
+		void SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(LeftRightListViewModel<GroupingNode> leftRightListViewModel);
 		LeftRightListViewModel<GroupingNode> CreateCompletedDriverEventsSortingConstructor();
 		LeftRightListViewModel<GroupingNode> CreateEdoControlReportGroupingsConstructor();
 	}

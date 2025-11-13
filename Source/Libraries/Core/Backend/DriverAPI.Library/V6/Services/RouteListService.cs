@@ -16,13 +16,18 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
+using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI.Library.V6.Services
 {
 	internal class RouteListService : IRouteListService
 	{
 		private readonly ILogger<RouteListService> _logger;
+		private readonly IDomainRouteListSpecialConditionsService _domainRouteListSpecialConditionsService;
+		private readonly IDomainRouteListTransferService _domainRouteListTransferService;
 		private readonly IDomainRouteListService _domainRouteListService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -33,6 +38,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -43,10 +49,13 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<Employee> employeeGenericRepository,
 			IGenericRepository<RouteListItem> routeListAddressesRepository,
 			IUnitOfWork unitOfWork,
+			IDomainRouteListSpecialConditionsService domainRouteListSpecialConditionsService,
+			IDomainRouteListTransferService domainRouteListTransferService,
 			IDomainRouteListService domainRouteListService,
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
-			IFastPaymentService fastPaymentService)
+			IFastPaymentService fastPaymentService,
+			ICallTaskWorker callTaskWorker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -56,10 +65,13 @@ namespace DriverAPI.Library.V6.Services
 			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
 			_routeListAddressesRepository = routeListAddressesRepository ?? throw new ArgumentNullException(nameof(routeListAddressesRepository));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_domainRouteListSpecialConditionsService = domainRouteListSpecialConditionsService ?? throw new ArgumentNullException(nameof(domainRouteListSpecialConditionsService));
+			_domainRouteListTransferService = domainRouteListTransferService ?? throw new ArgumentNullException(nameof(domainRouteListTransferService));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -71,7 +83,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
 			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
@@ -90,7 +102,7 @@ namespace DriverAPI.Library.V6.Services
 
 					if(!routeList.SpecialConditionsAccepted)
 					{
-						spectiaConditionsToAccept = _domainRouteListService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
+						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
@@ -110,7 +122,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(driver is null)
 			{
-				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
@@ -126,19 +138,19 @@ namespace DriverAPI.Library.V6.Services
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ {RouteListItemId} не нейден", routeListAddressId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(routeListAddress.Order is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var deliveryPoint = routeListAddress.Order.DeliveryPoint;
 
 			if(deliveryPoint is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPoint.NotFound);
+				return Result.Failure(Vodovoz.Errors.Clients.DeliveryPointErrors.NotFound);
 			}
 
 			if(routeListAddress.RouteList.Driver.Id != driverId)
@@ -161,7 +173,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
@@ -174,7 +186,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListAddress.Status,
 					driverId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			var coordinate = new DeliveryPointEstimatedCoordinate()
@@ -200,14 +212,14 @@ namespace DriverAPI.Library.V6.Services
 		{
 			if(routeListAddressId <= 0)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			var routeListAddress = _routeListItemRepository.GetRouteListItemById(_unitOfWork, routeListAddressId);
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
 			}
 
 			if(!IsRouteListBelongToDriver(routeListAddress.RouteList.Id, driverId))
@@ -222,15 +234,15 @@ namespace DriverAPI.Library.V6.Services
 
 			if(routeListAddress.RouteList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.Completed)
 			{
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState);
 			}
-
-			routeListAddress.RouteList.ChangeAddressStatus(_unitOfWork, routeListAddress.Id, RouteListItemStatus.EnRoute);
+			
+			_domainRouteListService.ChangeAddressStatus(_unitOfWork, routeListAddress.RouteList, routeListAddress.Id, RouteListItemStatus.EnRoute, _callTaskWorker);
 
 			_unitOfWork.Save(routeListAddress.RouteList);
 			_unitOfWork.Save(routeListAddress);
@@ -254,7 +266,7 @@ namespace DriverAPI.Library.V6.Services
 					address => address.Id == routeListAddressId)
 				.FirstOrDefault();
 
-			var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+			var sourceResult = _domainRouteListTransferService.FindTransferSource(_unitOfWork, address);
 
 			if(sourceResult.IsFailure)
 			{
@@ -269,7 +281,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlinePaymentNumber) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressIncomingTransferDto
 			{
@@ -298,7 +310,7 @@ namespace DriverAPI.Library.V6.Services
 					|| address.Order.OrderStatus == OrderStatus.Shipped))
 				.FirstOrDefault();
 
-			var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+			var targetAddressResult = _domainRouteListTransferService.FindTransferTarget(_unitOfWork, address);
 
 			if(targetAddressResult.IsFailure)
 			{
@@ -313,7 +325,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var paid = _fastPaymentService
-				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlineOrder) == FastPaymentStatus.Performed;
+				.GetOrderFastPaymentStatus(address.Order.Id, address.Order.OnlinePaymentNumber) == FastPaymentStatus.Performed;
 
 			return new RouteListAddressOutgoingTransferDto
 			{
@@ -341,7 +353,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(currentDriver is null)
 			{
-				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.Driver.NotFound);
+				return Result.Failure<DriverTransfersInfoResponse>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
 			return new DriverTransfersInfoResponse
@@ -362,7 +374,7 @@ namespace DriverAPI.Library.V6.Services
 
 			foreach (var address in outgoingAddresses)
 			{
-				var targetAddressResult = _domainRouteListService.FindTransferTarget(_unitOfWork, address);
+				var targetAddressResult = _domainRouteListTransferService.FindTransferTarget(_unitOfWork, address);
 
 				if(targetAddressResult.IsFailure)
 				{
@@ -400,7 +412,7 @@ namespace DriverAPI.Library.V6.Services
 
 			foreach(var address in incomingAddresses)
 			{
-				var sourceResult = _domainRouteListService.FindTransferSource(_unitOfWork, address);
+				var sourceResult = _domainRouteListTransferService.FindTransferSource(_unitOfWork, address);
 
 				if(sourceResult.IsSuccess)
 				{
@@ -431,7 +443,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(order is null)
 			{
-				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<IEnumerable<TransferItemDto>>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var result = new List<TransferItemDto>();

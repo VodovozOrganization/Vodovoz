@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Edo.Docflow
 {
@@ -77,7 +79,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoAccountId,
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo
 			};
@@ -117,13 +119,14 @@ namespace Edo.Docflow
 			{
 				case CustomerEdoRequestType.Order:
 					var order = documentTask.OrderEdoRequest.Order;
-					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id);
-					var filteredPayments = 
-						payments.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
-						.Distinct();
+					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id)
+						.Select(payment => payment.GetFirstParentRefundedPaymentOrCurrent())
+						.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
+						.Distinct()
+						.ToList();
 					
 					sender = order.Contract.Organization;
-					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, filteredPayments, cancellationToken);
+					updInfo = await _orderUpdInfoFactory.CreateUniversalTransferDocumentInfo(documentTask, payments, cancellationToken);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 				case CustomerEdoRequestType.OrderWithoutShipmentForDebt:
@@ -135,7 +138,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = sender.TaxcomEdoAccountId,
+				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo
 			};
@@ -160,7 +163,8 @@ namespace Edo.Docflow
 			{
 				case EdoDocFlowStatus.InProgress:
 					// Тут сделать обработку успешной отправки
-					// проверять по документам такском а не по статусу InProgress
+					// проверять по документам такскома не по статусу InProgress
+					document.Status = EdoDocumentStatus.InProgress;
 					break;
 				case EdoDocFlowStatus.Succeed:
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
@@ -219,7 +223,6 @@ namespace Edo.Docflow
 					break;
 
 				// аннулирование
-				// мапим на Problem
 				case EdoDocFlowStatus.WaitingForCancellation:
 					document.Status = EdoDocumentStatus.WaitingForCancellation;
 					break;
@@ -260,6 +263,40 @@ namespace Edo.Docflow
 			{
 				await _messageBus.Publish(message, cancellationToken);
 			}
+		}
+
+		public async Task HandleTransferDocumentCancellation(int taskId, string reason, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.QueryOver<TransferEdoDocument>()
+				.Where(x => x.TransferTaskId == taskId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogWarning("Документ для задачи трансфера №{TaskId} не найден.", taskId);
+				return;
+			}
+
+			if(document.Status == EdoDocumentStatus.Cancelled)
+			{
+				_logger.LogWarning("Документ для задачи трансфера №{TaskId} уже отменен.", taskId);
+				return;
+			}
+
+			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(taskId, cancellationToken);
+
+			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
+				.Where(x => x.Id == transferTask.TransferOrderId)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			var message = new TaxcomDocflowRequestCancellationEvent
+			{
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
+				DocumentId = document.Id,
+				CancellationReason = reason
+			};
+
+			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		public void Dispose()

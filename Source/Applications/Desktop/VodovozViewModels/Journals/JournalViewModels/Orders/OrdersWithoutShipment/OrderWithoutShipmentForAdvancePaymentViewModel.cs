@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -14,8 +14,10 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.ViewModels.Control.EEVM;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
@@ -25,11 +27,14 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -37,6 +42,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Organizations;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -45,6 +51,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly IUserRepository _userRepository;
 		private readonly IEmailRepository _emailRepository;
+		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IOrderSettings _orderSettings;
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly IEmailSettings _emailSettings;
@@ -61,6 +69,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private object _selectedItem;
 		
 		public Action<string> OpenCounterpartyJournal;
+		private bool _canSetOrganization = true;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -79,7 +88,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IRDLPreviewOpener rdlPreviewOpener,
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
-			IEdoService edoService)
+			IEdoService edoService,
+			IOrganizationSettings organizationSettings,
+			IOrderSettings orderSettings,
+			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -88,6 +100,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailRepository = emailRepository;
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
@@ -101,6 +115,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
+			OrganizationViewModel = organizationViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.Organization)
+				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
+				.Finish();
+			
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+			
 			SetPermissions();
 			
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -114,10 +138,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						AbortOpening();
 						return;
 					}
-					else
-					{
-						Entity.Author = currentEmployee;
-					}
+					Entity.Author = currentEmployee;
 				}
 				else
 				{
@@ -141,7 +162,156 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			FillDiscountReasons(discountReasonRepository);
 
 			UpdateEdoContainers();
+			InitializeCommands();
 
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateEmails();
+		}
+		
+		private void UpdateEmails()
+		{
+			var email = Entity.GetEmailAddressForBill();
+
+			SendDocViewModel.Update(Entity, email is null ? string.Empty : email.Address);
+		}
+
+		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
+
+		public bool CanSetOrganization
+		{
+			get => _canSetOrganization;
+			set => SetField(ref _canSetOrganization, value);
+		}
+
+		public IEntityUoWBuilder EntityUoWBuilder { get; }
+		
+		public IEntityEntryViewModel OrganizationViewModel { get; }
+
+		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+
+		public object SelectedItem
+		{
+			get => _selectedItem;
+			set => SetField(ref _selectedItem, value);
+		}
+		
+		public IList<DiscountReason> DiscountReasons { get; private set; }
+		public IOrderDiscountsController DiscountsController { get; }
+		public bool CanChangeDiscountValue { get; private set; }
+		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
+		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
+		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		
+		public DelegateCommand AddForSaleCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
+		public DelegateCommand DeleteItemCommand { get; private set; }
+		public DelegateCommand OpenBillCommand { get; private set; }
+		
+		private UserSettings CurrentUserSettings =>
+			_currentUserSettings ??
+			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
+		
+		public void OnTabAdded()
+		{
+			if(EntityUoWBuilder.IsNewEntity)
+			{
+				OpenCounterpartyJournal?.Invoke(string.Empty);
+			}
+		}
+		
+		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			var edoValidateResult = _edoService.ValidateEdoContainers(EdoContainers);
+
+			var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
+
+			if(edoValidateResult.IsFailure)
+			{
+				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
+					&& !CommonServices.InteractiveService.Question(
+						"Вы уверены, что хотите отправить дубль?\n" +
+						string.Join("\n", errorMessages),
+						"Требуется подтверждение!"))
+				{
+					return;
+				}
+			}
+
+			if(UoW.IsNew)
+			{
+				if(CommonServices.InteractiveService.Question("Перед отправкой необходимо сохранить счёт, продолжить?"))
+				{
+					UoW.Save();
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, EdoDocumentType.BillWSForAdvancePayment);
+
+			UpdateEdoContainers();
+
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			OnPropertyChanged(nameof(CanResendEdoBill));
+
+			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Отправлено");
+		}
+
+		public void UpdateEdoContainers()
+		{
+			EdoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
+				{
+					EdoContainers.Add(item);
+				}
+
+				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow,x => x.OrderWithoutShipmentForAdvancePayment.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
+					.FirstOrDefault();
+
+				if(action != null)
+				{
+					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend };
+					EdoContainers.Add(tempContainer);
+				}
+			}
+		}
+
+		public void OnCounterpartyEntityViewModelEntryChanged(object sender, EventArgs e)
+		{
+			UpdateEmails();
+		}
+
+		public override bool Save(bool close)
+		{
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			return base.Save(close);
+		}
+
+		protected override bool BeforeSave()
+		{
+			if(Entity.Organization != null)
+			{
+				return true;
+			}
+
+			ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+				
+			return false;
+		}
+
+		private void InitializeCommands()
+		{
 			AddForSaleCommand = new DelegateCommand(
 				() =>
 				{
@@ -204,8 +374,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OpenBillCommand = new DelegateCommand(
 				() =>
 				{
-					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+					var whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
+					if(Entity.Organization == null)
+					{
+						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
+						return;
+					}
+					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 					{
 						if(Save(false))
@@ -220,8 +396,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					}
 				},
 				() => true);
-
-			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		private void SetPermissions()
@@ -235,47 +409,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_userHavePermissionToResendEdoDocuments =
 				CommonServices.PermissionService.ValidateUserPresetPermission(
-					Vodovoz.Core.Domain.Permissions.EdoContainer.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+					Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 		}
-
-
-		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
-
-		public IEntityUoWBuilder EntityUoWBuilder { get; }
-
-		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
-
-		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
-
-		public object SelectedItem
-		{
-			get => _selectedItem;
-			set => SetField(ref _selectedItem, value);
-		}
-
-		private UserSettings CurrentUserSettings =>
-			_currentUserSettings ??
-			(_currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId));
-
-		public IList<DiscountReason> DiscountReasons { get; private set; }
-		public IOrderDiscountsController DiscountsController { get; }
-		public bool CanChangeDiscountValue { get; private set; }
-
-		#region Commands
-
-		public DelegateCommand AddForSaleCommand { get; }
-
-		public DelegateCommand CancelCommand { get; }
-
-		public DelegateCommand DeleteItemCommand { get; }
-
-		public DelegateCommand OpenBillCommand { get; }
-
-		#endregion Commands
-
-		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
-
-		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
 
 		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -283,15 +418,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			{
 				OnPropertyChanged(nameof(CanSendBillByEdo));
 				OnPropertyChanged(nameof(CanResendEdoBill));
-			}
-		}
-		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
-
-		public void OnTabAdded()
-		{
-			if(EntityUoWBuilder.IsNewEntity)
-			{
-				OpenCounterpartyJournal?.Invoke(string.Empty);
 			}
 		}
 
@@ -322,91 +448,16 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
-
-		public void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		
+		private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
 		{
-			var edoValidateResult = _edoService.ValidateEdoContainers(EdoContainers);
-
-			var errorMessages = edoValidateResult.Errors.Select(x => x.Message).ToArray();
-
-			if(edoValidateResult.IsFailure)
-			{
-				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.Edo.AlreadySuccefullSended)
-					&& !CommonServices.InteractiveService.Question(
-						"Вы уверены, что хотите отправить дубль?\n" +
-						string.Join("\n", errorMessages),
-						"Требуется подтверждение!"))
-				{
-					return;
-				}
-			}
-
-			if(UoW.IsNew)
-			{
-				if(CommonServices.InteractiveService.Question("Перед отправкой необходимо сохранить счёт, продолжить?"))
-				{
-					UoW.Save();
-				}
-				else
-				{
-					return;
-				}
-			}
-
-			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, EdoDocumentType.BillWSForAdvancePayment);
-
-			UpdateEdoContainers();
-
-			OnPropertyChanged(nameof(CanSendBillByEdo));
-			OnPropertyChanged(nameof(CanResendEdoBill));
-
-			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Отправлено");
-		}
-
-		public void UpdateEdoContainers()
-		{
-			EdoContainers.Clear();
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				foreach(var item in _edoContainerRepository.Get(uow, EdoContainerSpecification.CreateForOrderWithoutShipmentForAdvancePaymentId(Entity.Id)))
-				{
-					EdoContainers.Add(item);
-				}
-
-				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow,x => x.OrderWithoutShipmentForAdvancePayment.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
-					.FirstOrDefault();
-
-				if(action != null)
-				{
-					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForAdvancePayment, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend };
-					EdoContainers.Add(tempContainer);
-				}
-			}
-		}
-
-		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
-		{
-			var email = Entity.GetEmailAddressForBill();
-
-			if(email is null)
-			{
-				SendDocViewModel.Update(Entity, string.Empty);
-			}
-			else
-			{
-				SendDocViewModel.Update(Entity, email.Address);
-			}
-		}
-
-		public override bool Save(bool close)
-		{
-			OnPropertyChanged(nameof(CanSendBillByEdo));
-			return base.Save(close);
+			return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x =>
+				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderSettings.OldInternalOnlineStoreId);
 		}
 
 		public override void Dispose()
 		{
+			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

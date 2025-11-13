@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -26,46 +26,54 @@
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <PaddingTop>0pt</PaddingTop>
+          <PaddingBottom>0pt</PaddingBottom>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>28.1pt</Width>
+            <Width>20.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.1pt</Width>
+            <Width>52.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>99.6pt</Width>
+            <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.3pt</Width>
+            <Width>80.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.3pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.6pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.4pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.5pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.1pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.7pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.3pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.9pt</Width>
+            <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.5pt</Width>
+            <Width>27.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>40.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>20.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -94,7 +102,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>13</ColSpan>
+                  <ColSpan>15</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -123,11 +131,11 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>10</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox49">
+                    <Textbox Name="Textbox46">
                       <Value>="Сформировано: " + Format( {@ExecutionTime}, "dd.MM.yyyy HH:mm")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -146,7 +154,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>9</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -166,6 +174,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -183,6 +192,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -200,6 +210,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,7 +218,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Организация</Value>
+                      <Value>=Iif({?show_phones}, "Телефоны", "Организация")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -217,6 +228,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -237,6 +249,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -257,6 +270,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -274,6 +288,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -291,6 +306,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -308,6 +324,43 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DebtorDebtHeader">
+                      <Value>Дебиторская задол-женность</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="OverdueDebtorDebtHeader">
+                      <Value>Просроченная дебиторская задол-женность</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -315,7 +368,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>Отсрочка контра-гента</Value>
+                      <Value>Отс-рочка конт-раген-та</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -333,8 +386,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Max дней просро-
-чки</Value>
+                      <Value>Max дней прос-рочки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -352,8 +404,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>Тип задол-
-женности</Value>
+                      <Value>Тип задол-жен-ности</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -371,9 +422,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Ликви-
-диро-
-ван</Value>
+                      <Value>Лик-ви-ди-ро-ван</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -391,7 +440,7 @@
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>15pt</Height>
+              <Height>30pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -470,6 +519,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingRight>2pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -492,6 +542,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -514,6 +565,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -536,6 +588,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -558,6 +611,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -580,6 +634,53 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TotalDebtorDebt">
+                      <Value>=Sum({debtor_debt})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TotalOverdueDebtorDebt">
+                      <Value>=Sum({overdue_debtor_debt})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -741,7 +842,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>={org_name}</Value>
+                      <Value>=Iif({?show_phones}, {phones}, {org_name})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -753,8 +854,12 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
-                        <PaddingTop>1pt</PaddingTop>
-                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingTop>=Iif(
+    {?show_phones},
+    CStr((Len({phones}) / 20)) + "pt",
+    "1pt"
+)</PaddingTop>
+                        <PaddingBottom>=Len({phones}) / 20 + "pt"</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -779,6 +884,7 @@
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -801,6 +907,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -823,6 +930,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -845,7 +953,9 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -866,6 +976,53 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DebtorDebtValue">
+                      <Value>={debtor_debt}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="OverdueDebtorDebtValue">
+                      <Value>={overdue_debtor_debt}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>1pt</PaddingTop>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>#,##0.00</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -888,6 +1045,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -910,6 +1068,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                         <Format>0</Format>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -995,12 +1154,18 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
         c.inn AS inn,
         c.name AS counterparty_name,
+        IF
+        (
+	        EXISTS(SELECT 1 FROM phones p WHERE p.counterparty_id = o.client_id AND p.digits_number IS NOT NULL),
+	        (SELECT GROUP_CONCAT(DISTINCT CONCAT('+7', p.digits_number) SEPARATOR ',\n') FROM phones p WHERE p.counterparty_id = o.client_id ORDER BY p.id DESC),
+	        GROUP_CONCAT(DISTINCT (SELECT CONCAT('+7', p.digits_number) FROM phones p WHERE p.id = o.contact_phone_id ORDER BY p.id DESC) SEPARATOR ',\n')	        
+	    ) AS phones,
         org.name AS org_name,
         (
             (SELECT IFNULL(SUM(cmo.income), 0)
@@ -1040,11 +1205,63 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
+        -- Просроченная дебиторская задолженность (сумма долгов с превышением отсрочки)
+                IFNULL(
+                    ROUND(
+                        SUM(
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                 FROM order_items oi
+                                 WHERE oi.order_id = o.id)
+                            ELSE 0 END),
+                        2),
+                    0
+                ) AS overdue_debtor_debt,
+                -- Дебиторская задолженность (непросроченная, т.е. общий долг минус просроченная)
+                (IFNULL(
+                    ROUND(
+                           SUM(
+                               (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                   FROM order_items oi
+                                   WHERE oi.order_id = o.id)),
+                           2),
+                    0
+                ) - (
+                    (SELECT IFNULL(SUM(cmo.income), 0)
+                        FROM cashless_movement_operations cmo
+                        WHERE cmo.counterparty_id = c.id
+                          AND cmo.cashless_movement_operation_status != 'Cancelled')
+                    -
+                    (SELECT IFNULL(SUM(pi.sum), 0)
+                        FROM payment_items pi
+                        INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
+                        WHERE pfbc.counterparty_id = c.id
+                          AND pi.payment_item_status != 'Cancelled')
+                ) - IFNULL(
+                    SUM(
+                    (SELECT SUM(cmo.expense)
+                        FROM payment_items pi
+                        INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                        WHERE pi.order_id = o.id
+                          AND cmo.cashless_movement_operation_status != 'Cancelled')),
+                    0
+                )) - 
+                IFNULL(
+                    ROUND(
+                        SUM(
+                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                                 FROM order_items oi
+                                 WHERE oi.order_id = o.id)
+                            ELSE 0 END),
+                        2),
+                    0
+                ) AS debtor_debt,
         c.delay_days_for_buyers,
-        MAX(DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT)) AS max_delay_days_fact,
-        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судебный"
+        DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
+        CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
-              WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Краткосрочный"
+              WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
          	  ELSE ""
          	  END as counterparty_debt_type,
         CASE WHEN c.is_liquidating = 0 THEN "Нет"
@@ -1052,6 +1269,7 @@
         END as liquidating_info
     FROM orders o
     INNER JOIN counterparty c ON o.client_id = c.id
+    LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
     LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
     LEFT JOIN organizations org ON cc.organization_id = org.id
     WHERE o.order_payment_status != 'Paid'
@@ -1063,6 +1281,14 @@
              (0 IN (@Counterparty_include) OR (o.client_id IN (@Counterparty_include)))
 				AND (NOT (o.client_id IN (@Counterparty_exclude)) OR o.client_id IS NULL)
          )
+      AND (
+            (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+            AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
+      AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      ) 
       AND
         (
             (
@@ -1088,6 +1314,11 @@
       AND (('0' IN (@DebtType_include) OR c.close_delivery_debt_type IN (@DebtType_include))
       		AND (NOT c.close_delivery_debt_type IN (@DebtType_exclude) OR c.close_delivery_debt_type IS NULL)
       )
+      AND
+      (
+          ('0' IN (@RevenueStatus_include) OR (c.revenue_status IN (@RevenueStatus_include)))
+          AND (NOT (c.revenue_status IN (@RevenueStatus_exclude)) OR c.revenue_status IS NULL)
+      )
       AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
@@ -1100,6 +1331,7 @@
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
       AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
+      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
       AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
     GROUP BY org.id, c.id
     ) AS T
@@ -1121,11 +1353,23 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <QueryParameter Name="Counterparty_exclude">
             <Value>={?Counterparty_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
           <QueryParameter Name="CounterpartyType_include">
             <Value>={?CounterpartyType_include}</Value>
           </QueryParameter>
           <QueryParameter Name="CounterpartyType_exclude">
             <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="CounterpartySubtype_include">
             <Value>={?CounterpartySubtype_include}</Value>
@@ -1157,9 +1401,18 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <QueryParameter Name="is_liquidated">
             <Value>={?is_liquidated}</Value>
           </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_include">
+            <Value>={?RevenueStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_exclude">
+            <Value>={?RevenueStatus_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
@@ -1204,6 +1457,18 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <DataField>writeoffs_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="debtor_debt">
+          <DataField>debtor_debt</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="overdue_debtor_debt">
+          <DataField>overdue_debtor_debt</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="phones">
+          <DataField>phones</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -1218,7 +1483,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -1263,6 +1528,34 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
@@ -1351,6 +1644,34 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_tender">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_phones">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

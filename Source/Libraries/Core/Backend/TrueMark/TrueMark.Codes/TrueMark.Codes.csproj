@@ -6,11 +6,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TrueMark.Contracts\TrueMark.Contracts.csproj"/>
+        <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+        <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+        <ProjectReference Include="..\..\TrueMarkApi.Client\TrueMarkApi.Client.csproj" />
+        <ProjectReference Include="..\TrueMark.Contracts\TrueMark.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

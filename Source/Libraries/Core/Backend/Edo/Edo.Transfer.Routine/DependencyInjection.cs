@@ -26,7 +26,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services
 				.AddEdo()
-				.AddEdoProblemRegistation()
+				.AddEdoProblemRegistration()
 				.AddHttpClient()
 				.AddEdoTransfer()
 				;

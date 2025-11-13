@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			
 			_userCanSentReceiptWasSaveCodes =
 				_userService.GetCurrentUser().IsAdmin
-				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CashReceipt.CanResendDuplicateReceipts);
+				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt.CanResendDuplicateReceipts);
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
@@ -316,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 					{
 						return;
 					}
-					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId);
+					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 

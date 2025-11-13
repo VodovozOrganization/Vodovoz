@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -85,9 +86,13 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 
 				DiscountReason applicableDiscountReason = null;
 				
-				if(onlineOrder.IsSelfDelivery
-				   && !onlineOrderItemDto.PromoSetId.HasValue
-				   && nomenclature != null)
+				if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				{
+					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+				}
+				else if(onlineOrder.IsSelfDelivery
+				        && !onlineOrderItemDto.PromoSetId.HasValue
+				        && nomenclature != null)
 				{
 					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
 
@@ -108,6 +113,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
+					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,

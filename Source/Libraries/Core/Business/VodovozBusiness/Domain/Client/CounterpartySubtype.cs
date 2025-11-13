@@ -3,9 +3,9 @@
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(
-		Nominative = "подтип контрагента",
-		NominativePlural = "подтипы контрагента",
-		GenitivePlural = "подтипов контрагента")]
+		Nominative = "Подтип контрагента",
+		NominativePlural = "Подтипы контрагентов",
+		GenitivePlural = "Подтипов контрагентов")]
 	public class CounterpartySubtype : PropertyChangedBase, IDomainObject
 	{
 		private int _id;

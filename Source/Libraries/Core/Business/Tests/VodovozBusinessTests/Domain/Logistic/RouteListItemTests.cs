@@ -8,16 +8,24 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {
 	[TestFixture]
 	public class RouteListItemTests
 	{
+		private static IOrderContractUpdater _contractUpdater;
+		
+		[SetUp]
+		private void Init()
+		{
+			_contractUpdater = Substitute.For<IOrderContractUpdater>();
+		}
+		
 		private static Order ForfeitWaterAndEmptyBottles(Order order, int waterCount, int forfeitCount, int emptyBottlesCount = 0)
 		{
+			var uow = Substitute.For<IUnitOfWork>();
 			Nomenclature forfeitNomenclature = Substitute.For<Nomenclature>();
 			forfeitNomenclature.Category.Returns(NomenclatureCategory.bottle);
 			forfeitNomenclature.Id.Returns(33);
@@ -29,11 +37,11 @@ namespace VodovozBusinessTests.Domain.Logistic
 			waterNomenclature.Category.Returns(NomenclatureCategory.water);
 			waterNomenclature.IsDisposableTare.Returns(false);
 
-			order.AddNomenclature(forfeitNomenclature);
+			order.AddNomenclature(uow, _contractUpdater, forfeitNomenclature);
 			order.OrderItems.LastOrDefault().SetActualCount(forfeitCount);
-			order.AddNomenclature(emptyBottleNomenclature);
+			order.AddNomenclature(uow, _contractUpdater, emptyBottleNomenclature);
 			order.OrderItems.LastOrDefault().SetActualCount(emptyBottlesCount);
-			order.AddNomenclature(waterNomenclature);
+			order.AddNomenclature(uow, _contractUpdater, waterNomenclature);
 			order.OrderItems.LastOrDefault().SetActualCount(waterCount);
 
 			return order;
@@ -60,7 +68,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			testRLItem.Order = order;
 			testRLItem.Order.UoW = uow;
-			testRLItem.Order.DeliveryDate = DateTime.Now;
+			testRLItem.Order.UpdateDeliveryDate(DateTime.Now, _contractUpdater, out var message);
 			var standartNom = Substitute.For<Vodovoz.Settings.Nomenclature.INomenclatureSettings>();
 			standartNom.ForfeitId.Returns(33);
 

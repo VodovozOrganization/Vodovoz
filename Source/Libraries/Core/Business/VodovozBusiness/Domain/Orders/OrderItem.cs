@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace Vodovoz.Domain.Orders
@@ -367,15 +368,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal TotalCountInOrder =>
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
-		: Count;
+			: Count;
 
 		public virtual bool IsTrueMarkCodesMustBeAdded =>
 			Nomenclature?.IsAccountableInTrueMark == true
 			&& Count > 0;
-
-		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse =>
-			IsTrueMarkCodesMustBeAdded
-			&& (Order.IsNeedIndividualSetOnLoad || Order.IsNeedIndividualSetOnLoadForTender);
 
 		#region IOrderItemWageCalculationSource implementation
 
@@ -497,6 +494,12 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		public virtual bool HasZeroCountOrSum() => Count <= 0 || Sum == default;
+
+		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse(ICounterpartyEdoAccountController edoAccountController)
+		{
+			return IsTrueMarkCodesMustBeAdded
+				&& (Order.IsNeedIndividualSetOnLoad(edoAccountController) || Order.IsNeedIndividualSetOnLoadForTender);
+		}
 
 		#endregion
 
@@ -640,7 +643,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Count != count)
 			{
-				Count = count;
+				Count = count < 0 ? 0 : count;
 				Order?.RecalculateItemsPrice();
 				RecalculateDiscount();
 				RecalculateVAT();

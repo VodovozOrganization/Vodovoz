@@ -12,6 +12,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
@@ -25,6 +26,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Domain.Client
 {
@@ -37,8 +39,8 @@ namespace Vodovoz.Domain.Client
 		private int? _defaultExpenseCategoryId;
 
 		private EdoOperator _edoOperator;
-		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
-		private GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
+		private IObservableList<CounterpartyEdoOperator> _counterpartyEdoOperators = new ObservableList<CounterpartyEdoOperator>();
+		private IObservableList<CounterpartyEdoAccount> _counterpartyEdoAccounts = new ObservableList<CounterpartyEdoAccount>();
 		private IList<CounterpartyContract> _counterpartyContracts;
 		private IList<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
 		private GenericObservableList<DeliveryPoint> _observableDeliveryPoints;
@@ -172,7 +174,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual new IList<Phone> Phones
+		public new virtual IList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
@@ -193,22 +195,25 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "E-mail адреса")]
-		public virtual new IList<Email> Emails
+		public new virtual IList<Email> Emails
 		{
 			get => _emails;
 			set => SetField(ref _emails, value);
 		}
 
-		[Display(Name = "Все операторы ЭДО контрагента")]
-		public virtual IList<CounterpartyEdoOperator> CounterpartyEdoOperators
+		[Display(Name = "ЭДО операторы контрагента")]
+		public virtual IObservableList<CounterpartyEdoOperator> CounterpartyEdoOperators
 		{
 			get => _counterpartyEdoOperators;
 			set => SetField(ref _counterpartyEdoOperators, value);
 		}
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CounterpartyEdoOperator> ObservableCounterpartyEdoOperators =>
-				_observableCounterpartyEdoOperators ?? (_observableCounterpartyEdoOperators = new GenericObservableList<CounterpartyEdoOperator>(CounterpartyEdoOperators));
+		[Display(Name = "ЭДО аккаунты контрагента")]
+		public new virtual IObservableList<CounterpartyEdoAccount> CounterpartyEdoAccounts
+		{
+			get => _counterpartyEdoAccounts;
+			set => SetField(ref _counterpartyEdoAccounts, value);
+		}
 
 		[Display(Name = "Бухгалтер")]
 		public virtual Employee Accountant
@@ -554,6 +559,24 @@ namespace Vodovoz.Domain.Client
 
 		#endregion цены поставщика
 
+		public new virtual CounterpartyEdoAccount DefaultEdoAccount(int organizationId)
+		{
+			return CounterpartyEdoAccounts
+				.FirstOrDefault(x => x.OrganizationId == organizationId && x.IsDefault);
+		}
+		
+		public virtual CounterpartyEdoAccount EdoAccount(int organizationId, string account)
+		{
+			return CounterpartyEdoAccounts
+				.SingleOrDefault(x => x.OrganizationId == organizationId
+					&& string.Equals(x.PersonalAccountIdInEdo, account, StringComparison.CurrentCultureIgnoreCase));
+		}
+
+		public override bool LegalAndHasAnyDefaultAccountAgreedForEdo =>
+			PersonType == PersonType.legal
+			&& CounterpartyEdoAccounts.Any(
+				x => x.IsDefault && x.ConsentForEdoStatus == ConsentForEdoStatus.Agree);
+		
 		private void CheckSpecialField(ref bool result, string fieldValue)
 		{
 			if(!string.IsNullOrWhiteSpace(fieldValue))
@@ -625,7 +648,6 @@ namespace Vodovoz.Domain.Client
 			var counterpartyRepository = validationContext.GetRequiredService<ICounterpartyRepository>();
 			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
 			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
-			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
 			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
 			var commonServices = validationContext.GetRequiredService<ICommonServices>();
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
@@ -726,13 +748,12 @@ namespace Vodovoz.Domain.Client
 							new[] { nameof(CounterpartyContracts) });
 					}
 
-					var balance = moneyRepository.GetCounterpartyDebt(uow, this);
+					var debt = orderRepository.GetCounterpartyDebt(uow, Id);
 
-					if(balance != 0)
+					if(debt != 0)
 					{
 						yield return new ValidationResult(
-							string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}",
-								CurrencyWorks.GetShortCurrencyString(balance)));
+							$"Вы не можете сдать контрагента в архив так как у него имеется долг: {CurrencyWorks.GetShortCurrencyString(debt)}");
 					}
 
 					var activeOrders = orderRepository.GetCurrentOrders(uow, this);
@@ -763,7 +784,7 @@ namespace Vodovoz.Domain.Client
 				}
 
 				if(CameFrom == null
-					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Counterparty.CanEditClientRefer)))
+					&& (Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer)))
 				{
 					yield return new ValidationResult("Необходимо заполнить поле \"Откуда клиент\"");
 				}
@@ -922,6 +943,24 @@ namespace Vodovoz.Domain.Client
 			{
 				yield return new ValidationResult("Клиент не мог привести сам себя");
 			}
+
+			#region Counterparty Edo account duplicates
+
+			var counterpartyEdoAccountDuplicates = CounterpartyEdoAccounts?
+				.Where(x => !string.IsNullOrWhiteSpace(x.PersonalAccountIdInEdo))
+				.GroupBy(a => new { a.OrganizationId, a.PersonalAccountIdInEdo })
+				.Where(g => g.Count() > 1)
+				.Select(g => g.First())
+				.ToArray();
+
+			if(counterpartyEdoAccountDuplicates != null && counterpartyEdoAccountDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Найдены дубликаты аккаунтов ЭДО в рамках одной организации: " +
+					$"{string.Join(", ", counterpartyEdoAccountDuplicates.Select(x => x.PersonalAccountIdInEdo))}");
+			}
+
+			#endregion Counterparty Edo account duplicates
 		}
 
 		#endregion

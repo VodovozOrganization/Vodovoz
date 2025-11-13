@@ -552,6 +552,16 @@ namespace Vodovoz.Domain.Goods
 			}
 			return price;
 		}
+		
+		/// <summary>
+		/// Принадлежит ли номенклатура товарной группе
+		/// </summary>
+		/// <param name="productGroup">Проверяемая товарная группа</param>
+		/// <returns></returns>
+		public virtual bool IsBelongsProductGroup(ProductGroup productGroup)
+		{
+			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
+		}
 
 		#endregion Методы
 

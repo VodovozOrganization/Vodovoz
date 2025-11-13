@@ -50,6 +50,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Intercom).Column("intercom");
 			Map(x => x.KPP).Column("KPP");
 			Map(x => x.Organization).Column("organization");
+			Map(x => x.BuildingFromOnline).Column("building_from_online");
 
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");

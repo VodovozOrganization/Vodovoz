@@ -6,12 +6,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.Controllers;
 
 namespace Edo.Problems
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddEdoProblemRegistation(this IServiceCollection services)
+		public static IServiceCollection AddEdoProblemRegistration(this IServiceCollection services)
 		{
 			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
@@ -28,8 +29,7 @@ namespace Edo.Problems
 			services.TryAddScoped<EdoTaskValidatorsProvider>();
 			services.TryAddScoped<EdoTaskValidator>();
 			services.TryAddScoped<EdoProblemRegistrar>();
-			;
-
+			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;
 		}

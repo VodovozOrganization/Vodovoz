@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,24 +30,30 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 
 		private IQueryable<LastRouteListReportRow> GetQuery(IUnitOfWork unitOfWork, bool forDriver)
 		{
-			Expression<Func<Employee, bool>> EmployeeFilter = (employee) =>
+			var subdivisionIds = new List<int>();
+			if(_filterParameters.TryGetValue("Subdivision_include", out var subdivisionIdString))
+			{
+				if(subdivisionIdString is string[] ids)
+				{
+					subdivisionIds = ids.Select(int.Parse).ToList();
+				}
+			}
+			
+			Expression<Func<Employee, bool>> employeeFilter = (employee) =>
 				_includedEmployeeStatus.Contains(employee.Status)
 				&& (
-						(forDriver
-							? _includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) && employee.Category == EmployeeCategory.driver && employee.VisitingMaster == false
-							: false)
-						|| (forDriver
-								? false
-								: _includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) && employee.Category == EmployeeCategory.forwarder)
-						|| (forDriver
-								?_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true
-								: false)
-						|| (!_includedEmployeeCategories.Any())
-					)
+					(forDriver && (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver) &&
+					               employee.Category == EmployeeCategory.driver && employee.VisitingMaster == false))
+					|| (!forDriver && (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Forwarder) &&
+					                   employee.Category == EmployeeCategory.forwarder))
+					|| (forDriver && (_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.VisitingMaster) && employee.VisitingMaster == true))
+					|| (!_includedEmployeeCategories.Any())
+				)
 				&& (FiredStartDate == null || (employee.DateFired >= FiredStartDate && employee.DateFired <= FiredEndDate))
 				&& (HiredStartDate == null || (employee.DateHired >= HiredStartDate && employee.DateHired <= HiredEndDate))
 				&& (FirstWorkDayStartDate == null || (employee.FirstWorkDay >= FirstWorkDayStartDate && employee.FirstWorkDay <= FirstWorkDayEndDate))
-				&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate));
+				&& (CalculateStartDate == null || (employee.DateCalculated >= CalculateStartDate && employee.DateCalculated <= CalculateEndDate))
+				&& (!subdivisionIds.Any() || employee.Subdivision != null && subdivisionIds.Contains(employee.Subdivision.Id));
 
 			Expression<Func<Employee, LastRouteListNodeNode>> LastRouteListIdSelector = (employee) => new LastRouteListNodeNode
 			{
@@ -58,9 +63,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 						routeList => routeList.Car.Id,
 						carVersion => carVersion.Car.Id,
 						(routeList, carVersion) => new { routeList, carVersion })
-					.Where(x => forDriver ? x.routeList.Driver.Id == employee.Id : x.routeList.Forwarder.Id == employee.Id)
-					.Where
-						(x => RouteList.DeliveredRouteListStatuses.Contains(x.routeList.Status)
+					.Where(x =>
+						(forDriver && x.routeList.Driver.Id == employee.Id)
+						|| (!forDriver && x.routeList.Forwarder.Id == employee.Id))
+					.Where(x =>
+						RouteList.DeliveredRouteListStatuses.Contains(x.routeList.Status)
 						&& x.carVersion.StartDate <= DateTime.Now
 						&& (x.carVersion.EndDate >= DateTime.Now || x.carVersion.EndDate == null)
 						&& _includedCarOwn.Contains(x.carVersion.CarOwnType)
@@ -71,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 			};
 
 			var query = unitOfWork.Session.Query<Employee>()
-				.Where(EmployeeFilter)
+				.Where(employeeFilter)
 				.Select(LastRouteListIdSelector)
 				.Select(x => new
 				{
@@ -141,6 +148,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 				.GetFilter<IncludeExcludeEnumFilter<EmployeeCategoryFilterType>>()
 				.GetIncluded();
 
+			_filterParameters = filterViewModel.GetReportParametersSet(out var sb);
+			
 			List<LastRouteListReportRow> driverRows = new List<LastRouteListReportRow>();
 
 			if(_includedEmployeeCategories.Contains(EmployeeCategoryFilterType.Driver)
@@ -187,5 +196,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport
 		public DateTime? HiredEndDate { get; internal set; }
 
 		public List<LastRouteListReportRow> Rows = new List<LastRouteListReportRow>();
+		
+		private Dictionary<string, object> _filterParameters;
 	}
 }

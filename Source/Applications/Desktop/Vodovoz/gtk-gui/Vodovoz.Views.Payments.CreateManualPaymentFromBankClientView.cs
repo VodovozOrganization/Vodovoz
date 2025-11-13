@@ -34,6 +34,8 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.yLabel lblCounterparty;
 
+		private global::Gamma.GtkWidgets.yLabel lblOrganization;
+
 		private global::Gamma.GtkWidgets.yLabel lblPaymentDate;
 
 		private global::Gamma.GtkWidgets.yLabel lblPaymentNum;
@@ -41,6 +43,8 @@ namespace Vodovoz.Views.Payments
 		private global::Gamma.GtkWidgets.yLabel lblPaymentPurpose;
 
 		private global::Gamma.GtkWidgets.yLabel lblPaymentTotal;
+
+		private global::QS.Views.Control.EntityEntry organizationEntry;
 
 		private global::QS.Widgets.GtkUI.DatePicker paymentDatePicker;
 
@@ -106,7 +110,7 @@ namespace Vodovoz.Views.Payments
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.tablePayment = new global::Gamma.GtkWidgets.yTable();
 			this.tablePayment.Name = "tablePayment";
-			this.tablePayment.NRows = ((uint)(6));
+			this.tablePayment.NRows = ((uint)(7));
 			this.tablePayment.NColumns = ((uint)(4));
 			this.tablePayment.RowSpacing = ((uint)(6));
 			this.tablePayment.ColumnSpacing = ((uint)(6));
@@ -131,8 +135,8 @@ namespace Vodovoz.Views.Payments
 			this.counterpartyEntry.Name = "counterpartyEntry";
 			this.tablePayment.Add(this.counterpartyEntry);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.counterpartyEntry]));
-			w6.TopAttach = ((uint)(3));
-			w6.BottomAttach = ((uint)(4));
+			w6.TopAttach = ((uint)(4));
+			w6.BottomAttach = ((uint)(5));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(4));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -165,8 +169,8 @@ namespace Vodovoz.Views.Payments
 			this.GtkScrolledWindow1.Add(this.textViewComment);
 			this.tablePayment.Add(this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.GtkScrolledWindow1]));
-			w10.TopAttach = ((uint)(5));
-			w10.BottomAttach = ((uint)(6));
+			w10.TopAttach = ((uint)(6));
+			w10.BottomAttach = ((uint)(7));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(4));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -178,8 +182,8 @@ namespace Vodovoz.Views.Payments
 			this.lblCategoryProfit.LabelProp = global::Mono.Unix.Catalog.GetString("Статья дохода:");
 			this.tablePayment.Add(this.lblCategoryProfit);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblCategoryProfit]));
-			w11.TopAttach = ((uint)(4));
-			w11.BottomAttach = ((uint)(5));
+			w11.TopAttach = ((uint)(5));
+			w11.BottomAttach = ((uint)(6));
 			w11.LeftAttach = ((uint)(2));
 			w11.RightAttach = ((uint)(3));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -191,8 +195,8 @@ namespace Vodovoz.Views.Payments
 			this.lblComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий:");
 			this.tablePayment.Add(this.lblComment);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblComment]));
-			w12.TopAttach = ((uint)(5));
-			w12.BottomAttach = ((uint)(6));
+			w12.TopAttach = ((uint)(6));
+			w12.BottomAttach = ((uint)(7));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
@@ -202,52 +206,75 @@ namespace Vodovoz.Views.Payments
 			this.lblCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString("Контрагент:");
 			this.tablePayment.Add(this.lblCounterparty);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblCounterparty]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
+			w13.TopAttach = ((uint)(4));
+			w13.BottomAttach = ((uint)(5));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePayment.Gtk.Table+TableChild
+			this.lblOrganization = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrganization.Name = "lblOrganization";
+			this.lblOrganization.Xalign = 1F;
+			this.lblOrganization.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
+			this.tablePayment.Add(this.lblOrganization);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblOrganization]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.lblPaymentDate = new global::Gamma.GtkWidgets.yLabel();
 			this.lblPaymentDate.Name = "lblPaymentDate";
 			this.lblPaymentDate.Xalign = 1F;
 			this.lblPaymentDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата платежа:");
 			this.tablePayment.Add(this.lblPaymentDate);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentDate]));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentDate]));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.lblPaymentNum = new global::Gamma.GtkWidgets.yLabel();
 			this.lblPaymentNum.Name = "lblPaymentNum";
 			this.lblPaymentNum.Xalign = 1F;
 			this.lblPaymentNum.LabelProp = global::Mono.Unix.Catalog.GetString("Номер платежа:");
 			this.tablePayment.Add(this.lblPaymentNum);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentNum]));
-			w15.LeftAttach = ((uint)(2));
-			w15.RightAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentNum]));
+			w16.LeftAttach = ((uint)(2));
+			w16.RightAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.lblPaymentPurpose = new global::Gamma.GtkWidgets.yLabel();
 			this.lblPaymentPurpose.Name = "lblPaymentPurpose";
 			this.lblPaymentPurpose.Xalign = 1F;
 			this.lblPaymentPurpose.LabelProp = global::Mono.Unix.Catalog.GetString("Назначение платежа:");
 			this.tablePayment.Add(this.lblPaymentPurpose);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentPurpose]));
-			w16.TopAttach = ((uint)(2));
-			w16.BottomAttach = ((uint)(3));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentPurpose]));
+			w17.TopAttach = ((uint)(2));
+			w17.BottomAttach = ((uint)(3));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.lblPaymentTotal = new global::Gamma.GtkWidgets.yLabel();
 			this.lblPaymentTotal.Name = "lblPaymentTotal";
 			this.lblPaymentTotal.Xalign = 1F;
 			this.lblPaymentTotal.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма платежа:");
 			this.tablePayment.Add(this.lblPaymentTotal);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentTotal]));
-			w17.TopAttach = ((uint)(4));
-			w17.BottomAttach = ((uint)(5));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.lblPaymentTotal]));
+			w18.TopAttach = ((uint)(5));
+			w18.BottomAttach = ((uint)(6));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tablePayment.Gtk.Table+TableChild
+			this.organizationEntry = new global::QS.Views.Control.EntityEntry();
+			this.organizationEntry.Events = ((global::Gdk.EventMask)(256));
+			this.organizationEntry.Name = "organizationEntry";
+			this.tablePayment.Add(this.organizationEntry);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.organizationEntry]));
+			w19.TopAttach = ((uint)(3));
+			w19.BottomAttach = ((uint)(4));
+			w19.LeftAttach = ((uint)(1));
+			w19.RightAttach = ((uint)(4));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.paymentDatePicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.paymentDatePicker.Events = ((global::Gdk.EventMask)(256));
@@ -257,12 +284,13 @@ namespace Vodovoz.Views.Payments
 			this.paymentDatePicker.Date = new global::System.DateTime(0);
 			this.paymentDatePicker.IsEditable = false;
 			this.paymentDatePicker.AutoSeparation = false;
+			this.paymentDatePicker.HideButtonClearDate = false;
 			this.tablePayment.Add(this.paymentDatePicker);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.paymentDatePicker]));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.paymentDatePicker]));
+			w20.LeftAttach = ((uint)(1));
+			w20.RightAttach = ((uint)(2));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.specListCmbCategoryProfit = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.specListCmbCategoryProfit.Name = "specListCmbCategoryProfit";
@@ -271,13 +299,13 @@ namespace Vodovoz.Views.Payments
 			this.specListCmbCategoryProfit.ShowSpecialStateAll = false;
 			this.specListCmbCategoryProfit.ShowSpecialStateNot = false;
 			this.tablePayment.Add(this.specListCmbCategoryProfit);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.specListCmbCategoryProfit]));
-			w19.TopAttach = ((uint)(4));
-			w19.BottomAttach = ((uint)(5));
-			w19.LeftAttach = ((uint)(3));
-			w19.RightAttach = ((uint)(4));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.specListCmbCategoryProfit]));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
+			w21.LeftAttach = ((uint)(3));
+			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.yspinPaymentNum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
 			this.yspinPaymentNum.CanFocus = true;
@@ -288,11 +316,11 @@ namespace Vodovoz.Views.Payments
 			this.yspinPaymentNum.ValueAsDecimal = 0m;
 			this.yspinPaymentNum.ValueAsInt = 0;
 			this.tablePayment.Add(this.yspinPaymentNum);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentNum]));
-			w20.LeftAttach = ((uint)(3));
-			w20.RightAttach = ((uint)(4));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentNum]));
+			w22.LeftAttach = ((uint)(3));
+			w22.RightAttach = ((uint)(4));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tablePayment.Gtk.Table+TableChild
 			this.yspinPaymentTotal = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 1D);
 			this.yspinPaymentTotal.CanFocus = true;
@@ -304,18 +332,18 @@ namespace Vodovoz.Views.Payments
 			this.yspinPaymentTotal.ValueAsDecimal = 0m;
 			this.yspinPaymentTotal.ValueAsInt = 0;
 			this.tablePayment.Add(this.yspinPaymentTotal);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentTotal]));
-			w21.TopAttach = ((uint)(4));
-			w21.BottomAttach = ((uint)(5));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tablePayment[this.yspinPaymentTotal]));
+			w23.TopAttach = ((uint)(5));
+			w23.BottomAttach = ((uint)(6));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tablePayment);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tablePayment]));
-			w22.Position = 2;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tablePayment]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.hbox = new global::Gamma.GtkWidgets.yHBox();
 			this.hbox.Name = "hbox";
@@ -327,15 +355,15 @@ namespace Vodovoz.Views.Payments
 			this.btnGoToManualPaymentMatching.UseUnderline = true;
 			this.btnGoToManualPaymentMatching.Label = global::Mono.Unix.Catalog.GetString("Сохранить и перейти в ручное распределение");
 			this.hbox.Add(this.btnGoToManualPaymentMatching);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox[this.btnGoToManualPaymentMatching]));
-			w23.Position = 0;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox[this.btnGoToManualPaymentMatching]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.vboxMain.Add(this.hbox);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox]));
-			w24.Position = 3;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox]));
+			w26.Position = 3;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

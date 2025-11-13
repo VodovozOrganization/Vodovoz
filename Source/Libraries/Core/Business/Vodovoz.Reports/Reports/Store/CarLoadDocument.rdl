@@ -120,6 +120,7 @@ ORDER BY clmn_for_sorting;</CommandText>
               IF(drivers.patronymic = '',
                  '',
                  CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    (SELECT p.number FROM phones p WHERE p.employee_id = drivers.id LIMIT 1) as driver_phone,
     CONCAT_WS('',
               CONCAT(forwaders.last_name, ' '),
               IF(forwaders.name = '',
@@ -194,6 +195,10 @@ LIMIT 1
         <Field Name="has_fast_delivery">
           <DataField>has_fast_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="driver_phone">
+          <DataField>driver_phone</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -848,10 +853,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>113.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>249.2pt</Width>
+            <Width>377.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -861,27 +863,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Водитель:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={driver}</Value>
+                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")" + "\nТелефон: " + Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -892,9 +875,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -903,73 +887,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             <TableRow>
               <Height>15.3pt</Height>
               <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox56">
-                      <Value> Авто:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>={model} + "(" + {reg_number}+ ")"</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>15.3pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox62">
-                      <Value>Приоритет погрузки:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>={daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
+                      <Value>= "Приоритет погрузки: " + {daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -980,8 +901,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>

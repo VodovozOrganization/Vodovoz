@@ -59,9 +59,19 @@ namespace Receipt.Dispatcher.Tests
 			return Data.FirstOrDefault(predicate.Compile());
 		}
 
+		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return Data.Where(expressionSpecification.Expression.Compile()).FirstOrDefault();
+		}
+
 		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, Expression<Func<TEntity, bool>> predicate)
 		{
 			return Data.LastOrDefault(predicate.Compile());
+		}
+
+		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return Data.Where(expressionSpecification.Expression.Compile()).OrderByDescending(x => x.Id).FirstOrDefault();
 		}
 
 		public IEnumerable<TType> GetValue<TType>(IUnitOfWork unitOfWork, Expression<Func<TEntity, TType>> selector, Expression<Func<TEntity, bool>> predicate = null, int limit = 0)
