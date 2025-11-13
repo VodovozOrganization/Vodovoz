@@ -40,9 +40,4 @@ namespace Vodovoz.Domain.WageCalculation
 		[Display(Name = "Услуга экспресс доставки (с опозданием)")]
 		FastDeliveryWithLate
 	}
-
-	public class WageRateTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public WageRateTypesStringType() : base(typeof(WageRateTypes)) { }
-	}
 }

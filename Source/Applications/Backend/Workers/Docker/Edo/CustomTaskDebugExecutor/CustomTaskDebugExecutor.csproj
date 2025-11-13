@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+		
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+			<TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.CodesSaver\Edo.CodesSaver.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Docflow\Edo.Docflow.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Scheduler\Edo.Scheduler.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Tender\Edo.Tender.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Routine\Edo.Transfer.Routine.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer.Sender\Edo.Transfer.Sender.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transfer\Edo.Transfer.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Withdrawal\Edo.Withdrawal.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\Taxcom.Docflow.Utility\Taxcom.Docflow.Utility.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+	</ItemGroup>
+	
+</Project>

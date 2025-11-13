@@ -52,9 +52,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		public virtual bool CanCreate =>
 			(_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate
 			&& !(Car is null) && Car.Id == 0)
-			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarVersion);
+			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersion);
 		public virtual bool CanEdit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarVersionDate);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersionDate);
 		public bool IsInsuranceEditingInProgress => CarVersionEditingViewModel.IsWidgetVisible;
 
 		public Car Car
@@ -212,6 +212,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private void EditCarVersion(CarVersion selectedCarVersion)
 		{
 			var availableCarOwnTypes = new List<CarOwnType>();
+			var previousVersion = GetPreviousVersionOrNull(selectedCarVersion);
 
 			if(selectedCarVersion.Id > 0)
 			{
@@ -226,17 +227,16 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			}
 
 			_editingCarVersion = selectedCarVersion;
-			CarVersionEditingViewModel.SetWidgetProperties(selectedCarVersion, availableCarOwnTypes);
+			CarVersionEditingViewModel.SetWidgetProperties(selectedCarVersion, availableCarOwnTypes, previousVersion);
 		}
 
 		/// <summary>
-		/// Возвращает список доступных принадлежностей для версии, основываясь на более старой версии отностиельно переданной
+		/// Возвращает список доступных принадлежностей авто для версии
 		/// </summary>
 		/// <param name="version">
-		///		Если не равна null, то версия обязательно должна быть добавлена в коллекцию сущности.<br/>
-		///		Если равна null, то подбирает доступные принадлежности как для новой версии
+		///	Редактируемая версия авто. Если не null, то выполняется проверка, что данная версия принадлежит авто
 		/// </param>
-		/// <returns>Список доступных принадлежностей</returns>
+		/// <returns>Список доступных принадлежностей авто</returns>
 		private IList<CarOwnType> GetAvailableCarOwnTypesForVersion(CarVersion version = null)
 		{
 			if(version != null && !Car.CarVersions.Contains(version))
@@ -245,22 +245,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			}
 
 			var list = EnumHelper.GetValuesList<CarOwnType>();
-			if(!Car.CarVersions.Any())
-			{
-				return list;
-			}
-			if(version == null)
-			{
-				list.Remove(Car.CarVersions.Single(x => x.EndDate == null).CarOwnType);
-			}
-			else
-			{
-				var previousVersion = GetPreviousVersionOrNull(version);
-				if(previousVersion != null)
-				{
-					list.Remove(previousVersion.CarOwnType);
-				}
-			}
+
 			return list;
 		}
 
@@ -359,6 +344,16 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			if(Car.CarVersions.Any())
 			{
 				var currentLatestVersion = Car.CarVersions.MaxBy(x => x.StartDate).First();
+
+				if(_editingCarVersion.Id == 0
+					&& _editingCarVersion.CarOwnerOrganization?.Id == currentLatestVersion.CarOwnerOrganization?.Id
+					&& _editingCarVersion.CarOwnType == currentLatestVersion.CarOwnType)
+				{
+					throw new ArgumentException(
+						"В новой версии должен отличаться либо собственник авто, либо принадлежность авто",
+						nameof(_editingCarVersion.CarOwnerOrganization));
+				}
+
 				if(startDate < currentLatestVersion.StartDate.AddDays(1))
 				{
 					throw new ArgumentException(

@@ -5,16 +5,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using NLog.Web;
 using PayPageAPI.Controllers;
 using PayPageAPI.HealthChecks;
 using PayPageAPI.Models;
+using QS.BusinessCommon.HMap;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
 
@@ -32,13 +32,18 @@ namespace PayPageAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddLogging(
-				logging =>
+			services
+				.AddSwaggerGen(c =>
 				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				});
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "PayPageAPI", Version = "v1" });
+				})
+				.AddLogging(
+					logging =>
+					{
+						logging.ClearProviders();
+						logging.AddNLogWeb();
+						logging.AddConfiguration(Configuration.GetSection("NLog"));
+					});
 
 			services
 				.AddMappingAssemblies(
@@ -48,7 +53,8 @@ namespace PayPageAPI
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
@@ -91,9 +97,11 @@ namespace PayPageAPI
 		{
 			app.UseIpRateLimiting();
 			
-			if (env.IsDevelopment())
+			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PayPageAPI v1"));
 			}
 			else
 			{

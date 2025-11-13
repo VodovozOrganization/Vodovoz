@@ -14,9 +14,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button buttonReturn;
+		private global::Gamma.GtkWidgets.yButton buttonReturn;
 
-		private global::Gtk.Button buttonClose;
+		private global::Gamma.GtkWidgets.yButton buttonClose;
 
 		protected virtual void Build()
 		{
@@ -54,7 +54,7 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonReturn = new global::Gtk.Button();
+			this.buttonReturn = new global::Gamma.GtkWidgets.yButton();
 			this.buttonReturn.Sensitive = false;
 			this.buttonReturn.CanFocus = true;
 			this.buttonReturn.Name = "buttonReturn";
@@ -66,7 +66,7 @@ namespace Vodovoz
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonClose = new global::Gtk.Button();
+			this.buttonClose = new global::Gamma.GtkWidgets.yButton();
 			this.buttonClose.Sensitive = false;
 			this.buttonClose.CanFocus = true;
 			this.buttonClose.Name = "buttonClose";

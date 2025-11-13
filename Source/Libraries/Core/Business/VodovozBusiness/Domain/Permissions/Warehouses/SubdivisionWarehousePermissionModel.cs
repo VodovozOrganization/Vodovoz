@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Domain.Permissions.Warehouses
 {
@@ -9,6 +9,7 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 	{
 		private IUnitOfWork _uow;
 		private Subdivision _subdivision;
+
 		public SubdivisionWarehousePermissionModel(IUnitOfWork unitOfWork, Subdivision subdivision)
 		{
 			_uow = unitOfWork;

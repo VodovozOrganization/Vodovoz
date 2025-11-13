@@ -14,6 +14,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IConsumerConfigurator<OnlineOrderRegisterFaultConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
+			endpointConfigurator.PrefetchCount = 1;
 			endpointConfigurator.UseMessageRetry(r => r.Interval(10, 5000));
 		}
 	}

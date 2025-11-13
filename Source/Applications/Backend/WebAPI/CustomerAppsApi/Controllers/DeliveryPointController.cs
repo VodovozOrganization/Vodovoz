@@ -1,9 +1,8 @@
-﻿using System;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Models;
-using CustomerAppsApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerAppsApi.Controllers

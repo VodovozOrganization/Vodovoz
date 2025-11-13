@@ -14,6 +14,10 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Core.Domain.StoredResources;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
@@ -37,16 +41,18 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.StoredResources;
+using Vodovoz.Store;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.Warehouse;
+using VodovozBusiness.Domain.Documents;
 using VodovozInfrastructure.Configuration;
 using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel;
 
@@ -78,7 +84,6 @@ namespace Vodovoz.Configuration
                 //Остальные справочники
                 OrmObjectMapping<CarProxyDocument>.Create().Dialog<CarProxyDlg>(),
 				OrmObjectMapping<M2ProxyDocument>.Create().Dialog<M2ProxyDlg>(),
-				OrmObjectMapping<ProductGroup>.Create().Dialog<ProductGroupDlg>(),
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView()
 					.SearchColumn("Шаблон комментария", x => x.Comment).End(),
 				OrmObjectMapping<FineTemplate>.Create().Dialog<FineTemplateDlg>().DefaultTableView()
@@ -90,7 +95,7 @@ namespace Vodovoz.Configuration
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name)
 					.SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Order>.Create().Dialog<OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
-				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().Column("Код", x => x.Id.ToString())
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationViewModel>().DefaultTableView().Column("Код", x => x.Id.ToString())
 					.SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView()
 					.SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
@@ -146,7 +151,7 @@ namespace Vodovoz.Configuration
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
 					.Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
-				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView()
+				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateView>().DefaultTableView()
 					.Column("Название", w => w.Name).End(),
 				OrmObjectMapping<CarEventType>.Create().Dialog<CarEventTypeViewModel>()
 			};
@@ -157,7 +162,7 @@ namespace Vodovoz.Configuration
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentViewModel>();
 			OrmMain.AddObjectDescription<WriteOffDocument>().Dialog<WriteoffDocumentView>();
 			OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
-			OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
+			OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentView>();
 			OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();
 			OrmMain.AddObjectDescription<CarLoadDocument>().Dialog<CarLoadDocumentDlg>();
 			OrmMain.AddObjectDescription<CarUnloadDocument>().Dialog<CarUnloadDocumentDlg>();

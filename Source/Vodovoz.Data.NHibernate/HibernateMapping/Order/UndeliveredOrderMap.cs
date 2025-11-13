@@ -19,9 +19,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.LastEditedTime).Column("last_edited_time");
 
 			Map(x => x.DriverCallType).Column("driver_call_type");
-			Map(x => x.UndeliveryStatus).Column("status").CustomType<UndeliveredOrderUndeliveryStatusStringType>();
+			Map(x => x.UndeliveryStatus).Column("status");
 			Map(x => x.OldOrderStatus).Column("undelivered_order_status");
-			Map(x => x.OrderTransferType).Column("transfer_type").CustomType<UndeliveredOrderTransferTypeStringType>();
+			Map(x => x.OrderTransferType).Column("transfer_type");
 
 			References(x => x.OldOrder).Column("old_order_id");
 			References(x => x.NewOrder).Column("new_order_id");

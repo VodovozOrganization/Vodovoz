@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Organizations
 	{
 		private string _name;
 		private AccountFillType _defaultAccountFillType;
+		private bool _isArchive;
 
 		public virtual int Id { get; set; }
 
@@ -23,6 +24,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _name;
 			set => SetField(ref _name, value);
+		}
+		
+		[Display(Name = "Архивная")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField (ref _isArchive, value);
 		}
 		
 		[Display(Name = "Заполнение данных по расчетному счету по умолчанию")]

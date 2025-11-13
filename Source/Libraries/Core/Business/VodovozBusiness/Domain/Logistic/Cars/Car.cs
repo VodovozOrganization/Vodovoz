@@ -1,26 +1,22 @@
 ﻿using QS.Attachments.Domain;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
+using QS.Services;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Logistics.Cars;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "автомобили",
-		Nominative = "автомобиль",
-		GenitivePlural = "автомобилей")]
-	[EntityPermission]
-	[HistoryTrace]
-	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
+	public class Car : CarEntity, IValidatableObject, IHasPhoto
 	{
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private CarModel _carModel;
 		private bool _isArchive;
 		private IList<CarVersion> _carVersions = new List<CarVersion>();
@@ -55,7 +51,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private GenericObservableList<GeoGroup> _observableGeographicGroups;
 		private int? _orderNumber;
 		private byte[] _photo;
-		private string _registrationNumber = string.Empty;
 		private string _vIn;
 		private DateTime? _archivingDate;
 		private ArchivingReason? _archivingReason;
@@ -63,8 +58,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private IncomeChannel _incomeChannel;
 		private bool _isKaskoInsuranceNotRelevant = true;
 		private int? _techInspectForKm;
-
-		public virtual int Id { get; set; }
+		private string _photoFileName;
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -135,13 +129,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 		public virtual GenericObservableList<CarInsurance> ObservableCarInsurances => _observableCarInsurances
 			?? (_observableCarInsurances = new GenericObservableList<CarInsurance>(CarInsurances));
-
-		[Display(Name = "Государственный номер")]
-		public virtual string RegistrationNumber
-		{
-			get => _registrationNumber;
-			set => SetField(ref _registrationNumber, value);
-		}
 
 		[Display(Name = "VIN")]
 		[StringLength(17, MinimumLength = 17, ErrorMessage = "VIN должен содержать 17 знаков ")]
@@ -284,6 +271,13 @@ namespace Vodovoz.Domain.Logistic.Cars
 			set => SetField(ref _photo, value);
 		}
 
+		[Display(Name = "Имя файла фотографии")]
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
 		[Display(Name = "Порядковый номер автомобиля")]
 		public virtual int? OrderNumber
 		{
@@ -306,13 +300,6 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _geographicGroups;
 			set => SetField(ref _geographicGroups, value);
-		}
-
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
-		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
 		}
 
 		[Display(Name = "Осталось до ТО, км")]
@@ -347,11 +334,8 @@ namespace Vodovoz.Domain.Logistic.Cars
 		public virtual GenericObservableList<GeoGroup> ObservableGeographicGroups =>
 			_observableGeographicGroups ?? (_observableGeographicGroups = new GenericObservableList<GeoGroup>(GeographicGroups));
 
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
-
 		public virtual string Title => $"{CarModel?.Name} ({RegistrationNumber})";
+		public virtual string FullTitle => $"{CarModel?.Title} ({RegistrationNumber})";
 
 		/// <param name="dateTime">Если равно null, возвращает активную версию на текущее время</param>
 		public virtual CarVersion GetActiveCarVersionOnDate(DateTime? dateTime = null)
@@ -377,10 +361,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 		}
 
-		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
+		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var currentPermissionService = validationContext.GetRequiredService<ICurrentPermissionService>();
+			var canChangeCompositionCompanyTransportPark =
+				currentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+			
 			if(string.IsNullOrWhiteSpace(RegistrationNumber))
 			{
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
@@ -419,6 +407,70 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(!CarVersions.Any())
 			{
 				yield return new ValidationResult("Должна быть создана хотя бы одна версия", new[] { nameof(CarVersions) });
+			}
+
+			if(!canChangeCompositionCompanyTransportPark)
+			{
+				var activeVersion = GetActiveCarVersionOnDate();
+
+				if(Id == 0)
+				{
+					if(activeVersion != null && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+					{
+						yield return new ValidationResult(
+							"Невозможно сохранить авто в выбранной принадлежности. У Вас нет права менять состав автопарка компании",
+							new[] { nameof(CarVersions) });
+					}
+				}
+				else
+				{
+					using(var uow = validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Получение данных авто из БД"))
+					{
+						var carDataFromBase = uow.GetById<Car>(Id);
+						var activeVersionFromBase = carDataFromBase.GetActiveCarVersionOnDate();
+
+						if(carDataFromBase.IsArchive != IsArchive && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+						{
+							yield return new ValidationResult(
+								"Невозможно поменять архивность авто. У Вас нет права менять состав автопарка компании",
+								new[] { nameof(CarVersions) });
+						}
+						
+						bool error = false;
+
+						if(activeVersionFromBase != null)
+						{
+							switch(activeVersionFromBase.CarOwnType)
+							{
+								case CarOwnType.Company:
+									if(activeVersion != null && activeVersion.CarOwnType != CarOwnType.Company)
+									{
+										error =  true;
+									}
+									break;
+								case CarOwnType.Raskat:
+									if(activeVersion != null && activeVersion.CarOwnType != CarOwnType.Raskat)
+									{
+										error =  true;
+									}
+									break;
+								case CarOwnType.Driver:
+									if(activeVersion != null && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+									{
+										error =  true;
+									}
+									break;
+							}
+						}
+						
+						if(error)
+						{
+							yield return new ValidationResult(
+								"Невозможно сохранить авто в выбранной принадлежности. У Вас нет права менять состав автопарка компании",
+								new[] { nameof(CarVersions) });
+						}
+					}
+				}
 			}
 
 			if(Driver != null)

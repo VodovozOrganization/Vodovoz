@@ -63,6 +63,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(RequestForCall));
+
+			Title = Entity.ToString();
 			
 			CreateCommands();
 			ConfigureEntryViewModels();

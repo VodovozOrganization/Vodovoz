@@ -1,5 +1,5 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.Domain.Store;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse
@@ -49,7 +49,7 @@ namespace Vodovoz.Views.Warehouse
 			comboOwner.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboOwner.ItemsList = ViewModel.Subdivisions;
 			comboOwner.Binding
-				.AddBinding(ViewModel.Entity, e => e.OwningSubdivision, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.OwningSubdivision, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			entryAddress.IsEditable = ViewModel.CanEdit;

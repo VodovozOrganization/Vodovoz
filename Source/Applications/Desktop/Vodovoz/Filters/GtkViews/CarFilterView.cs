@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -59,6 +60,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.IsOnlyCarsWithoutInsurer, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonUsedInDelivery.Binding
+				.AddBinding(ViewModel, vm => vm.IsUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonNotUsedInDelivery.Binding
+				.AddBinding(ViewModel, vm => vm.IsNotUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
+
 			ConfigureInsurerEntityEntry();
 			ConfigureCarOwnerEntityEntry();
 
@@ -100,7 +109,7 @@ namespace Vodovoz.Filters.GtkViews
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>((filter) =>
 				{
-					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+					filter.CounterpartyType = CounterpartyType.Supplier;
 				})
 				.Finish();
 		}
@@ -111,12 +120,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddFuncBinding(ViewModel, vm => !vm.IsOnlyCarsWithoutCarOwner, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entityentryCarOwner.ViewModel =
-				new LegacyEEVMBuilderFactory<CarJournalFilterViewModel>(ViewModel.Journal, ViewModel, ViewModel.Journal.UoW, ViewModel.Journal.NavigationManager, ViewModel.Journal.LifetimeScope)
-				.ForProperty(x => x.CarOwner)
-				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
-				.Finish();
+			entityentryCarOwner.ViewModel = ViewModel.OrganizationViewModel;
 		}
 
 		public override void Destroy()

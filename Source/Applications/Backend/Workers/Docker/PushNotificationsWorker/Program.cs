@@ -60,7 +60,6 @@ namespace PushNotificationsWorker
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();
-				})
-			.UseWindowsService();
+				});
 	}
 }

@@ -2,8 +2,14 @@
 
 namespace Pacs.Core.Messages.Events
 {
-	public class PacsCallEvent
+	/// <summary>
+	/// Событие звонка
+	/// </summary>
+	public class PacsCallEvent : EventBase
 	{
+		/// <summary>
+		/// Звонок
+		/// </summary>
 		public Call Call { get; set; }
 	}
 }

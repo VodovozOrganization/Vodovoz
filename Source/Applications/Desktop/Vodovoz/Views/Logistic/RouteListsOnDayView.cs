@@ -29,8 +29,10 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using static Vodovoz.ViewModels.Logistic.RouteListsOnDayViewModel;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Views.Logistic
@@ -196,11 +198,18 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDrivers = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().ToArray();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<OrderAddressTypeNode>.Create()
-				.AddColumn("").AddToggleRenderer(x => x.Selected)
+			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<FilterEnumParameterNode<OrderAddressType>>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.IsSelected)
 				.AddColumn("Тип адресов").AddTextRenderer(x => x.Title)
 				.Finish();
 			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.OrderAddressTypes;
+
+			ytreeviewAddressAdditionalParameters.ColumnsConfig = FluentColumnsConfig<FilterEnumParameterNode<AddressAdditionalParameterType>>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.IsSelected)
+				.AddColumn("Тип параметра").AddTextRenderer(x => x.Title)
+				.Finish();
+			ytreeviewAddressAdditionalParameters.ItemsDataSource = ViewModel.AddressAdditionalParameters;
+			ytreeviewAddressAdditionalParameters.HeadersVisible = false;
 
 			ytreeviewShift.ColumnsConfig = FluentColumnsConfig<DeliveryShiftNode>.Create()
 				.AddColumn("").AddToggleRenderer(x => x.Selected)
@@ -436,7 +445,6 @@ namespace Vodovoz.Views.Logistic
 					{
 						HasChanges = false
 					};
-					dlg.SetDlgToReadOnly();
 					Tab.TabParent.AddSlaveTab(Tab, dlg);
 				};
 				popupMenu.Add(item);
@@ -1394,7 +1402,7 @@ namespace Vodovoz.Views.Logistic
 					viewModel.SelectionMode = JournalSelectionMode.Single;
 					viewModel.OnSelectResult += (o, args) =>
 					{
-						var car = ViewModel.UoW.GetById<Car>(args.SelectedObjects.Cast<Car>().First().Id);
+						var car = ViewModel.UoW.GetById<Car>(args.GetSelectedObjects<CarJournalNode>().First().Id);
 						ViewModel.SelectCarForDriver(driver, car);
 					};
 				});

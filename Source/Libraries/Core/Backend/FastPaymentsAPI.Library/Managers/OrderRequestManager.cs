@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Services;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.FastPayments;
@@ -14,20 +16,17 @@ namespace FastPaymentsAPI.Library.Managers
 {
 	public class OrderRequestManager : IOrderRequestManager
 	{
-		private readonly IDTOManager _dtoManager;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IFastPaymentSettings _fastPaymentSettings;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IOrderService _orderService;
 
 		public OrderRequestManager(
-			IDTOManager dtoManager,
 			ISignatureManager signatureManager,
 			IFastPaymentSettings fastPaymentSettings,
 			IFastPaymentFactory fastPaymentApiFactory,
 			IOrderService orderService)
 		{
-			_dtoManager = dtoManager ?? throw new ArgumentNullException(nameof(dtoManager));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_fastPaymentSettings =
 				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
@@ -40,7 +39,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderDTO = GetOrderRegistrationRequestDto(order, fastPaymentGuid, shopId, phoneNumber, isQr);
-			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
+			var xmlStringFromOrderDTO = orderDTO.ToXmlString();
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
@@ -48,11 +47,11 @@ namespace FastPaymentsAPI.Library.Managers
 		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto,
 			Organization organization,
-			RequestFromType requestFromType)
+			FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
 			var shopId = GetShopIdFromOrganization(organization);
-			var orderDTO = GetOrderRegistrationRequestDto(registerOnlineOrderDto, shopId, requestFromType);
-			var xmlStringFromOrderDTO = _dtoManager.GetXmlStringFromDTO(orderDTO);
+			var orderDTO = GetOrderRegistrationRequestDto(registerOnlineOrderDto, shopId, fastPaymentRequestFromType);
+			var xmlStringFromOrderDTO = orderDTO.ToXmlString();
 
 			return _orderService.RegisterOrderAsync(xmlStringFromOrderDTO);
 		}
@@ -61,7 +60,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var orderInfoDTO = _fastPaymentApiFactory.GetOrderInfoRequestDTO(ticket, shopId);
-			var xmlStringFromOrderInfoDTO = _dtoManager.GetXmlStringFromDTO(orderInfoDTO);
+			var xmlStringFromOrderInfoDTO = orderInfoDTO.ToXmlString();
 
 			return _orderService.GetOrderInfoAsync(xmlStringFromOrderInfoDTO);
 		}
@@ -70,7 +69,7 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			var shopId = GetShopIdFromOrganization(organization);
 			var cancelPaymentRequestDto = _fastPaymentApiFactory.GetCancelPaymentRequestDTO(ticket, shopId);
-			var xmlStringFromCancelPaymentRequestDTO = _dtoManager.GetXmlStringFromDTO(cancelPaymentRequestDto);
+			var xmlStringFromCancelPaymentRequestDTO = cancelPaymentRequestDto.ToXmlString();
 
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
 		}
@@ -116,7 +115,7 @@ namespace FastPaymentsAPI.Library.Managers
 		private OrderRegistrationRequestDTO GetOrderRegistrationRequestDto(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto,
 			int shopId,
-			RequestFromType requestFromType)
+			FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
 			var signatureParameters =
 				_fastPaymentApiFactory.GetSignatureParamsForRegisterOrder(
@@ -127,7 +126,7 @@ namespace FastPaymentsAPI.Library.Managers
 			
 			orderRegistrationRequestDto.QRTtl = _fastPaymentSettings.GetOnlinePayByQRLifetime;
 
-			if(requestFromType == RequestFromType.FromMobileAppByQr)
+			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
 			{
 				orderRegistrationRequestDto.ReturnQRImage = 1;
 			}

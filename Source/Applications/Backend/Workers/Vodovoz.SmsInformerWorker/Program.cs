@@ -49,7 +49,7 @@ namespace Vodovoz.SmsInformerWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddSmsInformerWorker(hostContext)
-						.ConfigureZabbixSender("SmsInformerWorker")
+						.ConfigureZabbixSenderFromDataBase("SmsInformerWorker")
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

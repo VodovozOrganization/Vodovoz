@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using MassTransit;
 using NLog;
 using Pacs.Core;
@@ -22,7 +22,7 @@ using Vodovoz;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -34,7 +34,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
-using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using ToolbarStyle = Vodovoz.Core.Domain.Users.Settings.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -122,14 +122,14 @@ public partial class MainWindow : Gtk.Window
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
-		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
 		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
-		Action1SWork.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Bookkeepping.Work1S.HasAccessTo1sWork);
+		Action1SWork.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.Work1S.HasAccessTo1sWork);
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
+			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
@@ -147,7 +147,7 @@ public partial class MainWindow : Gtk.Window
 		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
 		ActionCRM.Sensitive = hasAccessToCRM;
 
-		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanEditWage);
+		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanEditWage);
 		ActionWageDistrict.Sensitive = canEditWage;
 		ActionRates.Sensitive = canEditWage;
 
@@ -208,7 +208,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
@@ -275,7 +275,7 @@ public partial class MainWindow : Gtk.Window
 
 		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
+			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
@@ -328,14 +328,14 @@ public partial class MainWindow : Gtk.Window
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 
-		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
+		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CanGenerateCashFlowDdsReport);
 
 		ActionClassificationCalculation.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanCalculateCounterpartyClassifications);
 
 		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
 		CarOwnershipReportAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
+			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.HasAccessToCarOwnershipReport);
 
 		InitializeThemesMenuItem();
 
@@ -381,10 +381,14 @@ public partial class MainWindow : Gtk.Window
 	protected override void OnDestroyed()
 	{
 		/*if(_messageBusControl != null)
-		{
-			_messageBusControl.Start();
-		}*/
+        {
+            _messageBusControl.Start();
+        }*/
 
 		base.OnDestroyed();
+	}
+
+	protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
 	}
 }

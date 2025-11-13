@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Extensions;
 using Vodovoz.Tools;
 
@@ -129,6 +129,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			var newFilter = new IncludeExcludeEntityFilter<TEntity>
 			{
 				Title = Title,
+				GenitivePluralTitle = typeof(TEntity).GetClassUserFriendlyName().GenitivePlural,
 				Type = typeof(TEntity)
 			};
 

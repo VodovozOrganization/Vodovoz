@@ -25,15 +25,17 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
-			RdlViewerViewModel rdlViewerViewModel)
-			: base(rdlViewerViewModel)
+			RdlViewerViewModel rdlViewerViewModel,
+			IReportInfoFactory reportInfoFactory
+			): base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UoW = unitOfWorkFactory.CreateWithoutRoot(Title);
 
 			Title = "Отчёт по дате создания заказа";
+			Identifier = "Sales.OrderCreationDateReport";
 
 			LoadReportCommand = new DelegateCommand(LoadReport);
-			CanEditEmployee = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanEditEmployeeInOrderCreationDateReport);
+			CanEditEmployee = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditEmployeeInOrderCreationDateReport);
 
 			var officeFilter = new EmployeeFilterViewModel();
 			officeFilter.SetAndRefilterAtOnce(
@@ -75,13 +77,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{ "start_date", StartDate },
 				{ "end_date", EndDate },
 				{ "employee_id", Employee?.Id ?? 0 }
-		};
-
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Title = Title,
-			Identifier = "Sales.OrderCreationDateReport",
-			Parameters = Parameters
 		};
 
 		public IUnitOfWork UoW { get; }

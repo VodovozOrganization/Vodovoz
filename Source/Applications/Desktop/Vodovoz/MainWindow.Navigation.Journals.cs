@@ -29,6 +29,7 @@ using Vodovoz.Presentation.ViewModels.Employees.Journals;
 using Vodovoz.Presentation.ViewModels.Organisations;
 using Vodovoz.Presentation.ViewModels.Organisations.Journals;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Counterparties;
@@ -38,6 +39,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Fuel.FuelCards;
 using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -52,11 +54,14 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Profitability;
+using Vodovoz.ViewModels.Store;
 
 public partial class MainWindow
 {
@@ -82,6 +87,16 @@ public partial class MainWindow
 	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SubdivisionsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Центры финансовой ответственности
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnFinancialResponsibilityCenterJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialResponsibilityCenterJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -405,7 +420,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ProductGroupView>(null);
+		NavigationManager.OpenViewModel<ProductGroupsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -532,10 +547,7 @@ public partial class MainWindow
 	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<RegradingOfGoodsTemplate>(),
-			() => new OrmReference(typeof(RegradingOfGoodsTemplate))
-		);
+		NavigationManager.OpenViewModel<RegradingOfGoodsTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -595,13 +607,9 @@ public partial class MainWindow
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	[Obsolete("Старый диалог, заменить")]
 	protected void OnActionNonReturnReasonsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<NonReturnReason>(),
-			() => new OrmReference(typeof(NonReturnReason))
-		);
+		NavigationManager.OpenViewModel<NonReturnReasonJournalViewModel>(null);
 	}
 
 	/// <summary>
@@ -763,6 +771,16 @@ public partial class MainWindow
 	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Категории штрафов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFineCategoryJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
 	}
 
 	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)
@@ -1165,7 +1183,17 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-
+	
+	/// <summary>
+	/// Настройка текстов пуш-уведомлений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPushNotificationTextSettingsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
 	#endregion Помощники
 
 	#region Заказы
@@ -1241,4 +1269,28 @@ public partial class MainWindow
 	}
 
 	#endregion Заказы
+
+	#region Бухгалтерия
+
+	/// <summary>
+	/// Справочник контрагентов, которые не участвуют в распределени
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	protected void OnNotAllocatedCounterpartiesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NotAllocatedCounterpartiesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Справочник категорий дохода
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	protected void OnProfitCategoriesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ProfitCategoriesJournalViewModel>(null);
+	}
+
+	#endregion Бухгалтерия
 }

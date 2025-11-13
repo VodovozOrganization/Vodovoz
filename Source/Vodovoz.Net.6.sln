@@ -1,14 +1,19 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34902.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMarkApi", "Applications\Backend\WebAPI\TrueMarkApi\TrueMarkApi.csproj", "{D6003E6B-BFDC-463B-8332-298651C6135E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMark.Api", "Applications\Backend\WebAPI\TrueMark.Api\TrueMark.Api.csproj", "{D6003E6B-BFDC-463B-8332-298651C6135E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0651C52D-892B-4071-A28E-B96C0844424A}"
 	ProjectSection(SolutionItems) = preProject
 		NuGet.Config = NuGet.Config
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrueMark.Gateway", "Applications\Backend\Workers\TrueMark.ProductInstanceInfoCheck.Worker\TrueMark.Gateway.csproj", "{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrueMark.Contracts", "Libraries\Core\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj", "{E63099F0-01B9-1743-88EA-C78524319149}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +25,20 @@ Global
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6003E6B-BFDC-463B-8332-298651C6135E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B49E0AD6-CF17-410F-9E10-451AD10DD1E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E63099F0-01B9-1743-88EA-C78524319149}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E63099F0-01B9-1743-88EA-C78524319149}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E63099F0-01B9-1743-88EA-C78524319149}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E63099F0-01B9-1743-88EA-C78524319149}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E63099F0-01B9-1743-88EA-C78524319149} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BED45230-4F1F-4E8E-BBC4-13D4E9C78589}

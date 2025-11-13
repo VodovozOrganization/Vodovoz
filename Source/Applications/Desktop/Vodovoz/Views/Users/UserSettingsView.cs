@@ -1,15 +1,17 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Dialog;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Complaints;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Tools.Store;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewWidgets.Users;
 
@@ -26,10 +28,7 @@ namespace Vodovoz.Views.Users
 
 		private void ConfigureDlg()
 		{
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetNotArchiveWarehousesQuery();
-			yentryrefWarehouse.Binding
-				.AddBinding(ViewModel.Entity, e => e.DefaultWarehouse, w => w.Subject)
-				.InitializeFromSource();
+			entityentryWarehouse.ViewModel = ViewModel.WarehouseViewModel;
 
 			yenumcomboDefaultCategory.ItemsEnum = typeof(NomenclatureCategory);
 			var itemsToHide = Nomenclature.GetAllCategories().Except(Nomenclature.GetCategoriesForSaleToOrder()).Cast<object>().ToArray();
@@ -64,10 +63,14 @@ namespace Vodovoz.Views.Users
 				.InitializeFromSource();
 
 			frame2.Visible = ViewModel.IsUserFromRetail;
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
-			entryCounterparty.Binding
-				.AddBinding(ViewModel.Entity, e => e.DefaultCounterparty, w => w.Subject)
-				.InitializeFromSource();
+
+			ViewModel.CounterpartyViewModel = new LegacyEEVMBuilderFactory<UserSettingsViewModel>(Tab, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.LifetimeScope)
+				.ForProperty(vm => vm.DefaultCounterparty)
+				.UseTdiDialog<CounterpartyDlg>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			entryCounterparty.ViewModel = ViewModel.CounterpartyViewModel;
 
 			ycheckbuttonUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active)
@@ -80,7 +83,7 @@ namespace Vodovoz.Views.Users
 			frameSortingCashInfo.Visible = ViewModel.UserIsCashier;
 			treeViewSubdivisionsToSort.ColumnsConfig = FluentColumnsConfig<CashSubdivisionSortingSettings>.Create()
 				.AddColumn("№").AddNumericRenderer(x => x.SortingIndex)
-				.AddColumn("Подразделение кассы").AddTextRenderer(x => x.CashSubdivision.Name)
+				.AddColumn("Подразделение кассы").AddTextRenderer(x => x.CashSubdivisionId != null ? ViewModel.SubdivisionInMemoryCacheRepository.GetTitleById(x.CashSubdivisionId.Value) : "")
 				.Finish();
 			treeViewSubdivisionsToSort.EnableGridLines = TreeViewGridLines.Vertical;
 			treeViewSubdivisionsToSort.SetItemsSource(ViewModel.SubdivisionSortingSettings);

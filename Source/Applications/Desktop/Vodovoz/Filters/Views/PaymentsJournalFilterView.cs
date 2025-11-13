@@ -1,8 +1,16 @@
-﻿using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using Gamma.ColumnConfig;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using QS.Widgets;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Tools;
+using VodovozBusiness.Domain.Payments;
 using static Vodovoz.Filters.ViewModels.PaymentsJournalFilterViewModel;
 
 namespace Vodovoz.Filters.Views
@@ -33,7 +41,8 @@ namespace Vodovoz.Filters.Views
 			chkHideAllocatedPayments.Binding
 				.AddBinding(ViewModel, vm => vm.HideAllocatedPayments, w => w.Active)
 				.InitializeFromSource();
-			chkIsManualCreate.Binding
+			isMannualyCreatedBtn.RenderMode = RenderMode.Symbol;
+			isMannualyCreatedBtn.Binding
 				.AddBinding(ViewModel, vm => vm.IsManuallyCreated, w => w.Active)
 				.InitializeFromSource();
 			chkPaymentsWithoutCounterparty.Binding
@@ -47,17 +56,59 @@ namespace Vodovoz.Filters.Views
 				.InitializeFromSource();
 			yenumcmbSortType.ItemsEnum = typeof(PaymentJournalSortType);
 
-			ConfigureEntry();
+			slcbDocumentType.ItemsList = new List<Type>
+			{
+				null,
+				typeof(Payment),
+				typeof(PaymentWriteOff),
+				typeof(OutgoingPayment)
+			};
+
+			slcbDocumentType.ShowSpecialStateAll = true;
+
+			slcbDocumentType.SetRenderTextFunc<Type>(x => x != null
+				? x.GetClassUserFriendlyName()
+					.Nominative.CapitalizeSentence()
+				: "Все");
+
+			slcbDocumentType.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentType, w=> w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.DocumentTypeObject, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ConfigureEntityEntries();
+			ConfigureTreeWidgets();
 		}
 
-		private void ConfigureEntry()
+		private void ConfigureEntityEntries()
 		{
 			var builder = new LegacyEEVMBuilderFactory<PaymentsJournalFilterViewModel>(
 				ViewModel.JournalTab, ViewModel, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+
 			counterpartyEntry.ViewModel = builder.ForProperty(x => x.Counterparty)
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
+
+			organizationEntry.ViewModel = ViewModel.OrganizationEntryViewModel;
+			organizationBankEntry.ViewModel = ViewModel.OrganizationBankEntryViewModel;
+			organizationAccountEntry.ViewModel = ViewModel.OrganizationAccountEntryViewModel;
+		}
+		
+		private void ConfigureTreeWidgets()
+		{
+			treeViewProfitCategories.ColumnsConfig = FluentColumnsConfig<SelectableNode<ProfitCategory>>.Create()
+				.AddColumn("✔️")
+					.AddToggleRenderer(x => x.Selected)
+				.AddColumn("Категория")
+					.AddTextRenderer(x => x.Value.Name)
+				.AddColumn("")
+				.Finish();
+			
+			treeViewProfitCategories.ItemsDataSource = ViewModel.ProfitCategories;
+			treeViewProfitCategories.HeightRequest = 100;
+			treeViewProfitCategories.WidthRequest = 200;
+			treeViewProfitCategories.HeadersClickable = true;
 		}
 	}
 }

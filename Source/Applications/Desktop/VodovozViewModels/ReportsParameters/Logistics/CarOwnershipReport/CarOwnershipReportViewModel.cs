@@ -1,6 +1,7 @@
 ﻿using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using QS.Utilities.Enums;
@@ -9,12 +10,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Logistics;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 {
 	public class CarOwnershipReportViewModel : ReportParametersViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly ICarEventSettings _carEventSettings;
 
 		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
 		private bool _isOneDayReportSelected;
@@ -30,9 +34,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 
 		public CarOwnershipReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
-			ICommonServices commonServices) : base(rdlViewerViewModel)
+			ICommonServices commonServices,
+			IReportInfoFactory reportInfoFactory,
+			ICarEventSettings carEventSettings
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 
 			Title = "Принадлежность ТС";
 
@@ -44,7 +52,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			IsOneDayReportSelected = true;
 
 			IsUserHasAccessToCarOwnershipReport = 
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.HasAccessToCarOwnershipReport);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.HasAccessToCarOwnershipReport);
 		}
 
 		#region Properties
@@ -137,7 +145,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport
 			{
 				{ "car_type_of_use", SelectedCarTypesOfUse.ToArray() },
 				{ "car_own_type", SelectedCarOwnTypes.ToArray() },
-				{ "filters_text", filtersText }
+				{ "filters_text", filtersText },
+				{ "excluded_car_ids", _carEventSettings.CarsExcludedFromReportsIds }
 			};
 
 			if(IsOneDayReportSelected)

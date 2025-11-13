@@ -22,11 +22,11 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private global::Gtk.Table table5;
 
-		private global::Gtk.Button ComplaintButton;
+		private global::Gamma.GtkWidgets.yButton ComplaintButton;
 
-		private global::Gtk.Button CostAndDeliveryIntervalButton;
+		private global::Gamma.GtkWidgets.yButton CostAndDeliveryIntervalButton;
 
-		private global::Gtk.Button StockBalnce;
+		private global::Gamma.GtkWidgets.yButton StockBalnce;
 
 		private global::Gtk.Table table4;
 
@@ -114,7 +114,7 @@ namespace Vodovoz.Views.Mango.Talks
 			this.table5.RowSpacing = ((uint)(6));
 			this.table5.ColumnSpacing = ((uint)(6));
 			// Container child table5.Gtk.Table+TableChild
-			this.ComplaintButton = new global::Gtk.Button();
+			this.ComplaintButton = new global::Gamma.GtkWidgets.yButton();
 			this.ComplaintButton.CanFocus = true;
 			this.ComplaintButton.Name = "ComplaintButton";
 			this.ComplaintButton.UseUnderline = true;
@@ -123,7 +123,7 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table5[this.ComplaintButton]));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
-			this.CostAndDeliveryIntervalButton = new global::Gtk.Button();
+			this.CostAndDeliveryIntervalButton = new global::Gamma.GtkWidgets.yButton();
 			this.CostAndDeliveryIntervalButton.CanFocus = true;
 			this.CostAndDeliveryIntervalButton.Name = "CostAndDeliveryIntervalButton";
 			this.CostAndDeliveryIntervalButton.UseUnderline = true;
@@ -134,7 +134,7 @@ namespace Vodovoz.Views.Mango.Talks
 			w8.RightAttach = ((uint)(5));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
-			this.StockBalnce = new global::Gtk.Button();
+			this.StockBalnce = new global::Gamma.GtkWidgets.yButton();
 			this.StockBalnce.CanFocus = true;
 			this.StockBalnce.Name = "StockBalnce";
 			this.StockBalnce.UseUnderline = true;

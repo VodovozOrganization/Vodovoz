@@ -5,6 +5,7 @@ using NLog;
 using QS.ViewModels.Dialog;
 using QS.Views.GtkUI;
 using QS.Widgets;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -45,7 +46,7 @@ namespace Vodovoz.Filters.GtkViews
 			entryDeliveryPointPhone.ValidationMode = ValidationType.Numeric;
 			entryDeliveryPointPhone.KeyReleaseEvent += OnKeyReleased;
 			entryDeliveryPointPhone.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointPhone, w => w.Text).InitializeFromSource();
-
+			
 			enumcomboStatus.ItemsEnum = typeof(OrderStatus);
 			enumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeStatus, w => w.Sensitive)
@@ -70,6 +71,12 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryPointSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
 				.InitializeFromSource();
 
+			entrySalesManager.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManagerSelectorFactory, w => w.EntitySelectorAutocompleteFactory)
+				.AddBinding(vm => vm.CanChangeSalesManager, w => w.Sensitive)
+				.AddBinding(vm => vm.SalesManager, w => w.Subject)
+				.InitializeFromSource();
+			
 			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
 
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
@@ -108,8 +115,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDate, w => w.Active, new NullableBooleanToBooleanConverter())
 				.AddBinding(ViewModel, vm => vm.SortDeliveryDateVisibility, w => w.Visible)
 				.InitializeFromSource();
-			ycheckExcludeClosingDocumentDeliverySchedule.Binding
-				.AddBinding(ViewModel, vm => vm.ExcludeClosingDocumentDeliverySchedule, w => w.Active)
+			chkBtnClosingDocumentDeliverySchedule.RenderMode = RenderMode.Symbol;
+			chkBtnClosingDocumentDeliverySchedule.Binding
+				.AddBinding(ViewModel, vm => vm.FilterClosingDocumentDeliverySchedule, w => w.Active)
 				.InitializeFromSource();
 
 			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);

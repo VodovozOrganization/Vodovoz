@@ -2,7 +2,6 @@
 using QS.ViewModels.Dialog;
 using System;
 using Vodovoz.Application.Pacs;
-using Vodovoz.Services;
 
 namespace Vodovoz.Presentation.ViewModels.Pacs
 {

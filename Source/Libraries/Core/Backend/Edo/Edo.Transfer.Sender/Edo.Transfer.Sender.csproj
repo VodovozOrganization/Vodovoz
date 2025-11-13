@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+		<ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
+		<ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
+		<ProjectReference Include="..\Edo.Transfer\Edo.Transfer.csproj" />
+	</ItemGroup>
+
+</Project>

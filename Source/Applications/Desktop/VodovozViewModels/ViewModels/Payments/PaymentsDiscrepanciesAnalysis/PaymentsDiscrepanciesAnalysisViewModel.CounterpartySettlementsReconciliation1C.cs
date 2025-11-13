@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -124,7 +125,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				{
 					OrderId = orderId.Value,
 					OrderDeliveryDate = XlsParseHelper.ParseDateFromString(rowData[_orderPaymentInfoPositionIndex]),
-					OrderSum = decimal.Parse(rowData[_orderSumPositionIndex])
+					OrderSum = decimal.Parse(rowData[_orderSumPositionIndex], CultureInfo.InvariantCulture)
 				};
 
 				return true;
@@ -171,7 +172,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				{
 					PaymentNum = paymentNum.Value,
 					PaymentDate = paymentDate.Value,
-					PaymentSum = decimal.Parse(rowData[_paymentSumPositionIndex])
+					PaymentSum = decimal.Parse(rowData[_paymentSumPositionIndex], CultureInfo.InvariantCulture)
 				};
 
 				return true;
@@ -207,7 +208,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 					if(rowData[_periodSumsInfoPositionIndex].StartsWith("Обороты за период"))
 					{
-						sum = decimal.Parse(rowData[_periodTotalOrdersSumPositionIndex]);
+						sum = decimal.Parse(rowData[_periodTotalOrdersSumPositionIndex], CultureInfo.InvariantCulture);
 					}
 				}
 
@@ -227,7 +228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 					if(rowData[_periodSumsInfoPositionIndex].StartsWith("Обороты за период"))
 					{
-						sum = decimal.Parse(rowData[_periodTotalPaymentsSumPositionIndex]);
+						sum = decimal.Parse(rowData[_periodTotalPaymentsSumPositionIndex], CultureInfo.InvariantCulture);
 					}
 				}
 
@@ -254,12 +255,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 					if(rowData[1].StartsWith("Продажа"))
 					{
-						debt -= decimal.Parse(rowData[_orderSumPositionIndex]);
+						debt -= decimal.Parse(rowData[_orderSumPositionIndex], CultureInfo.InvariantCulture);
 					}
 
 					if(rowData[1].StartsWith("Оплата"))
 					{
-						debt += decimal.Parse(rowData[_paymentSumPositionIndex]);
+						debt += decimal.Parse(rowData[_paymentSumPositionIndex], CultureInfo.InvariantCulture);
 					}
 				}
 

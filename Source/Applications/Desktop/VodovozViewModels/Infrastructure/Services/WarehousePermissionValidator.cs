@@ -4,9 +4,10 @@ using System.Linq;
 using MoreLinq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.ViewModels.Infrastructure.Services

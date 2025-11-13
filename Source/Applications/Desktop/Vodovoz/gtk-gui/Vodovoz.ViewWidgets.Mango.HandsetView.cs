@@ -10,7 +10,7 @@ namespace Vodovoz.ViewWidgets.Mango
 
 		private global::Gtk.Action orderAction;
 
-		private global::Gtk.Button buttonMakeCall;
+		private global::Gamma.GtkWidgets.yButton buttonMakeCall;
 
 		protected virtual void Build()
 		{
@@ -26,7 +26,7 @@ namespace Vodovoz.ViewWidgets.Mango
 			this.UIManager.InsertActionGroup(w2, 0);
 			this.Name = "Vodovoz.ViewWidgets.Mango.HandsetView";
 			// Container child Vodovoz.ViewWidgets.Mango.HandsetView.Gtk.Container+ContainerChild
-			this.buttonMakeCall = new global::Gtk.Button();
+			this.buttonMakeCall = new global::Gamma.GtkWidgets.yButton();
 			this.buttonMakeCall.CanFocus = true;
 			this.buttonMakeCall.Name = "buttonMakeCall";
 			this.buttonMakeCall.UseUnderline = true;

@@ -33,6 +33,7 @@ WinInstall/*
 *appsettings.Development.json
 !Source/Applications/Backend/WebAPI/DriverAPI/appsettings.Development.json
 !Source/Applications/Backend/WebAPI/LogisticsEventsApi/appsettings.Development.json
+!Source/Applications/Backend/Workers/Docker/PushNotificationsWorker/appsettings.Development.json
 
 #Docker Volumes
 Services/Docker/db-data/*

@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Complaints;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
@@ -124,12 +127,12 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		{
 			return unitOfWork.GetById<ComplaintSource>(complaintSourceId);
 		}
-		
+
 		public (int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId)
 		{
 			var query = from complaint in unitOfWork.Session.Query<Complaint>()
-				where complaint.OrderRating.Id == orderRatingId
-				select new ValueTuple<int, bool>(complaint.Id, true);
+						where complaint.OrderRating.Id == orderRatingId
+						select new ValueTuple<int, bool>(complaint.Id, true);
 
 			return query.FirstOrDefault();
 		}
@@ -137,12 +140,70 @@ namespace Vodovoz.Infrastructure.Persistance.Complaints
 		public (int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId)
 		{
 			var query = from complaint in unitOfWork.Session.Query<Complaint>()
-				join order in unitOfWork.Session.Query<Order>()
-					on complaint.Order.Id equals orderId
-				where complaint.CreationDate >= DateTime.Now.AddDays(-1)
-				select new ValueTuple<int, bool>(complaint.Id, complaint.OrderRating != null);
+						join order in unitOfWork.Session.Query<Order>()
+							on complaint.Order.Id equals orderId
+						where complaint.CreationDate >= DateTime.Now.AddDays(-1)
+						select new ValueTuple<int, bool>(complaint.Id, complaint.OrderRating != null);
 
 			return query.FirstOrDefault();
+		}
+
+		public IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(
+			IUnitOfWork uow,
+			DateTime startDate,
+			DateTime endDate)
+		{
+			var query =
+				from complaint in uow.Session.Query<Complaint>()
+				join c in uow.Session.Query<Counterparty>() on complaint.Counterparty.Id equals c.Id into counterpartes
+				from counterparty in counterpartes.DefaultIfEmpty()
+				join dp in uow.Session.Query<DeliveryPoint>() on complaint.DeliveryPoint.Id equals dp.Id into deliveryPoints
+				from deliveryPoint in deliveryPoints.DefaultIfEmpty()
+				join ck in uow.Session.Query<ComplaintKind>() on complaint.ComplaintKind.Id equals ck.Id into complaintKinds
+				from complaintKind in complaintKinds.DefaultIfEmpty()
+				join co in uow.Session.Query<ComplaintObject>() on complaintKind.ComplaintObject.Id equals co.Id into complaintObjects
+				from complaintObject in complaintObjects.DefaultIfEmpty()
+				where complaint.CreationDate >= startDate.Date && complaint.CreationDate <= endDate.LatestDayTime()
+				&& complaint.ComplaintType == ComplaintType.Client
+				orderby complaint.Id descending
+
+				let resultComments =
+				uow.Session.Query<ComplaintResultComment>()
+				.Where(r => r.Complaint.Id == complaint.Id)
+				.Select(r => new OksDailyReportComplaintResultCommentsData
+				{
+					ComplaintResultCommentId = r.Id,
+					ComplaintResultComment = r.Comment
+				})
+
+				let discussionSubdivisions =
+				uow.Session.Query<ComplaintDiscussion>()
+				.Where(d => d.Complaint.Id == complaint.Id)
+				.Select(d => new DiscussionSubdivisionData
+				{
+					DiscussionId = d.Id,
+					ComplaintId = d.Complaint.Id,
+					SubdivisionId = d.Subdivision.Id,
+					DiscussionStatuse = d.Status
+				})
+
+				select new OksDailyReportComplaintDataNode
+				{
+					Id = complaint.Id,
+					CreationDate = complaint.CreationDate,
+					ComplaintText = complaint.ComplaintText,
+					ComplaintResults = resultComments,
+					WorkWithClientResult = complaint.WorkWithClientResult,
+					Status = complaint.Status,
+					ComplaintKind = complaint.ComplaintKind,
+					ComplaintObject = complaint.ComplaintKind == null ? null : complaint.ComplaintKind.ComplaintObject,
+					ComplaintSource = complaint.ComplaintSource,
+					ClientName = counterparty == null ? string.Empty : counterparty.Name,
+					DeliveryPointAddress = deliveryPoint == null ? string.Empty : deliveryPoint.CompiledAddress,
+					DiscussionSubdivisions = discussionSubdivisions
+				};
+
+			return query;
 		}
 	}
 }

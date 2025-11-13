@@ -10,7 +10,8 @@ namespace Vodovoz.Data.NHibernate
 		[Obsolete("Удалить после очистки сущностей от зависимостей")]
 		public static IServiceCollection AddStaticScopeForEntity(this IServiceCollection services)
 		{
-			services.AddSingleton<OnDatabaseInitialization>((provider) => {
+			services.AddSingleton<OnDatabaseInitialization>((provider) =>
+			{
 				ScopeProvider.Scope = provider.GetRequiredService<ILifetimeScope>();
 				return new OnDatabaseInitialization();
 			});

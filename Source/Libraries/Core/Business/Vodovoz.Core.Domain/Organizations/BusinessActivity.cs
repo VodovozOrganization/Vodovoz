@@ -14,7 +14,8 @@ namespace Vodovoz.Core.Domain.Organizations
 	public class BusinessActivity : PropertyChangedBase, INamedDomainObject
 	{
 		private string _name;
-		
+		private bool _isArchive;
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Название")]
@@ -22,6 +23,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _name;
 			set => SetField(ref _name, value);
+		}
+		
+		[Display(Name = "В архиве")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField (ref _isArchive, value);
 		}
 	}
 }

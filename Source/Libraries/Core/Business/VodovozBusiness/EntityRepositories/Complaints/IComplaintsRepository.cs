@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using MySql.Data.MySqlClient.Memcached;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
 namespace Vodovoz.EntityRepositories.Complaints
 {
@@ -21,10 +23,11 @@ namespace Vodovoz.EntityRepositories.Complaints
 		IList<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId);
 
 		IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork);
-        IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork);
+		IEnumerable<DriverComplaintReason> GetDriverComplaintPopularReasons(IUnitOfWork unitOfWork);
 		DriverComplaintReason GetDriverComplaintReasonById(IUnitOfWork unitOfWork, int driverComplaintReasonId);
-        ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
-        (int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId);
-        (int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId);
+		ComplaintSource GetComplaintSourceById(IUnitOfWork unitOfWork, int complaintSourceId);
+		(int, bool) GetComplaintIdByOrderRating(IUnitOfWork unitOfWork, int orderRatingId);
+		(int, bool) GetTodayComplaintIdByOrder(IUnitOfWork unitOfWork, int orderId);
+		IQueryable<OksDailyReportComplaintDataNode> GetClientComplaintsForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

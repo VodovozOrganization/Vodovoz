@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
@@ -13,9 +9,13 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Vodovoz.Application.BankStatements;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
@@ -110,6 +110,8 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private void CreateCommands()
 		{
 			SaveCommand = new DelegateCommand(() => SaveAndClose(), () => CanUpdateData);
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
+
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 			
 			LoadAndProcessDataCommand = new DelegateCommand(
@@ -119,11 +121,14 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						_bankStatementHandler.ProcessBankStatementsFromDirectory(_bankStatementsDirectory, DatePickerViewModel.SelectedDate);
 					
 					UpdateLocalData(banksStatementsData);
+					Save();
 				},
 				() => CanUpdateData
 			);
+			LoadAndProcessDataCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
 
 			ExportCommand = new DelegateCommand(ExportReport, () => CanUpdateData);
+			ExportCommand.CanExecuteChangedWith(this, x => x.CanUpdateData);
 		}
 
 		private void UpdateLocalData(BankStatementProcessedResult banksStatementsData)
@@ -144,6 +149,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						
 						if(string.IsNullOrWhiteSpace(businessAccountSummary.BusinessAccount.Number))
 						{
+							TryUpdateLocalTotalActivityBalance(businessAccountSummary, ref totalActivityBalance);
 							continue;
 						}
 						
@@ -151,6 +157,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						{
 							businessAccountSummary.Total = data.Balance;
 							totalActivityBalance += data.Balance;
+						}
+						else
+						{
+							TryUpdateLocalTotalActivityBalance(businessAccountSummary, ref totalActivityBalance);
 						}
 					}
 					
@@ -188,6 +198,16 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			
 			CompanyBalanceChangedAction?.Invoke();
 			UpdateResultMessage(banksStatementsData);
+		}
+
+		private void TryUpdateLocalTotalActivityBalance(
+			BusinessAccountSummary businessAccountSummary,
+			ref decimal? totalActivityBalance)
+		{
+			if(businessAccountSummary.Total.HasValue)
+			{
+				totalActivityBalance += businessAccountSummary.Total;
+			}
 		}
 
 		private bool TryGetCashSubdivisionBalanceAndFill(
@@ -385,8 +405,12 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 						fundWorkSheet.Cell(rowBeginActivity, bankColumn).Value = account.Bank;
 						fundWorkSheet.Cell(rowBeginActivity, accountNumberColumn).SetValue(account.AccountNumber);
 						var accountTotalCell = fundWorkSheet.Cell(rowBeginActivity, totalColumn);
-						accountTotalCell.Value = account.Total ?? 0m;
-						accountTotalCell.SetCurrencyFormat();
+
+						if(account.Total.HasValue)
+						{
+							accountTotalCell.Value = account.Total ?? 0m;
+							accountTotalCell.SetCurrencyFormat();
+						}
 
 						rowBeginActivity++;
 					}
@@ -446,7 +470,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			IDatePickerViewModelFactory datePickerViewModelFactory, ICurrentPermissionService permissionService)
 		{
 			CanEditCompanyBalanceByDayInPreviousPeriods =
-				permissionService.ValidatePresetPermission(Permissions.CompanyBalanceByDay.CanEditCompanyBalanceByDayInPreviousPeriods);
+				permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CompanyBalanceByDayPermissions.CanEditCompanyBalanceByDayInPreviousPeriods);
 			CompanyBalances = new List<CompanyBalanceByDay>();
 			DatePickerViewModel = datePickerViewModelFactory.CreateNewDatePickerViewModel(
 				DateTime.Today,
@@ -517,6 +541,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private void GenerateNewData(CompanyBalanceByDay companyBalanceByDay)
 		{
 			var accountsByFunds = UoW.GetAll<BusinessAccount>()
+				.Where(x => !x.IsArchive)
 				.OrderBy(x => x.Funds.Id)
 				.ThenBy(x => x.BusinessActivity.Id)
 				.ToLookup(x => x.Funds);

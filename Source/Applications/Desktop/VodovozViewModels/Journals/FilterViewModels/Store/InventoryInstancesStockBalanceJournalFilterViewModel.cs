@@ -2,7 +2,6 @@
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Autofac;
@@ -20,6 +19,7 @@ using QS.ViewModels.Dialog;
 using QS.Project.Journal;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

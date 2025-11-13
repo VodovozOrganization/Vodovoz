@@ -7,9 +7,4 @@ namespace Vodovoz.Domain.WageCalculation
 		[Display(Name = "За маршрутный лист")]
 		RouteList
 	}
-
-	public class FixedWageTypesStringType : NHibernate.Type.EnumStringType
-	{
-		public FixedWageTypesStringType() : base(typeof(FixedWageTypes)) { }
-	}
 }

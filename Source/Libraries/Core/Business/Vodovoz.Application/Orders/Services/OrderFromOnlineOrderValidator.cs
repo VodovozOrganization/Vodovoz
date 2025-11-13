@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
-using Vodovoz.Errors;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -16,21 +22,33 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
+		private readonly IDiscountController _discountController;
+		private readonly IFreeLoaderChecker _freeLoaderChecker;
+		private readonly IOrderOrganizationManager _orderOrganizationManager;
+		private readonly IOrderSettings _orderSettings;
 		private OnlineOrder _onlineOrder;
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
-			IClientDeliveryPointsChecker clientDeliveryPointsChecker)
+			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
+			IDiscountController discountController,
+			IFreeLoaderChecker freeLoaderChecker,
+			IOrderOrganizationManager orderOrganizationManager,
+			IOrderSettings orderSettings)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_clientDeliveryPointsChecker = clientDeliveryPointsChecker ?? throw new ArgumentNullException(nameof(clientDeliveryPointsChecker));
+			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
+			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
-		public Result ValidateOnlineOrder(OnlineOrder onlineOrder)
+		public Result ValidateOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
 			_onlineOrder = onlineOrder;
 			var validationResults = new List<Error>();
@@ -39,14 +57,14 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(_onlineOrder.SelfDeliveryGeoGroup is null)
 				{
-					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IsEmptySelfDeliveryGeoGroup);
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptySelfDeliveryGeoGroup);
 				}
 			}
 			else
 			{
 				if(_onlineOrder.Counterparty is null)
 				{
-					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyCounterparty);
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptyCounterparty);
 				}
 				else
 				{
@@ -58,7 +76,7 @@ namespace Vodovoz.Application.Orders.Services
 						
 						if(!result)
 						{
-							validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.DeliveryPointNotBelongCounterparty);
+							validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryPointNotBelongCounterparty);
 						}
 						
 						_onlineOrder.SetDeliveryPointNotBelongCounterparty(!result);
@@ -67,47 +85,64 @@ namespace Vodovoz.Application.Orders.Services
 				
 				if(_onlineOrder.DeliveryPoint is null)
 				{
-					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliveryPoint);
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptyDeliveryPoint);
 				}
 				else
 				{
 					if(_onlineOrder.DeliveryPoint.District is null)
 					{
-						validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDistrictFromDeliveryPoint);
+						validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptyDistrictFromDeliveryPoint);
 					}
 				}
 
 				if(_onlineOrder.DeliverySchedule is null)
 				{
-					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IsEmptyDeliverySchedule);
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptyDeliverySchedule);
 				}
 			}
 			
 			if(_onlineOrder.DeliveryDate < DateTime.Today && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
-				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDeliveryDate);
+				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDeliveryDate);
 			}
 
-			ValidateOnlineOrderItems(validationResults);
+			if(!string.IsNullOrEmpty(onlineOrder.ContactPhone))
+			{
+				var phone = new PhoneEntity { Number = onlineOrder.ContactPhone };
+				if(!phone.IsValidPhoneNumber)
+				{
+					validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.InvalidPhone(onlineOrder.ContactPhone));
+				}
+			}
+
+			if(_orderOrganizationManager.SplitOrderByOrganizations(
+				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(uow, _orderSettings, onlineOrder)).Count() > 1)
+			{
+				validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderContainsGoodsSoldFromSeveralOrganizations());
+			}
+
+			ValidateOnlineOrderItems(uow, validationResults);
 			
 			return !validationResults.Any() ? Result.Success() : Result.Failure(validationResults);
 		}
 
-		private void ValidateOnlineOrderItems(ICollection<Error> errors)
+		private void ValidateOnlineOrderItems(IUnitOfWork uow, ICollection<Error> errors)
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
-			ValidatePromoSet(archivedNomenclatures, errors);
+			ValidatePromoSet(uow, archivedNomenclatures, errors);
 			ValidateOtherItemsWithoutDeliveries(archivedNomenclatures, errors);
 			ValidatePaidDelivery(errors);
 			ValidateFastDelivery(errors);
 			ValidateOnlineRentPackages(errors);
 		}
 
-		private void ValidatePromoSet(IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
+		private void ValidatePromoSet(IUnitOfWork uow, IDictionary<int, bool> archivedNomenclatures, ICollection<Error> errors)
 		{
 			var onlineOrderPromoSets = _onlineOrder.OnlineOrderItems
 				.Where(x => x.PromoSet != null)
 				.ToLookup(x => x.PromoSetId);
+
+			CheckFreeLoader(uow, errors);
 			
 			foreach(var onlineOrderItemGroup in onlineOrderPromoSets)
 			{
@@ -115,7 +150,7 @@ namespace Vodovoz.Application.Orders.Services
 				
 				if(promoSet.IsArchive)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsArchivedOnlineOrderPromoSet(promoSet.Title));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedOnlineOrderPromoSet(promoSet.Title));
 				}
 
 				var promoSetItemsCount = promoSet.PromotionalSetItems.Count;
@@ -130,7 +165,7 @@ namespace Vodovoz.Application.Orders.Services
 					ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
 					ValidateCount(onlineOrderItem, i, errors);
 					ValidatePrice(onlineOrderItem, errors);
-					ValidateDiscount(onlineOrderItem, i, errors);
+					ValidateDiscountFromPromoSet(onlineOrderItem, i, errors);
 					i++;
 
 					if(i >= promoSetItemsCount)
@@ -138,6 +173,42 @@ namespace Vodovoz.Application.Orders.Services
 						i = 0;
 					}
 				}
+			}
+		}
+
+		private void CheckFreeLoader(IUnitOfWork uow, ICollection<Error> errors)
+		{
+			var hasPromoSetForNewClients =
+				_onlineOrder.OnlineOrderItems
+					.Where(x => x.PromoSet != null)
+					.Select(x => x.PromoSet)
+					.Any(x => x.PromotionalSetForNewClients);
+
+			if(!hasPromoSetForNewClients)
+			{
+				return;
+			}
+			
+			var contactNumber =
+				!string.IsNullOrWhiteSpace(_onlineOrder.ContactPhone) && _onlineOrder.ContactPhone.Length > 2
+					? _onlineOrder.ContactPhone.Substring(2)
+					: null;
+
+			var result = _freeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
+				uow,
+				_onlineOrder.IsSelfDelivery,
+				_onlineOrder.CounterpartyId,
+				_onlineOrder.DeliveryPointId,
+				contactNumber);
+
+			if(result.IsSuccess)
+			{
+				return;
+			}
+
+			foreach(var error in result.Errors)
+			{
+				errors.Add(error);
 			}
 		}
 
@@ -151,7 +222,7 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(onlinePromoItemsCount % promoSetItemsCount != 0)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsIncorrectOnlineOrderPromoSetItemsCount(promoSetTitle));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsIncorrectOnlineOrderPromoSetItemsCount(promoSetTitle));
 				}
 			}
 		}
@@ -164,7 +235,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			if(promoSetItemsCount < onlinePromoItemsCount && promoSet.PromotionalSetForNewClients)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsIncorrectOnlineOrderPromoSetForNewClientsCount());
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsIncorrectOnlineOrderPromoSetForNewClientsCount());
 			}
 		}
 
@@ -191,7 +262,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 
 			archivedNomenclatures.Add(nomenclature.Id, true);
-			errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsArchivedNomenclatureInOnlineOrder(nomenclature.ToString()));
+			errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedNomenclatureInOnlineOrder(nomenclature.ToString()));
 		}
 
 		private void ValidateCount(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
@@ -204,7 +275,7 @@ namespace Vodovoz.Application.Orders.Services
 			if(countFromPromoSetItem != onlineOrderItem.Count)
 			{
 				errors.Add(
-					Vodovoz.Errors.Orders.OnlineOrder.IncorrectCountNomenclatureInOnlineOrderPromoSet(
+					Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectCountNomenclatureInOnlineOrderPromoSet(
 						onlineOrderItem.PromoSet.Title,
 						++index,
 						onlineOrderItem.Nomenclature.ToString(),
@@ -218,22 +289,102 @@ namespace Vodovoz.Application.Orders.Services
 			var price = _priceCalculator.CalculateItemPrice(
 				_onlineOrder.OnlineOrderItems,
 				_onlineOrder.DeliveryPoint,
-				null,
-				onlineOrderItem.Nomenclature,
-				onlineOrderItem.PromoSet,
-				onlineOrderItem.Count,
+				_onlineOrder.Counterparty,
+				onlineOrderItem,
 				false);
 
 			onlineOrderItem.NomenclaturePrice = price;
 
 			if(price != onlineOrderItem.Price)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectPriceNomenclatureInOnlineOrder(
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPriceNomenclatureInOnlineOrder(
 					onlineOrderItem.Nomenclature.ToString(), price, onlineOrderItem.Price));
 			}
 		}
 		
-		private void ValidateDiscount(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
+		private void ValidateDiscountProperties(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		{
+			ValidateDiscountParametersFromNotPromoSet(onlineOrderItem, errors);
+		}
+
+		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		{
+			if(onlineOrderItem.DiscountReason != null)
+			{
+				var applicableDiscount =
+					_discountController.IsApplicableDiscount(onlineOrderItem.DiscountReason, onlineOrderItem.Nomenclature);
+
+				if(applicableDiscount)
+				{
+					ValidateApplicableDiscountFromNotPromoSet(onlineOrderItem, errors);
+				}
+				else
+				{
+					ValidateNotApplicableDiscountFromNotPromoSet(onlineOrderItem, errors);
+				}
+			}
+			else
+			{
+				if(onlineOrderItem.GetDiscount > 0)
+				{
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountNomenclatureInOnlineOrder(
+						onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
+				}
+						
+				onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+			}
+		}
+
+		private void ValidateApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		{
+			if(onlineOrderItem.GetDiscount != onlineOrderItem.DiscountReason.Value)
+			{
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountNomenclatureInOnlineOrder(
+					onlineOrderItem.Nomenclature.ToString(),
+					onlineOrderItem.DiscountReason.Value,
+					onlineOrderItem.GetDiscount));
+				onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+			}
+
+			switch(onlineOrderItem.DiscountReason.ValueType)
+			{
+				case DiscountUnits.money:
+					if(!onlineOrderItem.IsDiscountInMoney)
+					{
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountTypeInOnlineOrder(
+							onlineOrderItem.Nomenclature.ToString(), true, onlineOrderItem.IsDiscountInMoney));
+						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+					}
+					break;
+				case DiscountUnits.percent:
+					if(onlineOrderItem.IsDiscountInMoney)
+					{
+						errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountTypeInOnlineOrder(
+							onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+					}
+					break;
+			}
+		}
+
+		private void ValidateNotApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		{
+			if(onlineOrderItem.GetDiscount > 0)
+			{
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NotApplicableDiscountToNomenclatureOnlineOrder(
+					onlineOrderItem.Nomenclature.ToString()));
+			}
+							
+			if(onlineOrderItem.IsDiscountInMoney)
+			{
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountTypeInOnlineOrder(
+					onlineOrderItem.Nomenclature.ToString(), false, onlineOrderItem.IsDiscountInMoney));
+			}
+
+			onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+		}
+
+		private void ValidateDiscountFromPromoSet(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
 		{
 			var promoSetItem = onlineOrderItem.PromoSet.PromotionalSetItems[index];
 			var discountInMoneyFromPromoSet = promoSetItem.IsDiscountInMoney;
@@ -247,7 +398,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(discountInMoneyFromPromoSet != onlineOrderItem.IsDiscountInMoney)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountTypeInOnlineOrderPromoSet(
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountTypeInOnlineOrderPromoSet(
 					onlineOrderItem.PromoSet.Title,
 					position,
 					onlineOrderItem.Nomenclature.ToString(),
@@ -257,7 +408,7 @@ namespace Vodovoz.Application.Orders.Services
 			
 			if(discountItemFromPromoSet != onlineOrderItemDiscount)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectDiscountInOnlineOrderPromoSet(
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountInOnlineOrderPromoSet(
 					onlineOrderItem.PromoSet.Title,
 					position,
 					onlineOrderItem.Nomenclature.ToString(),
@@ -276,7 +427,7 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(onlineOrderItem.Nomenclature is null)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsIncorrectNomenclatureInOnlineOrder(onlineOrderItem.NomenclatureId));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsIncorrectNomenclatureInOnlineOrder(onlineOrderItem.NomenclatureId));
 					continue;
 				}
 				
@@ -288,9 +439,10 @@ namespace Vodovoz.Application.Orders.Services
 				
 				ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
 				ValidatePrice(onlineOrderItem, errors);
+				ValidateDiscountProperties(onlineOrderItem, errors);
 			}
 		}
-		
+
 		private void ValidatePaidDelivery(ICollection<Error> errors)
 		{
 			if(_onlineOrder.IsSelfDelivery || _onlineOrder.DeliveryPoint?.District is null)
@@ -314,16 +466,16 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(paidDelivery.Price != deliveryPrice)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
 				}
 			}
 			else if(needPaidDelivery && paidDelivery is null)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NeedPaidDelivery);
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NeedPaidDelivery);
 			}
 			else if(!needPaidDelivery && paidDelivery != null)
 			{
-				errors.Add(Vodovoz.Errors.Orders.OnlineOrder.NotNeedPaidDelivery);
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NotNeedPaidDelivery);
 			}
 		}
 		
@@ -337,20 +489,20 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				if(fastDelivery != null)
 				{
-					errors.Add(Vodovoz.Errors.Orders.FastDelivery.NotNeedFastDelivery);
+					errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.NotNeedFastDelivery);
 				}
 				return;
 			}
 
 			if(fastDelivery is null)
 			{
-				errors.Add(Vodovoz.Errors.Orders.FastDelivery.FastDeliveryIsMissing);
+				errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.FastDeliveryIsMissing);
 				return;
 			}
 
 			if(_onlineOrder.DeliveryDate != DateTime.Today)
 			{
-				errors.Add(Vodovoz.Errors.Orders.FastDelivery.InvalidDate);
+				errors.Add(Vodovoz.Errors.Orders.FastDeliveryErrors.InvalidDate);
 			}
 			
 			ValidatePrice(fastDelivery, errors);
@@ -363,13 +515,13 @@ namespace Vodovoz.Application.Orders.Services
 				var freeRentPackage = onlineRentPackage.FreeRentPackage;
 				if(freeRentPackage is null)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectRentPackageIdInOnlineOrder(onlineRentPackage.FreeRentPackageId));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectRentPackageIdInOnlineOrder(onlineRentPackage.FreeRentPackageId));
 					continue;
 				}
 
 				if(freeRentPackage.IsArchive)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IsArchivedRentPackageIdInOnlineOrder(onlineRentPackage.FreeRentPackageId));
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedRentPackageIdInOnlineOrder(onlineRentPackage.FreeRentPackageId));
 				}
 
 				var depositFromRentPackage = freeRentPackage.Deposit;
@@ -378,7 +530,7 @@ namespace Vodovoz.Application.Orders.Services
 
 				if(depositFromRentPackage != onlineRentPackage.Price)
 				{
-					errors.Add(Vodovoz.Errors.Orders.OnlineOrder.IncorrectRentPackagePriceInOnlineOrder(
+					errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectRentPackagePriceInOnlineOrder(
 						onlineRentPackage.FreeRentPackageId, onlineRentPackage.Price, depositFromRentPackage));
 				}
 			}

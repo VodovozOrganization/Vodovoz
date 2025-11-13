@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Text.Json.Serialization;
-using Vodovoz.Core.Data.Interfaces.Counterparties;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Data.Interfaces.Counterparties;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Dto.Counterparties

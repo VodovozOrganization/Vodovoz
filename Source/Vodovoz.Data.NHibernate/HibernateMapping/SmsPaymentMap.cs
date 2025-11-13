@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping
@@ -11,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.SmsPaymentStatus).Column("payment_status").CustomType<SmsPaymentStatusStringType>();
+			Map(x => x.SmsPaymentStatus).Column("payment_status");
 			Map(x => x.PhoneNumber).Column("phone_number");
 			Map(x => x.Amount).Column("amount");
 			Map(x => x.CreationDate).Column("creation_date");

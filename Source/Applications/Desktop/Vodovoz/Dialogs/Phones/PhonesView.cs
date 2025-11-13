@@ -11,6 +11,7 @@ using QS.Extensions;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Dialogs.Phones
 {

@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 

@@ -2,8 +2,8 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using QS.Utilities.Numeric;
 using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Clients;
+using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 
@@ -52,6 +52,12 @@ namespace CustomerAppsApi.Library.Validators
 			}
 
 			return ValidationResult();
+		}
+
+		public string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto)
+		{
+			// реализация будет позже, после слития интеграции юриков
+			return string.Empty;
 		}
 
 		public string GetLegalCustomersByInnDtoValidate(GetLegalCustomersByInnDto dto)

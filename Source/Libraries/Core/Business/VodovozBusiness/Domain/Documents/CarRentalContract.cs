@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -14,7 +15,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Errors;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Documents
@@ -144,7 +144,7 @@ namespace Vodovoz.Domain.Documents
 
 			if(docTemplateResult.IsFailure)
 			{
-				return Result.Failure<CarRentalContract>(Errors.Documents.DocumentTemplate.NotFound);
+				return Result.Failure<CarRentalContract>(Errors.Documents.DocumentTemplateErrors.NotFound);
 			}
 
 			var validationResults = ValidateParameters(car, organization, driver);

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>8.5in</PageHeight>
   <PageWidth>11in</PageWidth>
   <Width>.1pt</Width>
@@ -594,7 +592,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>=Sum(Iif({eshop_order_row_number} = 1, {delivery_price}, 0))</Value>
+                      <Value>=Sum(Iif({is_first_item_in_order} = 1, {delivery_price}, 0))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -658,7 +656,7 @@
         </Footer>
         <Left>408.7pt</Left>
         <Top>184.6pt</Top>
-        <PageBreakAtStart >false</PageBreakAtStart>
+        <PageBreakAtStart>false</PageBreakAtStart>
       </Table>
     </ReportItems>
   </Body>
@@ -696,7 +694,8 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT o.e_shop_order AS eshop_order_id,
+        <CommandText>SELECT
+	o.e_shop_order AS eshop_order_id,
     n.online_store_external_id AS online_store_external_id,
     o.delivery_date AS delivery_date,
     n.official_name AS nomenclature_name,
@@ -706,6 +705,17 @@
     COALESCE(oi.actual_count, 0) AS actual_amount,
     IF(d.price IS NULL, 0, (d.price - d.discount_money)) AS delivery_price,
     ROW_NUMBER() OVER(PARTITION BY o.e_shop_order) AS eshop_order_row_number,
+    o.id as order_id,
+    oi.id as order_item_id,
+    (if(oi.id = 
+    	(SELECT oi2.id
+    	FROM order_items oi2
+    	JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
+    	WHERE
+    	order_id = o.id
+    	AND n2.online_store_external_id IS NOT NULL
+    	ORDER BY oi2.id LIMIT 1),
+    1, 0)) AS is_first_item_in_order,
     oi.discount_money AS discount,
     COALESCE(oi.price, 0) * COALESCE(oi.count, 0) - IF(oi.count &gt; 0 AND oi.price &gt; 0, oi.discount_money, 0) AS planned_sum,
     COALESCE(oi.price, 0) * COALESCE(oi.actual_count, 0) - IF(oi.actual_count &gt; 0 AND oi.price &gt; 0 , oi.discount_money, 0) AS actual_sum,
@@ -736,7 +746,8 @@ WHERE o.id IS NOT NULL
   AND n.online_store_external_id IS NOT NULL
   AND (@e_shop_id = -1 OR n.online_store_id = @e_shop_id)
   AND (o.order_status IN (@order_statuses))
-GROUP BY oi.id</CommandText>
+GROUP BY oi.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -809,6 +820,10 @@ GROUP BY oi.id</CommandText>
           <DataField>nomenclature_count_numbers</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="is_first_item_in_order">
+          <DataField>is_first_item_in_order</DataField>
+          <TypeName>System.Int16</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="EShopName">
@@ -837,40 +852,35 @@ WHERE (@e_shop_id = -1 OR id = @e_shop_id)</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="e_shop_id">
       <DataType>Integer</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_timestamp">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_statuses">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_statuses_rus">
       <DataType>String</DataType>

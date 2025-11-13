@@ -6,10 +6,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace FastPaymentsAPI.Library.Managers
 {
@@ -21,6 +20,7 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
+		private readonly IOrderContractUpdater _contractUpdater;
 
 		public FastPaymentManager(
 			IFastPaymentSettings fastPaymentSettings,
@@ -28,7 +28,8 @@ namespace FastPaymentsAPI.Library.Managers
 			Vodovoz.Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
-			ICashRepository cashRepository)
+			ICashRepository cashRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			_fastPaymentSettings =
 				fastPaymentSettings ?? throw new ArgumentNullException(nameof(fastPaymentSettings));
@@ -37,6 +38,7 @@ namespace FastPaymentsAPI.Library.Managers
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
 
 		public bool IsTimeToCancelPayment(DateTime fastPaymentCreationDate, bool fastPaymentWithQRNotFromOnline, bool fastPaymentFromOnline)
@@ -90,7 +92,8 @@ namespace FastPaymentsAPI.Library.Managers
 							_nomenclatureSettings,
 							_routeListItemRepository,
 							_selfDeliveryRepository,
-							_cashRepository);
+							_cashRepository,
+							_contractUpdater);
 					}
 					else
 					{

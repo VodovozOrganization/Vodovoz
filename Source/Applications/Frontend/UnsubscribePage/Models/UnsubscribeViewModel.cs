@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,7 +20,7 @@ namespace UnsubscribePage.Models
 		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			Initialize(guid, emailRepository, emailSettings);			
+			Initialize(guid, emailRepository, emailSettings);
 		}
 
 		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)

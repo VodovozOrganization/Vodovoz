@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -12,14 +15,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -27,13 +29,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
 	public class WarehouseDocumentsItemsJournalFilterViewModel : FilterViewModelBase<WarehouseDocumentsItemsJournalFilterViewModel>
 	{
-		private const string _haveAccessOnlyToWarehouseAndComplaintsPermissionName = "user_have_access_only_to_warehouse_and_complaints";
-
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _lifetimeScope;
@@ -51,6 +54,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private List<int> _counterpartyIds = new List<int>();
 		private List<int> _warhouseIds = new List<int>();
+		private List<int> _employeeIds = new List<int>();
+		private List<int> _carIds = new List<int>();
 		private DialogViewModelBase _journalViewModel;
 		private Employee _author;
 		private Employee _lastEditor;
@@ -171,6 +176,22 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public string WarehousesNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Warehouse)));
 
+		public List<int> EmployeeIds
+		{
+			get => _employeeIds;
+			private set => UpdateFilterField(ref _employeeIds, value);
+		}
+
+		public string EmployeeNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Employee)));
+
+		public List<int> CarIds
+		{
+			get => _carIds;
+			private set => UpdateFilterField(ref _carIds, value);
+		}
+
+		public string CarNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Car)));
+
 		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
 			get => _filterViewModel;
@@ -249,11 +270,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser().IsAdmin;
+		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints) || _userService.GetCurrentUser().IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 
-		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
+		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Core.Domain.Warehouses.Documents.DocumentType.MovementDocument);
 
 		public EntityEntryViewModel<Employee> DriverEntityEntryViewModel { get; private set; }
 
@@ -313,6 +334,69 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					return query.List<SelectableParameter>();
 				}));
 
+			_filter.CreateParameterSet(
+				"Сотрудник",
+				nameof(Employee),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Employee employeeAlias = null;
+					SelectableEntityParameter<Employee> resultAlias = null;
+
+					var query = UoW.Session.QueryOver(() => employeeAlias
+					);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query
+						.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(EmployeeProjections.EmployeeLastNameWithInitials).WithAlias(() => resultAlias.EntityTitle))
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Автомобиль",
+				nameof(Car),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Car carAlias = null;
+					CarModel carModelAlias = null;
+					SelectableEntityParameter<Car> resultAlias = null;
+
+					var query = UoW.Session.QueryOver(() => carAlias)
+						.JoinAlias(() => carAlias.CarModel, () => carModelAlias);
+
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					var carInfoProjection =
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' (', ?2, ')')"),
+							NHibernateUtil.String,
+							Projections.Property(() => carModelAlias.Name),
+							Projections.Property(() => carAlias.RegistrationNumber));
+
+					query
+						.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(carInfoProjection).WithAlias(() => resultAlias.EntityTitle))
+						.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+
+					return query.List<SelectableParameter>();
+				}));
+
 
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 
@@ -363,6 +447,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						else
 						{
 							_warhouseIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
+					break;
+				case nameof(Employee):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_employeeIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_employeeIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
+					break;
+				case nameof(Car):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_carIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_carIds.Remove((int)parameter.Id);
 						}
 					}
 					SetAndRefilterAtOnce();

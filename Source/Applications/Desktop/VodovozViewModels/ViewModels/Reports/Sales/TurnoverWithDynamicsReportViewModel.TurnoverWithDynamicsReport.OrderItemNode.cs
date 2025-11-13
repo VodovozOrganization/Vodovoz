@@ -1,7 +1,8 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -66,6 +67,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int PromotionalSetId { get; set; }
 				
 				public string PromotionalSetName { get; set; }
+				
+				public int SalesManagerId { get; set; }
+				
+				public string SalesManagerName { get; set; }
+				
+				public int OrderAuthorId { get; set; }
+				
+				public string OrderAuthorName { get; set; }
+				
 			}
 		}
 	}

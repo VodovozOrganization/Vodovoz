@@ -5,18 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Client\Mango.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj" />
     <ProjectReference Include="..\..\Backend\RevenueService.Client\RevenueService.Client.csproj" />
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Google.OrTools">
-      <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\libs\Google.OrTools\Win\Google.OrTools.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

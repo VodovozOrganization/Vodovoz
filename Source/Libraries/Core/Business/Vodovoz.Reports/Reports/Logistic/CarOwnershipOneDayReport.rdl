@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -784,7 +784,8 @@
         <Timeout>60</Timeout>
         <CommandText>SELECT 
 CASE t.car_type_of_use
-	WHEN 'Largus' THEN 'Фургон'
+	WHEN 'Largus' THEN 'Легковая (Ларгус)'
+	WHEN 'Minivan' THEN 'Фургон (Transit Mini)'
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
@@ -805,6 +806,7 @@ WHERE
     AND (cv.end_date is null OR cv.end_date &gt; @date)
     AND cm.car_type_of_use IN (@car_type_of_use)
     AND cv.car_own_type IN (@car_own_type)
+    AND c.id NOT IN (@excluded_car_ids)
 GROUP BY cm.car_type_of_use, cv.car_own_type) t
 GROUP BY t.car_type_of_use;</CommandText>
         <QueryParameters>
@@ -816,6 +818,9 @@ GROUP BY t.car_type_of_use;</CommandText>
           </QueryParameter>
           <QueryParameter Name="@car_own_type">
             <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -854,7 +859,8 @@ FROM
 (
 	SELECT 
 	CASE cm.car_type_of_use
-		WHEN 'Largus' THEN 'Фургон (Ларгус)'
+		WHEN 'Largus' THEN 'Легковая'
+		WHEN 'Minivan' THEN 'Фургон'
 		WHEN 'Truck' THEN 'Фура'
 		WHEN 'GAZelle' THEN 'Грузовой'
 		WHEN 'Loader' THEN 'Погрузчик'
@@ -877,6 +883,7 @@ FROM
 	    AND (cv.end_date is null OR cv.end_date &gt; @date)
 	    AND cm.car_type_of_use IN (@car_type_of_use)
 	    AND cv.car_own_type IN (@car_own_type)
+	    AND c.id NOT IN (@excluded_car_ids)
 ) t
 </CommandText>
         <QueryParameters>
@@ -888,6 +895,9 @@ FROM
           </QueryParameter>
           <QueryParameter Name="@car_own_type">
             <Value>={?car_own_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@excluded_car_ids">
+            <Value>={?excluded_car_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -967,6 +977,13 @@ FROM
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="excluded_car_ids">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>

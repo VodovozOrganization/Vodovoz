@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order.OrdersWithoutShipment
 			Map(x => x.CreateDate).Column("create_date").ReadOnly();
 			Map(x => x.IsBillWithoutShipmentSent).Column("is_bill_sent");
 
+			References(x => x.Organization).Column("organization_id");
 			References(x => x.Author).Column("author_id");
 			References(x => x.Client).Column("client_id");
 

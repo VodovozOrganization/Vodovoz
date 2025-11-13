@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Settings.Database.Common
@@ -10,8 +9,12 @@ namespace Vodovoz.Settings.Database.Common
 	public class GeneralSettings : IGeneralSettings
 	{
 		private readonly ISettingsController _settingsController;
+
+		public const string PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName =
+			"Accounting.PaymentWriteOff.AllowedFinancialExpenseCategories";
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";
 		private const string _canAddForwarderToLargus = "can_add_forwarders_to_largus";
+		private const string _canAddForwarderToMinivan = "can_add_forwarders_to_minivan";
 		private const string _orderAutoComment = "OrderAutoComment";
 		private const string _subdivisionsToInformComplaintHasNoDriverParameterName = "SubdivisionsToInformComplaintHasNoDriver";
 		private const string _subdivisionsForAlternativePricesName = "SubdivisionsForAlternativePricesName";
@@ -29,6 +32,7 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _carTechnicalCheckupEndingNotificationDaysBefore = "CarTechnicalCheckup.EndingNotificationDaysBefore";
 		private const string _fastDeliveryIntervalFrom = nameof(FastDeliveryIntervalFrom);
 		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
+		private const string _defaultPaymentDeferment = "default_payment_deferment";
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -41,6 +45,8 @@ namespace Vodovoz.Settings.Database.Common
 			_settingsController.CreateOrUpdateSetting(_routeListPrintedFormPhones, text);
 
 		public bool GetCanAddForwardersToLargus => _settingsController.GetValue<bool>(_canAddForwarderToLargus);
+
+		public bool GetCanAddForwardersToMinivan => _settingsController.GetValue<bool>(_canAddForwarderToMinivan);
 
 		public string OrderAutoComment => _settingsController.GetStringValue(_orderAutoComment);
 
@@ -57,6 +63,9 @@ namespace Vodovoz.Settings.Database.Common
 
 		public void UpdateCanAddForwardersToLargus(bool value) =>
 			_settingsController.CreateOrUpdateSetting(_canAddForwarderToLargus, value.ToString());
+
+		public void UpdateCanAddForwardersToMinivan(bool value) =>
+			_settingsController.CreateOrUpdateSetting(_canAddForwarderToMinivan, value.ToString());
 
 		public void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName)
 		{
@@ -170,6 +179,8 @@ namespace Vodovoz.Settings.Database.Common
 			}
 		}
 
+		public int[] PaymentWriteOffAllowedFinancialExpenseCategories => GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter();
+
 		public void UpdateCarLoadDocumentInfoString(string value) =>
 			_settingsController.CreateOrUpdateSetting(_carLoadDocumentInfoString, value);
 
@@ -188,6 +199,23 @@ namespace Vodovoz.Settings.Database.Common
 			return splitedIds
 				.Select(x => int.Parse(x))
 				.ToArray();
+		}
+
+		private int[] GetPaymentWriteOffAllowedFinancialExpenseCategoriesParameter()
+		{
+			return ParseIdsFromString(PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName);
+		}
+
+		public void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName)
+		{
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", ids));
+		}
+		
+		public int DefaultPaymentDeferment => _settingsController.GetValue<int>(_defaultPaymentDeferment);
+		
+		public void SaveDefaultPaymentDeferment(int defaultPaymentDeferment)
+		{
+			_settingsController.CreateOrUpdateSetting(_defaultPaymentDeferment, defaultPaymentDeferment.ToString());
 		}
 	}
 }

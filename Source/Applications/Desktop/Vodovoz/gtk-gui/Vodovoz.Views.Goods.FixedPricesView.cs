@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.HBox hboxButtons;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
 		private global::Gtk.HBox hboxOrganisations;
 
@@ -30,9 +30,9 @@ namespace Vodovoz.Views.Goods
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisations;
 
-		private global::Gtk.Button buttonAddFixedPrice;
+		private global::Gamma.GtkWidgets.yButton buttonAddFixedPrice;
 
-		private global::Gtk.Button buttonDel;
+		private global::Gamma.GtkWidgets.yButton buttonDel;
 
 		protected virtual void Build()
 		{
@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Goods
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
@@ -138,7 +138,7 @@ namespace Vodovoz.Views.Goods
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonAddFixedPrice = new global::Gtk.Button();
+			this.buttonAddFixedPrice = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFixedPrice.CanFocus = true;
 			this.buttonAddFixedPrice.Name = "buttonAddFixedPrice";
 			this.buttonAddFixedPrice.UseUnderline = true;
@@ -149,7 +149,7 @@ namespace Vodovoz.Views.Goods
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonDel = new global::Gtk.Button();
+			this.buttonDel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDel.CanFocus = true;
 			this.buttonDel.Name = "buttonDel";
 			this.buttonDel.UseUnderline = true;

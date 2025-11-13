@@ -1,6 +1,8 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
@@ -8,10 +10,12 @@ namespace Vodovoz
 	public class RouteListKeepingItemNode : PropertyChangedBase
 	{
 		public bool HasChanged = false;
+		public bool PaymentTypeHasChanged = false;
 		public bool ChangedDeliverySchedule = false;
 		public event EventHandler<StatusChangedEventArgs> StatusChanged;
 
 		private RouteListItem _routeListItem;
+		private PaymentType _paymentType;
 
 		public RouteListItemStatus Status
 		{
@@ -58,6 +62,20 @@ namespace Vodovoz
 			}
 		}
 
+		public PaymentType PaymentType
+		{
+			get => _paymentType;
+			set
+			{
+				if(_paymentType != value)
+				{
+					_paymentType = value;
+					PaymentTypeHasChanged = true;
+					OnPropertyChanged(() => PaymentType);
+				}
+			}
+		}
+
 		public RouteListItem RouteListItem
 		{
 			get => _routeListItem;
@@ -66,6 +84,7 @@ namespace Vodovoz
 				_routeListItem = value;
 				if(RouteListItem != null)
 				{
+					_paymentType = RouteListItem.Order.PaymentType;
 					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
 				}
 			}
@@ -75,16 +94,23 @@ namespace Vodovoz
 
 		public string Transferred => RouteListItem.GetTransferText();
 
-		public void UpdateStatus(RouteListItemStatus value, ICallTaskWorker callTaskWorker)
+		#region Контроль отмены автоотмены автопереноса
+
+		public bool InitialRouteListItemStatusIsInUndeliveryStatuses { get; set; }
+		public bool RouteListItemStatusHasChangedToCompeteStatus { get; set; }
+
+		#endregion Контроль отмены автоотмены автопереноса
+
+		public void UpdateStatus(IRouteListService routeListService, RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.RouteList.ChangeAddressStatusAndCreateTask(uow, RouteListItem.Id, value, callTaskWorker);
+			routeListService.ChangeAddressStatusAndCreateTask(uow, RouteListItem.RouteList, RouteListItem.Id, value, callTaskWorker);
 
 			if(RouteListItem.Status == RouteListItemStatus.Overdue || RouteListItem.Status == RouteListItemStatus.Canceled)
 			{
 				RouteListItem.SetOrderActualCountsToZeroOnCanceled();
 			}
-			
+
 			HasChanged = true;
 			OnPropertyChanged(() => Status);
 		}

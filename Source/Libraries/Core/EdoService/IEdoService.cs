@@ -1,17 +1,19 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Errors;
 
 namespace EdoService.Library
 {
 	public interface IEdoService
 	{
 		void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order);
-		void SetNeedToResendEdoDocumentForOrder<T>(T entity, Type type) where T : IDomainObject;
+		void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject;
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
-		Result ValidateOrderForDocument(Order order, Type type);
+		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
 	}
 }

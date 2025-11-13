@@ -19,9 +19,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
@@ -36,10 +36,11 @@ namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
-		Nominative = "сотрудник")]
+		Nominative = "сотрудник",
+		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Core.Domain.Employees.EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
+	public class Employee : EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
 	{
 		private const int _commentLimit = 255;
 
@@ -59,7 +60,6 @@ namespace Vodovoz.Domain.Employees
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
 		private IObservableList<Account> _accounts = new ObservableList<Account>();
-		private IList<Attachment> _attachments = new List<Attachment>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
 		private IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		private IList<EmployeeRegistrationVersion> _employeeRegistrationVersions = new List<EmployeeRegistrationVersion>();
@@ -76,6 +76,8 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
+		private bool _canRecieveCounterpartyCalls;
+		private Phone _phoneForCounterpartyCalls;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -170,6 +172,20 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _phones, value);
 		}
 
+		[Display(Name = "Водитель может принимать звонки от контрагентов")]
+		public virtual bool CanRecieveCounterpartyCalls
+		{
+			get => _canRecieveCounterpartyCalls;
+			set => SetField(ref _canRecieveCounterpartyCalls, value);
+		}
+
+		[Display(Name = "Телефон для приема звонков от контрагентов")]
+		public virtual Phone PhoneForCounterpartyCalls
+		{
+			get => _phoneForCounterpartyCalls;
+			set => SetField(ref _phoneForCounterpartyCalls, value);
+		}
+
 		[Display(Name = "Документы")]
 		public virtual IList<EmployeeDocument> Documents
 		{
@@ -180,18 +196,6 @@ namespace Vodovoz.Domain.Employees
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<EmployeeDocument> ObservableDocuments =>
 			_observableDocuments ?? (_observableDocuments = new GenericObservableList<EmployeeDocument>(Documents));
-
-		[Display(Name = "Прикрепленные файлы")]
-		public virtual IList<Attachment> Attachments
-		{
-			get => _attachments;
-			set => SetField(ref _attachments, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Attachment> ObservableAttachments =>
-			_observableAttachments ?? (_observableAttachments = new GenericObservableList<Attachment>(Attachments));
-
 
 		[Display(Name = "Договора")]
 		public virtual IList<EmployeeContract> Contracts
@@ -392,7 +396,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser) &&
-				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Employee.CanManageUsers))
+				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanManageUsers))
 			{
 				yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { nameof(LoginForNewUser) });
@@ -426,6 +430,13 @@ namespace Vodovoz.Domain.Employees
 						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
+			}
+			
+			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
+			{
+				yield return new ValidationResult(
+					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
+					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
@@ -476,18 +487,6 @@ namespace Vodovoz.Domain.Employees
 		#endregion
 
 		#region Без маппинга
-
-		[Display(Name = "ФИО")]
-		public virtual string FullName
-		{
-			get => String.Format("{0} {1} {2}", LastName, Name, Patronymic);
-		}
-
-		[Display(Name = "Фамилия и инициалы")]
-		public virtual string ShortName
-		{
-			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
-		}
 
 		public virtual string Title
 		{

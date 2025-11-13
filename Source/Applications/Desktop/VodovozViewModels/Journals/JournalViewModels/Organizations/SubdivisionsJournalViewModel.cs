@@ -126,8 +126,20 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 			return ((string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0) || parentId == null)
 			? (from subdivision in unitOfWork.Session.Query<Subdivision>()
-			   where ((string.IsNullOrWhiteSpace(searchString) && subdivision.ParentSubdivision.Id == parentId && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
-					   || ((string.IsNullOrWhiteSpace(searchString)
+			   where (
+						(
+							string.IsNullOrWhiteSpace(searchString)
+							&& (
+									subdivision.ParentSubdivision.Id == parentId
+									|| (
+											parentId == null
+											&& subdivision.SubdivisionType == _filterViewModel.SubdivisionType
+											&& subdivision.ParentSubdivision.SubdivisionType != _filterViewModel.SubdivisionType
+										)
+								)
+							&& _filterViewModel.IncludedSubdivisionsIds.Length == 0
+						)
+						|| ((string.IsNullOrWhiteSpace(searchString)
 								|| (subdivision.Name.ToLower().Like(searchString)
 								|| subdivision.ShortName.ToLower().Like(searchString)
 								|| subdivision.Id.ToString().Like(searchString)))

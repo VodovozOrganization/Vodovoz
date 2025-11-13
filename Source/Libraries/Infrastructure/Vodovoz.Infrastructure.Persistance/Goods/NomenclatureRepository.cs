@@ -8,6 +8,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -330,10 +333,9 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 						 .GroupBy(x => (int)x[1])
 						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
 		}
-
-		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => _nomenclatureSettings.SanitisationNomenclatureIds;
-
-
+		
+		
+		
 		#region Получение номенклатур воды
 
 		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
@@ -385,6 +387,10 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 		{
 			return uow.GetById<Nomenclature>(_nomenclatureSettings.FastDeliveryNomenclatureId);
 		}
+		public Nomenclature GetMasterCallNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.MasterCallNomenclatureId);
+		}
 
 		#endregion
 
@@ -394,14 +400,18 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
-		public IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		public async Task<IList<int>> Get19LWaterNomenclatureIds(
+			IUnitOfWork uow, 
+			int[] siteNomenclaturesIds,
+			CancellationToken cancellationToken
+			)
 		{
-			return uow.Session.QueryOver<Nomenclature>()
+			return await uow.Session.QueryOver<Nomenclature>()
 				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
 				.And(n => n.Category == NomenclatureCategory.water)
 				.And(n => n.TareVolume == TareVolume.Vol19L)
 				.Select(n => n.Id)
-				.List<int>();
+				.ListAsync<int>(cancellationToken);
 		}
 
 		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
@@ -494,7 +504,21 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.Select(n => n.LockerRefrigeratorType).WithAlias(() => resultAlias.LockerRefrigeratorType)
 				.Select(n => n.LockerRefrigeratorVolume).WithAlias(() => resultAlias.LockerRefrigeratorVolume)
 				.Select(n => n.TapType).WithAlias(() => resultAlias.TapType)
-				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType);
+				.Select(n => n.GlassHolderType).WithAlias(() => resultAlias.GlassHolderType)
+				.Select(n => n.HeatingTemperatureFromOnline).WithAlias(() => resultAlias.HeatingTemperatureFrom)
+				.Select(n => n.HeatingTemperatureToOnline).WithAlias(() => resultAlias.HeatingTemperatureTo)
+				.Select(n => n.CoolingTemperatureFromOnline).WithAlias(() => resultAlias.CoolingTemperatureFrom)
+				.Select(n => n.CoolingTemperatureToOnline).WithAlias(() => resultAlias.CoolingTemperatureTo)
+				.Select(n => n.LengthOnline).WithAlias(() => resultAlias.Length)
+				.Select(n => n.WidthOnline).WithAlias(() => resultAlias.Width)
+				.Select(n => n.HeightOnline).WithAlias(() => resultAlias.Height)
+				.Select(n => n.WeightOnline).WithAlias(() => resultAlias.Weight)
+				.Select(n => n.HeatingPowerUnits).WithAlias(() => resultAlias.HeatingPowerUnits)
+				.Select(n => n.CoolingPowerUnits).WithAlias(() => resultAlias.CoolingPowerUnits)
+				.Select(n => n.HeatingProductivityUnits).WithAlias(() => resultAlias.HeatingProductivityUnits)
+				.Select(n => n.CoolingProductivityUnits).WithAlias(() => resultAlias.CoolingProductivityUnits)
+				.Select(n => n.HeatingProductivityComparisionSign).WithAlias(() => resultAlias.HeatingProductivityComparisionSign)
+				.Select(n => n.CoolingProductivityComparisionSign).WithAlias(() => resultAlias.CoolingProductivityComparisionSign);
 
 			switch(parameterType)
 			{
@@ -545,6 +569,20 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.Select(p => p.Name).WithAlias(() => resultAlias.Name))
 			.TransformUsing(Transformers.AliasToBean<NamedDomainObjectNode>())
 			.List<NamedDomainObjectNode>();
+		}
+
+		public bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId)
+		{
+			if(nomenclatureId == 0) 
+				return false;
+			
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return unitOfWork.Session.QueryOver(() => orderItemAlias)
+				.JoinAlias(o => o.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Nomenclature.Id == nomenclatureId)
+				.RowCount() > 0;
 		}
 	}
 }

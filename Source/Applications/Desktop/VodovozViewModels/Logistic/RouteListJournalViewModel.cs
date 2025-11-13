@@ -30,7 +30,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -51,6 +50,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Print.Store;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListService _routeListService;
 		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly ICustomPrintRdlDocumentsPrinter _carLoadDocumentsPrinter;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
+			IReportInfoFactory reportInfoFactory,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -116,6 +118,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -123,7 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 
 			TabName = "Журнал МЛ";
 
@@ -406,7 +409,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			var cashSubdivisionIds = _subdivisionRepository.GetCashSubdivisions(UoW).Select(x => x.Id);
 			var cashWarehouseIds = UoW.Session.QueryOver<Warehouse>()
-				.WhereRestrictionOn(x => x.OwningSubdivision.Id).IsInG(cashSubdivisionIds)
+				.WhereRestrictionOn(x => x.OwningSubdivisionId).IsInG(cashSubdivisionIds)
 				.Select(x => x.Id)
 				.List<int>();
 
@@ -535,7 +538,7 @@ namespace Vodovoz.ViewModels.Logistic
 								continue;
 							}
 
-							_routeListService.SendEnRoute(uowLocal, routeListId);
+							_routeListService.SendEnRoute(uowLocal, routeListId, _callTaskWorker);
 						}
 
 						Refresh();
@@ -581,7 +584,7 @@ namespace Vodovoz.ViewModels.Logistic
 								isSlaveTabActive = true;
 								continue;
 							}
-							routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
+							_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing, _callTaskWorker);
 							uowLocal.Save(routeList);
 						}
 
@@ -702,7 +705,8 @@ namespace Vodovoz.ViewModels.Logistic
 			return new JournalAction(
 				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _fuelIssuingStatuses.Contains(node.StatusEnum),
+					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
+					&& node.Date >= DateTime.Today,
 				selectedItems => true,
 				selectedItems =>
 				{
@@ -741,7 +745,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private bool UserHasOnlyAccessToWarehouseAndComplaints => _userHasOnlyAccessToWarehouseAndComplaints
 			?? (_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin).Value;
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
@@ -755,12 +759,12 @@ namespace Vodovoz.ViewModels.Logistic
 					return;
 				}
 
-				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
+				_routeListService.ChangeStatusAndCreateTask(localUow, routeList, RouteListStatus.InLoading, _callTaskWorker);
 
 				var carLoadDocument = new CarLoadDocument();
 				FillCarLoadDocument(carLoadDocument, localUow, routeList.Id, warehouse.Id);
 
-				var routeListFullyShipped = _routeListService.TrySendEnRoute(localUow, routeList, out var notLoadedGoods, carLoadDocument);
+				var routeListFullyShipped = _routeListService.TrySendEnRoute(localUow, routeList, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
 				
 				localUow.Save(routeList);
 
@@ -822,9 +826,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void PrintCarLoadDocuments(CarLoadDocument carLoadDocument)
 		{
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr);
-			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
-			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr, _reportInfoFactory);
+			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
 
 			_carLoadDocumentsPrinter.Print(waterCarLoadDocument);
 			_carLoadDocumentsPrinter.Print(controlCarLoadDocument);
@@ -840,8 +844,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private void FillCarLoadDocument(CarLoadDocument document, IUnitOfWork uow, int routeListId, int warehouseId)
 		{
 			document.RouteList = uow.GetById<RouteList>(routeListId);
-			document.Author = _currentEmployee;
-			document.LastEditor = _currentEmployee;
+			document.AuthorId = _currentEmployee?.Id;
+			document.LastEditorId = _currentEmployee?.Id;
 			document.LastEditedTime = DateTime.Now;
 			document.Warehouse = uow.GetById<Warehouse>(warehouseId);
 
@@ -974,7 +978,7 @@ namespace Vodovoz.ViewModels.Logistic
 						}
 					}
 
-					routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
+					_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.InLoading, _callTaskWorker);
 					uowLocal.Save(routeList);
 				}
 

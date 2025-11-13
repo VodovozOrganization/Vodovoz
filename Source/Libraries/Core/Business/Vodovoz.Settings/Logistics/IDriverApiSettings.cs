@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Vodovoz.Settings.Logistics
 {
@@ -10,7 +10,8 @@ namespace Vodovoz.Settings.Logistics
 		string NotifyOfSmsPaymentStatusChangedUri { get; }
 		string NotifyOfFastDeliveryOrderAddedUri { get; }
 		string NotifyOfWaitingTimeChangedURI { get; }
-		string NotifyOfOrderWithGoodsTransferingIsTransferedUri { get; }
+		string NotifyOfRouteListChangedUri { get; }
 		string NotifyOfCashRequestForDriverIsGivenForTakeUri { get;}
+		int DriverApiUserId { get; }
 	}
 }

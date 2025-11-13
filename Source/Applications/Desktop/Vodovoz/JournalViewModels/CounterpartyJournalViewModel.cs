@@ -381,23 +381,10 @@ namespace Vodovoz.JournalViewModels
 							&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == counterpartyClassificationLastCalculationId,
 						JoinType.LeftOuterJoin);
 
-			var searchHealperNew = new TempAdapters.SearchHelper(Search);
-
-			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
-			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
-			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
-
-			query.Where(searchHealperNew.GetSearchCriterionNew(
-				idParam,
-				nameParam,
-				INNParam,
-				digitNumberParam,
-				deliveryPointPhoneParam,
-				compiledAdressParam
-			));
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Name,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			var counterpartyResultQuery = query
 				.SelectList(list => list
@@ -584,23 +571,10 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.IsForSalesDepartment == FilterViewModel.IsForSalesDepartment);
 			}
 			
-			var searchHealperNew = new TempAdapters.SearchHelper(Search);
-
-			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
-			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
-			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
-			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
-			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
-
-			query.Where(searchHealperNew.GetSearchCriterionNew(
-				idParam,
-				nameParam,
-				INNParam,
-				digitNumberParam,
-				deliveryPointPhoneParam,
-				compiledAdressParam
-			));
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Name,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.INN));
 
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)

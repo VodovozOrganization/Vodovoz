@@ -2,121 +2,106 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Электронные почты для отправки",
-	    Nominative = "Электронная почта для отправки"
+		Nominative = "Электронная почта для отправки"
 	)]
 	public class StoredEmail : BusinessObjectBase<StoredEmail>, IDomainObject
 	{
+		public const int DescriptionMaxLength = 1000;
 		private string _subject;
 		private Guid? _guid;
+		private DateTime _sendDate;
+		private StoredEmailStates _state;
+		private DateTime _stateChangeDate;
+		private string _description;
+		private string _recipientAddress;
+		private bool? _manualSending;
+		private Employee _author;
 
 		public virtual int Id { get; set; }
 
 		public virtual string ExternalId { get; set; }
 
-		private DateTime sendDate;
 		[Display(Name = "Дата действия")]
-		public virtual DateTime SendDate {
-			get { return sendDate; }
-			set { SetField(ref sendDate, value, () => SendDate); }
+		public virtual DateTime SendDate
+		{
+			get => _sendDate;
+			set => SetField(ref _sendDate, value);
 		}
 
-		private StoredEmailStates state;
 		[Display(Name = "Состояние")]
-		public virtual StoredEmailStates State {
-			get { return state; }
-			set { SetField(ref state, value, () => State); }
+		public virtual StoredEmailStates State
+		{
+			get => _state;
+			set => SetField(ref _state, value);
 		}
 
-		private DateTime stateChangeDate;
 		[Display(Name = "Дата действия")]
-		public virtual DateTime StateChangeDate {
-			get { return stateChangeDate; }
-			set { SetField(ref stateChangeDate, value, () => StateChangeDate); }
+		public virtual DateTime StateChangeDate
+		{
+			get => _stateChangeDate;
+			set => SetField(ref _stateChangeDate, value);
 		}
 
-		private string description;
 		[Display(Name = "Описание")]
-		public virtual string Description {
-			get { return description; }
-			set { SetField(ref description, value, () => Description); }
+		public virtual string Description
+		{
+			get => _description;
+			set => SetField(ref _description, value);
 		}
 
-		private string recipientAddress;
 		[Display(Name = "Почта получателя")]
-		public virtual string RecipientAddress {
-			get { return recipientAddress; }
-			set { SetField(ref recipientAddress, value, () => RecipientAddress); }
+		public virtual string RecipientAddress
+		{
+			get => _recipientAddress;
+			set => SetField(ref _recipientAddress, value);
 		}
 
-		private bool? manualSending;
 		[Display(Name = "Отправлено вручную")]
-		public virtual bool? ManualSending {
-			get { return manualSending; }
-			set { SetField(ref manualSending, value, () => ManualSending); }
+		public virtual bool? ManualSending
+		{
+			get => _manualSending;
+			set => SetField(ref _manualSending, value);
 		}
 
-		private Employee author;
 		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get { return author; }
-			set { SetField(ref author, value, () => Author); }
+		public virtual Employee Author
+		{
+			get => _author;
+			set => SetField(ref _author, value);
 		}
 
 		[Display(Name = "Тема")]
 		public virtual string Subject
 		{
-			get { return _subject; }
-			set { SetField(ref _subject, value); }
+			get => _subject;
+			set => SetField(ref _subject, value);
 		}
 
 		[Display(Name = "Guid")]
 		public virtual Guid? Guid
 		{
-			get { return _guid; }
-			set { SetField(ref _guid, value); }
+			get => _guid;
+			set => SetField(ref _guid, value);
 		}
 
 		public virtual void AddDescription(string description)
 		{
-			if(!string.IsNullOrWhiteSpace(Description)){
+			if(!string.IsNullOrWhiteSpace(Description))
+			{
 				Description += "\n";
 			}
+
 			Description += description;
-		}
-	}
 
-	public enum StoredEmailStates
-	{
-		[Display(Name = "Подготовка к отправке")]
-		PreparingToSend,
-		[Display(Name = "Ожидание отправки")]
-		WaitingToSend,
-		[Display(Name = "Ошибка отправки")]
-		SendingError,
-		[Display(Name = "Успешно отправлено")]
-		SendingComplete,
-		[Display(Name = "Недоставлено")]
-		Undelivered,
-		[Display(Name = "Доставлено")]
-		Delivered,
-		[Display(Name = "Открыто")]
-		Opened,
-		[Display(Name = "Отмечено пользователем как спам")]
-		MarkedAsSpam,
-	}
-
-	public class StoredEmailActionStatesStringType : NHibernate.Type.EnumStringType
-	{
-		public StoredEmailActionStatesStringType() : base(typeof(StoredEmailStates))
-		{
+			if(Description.Length > DescriptionMaxLength)
+			{
+				Description = Description.Substring(0, DescriptionMaxLength);
+			}
 		}
 	}
 }

@@ -6,7 +6,10 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Subdivisions;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -215,6 +218,30 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 						})
 					.SingleOrDefault();
 			}
+		}
+
+		public IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId)
+		{
+			var financialResponcibilitiesCentersIds = uow.Session.Query<FinancialResponsibilityCenter>()
+				.Where(FinancialResponsibilityCenterSpecifications
+					.ForEmployeeIdIsResponsible(employeeId).Expression)
+				.Select(x => x.Id)
+				.ToArray();
+
+			var subdivisionsResponsibleByFinancialResponsibilityCentersIds = uow.Session
+				.Query<Subdivision>()
+				.Where(SubdivisionSpecifications.ForFinancialResponsibilityCenters(financialResponcibilitiesCentersIds).Expression)
+				.Select(s => s.Id)
+				.ToArray();
+			
+			var subdivisionChiefIds = uow.Session.Query<Subdivision>()
+				.Where(SubdivisionSpecifications.ForEmployeeIsChief(employeeId).Expression)
+				.Select(s => s.Id)
+				.ToArray();
+
+			return subdivisionsResponsibleByFinancialResponsibilityCentersIds
+				.Concat(subdivisionChiefIds)
+				.Distinct();
 		}
 	}
 }

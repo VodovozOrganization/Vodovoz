@@ -120,9 +120,4 @@ namespace Vodovoz.Domain
 		[Display(Name = "Для ТМЦ")]
 		Nomenclature
 	}
-
-	public class CertificateTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CertificateTypeStringType() : base(typeof(CertificateType)) { }
-	}
 }

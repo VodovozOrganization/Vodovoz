@@ -49,7 +49,9 @@ namespace Vodovoz.ViewModels.Logistic
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
-			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter)
+			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(
 				filterViewModel,
 				routeListRepository,
@@ -70,7 +72,8 @@ namespace Vodovoz.ViewModels.Logistic
 				storeDocumentHelper,
 				routeListService,
 				eventsQrPlacer,
-				carLoadDocumentsPrinter)
+				carLoadDocumentsPrinter,
+				reportInfoFactory)
 		{
 			TabName = "Контроль за километражем.";
 

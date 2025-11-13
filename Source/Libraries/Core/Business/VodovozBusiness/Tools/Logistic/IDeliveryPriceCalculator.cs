@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -7,5 +7,6 @@ namespace Vodovoz.Tools.Logistic
 		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude);
 		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount);
 		DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null);
+		DeliveryPriceNode CalculateForService(DeliveryPoint point);
 	}
 }

@@ -13,6 +13,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;

@@ -1,13 +1,11 @@
-using System;
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Controllers
 {

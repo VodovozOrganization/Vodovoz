@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 	{
 		public OrderMap()
 		{
-			Table("orders");
+			Table(OrderEntity.Table);
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
@@ -93,7 +93,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.Trifle)
 				.Column("trifle");
 
-			Map(x => x.OnlineOrder)
+			Map(x => x.OnlinePaymentNumber)
 				.Column("online_order");
 
 			Map(x => x.ToClientText)
@@ -166,7 +166,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("is_second_order");
 
 			Map(x => x.CounterpartyExternalOrderId)
-				.Column("counterparty_external_order_id");
+				.Column("client_external_order_id");
 
 			Map(x => x.IsDoNotMakeCallBeforeArrival)
 				.Column("is_do_not_make_call_before_arrival");
@@ -205,8 +205,27 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.DontArriveBeforeInterval)
 				.Column("dont_arrive_before_interval");
 
+			Map(x => x.PaymentType).Column("payment_type")
+				.Access.CamelCaseField(Prefix.Underscore);
+			
+			Map(x => x.OrderPartsIds)
+				.Column("order_parts_ids");
+
 			References(x => x.PaymentByCardFrom)
 				.Column("payment_from_id");
+
+			References(x => x.Client)
+				.Column("client_id");
+
+			References(x => x.DeliveryPoint)
+				.Column("delivery_point_id");
+
+			References(x => x.Contract)
+				.Column("counterparty_contract_id")
+				.Cascade.SaveUpdate();
+
+			References(x => x.DeliverySchedule)
+				.Column("delivery_schedule_id");
 
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")

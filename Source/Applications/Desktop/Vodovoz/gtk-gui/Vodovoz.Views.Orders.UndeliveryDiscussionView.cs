@@ -30,11 +30,11 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Table tableNewComment;
 
-		private global::Vodovoz.Views.FilesView filesView;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewComment;
+
+		private global::Vodovoz.Presentation.Views.SmallFileInformationsView smallfileinformationsview;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddComment;
 
@@ -157,17 +157,6 @@ namespace Vodovoz.Views.Orders
 			this.tableNewComment.RowSpacing = ((uint)(6));
 			this.tableNewComment.ColumnSpacing = ((uint)(6));
 			// Container child tableNewComment.Gtk.Table+TableChild
-			this.filesView = new global::Vodovoz.Views.FilesView();
-			this.filesView.WidthRequest = 250;
-			this.filesView.Events = ((global::Gdk.EventMask)(256));
-			this.filesView.Name = "filesView";
-			this.tableNewComment.Add(this.filesView);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.filesView]));
-			w12.BottomAttach = ((uint)(2));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableNewComment.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.HeightRequest = 70;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -178,6 +167,18 @@ namespace Vodovoz.Views.Orders
 			this.ytextviewComment.Name = "ytextviewComment";
 			this.GtkScrolledWindow1.Add(this.ytextviewComment);
 			this.tableNewComment.Add(this.GtkScrolledWindow1);
+			// Container child tableNewComment.Gtk.Table+TableChild
+			this.smallfileinformationsview = new global::Vodovoz.Presentation.Views.SmallFileInformationsView();
+			this.smallfileinformationsview.WidthRequest = 300;
+			this.smallfileinformationsview.Events = ((global::Gdk.EventMask)(256));
+			this.smallfileinformationsview.Name = "smallfileinformationsview";
+			this.tableNewComment.Add(this.smallfileinformationsview);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.smallfileinformationsview]));
+			w14.BottomAttach = ((uint)(2));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableNewComment.Gtk.Table+TableChild
 			this.ybuttonAddComment = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAddComment.CanFocus = true;

@@ -1,28 +1,19 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using QS.Project.Domain;
 using System;
-using System.Reflection;
 using System.Text.Json;
-using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Settings.Database;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using Notifier = ExternalCounterpartyAssignNotifier.Services.NotificationService;
 
 namespace ExternalCounterpartyAssignNotifier
 {
@@ -46,7 +37,7 @@ namespace ExternalCounterpartyAssignNotifier
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					})
 
-					.ConfigureZabbixSender(nameof(ExternalCounterpartyAssignNotifier))
+					.ConfigureZabbixSenderFromDataBase(nameof(ExternalCounterpartyAssignNotifier))
 
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -55,7 +46,8 @@ namespace ExternalCounterpartyAssignNotifier
 						typeof(QS.HistoryLog.HistoryMain).Assembly,
 						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 						typeof(QS.Attachments.Domain.Attachment).Assembly,
-						typeof(EmployeeWithLoginMap).Assembly
+						typeof(EmployeeWithLoginMap).Assembly,
+						typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 					)
 					.AddDatabaseConnection()
 					.AddCore()
@@ -68,7 +60,7 @@ namespace ExternalCounterpartyAssignNotifier
 					{
 						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 					})
-					.AddHttpClient<INotificationService, NotificationService>(client =>
+					.AddHttpClient<INotificationService, Notifier>(client =>
 					{
 						client.Timeout = TimeSpan.FromSeconds(15);
 					});

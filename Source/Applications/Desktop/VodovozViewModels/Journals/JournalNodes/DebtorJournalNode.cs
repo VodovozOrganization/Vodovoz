@@ -1,5 +1,6 @@
 ﻿using QS.Project.Journal;
 using System;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -40,6 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Phones { get; set; }
 
 		public string Emails { get; set; }
-
+		
+		public decimal? FixPrice { get; set; }
 	}
 }

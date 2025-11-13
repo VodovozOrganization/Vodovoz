@@ -213,7 +213,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				}
 				else
 				{
-					_navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, SubscriberSelectionViewModel.DialogType>(null, this, SubscriberSelectionViewModel.DialogType.Telephone);
+					_navigation.OpenViewModel<SubscriberSelectionViewModel, MangoManager, DialogType>(null, this, DialogType.Telephone);
 				}
 			}
 			else

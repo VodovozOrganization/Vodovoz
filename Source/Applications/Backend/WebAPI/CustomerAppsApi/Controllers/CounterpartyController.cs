@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
@@ -6,6 +6,7 @@ using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using Vodovoz.Extensions;
 
 namespace CustomerAppsApi.Controllers

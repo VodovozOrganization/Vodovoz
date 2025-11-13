@@ -8,9 +8,10 @@ using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -133,6 +134,20 @@ namespace Vodovoz.Infrastructure.Persistance.Permissions
 			return uow.Session.QueryOver<HierarchicalPresetSubdivisionPermission>()
 						.Where(x => x.Subdivision.Id == subdivision.Id)
 						.List();
+		}
+
+		public IList<HierarchicalPresetSubdivisionPermission> GetAllPresetPermissionsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetSubdivisionPermission>()
+				.Where(x => x.Subdivision.Id == subdivisionId)
+				.List();
+		}
+
+		public IList<SubdivisionWarehousePermission> GetAllWarehousePermissionsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			return uow.Session
+				.QueryOver<SubdivisionWarehousePermission>().Where(x => x.Subdivision.Id == subdivisionId)
+				.List();
 		}
 
 		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, User user, string permission)

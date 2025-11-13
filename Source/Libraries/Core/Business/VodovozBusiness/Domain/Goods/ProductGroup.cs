@@ -7,20 +7,23 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",
-		Nominative = "группа товаров")]
+		Nominative = "группа товаров",
+		GenitivePlural = "групп товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ProductGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class ProductGroup : PropertyChangedBase, INamedDomainObject, IValidatableObject, IArchivable
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private bool _isHighlightInCarLoadDocument;
+		private bool _isNeedAdditionalControl;
 
 		#region Свойства
 
@@ -90,6 +93,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _isHighlightInCarLoadDocument, value);
 		}
 
+		[Display(Name = "Требует доп. контроля водителя")]
+		public virtual bool IsNeedAdditionalControl
+		{
+			get => _isNeedAdditionalControl;
+			set => SetField(ref _isNeedAdditionalControl, value);
+		}
+
 		[Display(Name = "Характеристики товаров")]
 		public virtual string CharacteristicsText {
 			get => String.Join(",", characteristics);
@@ -137,6 +147,15 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		public virtual void SetIsNeedAdditionalControlToAllChildGroups(bool value)
+		{
+			IsNeedAdditionalControl = value;
+			foreach(var child in Childs)
+			{
+				child.SetIsNeedAdditionalControlToAllChildGroups(value);
+			}
+		}
+
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
 			if(OnlineStoreGuid == null && ExportToOnlineStore) {
@@ -153,6 +172,70 @@ namespace Vodovoz.Domain.Goods
 			
 			uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 			isChildsFetched = true;
+		}
+		
+		/// <summary>
+		/// Входит ли переданная группа товаров в эту группу товаров
+		/// </summary>
+		/// <returns><c>true</c>, если входит, <c>false</c> если не входит.</returns>
+		/// <param name="productGroup">Проверяемая группа товаров</param>
+		public virtual bool IsBelongsOf(ProductGroup productGroup)
+		{
+			return Id == productGroup.Id || IsChildOfParentGroup(productGroup);
+		}
+
+		/// <summary>
+		/// Является ли группа подгруппой другой группы товаров?
+		/// </summary>
+		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
+		/// <param name="productGroup">Головная группа</param>
+		public virtual bool IsChildOf(ProductGroup productGroup)
+		{
+			return this != productGroup && IsChildOfParentGroup(productGroup);
+		}
+		
+		/// <summary>
+		/// Является ли группа подгруппой другой группы товаров?
+		/// </summary>
+		/// <returns><c>true</c>, если является, <c>false</c> если не является.</returns>
+		/// <param name="productGroupId">Id головной группы</param>
+		public virtual bool IsChildOf(int productGroupId)
+		{
+			if(Id == productGroupId)
+			{
+				return false;
+			}
+
+			var parentGroup = Parent;
+
+			while(parentGroup != null)
+			{
+				if(parentGroup.Id == productGroupId)
+				{
+					return true;
+				}
+
+				parentGroup = parentGroup.Parent;
+			}
+
+			return false;
+		}
+		
+		private bool IsChildOfParentGroup(ProductGroup productGroup)
+		{
+			var parentGroup = Parent;
+
+			while(parentGroup != null)
+			{
+				if(parentGroup == productGroup)
+				{
+					return true;
+				}
+
+				parentGroup = parentGroup.Parent;
+			}
+
+			return false;
 		}
 
 		#endregion

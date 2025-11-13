@@ -1,5 +1,8 @@
-﻿using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.HealthChecks;
+using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,15 +11,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using Osrm;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
+using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace CustomerAppsApi
 {
@@ -33,9 +38,9 @@ namespace CustomerAppsApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services
-				.AddSwaggerGen(c => 
-				{ 
-					c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" }); 
+				.AddSwaggerGen(c =>
+				{
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" });
 				})
 
 				.AddLogging(logging =>
@@ -45,11 +50,7 @@ namespace CustomerAppsApi
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				})
 
-				.AddStackExchangeRedisCache(redisOptions =>
-				{
-					var connection = Configuration.GetConnectionString("Redis");
-					redisOptions.Configuration = connection;
-				})
+				.AddMemoryCache()
 
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -67,11 +68,18 @@ namespace CustomerAppsApi
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
 				.AddHttpClient()
+				.AddCustomerApiLibrary()
+				.AddOsrm()
+				.AddRabbitConfig(Configuration)
+				.AddMessageTransportSettings()
+				.AddMassTransit(busConf =>
+				{
+					busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
+				})
 				.AddControllers()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-			Library.DependencyInjection.AddCustomerApiLibrary(services);
 
 			services.AddStaticHistoryTracker();
 		}

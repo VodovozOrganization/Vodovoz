@@ -8,7 +8,7 @@ namespace Vodovoz.ServiceDialogs
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gtk.Button btnRunToFile;
+		private global::Gamma.GtkWidgets.yButton btnRunToFile;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowErrors;
 
@@ -29,7 +29,7 @@ namespace Vodovoz.ServiceDialogs
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.btnRunToFile = new global::Gtk.Button();
+			this.btnRunToFile = new global::Gamma.GtkWidgets.yButton();
 			this.btnRunToFile.CanFocus = true;
 			this.btnRunToFile.Name = "btnRunToFile";
 			this.btnRunToFile.UseUnderline = true;

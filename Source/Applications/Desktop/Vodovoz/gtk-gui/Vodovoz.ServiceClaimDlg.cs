@@ -8,9 +8,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::QSWidgetLib.MenuButton menuActions;
 
@@ -108,11 +108,11 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox9;
 
-		private global::Gtk.Button buttonAddService;
+		private global::Gamma.GtkWidgets.yButton buttonAddService;
 
-		private global::Gtk.Button buttonAddPart;
+		private global::Gamma.GtkWidgets.yButton buttonAddPart;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		private global::Gtk.Label label13;
 
@@ -140,7 +140,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox10;
 
-		private global::Gtk.Button buttonAdd;
+		private global::Gamma.GtkWidgets.yButton buttonAdd;
 
 		private global::Gtk.Label label17;
 
@@ -160,7 +160,7 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -174,7 +174,7 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -708,7 +708,7 @@ namespace Vodovoz
 			this.hbox9.Name = "hbox9";
 			this.hbox9.Spacing = 6;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.buttonAddService = new global::Gtk.Button();
+			this.buttonAddService = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddService.CanFocus = true;
 			this.buttonAddService.Name = "buttonAddService";
 			this.buttonAddService.UseUnderline = true;
@@ -722,7 +722,7 @@ namespace Vodovoz
 			w52.Expand = false;
 			w52.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.buttonAddPart = new global::Gtk.Button();
+			this.buttonAddPart = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddPart.CanFocus = true;
 			this.buttonAddPart.Name = "buttonAddPart";
 			this.buttonAddPart.UseUnderline = true;
@@ -736,7 +736,7 @@ namespace Vodovoz
 			w54.Expand = false;
 			w54.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
@@ -857,7 +857,7 @@ namespace Vodovoz
 			this.hbox10.Name = "hbox10";
 			this.hbox10.Spacing = 6;
 			// Container child hbox10.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button();
+			this.buttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;

@@ -1,8 +1,7 @@
-﻿using Autofac;
+using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs.GtkUI;
@@ -18,8 +17,6 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
@@ -33,7 +30,6 @@ using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -62,8 +58,10 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.ReportsParameters;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Service;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
 
@@ -79,6 +77,7 @@ public partial class MainWindow : Window
 	Action OnlineOrdersJournalAction;
 
 	Action ActionServiceClaims;
+	Action ActionServiceDeliveryRules;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
@@ -120,6 +119,7 @@ public partial class MainWindow : Window
 	Action ActionFinancialDistrictsSetsJournal;
 	Action ActionUnallocatedBalancesJournal;
 	Action ActionImportPaymentsFromAvangard;
+	Action BankAccountsMovementsJournalAction;
 
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
@@ -159,6 +159,12 @@ public partial class MainWindow : Window
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionAnalyseCounterpartyDiscrepancies;
 
+	//Честный знак
+	Action ActionCodesPool;
+	Action ActionEdoProcessJournal;
+	Action ActionEdoProblemJournal;
+	
+
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
@@ -171,7 +177,7 @@ public partial class MainWindow : Window
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
-		
+
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
@@ -181,6 +187,7 @@ public partial class MainWindow : Window
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -221,6 +228,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal = new Action("ActionFinancialDistrictsSetsJournal", "Версии финансовых районов", null, "table");
 		ActionUnallocatedBalancesJournal = new Action("ActionUnallocatedBalancesJournal", "Журнал нераспределенных балансов", null, "table");
 		ActionImportPaymentsFromAvangard = new Action("ActionImportPaymentsFromAvangard", "Загрузка реестра оплат из Авангарда", null, "table");
+		BankAccountsMovementsJournalAction = new Action("BankAccountsMovementsJournalAction", "Движения средств по расчетным счетам", null, "table");
 
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
@@ -257,6 +265,11 @@ public partial class MainWindow : Window
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionAnalyseCounterpartyDiscrepancies = new Action("ActionAnalyseCounterpartyDiscrepancies", "Сверка по контрагентам", null, "table");
 
+		//Честный знак
+		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
+		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
+		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
+
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -272,6 +285,7 @@ public partial class MainWindow : Window
 		
 		//
 		w1.Add(ActionServiceClaims, null);
+		w1.Add(ActionServiceDeliveryRules, null);
 		w1.Add(ActionWarehouseDocuments, null);
 		w1.Add(ActionReadyForShipment, null);
 		w1.Add(ActionReadyForReception, null);
@@ -312,6 +326,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionFinancialDistrictsSetsJournal, null);
 		w1.Add(ActionUnallocatedBalancesJournal, null);
 		w1.Add(ActionImportPaymentsFromAvangard, null);
+		w1.Add(BankAccountsMovementsJournalAction, null);
 
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
@@ -359,6 +374,11 @@ public partial class MainWindow : Window
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionAnalyseCounterpartyDiscrepancies, null);
 
+		//Честный знак
+		w1.Add(ActionCodesPool, null);
+		w1.Add(ActionEdoProcessJournal, null);
+		w1.Add(ActionEdoProblemJournal, null);
+
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -372,6 +392,7 @@ public partial class MainWindow : Window
 		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
 
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
+		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
@@ -409,6 +430,7 @@ public partial class MainWindow : Window
 		ActionFinancialDistrictsSetsJournal.Activated += ActionFinancialDistrictsSetsJournal_Activated;
 		ActionUnallocatedBalancesJournal.Activated += OnActionUnallocatedBalancesJournalActivated;
 		ActionImportPaymentsFromAvangard.Activated += OnActionImportPaymentsFromAvangardActivated;
+		BankAccountsMovementsJournalAction.Activated += OnBankAccountsMovementsJournalActivated;
 
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
@@ -451,6 +473,11 @@ public partial class MainWindow : Window
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionAnalyseCounterpartyDiscrepancies.Activated += ActionAnalyseCounterpartyDiscrepancies_Activated;
 
+		//Честный знак
+		ActionCodesPool.Activated += OnActionCodesPoolActivated;
+		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
+		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
+		
 		#endregion
 	}
 
@@ -542,10 +569,7 @@ public partial class MainWindow : Window
 
 	void ActionEmployeeWorkChart_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
-			() => new EmployeeWorkChartDlg()
-		);
+		NavigationManager.OpenTdiTab<EmployeeWorkChartDlg>(null);
 	}
 
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
@@ -563,10 +587,7 @@ public partial class MainWindow : Window
 
 	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ReportDebtorsBottlesViewModel));
 	}
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
@@ -629,16 +650,17 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(paymentsJournalViewModel);
 	}
 
-
+	/// <summary>
+	/// Доходы и расходы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-
-		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
-
-		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
-
-		report.ParentTab = page.TdiTab;
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			configureTab: vm => (vm.ParametersWidget as CashFlow).ParentTab = vm,
+			addingRegistrations: builder => builder.RegisterType<CashFlow>().As<IParametersWidget>());
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
@@ -663,29 +685,19 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<FuelDocumentsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Журнал перемещения д/с для юр.лиц
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
 	void ActionOrganizationCashTransferDocuments_Activated(object sender, EventArgs e)
 	{
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var employeeService = _autofacScope.Resolve<IEmployeeService>();
-		var entityExtendedPermissionValidator = _autofacScope.Resolve<IEntityExtendedPermissionValidator>();
-
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		tdiMain.OpenTab(() => new OrganizationCashTransferDocumentJournalViewModel(
-			new OrganizationCashTransferDocumentFilterViewModel(employeeJournalFactory)
+		NavigationManager.OpenViewModel<OrganizationCashTransferDocumentJournalViewModel>(
+			null,
+			addingRegistrations: builder => builder.Register(c => new EmployeeFilterViewModel
 			{
-				HidenByDefault = true
-			},
-			uowFactory,
-			ServicesConfig.CommonServices,
-			entityExtendedPermissionValidator,
-			employeeService)
-		);
+				Status = EmployeeStatus.IsWorking
+			}));
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
@@ -723,10 +735,7 @@ public partial class MainWindow : Window
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
-			() => new ExportTo1cDialog(ServicesConfig.UnitOfWorkFactory)
-		);
+		NavigationManager.OpenViewModel<ExportTo1CViewModel>(null);
 	}
 
 	void ActionExportCounterpartiesTo1c_Activated(object sender, System.EventArgs e)
@@ -825,12 +834,9 @@ public partial class MainWindow : Window
 			null, filterParams);
 	}
 
-	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
+	void ActionWarehouseDocumentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
-			() => new WarehouseDocumentsView()
-		);
+		NavigationManager.OpenViewModel<WarehouseDocumentsJournalViewModel>(null);
 	}
 
 	void ActionServiceClaimsActivated(object sender, System.EventArgs e)
@@ -941,5 +947,20 @@ public partial class MainWindow : Window
 	private void OnOnlineOrdersJournalActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<OnlineOrdersJournalViewModel>(null);
+	}
+
+	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Открытие журнала движения средств по расчетным счетам
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	private void OnBankAccountsMovementsJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<BankAccountsMovementsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

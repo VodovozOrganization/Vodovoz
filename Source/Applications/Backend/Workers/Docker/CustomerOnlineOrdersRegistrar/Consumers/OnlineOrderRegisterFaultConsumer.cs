@@ -5,8 +5,12 @@ using CustomerOrdersApi.Library.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.OnlineOrders;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -17,24 +21,38 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
-			IDeliveryRulesSettings deliveryRulesSettings)
-			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IDiscountReasonSettings discountReasonSettings,
+			IOnlineOrderRepository onlineOrderRepository,
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService
+			)
+			: base(
+				logger,
+				unitOfWorkFactory,
+				onlineOrderFactory,
+				deliveryRulesSettings,
+				discountReasonSettings,
+				onlineOrderRepository,
+				onlineOrderCancellationReasonSettings,
+				orderService,
+				routeListService)
 		{
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			_logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
+			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
+				Logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
 				throw;
 			}

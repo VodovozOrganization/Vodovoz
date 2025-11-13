@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
@@ -417,6 +418,7 @@ namespace Vodovoz.ViewWidgets
 					f.AvailableCategories = Nomenclature.GetCategoriesForGoods();
 					f.SelectCategory = NomenclatureCategory.equipment;
 					f.SelectSaleCategory = SaleCategory.notForSale;
+					f.CanChangeOnlyOnlineNomenclatures = false;
 				},
 				OpenPageOptions.AsSlave,
 				vm =>

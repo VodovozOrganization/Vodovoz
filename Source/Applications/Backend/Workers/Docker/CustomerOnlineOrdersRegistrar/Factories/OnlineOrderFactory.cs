@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -8,12 +9,24 @@ using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Controllers;
 
 namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public class OnlineOrderFactory : IOnlineOrderFactory
 	{
-		public OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto, int fastDeliveryScheduleId)
+		private readonly IDiscountController _discountController;
+
+		public OnlineOrderFactory(IDiscountController discountController)
+		{
+			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+		}
+		
+		public OnlineOrder CreateOnlineOrder(
+			IUnitOfWork uow,
+			OnlineOrderInfoDto orderInfoDto,
+			int fastDeliveryScheduleId,
+			int selfDeliveryDiscountReasonId)
 		{
 			var onlineOrder = new OnlineOrder
 			{
@@ -49,14 +62,18 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 			}
 
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
-			AddOrderItems(uow, onlineOrder, orderInfoDto.OnlineOrderItems);
+			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, orderInfoDto.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
 		}
 
-		private void AddOrderItems(IUnitOfWork uow, OnlineOrder onlineOrder, IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
+		private void AddOrderItems(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			int selfDeliveryDiscountReasonId,
+			IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
 		{
 			if(onlineOrderItemsDtos is null)
 			{
@@ -66,6 +83,24 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 			foreach(var onlineOrderItemDto in onlineOrderItemsDtos)
 			{
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
+
+				DiscountReason applicableDiscountReason = null;
+				
+				if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				{
+					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+				}
+				else if(onlineOrder.IsSelfDelivery
+				        && !onlineOrderItemDto.PromoSetId.HasValue
+				        && nomenclature != null)
+				{
+					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
+
+					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
+					{
+						applicableDiscountReason = discountReason;
+					}
+				}
 				
 				PromotionalSet promoSet = null;
 
@@ -78,9 +113,11 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
+					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
+					applicableDiscountReason,
 					nomenclature,
 					promoSet,
 					onlineOrder);

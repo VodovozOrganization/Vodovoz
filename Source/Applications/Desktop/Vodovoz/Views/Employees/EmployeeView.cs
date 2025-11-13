@@ -314,6 +314,15 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonCarRecieveCounterpartyCalls.Binding
+				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.Active)
+				.InitializeFromSource();
+
+			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
+			entityentryPhoneForCounterpartyCalls.Binding
+				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();
 
@@ -374,8 +383,8 @@ namespace Vodovoz.Views.Employees
 
 			#region Вкладка Файлы
 
-			attachmentsView.ViewModel = ViewModel.AttachmentsViewModel;
-			attachmentsView.Sensitive = ViewModel.CanEditEmployee;
+			attachedfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
+			attachedfileinformationsview.Sensitive = ViewModel.CanEditEmployee;
 
 			#endregion
 
@@ -583,7 +592,7 @@ namespace Vodovoz.Views.Employees
 		private void ConfigureTreeEmployeeContracts()
 		{
 			ytreeviewEmployeeContract.ColumnsConfig = FluentColumnsConfig<EmployeeContract>.Create()
-				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate.TemplateType.GetEnumTitle())
+				.AddColumn("Договор").AddTextRenderer(x => x.EmployeeContractTemplate != null ? x.EmployeeContractTemplate.TemplateType.GetEnumTitle() : "")
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.AddColumn("Дата начала").AddTextRenderer(x => x.FirstDay.ToString("dd/MM/yyyy"))
 				.AddColumn("Дата конца").AddTextRenderer(x => x.LastDay.ToString("dd/MM/yyyy"))
@@ -935,7 +944,7 @@ namespace Vodovoz.Views.Employees
 
 		public override void Destroy()
 		{
-			attachmentsView?.Destroy();
+			attachedfileinformationsview?.Destroy();
 			base.Destroy();
 		}
 	}

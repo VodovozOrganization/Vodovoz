@@ -111,14 +111,14 @@ namespace Vodovoz.Counterparties
 			{
 				(ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenTdiTab<ReportViewDlg>(ViewModel, OpenPageOptions.AsSlave,
 					vm => { },
-					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByClient()));
+					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByClient(ViewModel.ReportInfoFactory)));
 			});
 
 			ViewModel.SetCreateReportByDeliveryPointLegacyCallback(() =>
 			{
 				(ViewModel.NavigationManager as ITdiCompatibilityNavigation).OpenTdiTab<ReportViewDlg>(ViewModel, OpenPageOptions.AsSlave,
 					vm => { },
-					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByDeliveryPoint()));
+					dependencies => dependencies.RegisterInstance(ViewModel.Entity.CreateReportInfoByDeliveryPoint(ViewModel.ReportInfoFactory)));
 			});
 
 			buttonAddComment.BindCommand(ViewModel.AddCommentCommand);
@@ -140,9 +140,9 @@ namespace Vodovoz.Counterparties
 						OpenPageOptions.None,
 						orderDlg =>
 						{
-							orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(ViewModel.Entity.Counterparty.Id);
+							orderDlg.Counterparty = orderDlg.UoW.GetById<Counterparty>(ViewModel.Entity.Counterparty.Id);
 							orderDlg.UpdateClientDefaultParam();
-							orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(ViewModel.Entity.DeliveryPoint.Id);
+							orderDlg.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(ViewModel.Entity.DeliveryPoint.Id);
 
 							orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
 						});

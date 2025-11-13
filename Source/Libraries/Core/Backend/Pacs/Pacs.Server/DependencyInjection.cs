@@ -16,7 +16,7 @@ namespace Pacs.Server
 		public static IServiceCollection AddPacsOperatorServices(this IServiceCollection services)
 		{
 			services
-				.AddSingleton<IPhoneController, PhoneController>()
+				.AddSingleton<IOperatorPhoneService, OperatorPhoneService>()
 				.AddSingleton<IOperatorRepository, OperatorRepository>()
 				.AddSingleton<IOperatorServerStateMachineFactory, OperatorServerStateMachineFactory>()
 				.AddSingleton<IOperatorStateService, OperatorStateService>()

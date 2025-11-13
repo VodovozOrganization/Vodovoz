@@ -1,74 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Dialog.GtkUI;
+using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
-using QS.Project.Services;
-using QS.Report;
-using QSReport;
-using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using QS.Views;
+using Vodovoz.ViewModels.ReportsParameters.Service;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class MastersReport : ViewBase<MastersReportViewModel>, ISingleUoWDialog
 	{
-		public MastersReport(INavigationManager navigationManager)
+		public MastersReport(MastersReportViewModel viewModel) : base(viewModel)
 		{
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
+			Build();
 
-			this.Build();
-			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
-			var driverFilter = new EmployeeFilterViewModel();
-			driverFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.driver);
-			var employeeFactory = new EmployeeJournalFactory(navigationManager, driverFilter);
-			evmeDriver.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
-			evmeDriver.Changed += (sender, e) => CanRun();
-			dateperiodpicker.PeriodChanged += (sender, e) => CanRun();
-			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
+			dateperiodpicker.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+
+			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
+			evmeDriver.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Driver, w => w.Subject)
+				.InitializeFromSource();
+			
+			chkAccountPartUndelivery.Binding
+				.AddBinding(ViewModel, vm => vm.AccountPartUndelivery, w => w.Active)
+				.InitializeFromSource();
+
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 		}
 
-		#region IParametersWidget implementation
-
-		public event EventHandler<LoadReportEventArgs> LoadReport;
-
-		public string Title => "Отчет по выездным мастерам";
-
-		#endregion
-
-		private ReportInfo GetReportInfo()
-		{
-			var parameters = new Dictionary<string, object>();
-
-			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
-			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
-			parameters.Add("driver_id", evmeDriver.SubjectId);
-
-			return new ReportInfo {
-				Identifier = "ServiceCenter.MastersReport",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
-		}
-
-		void OnUpdate(bool hide = false)
-		{
-			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-		}
-
-		void CanRun()
-		{
-			buttonCreateReport.Sensitive = (dateperiodpicker.EndDateOrNull != null 
-			                                && dateperiodpicker.StartDateOrNull != null 
-			                                && evmeDriver.Subject != null);
-		}
+		public IUnitOfWork UoW => ViewModel.UoW;
 	}
 }

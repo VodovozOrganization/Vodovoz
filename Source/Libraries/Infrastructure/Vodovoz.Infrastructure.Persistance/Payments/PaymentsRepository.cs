@@ -1,12 +1,16 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -16,12 +20,22 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.Payments;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {
 	internal sealed class PaymentsRepository : IPaymentsRepository
 	{
+		private readonly IPaymentSettings _paymentSettings;
+
+		public PaymentsRepository(IPaymentSettings paymentSettings)
+		{
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
+		}
+		
 		public IList<PaymentByCardOnlineNode> GetPaymentsByTwoMonths(IUnitOfWork uow, DateTime date)
 		{
 			PaymentByCardOnlineNode resultAlias = null;
@@ -103,23 +117,22 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 				.SingleOrDefault<int>();
 		}
 
-		public IList<Payment> GetAllUndistributedPayments(IUnitOfWork uow, IPaymentSettings paymentSettings)
+		public IEnumerable<Payment> GetAllUndistributedPayments(IUnitOfWork uow)
 		{
-			var undistributedPayments = uow.Session.QueryOver<Payment>()
-				.Where(x => x.Status == PaymentState.undistributed)
-				.And(x => x.ProfitCategory.Id == paymentSettings.DefaultProfitCategory)
-				.List();
-
-			return undistributedPayments;
+			return (from payment in  uow.Session.Query<Payment>()
+				where payment.Status == PaymentState.undistributed
+					&& payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId
+				select payment)
+				.ToList();
 		}
 
-		public IList<Payment> GetAllDistributedPayments(IUnitOfWork uow)
+		public IEnumerable<Payment> GetAllDistributedPayments(IUnitOfWork uow)
 		{
-			var distributedPayments = uow.Session.QueryOver<Payment>()
-				.Where(x => x.Status == PaymentState.distributed)
-				.List();
-
-			return distributedPayments;
+			return (from payment in  uow.Session.Query<Payment>()
+					where payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId
+						&& payment.Status == PaymentState.distributed
+					select payment)
+				.ToList();
 		}
 
 		public IEnumerable<Payment> GetNotCancelledRefundedPayments(IUnitOfWork uow, int orderId)
@@ -139,7 +152,8 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 
 			var query = uow.Session.QueryOver(() => paymentAlias)
 				.Where(p => p.Counterparty.Id == counterpartyId)
-				.And(p => p.Organization.Id == organizationId);
+				.And(p => p.Organization.Id == organizationId)
+				.And(p => p.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId);
 
 			if(allocateCompletedPayments)
 			{
@@ -191,8 +205,9 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 
 			var query = uow.Session.QueryOver<Payment>()
-				.Inner.JoinAlias(cmo => cmo.Counterparty, () => counterpartyAlias)
-				.Inner.JoinAlias(cmo => cmo.Organization, () => organizationAlias);
+				.Inner.JoinAlias(p => p.Counterparty, () => counterpartyAlias)
+				.Inner.JoinAlias(p => p.Organization, () => organizationAlias)
+				.Where(p => p.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId);
 
 			var income = QueryOver.Of<CashlessMovementOperation>()
 				.Where(cmo => cmo.Counterparty.Id == counterpartyAlias.Id)
@@ -312,6 +327,70 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 						select payment.Total;
 
 			return query;
+		}
+
+		public async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartiesIds,
+			int organizationId,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from counterparty in uow.Session.Query<Counterparty>()
+
+				let counterpartyIncomeSum =
+				(decimal?)(from cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
+						   where
+						   cashlessMovementOperations.Counterparty.Id == counterparty.Id
+						   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						   && cashlessMovementOperations.Organization.Id == organizationId
+						   select cashlessMovementOperations.Income)
+						   .Sum() ?? 0
+
+				let counterpartyPaymentItemsSum =
+				(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+						   join payment in uow.Session.Query<Payment>() on paymentItem.Payment.Id equals payment.Id
+						   where
+						   payment.Counterparty.Id == counterparty.Id
+						   && paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+						   && payment.Organization.Id == organizationId
+						   select paymentItem.Sum)
+						   .Sum() ?? 0
+
+				let paymentsWriteOffSum =
+				(decimal?)(from paymentWriteOff in uow.Session.Query<PaymentWriteOff>()
+						   join cashlessMovementOperations in uow.Session.Query<CashlessMovementOperation>()
+								on paymentWriteOff.CashlessMovementOperation.Id equals cashlessMovementOperations.Id
+						   where
+							   paymentWriteOff.CounterpartyId == counterparty.Id
+							   && paymentWriteOff.OrganizationId != null
+							   && organizationId == paymentWriteOff.OrganizationId.Value
+							   && cashlessMovementOperations.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						   select paymentWriteOff.Sum)
+						   .Sum() ?? 0
+
+				where counterpartiesIds.Contains(counterparty.Id)
+
+				select new CounterpartyPaymentsDataNode
+				{
+					CounterpartyId = counterparty.Id,
+					CounterpartyName = counterparty.Name,
+					CounterpartyInn = counterparty.INN,
+					IncomeSum = counterpartyIncomeSum,
+					PaymentItemsSum = counterpartyPaymentItemsSum,
+					WriteOffSum = paymentsWriteOffSum,
+					DelayDaysForCounterparty = counterparty.DelayDaysForBuyers,
+					IsLiquidating = counterparty.IsLiquidating,
+				};
+
+			var counterpartyPaymentsData =
+				(await query.ToListAsync(cancellationToken))
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(
+					x => x.Key,
+					x => x.ToArray());
+
+			return counterpartyPaymentsData;
 		}
 	}
 }

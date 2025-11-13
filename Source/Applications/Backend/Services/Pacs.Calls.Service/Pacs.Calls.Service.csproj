@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -14,36 +14,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Remove="appsettings.Development.json" />
-		<Content Remove="appsettings.Production.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="appsettings.Development.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-		<None Include="appsettings.Production.json">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
-		<PackageReference Include="MassTransit" Version="8.0.12" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
-		<PackageReference Include="NHibernate" Version="5.4.1" />
-		<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-		<PackageReference Include="FluentNHibernate" Version="3.1.0" />
-		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
 		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+		  <TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -52,16 +29,4 @@
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	</ItemGroup>
 </Project>

@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Counterparties.ClientClassification
 			_uow = uowFactory.CreateWithoutRoot();
 
 			_canCalculateCounterpartyClassifications = 
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Counterparty.CanCalculateCounterpartyClassifications);
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanCalculateCounterpartyClassifications);
 
 			Title = "Пересчёт классификации контрагентов";
 

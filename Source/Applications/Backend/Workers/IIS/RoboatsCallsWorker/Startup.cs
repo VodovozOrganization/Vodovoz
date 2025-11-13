@@ -19,6 +19,7 @@ using Vodovoz.Settings.Database.Roboats;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Infrastructure.Persistance;
+using DriverApi.Notifications.Client;
 
 namespace RoboatsCallsWorker
 {
@@ -49,12 +50,14 @@ namespace RoboatsCallsWorker
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
-					typeof(EmployeeWithLoginMap).Assembly
+					typeof(EmployeeWithLoginMap).Assembly,
+					typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				;
 

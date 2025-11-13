@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gdk;
 using QSProjectsLib;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
@@ -9,14 +10,29 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class PayoutRequestsJournalRegistrar : ColumnsConfigRegistrarBase<PayoutRequestsJournalViewModel, PayoutRequestJournalNode>
 	{
+		private static readonly Pixbuf _emptyImg = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _fire = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.fire16.png");
+
 		public override IColumnsConfig Configure(FluentColumnsConfig<PayoutRequestJournalNode> config) =>
-			config.AddColumn("№")
+			config.AddColumn("")
+				.AddPixbufRenderer((node) =>
+					node.IsImidiatelyBill
+					? _fire
+					: _emptyImg)
+				.AddColumn("№")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Id.ToString())
 					.XAlign(0.5f)
 				.AddColumn("Дата создания")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Date.ToString())
+					.XAlign(0.5f)
+				.AddColumn("Дата платежа (план)")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n =>
+						n.PaymentDatePlanned == null
+						? "" 
+						: n.PaymentDatePlanned.Value.ToString())
 					.XAlign(0.5f)
 				.AddColumn("Тип документа")
 					.HeaderAlignment(0.5f)

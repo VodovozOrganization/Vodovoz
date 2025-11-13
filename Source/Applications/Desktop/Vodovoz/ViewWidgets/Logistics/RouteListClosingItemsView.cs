@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -226,7 +227,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ExtraCash).Editing()
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("№ оплаты")
-					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
+					.AddTextRenderer(node => node.Order.OnlinePaymentNumber.ToString())
 						.AddSetter((cell, node) => cell.Editable = 
 							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.PaidOnline) &&
 							node.Status != RouteListItemStatus.Transfered &&
@@ -321,7 +322,7 @@ namespace Vodovoz
 			var isNumber = int.TryParse(args.NewText, out var res);
 
 			if (node != null && isNumber && res > 0) {
-				node.Order.OnlineOrder = res;
+				node.Order.OnlinePaymentNumber = res;
 			}
 		}
 
@@ -513,9 +514,9 @@ namespace Vodovoz
 			};
 			copy.Visible = false;
 
-			var openReturns = new MenuItem(PopupMenuAction.OpenUndeliveries.GetEnumTitle());
+			var openReturns = new MenuItem(PopupMenuAction.OpenClosingOrder.GetEnumTitle());
 			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
-			menuItems.Add(PopupMenuAction.OpenUndeliveries, openReturns);
+			menuItems.Add(PopupMenuAction.OpenClosingOrder, openReturns);
 
 			var openOrder = new MenuItem(PopupMenuAction.OpenOrder.GetEnumTitle());
 			openOrder.Activated += (s, args) => {
@@ -596,8 +597,8 @@ namespace Vodovoz
 		{
 			[Display(Name = "Копировать ячейку")]
 			CopyCell,
-			[Display(Name = "Открыть недовозы")]
-			OpenUndeliveries,
+			[Display(Name = "Открыть закрытие заказа")]
+			OpenClosingOrder,
 			[Display(Name = "Открыть заказ")]
 			OpenOrder,
 			[Display(Name = "Копировать номер заказа")]

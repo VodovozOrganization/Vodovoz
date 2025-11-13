@@ -1,14 +1,16 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Filters.Views
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class UnallocatedBalancesJournalFilterView : FilterViewBase<UnallocatedBalancesJournalFilterViewModel>
 	{
-		public UnallocatedBalancesJournalFilterView(UnallocatedBalancesJournalFilterViewModel viewModel) : base(viewModel)
+		public UnallocatedBalancesJournalFilterView(UnallocatedBalancesJournalFilterViewModel viewModel)
+			: base(viewModel)
 		{
 			Build();
 			Configure();
@@ -29,11 +31,8 @@ namespace Vodovoz.Filters.Views
 				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
 				.Finish();
-
-			organizationEntry.ViewModel = builder.ForProperty(x => x.Organization)
-				.UseTdiEntityDialog()
-				.UseOrmReferenceJournalAndAutocompleter()
-				.Finish();
+			
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
 		}
 	}
 }

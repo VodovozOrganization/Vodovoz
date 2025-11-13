@@ -1,4 +1,3 @@
-﻿using System;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Controllers
@@ -25,7 +25,7 @@ namespace CustomerOrdersApi.Controllers
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-			_requestsMinutesLimitsOptions = 
+			_requestsMinutesLimitsOptions =
 				(requestsLimitsOptions ?? throw new ArgumentNullException(nameof(requestsLimitsOptions)))
 				.Value;
 		}
@@ -47,7 +47,13 @@ namespace CustomerOrdersApi.Controllers
 				{
 					return InvalidSignature(orderRatingInfo.Signature, generatedSignature);
 				}
-				
+
+				if(!orderRatingInfo.OrderId.HasValue && !orderRatingInfo.OnlineOrderId.HasValue)
+				{
+					Logger.LogWarning("Пришла оценка неизвестного заказа с {Source}", sourceName);
+					return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
+				}
+
 				_customerOrdersService.CreateOrderRating(orderRatingInfo);
 				return Ok();
 			}

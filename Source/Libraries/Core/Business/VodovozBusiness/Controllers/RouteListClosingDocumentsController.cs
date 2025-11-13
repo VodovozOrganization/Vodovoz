@@ -89,14 +89,16 @@ namespace Vodovoz.Controllers
                     deliveryDocuments.Add(deliveryDocument);
                 }
 
-                if(deliveryDocument.Author == null)
-                    deliveryDocument.Author = employeeForCurrentUser;
+				if(deliveryDocument.AuthorId == null)
+				{
+					deliveryDocument.AuthorId = employeeForCurrentUser.Id;
+				}
 
-                if(deliveryDocument.TimeStamp == default(DateTime)) {
+				if(deliveryDocument.TimeStamp == default(DateTime)) {
                     deliveryDocument.TimeStamp = DateTime.Now;
                 }
 
-                deliveryDocument.LastEditor = employeeForCurrentUser;
+                deliveryDocument.LastEditorId = employeeForCurrentUser.Id;
                 deliveryDocument.LastEditedTime = DateTime.Now;
                 deliveryDocument.RouteListItem = address;
 
@@ -158,14 +160,16 @@ namespace Vodovoz.Controllers
             DriverDiscrepancyDocument discrepancyDocument = uow.Session.QueryOver<DriverDiscrepancyDocument>()
                 .Where(x => x.RouteList.Id == routeList.Id).Take(1).SingleOrDefault() ?? new DriverDiscrepancyDocument();
 
-            if(discrepancyDocument.Author == null)
-                discrepancyDocument.Author = employeeForCurrentUser;
+            if(discrepancyDocument.AuthorId == null)
+			{
+				discrepancyDocument.AuthorId = employeeForCurrentUser.Id;
+			}
 
-            if(discrepancyDocument.TimeStamp == default(DateTime)) {
+			if(discrepancyDocument.TimeStamp == default(DateTime)) {
                 discrepancyDocument.TimeStamp = DateTime.Now;
             }
 
-            discrepancyDocument.LastEditor = employeeForCurrentUser;
+            discrepancyDocument.LastEditorId = employeeForCurrentUser.Id;
             discrepancyDocument.LastEditedTime = DateTime.Now;
             discrepancyDocument.RouteList = routeList;
 

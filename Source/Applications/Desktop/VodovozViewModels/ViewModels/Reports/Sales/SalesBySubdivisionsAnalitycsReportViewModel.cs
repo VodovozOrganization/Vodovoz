@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Report;
-using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
@@ -17,11 +16,12 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Orders;
@@ -62,12 +62,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IUserRepository userRepository,
-			IUserService userService)
+			IUserService userService,
+			ICurrentPermissionService currentPermissionService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(userService is null)
 			{
 				throw new ArgumentNullException(nameof(userService));
+			}
+
+			if(currentPermissionService is null)
+			{
+				throw new ArgumentNullException(nameof(currentPermissionService));
+			}
+
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
+			{
+				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));

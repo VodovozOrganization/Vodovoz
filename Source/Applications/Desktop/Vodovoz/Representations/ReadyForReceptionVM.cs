@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
@@ -33,12 +34,9 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes()
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
-			Equipment equipmentAlias = null;
 			CarUnloadDocument carUnloadDocAlias = null;
-			Nomenclature orderItemNomenclatureAlias = null, orderEquipmentNomenclatureAlias = null, orderNewEquipmentNomenclatureAlias = null;
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -48,32 +46,39 @@ namespace Vodovoz.ViewModel
 
 			List<ReadyForReceptionVMNode> items = new List<ReadyForReceptionVMNode>();
 
-			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
-				.Where(() => orderItemsAlias.Order.Id == orderAlias.Id)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
-				.Select(i => i.Order);
-
-			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
-				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
-				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => equipmentAlias.Nomenclature, () => orderEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => orderNewEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Select(i => i.Order);
-
-			var queryRoutes = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
+			var queryRoutes = UoW.Session.QueryOver(() => routeListAlias)
 				.JoinAlias(rl => rl.Driver, () => employeeAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.Where(r => routeListAlias.Status == RouteListStatus.OnClosing 
 						 || routeListAlias.Status == RouteListStatus.MileageCheck
 						 || routeListAlias.Status == RouteListStatus.Delivered);
+			
+			var startDate = Filter.StartDate;
+			var endDate = Filter.EndDate;
 
-			if(Filter.RestrictWarehouse != null) {
-				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
-					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
-					.Where(new Disjunction()
-						.Add(Subqueries.WhereExists(orderitemsSubqury))
-						.Add(Subqueries.WhereExists(orderEquipmentSubquery))
-					);
+			if(startDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date >= startDate);
+			}
+
+			if(endDate.HasValue)
+			{
+				queryRoutes.Where(() => routeListAlias.Date <= endDate);
+			}
+
+			if(Filter.Warehouse != null)
+			{
+				queryRoutes
+					.Left.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
+					.JoinEntityAlias(
+						() => orderItemsAlias,
+						() => orderItemsAlias.Order.Id == routeListAddressAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => orderEquipmentAlias,
+						() => orderEquipmentAlias.Order.Id == routeListAddressAlias.Order.Id,
+						JoinType.LeftOuterJoin)
+					.Where(() => orderItemsAlias.Id != null || orderEquipmentAlias.Id != null);
 			}
 
 			if(Filter.RestrictWithoutUnload == true) {
@@ -95,6 +100,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.Status)
 				)
 				.OrderBy(x => x.Date).Desc
+				.ThenBy(x => x.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<ReadyForReceptionVMNode>())
 				.List<ReadyForReceptionVMNode>());
 

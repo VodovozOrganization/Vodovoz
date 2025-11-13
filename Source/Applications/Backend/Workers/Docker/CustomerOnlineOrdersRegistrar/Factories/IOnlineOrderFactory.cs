@@ -6,6 +6,11 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 {
 	public interface IOnlineOrderFactory
 	{
-		OnlineOrder CreateOnlineOrder(IUnitOfWork uow, OnlineOrderInfoDto orderInfoDto, int fastDeliveryScheduleId);
+		OnlineOrder CreateOnlineOrder(
+			IUnitOfWork uow,
+			OnlineOrderInfoDto orderInfoDto,
+			int fastDeliveryScheduleId,
+			int selfDeliveryDiscountReasonId
+		);
 	}
 }

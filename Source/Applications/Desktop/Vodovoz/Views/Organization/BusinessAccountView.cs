@@ -78,6 +78,10 @@ namespace Vodovoz.Views.Organization
 			entrySubdivision.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowSubdivision, w => w.Visible)
 				.InitializeFromSource();
+
+			chkIsArchive.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
 		}
 		
 		private void OnNumericEntryChanged(object sender, EventArgs e)

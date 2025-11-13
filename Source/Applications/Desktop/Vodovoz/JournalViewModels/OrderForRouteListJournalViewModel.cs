@@ -13,6 +13,7 @@ using QS.Services;
 using System;
 using System.Globalization;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -142,7 +143,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
+
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -225,9 +226,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
 			}
 
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -237,9 +245,9 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
-													 .Select(Projections.Sum(() => orderItemAlias.Count));
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
@@ -269,7 +277,7 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));
@@ -425,12 +433,12 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(
 								string.Format(CultureInfo.InvariantCulture,
-									"https://maps.yandex.ru/?text={0} {1} {2}",
+									"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 									order.DeliveryPoint.City,
+									order.DeliveryPoint.StreetType,
 									order.DeliveryPoint.Street,
 									order.DeliveryPoint.Building
-								)
-							);
+								));
 						}
 					}
 				)

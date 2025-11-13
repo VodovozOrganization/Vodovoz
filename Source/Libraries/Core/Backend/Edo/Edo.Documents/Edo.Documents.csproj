@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
+    <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
+    <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
+    <ProjectReference Include="..\Edo.Tender\Edo.Tender.csproj" />
+    <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
+    <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\TrueMarkApi.Client\TrueMarkApi.Client.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.OperationTime).Column("operation_time");
 			Map(x => x.Delivered).Column("delivered");
+			Map(x => x.DeliveredInDisposableTare).Column("delivered_in_disposable_tare");
 			Map(x => x.Returned).Column("returned");
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");

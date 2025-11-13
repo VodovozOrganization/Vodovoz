@@ -1,7 +1,5 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using Microsoft.Extensions.Logging;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.ViewModels;
@@ -10,28 +8,37 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using QS.ViewModels.Extension;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Logistics.Cars;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
+using Vodovoz.Services;
+using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
@@ -48,15 +55,17 @@ using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarViewModel : EntityTabViewModelBase<Car>
+	public class CarViewModel : EntityTabViewModelBase<Car>, IAskSaveOnCloseViewModel
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ILogger<CarViewModel> _logger;
+		private readonly ICarFileStorageService _carFileStorageService;
+		private readonly IFuelApiService _fuelApiService;
 		private bool _canChangeBottlesFromAddress;
 
 		private IPage<GeoGroupJournalViewModel> _gooGroupPage = null;
 
-		private AttachmentsViewModel _attachmentsViewModel;
 		private string _driverInfoText;
 		private bool _isNeedToUpdateCarInfoInDriverEntity;
 		private int _upcomingTechInspectKmCalculated;
@@ -64,31 +73,48 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IDocTemplateRepository _documentTemplateRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly IUserSettingsService _userSettingsService;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IDocumentPrinter _documentPrinter;
+		private readonly IInteractiveService _interactiveService;
+		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+		private byte[] _photo;
+		private string _photoFilename;
+
+		private FuelType _oldFuelType;
+		private FuelCardVersion _oldLastFuelCardVersion;
+		private EmployeeCategory? _oldDriverCategory;
+		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IAttachmentsViewModelFactory attachmentsViewModelFactory,
+			ICarFileStorageService carFileStorageService,
+			IFuelApiService fuelApiService,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IFuelCardVersionViewModelFactory fuelCardVersionViewModelFactory,
 			IRouteListsWageController routeListsWageController,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
+			IFileDialogService fileDialogService,
 			ICarEventRepository carEventRepository,
 			ICarEventSettings carEventSettings,
 			IFuelRepository fuelRepository,
 			IDocTemplateRepository documentTemplateRepository,
+			IUserRepository userRepository,
 			IStringHandler stringHandler,
+			IUserSettingsService userSettingsService,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
 			CarInsuranceManagementViewModel insuranceManagementViewModel,
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
-			IDocumentPrinter documentPrinter)
+			IDocumentPrinter documentPrinter,
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -102,18 +128,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_carFileStorageService = carFileStorageService ?? throw new ArgumentNullException(nameof(carFileStorageService));
+			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
-
+			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
+			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 			TabName = "Автомобиль";
-
-			AttachmentsViewModel = attachmentsViewModelFactory.CreateNewAttachmentsViewModel(Entity.ObservableAttachments);
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
 			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
@@ -131,16 +161,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.CreateFuelCardVersionViewModel(Entity, UoW);
 			FuelCardVersionViewModel.ParentDialog = this;
 
-			CanChangeBottlesFromAddress = commonServices.PermissionService.ValidateUserPresetPermission(
-				Vodovoz.Permissions.Logistic.Car.CanChangeCarsBottlesFromAddress,
-				commonServices.UserService.CurrentUserId);
-
-			CanChangeCarModel =
-				Entity.Id == 0 || commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeCarModel);
-			CanEditFuelCardNumber =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
-			CanViewFuelCard =
-				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
+			SetPermissions();
 
 			CarModelViewModel = carModelEEVMBuilder
 				.SetUnitOfWork(UoW)
@@ -183,10 +204,71 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ConfigureTechInspectInfo();
 			ConfigureCarTechnicalCheckupInfo();
 
+			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
+			{
+				var photoResult = _carFileStorageService.GetPhotoAsync(Entity, _cancellationTokenSource.Token).GetAwaiter().GetResult();
+
+				if(photoResult.IsSuccess)
+				{
+					using(var ms = new MemoryStream())
+					{
+						photoResult.Value.CopyTo(ms);
+						Photo = ms.ToArray();
+						PhotoFilename = Entity.PhotoFileName;
+					}
+				}
+			}
+
+			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory
+				.CreateAndInitialize<Car, CarFileInformation>(
+					UoW,
+					Entity,
+					_carFileStorageService,
+					_cancellationTokenSource.Token,
+					Entity.AddFileInformation,
+					Entity.RemoveFileInformation);
+
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
 			CreateRentalContractCommand = new DelegateCommand(CreateRentalContract);
-			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
+
+			_oldFuelType = Entity.FuelType;
+			_oldLastFuelCardVersion = GetLastFuelCardVersion();
+			_oldDriverCategory = Entity.Driver?.Category;
+
+			SetIsCarUsedInDeliveryDefaultValueIfNeed();
+		}
+		
+		public bool CanEdit { get; private set; }
+		
+		public bool AskSaveOnClose { get; private set; }
+		
+		public bool IsArchive
+		{
+			get => Entity.IsArchive;
+			set
+			{
+				var oldValue = Entity.IsArchive;
+				
+				if(!CanChangeCompositionCompanyTransportPark)
+				{
+					const string message = "Невозможно изменить архивацию авто. У Вас нет права менять состав автопарка компании";
+					
+					if(oldValue != value)
+					{
+						var activeVersion = Entity.GetActiveCarVersionOnDate();
+
+						if(activeVersion != null && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+						{
+							CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
+							OnPropertyChanged();
+							return;
+						}
+					}
+				}
+				
+				Entity.IsArchive = value;
+			}
 		}
 
 		private void ConfigureTechInspectInfo()
@@ -224,16 +306,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _canChangeBottlesFromAddress;
 			set => SetField(ref _canChangeBottlesFromAddress, value);
 		}
+		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
-		public AttachmentsViewModel AttachmentsViewModel
-		{
-			get => _attachmentsViewModel;
-			set => SetField(ref _attachmentsViewModel, value);
-		}
-
-		public bool CanChangeCarModel { get; }
-		public bool CanEditFuelCardNumber { get; }
-		public bool CanViewFuelCard { get; }
+		public bool CanChangeCarModel { get; private set; }
+		public bool CanEditFuelCardNumber { get; private set; }
+		public bool CanViewFuelCard { get; private set; }
 
 		public IStringHandler StringHandler { get; }
 
@@ -253,11 +330,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddGeoGroupCommand { get; }
 		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
 		public DelegateCommand CreateRentalContractCommand { get; }
+		
+		private bool CanChangeCompositionCompanyTransportPark { get; set; }
 
 		protected override bool BeforeSave()
 		{
 			if(!SetOtherCarsFuelCardVersionEndDateIfNeed())
 			{
+				return false;
+			}
+
+			if(IsNeedToUpdateFuelCardProductRestriction && !IsUserHasAccessToGazprom)
+			{
+				ShowErrorMessage(
+					"Вы выполнили действия, которое требует изменения товарного ограничителя топливной карты в Газпромнефть.\n" +
+					"Только пользователи, имеющие доступ в Газпромнефть могут редактировать топливные карты");
+
 				return false;
 			}
 
@@ -270,11 +358,127 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return result;
 		}
 
+		private void SavePhotoIfNeeded()
+		{
+			if(Photo is null)
+			{
+				return;
+			}
+
+			if(PhotoFilename != Entity.PhotoFileName)
+			{
+				var result = _carFileStorageService
+					.UpdatePhotoAsync(
+						Entity,
+						PhotoFilename,
+						new MemoryStream(Photo),
+						_cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsSuccess)
+				{
+					Entity.PhotoFileName = PhotoFilename;
+				}
+				else
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось обновить фотографию автомобиля", "Ошибка");
+				}
+			}
+		}
+
+		private void AddAttachedFilesIfNeeded()
+		{
+			var errors = new Dictionary<string, string>();
+			var repeat = false;
+
+			if(!AttachedFileInformationsViewModel.FilesToAddOnSave.Any())
+			{
+				return;
+			}
+
+			do
+			{
+				foreach(var fileName in AttachedFileInformationsViewModel.FilesToAddOnSave)
+				{
+					var result = _carFileStorageService.CreateFileAsync(
+						Entity,
+						fileName,
+						new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+						.GetAwaiter()
+						.GetResult();
+
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					{
+						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
+					}
+				}
+
+				if(errors.Any())
+				{
+					repeat = _interactiveService.Question(
+						"Не удалось загрузить файлы:\n" +
+						string.Join("\n- ", errors.Select(fekv => $"{fekv.Key} - {fekv.Value}")) + "\n" +
+						"\n" +
+						"Повторить попытку?",
+						"Ошибка загрузки файлов");
+
+					errors.Clear();
+				}
+				else
+				{
+					repeat = false;
+				}
+			}
+			while(repeat);
+		}
+
+		private void UpdateAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToUpdateOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				_carFileStorageService.UpdateFileAsync(Entity, fileName, new MemoryStream(AttachedFileInformationsViewModel.AttachedFiles[fileName]), _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
+		private void DeleteAttachedFilesIfNeeded()
+		{
+			if(!AttachedFileInformationsViewModel.FilesToDeleteOnSave.Any())
+			{
+				return;
+			}
+
+			foreach(var fileName in AttachedFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				_carFileStorageService.DeleteFileAsync(Entity, fileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+			}
+		}
+
 		public override bool Save(bool close)
 		{
 			var routeLists = _carVersionsManagementViewModel.GetAllAffectedRouteLists(UoW);
 			if(!routeLists.Any())
 			{
+				if(!base.Save(false))
+				{
+					return false;
+				}
+
+				SavePhotoIfNeeded();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
 				return base.Save(close);
 			}
 
@@ -312,6 +516,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UoW.Save(routeList);
 				}
 
+				if(!base.Save(false))
+				{
+					return false;
+				}
+
+				SavePhotoIfNeeded();
+				AddAttachedFilesIfNeeded();
+				UpdateAttachedFilesIfNeeded();
+				DeleteAttachedFilesIfNeeded();
+				AttachedFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+
 				return base.Save(close);
 			}
 			catch(OperationCanceledException)
@@ -337,6 +552,164 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 			}
 		}
+
+		protected override void AfterSave()
+		{
+			UpdateFuelCardProductRestrictionInGazpromIfNeed();
+
+			base.AfterSave();
+		}
+		
+		private void SetPermissions()
+		{
+			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || PermissionResult.CanUpdate;
+			AskSaveOnClose = CanEdit;
+			
+			CanChangeBottlesFromAddress = CommonServices.PermissionService.ValidateUserPresetPermission(
+				LogisticPermissions.Car.CanChangeCarsBottlesFromAddress, CommonServices.UserService.CurrentUserId);
+			
+			CanChangeCarModel =
+				Entity.Id == 0 || CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeCarModel);
+			CanEditFuelCardNumber =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber);
+			CanViewFuelCard =
+				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
+			
+			CanChangeCompositionCompanyTransportPark =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+		}
+
+		private void UpdateFuelCardProductRestrictionInGazpromIfNeed()
+		{
+			if(!IsNeedToUpdateFuelCardProductRestriction)
+			{
+				return;
+			}
+
+			var lastFuelCardVersion = GetLastFuelCardVersion();
+			var activeFuelCardVersion = Entity.GetCurrentActiveFuelCardVersion();
+
+			if(_fuelCardUpdateCancellationTokenSource != null)
+			{
+				ShowErrorMessage("В данный момент уже выполняется обновление товарного ограничителя!");
+
+				return;
+			}
+
+			_fuelCardUpdateCancellationTokenSource = new CancellationTokenSource();
+
+			_oldFuelType = Entity.FuelType;
+			_oldLastFuelCardVersion = GetLastFuelCardVersion();
+			_oldDriverCategory = Entity.Driver?.Category;
+
+			try
+			{
+				if(activeFuelCardVersion != null)
+				{
+					ChangeFuelCardProductGroupRestriction(activeFuelCardVersion.FuelCard.CardId, _fuelCardUpdateCancellationTokenSource.Token);
+				}
+
+				if(lastFuelCardVersion != null
+					&& lastFuelCardVersion.FuelCard.Id != activeFuelCardVersion?.FuelCard?.Id
+					&& lastFuelCardVersion.StartDate >= DateTime.Today)
+				{
+					ChangeFuelCardProductGroupRestriction(lastFuelCardVersion.FuelCard.CardId, _fuelCardUpdateCancellationTokenSource.Token);
+				}
+			}
+			catch(Exception ex)
+			{
+				ShowErrorMessage("При обновлении товарного ограничителя в сервисе Газпром возникла ошибка.\n" +
+					"Необходимо с использованием браузера зайти в веб-интерфейс Газпромнефть и убедиться,\n" +
+					"что для топливной карты установлен правильный товарный ограничитель!");
+
+				_logger.LogCritical(
+					ex,
+					"Ошибка при обновлении товарного ограничителя в сервисе Газпром.");
+			}
+			finally
+			{
+				_fuelCardUpdateCancellationTokenSource.Dispose();
+				_fuelCardUpdateCancellationTokenSource = null;
+			}
+		}
+
+		private void ChangeFuelCardProductGroupRestriction(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var isNeedSetProductGroupRestriction = Entity.Driver is null || Entity.Driver?.Category == EmployeeCategory.driver;
+
+			if(isNeedSetProductGroupRestriction)
+			{
+				SetFuelCardProductGroupRestrictionByCardId(fuelCardId, cancellationToken);
+				return;
+			}
+
+			SetFuelCardCommonFuelRestrictionByCardId(fuelCardId, cancellationToken);
+		}
+
+		private void SetFuelCardCommonFuelRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
+		{
+			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
+				fuelCardId,
+				cancellationToken)
+				.GetAwaiter()
+				.GetResult();
+		}			
+
+		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
+		{
+			var gazpromFuelProductsGroups = GazpromFuelProductsGroups.ToList();
+
+			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
+				fuelCardId,
+				cancellationToken,
+				gazpromFuelProductsGroups)
+				.GetAwaiter()
+				.GetResult();
+		}
+
+		private IEnumerable<string> GazpromFuelProductsGroups =>
+			Entity.FuelType is null
+			? Enumerable.Empty<string>()
+			: _fuelRepository
+				.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.FuelType.Id)
+				.Select(x => x.GazpromFuelProductGroupId);
+
+		private FuelCardVersion GetLastFuelCardVersion() =>
+			Entity.FuelCardVersions
+			.OrderByDescending(x => x.StartDate)
+			.FirstOrDefault();
+
+		private bool IsUserHasAccessToGazprom =>
+			_userSettingsService.Settings.IsUserHasAuthDataForFuelControlApi;
+
+		private bool IsNeedToUpdateFuelCardProductRestriction =>
+			(IsFuelCardChanged() && Entity.FuelType != null)
+			|| (IsFuelTypeChanged && IsFuelCardToChangeProductRestrictionAdded)
+			|| (IsDriverCategoryChanged && IsFuelCardToChangeProductRestrictionAdded);
+
+		private bool IsFuelCardChanged()
+		{
+			var currentLastFuelCardVersion = GetLastFuelCardVersion();
+
+			if(_oldLastFuelCardVersion is null && currentLastFuelCardVersion is null)
+			{
+				return false;
+			}
+
+			return _oldLastFuelCardVersion?.Id != currentLastFuelCardVersion?.Id;
+		}
+
+		private bool IsFuelTypeChanged =>
+			Entity.FuelType != null
+			&& _oldFuelType?.Id != Entity.FuelType.Id;
+
+		private bool IsDriverCategoryChanged =>
+			!(_oldDriverCategory is null && Entity.Driver?.Category is null)
+			&& _oldDriverCategory != Entity.Driver?.Category;
+
+		private bool IsFuelCardToChangeProductRestrictionAdded =>
+			Entity.GetCurrentActiveFuelCardVersion() != null
+			|| Entity.GetActiveFuelCardVersionOnDate(DateTime.Today.AddDays(1)) != null;
 
 		private bool SetOtherCarsFuelCardVersionEndDateIfNeed()
 		{
@@ -389,12 +762,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void UpdateArchivingDate()
 		{
-			if(Entity.IsArchive && Entity.ArchivingDate == null)
+			if(IsArchive && Entity.ArchivingDate == null)
 			{
 				Entity.ArchivingDate = DateTime.Now;
 			}
 
-			if(!Entity.IsArchive && Entity.ArchivingDate != null)
+			if(!IsArchive && Entity.ArchivingDate != null)
 			{
 				Entity.ArchivingDate = null;
 			}
@@ -443,7 +816,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void UpdateCarInfoInDriverEntity()
 		{
 			if(!_isNeedToUpdateCarInfoInDriverEntity
-				|| Entity.IsArchive
+				|| IsArchive
 				|| Entity.Driver is null
 				|| Entity.Driver.Category != EmployeeCategory.driver)
 			{
@@ -510,6 +883,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public int UpcomingTechInspectLeft { get; private set; }
 
+		public byte[] Photo
+		{
+			get => _photo;
+			set => SetField(ref _photo, value);
+		}
+
+		public string PhotoFilename
+		{
+			get => _photoFilename;
+			set => SetField(ref _photoFilename, value);
+		}
+
 		public void ShowErrorMessage(string message)
 		{
 			base.ShowErrorMessage(message);
@@ -571,7 +956,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				viewModel.Entity.Car = viewModel.UoW.GetById<Car>(Entity.Id);
 			});
 		}
-		
+
 		private void CreateRentalContract()
 		{
 			var actualCarVersion = Entity.CarVersions.FirstOrDefault(x => x.EndDate is null);
@@ -600,6 +985,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				OnPropertyChanged(nameof(UpcomingTechInspectKm));
 				return;
 			}
+		}
+
+		private void SetIsCarUsedInDeliveryDefaultValueIfNeed()
+		{
+			if(Entity.Id != 0)
+			{
+				return;
+			}
+
+			Entity.IsUsedInDelivery = true;
 		}
 
 		public override void Dispose()

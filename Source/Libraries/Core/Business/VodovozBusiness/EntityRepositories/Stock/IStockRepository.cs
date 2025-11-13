@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Stock
 {

@@ -1,11 +1,14 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -21,6 +24,7 @@ namespace Vodovoz.Core.Domain.Orders
 	[EntityPermission]
 	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
+		public const string Table = "orders";
 		private int _id;
 		private DateTime _version;
 		private DateTime? _createDate;
@@ -62,9 +66,9 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _bottlesByStockActualCount;
 		private int? _driverCallId;
 		private int? _trifle;
-		private int? _onlineOrder;
+		private int? _onlinePaymentNumber;
 		private int? _eShopOrder;
-		private int? _counterpartyExternalOrderId;
+		private string _counterpartyExternalOrderId;
 		private bool _isContractCloser;
 		private bool _isTareNonReturnReasonChangedByUser;
 		private bool _hasCommentForDriver;
@@ -86,10 +90,14 @@ namespace Vodovoz.Core.Domain.Orders
 		private DateTime? _deliveryDate;
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
-
+		private CounterpartyEntity _client;
+		private DeliveryPointEntity _deliveryPoint;
+		private CounterpartyContractEntity _contract;
+		private DeliveryScheduleEntity _deliverySchedule;
+		private string _orderPartsIds;
+		
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
-
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -394,11 +402,11 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _trifle, value);
 		}
 
-		[Display(Name = "Номер онлайн заказа")]
-		public virtual int? OnlineOrder
+		[Display(Name = "Номер онлайн оплаты")]
+		public virtual int? OnlinePaymentNumber
 		{
-			get => _onlineOrder;
-			set => SetField(ref _onlineOrder, value);
+			get => _onlinePaymentNumber;
+			set => SetField(ref _onlinePaymentNumber, value);
 		}
 
 		[Display(Name = "Заказ из интернет магазина")]
@@ -409,7 +417,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Идентификатор заказа в ИС контрагента")]
-		public virtual int? CounterpartyExternalOrderId
+		public virtual string CounterpartyExternalOrderId
 		{
 			get => _counterpartyExternalOrderId;
 			set => SetField(ref _counterpartyExternalOrderId, value);
@@ -595,6 +603,50 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _orderDepositItems, value);
 		}
 
+		[Display(Name = "Клиент")]
+		public virtual CounterpartyEntity Client
+		{
+			get => _client;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _client, value);
+		}
+
+		[Display(Name = "Точка доставки")]
+		public virtual DeliveryPointEntity DeliveryPoint
+		{
+			get => _deliveryPoint;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliveryPoint, value);
+		}
+
+		[Display(Name = "Договор")]
+		public virtual CounterpartyContractEntity Contract
+		{
+			get => _contract;
+			set => SetField(ref _contract, value);
+		}
+
+		/// <summary>
+		/// Время доставки
+		/// </summary>
+		[Display(Name = "Время доставки")]
+		public virtual DeliveryScheduleEntity DeliverySchedule
+		{
+			get => _deliverySchedule;
+			//Нельзя устанавливать, см. логику в Order.cs
+			protected set => SetField(ref _deliverySchedule, value);
+		}
+		
+		/// <summary>
+		/// Id частей заказа
+		/// </summary>
+		[Display(Name = "Id частей заказа")]
+		public virtual string OrderPartsIds
+		{
+			get => _orderPartsIds;
+			set => SetField(ref _orderPartsIds, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -603,8 +655,107 @@ namespace Vodovoz.Core.Domain.Orders
 			|| OrderStatus == OrderStatus.NotDelivered;
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - для перепродажи
+		/// </summary>
+		public virtual bool IsOrderForResale =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Resale;
+		
+		/// <summary>
+		/// Проверка, является ли целью покупки заказа - госзакупки
+		/// </summary>
+		public virtual bool IsOrderForTender =>
+			Client?.ReasonForLeaving == ReasonForLeaving.Tender;
+
+		/// <summary>
+		/// Проверка на госзаказ
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// (сканировать марки на складе для отправки документов в статусе заказа "В Пути")
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoadForTender =>
+			IsOrderForTender
+			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+			&& PaymentType == PaymentType.Cashless;
+
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
+		/// </summary>
+		public virtual bool IsClientWorksWithNewEdoProcessing =>
+			Client?.IsNewEdoProcessing ?? false;
+			
+		/// <summary>
+		/// Полная сумма заказа
+		/// </summary>
+		public virtual decimal OrderSum => OrderPositiveSum - OrderNegativeSum;
+
+		/// <summary>
+		/// Вся положительная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.ActualSum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItemEntity item in OrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
+		/// Вся отрицательная сумма заказа
+		/// </summary>
+		public virtual decimal OrderNegativeSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderDepositItemEntity dep in OrderDepositItems)
+				{
+					sum += dep.ActualSum;
+				}
+				return sum;
+			}
+		}
 
 		#endregion Вычисляемые свойства
+		
+		/// <summary>
+		/// Проверка, является ли клиент по заказу сетевым покупателем
+		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
+		/// </summary>
+		public virtual bool IsNeedIndividualSetOnLoad(ICounterpartyEdoAccountEntityController edoAccountController)
+		{
+			if(Client is null)
+			{
+				return false;
+			}
+			
+			var edoAccount = edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Client, Contract?.Organization?.Id);
+			
+			return PaymentType == PaymentType.Cashless
+				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+		}
 
 		public override string ToString()
 		{

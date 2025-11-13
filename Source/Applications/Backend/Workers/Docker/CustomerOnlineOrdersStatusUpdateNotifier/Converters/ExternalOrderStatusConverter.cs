@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Data.Orders;
+﻿using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters
@@ -7,7 +8,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters
 	{
 		public ExternalOrderStatus GetExternalOrderStatus(OnlineOrder onlineOrder)
 		{
-			if(onlineOrder.Order is null)
+			if(!onlineOrder.Orders.Any())
 			{
 				switch(onlineOrder.OnlineOrderStatus)
 				{
@@ -19,8 +20,8 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Converters
 						return ExternalOrderStatus.Canceled;
 				}
 			}
-			
-			switch(onlineOrder.Order.OrderStatus)
+
+			switch(onlineOrder.Orders.First().OrderStatus)
 			{
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:

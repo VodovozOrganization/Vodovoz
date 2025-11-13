@@ -1,6 +1,9 @@
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
+using QS.Report;
+using QS.Report.ViewModels;
 using System;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
@@ -16,9 +19,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.TrueMark.CodesPool;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -137,6 +144,11 @@ public partial class MainWindow
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
 
+	protected void OnActionTrueMarkActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.true_mark.xml");
+	}
+
 	#region Логистика
 
 	/// <summary>
@@ -194,26 +206,21 @@ public partial class MainWindow
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
+			() => new QSReport.ReportViewDlg(new OnecCommentsReport(reportInfoFactory))
 		);
 	}
 
 	protected void OpenRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RoutesListRegisterReportViewModel));
 	}
 
 	protected void OpenDriverRoutesListRegisterReport()
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverRoutesListRegisterReportViewModel));
 	}
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
@@ -264,10 +271,32 @@ public partial class MainWindow
 		});
 	}
 
-	void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
+	protected void ActionAnalyseCounterpartyDiscrepancies_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PaymentsDiscrepanciesAnalysisViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
+
+	#region Честный знак
+
+	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionEdoProcessJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Журнал проблем документооборота с клиентами
+	/// </summary>
+	protected void OnActionEdoProblemJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoProblemJournalViewModel>(null);
+	}
+
+	#endregion Честный знак
 
 	#region Заказы
 

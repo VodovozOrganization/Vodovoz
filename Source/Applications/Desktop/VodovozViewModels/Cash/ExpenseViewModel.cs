@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using QS.Report;
 
 namespace Vodovoz.ViewModels.Cash
 {
@@ -53,6 +54,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IFuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IUserService _userService;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IPermissionResult _entityPermissionResult;
@@ -80,7 +82,9 @@ namespace Vodovoz.ViewModels.Cash
 			IReportViewOpener reportViewOpener,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IExpenseSettings expenseSettings,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
@@ -115,7 +119,7 @@ namespace Vodovoz.ViewModels.Cash
 			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Expense));
 
 			CanEditRectroactively =
@@ -123,10 +127,10 @@ namespace Vodovoz.ViewModels.Cash
 					typeof(Expense), userService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			_canEditDate = commonServices.CurrentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDate);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Expense.CanEditDate);
 
 			_canEditDdrDate = commonServices.CurrentPermissionService
-				.ValidatePresetPermission(Vodovoz.Permissions.Cash.Expense.CanEditDdrDate);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Expense.CanEditDdrDate);
 
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
@@ -554,14 +558,12 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			var reportInfo = new QS.Report.ReportInfo
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}";
+			reportInfo.Identifier = "Cash.Expense";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = $"Квитанция №{Entity.Id} от {Entity.Date:d}",
-				Identifier = "Cash.Expense",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "id", Entity.Id }
-				}
+				{ "id", Entity.Id }
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);

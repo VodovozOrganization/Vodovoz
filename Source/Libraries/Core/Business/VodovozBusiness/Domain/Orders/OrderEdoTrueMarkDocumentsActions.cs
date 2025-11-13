@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System;
+using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -23,11 +24,27 @@ namespace Vodovoz.Domain.Orders
 		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
 		private bool _isNeedOfferCancellation;
+		private DateTime? _created;
+
+		public OrderEdoTrueMarkDocumentsActions()
+		{
+			_created = DateTime.Now;
+		}
 
 		/// <summary>
 		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
+
+		/// <summary>
+		/// Дата создания
+		/// </summary>
+		[Display(Name = "Дата создания")]
+		public DateTime? Created
+		{
+			get => _created;
+			set => SetField(ref _created, value);
+		}
 
 		/// <summary>
 		/// Заказ
@@ -114,6 +131,5 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual string Title => $"Действия с документами ЭДО и Честный знак заказа №" +
 			$"{Order?.Id ?? OrderWithoutShipmentForDebt?.Id ?? OrderWithoutShipmentForPayment?.Id ?? OrderWithoutShipmentForAdvancePayment?.Id}";
-
 	}
 }

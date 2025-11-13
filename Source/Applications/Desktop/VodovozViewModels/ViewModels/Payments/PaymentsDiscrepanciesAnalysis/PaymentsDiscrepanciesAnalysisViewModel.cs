@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
@@ -97,13 +98,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			AnalyseDiscrepanciesCommand = new DelegateCommand(AnalyseDiscrepancies, () => CanReadFile);
 
 			OrdersNodes = new GenericObservableList<OrderDiscrepanciesNode>();
+			OrderDiscrepancyDuplicateNodes = new GenericObservableList<OrderDiscrepanciesNode>();
 			PaymentsNodes = new GenericObservableList<PaymentDiscrepanciesNode>();
 			BalanceNodes = new GenericObservableList<CounterpartyBalanceNode>();
 			Clients = new GenericObservableList<Domain.Client.Counterparty>();
 
 			_isClosedOrdersOnly = true;
 		}
-
+		
 		#region Settings
 
 		public DiscrepancyCheckMode SelectedCheckMode
@@ -262,6 +264,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		public GenericObservableList<PaymentDiscrepanciesNode> PaymentsNodes { get; }
 		public GenericObservableList<CounterpartyBalanceNode> BalanceNodes { get; }
 		public GenericObservableList<Domain.Client.Counterparty> Clients { get; private set; }
+		public GenericObservableList<OrderDiscrepanciesNode> OrderDiscrepancyDuplicateNodes { get; }
 
 		#endregion
 
@@ -311,6 +314,22 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			FillPaymentNodes();
 			FillCounterpartyBalanceNodes();
 			UpdateCounterpartySummaryInfo();
+
+			if(OrderDiscrepancyDuplicateNodes.Any())
+			{
+				var sb = new StringBuilder();
+
+				foreach(var orderDiscrepancy in OrderDiscrepancyDuplicateNodes)
+				{
+					sb.AppendLine(orderDiscrepancy.OrderId.ToString());
+				}
+				
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Следующие заказы дублируются в документе, что не поддерживается текущей логикой:\n"
+					+ sb
+					+ "Обратитесь в отдел разработки");
+			}
 		}
 
 		private void CreateCounterpartySettlementsReconciliation1CFromXlsx()
@@ -409,17 +428,23 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			var orders1C = _counterpartySettlementsReconciliation1C.Orders;
 
-			var allocations = GetAllocationsFromDatabase(SelectedClient.Id, orders1C.Select(o => o.OrderId).ToList());
+			var allocations =
+				GetAllocationsFromDatabase(SelectedClient.Id, SelectedClient.INN, orders1C.Select(o => o.OrderId).ToList());
 
 			_orderDiscrepanciesNodes = CreateOrderDiscrepanciesNodes(orders1C, allocations);
 		}
 
-		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, IList<int> orderIds)
+		private IList<OrderWithAllocation> GetAllocationsFromDatabase(int clientId, string clientInn, IList<int> orderIds)
 		{
 			var allocations = _orderRepository.GetOrdersWithAllocationsOnDayByOrdersIds(_unitOfWork, orderIds);
-			var ordersMissingFromDocument = _orderRepository.GetOrdersWithAllocationsOnDayByCounterparty(_unitOfWork, clientId, orderIds);
+			var ordersMissingFromDocumentAllocatedToClient = _orderRepository.GetOrdersWithAllocationsOnDayByCounterparty(_unitOfWork, clientId, orderIds);
+			var ordersMissingFromDocumentAllocatedToAnotherClient =
+				_orderRepository.GetAllocationsToOrdersWithAnotherClient(_unitOfWork, clientId, clientInn, orderIds);
 
-			return allocations.Concat(ordersMissingFromDocument).ToList();
+			return allocations
+				.Concat(ordersMissingFromDocumentAllocatedToClient)
+				.Concat(ordersMissingFromDocumentAllocatedToAnotherClient)
+				.ToList();
 		}
 
 		private IDictionary<int, OrderDiscrepanciesNode> CreateOrderDiscrepanciesNodes(
@@ -466,6 +491,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private IDictionary<int, OrderDiscrepanciesNode> CreateOrderDiscrepanciesNodesFromOrderReconciliation1C(
 			IList<OrderReconciliation1C> orders1C)
 		{
+			OrderDiscrepancyDuplicateNodes.Clear();
 			var orderDiscrepanciesNodes = new Dictionary<int, OrderDiscrepanciesNode>();
 
 			foreach(var orderReconciliation in orders1C)
@@ -477,6 +503,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					OrderDeliveryDateInDocument = orderReconciliation.OrderDeliveryDate
 				};
 
+				if(orderDiscrepanciesNodes.ContainsKey(orderDiscrepanciesNode.OrderId))
+				{
+					OrderDiscrepancyDuplicateNodes.Add(orderDiscrepanciesNode);
+					continue;
+				}
+				
 				orderDiscrepanciesNodes.Add(orderDiscrepanciesNode.OrderId, orderDiscrepanciesNode);
 			}
 

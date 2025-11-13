@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Price).Column("price");
 			Map(x => x.Count).Column("count");
 			Map(x => x.IsDiscountInMoney).Column("is_discount_money");
+			Map(x => x.IsFixedPrice).Column("is_fixed_price");
 			Map(x => x.PercentDiscount).Column("percent_discount");
 			Map(x => x.MoneyDiscount).Column("money_discount");
 			Map(x => x.CountFromPromoSet).Column("count_from_promo_set");
@@ -26,6 +27,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.PromoSet).Column("promo_set_id");
+			References(x => x.DiscountReason).Column("discount_reason_id");
 		}
 	}
 }

@@ -1,16 +1,21 @@
 ﻿using Gamma.ColumnConfig;
-using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	internal class OrganizationJournalRegistrar : ColumnsConfigRegistrarBase<OrganizationJournalViewModel, OrganizationJournalNode>
+	internal sealed class OrganizationJournalRegistrar : ColumnsConfigRegistrarBase<OrganizationJournalViewModel, OrganizationJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OrganizationJournalNode> config) =>
 		config.AddColumn("Код")
 				.AddNumericRenderer(node => node.Id).WidthChars(4)
 			.AddColumn("Название")
 				.AddTextRenderer(node => node.Name)
+			.AddColumn("Есть регистрация онлайн кассы")
+				.AddToggleRenderer(node => node.HasCashBoxId).Editing(false)
+			.AddColumn("Есть регистрация в Авангарде")
+				.AddToggleRenderer(node => node.HasAvangardShopId).Editing(false)
+			.AddColumn("Есть регистрация в Такскоме(ЭДО)")
+				.AddToggleRenderer(node => node.HasTaxcomEdoAccountId).Editing(false)
 			.AddColumn("")
 			.Finish();
 	}

@@ -13,6 +13,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {

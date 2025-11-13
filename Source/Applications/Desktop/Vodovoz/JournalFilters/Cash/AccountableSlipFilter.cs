@@ -4,6 +4,7 @@ using QS.ViewModels.Control.EEVM;
 using QSOrmProject.RepresentationModel;
 using System;
 using System.ComponentModel;
+using Autofac;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
@@ -16,6 +17,7 @@ namespace Vodovoz
 	{
 		private ITdiTab _journalTab;
 		private FinancialExpenseCategory _fianncialExpenseCategory;
+		private ILifetimeScope _scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,7 +28,7 @@ namespace Vodovoz
 			{
 				_journalTab = value;
 
-				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, Startup.MainWin.NavigationManager, Startup.AppDIContainer.BeginLifetimeScope())
+				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, Startup.MainWin.NavigationManager, _scope)
 					.ForEntity<FinancialExpenseCategory>()
 					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(filter =>
 					{
@@ -45,7 +47,7 @@ namespace Vodovoz
 
 		protected override void ConfigureWithUow()
 		{
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
+			var employeeFactory = new EmployeeJournalFactory(_scope);
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += (sender, args) => OnRefiltered();
 			dateperiod.PeriodChanged += (sender, args) => OnRefiltered();
@@ -105,6 +107,16 @@ namespace Vodovoz
 		protected void OnYentryExpenseChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(_scope != null)
+			{
+				_scope.Dispose();
+				_scope = null;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

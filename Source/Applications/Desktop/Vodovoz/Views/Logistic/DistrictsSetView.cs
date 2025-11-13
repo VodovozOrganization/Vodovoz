@@ -8,8 +8,6 @@ using MoreLinq;
 using QS.Dialog.GtkUI;
 using QS.Journal.GtkUI;
 using QS.Navigation;
-using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Services;
 using QS.Utilities;
 using QS.Views.GtkUI;
@@ -19,7 +17,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Infrastructure;
@@ -164,16 +161,7 @@ namespace Vodovoz.Views.Logistic
 
 			btnRemoveSchedule.Clicked += (sender, args) => ViewModel.RemoveScheduleRestrictionCommand.Execute();
 
-			btnAddAcceptBefore.Binding
-				.AddFuncBinding(
-					ViewModel,
-					vm => vm.CanEditDeliveryScheduleRestriction
-						&& vm.SelectedDistrict != null
-						&& vm.SelectedScheduleRestriction != null,
-					w => w.Sensitive)
-				.InitializeFromSource();
-
-			btnAddAcceptBefore.Clicked += OnBottonAcceptBeforeClicked;
+			btnAddAcceptBefore.BindCommand(ViewModel.AddAcceptBeforeCommand);
 
 			btnRemoveAcceptBefore.Binding
 				.AddFuncBinding(
@@ -377,39 +365,6 @@ namespace Vodovoz.Views.Logistic
 		{
 			ViewModel.AddDistrictCommand.Execute();
 			ScrollToSelectedDistrict();
-		}
-
-		private void OnBottonAcceptBeforeClicked(object sender, EventArgs e)
-		{
-			var acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
-				x => x.Name,
-				() => new AcceptBeforeViewModel(
-					EntityUoWBuilder.ForCreate(),
-					ViewModel.UoWFactory,
-					_commonServices
-				),
-				node => new AcceptBeforeViewModel(
-					EntityUoWBuilder.ForOpen(node.Id),
-					ViewModel.UoWFactory,
-					_commonServices
-				),
-				ViewModel.UoWFactory,
-				_commonServices);
-
-			acceptBeforeTimeViewModel.SelectionMode = JournalSelectionMode.Single;
-			acceptBeforeTimeViewModel.SetActionsVisible(deleteActionEnabled: false, editActionEnabled: false);
-			acceptBeforeTimeViewModel.OnEntitySelectedResult += OnAcceptBeforeSelected;
-			Tab.TabParent.AddSlaveTab(Tab, acceptBeforeTimeViewModel);
-		}
-
-		private void OnAcceptBeforeSelected(object sender, JournalSelectedNodesEventArgs eventArgs)
-		{
-			var node = eventArgs.SelectedNodes.FirstOrDefault();
-
-			if(node != null)
-			{
-				ViewModel.AddAcceptBeforeCommand.Execute(ViewModel.UoW.GetById<AcceptBefore>(node.Id));
-			}
 		}
 
 		private void PrepareWeekDayDistrictRuleItemsTreeView()

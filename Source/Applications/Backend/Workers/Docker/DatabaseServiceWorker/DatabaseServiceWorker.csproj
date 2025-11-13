@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker;Microsoft.NET.Sdk.Publish">
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-MonitoringArchivingWorker-19647D3C-4E6A-46A4-81E9-16F86559FE6F</UserSecretsId>
@@ -10,12 +10,6 @@
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
 		<Content Remove="appsettings.Production.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
-		<_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -31,10 +25,10 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
     <PackageReference Include="SharpCifs.Std" Version="0.2.13" />
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +36,7 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\ExportTo1c\ExportTo1c.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
@@ -53,21 +48,7 @@
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\..\..\Desktop\VodovozViewModels\VodovozViewModels.csproj" />
   </ItemGroup>
-	<ItemGroup>
-	  <None Update="Properties\PublishProfiles\FolderProfile.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-	  </None>
-	</ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+  </ItemGroup>
 </Project>

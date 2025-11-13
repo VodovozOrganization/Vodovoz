@@ -7,6 +7,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -14,7 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -39,6 +40,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private Employee _currentEmployee;
 		private FuelBalanceViewModel _fuelBalanceViewModel;
 		private FinancialExpenseCategory _financialExpenseCategory;
@@ -55,7 +57,9 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IReportViewOpener reportViewOpener,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
+			ILifetimeScope lifetimeScope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -69,7 +73,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			CreateCommands();
 			UpdateCashSubdivisions();
 
@@ -262,10 +266,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
 						() =>
 							new FuelTypeViewModel(
-								EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
+								EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, CommonServices, _fuelRepository, _routeListProfitabilityController),
 						(node) =>
 							new FuelTypeViewModel(
-								EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _routeListProfitabilityController),
+								EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, CommonServices, _fuelRepository, _routeListProfitabilityController),
 						_unitOfWorkFactory,
 						CommonServices);
 					fuelTypeJournalViewModel.SetRestriction(() =>
@@ -320,12 +324,10 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			PrintCommand = new DelegateCommand(
 				() =>
 				{
-					var reportInfo = new QS.Report.ReportInfo
-					{
-						Title = String.Format($"Акт выдачи топлива №{Entity.Id} от {Entity.Date:d}"),
-						Identifier = "Documents.FuelWriteoffDocument",
-						Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } }
-					};
+					var reportInfo = _reportInfoFactory.Create();
+					reportInfo.Title = String.Format($"Акт выдачи топлива №{Entity.Id} от {Entity.Date:d}");
+					reportInfo.Identifier = "Documents.FuelWriteoffDocument";
+					reportInfo.Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } };
 
 					_reportViewOpener.OpenReport(this, reportInfo);
 				},

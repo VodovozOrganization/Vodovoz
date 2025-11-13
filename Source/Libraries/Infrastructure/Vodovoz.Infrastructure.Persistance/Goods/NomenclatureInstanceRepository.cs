@@ -7,12 +7,13 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
@@ -196,7 +197,9 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.SelectList(list => list
 					.SelectGroup(i => i.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber))
+					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
+				)
 				.TransformUsing(Transformers.AliasToBean<InstanceOnStorageData>())
 				.List<InstanceOnStorageData>();
 		}
@@ -254,6 +257,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => warehouseAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(warehouseProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)
@@ -272,6 +276,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => employeeStorageAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(employeeStorageProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)
@@ -291,6 +296,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 					.SelectGroup(() => carStorageAlias.Id).WithAlias(() => resultAlias.StorageId)
 					.SelectGroup(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+					.Select(() => instanceAlias.IsUsed).WithAlias(() => resultAlias.IsUsed)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(carStorageProjection).WithAlias(() => resultAlias.StorageName)
 					.SelectSum(o => o.Amount).WithAlias(() => resultAlias.Balance)

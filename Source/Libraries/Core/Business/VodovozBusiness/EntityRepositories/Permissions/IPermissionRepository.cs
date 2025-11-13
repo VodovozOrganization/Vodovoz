@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using FluentNHibernate.Conventions.Inspections;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 
@@ -21,11 +21,13 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IEnumerable<SubdivisionPermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, IPermissionExtensionStore permissionExtensionStore);
 		IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId);
 		bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService);
-		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission);
+		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, User user, string permission);
 		IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, int userId);
 		IList<HierarchicalPresetPermissionBase> GetAllPresetUserPermissionBase(IUnitOfWork uow, int userId);
 		HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission);
 		IList<HierarchicalPresetSubdivisionPermission> GetAllPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision);
+		IList<HierarchicalPresetSubdivisionPermission> GetAllPresetPermissionsBySubdivision(IUnitOfWork uow, int subdivisionId);
+		IList<SubdivisionWarehousePermission> GetAllWarehousePermissionsBySubdivision(IUnitOfWork uow, int subdivisionId);
 		IList<WarehousePermissionBase> GetAllUserWarehousesPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermission> GetAllEntityUserPermissions(IUnitOfWork uow, int userId);
 		IEnumerable<EntityUserPermissionExtended> GetAllEntityUserPermissionsExtended(IUnitOfWork uow, int userId);
@@ -38,18 +40,5 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IList<UserEntityExtendedPermissionWithSubdivisionNode> GetUsersWithSubdivisionsEntityPermission(IUnitOfWork uow);
 		IList<UserEntityExtendedPermissionNode> GetUsersEntityPermission(IUnitOfWork uow, string permissionName);
 		EntityExtendedPermission GetSubdivisionEntityExtendedPermission(IUnitOfWork uow, int subdivisionId, string permissionName);
-	}
-
-	public class SubdivisionPermissionNode : IPermissionNode
-	{
-		public TypeOfEntity TypeOfEntity { get; set; }
-		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
-		public IList<EntitySubdivisionPermissionExtended> EntityPermissionExtended { get; set; }
-
-		public EntityPermissionBase EntityPermission => EntitySubdivisionOnlyPermission;
-		IList<EntityPermissionExtendedBase> IPermissionNode.EntityPermissionExtended {
-			get => EntityPermissionExtended.OfType<EntityPermissionExtendedBase>().ToList();
-			set => EntityPermissionExtended = value.OfType<EntitySubdivisionPermissionExtended>().ToList();
-		}
 	}
 }

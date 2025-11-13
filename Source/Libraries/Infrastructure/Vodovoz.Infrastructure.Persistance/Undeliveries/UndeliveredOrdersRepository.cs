@@ -1,12 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -234,6 +237,74 @@ namespace Vodovoz.Infrastructure.Persistance.Undeliveries
 				select uo;
 
 			return undeliveredOrder;
+		}
+
+		public IList<OksDailyReportUndeliveredOrderDataNode> GetUndeliveredOrdersForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		{
+			UndeliveredOrder undeliveredOrderAlias = null;
+			Order orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			Subdivision subdivisionAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
+			OksDailyReportUndeliveredOrderDataNode resultAlias = null;
+
+			var resultCommentProjection = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property(nameof(undeliveredOrderResultCommentAlias.Comment)),
+						Projections.Constant(" || ")
+						);
+
+			var driversSubquery = QueryOver.Of(() => routeListItemAlias)
+				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Left.JoinQueryOver(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Select(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String,
+							"GROUP_CONCAT(CONCAT(?1, ' ', LEFT(?2,1),'.',LEFT(?3,1)) ORDER BY ?4 DESC SEPARATOR '\n\t↑\n')"), //⬆
+						NHibernateUtil.String,
+						Projections.Property(() => driverAlias.LastName),
+						Projections.Property(() => driverAlias.Name),
+						Projections.Property(() => driverAlias.Patronymic),
+						Projections.Property(() => routeListItemAlias.Id)
+					)
+				);
+
+			var resultCommentsSubquery = QueryOver.Of(() => undeliveredOrderResultCommentAlias)
+				.Where(r => r.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
+				.Select(resultCommentProjection);
+
+			var undeliveredData = uow.Session.QueryOver(() => undeliveredOrderAlias)
+				.JoinAlias(() => undeliveredOrderAlias.OldOrder, () => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinEntityAlias(
+					() => guiltyInUndeliveryAlias,
+					() => guiltyInUndeliveryAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Where(() => orderAlias.DeliveryDate >= startDate.Date && orderAlias.DeliveryDate <= endDate.LatestDayTime())
+				.SelectList(list => list
+				.Select(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.UndeliveredOrderId)
+				.Select(() => undeliveredOrderAlias.NewOrder.Id).WithAlias(() => resultAlias.NewOrderId)
+				.Select(() => guiltyInUndeliveryAlias.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
+				.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.GuiltySubdivisionId)
+				.Select(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.GuiltySubdivisionName)
+				.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
+				.Select(() => undeliveredOrderAlias.OrderTransferType).WithAlias(() => resultAlias.TransferType)
+				.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OldOrderDeliveryDate)
+				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.ClientName)
+				.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+				.SelectSubQuery(driversSubquery).WithAlias(() => resultAlias.Drivers)
+				.SelectSubQuery(resultCommentsSubquery).WithAlias(() => resultAlias.ResultComments))
+				.TransformUsing(Transformers.AliasToBean<OksDailyReportUndeliveredOrderDataNode>())
+				.List<OksDailyReportUndeliveredOrderDataNode>();
+
+			return undeliveredData;
 		}
 	}
 }

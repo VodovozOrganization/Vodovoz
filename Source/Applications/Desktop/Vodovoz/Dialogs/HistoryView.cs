@@ -25,6 +25,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure.Attributes;
+using Microsoft.Extensions.Logging;
 
 namespace Vodovoz.Dialogs
 {
@@ -32,7 +33,7 @@ namespace Vodovoz.Dialogs
 	[WidgetWindow(DefaultWidth = 852, DefaultHeight = 600)]
 	public partial class HistoryView : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger<HistoryView> _logger;
 		List<ChangedEntity> _changedEntities;
 		List<ArchivedChangedEntity> _oldChangedEntities;
 		bool _canUpdate = false;
@@ -49,8 +50,10 @@ namespace Vodovoz.Dialogs
 
 		public IUnitOfWork UoW { get; private set; }
 
-		public HistoryView(IUserJournalFactory userJournalFactory)
+		public HistoryView(ILogger<HistoryView> logger, IUserJournalFactory userJournalFactory)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
 			this.Build();
 
 			_needToHideProperties = !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_see_history_view_restricted_properties");
@@ -255,7 +258,7 @@ namespace Vodovoz.Dialogs
 				return;
 			}
 
-			_logger.Info("Получаем журнал изменений{0}...", _takenRows > 0 ? $"({_takenRows}+)" : "");
+			_logger.LogInformation("Получаем журнал изменений{0}...", _takenRows > 0 ? $"({_takenRows}+)" : "");
 			ChangeSet changeSetAlias = null;
 
 			var query = UoW.Session.QueryOver<ChangedEntity>()
@@ -349,8 +352,8 @@ namespace Vodovoz.Dialogs
 
 			_takenRows = _changedEntities.Count;
 
-			_logger.Debug("Время запроса {0}", DateTime.Now - startTime);
-			_logger.Info(NumberToTextRus.FormatCase(_changedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAll ? "" : "+"));
+			_logger.LogDebug("Время запроса {RequestTime}", DateTime.Now - startTime);
+			_logger.LogInformation(NumberToTextRus.FormatCase(_changedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAll ? "" : "+"));
 		}
 
 		private void UpdateJournalOld(bool nextPage = false)
@@ -367,7 +370,7 @@ namespace Vodovoz.Dialogs
 				return;
 			}
 
-			_logger.Info("Получаем журнал изменений{0}...", _takenOldRows > 0 ? $"({_takenOldRows}+)" : "");
+			_logger.LogInformation("Получаем журнал изменений{TakenOldRows}...", _takenOldRows > 0 ? $"({_takenOldRows}+)" : "");
 			ArchivedChangeSet changeSetAlias = null;
 
 			var query = UoW.Session.QueryOver<ArchivedChangedEntity>()
@@ -462,8 +465,8 @@ namespace Vodovoz.Dialogs
 
 			_takenOldRows = _oldChangedEntities.Count;
 
-			_logger.Debug("Время запроса {0}", DateTime.Now - startTime);
-			_logger.Info(NumberToTextRus.FormatCase(_oldChangedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAllOld ? "" : "+"));
+			_logger.LogDebug("Время запроса {RequestTime}", DateTime.Now - startTime);
+			_logger.LogInformation(NumberToTextRus.FormatCase(_oldChangedEntities.Count, "Загружено изменение {0}{1} объекта.", "Загружено изменение {0}{1} объектов.", "Загружено изменение {0}{1} объектов.", _takenAllOld ? "" : "+"));
 		}
 
 		private void OnObjectChangedByUser(object sender, EventArgs e)

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -41,7 +44,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds);
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
 		Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
-		int[] GetSanitisationNomenclature(IUnitOfWork uow);
 
 		#region Rent
 
@@ -75,18 +77,31 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
 		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
+		Nomenclature GetMasterCallNomenclature(IUnitOfWork uow);
 		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
-		IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] nomenclaturesIds);
+		Task<IList<int>> Get19LWaterNomenclatureIds(
+			IUnitOfWork uow,
+			int[] siteNomenclaturesIds,
+			CancellationToken cancellationToken
+		);
 		IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
 			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
 		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
+
+		/// <summary>
+		/// Проверяет есть ли хоть один заказ с этой номенклатупой (OrderItem -> Nomenclature)
+		/// </summary>
+		/// <param name="unitOfWork">UoW</param>
+		/// <param name="nomenclatureId">ID номенклатуры</param>
+		/// <returns></returns>
+		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
 	}
 }

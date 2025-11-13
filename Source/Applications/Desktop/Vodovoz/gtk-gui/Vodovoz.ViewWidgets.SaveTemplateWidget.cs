@@ -20,11 +20,11 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label label1;
 
-		private global::Gtk.Button buttonOpen;
+		private global::Gamma.GtkWidgets.yButton buttonOpen;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
-		private global::Gtk.Button buttonEdit;
+		private global::Gamma.GtkWidgets.yButton buttonEdit;
 
 		protected virtual void Build()
 		{
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewWidgets
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonOpen = new global::Gtk.Button();
+			this.buttonOpen = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewWidgets
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;
@@ -128,7 +128,7 @@ namespace Vodovoz.ViewWidgets
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.buttonEdit = new global::Gtk.Button();
+			this.buttonEdit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonEdit.CanFocus = true;
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.UseUnderline = true;

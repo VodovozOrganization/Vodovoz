@@ -1,8 +1,13 @@
-﻿using QS.DomainModel.UoW;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -10,8 +15,11 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Errors;
+using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Services;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Payments
 {
@@ -20,23 +28,28 @@ namespace Vodovoz.Application.Payments
 	/// </summary>
 	internal sealed class PaymentService : IPaymentService
 	{
+		private const int _commentLimit = 300;
 		private int _closingDocumentDeliveryScheduleId;
 
 		private readonly IGenericRepository<Payment> _paymentRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IPaymentItemsRepository _paymentItemsRepository;
+		private readonly IPaymentSettings _paymentSettings;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
-			IDeliveryScheduleSettings deliveryScheduleSettings)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IPaymentItemsRepository paymentItemsRepository,
+			IPaymentSettings paymentSettings)
 		{
-			_paymentRepository = paymentRepository
-				?? throw new ArgumentNullException(nameof(paymentRepository));
-			_orderRepository = orderRepository
-				?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
+			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 
-			_closingDocumentDeliveryScheduleId = (deliveryScheduleSettings
-					?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
+			_closingDocumentDeliveryScheduleId =
+				(deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings)))
 				.ClosingDocumentDeliveryScheduleId;
 		}
 
@@ -64,12 +77,12 @@ namespace Vodovoz.Application.Payments
 
 			if(!orderNodes.Any())
 			{
-				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoOrdersToDistribute(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistributionErrors.NoOrdersToDistribute(counterpartyId));
 			}
 
 			if(!paymentNodes.Any())
 			{
-				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.NoPaymentsWithPositiveBalance(counterpartyId));
+				return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistributionErrors.NoPaymentsWithPositiveBalance(counterpartyId));
 			}
 
 			foreach(var paymentNode in paymentNodes)
@@ -142,7 +155,7 @@ namespace Vodovoz.Application.Payments
 					}
 
 					var allocatedPaymentItems =
-						payment.PaymentItems.Where(
+						payment.Items.Where(
 							pi => pi.CashlessMovementOperation == null
 								|| pi.Sum != pi.CashlessMovementOperation.Expense);
 
@@ -161,7 +174,7 @@ namespace Vodovoz.Application.Payments
 				}
 				catch(Exception e)
 				{
-					return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistribution.AutomaticDistribution(e.Message));
+					return Result.Failure(Vodovoz.Errors.Payments.PaymentsDistributionErrors.AutomaticDistribution(e.Message));
 				}
 			}
 
@@ -256,13 +269,14 @@ namespace Vodovoz.Application.Payments
 			=> (from payment in unitOfWork.Session.Query<Payment>()
 				where payment.Counterparty.Id == counterpartyId
 					&& payment.Organization.Id == organizationId
+					&& payment.ProfitCategory.Id == _paymentSettings.DefaultProfitCategoryId 
 					&& (allocateCompletedPayments
 						? payment.Status == PaymentState.completed
 						: payment.Status != PaymentState.Cancelled)
-					&& (payment.Total - ((decimal?)payment.PaymentItems
+					&& (payment.Total - ((decimal?)payment.Items
 						.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 						.Sum(pi => pi.Sum) ?? 0m) > 0)
-				orderby payment.Total - ((decimal?)payment.PaymentItems
+				orderby payment.Total - ((decimal?)payment.Items
 					.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 					.Sum(pi => pi.Sum) ?? 0m) descending
 				orderby payment.Date ascending
@@ -270,7 +284,7 @@ namespace Vodovoz.Application.Payments
 				{
 					Id = payment.Id,
 					PaymentDate = payment.Date,
-					UnallocatedSum = payment.Total - ((decimal?)payment.PaymentItems
+					UnallocatedSum = payment.Total - ((decimal?)payment.Items
 						.Where(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
 						.Sum(pi => pi.Sum) ?? 0m)
 				}).ToList();
@@ -326,5 +340,79 @@ namespace Vodovoz.Application.Payments
 							  && cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
 						  select cashlessMovementOperation.Income - cashlessMovementOperation.Expense)
 					.Sum() ?? 0m;
+
+		public void CancelAllocation(
+			IUnitOfWork uow,
+			Payment payment,
+			string cancellationReason,
+			bool isByUserRequest
+			)
+		{
+			if(payment.IsRefundPayment || isByUserRequest)
+			{
+				payment.Status = PaymentState.Cancelled;
+				payment.Comment += string.IsNullOrWhiteSpace(payment.Comment) 
+					? $"{cancellationReason}" 
+					: $"\n{cancellationReason}";
+
+				if(payment.Comment.Length > _commentLimit)
+				{
+					payment.Comment = payment.Comment.Remove(_commentLimit);
+				}
+			}
+
+			foreach(var paymentItem in payment.Items)
+			{
+				CancelAllocationWithUpdateOrderPayments(uow, paymentItem);
+			}
+		}
+
+		public void CancelAllocationWithUpdateOrderPayments(IUnitOfWork uow, PaymentItem paymentItem)
+		{
+			paymentItem.CancelAllocation();
+			UpdateCashlessOrderPaymentStatus(uow, paymentItem.Order, paymentItem.Sum);
+		}
+
+		public void UpdateCashlessOrderPaymentStatus(IUnitOfWork uow, Order order, decimal canceledSum)
+		{
+			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow, order.Id);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		public async Task UpdateCashlessOrderPaymentStatusAsync(
+			IUnitOfWork uow,
+			Order order,
+			decimal canceledSum,
+			CancellationToken cancellationToken
+			)
+		{
+			var allocatedSum = await _paymentItemsRepository.GetAllocatedSumForOrderAsync(uow, order.Id, cancellationToken);
+
+			UpdateCashlessOrderPaymentStatusByAllocatedSum(order, canceledSum, allocatedSum);
+		}
+
+		private void UpdateCashlessOrderPaymentStatusByAllocatedSum(
+			Order order,
+			decimal canceledSum,
+			decimal allocatedSum
+			)
+		{
+			var isUnpaid = allocatedSum == 0 || allocatedSum - canceledSum == 0;
+			var isPaid = allocatedSum - canceledSum > order.OrderSum;
+
+			if(isUnpaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+			else if(isPaid)
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+			}
+			else
+			{
+				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
+		}
 	}
 }

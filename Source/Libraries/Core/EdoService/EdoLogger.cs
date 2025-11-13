@@ -1,14 +1,14 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Net.Http;
+using Microsoft.Extensions.Logging;
 
 namespace EdoService.Library
 {
 	public class EdoLogger : IEdoLogger
 	{
-		private readonly ILogger _logger;
+		private readonly ILogger<EdoLogger> _logger;
 
-		public EdoLogger(ILogger logger)
+		public EdoLogger(ILogger<EdoLogger> logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
@@ -17,7 +17,7 @@ namespace EdoService.Library
 		{
 			var statusCode = response.StatusCode;
 			var reason = response.ReasonPhrase;
-			_logger.Error($"Http code {statusCode}, причина {reason}");
+			_logger.LogError("Http code {HttpCode}, причина {Reason}", statusCode, reason);
 		}
 	}
 }

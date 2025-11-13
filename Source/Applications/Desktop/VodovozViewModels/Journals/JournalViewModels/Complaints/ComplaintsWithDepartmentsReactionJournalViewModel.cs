@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Complaints;
+using Vodovoz.Core.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -136,7 +137,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			FilterViewModel.EmployeeService = employeeService;
 
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
-			var defaultSubdivision = currentUserSettings.DefaultSubdivision;
+			var defaultSubdivision = currentUserSettings.DefaultSubdivisionId.HasValue ? UoW.GetById<Subdivision>(currentUserSettings.DefaultSubdivisionId.Value) : null;
 			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
 			if(FilterViewModel.CurrentUserSubdivision == null)

@@ -1,5 +1,5 @@
-﻿using Vodovoz.Domain.Orders;
-using Vodovoz.Errors;
+﻿using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Validation
 {

@@ -14,58 +14,64 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 namespace Vodovoz.ReportsParameters.Retail
 {
 	[System.ComponentModel.ToolboxItem(true)]
-    public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
-    {
+	public partial class CounterpartyReport : SingleUoWWidgetBase, IParametersWidget
+	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IDistrictJournalFactory _districtJournalFactory;
 		private readonly IInteractiveService _interactiveService;
-        
-        public CounterpartyReport(
+
+		public CounterpartyReport(
+			IReportInfoFactory reportInfoFactory,
 			ISalesChannelJournalFactory salesChannelJournalFactory,
 			IDistrictJournalFactory districtJournalFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-            IInteractiveService interactiveService)
-        {
-            Build();
+			IInteractiveService interactiveService)
+		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-            UoW = unitOfWorkFactory.CreateWithoutRoot();
-            ConfigureView(salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(), _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory());
-        }
+			Build();
 
-        public string Title => $"Отчет по контрагентам розницы";
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
-        public event EventHandler<LoadReportEventArgs> LoadReport;
+			ConfigureView(salesChannelJournalFactory.CreateSalesChannelAutocompleteSelectorFactory(), _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory());
+		}
 
-        private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
-            IEntityAutocompleteSelectorFactory districtSelectorFactory)
-        {
-            buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
-            yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
-            yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
-            yenumPaymentType.ItemsEnum = typeof(PaymentType);
-            yenumPaymentType.SelectedItem = PaymentType.Cash;
-        }
+		public string Title => $"Отчет по контрагентам розницы";
 
-        private ReportInfo GetReportInfo()
-        {
-                var parameters = new Dictionary<string, object> {
-                { "create_date", ydateperiodpickerCreate.StartDateOrNull },
-                { "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
-                { "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
-                { "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
-                { "payment_type", (yenumPaymentType.SelectedItemOrNull)},
-                { "all_types", (ycheckpaymentform.Active)}
-            };
-                return new ReportInfo
-            {
-                Identifier = "Retail.CounterpartyReport",
-                Parameters = parameters
-            };
-        }
+		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-        void OnUpdate(bool hide = false)
-        {
-            LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
-        }
-    }
+		private void ConfigureView(IEntityAutocompleteSelectorFactory salesChannelSelectorFactory,
+			IEntityAutocompleteSelectorFactory districtSelectorFactory)
+		{
+			buttonCreateReport.Clicked += (sender, e) => OnUpdate(true);
+			yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
+			yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
+			yenumPaymentType.ItemsEnum = typeof(PaymentType);
+			yenumPaymentType.SelectedItem = PaymentType.Cash;
+		}
+
+		private ReportInfo GetReportInfo()
+		{
+			var parameters = new Dictionary<string, object> {
+				{ "create_date", ydateperiodpickerCreate.StartDateOrNull },
+				{ "end_date", ydateperiodpickerCreate.EndDateOrNull?.AddDays(1).AddSeconds(-1) },
+				{ "sales_channel_id", (yEntitySalesChannel.Subject as SalesChannel)?.Id ?? 0},
+				{ "district", (yEntityDistrict.Subject as District)?.Id ?? 0 },
+				{ "payment_type", (yenumPaymentType.SelectedItemOrNull)},
+				{ "all_types", (ycheckpaymentform.Active)}
+			};
+
+			var reportInfo = _reportInfoFactory.Create("Retail.CounterpartyReport", Title, parameters);
+			reportInfo.Identifier = "Retail.CounterpartyReport";
+			reportInfo.Parameters = parameters;
+
+			return reportInfo;
+		}
+
+		void OnUpdate(bool hide = false)
+		{
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
+	}
 }

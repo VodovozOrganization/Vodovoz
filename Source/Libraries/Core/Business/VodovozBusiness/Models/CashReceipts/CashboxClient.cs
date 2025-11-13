@@ -19,6 +19,7 @@ namespace Vodovoz.Models.CashReceipts
 		private readonly string _baseUrl;
 		private readonly string _fiscalizationStatusUrl;
 		private readonly string _documentStatusUrl;
+		private readonly string _documentRequeueUrl;
 		private readonly string _sendDocumentUrl;
 		private readonly HttpClient _httpClient;
 
@@ -35,6 +36,7 @@ namespace Vodovoz.Models.CashReceipts
 
 			_fiscalizationStatusUrl = _baseUrl + "fn/v1/status";
 			_documentStatusUrl = _baseUrl + "fn/v1/doc/{0}/status";
+			_documentRequeueUrl = _baseUrl + "fn/v1/doc/{0}/re-queue";
 			_sendDocumentUrl = _baseUrl + "fn/v2/doc";
 
 			_httpClient = CreateHttpClient();
@@ -67,7 +69,8 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			try
 			{
-				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", _cashBox.Id, _cashBox.RetailPointName);
+				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", 
+					_cashBox.Id, _cashBox.RetailPointName);
 				var response = await _httpClient.GetAsync(_fiscalizationStatusUrl, cancellationToken);
 				if(!response.IsSuccessStatusCode)
 				{
@@ -76,7 +79,7 @@ namespace Vodovoz.Models.CashReceipts
 					return false;
 				}
 
-				var finscalizatorStatusResponse = await response.Content.ReadAsAsync<CashboxStatusResponse>(cancellationToken);
+				var finscalizatorStatusResponse = await response.Content.ReadAsAsync<CashboxStatusResponse>(cancellationToken: cancellationToken);
 				if(finscalizatorStatusResponse == null)
 				{
 					_logger.LogWarning("Проверка фискального регистратора №{cashboxId} не пройдена. Не удалось десериализовать ответ.", _cashBox.Id);
@@ -148,17 +151,68 @@ namespace Vodovoz.Models.CashReceipts
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
-					_logger.LogWarning("Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}", fiscalDocumentId, httpCodeMessage);
+					var errorMessage =
+						$"Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}";
+					_logger.LogWarning(errorMessage);
+					return CreateFailResult(errorMessage);
+				}
+
+				var response = await responseContent.Content.ReadAsAsync<FiscalDocumentInfoResponse>();
+
+				return CreateSucessResult(response);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при получении статуса чека для документа №{FiscalDocumentId}",
+					fiscalDocumentId);
+
+				return CreateFailResult(ex.Message);
+			}
+		}
+
+		public async Task<FiscalizationResult> RequeueFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
+		{
+			try
+			{
+				var fiscalDocumentData = await CheckFiscalDocument(fiscalDocumentId, cancellationToken);
+
+				if(fiscalDocumentData.Status != FiscalDocumentStatus.Failed)
+				{
+					var currentStatus =
+						fiscalDocumentData.Status.HasValue
+						? fiscalDocumentData.Status.Value.ToString()
+						: "Не указан";
+
+					return CreateFailResult(
+						$"Для повторного проведения чека статус фискального документа должен быть \"{FiscalDocumentStatus.Failed}\"\n" +
+						$"Текущий статус: \"{currentStatus}\"");
+				}
+
+				var completedUrl = string.Format(_documentRequeueUrl, fiscalDocumentId);
+				var responseContent = await _httpClient.PutAsync(completedUrl, null, cancellationToken);
+				if(!responseContent.IsSuccessStatusCode)
+				{
+					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
+					var errorMessage =
+						$"Не удалось выполнить повторное проведение фискального документа №{fiscalDocumentId}. {httpCodeMessage}";
+					_logger.LogWarning(errorMessage);
+
 					return CreateFailResult(httpCodeMessage);
 				}
 
 				var response = await responseContent.Content.ReadAsAsync<FiscalDocumentInfoResponse>();
-				return CreateSucessResult(response);
 
+				return CreateSucessResult(response);
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка при получении статуса чека для документа №{fiscalDocumentId}", fiscalDocumentId);
+				_logger.LogError(
+					ex,
+					"Ошибка при выполнении повторного проведени фискального документа №{FiscalDocumentId}",
+					fiscalDocumentId);
+
 				return CreateFailResult(ex.Message);
 			}
 		}

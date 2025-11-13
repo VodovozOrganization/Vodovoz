@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 using QS.Print;
 using QS.Report;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -15,15 +17,17 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
-				Title = String.Format("Накладная №{0} от {1:d} (контрактная документация)", Order.Id, Order.DeliveryDate),
-				Identifier = "Documents.InvoiceContractDoc",
-				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id },
-					{ "without_advertising",  WithoutAdvertising },
-					{ "hide_signature", HideSignature }
-				}
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = String.Format("Накладная №{0} от {1:d} (контрактная документация)", Order.Id, Order.DeliveryDate);
+			reportInfo.Identifier = "Documents.InvoiceContractDoc";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id",  Order.Id },
+				{ "without_advertising",  WithoutAdvertising },
+				{ "hide_signature", HideSignature }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion

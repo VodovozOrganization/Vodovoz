@@ -1,7 +1,5 @@
 ﻿using System;
 using Gamma.ColumnConfig;
-using QS.DomainModel.UoW;
-using QS.Validation;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Navigation;
@@ -13,6 +11,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
 namespace Vodovoz.Dialogs

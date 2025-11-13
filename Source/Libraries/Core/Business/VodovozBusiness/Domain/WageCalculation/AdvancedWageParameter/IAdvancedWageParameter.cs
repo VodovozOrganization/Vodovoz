@@ -18,11 +18,4 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		[Display(Name = "По количеству бутылей")]
 		BottlesCount
 	}
-
-	public class AdvancedWageParameterStringType : NHibernate.Type.EnumStringType
-	{
-		public AdvancedWageParameterStringType() : base(typeof(AdvancedWageParameterType))
-		{
-		}
-	}
 }

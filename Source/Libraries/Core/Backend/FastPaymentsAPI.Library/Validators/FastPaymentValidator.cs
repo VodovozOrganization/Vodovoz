@@ -4,6 +4,7 @@ using System.Text;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace FastPaymentsAPI.Library.Validators
@@ -17,7 +18,7 @@ namespace FastPaymentsAPI.Library.Validators
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public string Validate(int orderId, RequestFromType? requestFromType = null)
+		public string Validate(int orderId, FastPaymentRequestFromType? requestFromType = null)
 		{
 			if(!requestFromType.HasValue)
 			{
@@ -31,14 +32,14 @@ namespace FastPaymentsAPI.Library.Validators
 			{
 				switch(requestFromType)
 				{
-					case RequestFromType.FromSiteByQr:
+					case FastPaymentRequestFromType.FromSiteByQr:
 						if(orderId < 100_000_000)
 						{
 							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
 							return "Неверное значение номера заказа";
 						}
 						break;
-					case RequestFromType.FromMobileAppByQr:
+					case FastPaymentRequestFromType.FromMobileAppByQr:
 						if(orderId < 200_000_000)
 						{
 							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
@@ -51,17 +52,17 @@ namespace FastPaymentsAPI.Library.Validators
 			return null;
 		}
 		
-		public string Validate(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, RequestFromType requestFromType)
+		public string Validate(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
 			var result = new StringBuilder();
 			
-			var orderIdValidationResult = Validate(registerOnlineOrderDto.OrderId, requestFromType);
+			var orderIdValidationResult = Validate(registerOnlineOrderDto.OrderId, fastPaymentRequestFromType);
 			if(orderIdValidationResult != null)
 			{
 				result.AppendLine(orderIdValidationResult);
 			}
 
-			if(requestFromType == RequestFromType.FromMobileAppByQr)
+			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
 			{
 				return result.ToString();
 			}

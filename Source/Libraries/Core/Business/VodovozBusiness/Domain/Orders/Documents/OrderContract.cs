@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 

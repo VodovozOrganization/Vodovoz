@@ -26,6 +26,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxAdditionalInfo;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkOnlyOnlineNomenclatures;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -145,6 +147,18 @@ namespace Vodovoz.Filters.GtkViews
 			w10.Position = 1;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.chkOnlyOnlineNomenclatures = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkOnlyOnlineNomenclatures.CanFocus = true;
+			this.chkOnlyOnlineNomenclatures.Name = "chkOnlyOnlineNomenclatures";
+			this.chkOnlyOnlineNomenclatures.Label = global::Mono.Unix.Catalog.GetString("Только передаваемые в ИПЗ");
+			this.chkOnlyOnlineNomenclatures.DrawIndicator = true;
+			this.chkOnlyOnlineNomenclatures.UseUnderline = true;
+			this.yvbox1.Add(this.chkOnlyOnlineNomenclatures);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.chkOnlyOnlineNomenclatures]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{

@@ -5,11 +5,13 @@ using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz
 {
@@ -45,8 +47,7 @@ namespace Vodovoz
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
-			var counterpartyContractRepository = _lifetimeScope.Resolve<ICounterpartyContractRepository>();
-			var contractType = counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
+			var contractType = CounterpartyContractEntity.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
 				UoWGeneric.Root.IssueDate = date.Value;
@@ -100,8 +101,8 @@ namespace Vodovoz
 				_lifetimeScope);
 
 			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
-				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 
 			organizationEntryViewModel.CanViewEntity = false;

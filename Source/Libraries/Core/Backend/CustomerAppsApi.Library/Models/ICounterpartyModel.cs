@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using Vodovoz.Core.Data.Counterparties;
@@ -11,6 +11,7 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto);
 		CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto);
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
+		CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId);
 		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
 		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(GetLegalCustomersByInnDto dto);
 		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetNaturalCounterpartyLegalCustomers(

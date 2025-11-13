@@ -14,7 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.EquipmentCount).Column("equipment_count");
 			Map(x => x.DepositCount).Column("deposit_count");
 			Map(x => x.EquipmentDeposit).Column("deposit");
-			Map(x => x.EquipmentDirection).Column("direction").CustomType<ResidueEquipmentDirectionStringType>();
+			Map(x => x.EquipmentDirection).Column("direction");
 			Map(x => x.PaymentType).Column("payment_type");
 
 			References(x => x.Residue).Column("residue_id");

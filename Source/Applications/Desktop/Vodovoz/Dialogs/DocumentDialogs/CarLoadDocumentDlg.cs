@@ -9,11 +9,9 @@ using QSOrmProject;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -23,12 +21,16 @@ using Vodovoz.Models;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Print;
+using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
@@ -44,6 +46,8 @@ namespace Vodovoz
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private IEventsQrPlacer _eventsQrPlacer;
+		private ICounterpartyEdoAccountController _edoAccountController;
+		private ICallTaskWorker _callTaskWorker;
 
 		public INavigationManager NavigationManager { get; private set; }
 
@@ -54,6 +58,7 @@ namespace Vodovoz
 
 			ConfigureNewDoc();
 			ConfigureDlg();
+			OnWarehouseChangedByUser(null, EventArgs.Empty);
 		}
 
 		public CarLoadDocumentDlg(int routeListId, int? warehouseId)
@@ -92,13 +97,15 @@ namespace Vodovoz
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListDailyNumberProvider = _lifetimeScope.Resolve<IRouteListDailyNumberProvider>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
+			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 		}
 
 		private void ConfigureNewDoc()
 		{
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<CarLoadDocument>();
-			Entity.Author = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null)
+			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			if(Entity.AuthorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -107,6 +114,12 @@ namespace Vodovoz
 
 			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
+		}
+
+		private void OnWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			Entity.UpdateStockAmount(UoW, _stockRepository);
+			Entity.UpdateAmounts();
 		}
 
 		private void ConfigureDlg()
@@ -140,12 +153,26 @@ namespace Vodovoz
 
 			entryRouteList.ViewModel.IsEditable = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			entryRouteList.Sensitive = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
+			entryRouteList.Sensitive = editing;
+			ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			ySpecCmbWarehouses.ItemsList = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit);
-			ySpecCmbWarehouses.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
+
+			var warehouseViewModel = new LegacyEEVMBuilderFactory< CarLoadDocument >(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x=>x.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
+				{
+					filter.IncludeWarehouseIds = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit).Select(x => x.Id).ToList();
+				})
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
+
+			warehouseViewModel.IsEditable = editing;
+
+			entryWarehouse.ViewModel = warehouseViewModel;
+			entryWarehouse.ViewModel.ChangedByUser += OnWarehouseChangedByUser;
+
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
@@ -155,19 +182,17 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			Entity.UpdateInRouteListAmount(UoW, _routeListRepository);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
-			carloaddocumentview1.SetButtonEditing(editing);
+			carloaddocumentview1.SetIsCanEditDocument(editing);
 			buttonSave.Sensitive = editing;
 			if(!editing)
 			{
 				HasChanges = false;
 			}
 
-			if(UoW.IsNew && Entity.Warehouse != null)
+			if(Entity.Id == 0 && Entity.Warehouse != null)
 			{
 				carloaddocumentview1.FillItemsByWarehouse();
 			}
-
-			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
 
 			var permmissionValidator =
 				new EntityExtendedPermissionValidator(ServicesConfig.UnitOfWorkFactory, PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
@@ -179,9 +204,10 @@ namespace Vodovoz
 			{
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				entryRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				entryWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				carloaddocumentview1.Sensitive = false;
+				carloaddocumentview1.SetIsCanEditDocument(false);
 
 				buttonSave.Sensitive = false;
 			}
@@ -205,9 +231,9 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
@@ -215,7 +241,7 @@ namespace Vodovoz
 
 			if(!IsAllItemsInRouteListLoaded())
 			{
-				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые заказы. Частичная погрузка запрещена!");
+				MessageDialogHelper.RunErrorDialog("В маршрутном листе имееются сетевые, либо госзаказы. Частичная погрузка запрещена!");
 				return false;
 			}
 
@@ -242,7 +268,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			_logger.LogInformation("Меняем статус маршрутного листа...");
-			if(_routeListService.TrySendEnRoute(UoW, Entity.RouteList, out _))
+			if(_routeListService.TrySendEnRoute(UoW, Entity.RouteList, _callTaskWorker,  out _))
 			{
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			}
@@ -261,7 +287,9 @@ namespace Vodovoz
 			var isNewEntity = Entity.Id == 0;
 
 			var isAllItemsMustBeLoaded =
-				(isNewEntity && Entity.RouteList.Addresses.Select(a => a.Order).Where(o => o.IsNeedIndividualSetOnLoad).Any())
+				(isNewEntity && Entity.RouteList.Addresses
+					.Select(a => a.Order)
+					.Any(o => o.IsNeedIndividualSetOnLoad(_edoAccountController) || o.IsNeedIndividualSetOnLoadForTender))
 				|| (!isNewEntity && Entity.Items.Any(x => x.IsIndividualSetForOrder));
 
 			if(!isAllItemsMustBeLoaded)
@@ -320,12 +348,6 @@ namespace Vodovoz
 			{
 				carloaddocumentview1.FillItemsByWarehouse();
 			}
-		}
-
-		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			Entity.UpdateStockAmount(UoW, _stockRepository);
-			Entity.UpdateAmounts();
 		}
 
 		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)

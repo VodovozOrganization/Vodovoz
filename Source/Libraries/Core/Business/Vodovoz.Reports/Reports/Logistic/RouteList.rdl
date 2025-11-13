@@ -858,10 +858,12 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -877,13 +879,15 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
                         <PaddingTop>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -900,7 +904,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
@@ -908,6 +912,8 @@
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>=Len({phone_and_name_and_order}) / 3 + "pt"</PaddingBottom>
                         <PaddingTop>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -924,11 +930,13 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>2pt</PaddingBottom>
                         <PaddingTop>2pt</PaddingTop>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -945,7 +953,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
@@ -953,6 +961,8 @@
                         <PaddingBottom>2pt</PaddingBottom>
                         <Format>="N0"</Format>
                         <FontSize>8pt</FontSize>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -969,13 +979,15 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -995,13 +1007,15 @@
                           <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1019,13 +1033,15 @@
                           <Left>1pt</Left>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1054,7 +1070,7 @@ Switch(
                           <Right>1pt</Right>
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <BackgroundColor>=Iif({Status} = "Transfered", Lightgrey,  Iif({is_chain_store} = True , Gray, White))</BackgroundColor>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
@@ -1062,6 +1078,8 @@ Switch(
                         <Format>0.00</Format>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
+                        <BackgroundGradientType>=Iif({is_chain_store} = True AND {Status} != "Transfered", "TopBottom", "None")</BackgroundGradientType>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1200,7 +1218,7 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >3</ColSpan>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1217,7 +1235,7 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1450,8 +1468,7 @@ Switch(
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -1479,7 +1496,7 @@ Switch(
           <TableColumn>
             <Width>137.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>145.5pt</Width>
           </TableColumn>
         </TableColumns>
@@ -1513,8 +1530,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1532,7 +1548,7 @@ Switch(
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>=
@@ -1556,7 +1572,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <FontWeight>Normal</FontWeight>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Bottom</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1590,8 +1606,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1609,7 +1624,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>="Тоннаж МЛ: " + Round(Sum({Weight}, "Orders"), 3) + "кг" + "\n" +
@@ -1627,7 +1642,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <FontWeight>Normal</FontWeight>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Top</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2354,7 +2369,8 @@ LIMIT 1
          INNER JOIN guilty_in_undelivered_orders guo ON guo.undelivery_id = uo.id
          WHERE uo.new_order_id = route_list_addresses.order_id
          AND guo.guilty_side in ('Driver','Department','ForceMajor','DirectorLO')
-     ) AS is_order_from_undelivery
+     ) AS is_order_from_undelivery,
+     (counterparty.reason_for_leaving = 'Resale' AND counterparty.order_status_for_sending_upd = 'EnRoute') AS is_chain_store
     <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -2601,6 +2617,10 @@ ORDER BY order_in_route
           <DataField>TotalWhereTrifle</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="is_chain_store">
+          <DataField>is_chain_store</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
         <!--fields-->
       </Fields>
     </DataSet>
@@ -2678,6 +2698,13 @@ WHERE stored_resource.id = @id1</CommandText>
     </ReportParameter>
     <ReportParameter Name="phones">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_chain_store">
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

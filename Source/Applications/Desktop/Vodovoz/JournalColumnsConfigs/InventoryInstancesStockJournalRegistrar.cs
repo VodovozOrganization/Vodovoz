@@ -12,7 +12,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Код")
 					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Инвентарный номер")
-					.AddTextRenderer(node => node.InventoryNumber)
+					.AddTextRenderer(node => node.GetInventoryNumber)
 				.AddColumn("Код номенклатуры")
 					.AddNumericRenderer(node => node.NomenclatureId)
 				.AddColumn("Номенклатура")

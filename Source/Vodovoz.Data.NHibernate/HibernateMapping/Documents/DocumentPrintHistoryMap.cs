@@ -11,7 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.PrintingTime).Column("printing_time");
-			Map(x => x.DocumentType).Column("document_type").CustomType<PrintedDocumentTypeStringType>();
+			Map(x => x.DocumentType).Column("document_type");
 
 			References(x => x.RouteList).Column("route_list_id");
 		}

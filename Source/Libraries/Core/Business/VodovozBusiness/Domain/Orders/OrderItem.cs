@@ -1,3 +1,4 @@
+﻿using Autofac;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -5,11 +6,15 @@ using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
+using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
+using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -29,6 +34,7 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		protected OrderItem()
 		{
@@ -89,7 +95,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual new Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			protected set => SetField(ref _nomenclature, value);
@@ -163,10 +169,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateDiscount()
 		{
-			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
+			if(!CheckInitializedProperties())
 			{
 				return;
 			}
@@ -194,6 +197,36 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private bool CheckInitializedProperties()
+		{
+			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
+			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
+			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private void RecalculateDiscountWithPreserveOrRestoreDiscount()
+		{
+			if(!CheckInitializedProperties())
+			{
+				return;
+			}
+			
+			if(CurrentCount == 0)
+			{
+				RemoveAndPreserveDiscount();
+			}
+			else
+			{
+				RestoreOriginalDiscount();
+			}
+		}
+
 		public virtual void RemoveAndPreserveDiscount()
 		{
 			if(DiscountMoney > 0)
@@ -202,9 +235,9 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscountReason = DiscountReason;
 				OriginalDiscount = Discount;
 			}
-			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;
+			DiscountReason = null;
 
 			RecalculateVAT();
 		}
@@ -308,6 +341,11 @@ namespace Vodovoz.Domain.Orders
 					return false;
 				}
 
+				if(Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId)
+				{
+					return false;
+				}
+
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
@@ -320,6 +358,10 @@ namespace Vodovoz.Domain.Orders
 			Nomenclature.IsWater19L
 			? Order.GetTotalWater19LCount(true, true)
 			: Count;
+
+		public virtual bool IsTrueMarkCodesMustBeAdded =>
+			Nomenclature?.IsAccountableInTrueMark == true
+			&& Count > 0;
 
 		#region IOrderItemWageCalculationSource implementation
 
@@ -430,8 +472,22 @@ namespace Vodovoz.Domain.Orders
 					IncomingDeliveryPoint = Order.DeliveryPoint,
 				};
 			}
+			else
+			{
+				CounterpartyMovementOperation.Amount = ActualCount.Value;
+				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
+				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+			}
 
 			return CounterpartyMovementOperation;
+		}
+		
+		public virtual bool HasZeroCountOrSum() => Count <= 0 || Sum == default;
+
+		public virtual bool IsTrueMarkCodesMustBeAddedInWarehouse(ICounterpartyEdoAccountController edoAccountController)
+		{
+			return IsTrueMarkCodesMustBeAdded
+				&& (Order.IsNeedIndividualSetOnLoad(edoAccountController) || Order.IsNeedIndividualSetOnLoadForTender);
 		}
 
 		#endregion
@@ -538,6 +594,12 @@ namespace Vodovoz.Domain.Orders
 			RecalculateDiscount();
 			RecalculateVAT();
 		}
+		
+		public virtual void SetActualCountWithPreserveOrRestoreDiscount(decimal? newValue)
+		{
+			ActualCount = newValue;
+			RecalculateDiscountWithPreserveOrRestoreDiscount();
+		}
 
 		public virtual void SetActualCountZero()
 		{
@@ -570,7 +632,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(Count != count)
 			{
-				Count = count;
+				Count = count < 0 ? 0 : count;
 				Order?.RecalculateItemsPrice();
 				RecalculateDiscount();
 				RecalculateVAT();
@@ -578,7 +640,22 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		protected internal virtual void RestoreOriginalDiscount()
+		protected internal virtual void RestoreOriginalDiscountFromRestoreOrder()
+		{
+			TryRestoreOriginalDiscount();
+			ActualCount = null;
+
+			RecalculateDiscount();
+			RecalculateVAT();
+		}
+		
+		private void RestoreOriginalDiscount()
+		{
+			TryRestoreOriginalDiscount();
+			CalculateAndSetDiscount(IsDiscountInMoney ? DiscountMoney : Discount);
+		}
+
+		private void TryRestoreOriginalDiscount()
 		{
 			if(OriginalDiscountMoney.HasValue || OriginalDiscount.HasValue)
 			{
@@ -589,10 +666,6 @@ namespace Vodovoz.Domain.Orders
 				OriginalDiscountReason = null;
 				OriginalDiscount = null;
 			}
-			ActualCount = null;
-
-			RecalculateDiscount();
-			RecalculateVAT();
 		}
 
 		public virtual void SetDiscount(decimal discount)

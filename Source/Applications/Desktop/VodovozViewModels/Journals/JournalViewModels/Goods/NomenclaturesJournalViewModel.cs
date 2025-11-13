@@ -8,7 +8,10 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using NHibernate.SqlCommand;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -16,6 +19,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using NHibernate.Dialect.Function;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
@@ -77,6 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		protected override IQueryOver<Nomenclature> ItemsQuery(IUnitOfWork uow)
 		{
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureOnlineParameters nomenclatureOnlineParametersAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseBulkGoodsAccountingOperation operationAlias = null;
@@ -87,16 +92,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Select(Projections.Sum<GoodsAccountingOperation>(o => o.Amount));
 
-			var subQueryReserved = QueryOver.Of(() => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-				.Where(() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(() => nomenclatureAlias.DoNotReserve == false)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
-					   || orderAlias.OrderStatus == OrderStatus.InTravelList
-					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
-				.Select(Projections.Sum(() => orderItemsAlias.Count));
-
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
+
+			#region Reserved
+
+			IProjection reservedSumProjection = null;
+			
+			if(CalculateQuantityOnStock)
+			{
+				itemsQuery
+					.JoinEntityAlias(
+						() => orderItemsAlias,
+						() => orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id
+						      && nomenclatureAlias.DoNotReserve == false,
+						JoinType.LeftOuterJoin)
+					.JoinEntityAlias(
+						() => orderAlias,
+						() => orderAlias.Id == orderItemsAlias.Order.Id
+						      && orderAlias.OrderStatus.IsIn(
+							      new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading }),
+						JoinType.LeftOuterJoin);
+
+				var reservedSqlFunc = Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "IF(?1 IS NULL, NULL, ?2)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderAlias.Id),
+					Projections.Property(() => orderItemsAlias.Count));
+
+				reservedSumProjection = Projections.Sum(reservedSqlFunc);
+			}
+
+			#endregion Reserved
+
+			if(!CalculateQuantityOnStock)
+			{
+				itemsQuery.JoinEntityAlias(
+					() => nomenclatureOnlineParametersAlias,
+					() => nomenclatureOnlineParametersAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin);
+			}
 
 			//Хардкодим выборку номенклатур не для инвентарного учета
 			itemsQuery.Where(() => !nomenclatureAlias.HasInventoryAccounting);
@@ -114,6 +148,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 			{
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
+			}
+
+			if(!CalculateQuantityOnStock && _filterViewModel.OnlyOnlineNomenclatures)
+			{
+				itemsQuery.Where(() => nomenclatureOnlineParametersAlias.NomenclatureOnlineAvailability != null);
 			}
 
 			itemsQuery.Where(
@@ -139,7 +178,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				itemsQuery.Where(n => n.Category == _filterViewModel.RestrictCategory.Value);
 			}
 
-			if(_filterViewModel.SelectCategory.HasValue && _filterViewModel.SelectSaleCategory.HasValue && Nomenclature.GetCategoriesWithSaleCategory().Contains(_filterViewModel.SelectCategory.Value))
+			if(_filterViewModel.SelectCategory.HasValue
+				&& _filterViewModel.SelectSaleCategory.HasValue
+				&& Nomenclature.GetCategoriesWithSaleCategory().Contains(_filterViewModel.SelectCategory.Value))
 			{
 				itemsQuery.Where(n => n.SaleCategory == _filterViewModel.SelectSaleCategory);
 			}
@@ -175,7 +216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.SelectSubQuery(subQueryBalance).WithAlias(() => resultAlias.InStock)
-						.SelectSubQuery(subQueryReserved).WithAlias(() => resultAlias.Reserved))
+						.Select(reservedSumProjection).WithAlias(() => resultAlias.Reserved))
 					.OrderBy(x => x.Name).Asc
 					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
 			}

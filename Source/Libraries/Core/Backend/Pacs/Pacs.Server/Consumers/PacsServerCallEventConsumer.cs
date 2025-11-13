@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Logging;
 using Pacs.Core.Messages.Events;
 using Pacs.Server.Operators;
 using System;
@@ -10,15 +11,21 @@ namespace Pacs.Server.Consumers
 {
 	public class PacsServerCallEventConsumer : IConsumer<PacsCallEvent>
 	{
+		private readonly ILogger<PacsServerCallEventConsumer> _logger;
 		private readonly IOperatorStateService _operatorStateService;
 
-		public PacsServerCallEventConsumer(IOperatorStateService operatorControllerProvider)
+		public PacsServerCallEventConsumer(
+			ILogger<PacsServerCallEventConsumer> logger,
+			IOperatorStateService operatorControllerProvider)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_operatorStateService = operatorControllerProvider ?? throw new ArgumentNullException(nameof(operatorControllerProvider));
 		}
 
 		public async Task Consume(ConsumeContext<PacsCallEvent> context)
 		{
+			_logger.LogInformation("Обрабатывается событие {@PacsCallEvent}", context.Message);
+
 			var call = context.Message.Call;
 
 			if(call.CallDirection.HasValue && call.CallDirection != CallDirection.Incoming)

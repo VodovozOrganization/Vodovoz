@@ -15,6 +15,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Направление").AddTextRenderer(x => x.BusinessActivity)
 				.AddColumn("Заполнение р/с")
 					.AddTextRenderer(x => x.AccountFillType.GetEnumDisplayName(false))
+				.AddColumn("Архив").AddToggleRenderer(x => x.IsArchive).Editing(false)
 				.AddColumn("")
 				.Finish();
 	}

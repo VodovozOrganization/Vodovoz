@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -49,8 +50,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			CanRead = PermissionResult.CanRead;
 			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
-				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber);
+				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
+			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
 
 			if(IsNewCar)
 			{
@@ -90,6 +91,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			{
 				if(SetField(ref _selectedDate, value))
 				{
+					ShowMessageIfSelectedDateNotTodayOrTomorrow();
+
 					OnPropertyChanged(nameof(CanAddNewVersion));
 					OnPropertyChanged(nameof(CanChangeVersionStartDate));
 				}
@@ -177,6 +180,17 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanRead;
 
 			return viewModel;
+		}
+
+		private void ShowMessageIfSelectedDateNotTodayOrTomorrow()
+		{
+			if(SelectedDate.HasValue
+				&& !_fuelCardVersionController.IsDateTodayOrTomorow(SelectedDate.Value))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Дата начала действия топливной карты должна быть установлена равной дате сегодня или завтра");
+			}
 		}
 
 		public void Dispose()

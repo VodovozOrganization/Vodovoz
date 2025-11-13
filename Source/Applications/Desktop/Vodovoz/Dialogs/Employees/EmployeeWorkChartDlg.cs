@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -16,8 +17,8 @@ namespace Dialogs.Employees
 {
 	public partial class EmployeeWorkChartDlg : QS.Dialog.Gtk.TdiTabBase, ITdiDialog
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
+		private readonly ILogger<EmployeeWorkChartDlg> _logger;
+		private readonly IEmployeeRepository _employeeRepository;
 			
 		private IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 		private List<EmployeeWorkChart> loadedCharts = new List<EmployeeWorkChart>();
@@ -47,18 +48,28 @@ namespace Dialogs.Employees
 
 		#endregion
 
-		public EmployeeWorkChartDlg()
+		public EmployeeWorkChartDlg(
+			ILogger<EmployeeWorkChartDlg> logger,
+			IEmployeeJournalFactory employeeJournalFactory,
+			IEmployeeRepository employeeRepository)
 		{
-			this.Build();
-			ConfigureDlg();
+			if(employeeJournalFactory == null)
+			{
+				throw new ArgumentNullException(nameof(employeeJournalFactory));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
+			Build();
+			ConfigureDlg(employeeJournalFactory);
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg(IEmployeeJournalFactory employeeJournalFactory)
 		{
 			DateTime now = DateTime.Now;
-
-			var employeeFactory = new EmployeeJournalFactory(Startup.MainWin.NavigationManager);
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Changed += YentryEmployee_Changed;
 
 			yenumcomboMonth.ItemsEnum = typeof(Month);
@@ -105,7 +116,7 @@ namespace Dialogs.Employees
 			int month = (int)yenumcomboMonth.SelectedItem;
 			int year = yspinYear.ValueAsInt;
 
-			logger.Debug(string.Format("Изменена дата на {0}.{1}", month, year));
+			_logger.LogDebug("Изменена дата на {Month}.{Year}", month, year);
 			IList<EmployeeWorkChart> charts = null;
 
 			var exist = newCharts.FirstOrDefault(e => e.Date.Month == month && e.Date.Year == year
@@ -117,7 +128,7 @@ namespace Dialogs.Employees
 					&& e.Employee.Id == emp.Id);
 				if(exist == null) {
 
-					logger.Debug("Загрузка данных из БД");
+					_logger.LogDebug("Загрузка данных из БД");
 
 					charts = _employeeRepository.GetWorkChartForEmployeeByDate(
 						uow, emp, new DateTime(year, month, 1));
@@ -129,14 +140,14 @@ namespace Dialogs.Employees
 					var tuple = cleared.FirstOrDefault(c => c.Item2.Month == month && c.Item2.Year == year
 								&& c.Item1 == emp.Id);
 					if(tuple == null) {
-						logger.Debug("Получение данных из кеша");
+						_logger.LogDebug("Получение данных из кеша");
 
 						charts = loadedCharts.Where(e => e.Date.Month == month && e.Date.Year == year
 							&& e.Employee == emp).ToList();
 					}
 				}
 			} else {
-				logger.Debug("Получение измененных пользователем данных");
+				_logger.LogDebug("Получение измененных пользователем данных");
 
 				charts = newCharts.Where(e => e.Date.Month == month && e.Date.Year == year
 					&& e.Employee.Id == emp.Id).ToList();
@@ -157,7 +168,7 @@ namespace Dialogs.Employees
 			DeleteItemsByDate(newCharts, workcharttable.Date.Month, workcharttable.Date.Year, emp);
 			newCharts.AddRange(chartsFromTable);
 
-			logger.Debug("Передача данных в таблицу");
+			_logger.LogDebug("Передача данных в таблицу");
 			workcharttable.SetWorkChart(charts);
 			SetTableDate();
 			previousEmployee = emp;
@@ -165,7 +176,7 @@ namespace Dialogs.Employees
 
 		public bool Save()
 		{
-			logger.Debug("Сохранение...");
+			_logger.LogDebug("Сохранение...");
 			var toSave = GetItemsForSave(loadedCharts, newCharts);
 			foreach(var item in toSave) {
 				uow.Save(item);
@@ -175,7 +186,7 @@ namespace Dialogs.Employees
 			}
 			uow.Commit();
 			ClearData();
-			logger.Debug("Сохранение завершено");
+			_logger.LogDebug("Сохранение завершено");
 			return true;
 		}
 
@@ -247,7 +258,7 @@ namespace Dialogs.Employees
 
 		private void ClearData()
 		{
-			logger.Debug("Сброс данных");
+			_logger.LogDebug("Сброс данных");
 
 			loadedCharts.Clear();
 			newCharts.Clear();
@@ -256,6 +267,12 @@ namespace Dialogs.Employees
 			previousEmployee = new Employee();
 			workcharttable.Reset();
 		}
-		
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			CustomCancellationConfirmationDialogFunc = null;
+			base.Destroy();
+		}
 	}
 }

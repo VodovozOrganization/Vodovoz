@@ -9,16 +9,18 @@ using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Print;
@@ -33,6 +35,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -75,9 +78,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			INomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			IStockRepository stockRepository,
 			INavigationManager navigationManager,
-			ICounterpartyJournalFactory counterpartyJournalFactory)
+			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 
@@ -108,7 +117,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CurrentUser.IsAdmin;
 
 			var instancePermissionResult =
@@ -116,6 +125,14 @@ namespace Vodovoz.ViewModels.Warehouses
 			_canDuplicateInstance = instancePermissionResult.CanUpdate || instancePermissionResult.CanCreate;
 
 			Entity.ObservableItems.ListContentChanged += OnObservableItemsContentChanged;
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.Warehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		#endregion
@@ -449,6 +466,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				}));
 
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		#endregion Commands
 
@@ -492,12 +510,12 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			if(UoW.IsNew)
 			{
-				Entity.Author = CurrentEmployee;
+				Entity.AuthorId = CurrentEmployee?.Id;
 				Entity.TimeStamp = DateTime.Now;
 			}
 			else
 			{
-				if(Entity.LastEditor == null)
+				if(Entity.LastEditorId == null)
 				{
 					throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				}
@@ -505,7 +523,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			CreatePurchasePrices();
 
-			Entity.LastEditor = CurrentEmployee;
+			Entity.LastEditorId = CurrentEmployee?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 
 

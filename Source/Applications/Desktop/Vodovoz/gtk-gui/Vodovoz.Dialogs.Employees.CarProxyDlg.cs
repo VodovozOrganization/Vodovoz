@@ -8,9 +8,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.HBox hbox2;
 
@@ -18,9 +18,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::QS.Views.Control.EntityEntry entityentryCar;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
+		private global::QS.Views.Control.EntityEntry entryOrganization;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOrganisation;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeDriver;
 
 		private global::Gtk.Label labelCar;
 
@@ -47,7 +47,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -61,7 +61,7 @@ namespace Vodovoz.Dialogs.Employees
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -101,6 +101,18 @@ namespace Vodovoz.Dialogs.Employees
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.entryOrganization = new global::QS.Views.Control.EntityEntry();
+			this.entryOrganization.Events = ((global::Gdk.EventMask)(256));
+			this.entryOrganization.Name = "entryOrganization";
+			this.table1.Add(this.entryOrganization);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.entryOrganization]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.evmeDriver = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
@@ -108,24 +120,9 @@ namespace Vodovoz.Dialogs.Employees
 			this.evmeDriver.CanDisposeEntitySelectorFactory = false;
 			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeDriver);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeOrganisation = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeOrganisation.Events = ((global::Gdk.EventMask)(256));
-			this.evmeOrganisation.Name = "evmeOrganisation";
-			this.evmeOrganisation.CanEditReference = true;
-			this.evmeOrganisation.CanDisposeEntitySelectorFactory = false;
-			this.evmeOrganisation.CanOpenWithoutTabParent = false;
-			this.table1.Add(this.evmeOrganisation);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeOrganisation]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeDriver]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));

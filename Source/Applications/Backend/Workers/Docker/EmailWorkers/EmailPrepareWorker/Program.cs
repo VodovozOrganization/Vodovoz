@@ -7,8 +7,10 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Report;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
+using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -16,6 +18,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
+using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
 {
@@ -73,7 +76,9 @@ namespace EmailPrepareWorker
 						.AddScoped<IEmailSettings, EmailSettings>()
 						.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
-						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>();
+						.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
+						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
+						.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.CommonEnums;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
@@ -26,13 +25,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class GeneralSalaryInfoReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public GeneralSalaryInfoReport(
+			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
 				?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -62,6 +64,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			if(comboDriverOfCarTypeOfUse.SelectedItemOrNull == null)
 			{
 				carTypesOfUse.Add(CarTypeOfUse.GAZelle);
+				carTypesOfUse.Add(CarTypeOfUse.Minivan);
 				carTypesOfUse.Add(CarTypeOfUse.Largus);
 			}
 			else
@@ -124,24 +127,24 @@ namespace Vodovoz.ReportsParameters.Logistic
 				? new DateTime(creationDate.Year, creationDate.Month, creationDate.Day, 23, 59, 59)
 				: new DateTime(selectedYear, selectedMonth, DateTime.DaysInMonth(selectedYear, selectedMonth), 23, 59, 59);
 
-			return new ReportInfo
+			var parameters = new Dictionary<string, object>
 			{
-				Identifier = "Logistic.GeneralSalaryInfoReport",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "start_date", new DateTime(selectedYear, selectedMonth, 1) },
-					{ "end_date", endDate },
-					{ "creation_date", creationDate },
-					{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
-					{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
-					{ "employee_category", comboCategory.SelectedItemOrNull },
-					{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
-					{ "filters", GetSelectedFilters() },
-					{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active },
-					{ "include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 } },
-					{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 } }
-				}
+				{ "start_date", new DateTime(selectedYear, selectedMonth, 1) },
+				{ "end_date", endDate },
+				{ "creation_date", creationDate },
+				{ "driver_of_car_own_type", comboDriverOfCarOwnType.SelectedItemOrNull },
+				{ "driver_of_car_type_of_use", comboDriverOfCarTypeOfUse.SelectedItemOrNull },
+				{ "employee_category", comboCategory.SelectedItemOrNull },
+				{ "employee_id", entryEmployee.Subject?.GetIdOrNull() },
+				{ "filters", GetSelectedFilters() },
+				{ "exclude_visiting_masters", chkBtnExcludeVisitingMasters.Active },
+				{ "include_car_models", _carModelSelectionFilterViewModel.IncludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.IncludedCarModelIds : new int[] { 0 } },
+				{ "exclude_car_models", _carModelSelectionFilterViewModel.ExcludedCarModelNodesCount > 0 ? _carModelSelectionFilterViewModel.ExcludedCarModelIds : new int[] { 0 } }
 			};
+
+			var reportInfo = _reportInfoFactory.Create("Logistic.GeneralSalaryInfoReport", Title, parameters);
+
+			return reportInfo;
 		}
 
 		private string GetSelectedFilters()
@@ -220,7 +223,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			var info = "Сокращения отчета:\n" +
 				"<b>КТС</b>: категория транспортного средства. \n\tСокращения столбца: " +
-				"<b>К</b>: ТС компании , <b>В</b>: ТС водителя, <b>Р</b>: ТС в раскате, <b>Л</b>: Фургон (Ларгус), <b>Г</b>: Грузовой (Газель).\n" +
+				"<b>К</b>: ТС компании , <b>В</b>: ТС водителя, <b>Р</b>: ТС в раскате, <b>Л</b>: Легковая (Ларгус), <b>Т</b>: Фургон (Transit Mini), <b>Г</b>: Грузовой (Газель).\n" +
 				"Столбцы отчета:\n" +
 				"<b>№</b>: порядковый номер\n" +
 				"<b>Код</b>: код сотрудника\n" +

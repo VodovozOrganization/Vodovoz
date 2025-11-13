@@ -16,6 +16,7 @@ using QS.Services;
 using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -65,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			CanChangeEmployeesFixedPrices =
 				(currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService)))
-				.ValidatePresetPermission(Vodovoz.Permissions.Settings.CanEditEmployeeFixedPrices);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.SettingsPermissions.CanEditEmployeeFixedPrices);
 			InitializeEmployeesFixedPricesSettings();
 		}
 

@@ -49,7 +49,7 @@ namespace Vodovoz.Application.Pacs
 			if(_employee != null)
 			{
 				IsOperator = _pacsRepository.PacsEnabledFor(_employee.Id);
-				IsAdministrator = _permissionService.ValidateUserPresetPermission(Permissions.Pacs.IsAdministrator, _employee.User.Id);
+				IsAdministrator = _permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.PacsPermissions.IsAdministrator, _employee.User.Id);
 			}
 		}
 	}

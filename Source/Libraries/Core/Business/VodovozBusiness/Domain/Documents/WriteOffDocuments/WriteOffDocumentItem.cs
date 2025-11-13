@@ -71,7 +71,10 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		}
 
 		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage => Nomenclature.SumOfDamage * Amount;
+		public virtual decimal SumOfDamage =>
+			Document?.WriteOffType == WriteOffType.Car
+			? Nomenclature.GetPurchasePriceOnDate(Document.TimeStamp) * Amount
+			: Nomenclature.SumOfDamage * Amount;
 
 		[Display(Name = "Штраф")]
 		public virtual Fine Fine
@@ -120,6 +123,13 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			if(Amount < 1)
 			{
 				yield return new ValidationResult("Количество должно быть больше 1", new[] { nameof(Amount) });
+			}
+
+			if((Type == WriteOffDocumentItemType.InstanceWriteOffFromCarDocumentItem 
+				|| Type == WriteOffDocumentItemType.BulkWriteOffFromCarDocumentItem) 
+					&& CullingCategory is null)
+			{
+				yield return new ValidationResult("Поле \"Причина выбраковки\" не должно быть пустым", new[] { nameof(Type) });
 			}
 		}
 	}

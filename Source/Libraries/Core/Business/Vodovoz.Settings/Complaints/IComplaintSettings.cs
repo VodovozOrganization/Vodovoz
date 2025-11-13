@@ -6,5 +6,6 @@
 		int EmployeeResponsibleId { get; }
 		int ComplaintResultOfEmployeesIsGuiltyId { get; }
 		int GuiltProvenComplaintResultId { get; }
+		int IncomeCallComplaintSourceId { get; }
 	}
 }

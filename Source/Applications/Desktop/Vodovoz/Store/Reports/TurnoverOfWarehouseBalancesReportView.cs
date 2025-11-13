@@ -98,7 +98,7 @@ namespace Vodovoz.Store.Reports
 					.AddTextRenderer(row => row.SliceValues[index].ToString());
 			}
 
-			columnsConfig.AddColumn("Всего за период").AddTextRenderer(row => row.Total.ToString("##0.000"));
+			columnsConfig.AddColumn("Всего за период").AddTextRenderer(row => row.Total);
 
 			columnsConfig.AddColumn("");
 

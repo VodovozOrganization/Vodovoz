@@ -1,31 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Microsoft.Extensions.DependencyInjection;
+using QS.Utilities.Extensions;
+using Vodovoz.Core.Domain.Repositories;
 
 namespace Vodovoz.Infrastructure.Persistance
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddInfrastructure(this IServiceCollection services)
-			=> services
-				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-				.AddRepositories();
-
-		public static IServiceCollection AddRepositories(this IServiceCollection services)
+		public static IServiceCollection AddInfrastructure(
+			this IServiceCollection services,
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
-			var repositoryTypes = typeof(DependencyInjection).Assembly.GetTypes()
-				.Where(t => t.Name.EndsWith("Repository"));
+			return services
+				.AddService(typeof(IGenericRepository<>), typeof(GenericRepository<>), serviceLifetime)
+				.AddRepositories(serviceLifetime);
+		}
 
-			foreach(var repositoryType in repositoryTypes)
-			{
-				var repositoryInterface = repositoryType.GetInterfaces().FirstOrDefault(i => i.Name == $"I{repositoryType.Name}");
-				if(repositoryInterface != null)
-				{
-					services.AddScoped(repositoryInterface, repositoryType);
-				}
-			}
-
-			return services;
+		public static IServiceCollection AddRepositories(
+			this IServiceCollection services,
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+		{
+			return services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, "Repository", serviceLifetime);
 		}
 	}
 }

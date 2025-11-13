@@ -25,14 +25,17 @@ namespace Vodovoz.Additions
 		private const string _bottomItemWithQr = "BottomQrRectangle";
 		private readonly ICustomReportFactory _customReportFactory;
 		private readonly IDriverWarehouseEventRepository _driverWarehouseEventRepository;
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		public EventsQrPlacer(
 			ICustomReportFactory customReportFactory,
-			IDriverWarehouseEventRepository driverWarehouseEventRepository)
+			IDriverWarehouseEventRepository driverWarehouseEventRepository,
+			IReportInfoFactory reportInfoFactory)
 		{
 			_customReportFactory = customReportFactory ?? throw new ArgumentNullException(nameof(customReportFactory));
 			_driverWarehouseEventRepository =
 				driverWarehouseEventRepository ?? throw new ArgumentNullException(nameof(driverWarehouseEventRepository));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 		}
 
 		/// <summary>
@@ -64,13 +67,12 @@ namespace Vodovoz.Additions
 
 			AddQrEventForDocument(uow, documentId, eventQrDocumentType, ref rdlPath, eventNamePosition);
 
-			return new ReportInfo
-			{
-				Title = documentTitle,
-				Path = rdlPath,
-				Parameters = new Dictionary<string, object> { { "id", documentId } },
-				PrintType = ReportInfo.PrintingType.MultiplePrinters
-			};
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = documentTitle;
+			reportInfo.Path = rdlPath;
+			reportInfo.Parameters = new Dictionary<string, object> { { "id", documentId } };
+			reportInfo.PrintType = ReportInfo.PrintingType.MultiplePrinters;
+			return reportInfo;
 		}
 
 		public bool AddQrEventForDocument(

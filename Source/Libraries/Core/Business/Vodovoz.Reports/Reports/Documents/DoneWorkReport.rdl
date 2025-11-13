@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -125,7 +127,7 @@ SELECT '' as order_items_id,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.String</TypeName>
@@ -186,7 +188,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>671.8pt</Height>
+    <Height>754.8pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1">
@@ -213,7 +215,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
         <Left>392.6pt</Left>
-        <Top>558.0pt</Top>
+        <Top>542.8pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -231,7 +233,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>Подпись клиента</Value>
         <ZIndex>0</ZIndex>
         <Left>385.1pt</Left>
-        <Top>645.7pt</Top>
+        <Top>630.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -247,7 +249,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>/                               /</Value>
         <ZIndex>0</ZIndex>
         <Left>391.9pt</Left>
-        <Top>631.5pt</Top>
+        <Top>616.3pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -262,10 +264,10 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox37">
         <Height>12.00pt</Height>
         <Width>115.02pt</Width>
-        <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
+        <Value>= Iif(First({is_service}, "Order"), "Подпись мастера", "Подпись водителя")</Value>
         <ZIndex>0</ZIndex>
         <Left>384.9pt</Left>
-        <Top>578.3pt</Top>
+        <Top>563.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -281,7 +283,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
         <Value>Итого:</Value>
         <ZIndex>0</ZIndex>
         <Left>2.4pt</Left>
-        <Top>560.2pt</Top>
+        <Top>545.0pt</Top>
         <Style>
           <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
@@ -293,10 +295,11 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox39">
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>44.6pt</Left>
-        <Top>559.7pt</Top>
+        <Top>544.5pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -340,7 +343,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor></BackgroundColor>
+          <BackgroundColor>
+          </BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -537,7 +541,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox17">
         <Height>120pt</Height>
         <Width>370pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>143.0pt</Left>
         <Top>182.4pt</Top>
@@ -782,7 +787,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -794,7 +800,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -806,7 +813,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -818,7 +826,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox78">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -838,7 +847,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -850,7 +860,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -862,7 +873,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox81">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -874,7 +886,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -894,7 +907,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox84">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -906,7 +920,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -918,7 +933,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox86">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -930,7 +946,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1023,7 +1040,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>584.3pt</Top>
+        <Top>569.1pt</Top>
       </fyi:Grid>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid4">
         <Style>
@@ -1092,7 +1109,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>611.4pt</Top>
+        <Top>596.2pt</Top>
       </fyi:Grid>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>101.01pt</Height>
@@ -1153,7 +1170,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox3">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>185.4pt</Top>
@@ -1172,7 +1190,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox11">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>197.4pt</Top>
@@ -1191,7 +1210,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox12">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>209.4pt</Top>
@@ -1210,7 +1230,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox14">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>221.4pt</Top>
@@ -1229,7 +1250,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox15">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>233.4pt</Top>
@@ -1248,7 +1270,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox42">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>245.4pt</Top>
@@ -1267,7 +1290,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox43">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>257.4pt</Top>
@@ -1286,7 +1310,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox44">
         <Height>20.00pt</Height>
         <Width>370.00pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>143.0pt</Left>
         <Top>305.4pt</Top>
@@ -1310,7 +1335,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox47">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146.0pt</Left>
         <Top>308.4pt</Top>
@@ -1329,7 +1355,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox48">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>186.0pt</Left>
         <Top>308.4pt</Top>
@@ -1348,7 +1375,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox49">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>256.0pt</Left>
         <Top>308.4pt</Top>
@@ -1819,7 +1847,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1831,7 +1860,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox106">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1843,7 +1873,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1855,7 +1886,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox108">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1875,7 +1907,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox109">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1887,7 +1920,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1899,7 +1933,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1911,7 +1946,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox112">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1931,7 +1967,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox113">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1943,7 +1980,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1955,7 +1993,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1967,7 +2006,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox116">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1993,32 +2033,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </Filter>
         </Filters>
       </Table>
-      <Textbox Name="Textbox6">
-        <Height>12.00pt</Height>
-        <Width>112.14pt</Width>
-        <Value>+7 (812) 603-43-23</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>649.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox8">
-        <Height>12.76pt</Height>
-        <Width>156.59pt</Width>
-        <Value>KULER.SERVICE@YANDEX.RU</Value>
-        <ZIndex>1</ZIndex>
-        <Left>116.2pt</Left>
-        <Top>649.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
       <Line Name="Line1">
         <Height>0in</Height>
         <Width>105pt</Width>
@@ -2028,7 +2042,7 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </BorderStyle>
         </Style>
         <Left>392.9pt</Left>
-        <Top>573.4pt</Top>
+        <Top>558.2pt</Top>
         <ZIndex>1</ZIndex>
       </Line>
       <Line Name="Line2">
@@ -2040,13 +2054,14 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           </BorderStyle>
         </Style>
         <Left>392.8pt</Left>
-        <Top>645.3pt</Top>
+        <Top>630.1pt</Top>
         <ZIndex>1</ZIndex>
       </Line>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>146pt</Left>
         <Top>269.4pt</Top>
@@ -2088,7 +2103,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8pt</Height>
         <Width>8pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>436pt</Left>
         <Top>308.4pt</Top>
@@ -2127,6 +2143,218 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <PaddingLeft>3pt</PaddingLeft>
         </Style>
       </Textbox>
+      <Table Name="Table4">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>170.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>Контакты организации:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Black</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Телефон и e-mail:</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>+7 (812) 317-07-97</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>+7 (812) 603-43-23</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>Мессенджеры:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>+7 (969) 726-92-84</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Корпоративный e-mail:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>7.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>KULER.SERVICE@YANDEX.RU</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Normal</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.8pt</Left>
+        <Top>635.7pt</Top>
+      </Table>
+      <Textbox Name="Textbox8">
+        <Height>12.75pt</Height>
+        <Width>385.04pt</Width>
+        <Value>Гарантия на сервисное обслуживание(санитарная обработка) - 2 недели с момента проведения.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>622.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2136,404 +2364,6 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
-        Dim T1Str As String
-        Dim T2Str As String
-        Dim T3Str As String
-        Dim T4Str As String
-        Dim KStr As String
-        Dim Cel As String
-        Dim KNameStr As String
- 
-        Summa = Trim$(Summa) 'Удалить пробелы
-        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
-        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
-        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
-        'Проверка длины числа
-        If Len(Summa) &gt; 15 Then
-            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
-            Return "Invalid value!"
-            Exit Function
-        End If
- 
-        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
- 
-        'Анализ первой триады
-        T1Str = TrStr(Left(Summa, 3), 0)
-        If T1Str &lt;&gt; "" Then
-            Select Case Right$(Left(Summa, 3), 1)
-                Case Is = "0"
-                    T1Str = T1Str &amp; "миллиардов "
-                Case Is = "1"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиард "
-                    End If
-                Case Is = "2"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "3"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "4"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Else
-                    T1Str = T1Str &amp; "миллиардов "
-            End Select
-        End If
- 
-        'Анализ второй триады
-        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
-        If T2Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 4, 3), 1)
-                Case Is = "0"
-                    T2Str = T2Str &amp; "миллионов "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллион "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Else
-                    T2Str = T2Str &amp; "миллионов "
-            End Select
-        End If
- 
-        'Анализ третьей триады
-        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
-        If T3Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 7, 3), 1)
-                Case Is = "0"
-                    T3Str = T3Str &amp; "тысяч "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысяча "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Else
-                    T3Str = T3Str &amp; "тысяч "
-            End Select
-        End If
- 
-        'Анализ четвертой триады
-        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
-  
-        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
-            Cel = "ноль "
-        Else
-            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
-        End If
- 
-        '========= Приписать валюту =========
-        'Рубли
-        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
-            Select Case Mid$(Summa, 12, 1)
-                Case Is = "0"
-                    Cel = Cel &amp; "рублей "
-                Case Is = "1"
-                    Cel = Cel &amp; "рубль "
-                Case Is = "2"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "3"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "4"
-                    Cel = Cel &amp; "рубля "
-                Case Else
-                    Cel = Cel &amp; "рублей "
-            End Select
-        End If
- 
-        Select Case Mid$(Summa, 11, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-                Cel = Cel &amp; "рублей "
-        End Select
- 
-        'Копейки
-        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
-            Select Case Right$(Summa, 1)
-                Case Is = "0"
-	    KNameStr = " копеек"
-                Case Is = "1"
-	    KNameStr = " копейка"
-                Case Is = "2"
-                    KNameStr = " копейки"
-                Case Is = "3"
-	    KNameStr = " копейки"
-                Case Is = "4"
-	    KNameStr = " копейки"
-                Case Else
-	    KNameStr = " копеек"
-            End Select
-        End If
- 
-        Select Case Right$(Summa, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-	KNameStr = " копеек"
-        End Select
- 
-        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
-
-    End Function
-    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
-        TrStr = ""
-        If Rod = 0 Then
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "один "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "два "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "один "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "два "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        Else
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "одна "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "две "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "одна "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "две "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        End If
-    End Function</Code>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -2554,7 +2384,8 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

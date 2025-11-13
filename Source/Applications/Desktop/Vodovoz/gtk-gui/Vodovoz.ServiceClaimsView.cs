@@ -10,9 +10,9 @@ namespace Vodovoz
 
 		private global::QS.Widgets.EnumMenuButton buttonAdd;
 
-		private global::Gtk.Button buttonEdit;
+		private global::Gamma.GtkWidgets.yButton buttonEdit;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
 		private global::Gtk.CheckButton buttonFilter;
 
@@ -53,7 +53,7 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonEdit = new global::Gtk.Button();
+			this.buttonEdit = new global::Gamma.GtkWidgets.yButton();
 			this.buttonEdit.CanFocus = true;
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.UseUnderline = true;
@@ -67,7 +67,7 @@ namespace Vodovoz
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;

@@ -231,12 +231,8 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			// Прикрепляемые документы
-			var filesViewModel =
-				new CounterpartyFilesViewModel(ViewModel.Entity, ViewModel.UoW, new FileDialogService(), ServicesConfig.CommonServices, ViewModel.UserRepository)
-				{
-					ReadOnly = true
-				};
-			counterpartyfilesview1.ViewModel = filesViewModel;
+
+			smallfileinformationsview.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 			frame3.Visible = ViewModel.Entity.IsForRetail;
 
 			chkNeedNewBottles.Binding
@@ -282,7 +278,7 @@ namespace Vodovoz.Views.Client
 		public override void Dispose()
 		{
 			ytreeviewSalesChannels?.Destroy();
-			counterpartyfilesview1?.Destroy();
+			smallfileinformationsview?.Destroy();
 			base.Dispose();
 		}
 	}

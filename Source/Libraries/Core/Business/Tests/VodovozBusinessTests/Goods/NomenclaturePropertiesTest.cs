@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using NUnit.Framework;
+using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace VodovozBusinessTests.Goods

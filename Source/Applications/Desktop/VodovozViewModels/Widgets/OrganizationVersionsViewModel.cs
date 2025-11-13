@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 

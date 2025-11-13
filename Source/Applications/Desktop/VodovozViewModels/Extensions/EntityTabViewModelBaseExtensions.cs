@@ -31,17 +31,37 @@ namespace Vodovoz.ViewModels.Extensions
 			return field;
 		}
 
-		public static bool SetIdRefField<T, U>(this EntityTabViewModelBase<T> entityTabViewModelBase, SetFieldDelegate<U> setField, ref U targetField, Expression<Func<int?>> targetPropertyExpr, U value)
+		public static bool SetIdRefField<T, U>(this EntityTabViewModelBase<T> entityTabViewModelBase, SetFieldDelegate<U> setField, ref U targetField, Expression<Func<int?>> targetPropertyExpr, U value, [CallerMemberName] string callerPropertyName = null)
 			where T : class, IDomainObject, INotifyPropertyChanged, new()
 			where U : IDomainObject
 		{
-			if(setField(ref targetField, value))
+			if(value?.Id == targetField?.Id)
 			{
-				if(targetPropertyExpr.Body is MemberExpression memberSelectorExpression
-					&& memberSelectorExpression.Member is PropertyInfo property)
-				{
-					property.SetValue(entityTabViewModelBase.Entity, value?.Id, null);
-				}
+				return false;
+			}
+
+			if(targetPropertyExpr.Body is MemberExpression memberSelectorExpression
+				&& memberSelectorExpression.Member is PropertyInfo property)
+			{
+				property.SetValue(entityTabViewModelBase.Entity, value?.Id, null);
+			}
+
+			return setField(ref targetField, value, callerPropertyName);
+		}
+
+		public static bool SetIdRefField<T, U>(this EntityTabViewModelBase<T> entityTabViewModelBase, ref U targetField, Expression<Func<int?>> targetPropertyExpr, U value, [CallerMemberName] string callerPropertyName = null)
+			where T : class, IDomainObject, INotifyPropertyChanged, new()
+			where U : IDomainObject
+		{
+			if(value?.Id == targetField?.Id)
+			{
+				return false;
+			}
+
+			if(targetPropertyExpr.Body is MemberExpression memberSelectorExpression
+				&& memberSelectorExpression.Member is PropertyInfo property)
+			{
+				property.SetValue(entityTabViewModelBase.Entity, value?.Id, null);
 
 				return true;
 			}

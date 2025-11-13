@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MoreLinq;
+using MoreLinq.Extensions;
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Deletion;
@@ -102,7 +103,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			DataLoader.DynamicLoadingEnabled = false;
 
 			_domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
-			_hasAccessToHiddenFinancialCategories = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+			_hasAccessToHiddenFinancialCategories = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.HasAccessToHiddenFinancialCategories);
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();
@@ -139,28 +140,29 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			var subdivisionId = _filter.Subdivision?.Id ?? -1;
 
 			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
-				? (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
-				   where ((string.IsNullOrWhiteSpace(searchString) && financialCategoriesGroup.ParentId == parentId)
-						   || financialCategoriesGroup.Title.ToLower().Like(searchString)
-						   || financialCategoriesGroup.Id.ToString().Like(searchString))
-					   && !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
-					   && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
-					   && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
-					   && (!financialCategoriesGroup.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == financialCategoriesGroup.IsHiddenFromPublicAccess)
-					   && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
-					   && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
-				   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
-				   orderby financialCategoriesGroup.Numbering, financialCategoriesGroup.Title
-				   select new FinancialCategoriesJournalNode
-				   {
-					   Id = financialCategoriesGroup.Id,
-					   ParentId = parentId,
-					   Numbering = financialCategoriesGroup.Numbering,
-					   Name = financialCategoriesGroup.Title,
-					   JournalNodeType = _financialCategoriesGroupType,
-					   FinancialSubType = financialCategoriesGroup.FinancialSubtype,
-					   Children = children.ToList()
-				   })
+				? PostFiltering(
+					(from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
+					 where ((string.IsNullOrWhiteSpace(searchString) && financialCategoriesGroup.ParentId == parentId)
+							 || financialCategoriesGroup.Title.ToLower().Like(searchString)
+							 || financialCategoriesGroup.Id.ToString().Like(searchString))
+						 && !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
+						 && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
+						 && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+						 && (!financialCategoriesGroup.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == financialCategoriesGroup.IsHiddenFromPublicAccess)
+						 && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
+						 && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
+					 let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
+					 orderby financialCategoriesGroup.Numbering, financialCategoriesGroup.Title
+					 select new FinancialCategoriesJournalNode
+					 {
+						 Id = financialCategoriesGroup.Id,
+						 ParentId = parentId,
+						 Numbering = financialCategoriesGroup.Numbering,
+						 Name = financialCategoriesGroup.Title,
+						 JournalNodeType = _financialCategoriesGroupType,
+						 FinancialSubType = financialCategoriesGroup.FinancialSubtype,
+						 Children = children.ToList()
+					 })
 					.ToList()
 					.Concat(
 						(_filter.RestrictNodeTypes.IsEmpty()
@@ -172,7 +174,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 							|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType))
 						&& (string.IsNullOrWhiteSpace(searchString) || parentId == null)
 						? GetExpenseCategories(unitOfWork, parentId, searchString, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
-					.AsQueryable()
+					.ToList())
 				: Enumerable.Empty<FinancialCategoriesJournalNode>().AsQueryable();
 		}
 
@@ -180,7 +182,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			from incomeCategory in unitOfWork.GetAll<FinancialIncomeCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || incomeCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
-				&& (!incomeCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories  == incomeCategory.IsHiddenFromPublicAccess)
+				&& (!incomeCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == incomeCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || incomeCategory.Title.ToLower().Like(searchString)
 					|| incomeCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
@@ -201,6 +203,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string searchString, int subdivisionId) =>
 			from expenseCategory in unitOfWork.GetAll<FinancialExpenseCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || expenseCategory.ParentId == parentId)
+				&& (!_filter.IncludeExpenseCategoryIds.Any() || _filter.IncludeExpenseCategoryIds.Contains(expenseCategory.Id))
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
 				&& (!expenseCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == expenseCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || expenseCategory.Title.ToLower().Like(searchString)
@@ -219,6 +222,23 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				FinancialSubType = expenseCategory.FinancialSubtype,
 				ParentId = parentId,
 			};
+
+		public IQueryable<FinancialCategoriesJournalNode> PostFiltering(IList<FinancialCategoriesJournalNode> financialCategoriesJournalNodes)
+		{
+			if(_filter.HideEmptyGroups)
+			{
+				for(int i = financialCategoriesJournalNodes.Count - 1; i >= 0; i--)
+				{
+					if(financialCategoriesJournalNodes[i].JournalNodeType == _financialCategoriesGroupType
+						&& financialCategoriesJournalNodes[i].Children.Count == 0)
+					{
+						financialCategoriesJournalNodes.RemoveAt(i);
+					}
+				}
+			}
+
+			return financialCategoriesJournalNodes.AsQueryable();
+		}
 
 		private void InitializePermissionsMatrix()
 		{

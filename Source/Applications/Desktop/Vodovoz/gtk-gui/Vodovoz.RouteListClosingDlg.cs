@@ -8,9 +8,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hboxHeader;
 
-		private global::Gtk.Button buttonSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Button buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
 		private global::Gtk.VSeparator vseparator12;
 
@@ -18,7 +18,7 @@ namespace Vodovoz
 
 		private global::Gtk.RadioButton toggleWageDetails;
 
-		private global::Gtk.Button btnCopyEntityId;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId;
 
 		private global::Gtk.HBox hboxRouteListActions;
 
@@ -82,9 +82,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonAddFuelDocument;
+		private global::Gamma.GtkWidgets.yButton buttonAddFuelDocument;
 
-		private global::Gtk.Button buttonDeleteFuelDocument;
+		private global::Gamma.GtkWidgets.yButton buttonDeleteFuelDocument;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckHideCells;
 
@@ -108,7 +108,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox11;
 
-		private global::Gtk.Button buttonReturnedRefresh;
+		private global::Gamma.GtkWidgets.yButton buttonReturnedRefresh;
 
 		private global::Gtk.Label labelEmptyBottlesFommula;
 
@@ -116,9 +116,9 @@ namespace Vodovoz
 
 		private global::Gtk.CheckButton checkUseBottleFine;
 
-		private global::Gtk.Button buttonBottleDelFine;
+		private global::Gamma.GtkWidgets.yButton buttonBottleDelFine;
 
-		private global::Gtk.Button buttonBottleAddEditFine;
+		private global::Gamma.GtkWidgets.yButton buttonBottleAddEditFine;
 
 		private global::Gtk.Label labelBottleFine;
 
@@ -154,9 +154,9 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat advanceSpinbutton;
 
-		private global::Gtk.Button buttonCalculateCash;
+		private global::Gamma.GtkWidgets.yButton buttonCalculateCash;
 
-		private global::Gtk.Button buttonCreateCashOrder;
+		private global::Gamma.GtkWidgets.yButton buttonCreateCashOrder;
 
 		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat spinCashOrder;
 
@@ -184,7 +184,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabelUnclosedAdvancesMoney;
 
-		private global::Gtk.Button buttonAccept;
+		private global::Gamma.GtkWidgets.yButton buttonAccept;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckConfirmDifferences;
 
@@ -233,7 +233,7 @@ namespace Vodovoz
 			this.hboxHeader.Name = "hboxHeader";
 			this.hboxHeader.Spacing = 6;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
@@ -247,7 +247,7 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
@@ -291,7 +291,7 @@ namespace Vodovoz
 			w7.Position = 4;
 			w7.Expand = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId.CanFocus = true;
 			this.btnCopyEntityId.Name = "btnCopyEntityId";
 			this.btnCopyEntityId.UseUnderline = true;
@@ -634,7 +634,7 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonAddFuelDocument = new global::Gtk.Button();
+			this.buttonAddFuelDocument = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFuelDocument.Sensitive = false;
 			this.buttonAddFuelDocument.CanFocus = true;
 			this.buttonAddFuelDocument.Name = "buttonAddFuelDocument";
@@ -649,7 +649,7 @@ namespace Vodovoz
 			w39.Expand = false;
 			w39.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonDeleteFuelDocument = new global::Gtk.Button();
+			this.buttonDeleteFuelDocument = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDeleteFuelDocument.Sensitive = false;
 			this.buttonDeleteFuelDocument.CanFocus = true;
 			this.buttonDeleteFuelDocument.Name = "buttonDeleteFuelDocument";
@@ -765,7 +765,7 @@ namespace Vodovoz
 			this.hbox11.Name = "hbox11";
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.buttonReturnedRefresh = new global::Gtk.Button();
+			this.buttonReturnedRefresh = new global::Gamma.GtkWidgets.yButton();
 			this.buttonReturnedRefresh.TooltipMarkup = "Обновить информацию по возврату на склад";
 			this.buttonReturnedRefresh.CanFocus = true;
 			this.buttonReturnedRefresh.Name = "buttonReturnedRefresh";
@@ -810,7 +810,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.checkUseBottleFine]));
 			w57.Position = 3;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.buttonBottleDelFine = new global::Gtk.Button();
+			this.buttonBottleDelFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonBottleDelFine.TooltipMarkup = "Убрать штраф";
 			this.buttonBottleDelFine.CanFocus = true;
 			this.buttonBottleDelFine.Name = "buttonBottleDelFine";
@@ -826,7 +826,7 @@ namespace Vodovoz
 			w59.Expand = false;
 			w59.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.buttonBottleAddEditFine = new global::Gtk.Button();
+			this.buttonBottleAddEditFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonBottleAddEditFine.TooltipMarkup = "Добавить изменить штраф.";
 			this.buttonBottleAddEditFine.CanFocus = true;
 			this.buttonBottleAddEditFine.Name = "buttonBottleAddEditFine";
@@ -1011,7 +1011,7 @@ namespace Vodovoz
 			w80.Expand = false;
 			w80.Fill = false;
 			// Container child hbxStatistics1.Gtk.Box+BoxChild
-			this.buttonCalculateCash = new global::Gtk.Button();
+			this.buttonCalculateCash = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCalculateCash.CanFocus = true;
 			this.buttonCalculateCash.Name = "buttonCalculateCash";
 			this.buttonCalculateCash.UseUnderline = true;
@@ -1023,7 +1023,7 @@ namespace Vodovoz
 			w81.Expand = false;
 			w81.Fill = false;
 			// Container child hbxStatistics1.Gtk.Box+BoxChild
-			this.buttonCreateCashOrder = new global::Gtk.Button();
+			this.buttonCreateCashOrder = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateCashOrder.CanFocus = true;
 			this.buttonCreateCashOrder.Name = "buttonCreateCashOrder";
 			this.buttonCreateCashOrder.UseUnderline = true;
@@ -1154,7 +1154,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.ylabelUnclosedAdvancesMoney]));
 			w95.Position = 10;
 			// Container child hbxStatistics2.Gtk.Box+BoxChild
-			this.buttonAccept = new global::Gtk.Button();
+			this.buttonAccept = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;

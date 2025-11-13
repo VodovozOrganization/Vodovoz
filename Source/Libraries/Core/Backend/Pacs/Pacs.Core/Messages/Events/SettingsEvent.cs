@@ -2,8 +2,14 @@
 
 namespace Pacs.Core.Messages.Events
 {
-	public class SettingsEvent
+	/// <summary>
+	/// Событие изменения настроек
+	/// </summary>
+	public class SettingsEvent : EventBase
 	{
+		/// <summary>
+		/// Настройки
+		/// </summary>
 		public DomainSettings Settings { get; set; }
 	}
 }

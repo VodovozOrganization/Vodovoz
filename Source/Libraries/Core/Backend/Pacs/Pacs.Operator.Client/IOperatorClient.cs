@@ -1,8 +1,8 @@
 ﻿using Pacs.Core.Messages.Events;
-using Pacs.Server;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 
 namespace Pacs.Operators.Client
 {

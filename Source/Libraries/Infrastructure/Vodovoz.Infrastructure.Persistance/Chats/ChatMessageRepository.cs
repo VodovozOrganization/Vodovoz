@@ -69,7 +69,7 @@ namespace Vodovoz.Infrastructure.Persistance.Chats
 			ChatMessage chatMessageAlias = null;
 			Chat chatAlias = null;
 
-			//TODO Когда будут другие типы чатов - нужно будет дописать.
+			//TODO: Когда будут другие типы чатов - нужно будет дописать.
 			var resultList = uow.Session.QueryOver(() => chatAlias)
 				.JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
 				.Where(() => chatAlias.ChatType == ChatType.DriverAndLogists)

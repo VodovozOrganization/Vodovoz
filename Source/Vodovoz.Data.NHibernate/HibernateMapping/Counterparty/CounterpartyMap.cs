@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
-	//TODO Если не будет обращений по поводу VodInternalId, удалить его из таблицы
+	//TODO: Если не будет обращений по поводу VodInternalId, удалить его из таблицы
 	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()
@@ -71,11 +71,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.ReasonForLeaving).Column("reason_for_leaving");
 			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status");
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
-			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status");
 			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
-			Map(x => x.PersonalAccountIdInEdo).Column("personal_account_id_in_edo");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
 			Map(x => x.SpecialContractDate).Column("special_contract_date");
 			Map(x => x.DoNotMixMarkedAndUnmarkedGoodsInOrder).Column("do_not_mix_marked_and_unmarked_goods_in_order");
@@ -86,6 +84,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
 			Map(x => x.CloseDeliveryDebtType).Column("close_delivery_debt_type");
 			Map(x => x.HideDeliveryPointForBill).Column("hide_delivery_point_for_bill");
+			Map(x => x.IsNewEdoProcessing).Column("is_new_edo_processing");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -103,6 +102,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.CounterpartySubtype).Column("counterparty_subtype_id");
 			References(x => x.OurOrganizationAccountForBills).Column("our_organization_account_for_bills");
 			References(x => x.Referrer).Column("referrer_id");
+			References(x => x.DefaultAccount).Column("default_account_id");
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()
@@ -123,8 +123,17 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
 				.KeyColumn("supplier_id");
-			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
-			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("counterparty_id");
+
+			HasMany(x => x.CounterpartyEdoOperators)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
+			HasMany(x => x.CounterpartyEdoAccounts)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
 				.KeyColumn("counterparty_id");
 
 			HasManyToMany(x => x.Tags)

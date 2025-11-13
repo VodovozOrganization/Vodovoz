@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Fuel;
 
 namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
@@ -21,11 +24,18 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IFuelRepository fuelRepository,
 			IRouteListProfitabilityController routeListProfitabilityController) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(fuelRepository is null)
+			{
+				throw new ArgumentNullException(nameof(fuelRepository));
+			}
+
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_fuelVersionsController = new FuelPriceVersionsController(Entity);
+			_fuelVersionsController = new FuelPriceVersionsController();
+			_fuelVersionsController.SetFuelType(Entity);
 
 			CanEdit = PermissionResult.CanUpdate
 				|| (PermissionResult.CanCreate && Entity.Id == 0);
@@ -34,7 +44,14 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			var permissionFuelPriceVersionResult = commonServices.PermissionService.ValidateUserPermission(typeof(FuelPriceVersion), commonServices.UserService.CurrentUserId);
 			CanCreateFuel = permissionFuelPriceVersionResult.CanCreate;
 			CanEditFuel = permissionFuelPriceVersionResult.CanUpdate;
+
+			FuelProductGroups = fuelRepository.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.Id);
+			FuelProductsInGroup = fuelRepository.GetFuelProductsByFuelTypeId(UoW, Entity.Id);
 		}
+
+		public IEnumerable<GazpromFuelProductsGroup> FuelProductGroups { get; }
+
+		public IEnumerable<GazpromFuelProduct> FuelProductsInGroup { get; }
 
 		public bool CanEdit { get; }
 
@@ -91,7 +108,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 				return;
 			}
 			_fuelVersionsController.CreateAndAddVersion(FuelPrice, SelectedDate);
-			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedDate.Value);
+			_routeListProfitabilityController.RecalculateRouteListProfitabilitiesByDate(UoW, SelectedDate.Value, null, Entity);
 
 			OnPropertyChanged(nameof(CanAddNewFuelVersion));
 			OnPropertyChanged(nameof(CanChangeFuelVersionDate));

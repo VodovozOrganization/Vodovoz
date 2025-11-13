@@ -27,7 +27,7 @@ namespace EventsApi.Library.Models
 		private readonly ICompletedDriverWarehouseEventProxyRepository _completedDriverWarehouseEventProxyRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly EmployeeType _employeeType;
-		
+
 		protected LogisticsEventsService(
 			ILogger logger,
 			IUnitOfWork unitOfWork,
@@ -51,7 +51,7 @@ namespace EventsApi.Library.Models
 			_employeeType = employeeType;
 			_carIdRepository = carIdRepository;
 		}
-		
+
 		/// <summary>
 		/// Конвертация и проверка данных из Qr кода на корректность
 		/// </summary>
@@ -64,7 +64,7 @@ namespace EventsApi.Library.Models
 
 			return result;
 		}
-		
+
 		/// <summary>
 		/// Завершение события нахождения на складе
 		/// </summary>
@@ -75,6 +75,38 @@ namespace EventsApi.Library.Models
 			EmployeeWithLogin employee,
 			out int distanceMetersFromScanningLocation)
 		{
+			return CompleteDriverWarehouseEvent(
+				qrData,
+				eventData.Latitude,
+				eventData.Longitude,
+				employee,
+				out distanceMetersFromScanningLocation);
+		}
+
+		/// <summary>
+		/// Завершение события нахождения на складе для событий без координат
+		/// </summary>
+		/// <returns></returns>
+		public CompletedDriverWarehouseEventProxy CompleteWarehouseEventWithoutCoordinates(
+			DriverWarehouseEventQrData qrData,
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation)
+		{
+			return CompleteDriverWarehouseEvent(
+				qrData,
+				null,
+				null,
+				employee,
+				out distanceMetersFromScanningLocation);
+		}
+
+		private CompletedDriverWarehouseEventProxy CompleteDriverWarehouseEvent(
+			DriverWarehouseEventQrData qrData,
+			decimal? latitude,
+			decimal? longitude,
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation)
+		{
 			_logger.LogInformation("Получаем событие {EventId} из QR кода от {EmployeeType} {EmployeeName}",
 				qrData.EventId,
 				_employeeType.ToString(),
@@ -82,12 +114,12 @@ namespace EventsApi.Library.Models
 			var driverWarehouseEvent = _unitOfWork.GetById<DriverWarehouseEvent>(qrData.EventId);
 
 			distanceMetersFromScanningLocation = 0;
-			
+
 			_logger.LogInformation("Рассчитываем расстояние между точками для {EmployeeName} по событию {EventName}",
 				employee.ShortName,
 				driverWarehouseEvent.EventName);
-			
-			if(!eventData.Latitude.HasValue || !eventData.Longitude.HasValue)
+
+			if(!latitude.HasValue || !longitude.HasValue)
 			{
 				distanceMetersFromScanningLocation = 0;
 			}
@@ -95,9 +127,9 @@ namespace EventsApi.Library.Models
 				&& driverWarehouseEvent.Latitude.HasValue
 				&& driverWarehouseEvent.Longitude.HasValue)
 			{
-				var driverPoint = GetPointLatLng(eventData.Latitude, eventData.Longitude);
+				var driverPoint = GetPointLatLng(latitude, longitude);
 				var qrPoint = GetPointLatLng(driverWarehouseEvent.Latitude, driverWarehouseEvent.Longitude);
-			
+
 				distanceMetersFromScanningLocation = (int)DistanceCalculator.GetDistanceMeters(driverPoint, qrPoint);
 			}
 
@@ -115,8 +147,8 @@ namespace EventsApi.Library.Models
 				driverWarehouseEvent.EventName,
 				employee.ShortName);
 
-			var completedEvent = CreateCompletedEvent(qrData, eventData, employee, driverWarehouseEvent, distanceMetersFromScanningLocation);
-			
+			var completedEvent = CreateCompletedEvent(qrData, latitude, longitude, employee, driverWarehouseEvent, distanceMetersFromScanningLocation);
+
 			_unitOfWork.Save(completedEvent);
 			_unitOfWork.Commit();
 			_logger.LogInformation("Ok");
@@ -135,7 +167,7 @@ namespace EventsApi.Library.Models
 				"Получаем завершенные события за сегодня для пользователя {EmployeeType} {EmployeeName}",
 				_employeeType.ToString(),
 				employee.ShortName);
-			
+
 			return _completedDriverWarehouseEventProxyRepository.GetTodayCompletedEventsForEmployee(_unitOfWork, employee.Id);
 		}
 
@@ -153,27 +185,28 @@ namespace EventsApi.Library.Models
 			var pointLongitude = longitude.HasValue
 				? Convert.ToDouble(longitude)
 				: 0d;
-			
+
 			return new PointLatLng(pointLatitude, pointLongitude);
 		}
-		
+
 		private CompletedDriverWarehouseEventProxy CreateCompletedEvent(
 			DriverWarehouseEventQrData qrData,
-			DriverWarehouseEventData eventData,
+			decimal? latitude,
+			decimal? longitude,
 			EmployeeWithLogin employee,
 			DriverWarehouseEvent driverWarehouseEvent,
 			decimal distanceMetersFromScanningLocation)
 		{
 			int? carId = null;
-			
+
 			if(_carIdRepository != null)
 			{
 				carId = _carIdRepository.GetCarIdByEmployeeId(_unitOfWork, employee.Id);
 			}
-			
+
 			var completedEvent = CompletedDriverWarehouseEventProxy.Create(
-				eventData.Latitude,
-				eventData.Longitude,
+				latitude,
+				longitude,
 				distanceMetersFromScanningLocation,
 				driverWarehouseEvent,
 				employee,

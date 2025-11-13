@@ -205,12 +205,4 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		[Display(Name = ">=")]
 		MoreOrEqual
 	}
-
-
-	public class ComparisonSingStringType : NHibernate.Type.EnumStringType
-	{
-		public ComparisonSingStringType() : base(typeof(ComparisonSings))
-		{
-		}
-	}
 }

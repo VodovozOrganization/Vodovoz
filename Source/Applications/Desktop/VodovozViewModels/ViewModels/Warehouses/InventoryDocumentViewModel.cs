@@ -21,15 +21,15 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -48,6 +48,9 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using QS.Report;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -69,6 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly CommonMessages _commonMessages;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _scope;
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private string _instancesDiscrepanciesString;
 		private bool _isBulkAccountingActive;
 		private bool _isInstanceAccountingActive;
@@ -102,7 +106,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			IWarehouseRepository warehouseRepository,
 			IStockRepository stockRepository,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			IReportInfoFactory reportInfoFactory
+			)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -118,6 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_nomenclatureInstanceRepository =
 				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			Init();
 		}
 
@@ -216,21 +223,21 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo {
-					Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.InventoryDoc",
-					Parameters = new Dictionary<string, object>
-					{
-						{ "inventory_id",  Entity.Id },
-						{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
-					}
+				var reportInfo = _reportInfoFactory.Create();
+				reportInfo.Title = $"Акт инвентаризации №{Entity.Id} от {Entity.TimeStamp:d}";
+				reportInfo.Identifier = "Store.InventoryDoc";
+				reportInfo.Parameters = new Dictionary<string, object>
+				{
+					{ "inventory_id",  Entity.Id },
+					{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
 				};
 
 				_reportViewOpener.OpenReport(this, reportInfo);
 			}
 			));
 
-		public bool CanHandleInventoryItems => Entity.Warehouse != null || Entity.Employee != null || Entity.Car != null;
+		public bool CanHandleInventoryItems => CanEdit 
+		    && (Entity.Warehouse != null || Entity.Employee != null || Entity.Car != null);
 
 		#region Объемный учет
 		
@@ -579,10 +586,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+			Entity.LastEditorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(_userWithoutEmployee);
 				return false;
@@ -599,9 +606,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 			if(Entity.Id == 0)
 			{
-				Entity.Author = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+				Entity.AuthorId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
 			
-				if(Entity.Author == null)
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(_userWithoutEmployee);
 					FailInitialize = true;
@@ -647,7 +654,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			{
 				_instancesDiscrepancies.Add(
 					instanceData.Id,
-					$"{instanceData.Name} {instanceData.InventoryNumber} числится на этом складе");
+					$"{instanceData.Name} {instanceData.GetInventoryNumber} числится на этом складе");
 			}
 
 			var currentInstancesOnOtherStorages =
@@ -661,7 +668,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var instanceData = groupInstanceData.First();
 					var storages = string.Join(",", groupInstanceData.Select(x => x.StorageName));
 					
-					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.InventoryNumber} числится на: {storages}");
+					_instancesDiscrepancies.Add(key, $"{instanceData.Name} {instanceData.GetInventoryNumber} числится на: {storages}");
 				}
 			}
 
@@ -936,7 +943,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					var customName = CustomProjections.Concat(
 						Projections.Property(() => nomenclatureAlias.OfficialName),
 						Projections.Constant(" "),
-						Projections.Property(() => instanceAlias.InventoryNumber));
+						InventoryNomenclatureInstanceProjections.InventoryNumberProjection());
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)

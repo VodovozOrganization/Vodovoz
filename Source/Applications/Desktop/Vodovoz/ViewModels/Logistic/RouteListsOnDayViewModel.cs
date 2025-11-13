@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -16,13 +16,14 @@ using QS.Utilities;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NHibernate.SqlCommand;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -40,16 +41,21 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using VodovozBusiness.Domain.Client;
+using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Osrm;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListsOnDayViewModel : TabViewModelBase
+	public partial class RouteListsOnDayViewModel : TabViewModelBase
 	{
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IAtWorkRepository _atWorkRepository;
@@ -62,10 +68,12 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IGlobalSettings _globalSettings;
+		private readonly IOsrmSettings _osrmSettings;
+		private readonly IOsrmClient _osrmClient;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-
+		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IRouteListService _routeListService;
 		private Employee _employee;
 		private bool _excludeTrucks;
 		private Employee _driverFromRouteList;
@@ -114,9 +122,13 @@ namespace Vodovoz.ViewModels.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IRouteOptimizer routeOptimizer,
-			IGlobalSettings globalSettings,
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient,
 			ICachedDistanceRepository cachedDistanceRepository,
-			IRouteListProfitabilityController routeListProfitabilityController)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			IOrganizationSettings organizationSettings,
+			IRouteListService routeListService
+			)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(geographicGroupRepository == null)
@@ -134,19 +146,22 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
-			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings, _cachedDistanceRepository);
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _osrmSettings, _osrmClient, _cachedDistanceRepository);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 
-			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanCreateRouteListInPastPeriod);
+			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
 
 			CreateUoW();
 
@@ -201,38 +216,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CreateCommands();
 			LoadAddressesTypesDefaults();
-		}
-
-		private void AddAddressTypeFilter(IQueryOver<Order, Order> query)
-		{
-			foreach(var node in OrderAddressTypes)
-			{
-				if(node.Selected)
-				{
-					continue;
-				}
-
-				if(node.IsFastDelivery)
-				{
-					query.Where(x => !x.IsFastDelivery);
-				}
-				else if(node.OrderAddressType == OrderAddressType.Delivery)
-				{
-					var isFastDeliveryChecked = OrderAddressTypes.SingleOrDefault(x => x.IsFastDelivery && x.Selected) != null;
-					if(isFastDeliveryChecked)
-					{
-						query.Where(x => x.IsFastDelivery);
-					}
-					else
-					{
-						query.Where(x => x.OrderAddressType != node.OrderAddressType);
-					}
-				}
-				else
-				{
-					query.Where(x => x.OrderAddressType != node.OrderAddressType);
-				}
-			}
 		}
 
 		public bool ExcludeTrucks
@@ -782,15 +765,37 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
+		public int EmptyRoutesOnDayCount =>
+			RoutesOnDay
+			.Where(rl => rl.Addresses.Count == 0)
+			.Count();
+
 		#endregion
 
-		public IEnumerable<OrderAddressTypeNode> OrderAddressTypes { get; } = new[] {
-			new OrderAddressTypeNode(isFastDelivery:true),
-			new OrderAddressTypeNode(OrderAddressType.Delivery),
-			new OrderAddressTypeNode(OrderAddressType.Service),
-			new OrderAddressTypeNode(OrderAddressType.ChainStore),
-			new OrderAddressTypeNode(OrderAddressType.StorageLogistics)
-		};
+		public IEnumerable<FilterEnumParameterNode<OrderAddressType>> OrderAddressTypes { get; } =
+			new List<FilterEnumParameterNode<OrderAddressType>>
+			{
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.Delivery),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.Service),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.ChainStore),
+				new FilterEnumParameterNode<OrderAddressType>(OrderAddressType.StorageLogistics)
+			};
+
+		private IEnumerable<OrderAddressType> _selectedFilterOrderAddressTypes =>
+			OrderAddressTypes.Where(x => x.IsSelected).Select(x => x.Value);
+
+		public IEnumerable<FilterEnumParameterNode<AddressAdditionalParameterType>> AddressAdditionalParameters { get; } =
+			new List<FilterEnumParameterNode<AddressAdditionalParameterType>>
+			{
+				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.FastDelivery),
+				new FilterEnumParameterNode<AddressAdditionalParameterType>(AddressAdditionalParameterType.CodesScanInWarehouseRequired),
+			};
+
+		private bool _isFastDeliveryFilterParameterSelected =>
+			AddressAdditionalParameters.Any(x => x.IsSelected && x.Value == AddressAdditionalParameterType.FastDelivery);
+
+		private bool _isCodesScanInWarehouseRequiredFilterParameterSelected =>
+			AddressAdditionalParameters.Any(x => x.IsSelected && x.Value == AddressAdditionalParameterType.CodesScanInWarehouseRequired);
 
 		public IList<DeliveryShiftNode> DeliveryShiftNodes { get; set; }
 
@@ -800,16 +805,16 @@ namespace Vodovoz.ViewModels.Logistic
 
 			foreach(var addressTypeNode in OrderAddressTypes)
 			{
-				switch(addressTypeNode.OrderAddressType)
+				switch(addressTypeNode.Value)
 				{
 					case OrderAddressType.Delivery:
-						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticDeliveryOrders;
 						break;
 					case OrderAddressType.Service:
-						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticServiceOrders;
 						break;
 					case OrderAddressType.ChainStore:
-						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+						addressTypeNode.IsSelected = currentUserSettings.LogisticChainStoreOrders;
 						break;
 				}
 			}
@@ -1460,7 +1465,7 @@ namespace Vodovoz.ViewModels.Logistic
 						UoW.Save(alreadyIn);
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1481,7 +1486,7 @@ namespace Vodovoz.ViewModels.Logistic
 						return false;
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1640,16 +1645,15 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
 				MaxBottles19L = MaxBottles19L,
-				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
-				OrderAddressTypes = OrderAddressTypes
-					.Where(x => !x.IsFastDelivery && x.Selected)
-					.Select(x => x.OrderAddressType),
+				FastDeliveryEnabled = _isFastDeliveryFilterParameterSelected,
+				IsCodesScanInWarehouseRequired = _isCodesScanInWarehouseRequiredFilterParameterSelected,
+				OrderAddressTypes = _selectedFilterOrderAddressTypes,
 				ClosingDocumentDeliveryScheduleId = _closingDocumentDeliveryScheduleId
 			};
 
 			OrdersOnDay = OrderRepository.GetOrdersOnDay(UoW, orderOnDayFilter);
 
-			if(OrderAddressTypes.Any(x => x.Selected))
+			if(OrderAddressTypes.Any(x => x.IsSelected))
 			{
 				UndeliveredOrder undeliveredOrderAlias = null;
 				Order orderAlias = null;
@@ -1720,6 +1724,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			text.Add(NumberToTextRus.FormatCase(RoutesOnDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
+			text.Add($"Пустых маршрутных листов {EmptyRoutesOnDayCount}.");
 
 			return string.Join("\n", text);
 		}
@@ -1772,7 +1777,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					foreach(var order in propose.Orders)
 					{
-						var address = rl.AddAddressFromOrder(order.Order);
+						var address = _routeListService.AddAddressFromOrder(UoW, rl, order.Order);
 						address.PlanTimeStart = order.ProposedTimeStart;
 						address.PlanTimeEnd = order.ProposedTimeEnd;
 					}
@@ -1833,6 +1838,9 @@ namespace Vodovoz.ViewModels.Logistic
 			GeoGroup geographicGroupAlias = null;
 			Counterparty counterpartyAlias = null;
 			Order orderBaseAlias = null;
+			CounterpartyContract contractAlias = null;
+			CounterpartyEdoAccount edoAccountByOrderOrganizationAlias = null;
+			CounterpartyEdoAccount defaultOrganizationEdoAccountAlias = null;
 
 			ObservableDeliverySummary.Clear();
 
@@ -1842,9 +1850,50 @@ namespace Vodovoz.ViewModels.Logistic
 				.Where(o => !o.IsContractCloser)
 				.And(o => o.OrderAddressType != OrderAddressType.Service);
 
-			if(OrderAddressTypes.Any(x => x.Selected))
+			if(_selectedFilterOrderAddressTypes.Any())
 			{
-				AddAddressTypeFilter(baseQuery);
+				baseQuery.WhereRestrictionOn(() => orderBaseAlias.OrderAddressType)
+					.IsIn(_selectedFilterOrderAddressTypes.ToList());
+
+				if(AddressAdditionalParameters.Any(x => x.IsSelected))
+				{
+					var additionalParametersRestriction = Restrictions.Conjunction();
+
+					if(_isFastDeliveryFilterParameterSelected)
+					{
+						additionalParametersRestriction.Add(() => orderBaseAlias.IsFastDelivery);
+					}
+
+					if(_isCodesScanInWarehouseRequiredFilterParameterSelected)
+					{
+						baseQuery
+							.JoinAlias(() => orderBaseAlias.Client, () => counterpartyAlias)
+							.JoinAlias(() => orderBaseAlias.Contract, () => contractAlias)
+							.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
+								() => defaultOrganizationEdoAccountAlias,
+								JoinType.InnerJoin,
+								Restrictions.Where(
+									() => defaultOrganizationEdoAccountAlias.OrganizationId == _organizationSettings.VodovozOrganizationId
+										&& defaultOrganizationEdoAccountAlias.IsDefault))
+							.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
+								() => edoAccountByOrderOrganizationAlias,
+								JoinType.LeftOuterJoin,
+								Restrictions.Where(
+									() => edoAccountByOrderOrganizationAlias.OrganizationId == contractAlias.Organization.Id
+										&& edoAccountByOrderOrganizationAlias.IsDefault))
+							;
+
+						additionalParametersRestriction.Add(Restrictions.Conjunction()
+							.Add(() => orderBaseAlias.PaymentType == PaymentType.Cashless)
+							.Add(() => counterpartyAlias.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+							.Add(Restrictions.Disjunction()
+								.Add(() => edoAccountByOrderOrganizationAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+								.Add(() => defaultOrganizationEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
+						);
+					}
+
+					baseQuery.Where(additionalParametersRestriction);
+				}
 
 				var selectedGeographicGroup = GeographicGroupNodes
 					.Where(x => x.Selected)

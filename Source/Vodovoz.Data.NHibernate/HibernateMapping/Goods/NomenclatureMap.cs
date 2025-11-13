@@ -35,11 +35,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Hide).Column("hide");
 			Map(x => x.NoDelivery).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
+			Map(x => x.IsNeedSanitisation).Column("is_need_sanitisation");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
 			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit");
+			Map(x => x.MasterServiceType).Column("master_service_type");
 			Map(x => x.SaleCategory).Column("subtype_of_equipment");
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.MinStockCount).Column("min_stock_count");
@@ -49,6 +51,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 			Map(x => x.UsingInGroupPriceSet).Column("using_in_group_price_set");
 			Map(x => x.HasInventoryAccounting).Column("has_inventory_accounting");
+			Map(x => x.HasConditionAccounting).Column("has_condition_accounting");
 			Map(x => x.GlassHolderType).Column("glass_holder_type");
 
 			//Характеристики товара
@@ -88,6 +91,20 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.LockerRefrigeratorType).Column("locker_refrigerator_type");
 			Map(x => x.LockerRefrigeratorVolume).Column("locker_refrigerator_volume");
 			Map(x => x.TapType).Column("tap_type");
+			Map(x => x.HeatingTemperatureFromOnline).Column("heating_temperature_from_online");
+			Map(x => x.HeatingTemperatureToOnline).Column("heating_temperature_to_online");
+			Map(x => x.CoolingTemperatureFromOnline).Column("cooling_temperature_from_online");
+			Map(x => x.CoolingTemperatureToOnline).Column("cooling_temperature_to_online");
+			Map(x => x.LengthOnline).Column("length_online");
+			Map(x => x.WidthOnline).Column("width_online");
+			Map(x => x.HeightOnline).Column("height_online");
+			Map(x => x.WeightOnline).Column("weight_online");
+			Map(x => x.HeatingPowerUnits).Column("heating_power_units");
+			Map(x => x.HeatingProductivityUnits).Column("heating_productivity_units");
+			Map(x => x.CoolingPowerUnits).Column("cooling_power_units");
+			Map(x => x.CoolingProductivityUnits).Column("cooling_productivity_units");
+			Map(x => x.HeatingProductivityComparisionSign).Column("heating_productivity_comparision_sign");
+			Map(x => x.CoolingProductivityComparisionSign).Column("cooling_productivity_comparision_sign");
 
 			Map(x => x.StorageCell).Column("storage_cell");
 
@@ -130,13 +147,25 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.Alternative}'")
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 
-			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("nomenclature_id");
 			HasMany(x => x.CostPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureOnlineParameters)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+
+			HasMany(x => x.Gtins)
+				.KeyColumn("nomenclature_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
+
+			HasMany(x => x.GroupGtins)
+				.KeyColumn("nomenclature_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 		}
 	}
 }
-

@@ -1,6 +1,6 @@
 ﻿using DriverApi.Contracts.V5;
 using System.Collections.Generic;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.V5.Services
 {

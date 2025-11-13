@@ -1,4 +1,4 @@
-using LogisticsEventsApi.Contracts;
+﻿using LogisticsEventsApi.Contracts;
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Logistics;
@@ -22,6 +22,15 @@ namespace EventsApi.Library.Models
 		CompletedDriverWarehouseEventProxy CompleteDriverWarehouseEvent(
 			DriverWarehouseEventQrData qrData,
 			DriverWarehouseEventData eventData,
+			EmployeeWithLogin employee,
+			out int distanceMetersFromScanningLocation);
+
+		/// <summary>
+		/// Завершение события нахождения на складе для событий без координат
+		/// </summary>
+		/// <returns></returns>
+		public CompletedDriverWarehouseEventProxy CompleteWarehouseEventWithoutCoordinates(
+			DriverWarehouseEventQrData qrData,
 			EmployeeWithLogin employee,
 			out int distanceMetersFromScanningLocation);
 

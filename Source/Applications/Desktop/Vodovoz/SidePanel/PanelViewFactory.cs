@@ -1,9 +1,11 @@
-using Autofac;
+﻿using Autofac;
 using Gtk;
+using Microsoft.Extensions.Logging;
 using QS.Project.Services;
 using QS.Tdi;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Application.Clients;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -38,7 +40,8 @@ namespace Vodovoz.SidePanel
 			switch(type)
 			{
 				case PanelViewType.CounterpartyView:
-					return new CounterpartyPanelView(ServicesConfig.CommonServices, orderRepository);
+					var loger = ScopeProvider.Scope.Resolve<ILogger<CounterpartyPanelView>>();
+					return new CounterpartyPanelView(loger, ServicesConfig.CommonServices, orderRepository);
 				case PanelViewType.DeliveryPointView:
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
@@ -87,10 +90,8 @@ namespace Vodovoz.SidePanel
 						userRepository);
 					return new CashInfoPanelView(cashInfoPanelViewModel);
 				case PanelViewType.EdoLightsMatrixPanelView:
-					var edoLightsMatrixViewModel = new EdoLightsMatrixViewModel();
-					IGtkTabsOpener gtkTabsOpener = new GtkTabsOpener();
-					ITdiTab tdiTab = TDIMain.MainNotebook.CurrentTab;
-					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
+					var edoLightsMatrixPanelViewModel = ScopeProvider.Scope.Resolve<EdoLightsMatrixPanelViewModel>(
+						new TypedParameter(typeof(ITdiTab), TDIMain.MainNotebook.CurrentTab));
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
 					var _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();

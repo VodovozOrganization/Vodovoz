@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "Edo.Receipt.Sender.Worker": {
+      "commandName": "Project",
+			"environmentVariables": {
+				"DOTNET_ENVIRONMENT": "Development"
+			},
+      "dotnetRunMessages": "true"
+    }
+  }
+}

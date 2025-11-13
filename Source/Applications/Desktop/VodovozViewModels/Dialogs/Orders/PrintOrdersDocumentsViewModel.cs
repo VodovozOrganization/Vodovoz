@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -77,7 +78,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				OrdersToPrint.Add(new OrdersToPrintNode
 				{
 					Id = order.Id,
-					DeliveryDate = order.DeliveryDate.Value,
+					DeliveryDate = order.DeliveryDate,
 					Selected = true
 				});
 			}

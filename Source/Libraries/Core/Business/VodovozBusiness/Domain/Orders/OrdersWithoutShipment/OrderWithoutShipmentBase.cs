@@ -3,9 +3,11 @@ using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
@@ -44,6 +46,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual bool IsBillWithoutShipmentSent {
 			get => isBillWithoutShipmentSent;
 			set => SetField(ref isBillWithoutShipmentSent, value);
+		}
+		
+		private Organization _organization;
+		[Display(Name = "Организация в счете")]
+		public virtual Organization Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
 		}
 
 		public virtual Email GetEmailAddressForBill()

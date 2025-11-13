@@ -16,6 +16,10 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yHBox yhboxFilter;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelSubdivision;
+
+		private global::QS.Views.Control.EntityEntry entityentrySubdivision;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelStatus;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
@@ -110,14 +114,32 @@ namespace Vodovoz.Views.Logistic
 			this.yhboxFilter.Name = "yhboxFilter";
 			this.yhboxFilter.Spacing = 6;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
+			this.ylabelSubdivision = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSubdivision.Name = "ylabelSubdivision";
+			this.ylabelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение сотрудника:");
+			this.yhboxFilter.Add(this.ylabelSubdivision);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelSubdivision]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child yhboxFilter.Gtk.Box+BoxChild
+			this.entityentrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entityentrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entityentrySubdivision.Name = "entityentrySubdivision";
+			this.yhboxFilter.Add(this.entityentrySubdivision);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.entityentrySubdivision]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.ylabelStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelStatus.Name = "ylabelStatus";
 			this.ylabelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус:");
 			this.yhboxFilter.Add(this.ylabelStatus);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelStatus]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelStatus]));
+			w8.Position = 2;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboStatus.Name = "yenumcomboStatus";
@@ -126,19 +148,19 @@ namespace Vodovoz.Views.Logistic
 			this.yenumcomboStatus.UseShortTitle = false;
 			this.yenumcomboStatus.DefaultFirst = false;
 			this.yhboxFilter.Add(this.yenumcomboStatus);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboStatus]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboStatus]));
+			w9.Position = 3;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.ylabelCarTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCarTypeOfUse.Name = "ylabelCarTypeOfUse";
 			this.ylabelCarTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Управляет а/м типа:");
 			this.yhboxFilter.Add(this.ylabelCarTypeOfUse);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelCarTypeOfUse]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelCarTypeOfUse]));
+			w10.Position = 4;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.yenumcomboCarTypeOfUse = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboCarTypeOfUse.Name = "yenumcomboCarTypeOfUse";
@@ -147,19 +169,19 @@ namespace Vodovoz.Views.Logistic
 			this.yenumcomboCarTypeOfUse.UseShortTitle = false;
 			this.yenumcomboCarTypeOfUse.DefaultFirst = false;
 			this.yhboxFilter.Add(this.yenumcomboCarTypeOfUse);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboCarTypeOfUse]));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboCarTypeOfUse]));
+			w11.Position = 5;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.ylabelCarOwnType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCarOwnType.Name = "ylabelCarOwnType";
 			this.ylabelCarOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежности:");
 			this.yhboxFilter.Add(this.ylabelCarOwnType);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelCarOwnType]));
-			w10.Position = 4;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelCarOwnType]));
+			w12.Position = 6;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.yenumcomboCarOwnType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboCarOwnType.Name = "yenumcomboCarOwnType";
@@ -168,19 +190,19 @@ namespace Vodovoz.Views.Logistic
 			this.yenumcomboCarOwnType.UseShortTitle = false;
 			this.yenumcomboCarOwnType.DefaultFirst = false;
 			this.yhboxFilter.Add(this.yenumcomboCarOwnType);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboCarOwnType]));
-			w11.Position = 5;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboCarOwnType]));
+			w13.Position = 7;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.ylabelDriversSortOrder = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDriversSortOrder.Name = "ylabelDriversSortOrder";
 			this.ylabelDriversSortOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Порядок сортировки:");
 			this.yhboxFilter.Add(this.ylabelDriversSortOrder);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelDriversSortOrder]));
-			w12.Position = 6;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelDriversSortOrder]));
+			w14.Position = 8;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.yenumcomboDriversSortOrder = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboDriversSortOrder.Name = "yenumcomboDriversSortOrder";
@@ -189,10 +211,10 @@ namespace Vodovoz.Views.Logistic
 			this.yenumcomboDriversSortOrder.UseShortTitle = false;
 			this.yenumcomboDriversSortOrder.DefaultFirst = false;
 			this.yhboxFilter.Add(this.yenumcomboDriversSortOrder);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboDriversSortOrder]));
-			w13.Position = 7;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboDriversSortOrder]));
+			w15.Position = 9;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.ycheckbuttonExcludeVisitingMasters = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonExcludeVisitingMasters.CanFocus = true;
@@ -201,15 +223,15 @@ namespace Vodovoz.Views.Logistic
 			this.ycheckbuttonExcludeVisitingMasters.DrawIndicator = true;
 			this.ycheckbuttonExcludeVisitingMasters.UseUnderline = true;
 			this.yhboxFilter.Add(this.ycheckbuttonExcludeVisitingMasters);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ycheckbuttonExcludeVisitingMasters]));
-			w14.Position = 8;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ycheckbuttonExcludeVisitingMasters]));
+			w16.Position = 10;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.yvboxMain.Add(this.yhboxFilter);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ytableContainers = new global::Gamma.GtkWidgets.yTable();
 			this.ytableContainers.Name = "ytableContainers";
@@ -227,10 +249,10 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewCurrent.Name = "ytreeviewCurrent";
 			this.GtkScrolledWindowCurrent.Add(this.ytreeviewCurrent);
 			this.ytableContainers.Add(this.GtkScrolledWindowCurrent);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowCurrent]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
-			w17.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowCurrent]));
+			w19.TopAttach = ((uint)(1));
+			w19.BottomAttach = ((uint)(2));
+			w19.RightAttach = ((uint)(2));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.GtkScrolledWindowHystory = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowHystory.Name = "GtkScrolledWindowHystory";
@@ -241,11 +263,11 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewHystory.Name = "ytreeviewHystory";
 			this.GtkScrolledWindowHystory.Add(this.ytreeviewHystory);
 			this.ytableContainers.Add(this.GtkScrolledWindowHystory);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowHystory]));
-			w19.TopAttach = ((uint)(1));
-			w19.BottomAttach = ((uint)(2));
-			w19.LeftAttach = ((uint)(2));
-			w19.RightAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowHystory]));
+			w21.TopAttach = ((uint)(1));
+			w21.BottomAttach = ((uint)(2));
+			w21.LeftAttach = ((uint)(2));
+			w21.RightAttach = ((uint)(4));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.ylabelCurrent = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCurrent.Name = "ylabelCurrent";
@@ -253,9 +275,9 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelCurrent.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Текущее состояние</b>");
 			this.ylabelCurrent.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelCurrent);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelCurrent]));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelCurrent]));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.ylabelHystory = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelHystory.Name = "ylabelHystory";
@@ -263,14 +285,14 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelHystory.LabelProp = global::Mono.Unix.Catalog.GetString("<b>История снятия стоп-листов</b>");
 			this.ylabelHystory.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelHystory);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelHystory]));
-			w21.LeftAttach = ((uint)(2));
-			w21.RightAttach = ((uint)(3));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelHystory]));
+			w23.LeftAttach = ((uint)(2));
+			w23.RightAttach = ((uint)(3));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytableContainers);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableContainers]));
-			w22.Position = 2;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableContainers]));
+			w24.Position = 2;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

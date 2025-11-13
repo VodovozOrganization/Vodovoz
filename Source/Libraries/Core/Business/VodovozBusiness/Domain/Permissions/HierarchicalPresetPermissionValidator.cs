@@ -2,7 +2,7 @@
 using System.Linq;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 

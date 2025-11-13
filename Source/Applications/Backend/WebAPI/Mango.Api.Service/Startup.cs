@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Mango.Core.Settings;
+using MessageTransport;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using MessageTransport;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
-using Mango.Core.Settings;
 
 namespace Mango.Api.Service
 {

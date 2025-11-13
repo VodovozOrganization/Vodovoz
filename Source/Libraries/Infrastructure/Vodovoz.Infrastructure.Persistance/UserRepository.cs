@@ -4,7 +4,8 @@ using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Services;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.EntityRepositories;
 

@@ -1,14 +1,13 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
+using Edo.Common;
 using EdoService.Library;
-using Fias.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Extensions.Logging;
 using Pacs.Core;
 using Pacs.Operators.Client;
@@ -16,22 +15,15 @@ using QS.Deletion;
 using QS.Deletion.Configuration;
 using QS.Deletion.ViewModels;
 using QS.Dialog;
-using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
 using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
-using QS.HistoryLog;
 using QS.Navigation;
-using QS.Osrm;
 using QS.Permissions;
-using QS.Project;
-using QS.Project.Core;
-using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.GtkSharp;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Versioning;
@@ -43,11 +35,8 @@ using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Validation;
 using QS.ViewModels;
-using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QS.ViewModels.Resolve;
-using QS.Views.Resolve;
-using QSProjectsLib;
 using QSReport;
 using RevenueService.Client;
 using System;
@@ -55,38 +44,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
-using Vodovoz.Application;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Application.Logistics;
+using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Mango;
 using Vodovoz.Application.Pacs;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.CachingRepositories.Counterparty;
-using Vodovoz.Controllers;
-using Vodovoz.Commons;
 using Vodovoz.Core;
-using Vodovoz.Core.Application.Entity;
-using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
-using Vodovoz.Core.Domain.Interfaces.Logistics;
 using Vodovoz.Core.Domain.Pacs;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Print;
@@ -94,12 +71,10 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Presentation.Reports.Factories;
 using Vodovoz.Presentation.ViewModels.Common;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Presentation.ViewModels.Mango;
 using Vodovoz.Presentation.ViewModels.Pacs;
-using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Reports;
 using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
@@ -113,24 +88,19 @@ using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Orders;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Counterparty;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
-using Vodovoz.Tools.Logistic;
+using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.Tools.Store;
-using Vodovoz.Validation;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Mango;
@@ -139,28 +109,9 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewWidgets;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
-using VodovozInfrastructure.Services;
 using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
-using Vodovoz.Data.NHibernate;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.Domain.Sms;
-using QS.ViewModels.Control.EEVM;
-using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
-using Vodovoz.Tools.Orders;
-using MassTransit;
-using Vodovoz.ViewModels.Infrastructure;
-using FuelControl.Library;
-using Vodovoz.Services.Fuel;
-using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
-using Vodovoz.Application.Logistics.Fuel;
-using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
-using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Infrastructure.FileStorage;
-using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
-using Vodovoz.Additions.Printing;
-using Vodovoz.ViewModels.Infrastructure.Print;
 
 namespace Vodovoz
 {
@@ -190,7 +141,9 @@ namespace Vodovoz
 			new HostBuilder()
 				.ConfigureAppConfiguration((hostingContext, config) =>
 				{
-					config.AddJsonFile("appsettings.json");
+					config
+						.AddJsonFile("appsettings.json", false, true)
+						.AddJsonFile("appsettings.Production.json", true, true);
 				})
 				.ConfigureLogging((hostContext, logging) =>
 				{
@@ -283,7 +236,10 @@ namespace Vodovoz
 
 					builder.RegisterType<RouteListDailyNumberProvider>()
 						.As<IRouteListDailyNumberProvider>();
-					builder.RegisterType<TrueMarkCodesPool>()
+
+					# region TrueMark
+
+					builder.RegisterType<Models.TrueMark.TrueMarkCodesPool>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
@@ -291,10 +247,20 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					builder.RegisterType<TrueMarkCodesChecker>()
+						.AsSelf()
+						.InstancePerLifetimeScope();
+
+					builder.RegisterType<TrueMarkTaskCodesValidator>()
+						.As<ITrueMarkCodesValidator>()
+						.InstancePerLifetimeScope();
+
 					builder.RegisterType<TrueMarkWaterCodeParser>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					#endregion TrueMark
+					
 					builder.RegisterType<ReceiptManualController>()
 						.AsSelf()
 						.InstancePerLifetimeScope();
@@ -434,7 +400,6 @@ namespace Vodovoz
 
 					#region Reports
 
-					builder.RegisterType<OrderChangesReport>().AsSelf();
 					builder.RegisterType<CashFlow>().AsSelf();
 					builder.RegisterType<WayBillReportGroupPrint>().AsSelf();
 					builder.RegisterType<StockMovements>().AsSelf();
@@ -498,7 +463,6 @@ namespace Vodovoz
 					builder.RegisterType<PlanImplementationReport>().AsSelf();
 					builder.RegisterType<ZeroDebtClientReport>().AsSelf();
 					builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
-					builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
 					builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
 					builder.RegisterType<ChainStoreDelayReport>().AsSelf();
 					builder.RegisterType<ReturnedTareReport>().AsSelf();
@@ -509,7 +473,6 @@ namespace Vodovoz
 					builder.RegisterType<CounterpartyReport>().AsSelf();
 					builder.RegisterType<DriversToDistrictsAssignmentReport>().AsSelf();
 					builder.RegisterType<GeneralSalaryInfoReport>().AsSelf();
-					builder.RegisterType<EmployeesReport>().AsSelf();
 					builder.RegisterType<AddressesOverpaymentsReport>().AsSelf();
 					builder.RegisterType<StockMovementsAdvancedReport>().AsSelf();
 
@@ -585,13 +548,6 @@ namespace Vodovoz
 
 					builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
 
-					builder.Register((context) =>
-					{
-						var counterpartySettings = context.Resolve<ICounterpartySettings>();
-
-						return new RevenueServiceClient(counterpartySettings.RevenueServiceClientAccessToken);
-					}).As<IRevenueServiceClient>().InstancePerLifetimeScope();
-
 					#endregion
 
 					#region InfoPanelViews
@@ -602,129 +558,7 @@ namespace Vodovoz
 				}))
 				.ConfigureServices((hostingContext, services) =>
 				{
-					services
-						.AddSingleton<Startup>()
-						.AddSingleton<IDatabaseConnectionSettings>((provider) =>
-						{
-							//Необходимо поменять логику работы окна логина,
-							//чтобы правильно возвращать данные для подключения не используя статические классы
-							var builder = QSMain.ConnectionStringBuilder;
-							return new DatabaseConnectionSettings
-							{
-								ServerName = builder.Server,
-								Port = builder.Port,
-								DatabaseName = builder.Database,
-								UserName = builder.UserID,
-								Password = builder.Password,
-								MySqlSslMode = builder.SslMode
-							};
-						})
-						.AddSingleton<MySqlConnectionStringBuilder>(provider =>
-						{
-							var connectionSettings = provider.GetRequiredService<IDatabaseConnectionSettings>();
-							var builder = new MySqlConnectionStringBuilder
-							{
-								Server = connectionSettings.ServerName,
-								Port = connectionSettings.Port,
-								Database = connectionSettings.DatabaseName,
-								UserID = connectionSettings.UserName,
-								Password = connectionSettings.Password,
-								SslMode = connectionSettings.MySqlSslMode
-							};
-
-							if(connectionSettings.DefaultCommandTimeout.HasValue)
-							{
-								builder.DefaultCommandTimeout = connectionSettings.DefaultCommandTimeout.Value;
-							}
-
-							builder.Add("ConnectionTimeout", 120);
-
-							return builder;
-
-						})
-						.AddMappingAssemblies(
-							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-							typeof(QS.Project.HibernateMapping.TypeOfEntityMap).Assembly,
-							typeof(QS.Banks.Domain.Bank).Assembly,
-							typeof(QS.HistoryLog.HistoryMain).Assembly,
-							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(QS.Report.Domain.UserPrintSettings).Assembly,
-							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly
-						)
-						.AddDatabaseConfigurationExposer(config =>
-						{
-							config.DataBaseIntegration(
-								dbi =>
-								{
-									dbi.BatchSize = 100;
-									dbi.Timeout = 120;
-								}
-							);
-
-							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
-						})
-						.AddCoreDataNHibernate()
-						.AddSpatialSqlConfiguration()
-						.AddNHibernateConfiguration()
-						.AddNHibernateConventions()
-						.AddDatabaseInfo()
-						.AddDatabaseSingletonSettings()
-						.AddCore()
-						.AddDesktop()
-						.AddFileStorage()
-						.AddGuiTrackedUoW()
-						.AddObjectValidatorWithGui()
-						.AddPermissionValidation()
-						.AddGuiInteracive()
-
-						.AddScoped<IRouteListService, RouteListService>()
-						.AddScoped<RouteGeometryCalculator>()
-						.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
-
-						.AddScoped<IDebtorsSettings, DebtorsSettings>()
-						.AddFiasClient()
-						.AddScoped<RevisionBottlesAndDeposits>()
-						.AddTransient<IReportExporter, ReportExporterAdapter>()
-						.AddScoped<SelectPaymentTypeViewModel>()
-						.AddScoped<ICoordinatesParser, CoordinatesParser>()
-						.AddScoped<ICustomReportFactory, CustomReportFactory>()
-						.AddScoped<ICustomPropertiesFactory, CustomPropertiesFactory>()
-						.AddScoped<ICustomReportItemFactory, CustomReportItemFactory>()
-						.AddScoped<IDriverWarehouseEventRepository, DriverWarehouseEventRepository>()
-						.AddScoped<ICompletedDriverWarehouseEventProxyRepository, CompletedDriverWarehouseEventProxyRepository>()
-						.AddScoped<IRdlTextBoxFactory, RdlTextBoxFactory>()
-						.AddScoped<IEventsQrPlacer, EventsQrPlacer>()
-						.AddTransient<IValidationViewFactory, GtkValidationViewFactory>()
-						.AddSingleton<ViewModelWidgetResolver, BasedOnNameViewModelWidgetResolver>()
-						.AddSingleton<ITDIWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
-						.AddSingleton<IFilterWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
-						.AddSingleton<IWidgetResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
-						.AddSingleton<IGtkViewResolver>(sp => sp.GetService<ViewModelWidgetResolver>())
-						.AddSingleton<ViewModelWidgetsRegistrar>()
-						.AddApplication()
-						.AddBusiness(hostingContext.Configuration)
-						.AddInfrastructure()
-						.AddCoreDataRepositories()
-						.AddScoped<IFuelApiService, FuelApiService>()
-						.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
-						.AddFuelControl(hostingContext)
-
-						//Messages
-						.AddSingleton<MessagesHostedService>()
-						.AddSingleton<IMessageTransportInitializer>(ctx => ctx.GetRequiredService<MessagesHostedService>())
-						.AddHostedService(ctx => ctx.GetRequiredService<MessagesHostedService>())
-
-						.AddTransient(typeof(ViewModelEEVMBuilder<>))
-						.AddTransient(typeof(LegacyEntitySelectionViewModelBuilder<>))
-						.AddTransient<EntityModelFactory>()
-
-						.AddPacs()
-						.AddWaterDeliveryDesktop()
-						;
-
-					services.AddStaticHistoryTracker();
-					services.AddStaticScopeForEntity();
-					services.AddStaticServicesConfig();
+					services.AddWaterDeliveryDesktop(hostingContext.Configuration);
 				});
 	}
 }

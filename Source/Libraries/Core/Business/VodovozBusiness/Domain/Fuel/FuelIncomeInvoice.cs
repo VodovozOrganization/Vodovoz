@@ -8,6 +8,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -211,7 +212,7 @@ namespace Vodovoz.Domain.Fuel
 				yield return new ValidationResult("Для каждого топлива должна быть выбрана номенклатура");
 			}
 
-			if(FuelIncomeInvoiceItems.Any(x => x.Nomenclature != null && x.Nomenclature.Category != Goods.NomenclatureCategory.fuel)) {
+			if(FuelIncomeInvoiceItems.Any(x => x.Nomenclature != null && x.Nomenclature.Category != NomenclatureCategory.fuel)) {
 				yield return new ValidationResult("В документе можно добавлять только топливо");
 			}
 

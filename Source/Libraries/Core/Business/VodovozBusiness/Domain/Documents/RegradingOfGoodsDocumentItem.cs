@@ -1,116 +1,173 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using DocumentFormat.OpenXml.Wordprocessing;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Domain.Documents
+namespace VodovozBusiness.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	/// <summary>
+	/// Строка пересортицы товаров
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
 	[HistoryTrace]
-	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
+	public class RegradingOfGoodsDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		private RegradingOfGoodsReason _regradingOfGoodsReason;
+		private Nomenclature _nomenclatureOld;
+		private Nomenclature _nomenclatureNew;
+		private decimal _amount;
+		private string _comment;
+		private Fine _fine;
+		private CullingCategory _typeOfDefect;
+		private WarehouseBulkGoodsAccountingOperation _warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
+		private WarehouseBulkGoodsAccountingOperation _warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
+		private DefectSource _source;
+		private decimal _amountInStock;
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Документ пересортицы потоваро (Не использовать, необходимо для NHibernate)
+		/// </summary>
 		public virtual RegradingOfGoodsDocument Document { get; set; }
 
-		Nomenclature nomenclatureOld;
+		/// <summary>
+		/// Старая номенклатура
+		/// </summary>
+		[Required(ErrorMessage = "Старая номенклатура должна быть заполнена.")]
+		[Display(Name = "Старая номенклатура")]
+		public virtual Nomenclature NomenclatureOld
+		{
+			get => _nomenclatureOld;
+			set
+			{
+				SetField(ref _nomenclatureOld, value);
 
-		[Required (ErrorMessage = "Старая номенклатура должна быть заполнена.")]
-		[Display (Name = "Старая номенклатура")]
-		public virtual Nomenclature NomenclatureOld {
-			get { return nomenclatureOld; }
-			set {
-				SetField (ref nomenclatureOld, value, () => NomenclatureOld);
-
-				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != nomenclatureOld)
-					WarehouseWriteOffOperation.Nomenclature = nomenclatureOld;
+				if(WarehouseWriteOffOperation != null
+					&& WarehouseWriteOffOperation.Nomenclature != _nomenclatureOld)
+				{
+					WarehouseWriteOffOperation.Nomenclature = _nomenclatureOld;
+				}
 			}
 		}
 
-		Nomenclature nomenclatureNew;
+		/// <summary>
+		/// Новая номенклатура
+		/// </summary>
+		[Required(ErrorMessage = "Новая номенклатура должна быть заполнена.")]
+		[Display(Name = "Новая номенклатура")]
+		public virtual Nomenclature NomenclatureNew
+		{
+			get => _nomenclatureNew;
+			set
+			{
+				SetField(ref _nomenclatureNew, value);
 
-		[Required (ErrorMessage = "Новая номенклатура должна быть заполнена.")]
-		[Display (Name = "Новая номенклатура")]
-		public virtual Nomenclature NomenclatureNew {
-			get { return nomenclatureNew; }
-			set {
-				SetField (ref nomenclatureNew, value, () => NomenclatureNew);
-
-				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Nomenclature != nomenclatureNew)
-					WarehouseIncomeOperation.Nomenclature = nomenclatureNew;
+				if(WarehouseIncomeOperation != null
+					&& WarehouseIncomeOperation.Nomenclature != _nomenclatureNew)
+				{
+					WarehouseIncomeOperation.Nomenclature = _nomenclatureNew;
+				}
 			}
 		}
 
-		decimal amount;
+		/// <summary>
+		/// Количество
+		/// </summary>
+		[Display(Name = "Количество")]
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set
+			{
+				SetField(ref _amount, value);
 
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
-
-				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
+				if(WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
+				{
 					WarehouseIncomeOperation.Amount = Amount;
-				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
+				}
+
+				if(WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
+				{
 					WarehouseWriteOffOperation.Amount = -Amount;
+				}
 			}
 		}
 
-		string comment;
-
-		[Display (Name = "Комментарий")]
-		public virtual string Comment {
-			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+		/// <summary>
+		/// Комментарий
+		/// </summary>
+		[Display(Name = "Комментарий")]
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
-		Fine fine;
-
-		[Display (Name = "Штраф")]
-		public virtual Fine Fine {
-			get { return fine; }
-			set { SetField (ref fine, value, () => Fine); }
+		/// <summary>
+		/// Штраф
+		/// </summary>
+		[Display(Name = "Штраф")]
+		public virtual Fine Fine
+		{
+			get => _fine;
+			set => SetField(ref _fine, value);
 		}
 
-		CullingCategory typeOfDefect;
+		/// <summary>
+		/// Тип брака
+		/// </summary>
 		[Display(Name = "Тип брака")]
-		public virtual CullingCategory TypeOfDefect {
-			get { return typeOfDefect; }
-			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
+		public virtual CullingCategory TypeOfDefect
+		{
+			get => _typeOfDefect;
+			set => SetField(ref _typeOfDefect, value);
 		}
 
-		DefectSource source;
+		/// <summary>
+		/// Источник брака
+		/// </summary>
 		[Display(Name = "Источник брака")]
-		public virtual DefectSource Source {
-			get { return source; }
-			set { SetField(ref source, value, () => Source); }
+		public virtual DefectSource Source
+		{
+			get => _source;
+			set => SetField(ref _source, value);
 		}
 
-		WarehouseBulkGoodsAccountingOperation warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
-
-		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation {
-			get => warehouseWriteOffOperation;
-			set => SetField (ref warehouseWriteOffOperation, value);
+		/// <summary>
+		/// Операция списания
+		/// </summary>
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation
+		{
+			get => _warehouseWriteOffOperation;
+			set => SetField(ref _warehouseWriteOffOperation, value);
 		}
 
-		WarehouseBulkGoodsAccountingOperation warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
-
-		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation {
-			get => warehouseIncomeOperation;
-			set => SetField (ref warehouseIncomeOperation, value);
+		/// <summary>
+		/// Операция пополнения
+		/// </summary>
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation
+		{
+			get => _warehouseIncomeOperation;
+			set => SetField(ref _warehouseIncomeOperation, value);
 		}
 
+		/// <summary>
+		/// Причина пересортицы
+		/// </summary>
 		[Display(Name = "Причина пересортицы")]
 		public virtual RegradingOfGoodsReason RegradingOfGoodsReason
 		{
@@ -120,54 +177,65 @@ namespace Vodovoz.Domain.Documents
 
 		#region Не сохраняемые
 
-		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
-
-		decimal amountInStock;
-
-		[Display (Name = "Количество на складе")]
-		public virtual decimal AmountInStock {
-			get { return amountInStock; }
-			set {
-				SetField (ref amountInStock, value, () => AmountInStock);
-			}
+		/// <summary>
+		/// Количество на складе
+		/// </summary>
+		[Obsolete("Не используется в классе, нужно убрать, оставлено для обратной совместимости")]
+		[Display(Name = "Количество на складе")]
+		public virtual decimal AmountInStock
+		{
+			get => _amountInStock;
+			set => SetField(ref _amountInStock, value);
 		}
 
-		#endregion
+		#endregion Не сохраняемые
 
 		#region Расчетные
 
-		public virtual string Title {
-			get{
-				return String.Format("{0} -> {1} - {2}", 
-					NomenclatureOld.Name, 
-					NomenclatureNew.Name,
-					NomenclatureOld.Unit.MakeAmountShortStr(Amount));
-			}
-		}
+		public virtual bool IsDefective =>
+			NomenclatureNew.IsDefectiveBottle
+			|| (NomenclatureNew.Category == NomenclatureCategory.bottle
+				&& NomenclatureOld.Category == NomenclatureCategory.water);
 
-		#endregion
+		/// <summary>
+		/// Сумма ущерба
+		/// </summary>
+		[Display(Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage => Amount == 0 ? 0 : NomenclatureOld.SumOfDamage * Amount;
+
+		/// <summary>
+		/// Заголовок
+		/// </summary>
+		public virtual string Title => $"{NomenclatureOld.Name} -> {NomenclatureNew.Name} - {NomenclatureOld.Unit.MakeAmountShortStr(Amount)}";
+
+		#endregion Расчетные
 
 		#region Функции
 
+		/// <summary>
+		/// СОздание операций
+		/// </summary>
+		/// <param name="warehouse">Склад пересортицы</param>
+		/// <param name="time">Время операций</param>
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
 			WarehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation
-				{
-					Warehouse = warehouse,
-					Amount = -Amount,
-					OperationTime = time,
-					Nomenclature = NomenclatureOld
-				};
+			{
+				Warehouse = warehouse,
+				Amount = -Amount,
+				OperationTime = time,
+				Nomenclature = NomenclatureOld
+			};
+
 			WarehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation
-				{
-					Warehouse = warehouse,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = NomenclatureNew
-				};
+			{
+				Warehouse = warehouse,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = NomenclatureNew
+			};
 		}
 
-		#endregion
+		#endregion Функции
 	}
 }

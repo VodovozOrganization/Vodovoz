@@ -61,6 +61,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private FuelDocument _fuelDocument;
 		private Employee _cashier;
+		private RouteList _routeList;
 		private bool _autoCommit;
 		private bool _canOpenExpense;
 		private decimal _fuelBalance;
@@ -355,7 +356,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref _fuelDocument, value);
 		}
 
-		public RouteList RouteList { get; set; }
+		[PropertyChangedAlso(nameof(IsFuelLimitsCanBeEdited))]
+		public RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
+		}
 
 		[PropertyChangedAlso(nameof(IsDocumentCanBeEdited))]
 		public virtual Employee Cashier
@@ -424,7 +430,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual bool IsDocumentCanBeSaved => IsDocumentCanBeEdited && !IsDocumentSavingInProcess;
 
 		public virtual bool IsFuelLimitsCanBeEdited =>
-			IsNewEditable && !IsGiveFuelInMoneySelected && IsUserCanGiveFuelLimits && _autoCommit;
+			IsNewEditable
+			&& !IsGiveFuelInMoneySelected
+			&& IsUserCanGiveFuelLimits
+			&& _autoCommit
+			&& RouteList?.Date >= DateTime.Today;
 
 		public virtual bool IsFuelInMoneyCanBeEdited =>
 			IsNewEditable && IsUserCanGiveFuelInMoney;
@@ -435,7 +445,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual bool CanChangeDate =>
 			IsDocumentCanBeEdited
-			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Logistic.Car.CanChangeFuelCardNumber,
+			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber,
 				_commonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
 
@@ -557,30 +567,31 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			int maxTransactionsCount;
 			decimal maxDailyFuelLimit;
 
-			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
+			switch (FuelDocument.Car?.CarModel?.CarTypeOfUse)
 			{
-				maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
-			{
-				maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
-			{
-				maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
-			{
-				maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
-			}
-			else
-			{
-				throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
-					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
+				case CarTypeOfUse.Largus:
+					maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.GAZelle:
+					maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Truck:
+					maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Loader:
+					maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Minivan:
+					maxTransactionsCount = _fuelControlSettings.MinivanFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.MinivanMaxDailyFuelLimit;
+					break;
+				default:
+					throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
+					                                    "Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
 			}
 
 			_fuelLimitMaxTransactionsCount = maxTransactionsCount;
@@ -594,7 +605,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
 
 		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.Fuel.CanGiveFuelLimits);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{
@@ -892,7 +903,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			{
 				CardId = fuelCardId,
 				ContractId = _fuelControlSettings.OrganizationContractId,
-				ProductGroup = FuelDocument.Fuel.ProductGroupId,
 				ProductType = _fuelControlSettings.FuelProductTypeId,
 				TermType = FuelLimitTermType.AllDays,
 				Period = 1,

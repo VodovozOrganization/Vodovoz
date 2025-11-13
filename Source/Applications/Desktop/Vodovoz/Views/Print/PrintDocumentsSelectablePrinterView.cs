@@ -1,14 +1,14 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Report;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using System;
 using Vodovoz.ViewModels.Print;
 using static Vodovoz.ViewModels.Print.PrintDocumentsSelectablePrinterViewModel;
 
 namespace Vodovoz.Views.Print
 {
-	public partial class PrintDocumentsSelectablePrinterView : DialogViewBase<PrintDocumentsSelectablePrinterViewModel>
+	public partial class PrintDocumentsSelectablePrinterView : TabViewBase<PrintDocumentsSelectablePrinterViewModel>
 	{
 		public PrintDocumentsSelectablePrinterView(PrintDocumentsSelectablePrinterViewModel viewModel) : base(viewModel)
 		{

@@ -47,8 +47,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 
 		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
 		{
-			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
-			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.IsLogistician);
+			var cashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+			var logistician = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 			HasAccessToDriverTerminal = cashier || logistician;
 			CanSortByPriority = cashier;
 			HideEmployeeCategories = hideEmployeeCategories;
@@ -282,6 +282,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 					}
 				}, () => true
 			);
+		}
+
+		public override void Dispose()
+		{
+			_journalViewModel = null;
+			base.Dispose();
 		}
 	}
 }

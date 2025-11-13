@@ -1,5 +1,4 @@
-using FluentNHibernate.Mapping;
-using NHibernate;
+﻿using FluentNHibernate.Mapping;
 using NHibernate.Spatial.Type;
 using Vodovoz.Domain.Sale;
 

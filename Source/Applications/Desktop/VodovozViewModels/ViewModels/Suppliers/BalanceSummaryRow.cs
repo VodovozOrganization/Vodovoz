@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int EntityId { get; set; }
 		public string NomTitle { get; set; }
 		public string InventoryNumber { get; set; }
-		public decimal Min { get; set; }
+		public int Min { get; set; }
 		public decimal Common => WarehousesBalances.Sum() + EmployeesBalances.Sum() + CarsBalances.Sum();
 		public decimal Diff => Common - Min;
 		public decimal? ReservedItemsAmount { get; set; } = 0;

@@ -1,10 +1,11 @@
-﻿using Autofac;
+using Autofac;
 using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.Tdi;
 using QS.Validation;
@@ -42,6 +43,8 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _bottleReserve;
 		private string _oldComments;
 		private string _counterpartyDebt;
+		private readonly IPhoneTypeSettings _phoneTypeSettings;
+		private readonly IPhoneRepository _phoneRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -78,6 +81,10 @@ namespace Vodovoz.ViewModels.Counterparties
 				throw new ArgumentNullException(nameof(deliveryPointViewModelEEVMBuilder));
 			}
 
+			_phoneTypeSettings = phoneTypeSettings
+				?? throw new ArgumentNullException(nameof(phoneTypeSettings));
+			_phoneRepository = phoneRepository
+				?? throw new ArgumentNullException(nameof(phoneRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_callTaskRepository = callTaskRepository
@@ -87,6 +94,8 @@ namespace Vodovoz.ViewModels.Counterparties
 			_commonServices = commonServices
 				?? throw new ArgumentNullException(nameof(commonServices));
 			LifetimeScope = lifetimeScope;
+
+			ReportInfoFactory = lifetimeScope.Resolve<IReportInfoFactory>();
 
 			if(UoW.IsNew)
 			{
@@ -173,6 +182,8 @@ namespace Vodovoz.ViewModels.Counterparties
 			UpdateCounterpartyInformation();
 			UpdateDeliveryPointInformation();
 		}
+
+		public IReportInfoFactory ReportInfoFactory { get; }
 
 		public IEntityEntryViewModel AttachedEmployeeViewModel { get; }
 		public IEntityEntryViewModel DeliveryPointViewModel { get; }

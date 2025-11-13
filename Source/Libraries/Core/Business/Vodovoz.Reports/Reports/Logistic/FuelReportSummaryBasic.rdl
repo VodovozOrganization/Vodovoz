@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -198,7 +198,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>={car_type}</Value>
+                      <Value>=Iif({is_summary_info}=0, '', {car_type})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -206,6 +206,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,7 +214,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>={lites_by_fuel_write_off_document}</Value>
+                      <Value>=Iif({is_summary_info}=0, '', Format({lites_by_fuel_write_off_document}, '#,##0.00'))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -221,6 +222,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -229,7 +231,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>={fuel_limit_liters_gived}</Value>
+                      <Value>=Iif({is_summary_info}=0, '', Format({fuel_limit_liters_gived}, '#,##0.00'))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -238,6 +240,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -245,7 +248,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={fuel_received_quantity}</Value>
+                      <Value>=Iif({is_summary_info}=0, {fuel_received_quantity}, {fuel_received_total_quantity})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -253,6 +256,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -260,12 +264,30 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>={fuel_received_total_sum}</Value>
+                      <Value>=Iif({is_summary_info}=0, {gazprom_product_name},  Format({fuel_received_total_sum}, '#,##0.00'))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <Format>#,##0.00</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Iif({is_summary_info}=0, '', Format({payed_for_fuel}, '#,##0.00'))</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <Format>#,##0.00</Format>
+                        <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -274,28 +296,17 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Fields!cashless_payed_for_fuel.Value</Value>
+                      <Value>=Iif({is_summary_info}=0, '', {cashless_payed_for_fuel})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <Format>#,##0.00</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -318,6 +329,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
                       </Style>
                       <Value>Итого, всего:</Value>
                     </Textbox>
@@ -334,6 +348,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -349,6 +364,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({fuel_limit_liters_gived})</Value>
                     </Textbox>
@@ -357,7 +373,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>=Sum({fuel_received_quantity})</Value>
+                      <Value>=Sum({fuel_received_total_quantity})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -365,6 +381,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -380,6 +397,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -392,8 +410,11 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <Format>#,##0.00</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
-                      <Value>=Sum({payed_for_fuel},"Data")</Value>
+                      <Value>=Sum({payed_for_fuel} * {is_summary_info},"Data")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -407,6 +428,7 @@
                         <Format>#,##0.00</Format>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({cashless_payed_for_fuel}, "Data")</Value>
                     </Textbox>
@@ -524,7 +546,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>WITH fuel_transactions_info AS
 (SELECT
@@ -532,7 +554,9 @@
 	car_models.car_type_of_use,
 	employees.category as driver_category,
 	SUM(fuel_transactions.quantity) as quantity,
-	SUM(fuel_transactions.total_sum) as total_sum
+	SUM(fuel_transactions.total_sum) as total_sum,
+	fuel_transactions.product_id as gazprom_product_id,
+	gfp.gazprom_product_name as gazprom_product_name
 FROM
 	fuel_transactions
 	LEFT JOIN fuel_cards 
@@ -547,38 +571,29 @@ FROM
 	LEFT JOIN car_versions 
 		ON cars.id = car_versions.car_id AND car_versions.start_date &lt;= fuel_transactions.transaction_date and (car_versions.end_date IS NULL OR car_versions.end_date &gt;= fuel_transactions.transaction_date)
 	LEFT JOIN employees ON cars.driver_id = employees.id
+    LEFT JOIN gazprom_fuel_products gfp ON fuel_transactions.product_id = gfp.gazprom_product_id
 WHERE 
 fuel_transactions.transaction_date &gt;= @start_date AND fuel_transactions.transaction_date &lt;= @end_date
 AND ((0 IN (@include_car_models) OR (car_models.id IN (@include_car_models)))AND (car_models.id IS NULL OR NOT (car_models.id IN (@exclude_car_models))))
-GROUP BY car_models.car_type_of_use, car_versions.car_own_type, employees.category)
-SELECT
-    CASE
-        WHEN car_own_type = 'Driver' THEN 'ТС водителей'
-        WHEN car_own_type = 'Raskat' THEN 'ТС в раскате'
-        WHEN car_own_type = 'Company' AND car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
-        WHEN car_own_type = 'Company' AND car_type_of_use = 'Truck' THEN 'Фуры компании'
-        ELSE 'Топливные карты не привязанные к авто'
-    END as car_type,
-    IFNULL(SUM(lites_by_fuel_write_off_document),0) as lites_by_fuel_write_off_document,
-    IFNULL(SUM(fuel_limit_liters_gived),0) AS fuel_limit_liters_gived,
-    IFNULL(SUM(payed_for_fuel),0) AS payed_for_fuel,
-    IFNULL(SUM(cashless_payed_for_fuel),0) AS cashless_payed_for_fuel,
-    IFNULL(SUM(fuel_received_quantity),0) as fuel_received_quantity,
-    IFNULL(SUM(fuel_received_total_sum),0) as fuel_received_total_sum
-FROM
-(SELECT
-	cv.car_own_type as car_own_type,
-	cm.car_type_of_use as car_type_of_use,
-    0 as lites_by_fuel_write_off_document,
-    fuel_documents.gived_fuel_limits_amount AS fuel_limit_liters_gived,
-    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
-    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
-    0 as fuel_received_quantity,
-    0 as fuel_received_total_sum
+GROUP BY car_models.car_type_of_use, car_versions.car_own_type, employees.category, fuel_transactions.product_id),
+
+fuel_documents AS (
+	SELECT
+		cv.car_own_type as car_own_type,
+		cm.car_type_of_use as car_type_of_use,
+		if(e.category = 'office', 1, 0) as is_office_worker,
+	    0 as lites_by_fuel_write_off_document,
+	    IFNULL(fuel_documents.gived_fuel_limits_amount,0) AS fuel_limit_liters_gived,
+	    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+	    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
+	    0 as fuel_received_quantity,
+	    0 as fuel_received_total_sum,
+		'' as gazprom_product_id,
+		'' as gazprom_product_name
 	FROM fuel_documents
 	LEFT JOIN fuel_operations AS gived_operation ON fuel_documents.fuel_operation_id = gived_operation.id
 	LEFT JOIN cars ON fuel_documents.car_id = cars.id
+	LEFT JOIN employees e ON gived_operation.driver_id = e.id
 	INNER JOIN car_models cm ON cars.model_id = cm.id
 	INNER JOIN
 	    car_versions cv ON cars.id = cv.car_id
@@ -591,29 +606,117 @@ FROM
 	 			(0 IN (@include_car_models) OR (cm.id IN (@include_car_models)))
 					AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models)))
 			)
+),
+
+fuel_documents_transactions_data_drivers AS (
+	SELECT
+		* 
+	FROM
+		fuel_documents 
+	WHERE 
+		fuel_documents.is_office_worker = 0
 	UNION ALL 
 	SELECT 
 		fuel_transactions_info.car_own_type,
 		fuel_transactions_info.car_type_of_use,
+		0 as is_office_worker,
 		0 as lites_by_fuel_write_off_document,
     	0 AS fuel_limit_liters_gived,
     	0 AS payed_for_fuel,
     	0 AS cashless_payed_for_fuel,
 		fuel_transactions_info.quantity as fuel_received_quantity,
-		fuel_transactions_info.total_sum as fuel_received_total_sum
+		fuel_transactions_info.total_sum as fuel_received_total_sum,
+		fuel_transactions_info.gazprom_product_id as gazprom_product_id,
+		fuel_transactions_info.gazprom_product_name as gazprom_product_name
 	FROM fuel_transactions_info
 	WHERE 
 		fuel_transactions_info.driver_category IS NULL OR NOT fuel_transactions_info.driver_category = 'office'
-) t
+),
+
+fuel_documents_summary_office AS (
+	SELECT
+	    SUM(fuel_limit_liters_gived) AS fuel_limit_liters_gived,
+	    SUM(payed_for_fuel) AS payed_for_fuel,
+	    SUM(cashless_payed_for_fuel) AS cashless_payed_for_fuel,
+		SUM(fuel_received_quantity) as fuel_received_quantity
+	FROM
+		fuel_documents 
+	WHERE 
+		fuel_documents.is_office_worker = 1
+)
+
+SELECT * FROM 
+
+(SELECT
+    CASE
+        WHEN car_own_type = 'Driver' THEN 'ТС водителей'
+        WHEN car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Truck' THEN 'Фуры компании'
+        ELSE 'Топливные карты не привязанные к авто'
+    END as car_type,
+    IFNULL(SUM(lites_by_fuel_write_off_document),0) as lites_by_fuel_write_off_document,
+    IFNULL(SUM(fuel_limit_liters_gived),0) AS fuel_limit_liters_gived,
+    IFNULL(SUM(payed_for_fuel),0) AS payed_for_fuel,
+    IFNULL(SUM(cashless_payed_for_fuel),0) AS cashless_payed_for_fuel,
+	0 as fuel_received_quantity,
+    IFNULL(SUM(fuel_received_quantity),0) as fuel_received_total_quantity,
+    0 as fuel_received_sum,
+    IFNULL(SUM(fuel_received_total_sum),0) as fuel_received_total_sum,
+	'' as gazprom_product_id,
+    '' as gazprom_product_name,
+    1 as is_summary_info
+FROM
+fuel_documents_transactions_data_drivers
 GROUP BY
     car_own_type,
     (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
     (car_type_of_use = 'Largus' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Minivan' AND car_own_type = 'Company'),
     (car_type_of_use = 'Truck' AND car_own_type = 'Company')
-UNION
+UNION ALL
+SELECT
+    CASE
+        WHEN car_own_type = 'Driver' THEN 'ТС водителей'
+        WHEN car_own_type = 'Raskat' THEN 'ТС в раскате'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+        WHEN car_own_type = 'Company' AND car_type_of_use = 'Truck' THEN 'Фуры компании'
+        ELSE 'Топливные карты не привязанные к авто'
+    END as car_type,
+    0 as lites_by_fuel_write_off_document,
+    0 AS fuel_limit_liters_gived,
+    0 AS payed_for_fuel,
+    0 AS cashless_payed_for_fuel,
+    IFNULL(SUM(fuel_received_quantity),0) as fuel_received_quantity,
+	0 as fuel_received_total_quantity,
+	IFNULL(SUM(fuel_received_total_sum),0) as fuel_received_sum,
+    0 as fuel_received_total_sum,
+	gazprom_product_id as gazprom_product_id,
+    gazprom_product_name as gazprom_product_name,
+    0 as is_summary_info
+FROM
+fuel_documents_transactions_data_drivers
+GROUP BY
+    car_own_type,
+    (car_type_of_use = 'GAZelle' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Largus' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Minivan' AND car_own_type = 'Company'),
+    (car_type_of_use = 'Truck' AND car_own_type = 'Company'),
+    gazprom_product_id
+HAVING fuel_received_quantity &gt; 0
+ORDER BY
+	car_type, is_summary_info DESC) t
+
+UNION ALL
+
+#Суммарная информация по выданному и заправленному топливу
 SELECT
     'Сотрудники компании' AS car_type,
-    (SELECT SUM(IFNULL(fwdi.liters, 0))
+    IFNULL((SELECT SUM(IFNULL(fwdi.liters, 0))
 		FROM
 		    fuel_writeoff_documents fwd
 		    LEFT JOIN
@@ -628,16 +731,43 @@ SELECT
 		    fwd.date &gt;= @start_date
 		  	AND fwd.date &lt; @end_date
 		    AND ((0 IN (@include_car_models) OR (cm.id IN (@include_car_models))) AND (cm.id IS NULL OR NOT (cm.id IN (@exclude_car_models))))
-    ) as lites_by_fuel_write_off_document,
+    ),0) as lites_by_fuel_write_off_document,
+    IFNULL((SELECT fuel_limit_liters_gived FROM fuel_documents_summary_office),0) AS fuel_limit_liters_gived,
+    IFNULL((SELECT payed_for_fuel FROM fuel_documents_summary_office),0) AS payed_for_fuel,
+    IFNULL((SELECT cashless_payed_for_fuel FROM fuel_documents_summary_office),0) AS cashless_payed_for_fuel,
+	IFNULL((SELECT fuel_received_quantity FROM fuel_documents_summary_office),0) as fuel_received_quantity,
+    IFNULL(
+    	(SELECT SUM(quantity) FROM fuel_transactions_info WHERE driver_category != 'driver'),
+    	0) as fuel_received_total_quantity,
+	0 as fuel_received_sum,
+    IFNULL(
+    	(SELECT SUM(total_sum) FROM fuel_transactions_info WHERE driver_category != 'driver'),
+    	0) as fuel_received_total_sum,
+	0 as gazprom_product_id,
+    0 as gazprom_product_name,
+    1 as is_summary_info
+
+UNION ALL
+
+#Детализация по заправленному топливу
+SELECT	
+	'Сотрудники компании' AS car_type,
+    0 as lites_by_fuel_write_off_document,
     0 AS fuel_limit_liters_gived,
     0 AS payed_for_fuel,
     0 AS cashless_payed_for_fuel,
-    IFNULL(
-    	(SELECT SUM(quantity) FROM fuel_transactions_info WHERE driver_category = 'office'),
-    	0) as fuel_received_quantity,
-    IFNULL(
-    	(SELECT SUM(total_sum) FROM fuel_transactions_info WHERE driver_category = 'office'),
-    	0) as fuel_received_total_sum
+	SUM(fti.quantity) as fuel_received_quantity,
+	0 as fuel_received_total_quantity,
+	SUM(fti.total_sum) as fuel_received_sum,
+	0 as fuel_received_total_sum,
+	fti.gazprom_product_id as gazprom_product_id,
+	fti.gazprom_product_name as gazprom_product_name,
+    0 as is_summary_info
+FROM 
+	fuel_transactions_info fti
+WHERE fti.driver_category = 'office'
+GROUP BY
+	fti.gazprom_product_id 
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -654,7 +784,7 @@ SELECT
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="car_type">
           <DataField>car_type</DataField>
           <TypeName>System.String</TypeName>
@@ -681,6 +811,22 @@ SELECT
         </Field>
         <Field Name="fuel_received_quantity">
           <DataField>fuel_received_quantity</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="gazprom_product_name">
+          <DataField>gazprom_product_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="is_summary_info">
+          <DataField>is_summary_info</DataField>
+          <TypeName>System.Int16</TypeName>
+        </Field>
+        <Field Name="fuel_received_total_quantity">
+          <DataField>fuel_received_total_quantity</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="fuel_received_sum">
+          <DataField>fuel_received_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>

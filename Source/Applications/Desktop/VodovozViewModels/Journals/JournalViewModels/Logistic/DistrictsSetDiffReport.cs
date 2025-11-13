@@ -6,9 +6,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Reports;
 using District = Vodovoz.Domain.Sale.District;
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(sourceDistrictSet is null)
 			{
-				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSet.NotFound(diffSourceDistrictSetVersionId.Value));
+				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSetErrors.NotFound(diffSourceDistrictSetVersionId.Value));
 			}
 
 			var targetDistrictSet =
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(targetDistrictSet is null)
 			{
-				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSet.NotFound(diffTargetDistrictSetVersionId.Value));
+				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSetErrors.NotFound(diffTargetDistrictSetVersionId.Value));
 			}
 
 			var oldDistricts = sourceDistrictSet.Districts.ToDictionary(x => x.DistrictName, x => x);
@@ -70,6 +70,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				.Where(d =>
 					oldDistricts.ContainsKey(d.Key)
 					&& (d.Value.TariffZone.Id != oldDistricts[d.Key].TariffZone.Id
+						|| d.Value.GeographicGroup.Id != oldDistricts[d.Key].GeographicGroup.Id
 						|| d.Value.DistrictBorder != oldDistricts[d.Key].DistrictBorder
 						|| GetMinimalBottlesCount(d.Value) != GetMinimalBottlesCount(oldDistricts[d.Key])
 						|| AllDistrictRuleItemsChanged(d.Value.AllDistrictRuleItems, oldDistricts[d.Key].AllDistrictRuleItems)
@@ -83,6 +84,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			foreach(var districtPair in onlyDifferentDistricts)
 			{
 				var tarifZoneChanged = oldDistricts[districtPair.Key].TariffZone?.Name != districtPair.Value.TariffZone?.Name;
+
+				var geoGroupChanged = oldDistricts[districtPair.Key].GeographicGroup?.Id != districtPair.Value.GeographicGroup?.Id;
 
 				var minimalBottlesCountChanged = GetMinimalBottlesCount(oldDistricts[districtPair.Key]) != GetMinimalBottlesCount(districtPair.Value);
 
@@ -99,6 +102,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 					TariffZoneNameNew = tarifZoneChanged
 						? districtPair.Value.TariffZone?.Name ?? ""
+						: "",
+
+					GeoGroupOld = geoGroupChanged
+						? oldDistricts[districtPair.Key].GeographicGroup?.Name
+						: "",
+
+					GeoGroupNew = geoGroupChanged
+						? districtPair.Value.GeographicGroup?.Name
 						: "",
 
 					MinimalBottlesCountOld = minimalBottlesCountChanged

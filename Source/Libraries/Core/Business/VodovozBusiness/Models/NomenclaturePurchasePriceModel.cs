@@ -1,6 +1,7 @@
 ﻿using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
@@ -25,7 +26,7 @@ namespace Vodovoz.Models
 			var newPrice = new NomenclaturePurchasePrice();
 			newPrice.Nomenclature = nomenclature;
 			newPrice.StartDate = startDate;
-			nomenclature.ObservablePurchasePrices.Add(newPrice);
+			nomenclature.PurchasePrices.Add(newPrice);
 			return newPrice;
 		}
 

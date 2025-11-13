@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Contracts\Edo.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\LogisticsEventsApi.Contracts\LogisticsEventsApi.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
+    <ProjectReference Include="..\WarehouseApi.Contracts\WarehouseApi.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

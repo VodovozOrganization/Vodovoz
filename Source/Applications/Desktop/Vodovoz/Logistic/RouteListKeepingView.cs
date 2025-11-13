@@ -2,6 +2,7 @@
 using Gdk;
 using Gtk;
 using QS.Commands;
+using QS.Journal.GtkUI;
 using QS.Tdi;
 using QS.Views.GtkUI;
 using System;
@@ -9,8 +10,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Dialogs;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -32,6 +33,9 @@ namespace Vodovoz.Logistic
 		private RouteListKeepingItemNode _selectedItem;
 
 		public event RowActivatedHandler OnClosingItemActivated;
+
+		private Menu _addressesPopup = new Menu();
+		private MenuItem _addressesOpenOrderCodes = new MenuItem("Просмотр кодов по заказу");
 
 		public RouteListKeepingView(RouteListKeepingViewModel viewModel)
 			: base(viewModel)
@@ -272,6 +276,17 @@ namespace Vodovoz.Logistic
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
+				.AddColumn("Форма оплаты")
+					.AddEnumRenderer(node => 
+						node.PaymentType,
+						excludeItems: ViewModel.ExcludedPaymentTypes
+					)
+					.AddSetter((c, n) =>
+					{
+						c.Editable = ViewModel.AllEditing 
+						&& n.RouteListItem.Status == RouteListItemStatus.EnRoute 
+						&& Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
+					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })
@@ -295,6 +310,18 @@ namespace Vodovoz.Logistic
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
 					.AddTextRenderer(node => node.Transferred)
+				.AddColumn("Клиент")
+					.AddTextRenderer(node => node.RouteListItem.Order.Client != null
+						? node.RouteListItem.Order.Client.Name
+						: "")
+				.AddColumn("Телефон")
+					.AddTextRenderer(node => node.RouteListItem.Order.ContactPhone != null
+						? node.RouteListItem.Order.ContactPhone.Additional + node.RouteListItem.Order.ContactPhone
+						: "")
+				.AddColumn("Отзвон за")
+					.AddTextRenderer(node => node.RouteListItem.Order.CallBeforeArrivalMinutes.HasValue
+						? $"{node.RouteListItem.Order.CallBeforeArrivalMinutes.Value} мин."
+						: "")
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, node) =>
 					{
@@ -324,6 +351,23 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.AllEditing, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.Items, w => w.ItemsDataSource)
 				.InitializeFromSource();
+			ytreeviewAddresses.Add(_addressesPopup);
+			_addressesPopup.Add(_addressesOpenOrderCodes);
+			_addressesOpenOrderCodes.Show();
+			_addressesPopup.Show();
+			_addressesOpenOrderCodes.Activated += (sender, e) => ViewModel.OpenOrderCodesCommand.Execute(null);
+			ytreeviewAddresses.ButtonReleaseEvent += OnAddressRightClick;
+		}
+
+		private void OnAddressRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_addressesOpenOrderCodes.Sensitive = ViewModel.OpenOrderCodesCommand.CanExecute(null);
+			_addressesPopup.Popup();
 		}
 
 		/// <summary>

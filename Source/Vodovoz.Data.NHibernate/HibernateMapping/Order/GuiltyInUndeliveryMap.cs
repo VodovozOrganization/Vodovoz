@@ -10,7 +10,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Table("guilty_in_undelivered_orders");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.GuiltySide).Column("guilty_side").CustomType<GuiltyInUndeliveryGuiltySideStringType>();
+			Map(x => x.GuiltySide).Column("guilty_side");
 
 			References(x => x.UndeliveredOrder).Column("undelivery_id");
 			References(x => x.GuiltyDepartment).Column("guilty_department_id");

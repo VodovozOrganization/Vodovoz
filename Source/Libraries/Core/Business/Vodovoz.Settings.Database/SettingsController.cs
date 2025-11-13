@@ -31,7 +31,7 @@ namespace Vodovoz.Settings.Database
 			return _settings.ContainsKey(settingName);
 		}
 
-		public void CreateOrUpdateSetting(string name, string value)
+		public void CreateOrUpdateSetting(string name, string value, TimeSpan? cacheTimeOut = null)
 		{
 			bool isInsert = false;
 			if(_settings.TryGetValue(name, out var oldSetting))
@@ -51,6 +51,11 @@ namespace Vodovoz.Settings.Database
 				{
 					var newSetting = new Setting() { Name = name, StrValue = value };
 
+					if(cacheTimeOut.HasValue)
+					{
+						newSetting.CacheTimeout = cacheTimeOut.Value;
+					}
+
 					uow.Save(newSetting);
 
 					_logger.LogDebug("Добавляем новую настройку в базу {Name}='{Value}'", name, value);
@@ -60,6 +65,11 @@ namespace Vodovoz.Settings.Database
 					uow.Session.Refresh(oldSetting);
 
 					oldSetting.StrValue = value;
+
+					if(cacheTimeOut.HasValue)
+					{
+						oldSetting.CacheTimeout = cacheTimeOut.Value;
+					}
 
 					uow.Save(oldSetting);
 
@@ -266,6 +276,7 @@ namespace Vodovoz.Settings.Database
 						if(currentSetting.IsExpired)
 						{
 							currentSetting.CachedTime = DateTime.Now;
+							currentSetting.StrValue = newSetting.StrValue;
 						}
 						else
 						{

@@ -104,9 +104,13 @@ namespace VodovozFiasWidgets
 
 		private void OnFocusOutEvent(object o, FocusOutEventArgs args)
 		{
-			if(AcceptUnknownCities &&
-				(!Text.ToLower().Contains(CityName.ToLower()) || string.IsNullOrWhiteSpace(CityName))
-			)
+			if(AcceptUnknownCities
+			   && (
+				   !Text.ToLower().Contains(CityName.ToLower())
+			       || string.IsNullOrWhiteSpace(CityName)
+			       || FiasGuid is null
+				   )
+			   )
 			{
 				CityName = Text;
 				UpdateFromFias();

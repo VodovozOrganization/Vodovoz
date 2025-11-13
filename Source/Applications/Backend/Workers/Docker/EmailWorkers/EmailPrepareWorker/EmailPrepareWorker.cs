@@ -2,6 +2,7 @@
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.Client;
@@ -17,6 +18,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
 {
@@ -30,12 +32,16 @@ namespace EmailPrepareWorker
 		private string _emailSendExchange;
 		private int _instanceId;
 
-		private bool _initialized = false;
+		// Это для костыля с остановкой сервиса, при устранении утечек удалить вместе со связанным функционалом
+		private int _crutchCounter = 0;
+		private const int _crutchCounterLimit = 100;
 
+		private bool _initialized = false;
 		private readonly ILogger<EmailPrepareWorker> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IConfiguration _configuration;
 		private readonly IModel _channel;
+		private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
 		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
@@ -43,13 +49,14 @@ namespace EmailPrepareWorker
 			IServiceScopeFactory serviceScopeFactory,
 			ILogger<EmailPrepareWorker> logger,
 			IConfiguration configuration,
-			IModel channel)
+			IModel channel,
+			IHostApplicationLifetime hostApplicationLifetime)
 		{
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
-
+			_hostApplicationLifetime = hostApplicationLifetime;
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
 			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
@@ -64,7 +71,7 @@ namespace EmailPrepareWorker
 		{
 			try
 			{
-				_logger.LogInformation("Email sending start at: {time}", DateTimeOffset.Now);
+				_logger.LogInformation("Email prepairing start at: {time}", DateTimeOffset.Now);
 
 				await PrepareAndSendEmails();
 			}
@@ -130,6 +137,7 @@ namespace EmailPrepareWorker
 			var emailDocumentPreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailDocumentPreparer>();
 			var emailSendMessagePreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSendMessagePreparer>();
 			var mySqlConnectionStringBuilder = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<MySqlConnector.MySqlConnectionStringBuilder>();
+			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
 
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
 
@@ -141,6 +149,13 @@ namespace EmailPrepareWorker
 			{
 				try
 				{
+					if(_crutchCounter > _crutchCounterLimit)
+					{
+						_logger.LogInformation("Email prepairing termination to prevent memory leak at: {time}", DateTimeOffset.Now);
+						_hostApplicationLifetime.StopApplication();
+						return;
+					}
+
 					_logger.LogInformation($"Found message to prepare for stored email: {counterpartyEmail.StoredEmail.Id}");
 
 					if(counterpartyEmail.EmailableDocument == null)
@@ -160,8 +175,14 @@ namespace EmailPrepareWorker
 						case CounterpartyEmailType.OrderWithoutShipmentForDebt:
 						case CounterpartyEmailType.OrderWithoutShipmentForAdvancePayment:
 							{
-								emailSendMessageBuilder = new SendEmailMessageBuilder(unitOfWork, emailSettings, emailRepository,
-									emailDocumentPreparer, counterpartyEmail, _instanceId);
+								emailSendMessageBuilder = new SendEmailMessageBuilder(
+									unitOfWork,
+									emailSettings,
+									emailRepository,
+									emailDocumentPreparer,
+									edoAccountController,
+									counterpartyEmail,
+									_instanceId);
 
 								break;
 							}
@@ -172,6 +193,7 @@ namespace EmailPrepareWorker
 									emailRepository,
 									unitOfWork,
 									emailDocumentPreparer,
+									edoAccountController,
 									counterpartyEmail,
 									_instanceId);
 
@@ -193,6 +215,9 @@ namespace EmailPrepareWorker
 					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
 					unitOfWork.Save(counterpartyEmail.StoredEmail);
 					unitOfWork.Commit();
+
+					_crutchCounter++;
+					_logger.LogInformation("Email prepairing processed {ProcessedCount} of {ProcessMaxCount} (At maximum - service will be stopped)", _crutchCounter, _crutchCounterLimit);
 				}
 				catch(Exception ex)
 				{

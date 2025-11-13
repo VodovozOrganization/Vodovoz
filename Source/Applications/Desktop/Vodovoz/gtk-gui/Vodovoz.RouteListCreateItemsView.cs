@@ -14,9 +14,9 @@ namespace Vodovoz
 
 		private global::QS.Widgets.EnumMenuButton enumbuttonAddOrder;
 
-		private global::Gtk.Button buttonDelete;
+		private global::Gamma.GtkWidgets.yButton buttonDelete;
 
-		private global::Gtk.Button buttonOpenOrder;
+		private global::Gamma.GtkWidgets.yButton buttonOpenOrder;
 
 		private global::Gtk.Label lblProfitability;
 
@@ -77,7 +77,7 @@ namespace Vodovoz
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.buttonDelete.Sensitive = false;
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
@@ -92,7 +92,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonOpenOrder = new global::Gtk.Button();
+			this.buttonOpenOrder = new global::Gamma.GtkWidgets.yButton();
 			this.buttonOpenOrder.Sensitive = false;
 			this.buttonOpenOrder.CanFocus = true;
 			this.buttonOpenOrder.Name = "buttonOpenOrder";

@@ -1,4 +1,5 @@
 ﻿using FastPaymentsAPI.HealthChecks;
+using FastPaymentsAPI.Library;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,12 +9,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using System;
-using FastPaymentsAPI.Library;
 using QS.Services;
+using System;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -71,7 +73,19 @@ namespace FastPaymentsAPI
 				.AddInfrastructure()
 				.AddTrackedUoW()
 				;
-			
+
+			services.AddOpenTelemetry()
+				.ConfigureResource(resource => resource.AddService("fastpayment.api"))
+				.WithTracing(tracing =>
+				{
+					tracing
+						.AddHttpClientInstrumentation()
+						.AddAspNetCoreInstrumentation()
+						.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+
+					tracing.AddOtlpExporter();
+				});
+
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
 

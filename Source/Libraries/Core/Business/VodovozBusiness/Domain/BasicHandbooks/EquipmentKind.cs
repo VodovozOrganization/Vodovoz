@@ -65,18 +65,4 @@ namespace Vodovoz.Domain
 		[Display(Name = "Прочее")]
 		Other
 	}
-
-	public class WarrantyCardTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public WarrantyCardTypeStringType () : base (typeof(WarrantyCardType))
-		{
-		}
-	}
-
-	public class EquipmentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public EquipmentTypeStringType() : base(typeof(EquipmentType))
-		{
-		}
-	}
 }

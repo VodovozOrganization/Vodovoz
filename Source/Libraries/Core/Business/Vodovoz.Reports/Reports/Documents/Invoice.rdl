@@ -13,156 +13,217 @@
     <DataSet Name="Order">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	orders.id AS order_id,
-	IFNULL(orders.e_shop_order, "") AS e_shop_order,
-	orders.delivery_date AS order_date,
-	delivery_points.organization as organization,
-	orders.order_status AS order_status,
+        <CommandText>SELECT
+    orders.id AS order_id,
+    IFNULL(orders.e_shop_order, "") AS e_shop_order,
+    orders.delivery_date AS order_date,
+    delivery_points.organization as organization,
+    orders.order_status AS order_status,
     (SELECT count(*) &gt; 0
      FROM fast_payments fp
      WHERE (fp.order_id = orders.id
          OR fp.external_id = orders.id
          OR fp.external_id = orders.online_order)
-     AND fp.payment_status = 'Performed') AS fast_payment_paid,
-	IF(is_bottle_stock, 
-		orders.bottles_by_stock_count,
-		orders.bottles_return
-	) AS bottles_return,
-	IF(orders.self_delivery = false,
-		IFNULL(SUM(route_list_addresses.bottles_returned), 0),
-		(SELECT
-			CAST(ROUND(IFNULL(SUM(ssddr.amount), 0), 0) AS INT)
-		FROM 
-			store_self_delivery_document_returned ssddr 
-		LEFT JOIN 
-			store_self_delivery_document ssdd ON ssdd.id = ssddr.store_self_delivery_document_id 
-		WHERE 
-			ssdd.order_id = orders.id 
-			AND
-			ssddr.nomenclature_id = CAST(GET_PARAMETER('default_bottle_nomenclature') AS INT)
-		)
-	) AS bottles_return_fact,
-	orders.sum_to_receive AS total,
-	orders.comment AS order_comment,
-	orders.comment_logist AS order_comment_for_logist,
-	CASE orders.signature_type 
-		WHEN 'BySeal' THEN 'По печати'
-		WHEN 'ByProxy' THEN 'По доверенности'
-		WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
-		ELSE orders.signature_type
-	END AS order_signature_type,
-	CASE orders.payment_type 
-		WHEN 'Cash' THEN 'Наличные'
-		WHEN 'Terminal' THEN 'По терминалу (QR-код терминал)'
-		WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
-		WHEN 'SmsQR' THEN IF(
-        (SELECT count(*) &gt; 0
-         FROM fast_payments fp
-         WHERE (fp.order_id = orders.id
-             OR fp.external_id = orders.id
-             OR fp.external_id = orders.online_order)
-         AND fp.payment_status = 'Performed'), 'СМС (QR-код)', 'По QR-коду (приложение водителя)')
-		WHEN 'PaidOnline' THEN 'Оплачено онлайн'
-		WHEN 'Barter' THEN 'Безденежно'
-		WHEN 'ContractDocumentation' THEN ''
-		WHEN 'Cashless' THEN 'Безналичная'
-		ELSE orders.payment_type
-	END AS pay_type,
-	orders.payment_type AS order_payment_type,
-	orders.online_order AS order_online_number,
-	delivery_schedule.name AS delivery_schedule,
-	counterparty_contract.number AS contract_number,
-	DATE_FORMAT(counterparty_contract.issue_date,
-			'%d.%m.%y') AS contract_date,
-	counterparty.full_name AS client_name,
-	counterparty.address AS client_address,
-	organizations.full_name AS org_name,
-	CONCAT(
-		ov.jur_address,
-		'\n',
-		CONCAT('ИНН:', organizations.INN)
-	) AS org_address,
-	CONCAT('+7 ',
-		COALESCE (contact_phone.number, delivery_point_phone_work.number, delivery_point_phone_general.number,
-			delivery_point_phone_all.number, counterparty_phone_work.number, counterparty_phone_general.number, counterparty_phone_all.number),
-		' ',
-		IFNULL(COALESCE(contact_phone.comment, delivery_point_phone_work.comment, delivery_point_phone_general.comment,
-			delivery_point_phone_all.comment, counterparty_phone_work.comment, counterparty_phone_general.comment, counterparty_phone_all.comment)
-		, "")) AS contact_phone,
-	districts.district_name AS logistics_area,
-	delivery_points.compiled_address_short AS del_point_address,
-	orders.daily_number_1c AS daily_number,
-	CONCAT_WS('',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
-	orders.trifle AS trifle,
-	orders.self_delivery,
-	IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time
+       AND fp.payment_status = 'Performed') AS fast_payment_paid,
+    IF(is_bottle_stock,
+       orders.bottles_by_stock_count,
+       orders.bottles_return
+    ) AS bottles_return,
+    IF(orders.self_delivery = false,
+       IFNULL(SUM(route_list_addresses.bottles_returned), 0),
+       (SELECT
+            CAST(ROUND(IFNULL(SUM(ssddr.amount), 0), 0) AS INT)
+        FROM
+            store_self_delivery_document_returned ssddr
+                LEFT JOIN
+            store_self_delivery_document ssdd ON ssdd.id = ssddr.store_self_delivery_document_id
+        WHERE
+            ssdd.order_id = orders.id
+          AND
+            ssddr.nomenclature_id = (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'default_bottle_nomenclature')
+       )
+    ) AS bottles_return_fact,
+    orders.sum_to_receive AS total,
+    orders.comment AS order_comment,
+    orders.comment_logist AS order_comment_for_logist,
+    CASE orders.signature_type
+        WHEN 'BySeal' THEN 'По печати'
+        WHEN 'ByProxy' THEN 'По доверенности'
+        WHEN 'ProxyOnDeliveryPoint' THEN 'Доверенность на адресе'
+        ELSE orders.signature_type
+        END AS order_signature_type,
+    CASE orders.payment_type
+        WHEN 'Cash' THEN 'Наличные'
+        WHEN 'Terminal' THEN 'По терминалу (QR-код терминал)'
+        WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
+        WHEN 'SmsQR' THEN IF(
+                (SELECT count(*) &gt; 0
+                 FROM fast_payments fp
+                 WHERE (fp.order_id = orders.id
+                     OR fp.external_id = orders.id
+                     OR fp.external_id = orders.online_order)
+                   AND fp.payment_status = 'Performed'), 'СМС (QR-код)', 'По QR-коду (приложение водителя)')
+        WHEN 'PaidOnline' THEN 'Оплачено онлайн'
+        WHEN 'Barter' THEN 'Безденежно'
+        WHEN 'ContractDocumentation' THEN ''
+        WHEN 'Cashless' THEN 'Безналичная'
+        ELSE orders.payment_type
+        END AS pay_type,
+    orders.payment_type AS order_payment_type,
+    orders.online_order AS order_online_number,
+    delivery_schedule.name AS delivery_schedule,
+    counterparty_contract.number AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,
+                '%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.address AS client_address,
+    organizations.full_name AS org_name,
+    CONCAT(
+            ov.jur_address,
+            '\n',
+            CONCAT('ИНН:', organizations.INN)
+    ) AS org_address,
+    (SELECT
+         CONCAT('+7 ',
+                COALESCE (
+                        phones_data.contact_phone,
+                        phones_data.delivery_point_phone_work,
+                        phones_data.delivery_point_phone_general,
+                        phones_data.delivery_point_phone_all,
+                        phones_data.counterparty_phone_work,
+                        phones_data.counterparty_phone_general,
+                        phones_data.counterparty_phone_all)
+         )
+     FROM
+         ((SELECT o.id,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE p.is_archive = 0 AND p.id = o.contact_phone_id
+                   LIMIT 1
+                  ) AS contact_phone,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.delivery_point_id = o.delivery_point_id
+                     AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+                   LIMIT 1
+                  ) AS delivery_point_phone_work,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.delivery_point_id = o.delivery_point_id
+                     AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+                   LIMIT 1
+                  ) AS delivery_point_phone_general,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.delivery_point_id = o.delivery_point_id
+                   LIMIT 1
+                  ) AS delivery_point_phone_all,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.counterparty_id = o.client_id
+                     AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
+                   LIMIT 1
+                  ) AS counterparty_phone_work,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.counterparty_id = o.client_id
+                     AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
+                   LIMIT 1
+                  ) AS counterparty_phone_general,
+                  (SELECT CONCAT(p.number, ' ', IFNULL(p.comment, ''))
+                   FROM phones p
+                   WHERE
+                       p.is_archive = 0
+                     AND p.counterparty_id = o.client_id
+                   LIMIT 1
+                  ) AS counterparty_phone_all
+           FROM
+               orders o
+           WHERE
+               o.id = @order_id) phones_data
+             )) AS contact_phone,
+    districts.district_name AS logistics_area,
+    delivery_points.compiled_address_short AS del_point_address,
+    orders.daily_number_1c AS daily_number,
+    CONCAT_WS('',
+              CONCAT(employees.last_name, ' '),
+              IF(employees.name = '',
+                 '',
+                 CONCAT(LEFT(employees.name, 1), '.')),
+              IF(employees.patronymic = '',
+                 '',
+                 CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
+    orders.trifle AS trifle,
+    orders.self_delivery,
+    IF(delivery_points.lunch_time_from &lt;&gt; delivery_points.lunch_time_to , concat(DATE_FORMAT(delivery_points.lunch_time_from, "%H:%i"), " - ", DATE_FORMAT(delivery_points.lunch_time_to, "%H:%i")), "") AS lunch_time,
+   (
+        select IFNULL(sum(ROUND(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2)), 0)
+        from order_items oi
+        where oi.order_id = orders.id
+    ) AS order_sum,
+    (
+            select IFNULL(sum(ROUND(IFNULL(odi.actual_count, odi.count) * odi.deposit_sum, 2)), 0)
+            from order_deposit_items odi
+            where odi.order_id = orders.id
+    ) AS order_deposit_refund_sum,
+    (
+        CONCAT(
+            IF(
+                (select order_sum - order_deposit_refund_sum) &gt; 0,
+                'Всего получить от клиента: ',
+                'Всего вернуть клиенту: '),
+            IF(orders.payment_type != 'PaidOnline',
+                NUMBER_TO_STRING_DESCRIPTION(ABS((select order_sum - order_deposit_refund_sum))),
+                NUMBER_TO_STRING_DESCRIPTION(0)
+            ),
+            ' (',
+            IF(orders.payment_type != 'PaidOnline',
+               ABS((select order_sum - order_deposit_refund_sum)),
+               '0.00'
+            ),
+            'р.)'
+        )
+    ) as payment_string
 FROM
-	orders
-		LEFT JOIN
-	route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
-		LEFT JOIN
-	counterparty ON orders.client_id = counterparty.id
-		LEFT JOIN
-	counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND orders.counterparty_contract_id = counterparty_contract.id
-		LEFT JOIN
-	organizations ON organizations.id = counterparty_contract.organization_id
+    orders
+        LEFT JOIN
+    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status = 'Completed'
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
     organization_versions ov
-        ON
-            organizations.id = ov.organization_id 
-        AND
-            ov.start_date &lt;= orders.bill_date  
-        AND
-            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)	
-		LEFT JOIN
-	delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-		LEFT JOIN
-	delivery_points ON orders.delivery_point_id = delivery_points.id
-		LEFT JOIN
-	districts ON delivery_points.district_id = districts.id
-		LEFT JOIN
-	employees ON employees.id = orders.author_employee_id
-		LEFT JOIN (
-              SELECT p.id, p.number, p.comment
-              FROM phones p WHERE p.is_archive = 0)
-              AS contact_phone ON orders.contact_phone_id = contact_phone.id
-         LEFT JOIN (
-              SELECT p.delivery_point_id, p.id, p.number, p.comment
-              FROM phones p              
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')      
-              ) AS delivery_point_phone_work ON delivery_points.id = delivery_point_phone_work.delivery_point_id
-         LEFT JOIN (
-              SELECT p.delivery_point_id, p.id, p.number, p.comment
-              FROM phones p              
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
-              ) AS delivery_point_phone_general ON delivery_points.id = delivery_point_phone_general.delivery_point_id
-         LEFT JOIN phones delivery_point_phone_all ON delivery_point_phone_all.delivery_point_id = delivery_points.id AND delivery_point_phone_all.is_archive = 0
-         LEFT JOIN (
-              SELECT p.counterparty_id, p.id, p.number, p.comment
-              FROM phones p
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_work_type_id')
-              ) AS counterparty_phone_work ON counterparty.id = counterparty_phone_work.counterparty_id
-         LEFT JOIN (
-              SELECT p.counterparty_id, p.id, p.number, p.comment
-              FROM phones p
-              WHERE p.is_archive = 0
-              AND p.type_id = (SELECT str_value FROM base_parameters bp WHERE bp.name = 'phone_general_type_id')
-              ) AS counterparty_phone_general ON counterparty.id = counterparty_phone_general.counterparty_id
-         LEFT JOIN phones counterparty_phone_all ON counterparty_phone_all.counterparty_id  = counterparty.id AND counterparty_phone_all.is_archive = 0
+    ON
+        organizations.id = ov.organization_id
+            AND
+        ov.start_date &lt;= orders.bill_date
+            AND
+        (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+        LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    districts ON delivery_points.district_id = districts.id
+        LEFT JOIN
+    employees ON employees.id = orders.author_employee_id
 WHERE
-	orders.id = @order_id
-;</CommandText>
+    orders.id = @order_id
+;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -288,6 +349,10 @@ WHERE
         </Field>
         <Field Name="contact_phone">
           <DataField>contact_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_string">
+          <DataField>payment_string</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2134,42 +2199,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
-   "Всего получить от клиента: " +Code.SummaString_Val(
-        Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='PaidOnline',
-                Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-                0
-            )
-        )
-    )
-    +"    ("+
-    Format(
-        Iif(First({order_payment_type}, "Order")!='PaidOnline',
-            Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-            0
-        )
-        ,'#,##0.00'
-    )
-    + "р.)",
-   "Всего вернуть клиенту: "+Code.SummaString_Val(
-        Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='PaidOnline',
-                -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-                0
-            )
-        )
-    )
-    +"    ("+
-    Format(
-        Iif(First({order_payment_type}, "Order")!='PaidOnline',
-            -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
-            0
-        )
-        ,'#,##0.00'
-    )
-    + "р.)"
-)</Value>
+                      <Value>={payment_string}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3503,404 +3533,6 @@ WHERE stored_resource.id = @id1</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
-        Dim T1Str As String
-        Dim T2Str As String
-        Dim T3Str As String
-        Dim T4Str As String
-        Dim KStr As String
-        Dim Cel As String
-        Dim KNameStr As String
- 
-        Summa = Trim$(Summa) 'Удалить пробелы
-        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
-        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
-        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
-        'Проверка длины числа
-        If Len(Summa) &gt; 15 Then
-            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
-            Return "Invalid value!"
-            Exit Function
-        End If
- 
-        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
- 
-        'Анализ первой триады
-        T1Str = TrStr(Left(Summa, 3), 0)
-        If T1Str &lt;&gt; "" Then
-            Select Case Right$(Left(Summa, 3), 1)
-                Case Is = "0"
-                    T1Str = T1Str &amp; "миллиардов "
-                Case Is = "1"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиард "
-                    End If
-                Case Is = "2"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "3"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Is = "4"
-                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
-                        T1Str = T1Str &amp; "миллиардов "
-                    Else
-                        T1Str = T1Str &amp; "миллиарда "
-                    End If
-                Case Else
-                    T1Str = T1Str &amp; "миллиардов "
-            End Select
-        End If
- 
-        'Анализ второй триады
-        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
-        If T2Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 4, 3), 1)
-                Case Is = "0"
-                    T2Str = T2Str &amp; "миллионов "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллион "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
-                        T2Str = T2Str &amp; "миллионов "
-                    Else
-                        T2Str = T2Str &amp; "миллиона "
-                    End If
-                Case Else
-                    T2Str = T2Str &amp; "миллионов "
-            End Select
-        End If
- 
-        'Анализ третьей триады
-        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
-        If T3Str &lt;&gt; "" Then
-            Select Case Right$(Mid$(Summa, 7, 3), 1)
-                Case Is = "0"
-                    T3Str = T3Str &amp; "тысяч "
-                Case Is = "1"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысяча "
-                    End If
-                Case Is = "2"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "3"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Is = "4"
-                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
-                        T3Str = T3Str &amp; "тысяч "
-                    Else
-                        T3Str = T3Str &amp; "тысячи "
-                    End If
-                Case Else
-                    T3Str = T3Str &amp; "тысяч "
-            End Select
-        End If
- 
-        'Анализ четвертой триады
-        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
-  
-        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
-            Cel = "ноль "
-        Else
-            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
-        End If
- 
-        '========= Приписать валюту =========
-        'Рубли
-        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
-            Select Case Mid$(Summa, 12, 1)
-                Case Is = "0"
-                    Cel = Cel &amp; "рублей "
-                Case Is = "1"
-                    Cel = Cel &amp; "рубль "
-                Case Is = "2"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "3"
-                    Cel = Cel &amp; "рубля "
-                Case Is = "4"
-                    Cel = Cel &amp; "рубля "
-                Case Else
-                    Cel = Cel &amp; "рублей "
-            End Select
-        End If
- 
-        Select Case Mid$(Summa, 11, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-                Cel = Cel &amp; "рублей "
-        End Select
- 
-        'Копейки
-        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
-            Select Case Right$(Summa, 1)
-                Case Is = "0"
-	    KNameStr = " копеек"
-                Case Is = "1"
-	    KNameStr = " копейка"
-                Case Is = "2"
-                    KNameStr = " копейки"
-                Case Is = "3"
-	    KNameStr = " копейки"
-                Case Is = "4"
-	    KNameStr = " копейки"
-                Case Else
-	    KNameStr = " копеек"
-            End Select
-        End If
- 
-        Select Case Right$(Summa, 2)
-            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
-	KNameStr = " копеек"
-        End Select
- 
-        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; Right$(Summa, 2) &amp; KNameStr, Len(Cel &amp; Right$(Summa, 2) &amp; KNameStr) - 1)
-
-    End Function
-    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
-        TrStr = ""
-        If Rod = 0 Then
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "один "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "два "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "один "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "два "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        Else
-            Select Case Left$(Triada, 1)
-                Case Is = "1"
-                    TrStr = TrStr &amp; "сто "
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двести "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "триста "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "четыреста "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьсот "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьсот "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьсот "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьсот "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девятьсот "
-            End Select
- 
-            Select Case Mid$(Triada, 2, 1)
-                Case Is = "2"
-                    TrStr = TrStr &amp; "двадцать "
-                Case Is = "3"
-                    TrStr = TrStr &amp; "тридцать "
-                Case Is = "4"
-                    TrStr = TrStr &amp; "сорок "
-                Case Is = "5"
-                    TrStr = TrStr &amp; "пятьдесят "
-                Case Is = "6"
-                    TrStr = TrStr &amp; "шестьдесят "
-                Case Is = "7"
-                    TrStr = TrStr &amp; "семьдесят "
-                Case Is = "8"
-                    TrStr = TrStr &amp; "восемьдесят "
-                Case Is = "9"
-                    TrStr = TrStr &amp; "девяносто "
-            End Select
- 
-            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
-                Select Case Right$(Triada, 1)
-                    Case Is = "1"
-                        TrStr = TrStr &amp; "одна "
-                    Case Is = "2"
-                        TrStr = TrStr &amp; "две "
-                    Case Is = "3"
-                        TrStr = TrStr &amp; "три "
-                    Case Is = "4"
-                        TrStr = TrStr &amp; "четыре "
-                    Case Is = "5"
-                        TrStr = TrStr &amp; "пять "
-                    Case Is = "6"
-                        TrStr = TrStr &amp; "шесть "
-                    Case Is = "7"
-                        TrStr = TrStr &amp; "семь "
-                    Case Is = "8"
-                        TrStr = TrStr &amp; "восемь "
-                    Case Is = "9"
-                        TrStr = TrStr &amp; "девять "
-                End Select
-            End If
- 
-            Select Case Right$(Triada, 2)
-                Case Is = "01"
-                    TrStr = TrStr &amp; "одна "
-                Case Is = "02"
-                    TrStr = TrStr &amp; "две "
-                Case Is = "03"
-                    TrStr = TrStr &amp; "три "
-                Case Is = "04"
-                    TrStr = TrStr &amp; "четыре "
-                Case Is = "05"
-                    TrStr = TrStr &amp; "пять "
-                Case Is = "06"
-                    TrStr = TrStr &amp; "шесть "
-                Case Is = "07"
-                    TrStr = TrStr &amp; "семь "
-                Case Is = "08"
-                    TrStr = TrStr &amp; "восемь "
-                Case Is = "09"
-                    TrStr = TrStr &amp; "девять "
-                Case Is = "10"
-                    TrStr = TrStr &amp; "десять "
-                Case Is = "11"
-                    TrStr = TrStr &amp; "одиннадцать "
-                Case Is = "12"
-                    TrStr = TrStr &amp; "двенадцать "
-                Case Is = "13"
-                    TrStr = TrStr &amp; "тринадцать "
-                Case Is = "14"
-                    TrStr = TrStr &amp; "четырнадцать "
-                Case Is = "15"
-                    TrStr = TrStr &amp; "пятнадцать "
-                Case Is = "16"
-                    TrStr = TrStr &amp; "шестнадцать "
-                Case Is = "17"
-                    TrStr = TrStr &amp; "семьнадцать "
-                Case Is = "18"
-                    TrStr = TrStr &amp; "восемнадцать "
-                Case Is = "19"
-                    TrStr = TrStr &amp; "девятнадцать "
-            End Select
-        End If
-    End Function</Code>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>

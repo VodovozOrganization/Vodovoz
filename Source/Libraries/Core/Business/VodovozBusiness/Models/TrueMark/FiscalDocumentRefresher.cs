@@ -43,5 +43,33 @@ namespace Vodovoz.Models.TrueMark
 				return;
 			}
 		}
+
+		public async Task RefreshDocForReceiptManually(int receiptId, CancellationToken cancellationToken)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Обновление статуса фискального документа"))
+			{
+				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
+				if(cashReceipt == null)
+				{
+					var errorMessage = $"Чек c идентификатором {receiptId} не найден";
+					throw new InvalidOperationException(errorMessage);
+				}
+
+				var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(cashReceipt, cancellationToken);
+				var fiscalResult = await cashboxClient.CheckFiscalDocument(cashReceipt.DocumentId, cancellationToken);
+
+				if(fiscalResult?.SendStatus == CashReceipts.DTO.SendStatus.Error)
+				{
+					throw new InvalidOperationException(fiscalResult?.FailDescription ?? "Непредвиденная ошибка");
+				}
+
+				_fiscalizationResultSaver.SaveResult(cashReceipt, fiscalResult);
+
+				uow.Save(cashReceipt);
+				uow.Commit();
+
+				return;
+			}
+		}
 	}
 }

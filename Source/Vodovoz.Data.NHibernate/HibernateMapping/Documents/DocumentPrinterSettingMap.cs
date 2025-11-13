@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Users.Settings;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 {

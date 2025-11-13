@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.CharacteristicsText).Column("characteristics");
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
 			Map(x => x.IsHighlightInCarLoadDocument).Column("is_highlight_in_car_load_document");
+			Map(x => x.IsNeedAdditionalControl).Column("is_need_additional_control");
 
 			References(x => x.Parent).Column("parent_id");
 			References(x => x.OnlineStore).Column("online_store_id");

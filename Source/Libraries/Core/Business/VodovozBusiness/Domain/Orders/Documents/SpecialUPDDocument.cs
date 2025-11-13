@@ -1,18 +1,21 @@
-﻿using Autofac;
+using Autofac;
 using QS.Print;
 using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
+	public class SpecialUPDDocument : PrintableOrderDocument, IPrintableRDLDocument, ICustomResendTemplateEmailableDocument
 	{
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 		private IOrganizationSettings _organizationSettings => ScopeProvider.Scope
@@ -98,19 +101,16 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-
-			return new ReportInfo(connectionString)
-			{
-				Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}",
-				Identifier = identifier,
-				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id },
-					{ "special", true },
-					{ "hide_signature", HideSignature }
-				},
-				RestrictedOutputPresentationTypes = RestrictedOutputPresentationTypes
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
+			reportInfo.Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Parameters = new Dictionary<string, object> {
+				{ "order_id", Order.Id },
+				{ "special", true },
+				{ "hide_signature", HideSignature }
 			};
+			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
@@ -120,9 +120,16 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string Title => String.Format($"Особый УПД №{Order.Id} от {Order.DeliveryDate:d}");
 		public virtual Counterparty Counterparty => Order?.Client;
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
-			var hasAgreeForEdo = Order.Client.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+			var hasAgreeForEdo = false;
+
+			if(edoAccountController != null)
+			{
+				var edoAccount = 
+					edoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Order.Client, Order.Contract.Organization.Id);
+				hasAgreeForEdo = edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
+			}
 
 			if(Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
 			{
@@ -135,6 +142,28 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual bool HideSignature { get; set; } = true;
 
 		#endregion
+
+		public virtual EmailTemplate GetResendDocumentEmailTemplate()
+		{
+			var text = $"Добрый день!" +
+				$"<br>" +
+				$"<br>Во вложении {Title}" +
+				$"<br>" +
+				$"<br>С Уважением," +
+				$"<br>Финансовый отдел" +
+				$"<br>Компания \"Веселый Водовоз\"" +
+				$"<br>тел.: +7 (812) 317-00-00, доб. 900" +
+				$"<br>P.S. И помни, мы тебя любим";
+
+			var template = new EmailTemplate
+			{
+				Title = "ООО \"Веселый водовоз\"",
+				TextHtml = text,
+				Text = text
+			};
+
+			return template;
+		}
 
 		public override string Name => String.Format("Особый УПД №{0}", Order.Id);
 

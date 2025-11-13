@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -16,16 +18,24 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
 	internal sealed class EmailRepository : IEmailRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IOrganizationSettings _organizationSettings;
 
-		public EmailRepository(IUnitOfWorkFactory uowFactory)
+		public EmailRepository(
+			IUnitOfWorkFactory uowFactory,
+			IOrganizationSettings organizationSettings)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
@@ -160,7 +170,11 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			}
 		}
 
-		public bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false)
+		public bool NeedSendDocumentsByEmailOnFinish(
+			IUnitOfWork uow,
+			Order currentOrder,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			bool isForBill = false)
 		{
 			if(currentOrder.PaymentType != PaymentType.Cashless)
 			{
@@ -168,23 +182,36 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			}
 
 			var result = (
-				from order in uow.GetAll<Order>()
-				from address in uow.GetAll<RouteListItem>().Where(a => a.Order.Id == order.Id).DefaultIfEmpty()
+				from order in uow.Session.Query<Order>()
+				join contract in uow.Session.Query<CounterpartyContract>()
+					on order.Contract.Id equals contract.Id
+				join organization in uow.Session.Query<Organization>()
+					on contract.Organization.Id equals organization.Id
+				join address in uow.Session.Query<RouteListItem>()
+					on order.Id equals address.Order.Id into addresses
+				from address in addresses.DefaultIfEmpty()
+				join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+					on new { a = order.Client.Id, b = (int?)contract.Organization.Id, c = true }
+					equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+					into edoAccountsByOrder
+				from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
 				where
 					order.Id == currentOrder.Id
-					&& (
+					&&
+					(
 						order.IsFastDelivery
 						||
-								address.Status != RouteListItemStatus.Transfered
-								&& address.AddressTransferType == AddressTransferType.FromFreeBalance
-
+						address.Status != RouteListItemStatus.Transfered
+							&& address.AddressTransferType == AddressTransferType.FromFreeBalance
 						||
-								(
-									isForBill && !order.Client.NeedSendBillByEdo || order.Client.ConsentForEdoStatus != ConsentForEdoStatus.Agree
-								)
-								&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-
+						(
+							(
+								(isForBill && !order.Client.NeedSendBillByEdo)
+								|| edoAccountByOrder.ConsentForEdoStatus != ConsentForEdoStatus.Agree
+							)
+							&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 						)
+					)
 				select order.Id)
 			.Any();
 

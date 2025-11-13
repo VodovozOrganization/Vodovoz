@@ -5,7 +5,8 @@ namespace Vodovoz.Domain.Client
 {
 	[Appellative(
 		Nominative = "Подтип оплаты по терминалу",
-		NominativePlural = "Подтипы оплаты по терминалу")]
+		NominativePlural = "Подтипы оплат по терминалу",
+		GenitivePlural = "Подтипов оплат по терминалу")]
 	public enum PaymentByTerminalSource
 	{
 		[Display(Name = "Картой", ShortName = "картой")]

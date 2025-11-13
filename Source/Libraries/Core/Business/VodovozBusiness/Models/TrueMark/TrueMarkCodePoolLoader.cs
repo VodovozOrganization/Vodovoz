@@ -1,5 +1,5 @@
 ﻿using ClosedXML.Excel;
-using Irony.Parsing;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.TrueMark;
+using TrueMark.Codes.Pool;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -15,13 +16,16 @@ namespace Vodovoz.Models.TrueMark
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly TrueMarkWaterCodeParser _trueMarkCodeParser;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly TrueMarkCodesPoolFactory _trueMarkCodesPoolFactory;
 
-		public TrueMarkCodePoolLoader(IUnitOfWorkFactory uowFactory, TrueMarkWaterCodeParser trueMarkCodeParser, TrueMarkCodesPool trueMarkCodesPool)
+		public TrueMarkCodePoolLoader(
+			IUnitOfWorkFactory uowFactory,
+			TrueMarkWaterCodeParser trueMarkCodeParser,
+			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
-			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_trueMarkCodesPoolFactory = trueMarkCodesPoolFactory ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolFactory));
 		}
 
 		public CodeLoadingResult LoadFromFile(string path)
@@ -47,77 +51,55 @@ namespace Vodovoz.Models.TrueMark
 
 			var cells = workSheet.FirstColumn().Cells();
 
-			var saveTasks = new List<Task>();
-			int successfulLoaded = 0;
-			int totalFound = 0;
+			var cellsValues = new List<string>();
 
 			foreach(var cell in cells)
 			{
-				string content = "";
 				try
 				{
-					content = cell.GetValue<string>();
+					cellsValues.Add(cell.GetValue<string>());
 				}
 				catch(Exception)
 				{
 					continue;
 				}
-
-				saveTasks.Add(
-					Task.Run(() => {
-						var code = TryParseCode(content);
-						if(code == null)
-						{
-							return;
-						}
-
-						Interlocked.Increment(ref totalFound);
-
-						if(TrySaveCode(code))
-						{
-							Interlocked.Increment(ref successfulLoaded);
-						}
-					})
-				);
-
-				if(saveTasks.Count == 5)
-				{
-					Task.WaitAll(saveTasks.ToArray());
-					saveTasks.Clear();
-				}
 			}
 
-			Task.WaitAll(saveTasks.ToArray());
-
-			return new CodeLoadingResult { SuccessfulLoaded = successfulLoaded, TotalFound = totalFound };
+			return SaveCodes(cellsValues.Where(x => !string.IsNullOrWhiteSpace(x)));
 		}
 
 		private CodeLoadingResult LoadFromText(string excelFilePath)
 		{
 			var lines = File.ReadLines(excelFilePath);
 
+			return SaveCodes(lines.Where(x => !string.IsNullOrWhiteSpace(x)));
+		}
+
+		private CodeLoadingResult SaveCodes(IEnumerable<string> codeStrings)
+		{
 			var saveTasks = new List<Task>();
 			int successfulLoaded = 0;
 			int totalFound = 0;
 
-			foreach(var line in lines)
+			foreach(var codeString in codeStrings)
 			{
 				saveTasks.Add(
-					Task.Run(() => {
-						var code = TryParseCode(line);
-						if(code == null)
+						Task.Run(() =>
 						{
-							return;
-						}
+							var code = TryParseCode(codeString);
+							if(code == null)
+							{
+								return;
+							}
 
-						Interlocked.Increment(ref totalFound);
+							Interlocked.Increment(ref totalFound);
 
-						if(TrySaveCode(code))
-						{
-							Interlocked.Increment(ref successfulLoaded);
-						}
-					})
-				);
+							if(TrySaveCode(code))
+							{
+								Interlocked.Increment(ref successfulLoaded);
+							}
+						})
+					);
 
 				if(saveTasks.Count == 5)
 				{
@@ -149,25 +131,38 @@ namespace Vodovoz.Models.TrueMark
 			{
 				IsInvalid = false,
 				RawCode = code.SourceCode.Substring(0, Math.Min(255, code.SourceCode.Length)),
-				GTIN = code.GTIN,
+				Gtin = code.Gtin,
 				SerialNumber = code.SerialNumber,
 				CheckCode = code.CheckCode
 			};
-
+			
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				try
 				{
+					var savedCode = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+						.Where(x => x.RawCode == codeEntity.RawCode)
+						.Take(1)
+						.SingleOrDefault<TrueMarkWaterIdentificationCode>();
+
+					if(savedCode != null)
+					{
+						return false;
+					}
+
 					uow.Save(codeEntity);
+
+					var pool = _trueMarkCodesPoolFactory.Create(uow);
+					pool.PutCode(codeEntity.Id);
+
 					uow.Commit();
 				}
-				catch(Exception)
+				catch(Exception ex)
 				{
 					return false;
 				}
 			}
 
-			_trueMarkCodesPool.PutCode(codeEntity.Id);
 			return true;
 		}
 

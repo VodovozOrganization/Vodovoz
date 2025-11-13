@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -6,12 +7,13 @@ using QS.DomainModel.UoW;
 using QS.Permissions;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
+using VodovozBusiness.Services.Subdivisions;
 
 namespace Vodovoz.ViewModels.Permissions
 {
 	public class PresetSubdivisionPermissionsViewModel : PresetPermissionsViewModelBase
 	{
-		protected Subdivision subdivision;
+		protected Subdivision _subdivision;
 
 		public PresetSubdivisionPermissionsViewModel
 		(
@@ -22,7 +24,7 @@ namespace Vodovoz.ViewModels.Permissions
 			UserPermissionsExporter userPermissionsExporter
 		): base(unitOfWork, permissionRepository, usersPresetPermissionValuesGetter, userPermissionsExporter)
 		{
-			this.subdivision = subdivision ?? throw new ArgumentNullException(nameof(subdivision));
+			_subdivision = subdivision ?? throw new ArgumentNullException(nameof(subdivision));
 
 			permissionList = permissionRepository.GetAllPresetSubdivisionPermission(UoW, subdivision)
 													.OfType<HierarchicalPresetPermissionBase>().ToList();
@@ -52,7 +54,7 @@ namespace Vodovoz.ViewModels.Permissions
 					{
 						PermissionName = SelectedPresetUserPermissionSource.Name,
 						Value = true,
-						Subdivision = subdivision
+						Subdivision = _subdivision
 					};
 					ObservablePermissionsList.Add(newPermission);
 
@@ -109,6 +111,86 @@ namespace Vodovoz.ViewModels.Permissions
 				}
 				return saveCommand;
 			}
+		}
+
+		public void AddPermissionsFromSubdivision(
+			ISubdivisionPermissionsService subdivisionPermissionsService,
+			Subdivision sourceSubdivision)
+		{
+			var newPermissions = subdivisionPermissionsService.AddPresetPermissions(
+				UoW,
+				_subdivision,
+				sourceSubdivision);
+
+			AddOrReplacePermissions(newPermissions);
+		}
+
+		public void ReplacePermissionsFromSubdivision(
+			ISubdivisionPermissionsService subdivisionPermissionsService,
+			Subdivision sourceSubdivision)
+		{
+			var newPermissions = subdivisionPermissionsService.ReplacePresetPermissions(
+				UoW,
+				_subdivision,
+				sourceSubdivision);
+
+			RemoveAllAddedPermissions();
+			AddOrReplacePermissions(newPermissions);
+		}
+
+		private void AddOrReplacePermissions(IEnumerable<HierarchicalPresetSubdivisionPermission> permissions)
+		{
+			foreach(var permission in permissions)
+			{
+				var addedPermission =
+					ObservablePermissionsList
+					.FirstOrDefault(x => x.PermissionName == permission.PermissionName);
+
+				if(addedPermission != null && addedPermission.Value == permission.Value)
+				{
+					continue;
+				}
+
+				RemovePermissionIfAdded(permission.PermissionName);
+
+				ObservablePermissionsList.Add(permission);
+
+				var sourceItem = ObservablePermissionsSourceList
+					.SingleOrDefault(x => x.Name == permission.PermissionName);
+
+				ObservablePermissionsSourceList.Remove(sourceItem);
+			}
+
+			OrderPermission();
+		}
+
+		private void RemoveAllAddedPermissions()
+		{
+			while(ObservablePermissionsList.Any())
+			{
+				var permission = ObservablePermissionsList.ElementAt(0);
+
+				RemovePermissionIfAdded(permission.PermissionName);
+			}
+		}
+
+		private void RemovePermissionIfAdded(string permissionName)
+		{
+			var permission =
+				ObservablePermissionsList
+				.FirstOrDefault(x => x.PermissionName == permissionName);
+
+			if(permission is null)
+			{
+				return;
+			}
+
+			var source = PermissionsSettings.PresetPermissions[permissionName];
+			ObservablePermissionsSourceList.Add(source);
+
+			deletePermissionList.Add(permission);
+
+			ObservablePermissionsList.Remove(permission);
 		}
 	}
 }

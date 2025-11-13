@@ -11,9 +11,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\email_ad.png" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="ClosedXML">
       <Version>0.97.0</Version>
@@ -28,6 +25,8 @@
     <PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.5" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
@@ -133,6 +132,8 @@
       <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj" />
+    <ProjectReference Include="..\..\Backend\Edo\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
       <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
       <Name>Pacs.Core</Name>
@@ -141,14 +142,15 @@
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Backend\TrueMark.Contracts\TrueMark.Contracts.csproj">
-      <Project>{988F9F39-781B-4C5C-8409-0C2F3E38A3D6}</Project>
-      <Name>TrueMark.Contracts</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMarkApi.Client\TrueMarkApi.Client.csproj">
       <Project>{C2085920-3B31-4406-8074-470A26BA26AA}</Project>
       <Name>TrueMarkApi.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
+    <ProjectReference Include="..\..\Backend\TrueMark\TrueMark.Contracts\TrueMark.Contracts.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Vodovoz.RDL\Vodovoz.RDL.csproj">
       <Project>{056ba782-edef-4e8e-abb1-01fd3502a8f0}</Project>
       <Name>Vodovoz.RDL</Name>
@@ -157,6 +159,7 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
       <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>
       <Name>Vodovoz.Core.Data</Name>
@@ -173,5 +176,9 @@
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\Security\" />
+    <Folder Include="Domain\StoredResources\" />
   </ItemGroup>
 </Project>

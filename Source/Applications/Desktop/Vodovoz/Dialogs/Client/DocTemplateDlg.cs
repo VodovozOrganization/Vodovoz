@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using QS.DocTemplates;
 using QS.Project.Services;
@@ -12,6 +12,8 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using QS.DocTemplates;
 using FileWorker = QSDocTemplates.FileWorker;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz
 {
@@ -56,8 +58,8 @@ namespace Vodovoz
 				_lifetimeScope);
 
 			var organizationEntryViewModel = organizationEntryViewModelBuilder.ForProperty(x => x.Organization)
-				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 
 			organizationEntryViewModel.CanViewEntity = false;

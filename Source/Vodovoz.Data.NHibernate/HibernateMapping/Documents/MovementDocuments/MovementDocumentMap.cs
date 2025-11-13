@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents.MovementDocuments;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments
@@ -27,9 +27,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments
 			Map(x => x.StorageFrom).Column("storage_from");
 			Map(x => x.TransporterBill).Column("transporter_bill");
 			Map(x => x.TranporterSum).Column("tranporter_sum");
+			Map(x => x.AuthorId).Column("author_id");
+			Map(x => x.LastEditorId).Column("last_editor_id");
 
-			References(x => x.Author).Column("author_id");
-			References(x => x.LastEditor).Column("last_editor_id");
 			References(x => x.Receiver).Column("receiver_id");
 			References(x => x.Sender).Column("sender_id");
 			References(x => x.DiscrepancyAccepter).Column("discrepancy_accepter_id");
@@ -40,7 +40,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments
 			References(x => x.ToEmployee).Column("employee_to_id");
 			References(x => x.FromCar).Column("car_from_id");
 			References(x => x.ToCar).Column("car_to_id");
-			References(x => x.TransporterCounterparty).Column ("transporter_id");
+			References(x => x.TransporterCounterparty).Column("transporter_id");
 
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("movement_document_id");
 		}

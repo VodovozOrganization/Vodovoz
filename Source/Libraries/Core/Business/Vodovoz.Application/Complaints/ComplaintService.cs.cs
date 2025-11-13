@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Application.Complaints
@@ -25,10 +25,10 @@ namespace Vodovoz.Application.Complaints
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
-		public bool CheckForDuplicateComplaint(IUnitOfWork uow, Complaint complaint)
+		public bool CheckForDuplicateComplaint(IUnitOfWork uow, Complaint complaint, DateTime checkDuplicatesFromDate, DateTime checkDuplicatesToDate)
 		{
-			var canCreateDuplicateComplaints = _currentPermissionService.ValidatePresetPermission(Permissions.Complaint.CanCreateDuplicateComplaints);
-			var hasСounterpartyDuplicateToday = HasСounterpartyDuplicateToday(uow, complaint);
+			var canCreateDuplicateComplaints = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ComplaintPermissions.CanCreateDuplicateComplaints);
+			var hasСounterpartyDuplicateToday = HasOrderDuplicatesBetweenDates(uow, complaint, checkDuplicatesFromDate, checkDuplicatesToDate);
 
 			if(hasСounterpartyDuplicateToday && !canCreateDuplicateComplaints)
 			{
@@ -45,7 +45,7 @@ namespace Vodovoz.Application.Complaints
 			return canSaveDuplicate;
 		}
 
-		private bool HasСounterpartyDuplicateToday(IUnitOfWork uow, Complaint complaint)
+		private bool HasOrderDuplicatesBetweenDates(IUnitOfWork uow, Complaint complaint, DateTime checkDuplicatesFromDate, DateTime checkDuplicatesToDate)
 		{
 			if(complaint.Order is null)
 			{
@@ -55,7 +55,8 @@ namespace Vodovoz.Application.Complaints
 			var existsComplaint = _complaintRepository
 		   .Get(uow,
 				c => c.Order.Id == complaint.Order.Id
-				&& c.CreationDate >= DateTime.Now.AddDays(-1)
+				&& c.CreationDate >= checkDuplicatesFromDate
+				&& c.CreationDate <= checkDuplicatesToDate
 				&& c.Id != complaint.Id
 			).FirstOrDefault();
 

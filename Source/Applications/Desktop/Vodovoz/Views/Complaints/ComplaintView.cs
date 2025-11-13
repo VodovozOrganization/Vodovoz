@@ -7,6 +7,7 @@ using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
 using System.Text;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -14,6 +15,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -147,7 +149,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
+			smallfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
 			ytextviewComplaintText.Binding
 				.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text)
@@ -187,7 +189,14 @@ namespace Vodovoz.Views.Complaints
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
-			ViewModel.FilesViewModel.ReadOnly = !ViewModel.CanEdit;
+			orderRatingEntry.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+
+			lblOrderRating.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 
 			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))
@@ -265,6 +274,12 @@ namespace Vodovoz.Views.Complaints
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
 			ybuttonAddResult.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yenumcomboboxWorkWithClientResult.ItemsEnum = typeof(ComplaintWorkWithClientResult);
+			yenumcomboboxWorkWithClientResult.ShowSpecialStateNot = false;
+			yenumcomboboxWorkWithClientResult.Binding
+				.AddBinding(ViewModel.Entity, e => e.WorkWithClientResult, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			_popupCopyArrangementsMenu = new Menu();

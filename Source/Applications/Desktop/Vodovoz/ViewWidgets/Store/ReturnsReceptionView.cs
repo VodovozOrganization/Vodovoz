@@ -9,15 +9,17 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -58,7 +60,7 @@ namespace Vodovoz
 				.AddColumn("№ Кулера").AddTextRenderer(node => node.Redhead)
 					.AddSetter((cell, node) => cell.Editable = node.NomenclatureCategory == NomenclatureCategory.additional)
 				.AddColumn("Кол-во")
-					.AddNumericRenderer(node => node.Amount, false)
+					.AddNumericRenderer(node => node.Amount, new RoundedDecimalToStringConverter(), false)
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
 					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
 					.AddSetter((cell, node) => CalculateAmount(node))
@@ -148,7 +150,7 @@ namespace Vodovoz
 			int loadedTerminalAmount = default(int);
 
 			var cashSubdivision = _subdivisionRepository.GetCashSubdivisions(uow);
-			if(cashSubdivision.Contains(Warehouse.OwningSubdivision)) {
+			if(cashSubdivision.Any(x => x.Id == Warehouse.OwningSubdivisionId)) {
 				
 				loadedTerminalAmount = (int)_carLoadDocumentRepository.LoadedTerminalAmount(UoW, RouteList.Id, terminalId);
 
@@ -301,7 +303,7 @@ namespace Vodovoz
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						"user_have_access_only_to_warehouse_and_complaints")
+						Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

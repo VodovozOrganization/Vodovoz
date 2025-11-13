@@ -6,7 +6,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button btnRemove;
+		private global::Gamma.GtkWidgets.yButton btnRemove;
 
 		private global::QS.Widgets.EnumMenuButton enumBtnGuiltySide;
 
@@ -26,7 +26,7 @@ namespace Vodovoz.ViewWidgets
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.btnRemove = new global::Gtk.Button();
+			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemove.CanFocus = true;
 			this.btnRemove.Name = "btnRemove";
 			this.btnRemove.UseUnderline = true;

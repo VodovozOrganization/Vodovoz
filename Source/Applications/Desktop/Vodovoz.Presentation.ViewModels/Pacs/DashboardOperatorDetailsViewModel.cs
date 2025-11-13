@@ -1,8 +1,6 @@
 ﻿using Core.Infrastructure;
 using Pacs.Admin.Client;
 using Pacs.Core;
-using Pacs.Core.Messages.Commands;
-using Pacs.Server;
 using QS.Commands;
 using QS.Dialog;
 using QS.ViewModels;
@@ -82,8 +80,7 @@ namespace Vodovoz.Presentation.ViewModels.Pacs
 
 		public bool CanStartBreak => _model.Agent.CanStartBreak && !BreakReason.IsNullOrWhiteSpace();
 		public bool CanEndBreak => _model.Agent.CanEndBreak && !BreakReason.IsNullOrWhiteSpace();
-
-		public bool CanEndWorkShift => _model.Agent.CanEndWorkShift && !EndWorkShiftReason.IsNullOrWhiteSpace();
+		public bool CanEndWorkShift => !EndWorkShiftReason.IsNullOrWhiteSpace();
 
 		private void OnStateChange(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{

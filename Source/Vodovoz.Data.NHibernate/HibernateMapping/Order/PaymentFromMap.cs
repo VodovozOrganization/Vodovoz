@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -13,8 +13,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
-
-			References(x => x.OrganizationForOnlinePayments).Column("organization_for_avangard_payments_id");
+			Map(x => x.ReceiptRequired).Column("receipt_required");
+			Map(x => x.OrganizationSettingsCriterion).Column("organization_criterion");
+			Map(x => x.OnlineCashBoxRegistrationRequired).Column("online_cashbox_registration_required");
+			Map(x => x.RegistrationInAvangardRequired).Column("registration_in_avangard_required");
+			Map(x => x.RegistrationInTaxcomRequired).Column("registration_in_taxcom_required");
 		}
 	}
 }

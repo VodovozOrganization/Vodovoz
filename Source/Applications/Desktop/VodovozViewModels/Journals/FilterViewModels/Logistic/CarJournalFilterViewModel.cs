@@ -1,12 +1,14 @@
 ﻿using QS.Project.Filter;
 using QS.Utilities.Enums;
 using QS.ViewModels.Control.EEVM;
+using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -14,7 +16,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 	public class CarJournalFilterViewModel : FilterViewModelBase<CarJournalFilterViewModel>
 	{
 		private readonly ViewModelEEVMBuilder<CarModel> _carModelViewModelBuilder;
-
+		private readonly ViewModelEEVMBuilder<Organization> _organizationModelViewModelBuilder;
 		private CarModel _carModel;
 		private CarJournalViewModel _journal;
 
@@ -31,14 +33,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private Counterparty _insurer;
 		private bool _isOnlyCarsWithoutCarOwner;
 		private bool _isOnlyCarsWithoutInsurer;
+		private bool _isUsedInDelivery;
+		private bool _isNotUsedInDelivery;
 		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
 
-		public CarJournalFilterViewModel(ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder)
+		public CarJournalFilterViewModel(
+			ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder,
+			ViewModelEEVMBuilder<Organization> organizationModelViewModelBuilder)
 		{
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			SetFilterSensitivity(true);
-			_carModelViewModelBuilder = carModelViewModelBuilder;
+			_carModelViewModelBuilder = carModelViewModelBuilder
+				?? throw new ArgumentNullException(nameof(carModelViewModelBuilder));
+			_organizationModelViewModelBuilder = organizationModelViewModelBuilder
+				?? throw new ArgumentNullException(nameof(organizationModelViewModelBuilder));
+
+			_isUsedInDelivery = true;
+			_isNotUsedInDelivery = true;
 		}
 
 		public CarJournalViewModel Journal
@@ -63,8 +75,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					})
 					.UseViewModelDialog<CarModelViewModel>()
 					.Finish();
+
+				OrganizationViewModel = _organizationModelViewModelBuilder
+					.SetViewModel(value)
+					.SetUnitOfWork(value.UoW)
+					.ForProperty(this, x => x.CarOwner)
+					.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+					.UseViewModelDialog<OrganizationViewModel>()
+					.Finish();
 			}
 		}
+
+		public IEntityEntryViewModel OrganizationViewModel { get; private set; }
 
 		public IEntityEntryViewModel CarModelViewModel { get; private set; }
 
@@ -142,6 +164,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 					Insurer = null;
 				}
 			}
+		}
+
+		public bool IsUsedInDelivery
+		{
+			get => _isUsedInDelivery;
+			set => UpdateFilterField(ref _isUsedInDelivery, value);
+		}
+
+		public bool IsNotUsedInDelivery
+		{
+			get => _isNotUsedInDelivery;
+			set => UpdateFilterField(ref _isNotUsedInDelivery, value);
 		}
 
 		public bool CanChangeIsArchive

@@ -8,6 +8,7 @@ using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Goods;
 using QS.Project.Services;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {

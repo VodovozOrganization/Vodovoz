@@ -19,7 +19,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     employees.visiting_master,
@@ -32,6 +32,7 @@
     delivery_schedule.to_time AS max_time,
     counterparty.name AS client,
     delivery_points.compiled_address_short,
+    DATE_FORMAT(orders.wait_until_time, '%H:%i') AS wait_until_time,
     GROUP_CONCAT(gg.name SEPARATOR ', ')
 FROM route_lists
 LEFT JOIN
@@ -75,6 +76,7 @@ WHERE
   AND (gg.id IN (@geographic_groups))
   AND (
            IF('Delivery' IN (@rl_type_of_use), !employees.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'Delivery' , false)
+              OR IF('ChainStore' IN (@rl_type_of_use), !employees.visiting_master AND cm.car_type_of_use != 'Truck' AND orders.order_address_type = 'ChainStore' , false)
               OR IF('Trucks' IN (@rl_type_of_use), cm.car_type_of_use = 'Truck', false)
               OR IF('ServiceCenter' IN (@rl_type_of_use), employees.visiting_master, false)
               OR IF('StorageLogistics' IN (@rl_type_of_use), orders.order_address_type = 'StorageLogistics', false)
@@ -99,7 +101,7 @@ ORDER BY driver_name, max_time
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -122,6 +124,10 @@ ORDER BY driver_name, max_time
         </Field>
         <Field Name="compiled_address_short">
           <DataField>compiled_address_short</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="wait_until_time">
+          <DataField>wait_until_time</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="visiting_master">
@@ -157,13 +163,16 @@ ORDER BY driver_name, max_time
             <Width>41.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>291.6pt</Width>
+            <Width>266.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>317.0pt</Width>
+            <Width>292.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>39.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -269,6 +278,21 @@ ORDER BY driver_name, max_time
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxWaitUntilTimeHeader">
+                      <Value>Ожидает до</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -398,6 +422,21 @@ ORDER BY driver_name, max_time
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxWaitUntilTime">
+                      <Value>=Fields!wait_until_time.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>

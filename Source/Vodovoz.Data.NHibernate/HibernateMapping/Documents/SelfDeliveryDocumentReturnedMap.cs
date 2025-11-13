@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 {
@@ -13,9 +12,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Amount).Column("amount");
 
-			Map(x => x.Direction).Column("direction").CustomType<DirectionStringType>();
-			Map(x => x.DirectionReason).Column("direction_reason").CustomType<DirectionReasonStringType>();
-			Map(x => x.OwnType).Column("own_type").CustomType<OwnTypesStringType>();
+			Map(x => x.Direction).Column("direction");
+			Map(x => x.DirectionReason).Column("direction_reason");
+			Map(x => x.OwnType).Column("own_type");
 
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.Equipment).Column("equipment_id");
@@ -25,4 +24,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 		}
 	}
 }
-

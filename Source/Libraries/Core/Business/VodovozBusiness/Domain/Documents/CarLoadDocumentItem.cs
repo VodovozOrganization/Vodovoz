@@ -1,19 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки талона погрузки",
-		Nominative = "строка талона погрузки")]
-	[HistoryTrace]
-	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
+	public class CarLoadDocumentItem: CarLoadDocumentItemEntity
 	{
 		private CarLoadDocument _document;
 		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
@@ -22,18 +17,13 @@ namespace Vodovoz.Domain.Documents
 		private Nomenclature _nomenclature;
 		private Equipment _equipment;
 		private OwnTypes _ownType;
-		private decimal _amount;
-		private decimal? _expireDatePercent;
-		private int? _orderId;
-		private bool _isIndividualSetForOrder;
 		private decimal _amountInStock;
 		private decimal _amountInRouteList;
 		private decimal _amountLoaded;
 
 		#region Свойства
-		public virtual int Id { get; set; }
 
-		public virtual CarLoadDocument Document {
+		public virtual new CarLoadDocument Document {
 			get { return _document; }
 			set { SetField (ref _document, value); }
 		}
@@ -55,7 +45,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
+		public virtual new Nomenclature Nomenclature {
 			get { return _nomenclature; }
 			set {
 				SetField (ref _nomenclature, value);
@@ -76,34 +66,6 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _ownType;
 			set => SetField(ref _ownType, value);
-		}
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get => _amount;
-			set => SetField (ref _amount, value);
-		}
-
-		[Display(Name = "Процент срока годности")]
-		public virtual decimal? ExpireDatePercent {
-			get => _expireDatePercent; 
-			set {
-				SetField(ref _expireDatePercent, value);
-			} 
-		}
-
-		[Display(Name ="Номер заказа")]
-		public virtual int? OrderId
-		{
-			get => _orderId;
-			set => SetField(ref _orderId, value);
-		}
-
-		[Display(Name = "Отделить номенклатуры заказа при погрузке")]
-		public virtual bool IsIndividualSetForOrder
-		{
-			get => _isIndividualSetForOrder;
-			set => SetField(ref _isIndividualSetForOrder, value);
 		}
 
 		#endregion

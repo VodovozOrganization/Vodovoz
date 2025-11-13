@@ -9,13 +9,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MassTransit" Version="8.0.12" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
-		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 		<ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 		<ProjectReference Include="..\Pacs.Core\Pacs.Core.csproj" />
 	</ItemGroup>

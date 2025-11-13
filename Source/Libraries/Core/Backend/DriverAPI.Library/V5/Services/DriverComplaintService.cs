@@ -5,8 +5,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.EntityRepositories.Complaints;
-using Vodovoz.Errors;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -39,7 +39,7 @@ namespace DriverAPI.Library.V5.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка получения данных: {ExceptionMessage}", ex.Message);
-				return Result.Failure<IEnumerable<DriverComplaintReasonDto>>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
+				return Result.Failure<IEnumerable<DriverComplaintReasonDto>>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
 			}
 		}
 	}

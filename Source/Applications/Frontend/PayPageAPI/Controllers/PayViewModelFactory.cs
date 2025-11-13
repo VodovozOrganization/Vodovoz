@@ -1,5 +1,5 @@
-﻿using System;
 using PayPageAPI.Models;
+using System;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Organizations;

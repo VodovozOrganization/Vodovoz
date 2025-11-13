@@ -19,13 +19,14 @@ namespace Vodovoz.Presentation.WebApi.Security
 		{
 			options.TokenValidationParameters = new TokenValidationParameters
 			{
-				ValidateIssuer = false,
+				ValidateIssuer = _options.Value.Token.ValidateIssuer,
 				ValidIssuer = _options.Value.Token.Issuer,
-				ValidateAudience = false,
+				ValidateAudience = _options.Value.Token.ValidateAudience,
 				ValidAudience = _options.Value.Token.Audience,
-				ValidateIssuerSigningKey = true,
+				ValidateIssuerSigningKey = _options.Value.Token.ValidateIssuerSigningKey,
 				IssuerSigningKey =
-					new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Token.Key))
+					new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Token.Key)),
+				RequireExpirationTime = _options.Value.Token.RequireExpirationTime,
 			};
 
 			options.IncludeErrorDetails = true;

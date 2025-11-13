@@ -7,9 +7,10 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -25,57 +26,78 @@ namespace Vodovoz.Domain.Documents
 	{
 		private const int _commentLimit = 150;
 
+		private RouteList _routeList;
+		private Warehouse _warehouse;
+		private IList<CarLoadDocumentItem> _items = new List<CarLoadDocumentItem>();
+		private GenericObservableList<CarLoadDocumentItem> _observableItems;
+		private string _comment;
+		private CarLoadDocumentLoadOperationState _loadOperationState;
+
 		#region Сохраняемые свойства
-		
+
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				{
 					return;
+				}
+
 				UpdateOperationsTime();
 			}
 		}
 
-		private RouteList routeList;
-		public virtual RouteList RouteList {
-			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
-		private Warehouse warehouse;
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set => SetField(ref warehouse, value, () => Warehouse);
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
 		}
 		
-		private IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem>();
 		[Display(Name = "Строки")]
 		public virtual IList<CarLoadDocumentItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		private GenericObservableList<CarLoadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<CarLoadDocumentItem>(Items);
-				return observableItems;
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<CarLoadDocumentItem>(Items);
+				}
+
+				return _observableItems;
 			}
 		}
 
-		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-		
+
+		[Display(Name = "Статус талона погрузки")]
+		public virtual CarLoadDocumentLoadOperationState LoadOperationState
+		{
+			get => _loadOperationState;
+			set => SetField(ref _loadOperationState, value);
+		}
+
+
 		#endregion
 
 		#region Не сохраняемые свойства
@@ -136,7 +158,8 @@ namespace Vodovoz.Domain.Documents
 					.Where(x =>
 						x.NomenclatureId == inRoute.NomenclatureId
 						&& x.ExpireDatePercent == inRoute.ExpireDatePercent
-						&& x.OrderId == inRoute.OrderId)
+						&& x.OrderId == inRoute.OrderId
+						&& x.OwnType == inRoute.OwnType)
 					.Sum(x => x.Amount);
 
 				items.Add(new CarLoadDocumentItem
@@ -174,7 +197,8 @@ namespace Vodovoz.Domain.Documents
 				var aGoods = goodsAndEquips.Where(x =>
 					x.NomenclatureId == item.Nomenclature.Id
 					&& x.ExpireDatePercent == item.ExpireDatePercent
-					&& x.OrderId == item.OrderId);
+					&& x.OrderId == item.OrderId
+					&& x.OwnType == item.OwnType);
 
 				if(aGoods != null)
 				{
@@ -326,9 +350,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Author == null) {
+			if(AuthorId == null) {
 				yield return new ValidationResult("Не указан кладовщик.",
-					new[] { nameof(Author) });
+					new[] { nameof(AuthorId) });
 			}
 			if(RouteList == null) {
 				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется отгрузка.",

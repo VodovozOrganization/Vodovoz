@@ -11,12 +11,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Direction).Column("direction").CustomType<DirectionStringType>();
-			Map(x => x.DirectionReason).Column("direction_reason").CustomType<DirectionReasonStringType>();
-			Map(x => x.Reason).Column("reason").CustomType<ReasonStringType>();
+			Map(x => x.Direction).Column("direction");
+			Map(x => x.DirectionReason).Column("direction_reason");
+			Map(x => x.Reason).Column("reason");
 			Map(x => x.Confirmed).Column("confirmed");
 			Map(x => x.ConfirmedComment).Column("confirmed_comments");
-			Map(x => x.OwnType).Column("own_type").CustomType<OwnTypesStringType>();
+			Map(x => x.OwnType).Column("own_type");
 			Map(x => x.Count).Column("count");
 			Map(x => x.ActualCount).Column("actual_count");
 

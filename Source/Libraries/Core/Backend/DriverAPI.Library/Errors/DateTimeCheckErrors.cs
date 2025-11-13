@@ -1,4 +1,4 @@
-﻿using Vodovoz.Errors;
+﻿using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.Errors
 {

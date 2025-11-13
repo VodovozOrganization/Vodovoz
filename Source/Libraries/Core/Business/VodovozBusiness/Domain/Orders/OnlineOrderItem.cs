@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Orders
 		private int? _nomenclatureId;
 		private decimal _price;
 		private bool _isDiscountInMoney;
+		private bool _isFixedPrice;
 		private decimal _percentDiscount;
 		private decimal _moneyDiscount;
 		private int? _promoSetId;
@@ -57,6 +58,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isDiscountInMoney;
 			set => SetField(ref _isDiscountInMoney, value);
+		}
+		
+		[Display(Name = "Фикса")]
+		public virtual bool IsFixedPrice
+		{
+			get => _isFixedPrice;
+			set => SetField(ref _isFixedPrice, value);
 		}
 		
 		[Display(Name = "Скидка в процентах")]
@@ -119,19 +127,24 @@ namespace Vodovoz.Domain.Orders
 		
 		[Display(Name = "Тип скидки из промонабора")]
 		public virtual bool IsDiscountInMoneyFromPromoSet { get; set; }
+		
+		[Display(Name = "Тип ошибки валидации онлайн товара")]
+		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
+		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
-		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 		public virtual decimal CurrentCount => Count;
 		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,
 			bool isDiscountInMoney,
+			bool isFixedPrice,
 			decimal discount,
 			decimal price,
 			int? promoSetId,
+			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder
@@ -142,8 +155,10 @@ namespace Vodovoz.Domain.Orders
 				NomenclatureId = nomenclatureId,
 				Count = count,
 				IsDiscountInMoney = isDiscountInMoney,
+				IsFixedPrice = isFixedPrice,
 				Price = price,
 				PromoSetId = promoSetId,
+				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				OnlineOrder = onlineOrder

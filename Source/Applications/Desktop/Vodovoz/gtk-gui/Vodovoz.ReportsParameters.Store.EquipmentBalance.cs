@@ -6,7 +6,7 @@ namespace Vodovoz.ReportsParameters.Store
 	{
 		private global::Gtk.Table table1;
 
-		private global::Gtk.Button buttonRun;
+		private global::Gamma.GtkWidgets.yButton buttonRun;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -25,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Store
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.buttonRun = new global::Gtk.Button();
+			this.buttonRun = new global::Gamma.GtkWidgets.yButton();
 			this.buttonRun.CanFocus = true;
 			this.buttonRun.Name = "buttonRun";
 			this.buttonRun.UseUnderline = true;

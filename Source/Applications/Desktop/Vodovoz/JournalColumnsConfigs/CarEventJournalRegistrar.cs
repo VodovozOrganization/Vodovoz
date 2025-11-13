@@ -18,7 +18,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Водитель").AddTextRenderer(node => node.DriverFullName)
 				.AddColumn("Дата начала").AddTextRenderer(node => node.StartDate.ToString("d"))
 				.AddColumn("Дата окончания").AddTextRenderer(node => node.EndDate.ToString("d"))
-				.AddColumn("Стоимость").AddTextRenderer(node => node.RepairCost.ToString("0.##"))
+				.AddColumn("Стоимость").AddTextRenderer(node => node.RepairAndPartsSummaryCost.ToString("0.##"))
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment).WrapWidth(400).WrapMode(WrapMode.WordChar)
 				.AddColumn("Автор").AddTextRenderer(node => node.AuthorFullName)
 				.Finish();

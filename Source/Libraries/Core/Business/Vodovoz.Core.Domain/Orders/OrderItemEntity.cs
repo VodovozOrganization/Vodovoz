@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Orders
@@ -35,6 +36,7 @@ namespace Vodovoz.Core.Domain.Orders
 
 		private OrderEntity _order;
 		private OrderItemEntity _copiedFromUndelivery;
+		private NomenclatureEntity _nomenclature;
 
 		protected OrderItemEntity()
 		{
@@ -189,6 +191,13 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _copiedFromUndelivery;
 			set => SetField(ref _copiedFromUndelivery, value);
+		}
+
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
 		#endregion

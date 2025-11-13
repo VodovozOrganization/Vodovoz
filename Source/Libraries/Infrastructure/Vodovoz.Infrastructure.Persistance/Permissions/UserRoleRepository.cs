@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Permissions;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.Infrastructure.Persistance.Permissions

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 
@@ -19,62 +20,19 @@ namespace Vodovoz.Domain.Client
 		Accusative = "договор"
 	)]
 	[EntityPermission]
-	public class CounterpartyContract : BusinessObjectBase<CounterpartyContract>, IDomainObject, IValidatableObject
+	public class CounterpartyContract : CounterpartyContractEntity, IDomainObject, IBusinessObject, IValidatableObject
 	{
-		private bool _onCancellation;
-		private bool _isArchive;
-		private int _maxDelay;
-		private int _contractSubNumber;
-		private DateTime _issueDate;
-		private ContractType _contractType;
 		private Organization _organization;
 		private Counterparty _counterparty;
 		private DocTemplate _contractTemplate;
-		private byte[] _changedTemplateFile;
-		private string _number;
+
+		public virtual IUnitOfWork UoW { get; set; }
 
 		#region Сохраняемые поля
 
-		public virtual int Id { get; set; }
-
-		[Display(Name = "Максимальный срок отсрочки")]
-		public virtual int MaxDelay
-		{
-			get => _maxDelay;
-			set => SetField(ref _maxDelay, value);
-		}
-
-		[Display(Name = "Архивный")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
-		}
-
-		[Display(Name = "На расторжении")]
-		public virtual bool OnCancellation
-		{
-			get => _onCancellation;
-			set => SetField(ref _onCancellation, value);
-		}
-
-		[Display(Name = "Номер")]
-		public virtual string Number
-		{
-			get => _number;
-			set => SetField(ref _number, value);
-		}
-
-		[Display(Name = "Дата подписания")]
-		public virtual DateTime IssueDate
-		{
-			get => _issueDate;
-			set => SetField(ref _issueDate, value);
-		}
-
 		[Required(ErrorMessage = "Организация должна быть заполнена.")]
 		[Display(Name = "Организация")]
-		public virtual Organization Organization
+		public virtual new Organization Organization
 		{
 			get => _organization;
 			set => SetField(ref _organization, value);
@@ -82,24 +40,10 @@ namespace Vodovoz.Domain.Client
 
 		[Required(ErrorMessage = "Контрагент должен быть указан.")]
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty
+		public virtual new Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
-		}
-
-		[Display(Name = "Номер договора внутренний")]
-		public virtual int ContractSubNumber
-		{
-			get => _contractSubNumber;
-			set => SetField(ref _contractSubNumber, value);
-		}
-
-		[Display(Name = "Тип договора")]
-		public virtual ContractType ContractType
-		{
-			get => _contractType;
-			set => SetField(ref _contractType, value);
 		}
 
 		[Display(Name = "Шаблон договора")]
@@ -108,21 +52,6 @@ namespace Vodovoz.Domain.Client
 			get => _contractTemplate;
 			protected set => SetField(ref _contractTemplate, value);
 		}
-
-		[Display(Name = "Измененный договор")]
-		public virtual byte[] ChangedTemplateFile
-		{
-			get => _changedTemplateFile;
-			set => SetField(ref _changedTemplateFile, value);
-		}
-
-		#endregion
-
-		#region Вычисляемые
-
-		public virtual string Title => $"Договор №{Number} от {IssueDate:d}";
-
-		public virtual string TitleIn1c => $"{Number} от {IssueDate:d}";
 
 		#endregion
 

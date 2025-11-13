@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Settings.Common;
@@ -18,16 +20,18 @@ namespace Vodovoz.Tools.Logistic
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly IGlobalSettings _globalSettings;
-		private readonly OsrmClient _osrmClient;
+		private readonly IOsrmSettings _globalSettings;
+		private readonly IOsrmClient _osrmClient;
+		private readonly IDeliveryRepository _deliveryRepository;
 
 		public DeliveryPriceCalculator(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IFuelRepository fuelRepository,
-			IGlobalSettings globalSettings,
-			OsrmClient osrmClient)
+			IOsrmSettings globalSettings,
+			IOsrmClient osrmClient,
+			IDeliveryRepository deliveryRepository)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_geographicGroupRepository = geographicGroupRepository ?? throw new ArgumentNullException(nameof(geographicGroupRepository));
@@ -35,12 +39,14 @@ namespace Vodovoz.Tools.Logistic
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 		}
 
 
 		private double _fuelCost;
 		private double _distance;
 		private DeliveryPoint _deliveryPoint;
+		private OrderAddressType? _orderAddressType;
 
 		private void Calculate() => throw new NotImplementedException();
 
@@ -180,9 +186,38 @@ namespace Vodovoz.Tools.Logistic
 				}
 
 				result.MinBottles = district?.MinBottles.ToString();
-				result.Schedule = district != null && district.HaveRestrictions
-					? string.Join(", ", district.GetSchedulesString(true))
-					: "любой день";
+			}
+
+			return result;
+		}
+
+		public DeliveryPriceNode CalculateForService(DeliveryPoint deliveryPoint)
+		{
+			var latitude = deliveryPoint.Latitude;
+			var longitude = deliveryPoint.Longitude;
+
+			var result = new DeliveryPriceNode();
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки"))
+			{
+				if(!latitude.HasValue || !longitude.HasValue)
+				{
+					result.ErrorMessage = string.Format("Не указаны координаты. Невозможно расчитать стоимость сервисной доставки.");
+					return result;
+				}
+
+				var district = _deliveryRepository.GetServiceDistrictByCoordinates(uow, latitude.Value, longitude.Value);
+
+				if(district == null)
+				{
+					result.ErrorMessage = string.Format("Не удалось определить район. Невозможно расчитать стоимость сервисной доставки.");
+
+					return result;
+				}
+
+				result.ServiceDistrictId = district.Id;
+				result.DistrictName = district?.ServiceDistrictName ?? string.Empty;
+				result.GeographicGroups = district?.GeographicGroup != null ? district.GeographicGroup.Name : "Неизвестно";
 			}
 
 			return result;

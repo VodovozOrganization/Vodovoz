@@ -40,10 +40,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -94,7 +97,7 @@ namespace Vodovoz.JournalViewModels
 
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 			_userCanPrintManyOrdersDocuments = commonServices.CurrentPermissionService.ValidatePresetPermission("can_print_many_orders_documents");
 			_userCanExportOrdersToExcel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_export_orders_to_excel");
@@ -401,15 +404,25 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
-
-			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
-
+			OrderEdoRequest orderEdoRequestAlias = null;
+			OrderEdoRequest orderEdoRequestAlias2 = null;
+			OrderEdoDocument orderEdoDocumentAlias = null;
+			OrderEdoDocument orderEdoDocumentAlias2 = null;
+			Employee salesManagerAlias = null;
+			
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
 				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
 
+			if (FilterViewModel.SalesManager != null)
+			{
+				query.Where(() => salesManagerAlias.Id == FilterViewModel.SalesManager.Id);
+			}
+			
 			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
 				query.Where(o => o.Id == -1);
@@ -545,7 +558,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.OnlineOrderId != null)
 			{
-				query.Where(() => orderAlias.OnlineOrder == FilterViewModel.OnlineOrderId);
+				query.Where(() => orderAlias.OnlinePaymentNumber == FilterViewModel.OnlineOrderId);
 			}
 
 			if(FilterViewModel.IsForSalesDepartment != null)
@@ -584,9 +597,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Restrictions.Like(Projections.Property(() => counterpartyAlias.FullName), FilterViewModel.CounterpartyNameLike, MatchMode.Anywhere));
 			}
 			
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
@@ -605,9 +625,9 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
-													 .Select(Projections.Sum(() => orderItemAlias.Count));
+							.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+							.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
+							.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
@@ -624,41 +644,66 @@ namespace Vodovoz.JournalViewModels
 												)
 											);
 
-			var edoUpdLastRecordDateByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
+			var edoUpdLastRecordIdByOrderSubquery = QueryOver.Of(()=> innerEdoContainerAlias)
 				.Where(() => innerEdoContainerAlias.Order.Id == orderAlias.Id)
-				.And(() => innerEdoContainerAlias.Type == Type.Upd)
-				.Select(Projections.Max(()=> innerEdoContainerAlias.Created));
+				.And(() => innerEdoContainerAlias.Type == DocumentContainerType.Upd)
+				.Select(Projections.Max(()=> innerEdoContainerAlias.Id));
 
 			var edoUpdLastStatusSubquery = QueryOver.Of(() => edoContainerAlias)
 					.Where(() => edoContainerAlias.Order.Id == orderAlias.Id)
-					.And(() => edoContainerAlias.Type == Type.Upd)
-					.WithSubquery.WhereProperty(() => edoContainerAlias.Created).Eq(edoUpdLastRecordDateByOrderSubquery)
+					.And(() => edoContainerAlias.Type == DocumentContainerType.Upd)
+					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
+
+			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)
+				.JoinEntityAlias(
+					() => orderEdoRequestAlias2,
+					() => orderEdoRequestAlias2.Order.Id == orderEdoRequestAlias.Order.Id
+						&& orderEdoRequestAlias2.Id > orderEdoRequestAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => orderEdoDocumentAlias, () => orderEdoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
+				.JoinEntityAlias(
+					() => orderEdoDocumentAlias2,
+					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
+						&& orderEdoDocumentAlias2.Id > orderEdoDocumentAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => orderEdoRequestAlias.Order.Id == orderAlias.Id)
+				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.And(() => orderEdoRequestAlias2.Id == null)
+				.And(() => orderEdoDocumentAlias2.Id == null)
+				.Select(Projections.Property(() => orderEdoDocumentAlias.Status))
+				.Take(1);
 
 			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
 			{
-				edoUpdLastStatusSubquery.Where(ec => ec.EdoDocFlowStatus == edoDocFlowStatus);
-				query.WithSubquery.WhereExists(edoUpdLastStatusSubquery);
+				var edoFlowStateRestriction = Restrictions.Disjunction()
+					.Add(Restrictions.Eq(Projections.SubQuery(edoUpdLastStatusSubquery), edoDocFlowStatus.ToString()))
+					.Add(Restrictions.Eq(Projections.SubQuery(edoUpdLastStatusNewDocflowSubquery), edoDocFlowStatus.ToString()));
+
+				query.Where(edoFlowStateRestriction);
 			}
 
 			if(FilterViewModel.EdoDocFlowStatus is SpecialComboState specialComboState && specialComboState == SpecialComboState.Not)
 			{
-				query.WithSubquery.WhereNotExists(edoUpdLastStatusSubquery);
+				var edoFlowStateRestriction = Restrictions.Conjunction()
+					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusSubquery)))
+					.Add(Restrictions.IsNull(Projections.SubQuery(edoUpdLastStatusNewDocflowSubquery)));
+
+				query.Where(edoFlowStateRestriction);
 			}
 
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
-					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
 					.Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 					.Left.JoinAlias(o => o.Contract, () => contractAlias);
-			
+
 			query.Where(GetSearchCriterion(
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));
@@ -681,7 +726,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
-					.Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
+					.Select(() => orderAlias.OnlinePaymentNumber).WithAlias(() => resultAlias.OnlineOrder)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
@@ -705,6 +750,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 					.SelectSubQuery(edoUpdLastStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
+					.SelectSubQuery(edoUpdLastStatusNewDocflowSubquery).WithAlias(() => resultAlias.NewEdoDocFlowStatus)
 				)
 				.OrderBy(x => x.CreateDate).Desc;
 
@@ -746,8 +792,11 @@ namespace Vodovoz.JournalViewModels
 			OrderWithoutShipmentForDebt orderWSDAlias = null;
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
-
-			var query = uow.Session.QueryOver(() => orderWSDAlias);
+			Employee salesManagerAlias = null;
+			
+			var query = uow.Session.QueryOver(() => orderWSDAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
@@ -762,7 +811,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -775,6 +824,11 @@ namespace Vodovoz.JournalViewModels
 			var endDate = FilterViewModel.EndDate;
 			if(endDate != null) {
 				query.Where(o => o.CreateDate <= endDate.Value.LatestDayTime());
+			}
+			
+			if (FilterViewModel.SalesManager != null)
+			{
+				query.Where(() => salesManagerAlias.Id == FilterViewModel.SalesManager.Id);
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -824,8 +878,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
 			}
 
-			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				 .Left.JoinAlias(o => o.Author, () => authorAlias);
+			query.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			query.Where(GetSearchCriterion(
 				() => orderWSDAlias.Id,
@@ -892,10 +945,12 @@ namespace Vodovoz.JournalViewModels
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
-
+			Employee salesManagerAlias = null;
+			
 			var query = uow.Session.QueryOver(() => orderWSPAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.Left.JoinAlias(o => o.Author, () => authorAlias);
+				.Left.JoinAlias(o => o.Author, () => authorAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
@@ -910,7 +965,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -927,6 +982,11 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+			
+			if (FilterViewModel.SalesManager != null)
+			{
+				query.Where(() => salesManagerAlias.Id == FilterViewModel.SalesManager.Id);
 			}
 
 			if(FilterViewModel.Author != null)
@@ -1061,10 +1121,12 @@ namespace Vodovoz.JournalViewModels
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			Employee salesManagerAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderWSAPAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.Left.JoinAlias(o => o.Author, () => authorAlias);
+				.Left.JoinAlias(o => o.Author, () => authorAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
 				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
@@ -1079,7 +1141,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SortDeliveryDate == true
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -1096,6 +1158,11 @@ namespace Vodovoz.JournalViewModels
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+			
+			if (FilterViewModel.SalesManager != null)
+			{
+				query.Where(() => salesManagerAlias.Id == FilterViewModel.SalesManager.Id);
 			}
 
 			if(FilterViewModel.Author != null)
@@ -1335,8 +1402,9 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(
 								string.Format(CultureInfo.InvariantCulture,
-									"https://maps.yandex.ru/?text={0} {1} {2}",
+									"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 									order.DeliveryPoint.City,
+									order.DeliveryPoint.StreetType,
 									order.DeliveryPoint.Street,
 									order.DeliveryPoint.Building
 								)

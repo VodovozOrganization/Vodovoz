@@ -82,6 +82,10 @@ namespace Stetic
 				w1.Add("short-break-denied", w35);
 				global::Gtk.IconSet w36 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.1s_default.png"));
 				w1.Add("1s_default", w36);
+				global::Gtk.IconSet w37 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.order_ratings.png"));
+				w1.Add("orders_ratings", w37);
+				global::Gtk.IconSet w38 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.true_mark.png"));
+				w1.Add("true_mark", w38);
 				w1.AddDefault();
 			}
 		}

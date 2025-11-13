@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using System.Threading;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Errors;
 using QS.DomainModel.Entity;
-using VodovozBusiness.Common;
-using VodovozBusiness.Domain.Common;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {
@@ -19,17 +18,13 @@ namespace Vodovoz.Infrastructure.FileStorage
 		}
 
 		public Task<Result> CreateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
-		{
-			return CreateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
-		}
+			=> CreateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
 
 		public Task<Result<Stream>> GetFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken)
 			=> GetFileAsync($"{entity.Id}/{fileName}", cancellationToken);
 
 		public Task<Result> UpdateFileAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken)
-		{
-			return UpdateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
-		}
+			=> UpdateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
 
 		public Task<Result> DeleteFileAsync(TEntity entity, string fileName, CancellationToken cancellationToken)
 			=> DeleteFileAsync($"{entity.Id}/{fileName}", cancellationToken);

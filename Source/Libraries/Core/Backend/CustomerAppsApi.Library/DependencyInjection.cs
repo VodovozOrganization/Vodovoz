@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Factories;
+using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Models;
@@ -8,21 +8,21 @@ using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Numeric;
+using Vodovoz.Application.Clients.Services;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Converters;
 using Vodovoz.Factories;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Validation;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Database.Delivery;
-using Vodovoz.Settings.Database.Logistics;
-using Vodovoz.Settings.Database.Roboats;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Logistics;
-using Vodovoz.Settings.Roboats;
+using VodovozBusiness.Services.Clients.DeliveryPoints;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
+using DriverApi.Notifications.Client;
+using Vodovoz.Application.Clients;
+using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library
 {
@@ -31,6 +31,7 @@ namespace CustomerAppsApi.Library
 	/// </summary>
 	public static class DependencyInjection
 	{
+		//TODO: переделать на подключение общих библиотек с зависимостями
 		/// <summary>
 		/// Добавление сервисов библиотеки
 		/// </summary>
@@ -39,15 +40,13 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
+				.AddScoped<ISendingService, SendingService>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
-				.AddScoped<IRoboatsSettings, RoboatsSettings>()
-				.AddScoped<IGlobalSettings, GlobalSettings>()
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddScoped<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
 				.AddScoped<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
 				.AddScoped<ICounterpartyModelFactory, CounterpartyModelFactory>()
-				.AddScoped<ICounterpartyContractFactory, CounterpartyContractFactory>()
 				.AddScoped<ICounterpartyFactory, CounterpartyFactory>()
 				.AddScoped<INomenclatureFactory, NomenclatureFactory>()
 				.AddScoped<IPromotionalSetFactory, PromotionalSetFactory>()
@@ -66,9 +65,8 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IOrderModel, OrderModel>()
 				.AddScoped<IPromotionalSetModel, PromotionalSetModel>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
-				.AddScoped<FastDeliveryHandler>()
-				.AddScoped<IDriverApiSettings, DriverApiSettings>()
-				.AddScoped<IDeliveryRulesSettings, DeliveryRulesSettings>()
+				.AddDriverApiNotificationsSenders()
+				.AddScoped<IFastDeliveryHandler, FastDeliveryHandler>()
 				.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>()
 				.AddScoped<IFastDeliveryValidator, FastDeliveryValidator>()
 				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
@@ -78,11 +76,16 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
 				.AddScoped<ICounterpartyServiceDataHandler, CounterpartyServiceDataHandler>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
-				.AddSingleton<RentPackagesFrequencyRequestsHandler>();
+				.AddSingleton<RentPackagesFrequencyRequestsHandler>()
+				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
+				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 			return services;
 		}

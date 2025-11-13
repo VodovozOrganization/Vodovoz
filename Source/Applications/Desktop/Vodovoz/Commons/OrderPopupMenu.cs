@@ -46,9 +46,10 @@ namespace Vodovoz
 					continue;
 
 				System.Diagnostics.Process.Start(
-					String.Format(CultureInfo.InvariantCulture, 
-						"https://maps.yandex.ru/?text={0} {1} {2}", 
+					string.Format(CultureInfo.InvariantCulture,
+						"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 						order.DeliveryPoint.City,
+						order.DeliveryPoint.StreetType,
 						order.DeliveryPoint.Street,
 						order.DeliveryPoint.Building
 					));

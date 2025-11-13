@@ -1,51 +1,38 @@
-﻿using DatabaseServiceWorker.PowerBiWorker.Dto;
-using DatabaseServiceWorker.PowerWorker.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+using DatabaseServiceWorker.PowerBiWorker.Exporters;
+using DatabaseServiceWorker.PowerBiWorker.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
-using QS.Project.DB;
 using System;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Infrastructure;
-using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Zabbix.Sender;
 
 namespace DatabaseServiceWorker.PowerBiWorker
 {
-	internal partial class PowerBiExportWorker : TimerBackgroundServiceBase
+	internal class PowerBiExportWorker : TimerBackgroundServiceBase
 	{
 		private bool _workInProgress;
 		private readonly ILogger<PowerBiExportWorker> _logger;
-		private readonly IOptions<PowerBiExportOptions> _options;
-		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly IDatabaseConnectionSettings _sourceDatabaseConnectionSettings;
+		private readonly IPowerBiExporter _powerBiExporter;
+		private readonly IZabbixSender _zabbixSender;
 
 		public PowerBiExportWorker(
 			ILogger<PowerBiExportWorker> logger,
 			IOptions<PowerBiExportOptions> options,
-			IServiceScopeFactory serviceScopeFactory,
-			IDatabaseConnectionSettings sourceDatabaseConnectionSettings)
+			IPowerBiExporter powerBiExporter,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_serviceScopeFactory = serviceScopeFactory;
-			_sourceDatabaseConnectionSettings = sourceDatabaseConnectionSettings ?? throw new ArgumentNullException(nameof(sourceDatabaseConnectionSettings));
-			Interval = _options.Value.Interval;
-			CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+			_powerBiExporter = powerBiExporter ?? throw new ArgumentNullException(nameof(powerBiExporter));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+			Interval = options.Value.Interval;
 		}
 
 		protected override void OnStartService()
 		{
 			_logger.LogInformation(
-				"Воркер {Worker} запущен в: {StartTime}",
+				"Воркер {Worker} запущен в: {TransferStartTime}",
 				nameof(PowerBiExportWorker),
 				DateTimeOffset.Now);
 
@@ -73,60 +60,27 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 			_workInProgress = true;
 
-			using var scope = _serviceScopeFactory.CreateScope();
-			var connectionFactory = scope.ServiceProvider.GetRequiredService<IPowerBiConnectionFactory>();
-			using var sourceConnection = connectionFactory.CreateConnection(_sourceDatabaseConnectionSettings);
-			using var targetConnection = connectionFactory.CreateConnection(_options.Value.TargetDataBase);
-
 			try
 			{
-				var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
-				var nomenclatureSettings = scope.ServiceProvider.GetRequiredService<INomenclatureSettings>();
-				var deliveryRulesSettings = scope.ServiceProvider.GetRequiredService<IDeliveryRulesSettings>();
-				var generalSettings = scope.ServiceProvider.GetRequiredService<IGeneralSettings>();
-				var trackRepository = scope.ServiceProvider.GetRequiredService<ITrackRepository>();
-				var scheduleRestrictionRepository = scope.ServiceProvider.GetRequiredService<IScheduleRestrictionRepository>();
-				var deliveryRepository = scope.ServiceProvider.GetRequiredService<IDeliveryRepository>();
-
 				_logger.LogInformation("Начало экспорта в бд PowerBi {PowerBiExportDate}", DateTime.Now);
 
-				// Скорее всего не понадобится, пока низвестно
-				await ExportReportsAsync(
-					sourceConnection,
-					targetConnection,
-					unitOfWorkFactory,
-					_options.Value.StartDate, // Потом заменить на GetStartDate(), если вообще понадобится
-					DateTime.Now.Date,
-					generalSettings,
-					deliveryRepository,
-					trackRepository,
-					scheduleRestrictionRepository,
-					nomenclatureSettings,
-					deliveryRulesSettings,
-					stoppingToken);
+				await _powerBiExporter.Export(stoppingToken);
 
-				await ExportTablesAsync(
-					sourceConnection,
-					targetConnection,
-					GetStartDate(_options.Value.StartDate, _options.Value.NumberOfDaysToExport),					
-					stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 
-				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				_logger.LogInformation("Экспорт в бд PowerBi завершён.");
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при при эскпорте из БД {TodayDate}",
-					DateTime.Today.ToString("dd-MM-yyyy"));
+					"Ошибка при при эскпорте из БД");
+
+				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, "Ошибка экспорта в PowerBI.", stoppingToken);
 			}
 			finally
 			{
 				_workInProgress = false;
-
-				await sourceConnection?.CloseAsync();
-				await targetConnection?.CloseAsync();
 			}
 
 			_logger.LogInformation(

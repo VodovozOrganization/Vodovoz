@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
+using System.Net.Security;
 using System.Threading.Tasks;
 
 namespace RabbitMQ.Infrastructure
@@ -35,8 +36,9 @@ namespace RabbitMQ.Infrastructure
 				Ssl =
 				{
 					ServerName = hostname,
-					Enabled = true
-				}
+					AcceptablePolicyErrors = section.GetValue<SslPolicyErrors>("AcceptablePolicyErrors", SslPolicyErrors.None),
+					Enabled = section.GetValue("UseSsl", true)
+				},
 			};
 
 			bool waitingForRabbit = true;
@@ -74,7 +76,14 @@ namespace RabbitMQ.Infrastructure
 			return connection;
 		}
 
-		public IConnection CreateConnection(string hostname, string username, string password, string virtualhost, int port)
+		public IConnection CreateConnection(
+			string hostname,
+			string username,
+			string password,
+			string virtualhost,
+			int port,
+			bool useSsl,
+			SslPolicyErrors sslPolicyErrors = SslPolicyErrors.None)
 		{
 			var connectionFactory = new ConnectionFactory
 			{
@@ -87,7 +96,8 @@ namespace RabbitMQ.Infrastructure
 				Ssl =
 				{
 					ServerName = hostname,
-					Enabled = true
+					AcceptablePolicyErrors = sslPolicyErrors,
+					Enabled = useSsl
 				}
 			};
 

@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.CreationTime).Column("creation_time");
-			Map(x => x.Status).Column("status").CustomType<FuelTransferDocumentStatusesStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.SendTime).Column("send_time");
 			Map(x => x.ReceiveTime).Column("receive_time");
 			Map(x => x.TransferedLiters).Column("transfered_liters");

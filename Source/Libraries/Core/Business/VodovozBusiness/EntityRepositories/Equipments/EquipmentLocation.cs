@@ -1,7 +1,8 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Equipments
 {

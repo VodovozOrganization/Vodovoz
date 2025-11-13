@@ -2,7 +2,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Util;
-using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Infrastructure.S3
 {
@@ -63,6 +62,11 @@ namespace Vodovoz.Infrastructure.S3
 
 				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
 			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция создания файла в S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure(Application.Errors.S3.OperationCanceled);
+			}
 		}
 
 		//[Appellative(Prepositional = "получении файла из S3 хранилища")]
@@ -88,6 +92,11 @@ namespace Vodovoz.Infrastructure.S3
 				HandleCommonExceptions(e, "получении файла из S3 хранилища");
 
 				return Result.Failure<Stream>(Application.Errors.S3.ServiceUnavailable);
+			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция получения файла из S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure<Stream>(Application.Errors.S3.OperationCanceled);
 			}
 		}
 
@@ -124,6 +133,11 @@ namespace Vodovoz.Infrastructure.S3
 
 				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
 			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция обновления файла из S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure(Application.Errors.S3.OperationCanceled);
+			}
 		}
 
 		public async Task<Result> DeleteFileAsync(
@@ -148,6 +162,11 @@ namespace Vodovoz.Infrastructure.S3
 				HandleCommonExceptions(e, "удалении файла из S3 хранилища");
 
 				return Result.Failure(Application.Errors.S3.ServiceUnavailable);
+			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция удаления файла из S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure(Application.Errors.S3.OperationCanceled);
 			}
 		}
 
@@ -174,6 +193,11 @@ namespace Vodovoz.Infrastructure.S3
 
 				return Result.Failure<IEnumerable<string>>(Application.Errors.S3.ServiceUnavailable);
 			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция получения списка файлов из S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure<IEnumerable<string>>(Application.Errors.S3.OperationCanceled);
+			}
 		}
 
 		public async Task<Result<bool>> FileExistsAsync(
@@ -192,6 +216,11 @@ namespace Vodovoz.Infrastructure.S3
 				HandleCommonExceptions(e, "проверке наличия файла в S3 хранилище");
 
 				return Result.Failure<bool>(Application.Errors.S3.ServiceUnavailable);
+			}
+			catch(OperationCanceledException e)
+			{
+				_logger.LogError(e, "Операция проверки наличия файла из S3 была отменена (таймаут или отмена токена)");
+				return Result.Failure<bool>(Application.Errors.S3.OperationCanceled);
 			}
 		}
 

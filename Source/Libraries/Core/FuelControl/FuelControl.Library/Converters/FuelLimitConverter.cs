@@ -19,7 +19,7 @@ namespace FuelControl.Library.Converters
 				UsedSum = fuelLimitDto.Sum?.Used,
 				TransctionsCount = fuelLimitDto.Transactions?.Count ?? 0,
 				TransactionsOccured = fuelLimitDto.Transactions?.Occured ?? 0,
-				LastEditDate = DateTime.ParseExact(fuelLimitDto.LatEditDate, "MM/dd/yyyy HH:mm:ss", null)
+				LastEditDate = string.IsNullOrWhiteSpace(fuelLimitDto.LatEditDate) ? (DateTime?)default : DateTime.ParseExact(fuelLimitDto.LatEditDate, "MM/dd/yyyy HH:mm:ss", null)
 			};
 		}
 

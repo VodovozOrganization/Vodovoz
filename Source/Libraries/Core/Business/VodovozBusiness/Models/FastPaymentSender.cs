@@ -1,4 +1,4 @@
-using Google.Protobuf.WellKnownTypes;
+﻿using Google.Protobuf.WellKnownTypes;
 using Sms.Internal;
 using Sms.Internal.Client.Framework;
 using System;

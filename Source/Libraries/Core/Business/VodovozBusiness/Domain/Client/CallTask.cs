@@ -177,29 +177,27 @@ namespace Vodovoz.Domain.Client
 			AddComment(UoW, comment, out string lastComment, employeeRepository);
 		}
 
-		public virtual ReportInfo CreateReportInfoByClient()
+		public virtual ReportInfo CreateReportInfoByClient(IReportInfoFactory reportInfoFactory)
 		{
-			return CreateReportInfo(Counterparty.Id);
+			return CreateReportInfo(reportInfoFactory, Counterparty.Id);
 		}
 
-		public virtual ReportInfo CreateReportInfoByDeliveryPoint()
+		public virtual ReportInfo CreateReportInfoByDeliveryPoint(IReportInfoFactory reportInfoFactory)
 		{
-			return CreateReportInfo(DeliveryPoint.Counterparty.Id, DeliveryPoint.Id);
+			return CreateReportInfo(reportInfoFactory, DeliveryPoint.Counterparty.Id, DeliveryPoint.Id);
 		}
 
-		private ReportInfo CreateReportInfo(int counterpartyId, int deliveryPointId = -1)
+		private ReportInfo CreateReportInfo(IReportInfoFactory reportInfoFactory, int counterpartyId, int deliveryPointId = -1)
 		{
-			var reportInfo = new ReportInfo
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = "Акт по бутылям-залогам";
+			reportInfo.Identifier = "Client.SummaryBottlesAndDeposits";
+			reportInfo.Parameters = new Dictionary<string, object>
 			{
-				Title = "Акт по бутылям-залогам",
-				Identifier = "Client.SummaryBottlesAndDeposits",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", null },
-					{ "endDate", null },
-					{ "client_id", counterpartyId},
-					{ "delivery_point_id", deliveryPointId}
-				}
+				{ "startDate", null },
+				{ "endDate", null },
+				{ "client_id", counterpartyId},
+				{ "delivery_point_id", deliveryPointId}
 			};
 			return reportInfo;
 		}

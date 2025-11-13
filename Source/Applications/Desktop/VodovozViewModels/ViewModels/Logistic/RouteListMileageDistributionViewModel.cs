@@ -4,89 +4,152 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Services;
-using QS.Tdi;
-using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Validation;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Factories;
-using Vodovoz.Services;
-using Vodovoz.Settings.Employee;
-using Vodovoz.TempAdapters;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class RouteListMileageDistributionViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
+	public class RouteListMileageDistributionViewModel : DialogViewModelBase, IAskSaveOnCloseViewModel, IDisposable
 	{
-		private DelegateCommand _saveDistributionCommand;
-		private DelegateCommand _distributeCommand;
-		private DelegateCommand<RouteListMileageDistributionNode> _acceptFineCommand;
+		private const string _title = "Разнос километража";
 		private readonly WageParameterService _wageParameterService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IValidationContextFactory _validationContextFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ITdiTabParent _tabParent;
-		private readonly ITdiTab _tdiTab;
+		private readonly IRouteListService _routeListService;
+		private readonly IInteractiveService _interactiveService;
+		private readonly IValidator _validator;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-
-		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IEmployeeService _employeeService;
-
+		private readonly IUnitOfWork _uow;
+		
+		private int _driverId;
 		private RouteListMileageDistributionNode _selectedNode;
 
 		public RouteListMileageDistributionViewModel(
-			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices,
+			IInteractiveService interactiveService,
+			IValidator validator,
 			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			WageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker,
 			IValidationContextFactory validationContextFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeSettings employeeSettings,
-			IEmployeeService employeeService,
-			ITdiTabParent tabParent,
-			ITdiTab tdiTab)
-			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IRouteListService routeListService)
+			: base(navigationManager)
 		{
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
+			
+			Title = _title;
 
-			TabName = $"Разнос километража";
-
+			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory))).CreateWithoutRoot(_title);
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_tabParent = tabParent ?? throw new ArgumentNullException(nameof(tabParent));
-			_tdiTab = tdiTab ?? throw new ArgumentNullException(nameof(tdiTab));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 
+			InitializeCommands();
+			AskSaveOnClose = CanEdit;
+		}
+
+		#region Properties
+
+		public event EventHandler Distributed;
+		public bool CanAcceptFine => SelectedNode != null && SelectedNode.IsRouteList;
+		public string Car { get; private set; }
+		public DateTime Date { get; private set; }
+		public GenericObservableList<RouteListMileageDistributionNode> Rows { get; set; }
+		public decimal? TotalConfirmedDistanceAtDay { get; set; }
+		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
+		public decimal? SubtractDistance => (TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay) ?? SubtractDistanceAutomatically;
+
+		public decimal? SubtractDistanceAutomatically
+		{
+			get
+			{
+				var routeListRows = Rows.Where(r => r.IsRouteList).ToList();
+
+				var totalConfirmedDistance = routeListRows.All(r => r.ConfirmedDistance > 0)
+					? routeListRows.Sum(r => r.RouteList?.ConfirmedDistance)
+					: null;
+
+				if(totalConfirmedDistance.HasValue && TotalRecalculatedDistanceAtDay.HasValue)
+				{
+					return totalConfirmedDistance - TotalRecalculatedDistanceAtDay;
+				}
+
+				return null;
+			}
+		}
+		
+		public bool CanEdit { get; set; } = true;
+		public bool AskSaveOnClose { get; private set; }
+
+		public RouteListMileageDistributionNode SelectedNode
+		{
+			get => _selectedNode;
+			set
+			{
+				if(SetField(ref _selectedNode, value))
+				{
+					OnPropertyChanged(nameof(CanAcceptFine));
+				}
+			}
+		}
+		
+		private bool HasChanges => _uow.HasChanges;
+		
+		#region Commands
+
+		public DelegateCommand SaveDistributionCommand { get; private set; }
+		public DelegateCommand DistributeCommand { get; private set; }
+		public DelegateCommand AcceptFineCommand { get; private set; }
+
+		#endregion
+
+		#endregion
+
+		public void Configure(int driverId, DateTime date, string car)
+		{
+			Date = date;
+			Car = car;
+			_driverId = driverId;
+			
 			GenerateDistributionRows();
 		}
 
 		#region Private methods
+		
+		private void InitializeCommands()
+		{
+			SaveDistributionCommand = new DelegateCommand(SaveDistribution);
+			AcceptFineCommand = new DelegateCommand(AcceptFine);
+			DistributeCommand = new DelegateCommand(DistributeMileage);
+		}
 
 		private void GenerateDistributionRows()
 		{
-			var driverRouteListsAtDay = _routeListRepository.GetDriverRouteLists(UoW, Entity.Driver, Entity.Date);
+			var driverRouteListsAtDay = _routeListRepository.GetDriverRouteLists(_uow, _driverId, Date);
 
 			foreach(var routeList in driverRouteListsAtDay)
 			{
@@ -96,7 +159,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 				catch(Exception ex)
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					_interactiveService.ShowMessage(ImportanceLevel.Error,
 						$"Не удалось пересчитать километраж для МЛ { routeList.Id }:\n{ ex.Message }", "Ошибка при подготовке к разносу километража");
 
 					return;
@@ -124,6 +187,42 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				RecalculatedDistanceColumn = SubtractDistance
 			});
 		}
+		
+		private void SaveDistribution()
+		{
+			if(!HasChanges)
+			{
+				return;
+			}
+
+			foreach(var distributionNode in Rows.Where(r => r.RouteList != null).ToList())
+			{
+				if(!AcceptDistribution(distributionNode.RouteList))
+				{
+					AskSaveOnClose = false;
+					return;
+				}
+				_uow.Save(distributionNode.RouteList);
+			}
+
+			_uow.Commit();
+
+			Close(false, CloseSource.Save);
+			Distributed?.Invoke(this, EventArgs.Empty);
+		}
+		
+		private void AcceptFine()
+		{
+			NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(
+				this,
+				EntityUoWBuilder.ForCreate(),
+				OpenPageOptions.AsSlave,
+				conf =>
+				{
+					conf.SetRouteListById(SelectedNode.RouteList.Id);
+					conf.FineReasonString = "Перерасход топлива";
+				});
+		}
 
 		private void DistributeMileage()
 		{
@@ -147,7 +246,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				if(routeLists.Any(rl => !rl.RecalculatedDistanceColumn.HasValue))
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не во всех МЛ есть пересчитанный километраж"," Не удалось разнести километраж ");
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Не во всех МЛ есть пересчитанный километраж"," Не удалось разнести километраж ");
 					return;
 				}
 
@@ -175,7 +276,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		}
 
-		private void AcceptDistribution(RouteList routeList)
+		private bool AcceptDistribution(RouteList routeList)
 		{
 			var validationContext = _validationContextFactory.CreateNewValidationContext(routeList,
 				new Dictionary<object, object>
@@ -184,25 +285,34 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						{ nameof(IRouteListItemRepository), _routeListItemRepository}
 					});
 
-			if(!CommonServices.ValidationService.Validate(routeList, validationContext))
+			if(!_validator.Validate(routeList, validationContext))
 			{
-				return;
+				return false;
 			}
 
-			routeList.AcceptMileage(_callTaskWorker);
+			if(!_routeListService.AcceptMileage(_uow, routeList, _validator, _callTaskWorker))
+			{
+				return false;
+			}
 
 			if(routeList.Status > RouteListStatus.OnClosing)
 			{
 				if(routeList.FuelOperationHaveDiscrepancy())
 				{
-					if(!CommonServices.InteractiveService.Question(
-						   "Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений. Продолжить сохранение?"))
+					if(!_interactiveService.Question(
+						"Был изменен водитель или автомобиль, при сохранении МЛ баланс по топливу изменится с учетом этих изменений." +
+						" Продолжить сохранение?"))
 					{
-						return;
+						return false;
 					}
 				}
 
 				routeList.UpdateFuelOperation();
+			}
+
+			if(!routeList.TryValidateFuelOperation(_validator))
+			{
+				return false;
 			}
 
 			if(routeList.Status == RouteListStatus.Delivered)
@@ -211,11 +321,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			routeList.CalculateWages(_wageParameterService);
+			return true;
 		}
 
 		private void ChangeStatusAndCreateTaskFromDelivered(RouteList routeList)
 		{
-			routeList.ChangeStatusAndCreateTask(
+			_routeListService.ChangeStatusAndCreateTask(_uow,  routeList,
 				routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
 					? RouteListStatus.MileageCheck
 					: RouteListStatus.OnClosing,
@@ -224,100 +335,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 
 		#endregion
-
-		#region Properties
-
-		public GenericObservableList<RouteListMileageDistributionNode> Rows { get; set; }
-		public decimal? TotalConfirmedDistanceAtDay { get; set; }
-		public decimal? TotalRecalculatedDistanceAtDay => Rows.Sum(r => r.RouteList?.RecalculatedDistance);
-		public decimal? SubtractDistance => (TotalConfirmedDistanceAtDay - TotalRecalculatedDistanceAtDay) ?? SubtractDistanceAutomatically;
-
-		public decimal? SubtractDistanceAutomatically
-		{
-			get
-			{
-				var routeListRows = Rows.Where(r => r.IsRouteList).ToList();
-
-				var totalConfirmedDistance = routeListRows.All(r => r.ConfirmedDistance > 0)
-					? routeListRows.Sum(r => r.RouteList?.ConfirmedDistance)
-					: null;
-
-				if(totalConfirmedDistance.HasValue && TotalRecalculatedDistanceAtDay.HasValue)
-				{
-					return totalConfirmedDistance - TotalRecalculatedDistanceAtDay;
-				}
-
-				return null;
-			}
-		}
 		
-		public bool CanEdit { get; set; } = true;
-		public bool AskSaveOnClose => CanEdit;
-
-		public RouteListMileageDistributionNode SelectedNode
+		public void Dispose()
 		{
-			get => _selectedNode;
-			set
-			{
-				if(SetField(ref _selectedNode, value))
-				{
-					OnPropertyChanged(nameof(CanAcceptFine));
-				}
-			}
-		}
-
-		public bool CanAcceptFine => SelectedNode != null && SelectedNode.IsRouteList;
-
-		#endregion
-
-		#region Commands
-
-		public DelegateCommand SaveDistributionCommand =>
-			_saveDistributionCommand ?? (_saveDistributionCommand = new DelegateCommand(() =>
-				{
-					if(!HasChanges)
-					{
-						return;
-					}
-
-					foreach(var distributionNode in Rows.Where(r => r.RouteList != null).ToList())
-					{
-						AcceptDistribution(distributionNode.RouteList);
-						UoW.Save(distributionNode.RouteList);
-					}
-
-					UoW.Commit();
-
-					Close(false, CloseSource.Save);
-
-					_tabParent.ForceCloseTab(_tdiTab);
-				},
-				() => true
-			));
-
-		public DelegateCommand DistributeCommand =>
-			_distributeCommand ?? (_distributeCommand = new DelegateCommand(() =>
-				{
-					DistributeMileage();
-				}
-			));
-
-		public DelegateCommand<RouteListMileageDistributionNode> AcceptFineCommand =>
-			_acceptFineCommand ?? (_acceptFineCommand = new DelegateCommand<RouteListMileageDistributionNode>((selectedItem) =>
-				{
-					var page = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate(), OpenPageOptions.AsSlave);
-
-					page.ViewModel.SetRouteListById(selectedItem.RouteList.Id);
-					page.ViewModel.FineReasonString = "Перерасход топлива";
-				}
-			));
-
-		#endregion
-
-		public override bool Save(bool close)
-		{
-			SaveDistributionCommand.Execute();
-			return true;
+			_uow?.Dispose();
 		}
 	}
 }

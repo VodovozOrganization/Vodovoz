@@ -9,13 +9,30 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Contacts
 		{
 			Table("phones");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
-			Map(x => x.Number).Column("number");
-			Map(x => x.DigitsNumber).Column("digits_number");
-			Map(x => x.Additional).Column("additional");
-			Map(x => x.Comment).Column("comment");
-			Map(x => x.IsArchive).Column("is_archive");
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+
+			Map(x => x.Number)
+				.Column("number");
+
+			Map(x => x.DigitsNumber)
+				.Column("digits_number");
+
+			Map(x => x.Additional)
+				.Column("additional");
+
+			Map(x => x.Comment)
+				.Column("comment");
+
+			Map(x => x.IsArchive)
+				.Column("is_archive");
+
+			References(x => x.PhoneType)
+				.Column("type_id")
+				.Not.LazyLoad();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal.EntitySelector;
@@ -36,8 +37,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IUserRepository userRepository,
 			ICommonServices commonServices,
-			ILifetimeScope lifetimeScope)
-			: base(rdlViewerViewModel)
+			ILifetimeScope lifetimeScope,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			_interactiveService = commonServices.InteractiveService;
 			_rdlViewerViewModel = rdlViewerViewModel ?? throw new ArgumentNullException(nameof(rdlViewerViewModel));
@@ -50,7 +52,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
 			var currentUserSettings = userRepository.GetUserSettings(_unitOfWork, commonServices.UserService.CurrentUserId);
-			Counterparty = currentUserSettings.DefaultCounterparty;
+			if(currentUserSettings.DefaultCounterpartyId != null)
+			{
+				Counterparty = _unitOfWork.GetById<Counterparty>(currentUserSettings.DefaultCounterpartyId.Value);
+			}
 			SubdivisionViewModel = CreateSubdivisionViewModel();
 		}
 
@@ -85,12 +90,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Payments
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
-		public override ReportInfo ReportInfo => new ReportInfo
-		{
-			Identifier = _allSubdivisions ? "Payments.PaymentsFromBankClientAllSubdivisionsReport" : "Payments.PaymentsFromBankClientBySubdivisionReport",
-			Title = Title,
-			Parameters = Parameters
-		};
+		public override string Identifier => _allSubdivisions 
+			? "Payments.PaymentsFromBankClientAllSubdivisionsReport" 
+			: "Payments.PaymentsFromBankClientBySubdivisionReport";
 
 		protected override Dictionary<string, object> Parameters => new Dictionary<string, object>
 		{

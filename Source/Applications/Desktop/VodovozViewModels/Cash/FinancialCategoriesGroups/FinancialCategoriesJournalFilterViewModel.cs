@@ -28,12 +28,14 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private TargetDocument? _targetDocument;
 		private TargetDocument? _restrictTargetDocument;
 		private FinancialSubType? _restrictFinancialSubtype;
+		private bool _hideEmptyGroups;
 
 		public FinancialCategoriesJournalFilterViewModel(
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
 			ExcludeFinancialGroupsIds.CollectionChanged += OnExcludeIdCollectionChanged;
+			IncludeExpenseCategoryIds.CollectionChanged += OnIncludeIdCollectionChanged;
 			RestrictNodeTypes.CollectionChanged += OnRestrictNodeTypesCollectionChanged;
 			RestrictNodeSelectTypes.CollectionChanged += OnRestrictNodeSelectTypesCollectionChanged;
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
@@ -45,6 +47,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 
 		public ObservableCollection<int> ExcludeFinancialGroupsIds { get; } = new ObservableCollection<int>();
+
+		/// <summary>
+		/// Включаемые идентификаторы категорий расхода
+		/// </summary>
+		public ObservableCollection<int> IncludeExpenseCategoryIds { get; } = new ObservableCollection<int>();
 
 		public ObservableCollection<Type> RestrictNodeSelectTypes { get; } = new ObservableCollection<Type>();
 
@@ -64,6 +71,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			get => _showArchive;
 			set => UpdateFilterField(ref _showArchive, value);
+		}
+
+		public bool HideEmptyGroups
+		{
+			get => _hideEmptyGroups;
+			set => UpdateFilterField(ref _hideEmptyGroups, value);
 		}
 
 		public FinancialCategoriesGroup ParentFinancialGroup
@@ -139,6 +152,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		}
 
 		private void OnRestrictNodeTypesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			Update();
+		}
+
+		private void OnIncludeIdCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			Update();
 		}

@@ -1,9 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
+using VodovozBusiness.Domain.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Payments
 {
@@ -50,11 +55,26 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 
 		public decimal GetAllocatedSumForOrder(IUnitOfWork uow, int orderId)
 		{
+			var query = GetAllocatedSumForOrderQuery(uow, orderId);
+			return query.SingleOrDefault<decimal>();
+		}
+
+		public async Task<decimal> GetAllocatedSumForOrderAsync(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken
+			)
+		{
+			var query = GetAllocatedSumForOrderQuery(uow, orderId);
+			return await query.SingleOrDefaultAsync<decimal>(cancellationToken);
+		}
+
+		private static IQueryOver<PaymentItem> GetAllocatedSumForOrderQuery(IUnitOfWork uow, int orderId)
+		{
 			return uow.Session.QueryOver<PaymentItem>()
 				.Where(pi => pi.Order.Id == orderId)
 				.And(pi => pi.PaymentItemStatus != AllocationStatus.Cancelled)
-				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum))
-				.SingleOrDefault<decimal>();
+				.Select(Projections.Sum<PaymentItem>(pi => pi.Sum));
 		}
 	}
 }

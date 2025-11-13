@@ -1,4 +1,4 @@
-﻿using Vodovoz.PrintableDocuments;
+﻿using Vodovoz.Core.Domain.PrintableDocuments;
 
 namespace Vodovoz.ViewModels.Print
 {

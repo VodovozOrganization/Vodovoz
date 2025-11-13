@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Gamma.Binding;
 using Gamma.GtkWidgets;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -20,6 +21,7 @@ namespace Vodovoz.Core.Permissions
 	public partial class SubdivisionForUserEntityPermissionWidget : Gtk.Bin, IUserPermissionTab
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private IGuiDispatcher _guiDispatcher;
 		private IEmployeeRepository _employeeRepository;
 		private SubdivisionsJournalViewModel _subdivisionJVM;
 
@@ -37,6 +39,7 @@ namespace Vodovoz.Core.Permissions
 		private void ResolveDependencies()
 		{
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_guiDispatcher = _lifetimeScope.Resolve<IGuiDispatcher>();
 		}
 
 		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
@@ -120,9 +123,12 @@ namespace Vodovoz.Core.Permissions
 
 		private void SubdivisionsListReloaded(object sender, EventArgs e)
 		{
-			treeviewSubdivisions.CollapseAll();
-			treeviewSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionJournalNode>(_subdivisionJVM.Items.Cast<SubdivisionJournalNode>(), _subdivisionJVM.RecuresiveConfig);
-			treeviewSubdivisions.ExpandAll();
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				treeviewSubdivisions.CollapseAll();
+				treeviewSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionJournalNode>(_subdivisionJVM.Items.Cast<SubdivisionJournalNode>(), _subdivisionJVM.RecuresiveConfig);
+				treeviewSubdivisions.ExpandAll();
+			});
 		}
 
 		public EntitySubdivisionForUserPermissionViewModel ViewModel { get; set; }

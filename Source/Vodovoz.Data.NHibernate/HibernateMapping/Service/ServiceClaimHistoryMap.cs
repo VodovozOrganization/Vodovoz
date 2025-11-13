@@ -14,7 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
 
 			Map(x => x.Date).Column("date_and_time");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.Status).Column("status").CustomType<ServiceClaimStatusStringType>();
+			Map(x => x.Status).Column("status");
 
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.ServiceClaim).Column("service_claim_id");

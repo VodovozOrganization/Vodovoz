@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Autofac;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Contacts
@@ -109,26 +109,5 @@ namespace Vodovoz.Domain.Contacts
 		}
 
 		#endregion
-	}
-
-	public enum EmailPurpose
-	{
-		[Display(Name = "Стандартный")]
-		Default,
-		[Display(Name = "Для чеков")]
-		ForReceipts,
-		[Display(Name = "Для счетов")]
-		ForBills,
-		[Display(Name = "Рабочий")]
-		Work,
-		[Display(Name = "Личный")]
-		Personal
-	}
-
-	public class EmailPurposeStringType : NHibernate.Type.EnumStringType
-	{
-		public EmailPurposeStringType() : base(typeof(EmailPurpose))
-		{
-		}
 	}
 }

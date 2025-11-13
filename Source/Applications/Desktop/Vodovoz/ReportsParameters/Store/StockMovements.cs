@@ -13,7 +13,6 @@ using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Reports;
@@ -22,13 +21,17 @@ using System.ComponentModel;
 using QS.Tdi;
 using QS.Navigation;
 using Autofac;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Reports
 {
 	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget, INotifyPropertyChanged
 	{
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly INavigationManager _navigationManager;
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes =
@@ -38,9 +41,11 @@ namespace Vodovoz.Reports
 		private ILifetimeScope _scope;
 
 		public StockMovements(
+			IReportInfoFactory reportInfoFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -79,7 +84,7 @@ namespace Vodovoz.Reports
 				Warehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 			}
 
-			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
 			{
 				entryWarehouse.Sensitive = false;
@@ -268,11 +273,8 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
-			return new ReportInfo
-			{
-				Identifier = reportId,
-				Parameters = parameters
-			};
+			var reportInfo = _reportInfoFactory.Create(reportId, Title, parameters);
+			return reportInfo;
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)

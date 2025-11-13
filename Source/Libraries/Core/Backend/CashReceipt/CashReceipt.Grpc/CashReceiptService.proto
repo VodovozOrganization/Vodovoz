@@ -7,9 +7,19 @@ import "google/protobuf/empty.proto";
 package cashReceiptApi;
 
 service CashReceiptServiceGrpc {
-  rpc RefreshFiscalDocument (RefreshReceiptRequest) returns (google.protobuf.Empty);
+  rpc RefreshFiscalDocument (RefreshReceiptRequest) returns (RequestProcessingResult);
+  rpc RequeueFiscalDocument (RequeueDocumentRequest) returns (RequestProcessingResult);
 }
 
 message RefreshReceiptRequest {
   int32 cashReceiptId = 1;
+}
+
+message RequeueDocumentRequest {
+  int32 cashReceiptId = 1;
+}
+
+message RequestProcessingResult {
+  bool isSuccess = 1;
+  string error = 2;
 }

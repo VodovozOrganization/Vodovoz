@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 
 namespace Vodovoz.Presentation.WebApi.Common
@@ -16,7 +16,7 @@ namespace Vodovoz.Presentation.WebApi.Common
 	[ErrorHandlingFilter]
 	public class ApiControllerBase : ControllerBase
 	{
-		private readonly ILogger<ApiControllerBase> _logger;
+		protected readonly ILogger<ApiControllerBase> _logger;
 
 		public ApiControllerBase(ILogger<ApiControllerBase> logger)
 		{
@@ -126,43 +126,11 @@ namespace Vodovoz.Presentation.WebApi.Common
 		/// <summary>
 		/// Получение параметра Name у <see cref="DisplayAttribute"/> указанной ошибки
 		/// </summary>
-		/// <param name="name">полностью квалифициролванное имя свойства с ошибкой</param>
+		/// <param name="error">ошибка</param>
 		/// <returns></returns>
-		private string GetErrorDisplayName([CallerMemberName] string name = "")
+		private string GetErrorDisplayName(Error error)
 		{
-			var errorTypeString = name.Replace(name.Substring(name.LastIndexOf(".")), "");
-
-			var errorsType = GetTypeByFullyQualifiedName(errorTypeString);
-
-			var memberInfo = errorsType.GetMember(name.Substring(name.LastIndexOf(".") + 1));
-
-			var attribute = memberInfo.First().GetAttribute<DisplayAttribute>();
-
-			return attribute?.Name;
-		}
-
-		/// <summary>
-		/// Получение типа по полному имени типа
-		/// </summary>
-		/// <param name="typeName">полностью квалифициролванное имя типа</param>
-		/// <returns></returns>
-		/// <exception cref="ArgumentException"></exception>
-		private Type GetTypeByFullyQualifiedName(string typeName)
-		{
-			var assemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-
-			foreach(var assembly in assemblies)
-			{
-				var type = assembly.GetType(typeName);
-
-				if(type != null)
-				{
-					return type;
-				}
-			}
-
-			throw new ArgumentException(
-				"Type " + typeName + " doesn't exist in the current app domain");
+			return error?.Type?.GetAttribute<DisplayAttribute>()?.Name;
 		}
 	}
 }

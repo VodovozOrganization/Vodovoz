@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 namespace Vodovoz.Views.Logistic
 {
@@ -47,8 +48,8 @@ namespace Vodovoz.Views.Logistic
 			entityentryOwner.ViewModel =
 				new LegacyEEVMBuilderFactory<CarVersionEditingViewModel>((ITdiTab)ViewModel.ParentDialog, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
 				.ForProperty(x => x.SelectedCarOwner)
-				.UseTdiEntityDialog()
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
+				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 		}
 

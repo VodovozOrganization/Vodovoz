@@ -13,11 +13,4 @@ namespace Vodovoz.Domain.Sms
 		[Display(Name = "Отправка просрочена")]
 		SendExpired
 	}
-
-	public class SmsNotificationStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public SmsNotificationStatusStringType() : base(typeof(SmsNotificationStatus))
-		{
-		}
-	}
 }

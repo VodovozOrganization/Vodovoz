@@ -108,18 +108,11 @@ namespace Vodovoz.Domain.Orders
 		ForceMajor,
 		[Display(Name = "Доставка за час")]
 		DirectorLO,
-		[Display(Name = "Доставка в тот же день")]
+		[Display(Name = "Довезли в тот же день")]
 		DirectorLOCurrentDayDelivery,
 		[Display(Name = "Автоотмена автопереноса")]
 		AutoСancelAutoTransfer,
 		[Display(Name = "Нет (не недовоз)")]
 		None
-	}
-
-	public class GuiltyInUndeliveryGuiltySideStringType : NHibernate.Type.EnumStringType
-	{
-		public GuiltyInUndeliveryGuiltySideStringType() : base(typeof(GuiltyTypes))
-		{
-		}
 	}
 }

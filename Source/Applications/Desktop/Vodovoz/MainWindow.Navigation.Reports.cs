@@ -1,27 +1,24 @@
-using Autofac;
+﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Report;
 using QS.Report.ViewModels;
+using QS.Services;
 using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Presentation.ViewModels.Logistic.Reports;
 using Vodovoz.Presentation.ViewModels.Store.Reports;
 using Vodovoz.Reports;
 using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
-using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
@@ -29,22 +26,37 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Reports;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
+using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
 using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Orders.Reports;
+using Vodovoz.ViewModels.Orders.Reports.PotentialFreePromosets;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Reports.OKS.DailyReport;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
+using Vodovoz.ViewModels.ReportsParameters.Bottles;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Client;
 using Vodovoz.ViewModels.ReportsParameters.Fuel;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic.CarOwnershipReport;
+using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ReportsParameters.Production;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.ReportsParameters.QualityControl;
+using Vodovoz.ViewModels.ReportsParameters.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Selfdelivery;
+using Vodovoz.ViewModels.ReportsParameters.Service;
+using Vodovoz.ViewModels.ReportsParameters.Store;
+using Vodovoz.ViewModels.ReportsParameters.Wages;
+using Vodovoz.ViewModels.Transport.Reports.IncorrectFuel;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
@@ -52,6 +64,9 @@ using Vodovoz.ViewModels.ViewModels.Reports.Cars.ExploitationReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.ChangingPaymentTypeByDriversReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -67,9 +82,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCashierCommentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashierCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashierCommentsReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CashierCommentsReportViewModel));
 	}
 
 	/// <summary>
@@ -79,9 +92,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByDistrict(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByDistrictReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictReportViewModel));
 	}
 
 	/// <summary>
@@ -91,9 +102,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionLastOrderReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<LastOrderByDeliveryPointReport>(),
-			() => new QSReport.ReportViewDlg(new LastOrderByDeliveryPointReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(LastOrderByDeliveryPointReportViewModel));
 	}
 
 	/// <summary>
@@ -103,9 +112,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderIncorrectPricesReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderIncorrectPrices>(),
-			() => new QSReport.ReportViewDlg(new OrderIncorrectPrices()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderIncorrectPricesViewModel));
 	}
 
 	/// <summary>
@@ -115,9 +122,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersWithMinPriceLessThanActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersWithMinPriceLessThan>(),
-			() => new QSReport.ReportViewDlg(new OrdersWithMinPriceLessThan()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersWithMinPriceLessThanViewModel));
 	}
 
 	/// <summary>
@@ -127,9 +132,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSelfDeliveryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SelfDeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new SelfDeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SelfDeliveryReportViewModel));
 	}
 
 	/// <summary>
@@ -139,9 +142,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSuburbWaterPriceActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SuburbWaterPriceReport>(),
-			() => new QSReport.ReportViewDlg(new SuburbWaterPriceReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SuburbWaterPriceReportViewModel));
 	}
 
 	/// <summary>
@@ -161,9 +162,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotDeliveredOrdersActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NotDeliveredOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new NotDeliveredOrdersReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotDeliveredOrdersReportViewModel));
 	}
 
 	/// <summary>
@@ -173,9 +172,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderRegistryActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderRegistryReport>(),
-			() => new QSReport.ReportViewDlg(new OrderRegistryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrderRegistryReportViewModel));
 	}
 
 	/// <summary>
@@ -185,9 +182,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCardPaymentsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CardPaymentsOrdersReport>(),
-			() => new QSReport.ReportViewDlg(new CardPaymentsOrdersReport(ServicesConfig.UnitOfWorkFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CardPaymentsOrdersReportViewModel));
 	}
 
 	/// <summary>
@@ -207,10 +202,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FirstClientsReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FirstClientsReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -220,9 +212,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesByDicountReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalesByDiscountReport>(),
-			() => new QSReport.ReportViewDlg(new SalesByDiscountReport()));
+			() => new QSReport.ReportViewDlg(new SalesByDiscountReport(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -232,9 +225,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction66Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
-			() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport()));
+		NavigationManager.OpenViewModel<PotentialFreePromosetsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -254,9 +245,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction71Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EShopSalesReport>(),
-			() => new QSReport.ReportViewDlg(new EShopSalesReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EShopSalesReportViewModel));
 	}
 
 	/// <summary>
@@ -286,9 +275,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPaymentsFromAvangardReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromAvangardReport>(),
-			() => new QSReport.ReportViewDlg(new PaymentsFromAvangardReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromAvangardReportViewModel));
 	}
 
 	#endregion Заказы
@@ -322,9 +309,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
-			() => new QSReport.ReportViewDlg(new PlanImplementationReport()));
+			() => new QSReport.ReportViewDlg(new PlanImplementationReport(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -388,7 +376,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
-		var report = new Vodovoz.Reports.StockMovements(NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var report = new Vodovoz.Reports.StockMovements(reportInfoFactory, NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
 		var dlg = new QSReport.ReportViewDlg(report);
 		report.ParentTab = dlg;
 
@@ -404,9 +393,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEquipmentBalanceActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EquipmentBalance>(),
-			() => new QSReport.ReportViewDlg(new EquipmentBalance()));
+			() => new QSReport.ReportViewDlg(new EquipmentBalance(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -416,9 +406,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
-			() => new QSReport.ReportViewDlg(new DefectiveItemsReport(NavigationManager)));
+		NavigationManager.OpenViewModel<Vodovoz.ViewModels.Store.Reports.DefectiveItemsReportViewModel>(null);
 	}
 
 	/// <summary>
@@ -428,11 +416,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
 	{
-		var report = new NotFullyLoadedRouteListsReport(_autofacScope.BeginLifetimeScope(), NavigationManager);
-		tdiMain.OpenTab(
-			ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
-			() =>  new ReportViewDlg(report));
-		report.ConfigureWarehouseEntry(); //вызываем после инициализации ReportViewDlg, чтобы правильно отработал поиск родительского виджета
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NotFullyLoadedRouteListsReportViewModel));
 	}
 
 	/// <summary>
@@ -455,9 +439,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionStockMovementsAdvancedReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
-			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport()));
+			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -504,9 +489,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementSummaryReport>(),
-			() => new QSReport.ReportViewDlg(new BottlesMovementSummaryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementSummaryReportViewModel));
 	}
 
 	/// <summary>
@@ -516,9 +499,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementReport>(),
-			() => new QSReport.ReportViewDlg(new BottlesMovementReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(BottlesMovementReportViewModel));
 	}
 
 	/// <summary>
@@ -528,9 +509,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ShortfallBattlesReport>(),
-			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ShortfallBattlesReportViewModel));
 	}
 
 	/// <summary>
@@ -553,9 +532,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByCreationDate(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByCreationDateReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByCreationDateReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByCreationDateReportViewModel));
 	}
 
 	/// <summary>
@@ -565,9 +542,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<TariffZoneDebts>(),
-			() => new QSReport.ReportViewDlg(new TariffZoneDebts()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(TariffZoneDebtsViewModel));
 	}
 
 	/// <summary>
@@ -584,9 +559,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyActivityKindActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ClientsByDeliveryPointCategoryAndActivityKindsReport>(),
-			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ClientsByDeliveryPointCategoryAndActivityKindsReportViewModel));
 	}
 
 	/// <summary>
@@ -596,9 +569,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionExtraBottlesReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
-			() => new QSReport.ReportViewDlg(new ExtraBottleReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ExtraBottleReportViewModel));
 	}
 
 	/// <summary>
@@ -608,10 +579,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<FirstSecondClientReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FirstSecondClientReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -621,9 +589,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionProfitabilityBottlesByStockActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ProfitabilityBottlesByStockReport>(),
-			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilityBottlesByStockReportViewModel));
 	}
 
 	/// <summary>
@@ -633,9 +599,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionZeroDebtClientReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
-			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ZeroDebtClientReportViewModel));
 	}
 
 	/// <summary>
@@ -645,9 +609,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
-			() => new QSReport.ReportViewDlg(new ReturnedTareReport(ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport(reportInfoFactory, interactiveService)));
 	}
 
 	/// <summary>
@@ -658,6 +624,16 @@ public partial class MainWindow
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<BulkEmailEventReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Ежедневный отчет ОКС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOksDailyReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OksDailyReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Отчеты ОСК/ОКК
@@ -671,9 +647,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersByDistrictsAndDeliverySchedulesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OrdersByDistrictsAndDeliverySchedulesReportViewModel));
 	}
 
 	/// <summary>
@@ -683,10 +657,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
-		);
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(FuelConsumptionReportViewModel));
 	}
 
 	/// <summary>
@@ -696,9 +667,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrdersCreationTimeReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport()));
+			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -725,9 +697,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
-			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(NonClosedRLByPeriodReportViewModel));
 	}
 
 	/// <summary>
@@ -737,9 +707,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ScheduleOnLinePerShiftReportViewModel));
 	}
 
 	/// <summary>
@@ -749,9 +717,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport()));
+			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport(reportInfoFactory, ServicesConfig.InteractiveService)));
 	}
 
 	/// <summary>
@@ -771,16 +740,16 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
 	{
-		var filter = new EmployeeFilterViewModel
-		{
-			Category = EmployeeCategory.driver
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, filter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder =>
+			{
+				builder.Register(c => new EmployeeFilterViewModel
+				{
+					Category = EmployeeCategory.driver
+				});
+				builder.RegisterType<GeneralSalaryInfoReport>().As<IParametersWidget>();
+			});
 	}
 
 	/// <summary>
@@ -800,14 +769,16 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
 	{
-		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, driverFilter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
-			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-				employeeJournalFactory,
-				ServicesConfig.InteractiveService)));
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder =>
+			{
+				builder.Register(c => new EmployeeFilterViewModel
+				{
+					RestrictCategory = EmployeeCategory.driver
+				});
+				builder.RegisterType<AddressesOverpaymentsReport>().As<IParametersWidget>();
+			});
 	}
 
 	/// <summary>
@@ -827,9 +798,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(AnalyticsForUndeliveryReportViewModel));
 	}
 
 	/// <summary>
@@ -882,6 +851,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CarOwnershipReportViewModel));
 	}
 
+	/// <summary>
+	/// Отчет по изменению формы оплаты водителями
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnChangingFormOfPaymentbyDriversReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ChangingPaymentTypeByDriversReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Логистика
 
 	#region Сотрудники
@@ -893,9 +872,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesFinesViewModel));
 	}
 
 	/// <summary>
@@ -905,21 +882,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnAction48Activated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
-			() => new QSReport.ReportViewDlg(new EmployeesPremiums()));
-	}
-
-	/// <summary>
-	/// Отчет по сотрудникам
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(EmployeesPremiumsViewModel));
 	}
 
 	#endregion Сотрудники
@@ -943,9 +906,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionRouteListsOnClosingActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<RouteListsOnClosingReport>(),
-			() => new QSReport.ReportViewDlg(new RouteListsOnClosingReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RouteListsOnClosingReportViewModel));
 	}
 
 	/// <summary>
@@ -962,9 +923,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOnLoadTimeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OnLoadTimeAtDayReport>(),
-			() => new QSReport.ReportViewDlg(new OnLoadTimeAtDayReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(OnLoadTimeAtDayReportViewModel));
 	}
 
 	/// <summary>
@@ -984,9 +943,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCompanyTrucksActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CompanyTrucksReport>(),
-			() => new QSReport.ReportViewDlg(new CompanyTrucksReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CompanyTrucksReportViewModel));
 	}
 
 	/// <summary>
@@ -996,9 +953,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionShipmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ShipmentReport>(),
-			() => new QSReport.ReportViewDlg(new ShipmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ShipmentReportViewModel));
 	}
 
 	/// <summary>
@@ -1025,9 +980,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DrivingCallReport>(),
-			() => new QSReport.ReportViewDlg(new DrivingCallReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DrivingCallReportViewModel));
 	}
 
 	/// <summary>
@@ -1037,9 +990,17 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
-			() => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriversToDistrictsAssignmentReportViewModel));
+	}
+
+	/// <summary>
+	/// Отчет по последнему МЛ по водителям
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnLastRouteListrReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<LastRouteListReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Водители
@@ -1053,9 +1014,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersReportViewModel));
 	}
 
 	/// <summary>
@@ -1065,9 +1024,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(reportInfoFactory, interactiveService)));
 	}
 
 	/// <summary>
@@ -1077,10 +1038,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
 	{
-		var employeeFactory = new EmployeeJournalFactory(NavigationManager);
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MastersVisitReportViewModel));
 	}
 
 	#endregion Сервисный центр
@@ -1094,9 +1052,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(CounterpartyCloseDeliveryReportViewModel));
 	}
 
 	/// <summary>
@@ -1106,9 +1062,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
-			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(PaymentsFromBankClientFinDepartmentReportViewModel));
 	}
 
 	/// <summary>
@@ -1118,10 +1072,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<ReportViewDlg>(
-			null,
-			options: OpenPageOptions.IgnoreHash,
-			addingRegistrations: builder => builder.RegisterType<ChainStoreDelayReport>().As<IParametersWidget>());
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ChainStoreDelayReportViewModel), OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1131,18 +1082,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
 	{
-		var reportSettings = _autofacScope.Resolve<IReportSettings>();
-		var archiveSettings = _autofacScope.Resolve<IArchiveDataSettings>();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-			() => new QSReport.ReportViewDlg(
-				new OrderChangesReport(
-					reportSettings,
-					ServicesConfig.InteractiveService,
-					archiveSettings)
-				)
-			);
+		NavigationManager.OpenViewModel<OrderChangesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
@@ -1165,6 +1105,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<EdoUpdReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
+	/// <summary>
+	/// Контроль за ЭДО
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEdoControlReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoControlReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Бухгалтерия
 
 	#region Касса
@@ -1176,9 +1126,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new IncomeBalanceReport()));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(IncomeBalanceReportViewModel));
 	}
 
 	/// <summary>
@@ -1188,9 +1136,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DriverWagesReportViewModel));
 	}
 
 	/// <summary>
@@ -1200,9 +1146,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport()));
+			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport(reportInfoFactory)));
 	}
 
 	/// <summary>
@@ -1229,9 +1176,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport(NavigationManager)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ForwarderWageReportViewModel));
 	}
 
 	/// <summary>
@@ -1241,27 +1186,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
-		EmployeeFilterViewModel employeeFilter;
-
-		if(_hasAccessToSalariesForLogistics)
-		{
-			employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
-			employeeFilter.SetAndRefilterAtOnce(
-				x => x.Category = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking);
-		}
-		else
-		{
-			employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-		}
-
-		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(NavigationManager, employeeFilter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory)));
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(WagesOperationsReportViewModel));
 	}
 
 	/// <summary>
@@ -1271,10 +1196,12 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnCashBoolReportActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var commonServices = _autofacScope.Resolve<ICommonServices>();
 		ISubdivisionRepository subdivisionRepository = _autofacScope.Resolve<ISubdivisionRepository>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport(subdivisionRepository, ServicesConfig.CommonServices)));
+			() => new QSReport.ReportViewDlg(new CashBookReport(reportInfoFactory, subdivisionRepository, commonServices)));
 	}
 
 	/// <summary>
@@ -1316,9 +1243,11 @@ public partial class MainWindow
 	{
 		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
 		var wageSettings = _autofacScope.Resolve<IWageSettings>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
 			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+				reportInfoFactory,
 				uowFactory,
 				wageSettings,
 				ServicesConfig.CommonServices)));
@@ -1331,9 +1260,10 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
 	{
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(ServicesConfig.UnitOfWorkFactory)));
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(reportInfoFactory, ServicesConfig.UnitOfWorkFactory)));
 	}
 
 	/// <summary>
@@ -1381,14 +1311,9 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionQualityRetailReport(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(),
-				new EmployeeJournalFactory(NavigationManager),
-				new SalesChannelJournalFactory(),
-				ServicesConfig.UnitOfWorkFactory,
-				ServicesConfig.InteractiveService)));
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			addingRegistrations: builder => builder.RegisterType<QualityReport>().As<IParametersWidget>());
 	}
 
 	/// <summary>
@@ -1398,13 +1323,18 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
 	{
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
+		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyReport(
+				reportInfoFactory,
 				new SalesChannelJournalFactory(),
 				_autofacScope.Resolve<IDistrictJournalFactory>(),
-				ServicesConfig.UnitOfWorkFactory,
-				ServicesConfig.InteractiveService)));
+				uowFactory,
+				interactiveService)));
 
 	}
 
@@ -1430,6 +1360,26 @@ public partial class MainWindow
 	protected void OnAction89Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CarIsNotAtLineReportParametersViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчет по расходу топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAverageFlowDiscrepancyReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<AverageFlowDiscrepanciesReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Отчет по заправкам некорректным типом топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionIncorrectFuelReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncorrectFuelReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	#endregion Транспорт

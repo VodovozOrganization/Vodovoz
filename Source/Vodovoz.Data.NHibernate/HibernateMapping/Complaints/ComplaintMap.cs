@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
@@ -24,6 +24,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 			Map(x => x.ComplaintType).Column("type");
 			Map(x => x.ActualCompletionDate).Column("actual_completion_date");
 			Map(x => x.DriverRating).Column("driver_rating");
+			Map(x => x.WorkWithClientResult).Column("work_with_client_result");
 
 			References(x => x.CreatedBy).Column("created_by_id");
 			References(x => x.ChangedBy).Column("changed_by_id");
@@ -40,7 +41,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 
 			HasMany(x => x.Guilties).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.ComplaintDiscussions).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
-			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("complaint_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("complaint_id");
 			HasMany(x => x.ArrangementComments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.ResultComments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_id");
 

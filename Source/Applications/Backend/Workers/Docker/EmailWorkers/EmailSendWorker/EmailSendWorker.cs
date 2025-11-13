@@ -1,64 +1,52 @@
-﻿using Mailjet.Api.Abstractions;
-using Mailjet.Api.Abstractions.Endpoints;
-using Microsoft.Extensions.Configuration;
+﻿using CustomerAppsApi.Library.Configs;
+using Mailganer.Api.Client;
+using Mailganer.Api.Client.Dto;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Mailjet.Api.Abstractions.Events;
 
 namespace EmailSendWorker
 {
 	public class EmailSendWorker : BackgroundService
 	{
-		private const string _mailjetConfigurationSection = "Mailjet";
-		private const string _queuesConfigurationSection = "Queues";
-		private const string _emailSendQueueParameter = "EmailSendQueue";
-		private const string _emailStatusUpdateParameter = "EmailStatusUpdateQueue";
-		private const string _sandboxModeParameter = "Sandbox";
-
 		private const int _retriesCount = 5;
 		private const int _retryDelay = 5 * 1000; // sec => milisec
 
-		private readonly string _mailSendingQueueId;
-		private readonly string _statusUpdateQueueId;
-		private readonly bool _sandboxMode;
-
 		private readonly ILogger<EmailSendWorker> _logger;
 		private readonly IModel _channel;
-		private readonly SendEndpoint _sendEndpoint;
+		private readonly MailganerClientV2 _mailganerClient;
+		private readonly RabbitOptions _rabbitOptions;
 		private readonly AsyncEventingBasicConsumer _consumer;
 
-		public EmailSendWorker(ILogger<EmailSendWorker> logger, IConfiguration configuration, IModel channel, SendEndpoint sendEndpoint)
+		public EmailSendWorker(
+			ILogger<EmailSendWorker> logger,
+			IModel channel,
+			IOptions<RabbitOptions> rabbitOptions,
+			MailganerClientV2 mailganerClient
+			)
 		{
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
-			_sendEndpoint = sendEndpoint ?? throw new ArgumentNullException(nameof(sendEndpoint));
-			_mailSendingQueueId = configuration.GetSection(_queuesConfigurationSection)
-				.GetValue<string>(_emailSendQueueParameter);
-			_statusUpdateQueueId = configuration.GetSection(_queuesConfigurationSection)
-				.GetValue<string>(_emailStatusUpdateParameter);
-			_channel.QueueDeclare(_mailSendingQueueId, true, false, false, null);
+			_mailganerClient = mailganerClient ?? throw new ArgumentNullException(nameof(mailganerClient));
+			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
+			_channel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
 			_consumer = new AsyncEventingBasicConsumer(_channel);
 			_consumer.Received += MessageRecieved;
-			_sandboxMode = configuration.GetSection(_mailjetConfigurationSection).GetValue(_sandboxModeParameter, true);
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_channel.BasicConsume(_mailSendingQueueId, false, _consumer);
+			_channel.BasicConsume(_rabbitOptions.EmailSendQueue, false, _consumer);
 			await Task.Delay(0, stoppingToken);
 		}
 
@@ -100,46 +88,68 @@ namespace EmailSendWorker
 					message.Payload = new EmailPayload();
 				}
 
-				var payload = new SendPayload
+				var emails = CreateEmailMessages(message);
+
+				foreach(var email in emails)
 				{
-					Messages = new[] { message },
-					SandboxMode = _sandboxMode
-				};
-
-				for(var i = 0; i < _retriesCount; i++)
-				{
-					_logger.LogInformation($"Sending email { message.Payload.Id } { i + 1 }/{ _retriesCount }");
-
-					try
+					for(var i = 0; i < _retriesCount; i++)
 					{
-						var response = await _sendEndpoint.Send(payload);
-						_logger.LogInformation("Response:\n" + JsonSerializer.Serialize(response));
-						break;
-					}
-					catch(Exception exc)
-					{
-						_logger.LogError(exc, exc.Message);
-						await Task.Delay(_retryDelay);
+						_logger.LogInformation($"Sending email {message.Payload.Id} {i + 1}/{_retriesCount}");
 
-						if(i >= _retriesCount - 1)
+						try
 						{
-							var statusUpdateMessage = new UpdateStoredEmailStatusMessage
+							await _mailganerClient.Send(email);
+
+							var semaphore = new object();
+
+							try
 							{
-								ErrorInfo = "SendWorker unable to send message to MailJet",
-								EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
-								Status = MailEventType.bounce,
-								RecievedAt = DateTime.Now
-							};
-
-							_channel.QueueDeclare(_statusUpdateQueueId, true, false, false, null);
-							var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
-							var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
-							var properties = _channel.CreateBasicProperties();
-							properties.Persistent = true;
-							_channel.BasicPublish("", _statusUpdateQueueId, false, properties, statusUpdateBody);
+								lock(semaphore)
+								{
+									var statusUpdateMessage = new UpdateStoredEmailStatusMessage
+									{
+										EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
+										Status = Mailjet.Api.Abstractions.Events.MailEventType.sent,
+										RecievedAt = DateTime.Now
+									};
+									_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
+									var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
+									var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
+									var properties = _channel.CreateBasicProperties();
+									properties.Persistent = true;
+									_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+								}
+							}
+							catch(Exception ex)
+							{
+								_logger.LogError(ex, "Произошла ошибка при попытке отправки сообщения об изменении статуса в очередь");
+							}
+							
+							break;
 						}
+						catch(Exception exc)
+						{
+							_logger.LogError(exc, exc.Message);
+							await Task.Delay(_retryDelay);
 
-						continue;
+							if(i >= _retriesCount - 1)
+							{
+								var statusUpdateMessage = new UpdateStoredEmailStatusMessage
+								{
+									ErrorInfo = "SendWorker unable to send message to MailJet",
+									EventPayload = new EmailPayload { Id = message.Payload.Id, Trackable = true },
+									Status = Mailjet.Api.Abstractions.Events.MailEventType.bounce,
+									RecievedAt = DateTime.Now
+								};
+
+								_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
+								var serializedMessage = JsonSerializer.Serialize(statusUpdateMessage);
+								var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
+								var properties = _channel.CreateBasicProperties();
+								properties.Persistent = true;
+								_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
+							}
+						}
 					}
 				}
 			}
@@ -148,6 +158,36 @@ namespace EmailSendWorker
 				_logger.LogInformation("Free message from queue");
 				_channel.BasicAck(e.DeliveryTag, false);
 			}
+		}
+
+		private IEnumerable<EmailMessage> CreateEmailMessages(SendEmailMessage message)
+		{
+			var emailMessages = new List<EmailMessage>();
+			foreach(var to in message.To)
+			{
+				var email = new EmailMessage
+				{
+					From = $"{message.From.Name} <{message.From.Email}>",
+					To = to.Email,
+					Subject = message.Subject,
+					MessageText = message.HTMLPart,
+					TrackOpen = true,
+					TrackClick = true,
+					TrackId = $"{message.Payload.InstanceId}-{message.Payload.Id}",
+				};
+
+				if(message.Attachments != null && message.Attachments.Any())
+				{
+					email.Attachments = message.Attachments.Select(x => new EmailAttachment
+					{
+						Filename = x.Filename,
+						Base64Content = x.Base64Content,
+					}).ToList();
+				}
+
+				emailMessages.Add(email);
+			}
+			return emailMessages;
 		}
 	}
 }

@@ -1,17 +1,23 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.Banks.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using QS.Utilities.Text;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
-		Nominative = "сотрудник")]
+		Nominative = "сотрудник",
+		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class EmployeeEntity : PropertyChangedBase, IDomainObject
+	public class EmployeeEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<EmployeeFileInformation>, IHasPhoto
 	{
 		private int _id;
 		private DateTime _creationDate;
@@ -50,6 +56,8 @@ namespace Vodovoz.Core.Domain.Employees
 		private bool _isChainStoreDriver;
 		private bool _isDriverForOneDay;
 		private string _loginForNewUser;
+		private IObservableList<EmployeeFileInformation> _attachedFileInformations = new ObservableList<EmployeeFileInformation>();
+		private string _photoFileName;
 
 		public EmployeeEntity()
 		{
@@ -66,7 +74,13 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value);
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateFileInformations();
+				}
+			}
 		}
 
 		[Display(Name = "Дата создания")]
@@ -321,6 +335,61 @@ namespace Vodovoz.Core.Domain.Employees
 		{
 			get => _loginForNewUser;
 			set => SetField(ref _loginForNewUser, value);
+		}
+
+		[Display(Name = "Имя файла фотографии")]
+		public virtual string PhotoFileName
+		{
+			get => _photoFileName;
+			set => SetField(ref _photoFileName, value);
+		}
+
+		[Display(Name = "Информация о прикрепленных файлах")]
+		public virtual IObservableList<EmployeeFileInformation> AttachedFileInformations
+		{
+			get => _attachedFileInformations;
+			set => SetField(ref _attachedFileInformations, value);
+		}
+
+		[Display(Name = "ФИО")]
+		public virtual string FullName
+		{
+			get => PersonHelper.PersonFullName(LastName, Name, Patronymic);
+		}
+
+		[Display(Name = "Фамилия и инициалы")]
+		public virtual string ShortName
+		{
+			get => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+		}
+
+		public virtual string Title => FullName;
+
+		public virtual void AddFileInformation(string fileName)
+		{
+			if(AttachedFileInformations.Any(a => a.FileName == fileName))
+			{
+				return;
+			}
+
+			AttachedFileInformations.Add(new EmployeeFileInformation
+			{
+				FileName = fileName,
+				EmployeeId = Id
+			});
+		}
+
+		public virtual void RemoveFileInformation(string fileName)
+		{
+			AttachedFileInformations.Remove(AttachedFileInformations.FirstOrDefault(afi => afi.FileName == fileName));
+		}
+
+		private void UpdateFileInformations()
+		{
+			foreach(var fileInformation in AttachedFileInformations)
+			{
+				fileInformation.EmployeeId = Id;
+			}
 		}
 	}
 }

@@ -16,9 +16,12 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NLog.Web;
 using QS.Project.Core;
+using System;
+using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Mango;
@@ -44,6 +47,14 @@ namespace Mango.Service
 				.ConfigureServices((hostContext, services) =>
 				{
 					var configuration = hostContext.Configuration;
+					services.AddMappingAssemblies(
+						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+						typeof(QS.Banks.Domain.Bank).Assembly,
+						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+						typeof(QS.HistoryLog.HistoryMain).Assembly,
+						typeof(EmployeeWithLoginMap).Assembly,
+						typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly);
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddNotTrackedUoW();
@@ -84,15 +95,24 @@ namespace Mango.Service
 
 						busCfg.UsingRabbitMq((context, rabbitCfg) =>
 						{
-							var ts = context.GetRequiredService<IMessageTransportSettings>();
-							rabbitCfg.Host(ts.Host, (ushort)ts.Port, ts.VirtualHost,
+							var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
+							rabbitCfg.Host(messageSettings.Host, (ushort)messageSettings.Port, messageSettings.VirtualHost,
 								rabbitHostCfg =>
 								{
-									rabbitHostCfg.Username(ts.Username);
-									rabbitHostCfg.Password(ts.Password);
-									if(ts.UseSSL)
+									rabbitHostCfg.Username(messageSettings.Username);
+									rabbitHostCfg.Password(messageSettings.Password);
+
+									if(messageSettings.UseSSL)
 									{
-										rabbitHostCfg.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
+										rabbitHostCfg.UseSsl(ssl =>
+										{
+											if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+											{
+												ssl.AllowPolicyErrors(allowedPolicyErrors);
+											}
+
+											ssl.Protocol = SslProtocols.Tls12;
+										});
 									}
 								}
 							);

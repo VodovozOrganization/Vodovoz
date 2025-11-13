@@ -2,9 +2,19 @@
 
 namespace Pacs.Core.Messages.Events
 {
-	public class OperatorStateEvent
+	/// <summary>
+	/// Событие смены состояния оператора
+	/// </summary>
+	public class OperatorStateEvent : EventBase
 	{
+		/// <summary>
+		/// Состояние оператора
+		/// </summary>
 		public OperatorState State { get; set; }
+
+		/// <summary>
+		/// Доступность перерывов
+		/// </summary>
 		public OperatorBreakAvailability BreakAvailability { get; set; }
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -16,7 +16,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Номер строки").AddTextRenderer(node => node.Id.ToString()).SearchHighlight()
 				.AddColumn("Номер документа").AddTextRenderer(node => node.DocumentId.ToString()).SearchHighlight()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.NomenclatureName).SearchHighlight()
-				.AddColumn("Кол-во").AddTextRenderer(node => node.Amount.ToString("0.00")).SearchHighlight()
+				.AddColumn("Кол-во").AddTextRenderer(node => node.Amount.ToString("0.#####")).SearchHighlight()
 				.AddColumn("Тип документа").AddTextRenderer(node => node.DocumentTypeString)
 				.AddColumn("Дата").AddTextRenderer(node => node.DateString)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)

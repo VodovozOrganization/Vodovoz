@@ -14,7 +14,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Employees;
+using Vodovoz.CachingRepositories.Common;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
@@ -23,7 +26,10 @@ using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Extensions;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Widgets.Print;
 using Vodovoz.ViewModels.Widgets.Users;
 
@@ -37,7 +43,6 @@ namespace Vodovoz.ViewModels.Users
 		private readonly INomenclatureFixedPriceRepository _nomenclatureFixedPriceRepository;
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IGuiDispatcher _guiDispatcher;
-		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _updateFixedPricesCommand;
 		private bool _sortingSettingsUpdated;
 		private bool _isFixedPricesUpdating;
@@ -49,6 +54,8 @@ namespace Vodovoz.ViewModels.Users
 		private bool _isWarehousesForNotificationsListChanged = false;
 
 		private CancellationTokenSource _cancellationTokenSource;
+		private Subdivision _defaultSubdivision;
+		private Counterparty _defaultCounterparty;
 
 		public UserSettingsViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -60,10 +67,13 @@ namespace Vodovoz.ViewModels.Users
 			ISubdivisionSettings subdivisionSettings,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
+			IDomainEntityNodeInMemoryCacheRepository<Subdivision> subdivisionInMemoryCacheRepository,
 			INomenclatureFixedPriceRepository nomenclatureFixedPriceRepository,
 			IFuelApiService fuelApiService,
 			IGuiDispatcher guiDispatcher,
-			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel)
+			DocumentsPrinterSettingsViewModel documentsPrinterSettingsViewModel,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Counterparty> counterpartyViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -71,10 +81,21 @@ namespace Vodovoz.ViewModels.Users
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
+			if(counterpartyViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(counterpartyViewModelEEVMBuilder));
+			}
+
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			SubdivisionInMemoryCacheRepository = subdivisionInMemoryCacheRepository ?? throw new ArgumentNullException(nameof(subdivisionInMemoryCacheRepository));
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
@@ -83,7 +104,7 @@ namespace Vodovoz.ViewModels.Users
 			InteractiveService = commonServices.InteractiveService;
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
+				.CreateCounterpartyAutocompleteSelectorFactory(LifetimeScope);
 
 			SetPermissions();
 
@@ -105,6 +126,14 @@ namespace Vodovoz.ViewModels.Users
 			FuelControlApiLoginCommand = new DelegateCommand(async () => await FuelControlApiLogin(), () => Entity.IsUserHasAuthDataForFuelControlApi);
 
 			DocumentsPrinterSettingsViewModel.UserSettings = Entity;
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.DefaultWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		private void OnWarehousesToNotifyListContentChanged(object sender, EventArgs e)
@@ -118,10 +147,11 @@ namespace Vodovoz.ViewModels.Users
 		}
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
+		public IEntityEntryViewModel CounterpartyViewModel { get; set; }
 
 		public IEntityEntryViewModel BuildSubdivisionViewModel()
 		{
-			return new CommonEEVMBuilderFactory<UserSettings>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+			return new CommonEEVMBuilderFactory<UserSettingsViewModel>(this, this, UoW, NavigationManager, LifetimeScope)
 				.ForProperty(x => x.DefaultSubdivision)
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.UseViewModelDialog<SubdivisionViewModel>()
@@ -154,8 +184,21 @@ namespace Vodovoz.ViewModels.Users
 			private set => SetField(ref _progressFraction, value);
 		}
 
+		public Subdivision DefaultSubdivision
+		{
+			get => this.GetIdRefField(ref _defaultSubdivision, Entity.DefaultSubdivisionId);
+			set => this.SetIdRefField(SetField, ref _defaultSubdivision, () => Entity.DefaultSubdivisionId, value);
+		}
+
+		public Counterparty DefaultCounterparty
+		{
+			get => this.GetIdRefField(ref _defaultCounterparty, Entity.DefaultCounterpartyId);
+			set => this.SetIdRefField(SetField, ref _defaultCounterparty, () => Entity.DefaultCounterpartyId, value);
+		}
+
 		public IInteractiveService InteractiveService { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		public bool IsUserFromOkk => _subdivisionSettings.GetOkkId()
 									 == _employeeService.GetEmployeeForUser(UoW, CommonServices.UserService.CurrentUserId)?.Subdivision?.Id;
@@ -164,10 +207,12 @@ namespace Vodovoz.ViewModels.Users
 		public bool UserIsCashier { get; private set; }
 		public bool CanUpdateFixedPrices { get; private set; }
 
-		public IList<CashSubdivisionSortingSettings> SubdivisionSortingSettings => Entity.ObservableCashSubdivisionSortingSettings;
+		public IList<CashSubdivisionSortingSettings> SubdivisionSortingSettings => Entity.CashSubdivisionSortingSettings;
 
 		public WarehousesUserSelectionViewModel WarehousesUserSelectionViewModel => _warehousesUserSelectionViewModel;
 
+		public IDomainEntityNodeInMemoryCacheRepository<Subdivision> SubdivisionInMemoryCacheRepository { get; }
+		public IDomainEntityNodeInMemoryCacheRepository<Counterparty> CounterpartyInMemoryCacheRepository { get; }
 		public DocumentsPrinterSettingsViewModel DocumentsPrinterSettingsViewModel { get; }
 
 		public DelegateCommand FuelControlApiLoginCommand { get; }
@@ -205,6 +250,8 @@ namespace Vodovoz.ViewModels.Users
 			)
 		);
 
+		public ILifetimeScope LifetimeScope { get; set; }
+
 		#endregion
 
 		private void ShowNotifyIfWarehousesListChanged()
@@ -219,7 +266,7 @@ namespace Vodovoz.ViewModels.Users
 
 		private bool IsNeedToConfigurePrinterSettings()
 		{
-			foreach(var printerSetting in Entity.ObservableDocumentPrinterSettings)
+			foreach(var printerSetting in Entity.DocumentPrinterSettings)
 			{
 				if(string.IsNullOrWhiteSpace(printerSetting.PrinterName) || printerSetting.NumberOfCopies < 1)
 				{
@@ -279,7 +326,7 @@ namespace Vodovoz.ViewModels.Users
 		{
 			CanUpdateFixedPrices = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_update_fixed_prices_for_19l_water");
 			IsUserFromRetail = CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
-			UserIsCashier = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
+			UserIsCashier = CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
 		}
 
 		private void UpdateProgress(string message)
@@ -292,7 +339,7 @@ namespace Vodovoz.ViewModels.Users
 		{
 			var availableSubdivisions = _subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser).ToList();
 
-			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions);
+			_sortingSettingsUpdated = Entity.UpdateCashSortingSettings(availableSubdivisions.Select(x => x.Id));
 		}
 
 		private async Task FuelControlApiLogin()
@@ -342,7 +389,7 @@ namespace Vodovoz.ViewModels.Users
 
 		public override void Dispose()
 		{
-			_lifetimeScope = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}

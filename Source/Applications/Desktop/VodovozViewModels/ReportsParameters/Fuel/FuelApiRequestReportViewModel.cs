@@ -4,12 +4,13 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
@@ -37,7 +38,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			ViewModelEEVMBuilder<User> userViewModelEEVMBuilder) : base(rdlViewerViewModel)
+			ViewModelEEVMBuilder<User> userViewModelEEVMBuilder,
+			IReportInfoFactory reportInfoFactory
+			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			if(commonServices is null)
 			{
@@ -101,8 +104,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Fuel
 		protected override Dictionary<string, object> Parameters =>
 			new Dictionary<string, object>
 			{
-				{ "start_date", StartDate.Value.ToString("yyyy-MM-dd") },
-				{ "end_date", EndDate.Value.ToString("yyyy-MM-dd") },
+				{ "start_date", StartDate?.ToString("yyyy-MM-dd") },
+				{ "end_date", EndDate?.ToString("yyyy-MM-dd") },
 				{ "user_id", User?.Id ?? 0 },
 				{ "response_result", FuelApiResponseResult?.ToString() ?? "0" }
 			};

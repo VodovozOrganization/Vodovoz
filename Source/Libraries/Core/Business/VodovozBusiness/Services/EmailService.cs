@@ -1,19 +1,19 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Orders;
 using Email = Vodovoz.Domain.Contacts.Email;
 using Order = Vodovoz.Domain.Orders.Order;
-using Type = Vodovoz.Domain.Orders.Documents.Type;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.Services
 {
@@ -76,7 +76,7 @@ namespace Vodovoz.Services
 		{
 			var sendedByEdo = _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Type.Bill) > 0;
+				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
@@ -95,7 +95,7 @@ namespace Vodovoz.Services
 		{
 			var sendedByEdo = _orderRepository
 				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Type.Bill) > 0;
+				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 
@@ -132,7 +132,8 @@ namespace Vodovoz.Services
 			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings)
 				&& !_emailRepository.HasSendedEmailForUpd(order.Id)
 				&& (order.DeliveryDate is null || order.DeliveryDate >= threeMonthsBeforeToday)
-				&& !_orderRepository.HasSignedUpdDocumentFromEdo(unitOfWork, order.Id))
+				&& !_orderRepository.HasSignedUpdDocumentFromEdo(unitOfWork, order.Id)
+				&& order.OrderDocuments.Any(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 			{
 				return SendUpdToEmail(unitOfWork, order);
 			}
@@ -144,7 +145,7 @@ namespace Vodovoz.Services
 		{
 			if(_emailRepository.NeedSendDocumentsByEmailOnFinish(unitOfWork, order, _deliveryScheduleSettings, true)
 				&& !_emailRepository.HaveSendedEmailForBill(order.Id)
-				&& _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id).Count(x => x.Type == Type.Bill) == 0)
+				&& _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id).Count(x => x.Type == DocumentContainerType.Bill) == 0)
 			{
 				return SendBillToEmail(unitOfWork, order);
 			}
@@ -158,14 +159,14 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Result.Failure(Errors.Email.EmailErrors.MissingDocumentForSending);
 			}
 
 			var emailAddress = GetEmailAddressForBill(order);
 
 			if(emailAddress is null)
 			{
-				return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+				return Result.Failure(Errors.Email.EmailErrors.MissingEmailForRequiredMailType);
 			}
 
 			var dateTimeNow = DateTime.Now;
@@ -203,7 +204,7 @@ namespace Vodovoz.Services
 
 			if(document is null)
 			{			
-				return Result.Failure(Errors.Email.Email.MissingDocumentForSending);
+				return Result.Failure(Errors.Email.EmailErrors.MissingDocumentForSending);
 			}
 
 			try
@@ -212,7 +213,7 @@ namespace Vodovoz.Services
 
 				if(_emailAddressForBill is null)
 				{
-					return Result.Failure(Errors.Email.Email.MissingEmailForRequiredMailType);
+					return Result.Failure(Errors.Email.EmailErrors.MissingEmailForRequiredMailType);
 				}
 
 				var dateTimeNow = DateTime.Now;

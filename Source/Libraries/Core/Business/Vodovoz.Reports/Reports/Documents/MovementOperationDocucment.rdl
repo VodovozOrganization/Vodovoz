@@ -1422,7 +1422,7 @@
     ) AS storage_to,
     nomenclature.Name AS NomName,
     nomenclature.id AS nomenclature_id,
-    IFNULL(ni.inventory_number, '-') AS inventory_number,
+    IFNULL(GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number), '-') AS inventory_number,
     measurement_units.name
 FROM store_movement_document
     LEFT JOIN store_movement_document_items ON store_movement_document_items.movement_document_id = store_movement_document.id

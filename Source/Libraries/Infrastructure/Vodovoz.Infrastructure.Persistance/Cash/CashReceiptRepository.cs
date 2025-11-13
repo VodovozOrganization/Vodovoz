@@ -7,6 +7,8 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -124,10 +126,11 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 					.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 					.Where(GetMissingCashReceiptRestriction())
-					.Where(GetPaymentTypeRestriction())
-					.Where(GetSelfdeliveryRestriction())
-					.Where(GetPositiveSumRestriction())
-					.Where(GetDeliveryDateRestriction())
+					.And(GetPaymentTypeRestriction())
+					.And(GetSelfdeliveryRestriction())
+					.And(GetPositiveSumRestriction())
+					.And(GetDeliveryDateRestriction())
+					.And(() => !_counterpartyAlias.IsNewEdoProcessing)
 					;
 
 				var result =
@@ -156,7 +159,8 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					.And(GetPositiveSumRestriction())
 					.And(GetDeliveryDateRestriction())
 					.And(GetOrderStatusRestriction())
-					.And(() => !_orderAlias.SelfDelivery);
+					.And(() => !_orderAlias.SelfDelivery)
+					.And(() => !_counterpartyAlias.IsNewEdoProcessing);
 
 				var result =
 					query.SelectList(list => list
@@ -234,15 +238,21 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			return id == orderId;
 		}
 
-		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId, CashReceiptStatus? cashReceiptStatus = null)
 		{
-			CashReceipt receiptAlias = null;
+			var query =
+				from receipt in uow.Session.Query<CashReceipt>()
+				where receipt.Order.Id == orderId
+				select receipt;
 
-			var result = uow.Session.QueryOver(() => receiptAlias)
-				.Where(() => receiptAlias.Order.Id == orderId)
-				.List();
+			if(cashReceiptStatus != null)
+			{
+				return query
+					.Where(x => x.Status == cashReceiptStatus)
+					.ToList();
+			}
 
-			return result;
+			return query.ToList();
 		}
 
 		public CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId)
@@ -361,15 +371,56 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
+				if(HasNeededReceiptOldDocflow(uow, orderId))
+				{
+					return true;
+				}
+
+				return IsReceiptSentNewDocflow(uow, orderId);
+			}
+		}
+
+		public bool HasNeededReceiptOldDocflow(IUnitOfWork uow, int orderId)
+		{
+			var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
 					.And(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded
 						&& _cashReceiptAlias.Status != CashReceiptStatus.DuplicateSum)
 					.Select(Projections.Id());
-				var result = query.List<int>();
+			var result = query.List<int>();
 
-				return result.Any();
-			}
+			return result.Any();
+		}
+
+		private bool IsReceiptSentNewDocflow(IUnitOfWork uow, int orderId)
+		{
+			var fiscalDocumentStages = new[]
+			{
+				FiscalDocumentStage.Sent,
+				FiscalDocumentStage.Completed
+			};
+
+			var receipts =
+				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
+				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
+				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
+				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
+				 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
+				 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
+				 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
+				 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
+				 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
+				 join ted in uow.Session.Query<TransferEdoDocument>() on transferEdoTask.Id equals ted.TransferTaskId into transferEdoDocuments
+				 from transferEdoDocument in transferEdoDocuments.DefaultIfEmpty()
+				 where
+					 edoRequest.Order.Id == orderId
+					 && (transferEdoDocument.Id != null || fiscalDocumentStages.Contains(fiscalDocument.Stage))
+				 select
+				 edoTask.Id)
+				.ToList();
+
+			return receipts.Any();
 		}
 
 		public int GetCodeErrorsReceiptCount(IUnitOfWork uow)

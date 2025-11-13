@@ -3,16 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database.Orders;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.Orders;
 using Vodovoz.Zabbix.Sender;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace FastDeliveryLateWorker
 {
@@ -43,7 +44,8 @@ namespace FastDeliveryLateWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(QS.Attachments.Domain.Attachment).Assembly,
-							typeof(EmployeeWithLoginMap).Assembly
+							typeof(EmployeeWithLoginMap).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 						);
 						
 					services
@@ -57,9 +59,10 @@ namespace FastDeliveryLateWorker
 						.AddSingleton<IOrderSettings, OrderSettings>()
 						.AddSingleton<IEmailService, EmailService>()
 						.AddScoped<OrderStateKey>()
+						.AddOsrm()
 						;
 
-					services.ConfigureZabbixSender(nameof(FastDeliveryLateWorker));
+					services.ConfigureZabbixSenderFromDataBase(nameof(FastDeliveryLateWorker));
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});

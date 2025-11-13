@@ -20,7 +20,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gamma.GtkWidgets.yVBox vboxMultipleFilter;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -98,7 +98,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxMultipleFilter]));
 			w7.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button();
+			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;

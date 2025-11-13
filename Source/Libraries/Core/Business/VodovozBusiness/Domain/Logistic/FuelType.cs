@@ -20,7 +20,6 @@ namespace Vodovoz.Domain.Logistic
 	{
 		private string _name;
 		private IList<FuelPriceVersion> _fuelPriceVersions = new List<FuelPriceVersion>();
-		private string _productGroupId;
 
 		public FuelType()
 		{
@@ -57,12 +56,6 @@ namespace Vodovoz.Domain.Logistic
 		private GenericObservableList<FuelPriceVersion> _observableFuelPriceVersions;
 		public virtual GenericObservableList<FuelPriceVersion> ObservableFuelPriceVersions => _observableFuelPriceVersions
 			?? (_observableFuelPriceVersions = new GenericObservableList<FuelPriceVersion>(FuelPriceVersions));
-
-		public virtual string ProductGroupId
-		{
-			get => _productGroupId;
-			set => SetField(ref _productGroupId, value);
-		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

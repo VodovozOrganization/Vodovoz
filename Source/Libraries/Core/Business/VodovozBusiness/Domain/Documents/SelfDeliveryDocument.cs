@@ -1,29 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Documents
 {
+	/// <summary>
+	/// Отпуск самовывоза
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
@@ -31,146 +37,295 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
-		public override DateTime TimeStamp {
+		private Order _order;
+		private Warehouse _warehouse;
+		private string _comment;
+		private IList<SelfDeliveryDocumentItem> _items
+			= new List<SelfDeliveryDocumentItem>();
+		private GenericObservableList<SelfDeliveryDocumentItem> _observableItems;
+		private IList<SelfDeliveryDocumentReturned> _returnedItems
+			= new List<SelfDeliveryDocumentReturned>();
+		private int _defBottleId;
+		private int _returnedTareBefore;
+		private int _tareToReturn;
+
+		/// <summary>
+		/// <inheritdoc/>
+		/// </summary>
+		public override DateTime TimeStamp
+		{
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
+
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				{
 					return;
-				foreach(var item in Items) {
-					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+				}
+
+				foreach(var item in Items)
+				{
+					if(item.GoodsAccountingOperation != null
+						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					{
 						item.GoodsAccountingOperation.OperationTime = TimeStamp;
+					}
 				}
 			}
 		}
 
-		Order order;
+		/// <summary>
+		/// Заказ, по которому оформляется самовывоз
+		/// </summary>
 		[Required(ErrorMessage = "Заказ должен быть указан.")]
-		public virtual Order Order {
-			get => order;
-			set => SetField(ref order, value, () => Order);
+		public virtual Order Order
+		{
+			get => _order;
+			set => SetField(ref _order, value);
 		}
 
-		Warehouse warehouse;
+		/// <summary>
+		/// Склад, на который оформляется самовывоз
+		/// </summary>
 		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set => SetField(ref warehouse, value, () => Warehouse);
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
 		}
 
-		string comment;
-
+		/// <summary>
+		/// Комментарий к самовывозу
+		/// </summary>
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
-		IList<SelfDeliveryDocumentItem> items = new List<SelfDeliveryDocumentItem>();
-
+		/// <summary>
+		/// Строки самовывоза
+		/// </summary>
 		[Display(Name = "Строки")]
-		public virtual IList<SelfDeliveryDocumentItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+		public virtual IList<SelfDeliveryDocumentItem> Items
+		{
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		GenericObservableList<SelfDeliveryDocumentItem> observableItems;
+		/// <summary>
+		/// Строки самовывоза
+		/// </summary>
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<SelfDeliveryDocumentItem>(Items);
-				return observableItems;
+		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems
+		{
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<SelfDeliveryDocumentItem>(Items);
+				}
+
+				return _observableItems;
 			}
 		}
 
-		IList<SelfDeliveryDocumentReturned> returnedItems = new List<SelfDeliveryDocumentReturned>();
-
+		/// <summary>
+		/// Строки возврата
+		/// </summary>
 		[Display(Name = "Строки возврата")]
-		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems {
-			get => returnedItems;
-			set => SetField(ref returnedItems, value, () => ReturnedItems);
+		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
+		{
+			get => _returnedItems;
+			set => SetField(ref _returnedItems, value);
 		}
 
 		#region Не сохраняемые
 
-		int defBottleId;
+		/// <summary>
+		/// <inheritdoc/>
+		/// </summary>
+		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
 
-		public virtual string Title => string.Format("Самовывоз №{0} от {1:d}", Id, TimeStamp);
-
-		int returnedTareBefore;
+		/// <summary>
+		/// Количество возвратов, которые были оформлены до оформления текущего самовывоза
+		/// </summary>
 		[PropertyChangedAlso("ReturnedTareBeforeText")]
-		public virtual int ReturnedTareBefore {
-			get => returnedTareBefore;
-			set => SetField(ref returnedTareBefore, value, () => ReturnedTareBefore);
+		public virtual int ReturnedTareBefore
+		{
+			get => _returnedTareBefore;
+			set => SetField(ref _returnedTareBefore, value);
 		}
 
-		public virtual string ReturnedTareBeforeText => ReturnedTareBefore > 0 ? string.Format("Возвращено другими самовывозами: {0} бут.", ReturnedTareBefore) : string.Empty;
+		/// <summary>
+		/// Текст для отображения количества возвратов, которые были оформлены до оформления текущего самовывоза
+		/// </summary>
+		public virtual string ReturnedTareBeforeText =>
+			ReturnedTareBefore > 0
+			? $"Возвращено другими самовывозами: {ReturnedTareBefore} бут."
+			: string.Empty;
 
-		public virtual int TareToReturn { get; set; }
+		/// <summary>
+		/// Количество тары, которую нужно вернуть
+		/// </summary>
+		public virtual int TareToReturn
+		{
+			get => _tareToReturn;
+			set => SetField(ref _tareToReturn, value);
+		}
 
 		#endregion
 
+		/// <summary>
+		/// Проверка валидности документа самовывоза
+		/// </summary>
+		/// <param name="validationContext"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			foreach(var item in Items) {
+			if(!(validationContext.Items
+					.TryGetValue("skipTrueMarkCodesCheck", out var value)
+				&& value is bool skipTrueMarkCodesCheck))
+			{
+				skipTrueMarkCodesCheck = false;
+			}
+
+			if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork unitOfWork))
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			if(!(validationContext.GetService(typeof(ICommonServices)) is ICommonServices commonServices))
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
+			foreach(var item in Items)
+			{
 				if(item.Amount > item.AmountInStock)
-					yield return new ValidationResult(string.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+				{
+					yield return new ValidationResult(
+						$"На складе недостаточное количество <{item.Nomenclature.Name}>",
 						new[] { this.GetPropertyName(o => o.Items) });
-				if(item.Amount <= 0) {
-					yield return new ValidationResult(string.Format("Введено не положительное количество <{0}>", item.Nomenclature.Name),
+				}
+
+				if(item.Amount <= 0)
+				{
+					yield return new ValidationResult(
+						$"Введено не положительное количество <{item.Nomenclature.Name}>",
 						new[] { this.GetPropertyName(o => o.Items) });
+				}
+
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				if(item.Amount != count)
+				{
+					yield return new ValidationResult(
+						$"Нельзя частично отгрузить номенклатуру <{item.Nomenclature.Name}> в заказе. Для отпуска необходимо {count} шт., а не {decimal.ToInt32(item.Amount)} шт.",
+						new[] { this.GetPropertyName(o => o.Items) });
+				}
+				
+				if(!skipTrueMarkCodesCheck
+					&& !commonServices.CurrentPermissionService.ValidatePresetPermission(
+					   Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
+				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+				   && item.Nomenclature.IsAccountableInTrueMark
+				   && item.Amount > item.TrueMarkProductCodes.Count
+				   && Order.Client.IsNewEdoProcessing)
+				{
+					yield return new ValidationResult(
+						"Для перепродажи должны быть отсканированы все коды.",
+						new[] { nameof(item) });
+				}
+
+				var hasOtherSelfDeliveryDocumentsWithThisOrder = unitOfWork
+					.GetAll<SelfDeliveryDocument>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+
+				if(hasOtherSelfDeliveryDocumentsWithThisOrder)
+				{
+					yield return new ValidationResult(
+						$"Уже есть документ с заказом {Order.Id}",
+						new[] { nameof(item) });
+				}
+
+				var hasOrderEdoRequest = unitOfWork
+					.GetAll<OrderEdoRequest>()
+					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
+
+				if(hasOrderEdoRequest)
+				{
+					yield return new ValidationResult(
+						"Нельзя изменять документ самовывоза, по которому уже есть заявка на отправку документов заказа по ЭДО.",
+						new[] { nameof(item) });
 				}
 			}
 		}
 
 		#region Функции
 
+		/// <summary>
+		/// Заполнение строк самовывоза по заказу
+		/// </summary>
 		public virtual void FillByOrder()
 		{
 			ObservableItems.Clear();
 			if(Order == null)
+			{
 				return;
+			}
 
-			foreach(var orderItem in Order.OrderItems) {
-				if(!Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category)) {
+			foreach(var orderItem in Order.OrderItems)
+			{
+				if(!Nomenclature
+					.GetCategoriesForShipment()
+					.Contains(orderItem.Nomenclature.Category))
+				{
 					continue;
 				}
 
-				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature)) {
+				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
+				{
 					ObservableItems.Add(
-						new SelfDeliveryDocumentItem {
+						new SelfDeliveryDocumentItem
+						{
 							Document = this,
 							Nomenclature = orderItem.Nomenclature,
 							OrderItem = orderItem,
 							OrderEquipment = null,
 							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
-						}
-					);
+						});
 				}
 
 			}
 
-			foreach(var orderEquipment in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
-				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature)) { 
+			foreach(var orderEquipment in Order.OrderEquipments
+				.Where(x => x.Direction == Direction.Deliver))
+			{
+				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
+				{
 					ObservableItems.Add(
-						new SelfDeliveryDocumentItem {
+						new SelfDeliveryDocumentItem
+						{
 							Document = this,
 							Nomenclature = orderEquipment.Nomenclature,
 							OrderItem = null,
 							OrderEquipment = orderEquipment,
 							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
-						}
-					);
+						});
 				}
 			}
 
 			if(!ReturnedItems.Any(x => x.Id != 0))
 			{
-				ReturnedItems = Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp)
+				ReturnedItems = Order.OrderEquipments
+					.Where(x => x.Direction == Direction.PickUp)
 					.GroupBy(x => (x.Nomenclature, x.DirectionReason, x.OwnType))
 					.ToDictionary(x => x.Key, x => x.ToList())
 					.Select(x => new SelfDeliveryDocumentReturned
@@ -187,20 +342,48 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		/// <summary>
+		/// Получение количества номенклатуры в заказе
+		/// </summary>
+		/// <param name="item"></param>
+		/// <returns></returns>
 		public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
 		{
-			decimal cnt = Order.OrderItems.Where(i => i.Nomenclature == item).Sum(i => i.Count);
-			cnt += Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.Deliver).Sum(e => e.Count);
-			return cnt;
+			decimal count = Order.OrderItems
+				.Where(i => i.Nomenclature == item)
+				.Sum(i => i.Count);
+
+			count += Order.OrderEquipments
+				.Where(e => e.Nomenclature == item
+					&& e.Direction == Direction.Deliver)
+				.Sum(e => e.Count);
+
+			return count;
 		}
 
+		/// <summary>
+		/// Получение количества возвратов оборудования в заказе
+		/// </summary>
+		/// <param name="item"></param>
+		/// <returns></returns>
 		public virtual decimal GetEquipmentReturnsCountInOrder(Nomenclature item)
 		{
-			decimal cnt =  Order.OrderEquipments.Where(e => e.Nomenclature == item && e.Direction == Direction.PickUp).Sum(e => e.Count);
-			return cnt;
+			decimal count = Order.OrderEquipments
+				.Where(e => e.Nomenclature == item
+					&& e.Direction == Direction.PickUp)
+				.Sum(e => e.Count);
+
+			return count;
 		}
 
-		public virtual void UpdateStockAmount(IUnitOfWork uow, IStockRepository stockRepository)
+		/// <summary>
+		/// Обновление количества номенклатуры на складе
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="stockRepository"></param>
+		public virtual void UpdateStockAmount(
+			IUnitOfWork uow,
+			IStockRepository stockRepository)
 		{
 			if(!Items.Any() || Warehouse == null)
 			{
@@ -209,7 +392,7 @@ namespace Vodovoz.Domain.Documents
 
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
 			var inStock =
-				stockRepository.NomenclatureInStock(uow, nomenclatureIds, new []{ Warehouse.Id }, TimeStamp);
+				stockRepository.NomenclatureInStock(uow, nomenclatureIds, new[] { Warehouse.Id }, TimeStamp);
 
 			foreach(var item in Items)
 			{
@@ -218,54 +401,115 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
+		/// <summary>
+		/// Инициализация значений по умолчанию
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="nomenclatureRepository"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+		public virtual void InitializeDefaultValues(
+			IUnitOfWork uow,
+			INomenclatureRepository nomenclatureRepository)
 		{
 			if(nomenclatureRepository == null)
+			{
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			}
 
-			defBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
+			_defBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
 		}
 
-		public virtual void UpdateAlreadyUnloaded(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
+		/// <summary>
+		/// Обновление количества номенклатуры, которая уже была отгружена
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="nomenclatureRepository"></param>
+		/// <param name="bottlesRepository"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+		public virtual void UpdateAlreadyUnloaded(
+			IUnitOfWork uow,
+			INomenclatureRepository nomenclatureRepository,
+			IBottlesRepository bottlesRepository)
 		{
 			if(nomenclatureRepository == null)
+			{
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			}
+
 			if(bottlesRepository == null)
+			{
 				throw new ArgumentNullException(nameof(bottlesRepository));
+			}
 
 			if(Order != null)
-				ReturnedTareBefore = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
-			TareToReturn = (int)ReturnedItems.Where(r => r.Nomenclature.Id == defBottleId).Sum(x => x.Amount);
+			{
+				ReturnedTareBefore = bottlesRepository
+					.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
+			}
+
+			TareToReturn = (int)ReturnedItems
+				.Where(r => r.Nomenclature.Id == _defBottleId)
+				.Sum(x => x.Amount);
 
 			if(!Items.Any() || Order == null)
+			{
 				return;
+			}
 
-			var inUnloaded = ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>().NomenclatureUnloaded(uow, Order, this);
+			var inUnloaded = ScopeProvider.Scope
+				.Resolve<ISelfDeliveryRepository>()
+				.NomenclatureUnloaded(uow, Order, this);
 
-			foreach(var item in Items) {
+			foreach(var item in Items)
+			{
 				if(inUnloaded.ContainsKey(item.Nomenclature.Id))
+				{
 					item.AmountUnloaded = inUnloaded[item.Nomenclature.Id];
+				}
 			}
 		}
 
+		/// <summary>
+		/// Обновление операций по самовывозу
+		/// </summary>
+		/// <param name="uow"></param>
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
-			foreach(var item in Items) {
-				if(item.Amount == 0 && item.GoodsAccountingOperation != null) {
+			foreach(var item in Items)
+			{
+				if(item.Amount == 0 && item.GoodsAccountingOperation != null)
+				{
 					uow.Delete(item.GoodsAccountingOperation);
 					item.GoodsAccountingOperation = null;
 				}
-				if(item.Amount != 0) {
-					if(item.GoodsAccountingOperation != null) {
+
+				if(item.Amount != 0)
+				{
+					if(item.GoodsAccountingOperation != null)
+					{
 						item.UpdateOperation(Warehouse);
-					} else {
+					}
+					else
+					{
 						item.CreateOperation(Warehouse, TimeStamp);
 					}
 				}
 			}
 		}
 
-		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
+		/// <summary>
+		/// Обновление операций по возврату
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="goodsReceptions"></param>
+		/// <param name="nomenclatureRepository"></param>
+		/// <param name="bottlesRepository"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+		public virtual void UpdateReceptions(
+			IUnitOfWork uow,
+			IList<GoodsReceptionVMNode> goodsReceptions,
+			INomenclatureRepository nomenclatureRepository,
+			IBottlesRepository bottlesRepository)
 		{
 			if(nomenclatureRepository == null)
 			{
@@ -279,7 +523,7 @@ namespace Vodovoz.Domain.Documents
 
 			if(Warehouse != null && Warehouse.CanReceiveBottles)
 			{
-				UpdateReturnedOperation(uow, defBottleId, TareToReturn);
+				UpdateReturnedOperation(uow, _defBottleId, TareToReturn);
 				var emptyBottlesAlreadyReturned = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
 				Order.ReturnedTare = emptyBottlesAlreadyReturned + TareToReturn;
 			}
@@ -293,15 +537,35 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateReturnedOperations(IUnitOfWork uow, Dictionary<int, decimal> returnedNomenclatures)
+		/// <summary>
+		/// Обновление операций по возврату
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="returnedNomenclatures"></param>
+		public virtual void UpdateReturnedOperations(
+			IUnitOfWork uow,
+			Dictionary<int, decimal> returnedNomenclatures)
 		{
-			foreach(var returned in returnedNomenclatures) {
+			foreach(var returned in returnedNomenclatures)
+			{
 				UpdateReturnedOperation(uow, returned.Key, returned.Value);
 			}
 		}
 
-		void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity,
-			OwnTypes? ownType = null, DirectionReason? directionReason = null)
+		/// <summary>
+		/// Обновление операций по возврату
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="returnedNomenclaureId"></param>
+		/// <param name="returnedNomenclaureQuantity"></param>
+		/// <param name="ownType"></param>
+		/// <param name="directionReason"></param>
+		private void UpdateReturnedOperation(
+			IUnitOfWork uow,
+			int returnedNomenclaureId,
+			decimal returnedNomenclaureQuantity,
+			OwnTypes? ownType = null,
+			DirectionReason? directionReason = null)
 		{
 			var items = ReturnedItems.Where(x => x.Nomenclature.Id == returnedNomenclaureId);
 
@@ -343,6 +607,7 @@ namespace Vodovoz.Domain.Documents
 				else if(returnedNomenclaureQuantity != 0)
 				{
 					item.Amount = returnedNomenclaureQuantity;
+
 					if(item.Id == 0)
 					{
 						item.CreateOperation(Warehouse, Order.Client, TimeStamp);
@@ -360,31 +625,35 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, ICallTaskWorker callTaskWorker)
+		/// <summary>
+		/// Проверка самовывоза на возможность закрытия заказа
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="nomenclatureSettings"></param>
+		/// <param name="routeListItemRepository"></param>
+		/// <param name="selfDeliveryRepository"></param>
+		/// <param name="cashRepository"></param>
+		/// <param name="callTaskWorker"></param>
+		/// <returns></returns>
+		public virtual bool FullyShiped(
+			IUnitOfWork uow,
+			INomenclatureSettings nomenclatureSettings,
+			IRouteListItemRepository routeListItemRepository,
+			ISelfDeliveryRepository selfDeliveryRepository,
+			ICashRepository cashRepository,
+			ICallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrderWithCallTask(uow, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
+			return Order.TryCloseSelfDeliveryOrderWithCallTask(
+				uow,
+				nomenclatureSettings,
+				routeListItemRepository,
+				selfDeliveryRepository,
+				cashRepository,
+				callTaskWorker,
+				this);
 		}
 
 		#endregion
 	}
-
-	public class GoodsReceptionVMNode: PropertyChangedBase
-	{
-		public int NomenclatureId { get; set; }
-		public string Name { get; set; }
-
-		decimal amount;
-		public virtual decimal Amount
-		{
-			get => amount;
-			set => SetField(ref amount, value);
-		}
-
-		public int ExpectedAmount { get; set; }
-		public NomenclatureCategory Category { get; set; }
-        public Direction? Direction { get; set; }
-        public DirectionReason DirectionReason { get; set; }
-        public OwnTypes OwnType { get; set; }
-    }
 }

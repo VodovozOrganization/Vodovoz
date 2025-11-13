@@ -1,52 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 
-namespace Vodovoz.Domain.Contacts
+namespace VodovozBusiness.Domain.Contacts
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы телефонов",
 		Nominative = "тип телефона")]
 	[EntityPermission]
-	public class PhoneType : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class PhoneType : PhoneTypeEntity, IValidatableObject
 	{
-		private string _name;
-		private PhonePurpose _phonePurpose;
-
-		public virtual int Id { get; set; }
-
-
-		[Display(Name = "Тип телефона")]
-		public virtual string Name
+		public virtual ValidationContext ConfigureValidationContext(IUnitOfWork uow, IPhoneRepository phoneRepository)
 		{
-			get => _name;
-			set => SetField(ref _name, value);
-		}
-
-		[Display(Name = "Назначение типа телефона")]
-		public virtual PhonePurpose PhonePurpose
-		{
-			get => _phonePurpose;
-			set => SetField(ref _phonePurpose, value);
-		}
-
-		public PhoneType()
-		{
-			Name = string.Empty;
-		}
-
-		#region IValidatableObject
-
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(string.IsNullOrWhiteSpace(Name))
+			if(uow == null)
 			{
-				yield return new ValidationResult("Укажите название типа телефона");
+				throw new ArgumentNullException(nameof(uow));
+			}
+			if(phoneRepository == null)
+			{
+				throw new ArgumentNullException(nameof(phoneRepository));
 			}
 
 			if(PhonePurpose == PhonePurpose.ForReceipts)
@@ -56,7 +34,7 @@ namespace Vodovoz.Domain.Contacts
 					throw new ArgumentException($"Для валидации должен быть доступен {nameof(IUnitOfWorkFactory)}");
 				}
 
-				if(!(validationContext.GetService(typeof(IPhoneRepository)) is IPhoneRepository phoneRepository))
+				if(type == typeof(IPhoneRepository))
 				{
 					throw new ArgumentException($"Для валидации должен быть доступен репозиторий {nameof(IPhoneRepository)}");
 				}
@@ -66,14 +44,45 @@ namespace Vodovoz.Domain.Contacts
 				{
 					var existsForReceipts = phoneRepository.PhoneTypeWithPurposeExists(uow, PhonePurpose.ForReceipts);
 
-					if(existsForReceipts != null && Id != existsForReceipts.Id)
-					{
-						yield return new ValidationResult(
-							"В базе уже создан тип телефона с назначением " +
-							$"'{phoneForReceipts}'. " +
-							$"Не может быть создано более 1 типа телефона с назначением '{phoneForReceipts}'");
-					}
+				return null;
+			});
+
+			return context;
+		}
+
+		#region IValidatableObject
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(Name))
+				yield return new ValidationResult($"Укажите название типа телефона");
+
+			if(validationContext.Items.ContainsKey("Reason") && validationContext.Items["Reason"] as string == nameof(ConfigureValidationContext))
+			{
+				if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork uow))
+				{
+					throw new ArgumentException($"Для валидации отправки должен быть доступен UnitOfWork");
 				}
+				if(!(validationContext.GetService(typeof(IPhoneRepository)) is IPhoneRepository phoneRepository))
+				{
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IPhoneRepository)}");
+				}
+
+				PhoneType phoneType = this;
+				if(Id != 0)
+					phoneType = uow.GetById<PhoneType>(Id);
+
+				var existsForReceipts = phoneRepository.PhoneTypeWithPurposeExists(uow, PhonePurpose.ForReceipts);
+				if(existsForReceipts != null && PhonePurpose == PhonePurpose.ForReceipts && phoneType.Id != existsForReceipts.Id)
+				{
+					yield return new ValidationResult($"В базе уже создан тип телефона с назначением " +
+						$"'{PhonePurpose.ForReceipts.GetEnumTitle()}'. " +
+						$"Не может быть создано более 1 типа телефона с назначением '{PhonePurpose.ForReceipts.GetEnumTitle()}'");
+				}
+			}
+			else
+			{
+				throw new ArgumentException("Неверно передан ValidationContext");
 			}
 		}
 

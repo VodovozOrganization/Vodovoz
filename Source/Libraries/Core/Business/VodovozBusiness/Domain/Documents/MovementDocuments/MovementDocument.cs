@@ -8,6 +8,8 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
@@ -680,7 +682,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			}
 		}
 
-		public virtual void Receive(Employee employeeReceiver)
+		public virtual void Receive(Employee employeeReceiver, IUnitOfWork unitOfWork)
 		{
 			if(employeeReceiver == null) {
 				throw new ArgumentNullException(nameof(employeeReceiver));
@@ -705,6 +707,17 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 
 			foreach(var item in Items) {
 				item.UpdateIncomeOperation();
+
+				if(MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse
+				   && StorageFrom != StorageType.Warehouse)
+				{
+					item.TrySetIsUsed();
+
+					if(item is InstanceMovementDocumentItem instanceItem)
+					{
+						unitOfWork.Save(instanceItem.InventoryNomenclatureInstance);
+					}
+				}
 			}
 		}
 

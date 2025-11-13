@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Equipments;
 using QS.Project.Services;
 using Autofac;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {

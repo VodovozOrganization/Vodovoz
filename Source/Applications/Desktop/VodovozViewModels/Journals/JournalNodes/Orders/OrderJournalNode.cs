@@ -2,9 +2,12 @@
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Gamma.Utilities;
 using Type = System.Type;
 
 namespace Vodovoz.JournalNodes
@@ -91,5 +94,12 @@ namespace Vodovoz.JournalNodes
 		public bool Sensitive { get; set; }
 
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
+		public EdoDocumentStatus? NewEdoDocFlowStatus { get; set; }
+		public string EdoDocFlowStatusString =>
+			EdoDocFlowStatus is null
+			? NewEdoDocFlowStatus is null
+				? string.Empty
+				: NewEdoDocFlowStatus.GetEnumTitle()
+			: EdoDocFlowStatus.GetEnumTitle();
 	}
 }

@@ -3,13 +3,13 @@ using Pacs.Core;
 using Pacs.Core.Messages.Commands;
 using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client.Consumers;
-using Pacs.Server;
 using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Settings.Pacs;
 
 namespace Pacs.Operators.Client
@@ -56,7 +56,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/startworkshift";
-			var payload = new StartWorkShift { OperatorId = _operatorId.Value, PhoneNumber = phoneNumber };
+			var payload = new StartWorkShift
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value,
+				PhoneNumber = phoneNumber
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -86,7 +92,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/endworkshift";
-			var payload = new EndWorkShift { OperatorId = _operatorId.Value, Reason = reason };
+
+			var payload = new EndWorkShift
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -116,7 +128,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/changephone";
-			var payload = new ChangePhone { OperatorId = _operatorId.Value, PhoneNumber = phoneNumber };
+			var payload = new ChangePhone
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value,
+				PhoneNumber = phoneNumber
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -146,10 +164,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/startbreak";
-			var payload = new StartBreak { 
+			var payload = new StartBreak
+			{
+				EventId = Guid.NewGuid(),
 				OperatorId = _operatorId.Value, 
 				BreakType = breakType 
 			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -179,7 +200,12 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/endbreak";
-			var payload = new EndBreak { OperatorId = _operatorId.Value };
+			var payload = new EndBreak
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -195,6 +221,11 @@ namespace Pacs.Operators.Client
 				}
 				else
 				{
+					_logger.LogError("Error: {FailureDescription}, OperatorState: {OperatorStateState}, {@OperatorState}",
+						operatorResult.FailureDescription,
+						operatorResult.OperatorState?.State,
+						operatorResult.OperatorState);
+
 					throw new PacsException(operatorResult.FailureDescription);
 				}
 			}
@@ -209,7 +240,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/connect";
-			var payload = new Connect { OperatorId = _operatorId.Value };
+
+			var payload = new Connect
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -239,7 +276,13 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/disconnect";
-			var payload = new Disconnect { OperatorId = _operatorId.Value };
+
+			var payload = new Disconnect
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);
@@ -269,7 +312,12 @@ namespace Pacs.Operators.Client
 		{
 			Validate();
 			var uri = $"{_pacsSettings.OperatorApiUrl}/{_url}/keep_alive";
-			var payload = new KeepAlive { OperatorId = _operatorId.Value };
+			var payload = new KeepAlive
+			{
+				EventId = Guid.NewGuid(),
+				OperatorId = _operatorId.Value
+			};
+
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 			_httpClient.DefaultRequestHeaders.Clear();
 			_httpClient.DefaultRequestHeaders.Add("ApiKey", _pacsSettings.OperatorApiKey);

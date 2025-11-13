@@ -17,6 +17,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Printing;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Sale;
@@ -28,8 +30,6 @@ namespace Vodovoz.Dialogs.Logistic
 {
 	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
 		private readonly IRouteListRepository _routeListRepository = ScopeProvider.Scope.Resolve<IRouteListRepository>();
 
 		private Gdk.Pixbuf _vodovozCarIcon = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
@@ -242,6 +242,16 @@ namespace Vodovoz.Dialogs.Logistic
 					.Select(r => r.Id)
 					.ToList();
 
+				var selectedRouteListWithChainStore = _routes
+					.Where(x => x.Selected)
+					.Select(x => (x.Document as RouteListPrintableDocs).routeList)
+					.SelectMany(x => x.Addresses)
+					.Where(address => selectedRoutesIds.Contains(address.RouteList.Id)
+					                  && address.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+					                  && address.Order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute)
+					.Select(address => address.RouteList.Id)
+					.ToArray();
+
 				foreach(var item in _routes.Where(x => x.Selected))
 				{
 					if(item.Document is RouteListPrintableDocs rlPrintableDoc)
@@ -271,6 +281,11 @@ namespace Vodovoz.Dialogs.Logistic
 						if(chkForwarderReceipt.Active && selectedRoutesWithFastDelivery.Contains(rlPrintableDoc.routeList.Id))
 						{
 							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ForwarderReceipt);
+						}
+						
+						if(chkChainStoreNotification.Active && selectedRouteListWithChainStore.Contains(rlPrintableDoc.routeList.Id))
+						{
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ChainStoreNotification);
 						}
 
 						bool cancelPrinting = false;

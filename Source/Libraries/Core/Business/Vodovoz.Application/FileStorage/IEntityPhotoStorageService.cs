@@ -2,8 +2,8 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Errors;
-using VodovozBusiness.Common;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Application.FileStorage
 {
@@ -17,12 +17,11 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> CreatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> CreatePhotoAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение файла
 		/// </summary>
-		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<Result<Stream>> GetPhotoAsync(TEntity entity, CancellationToken cancellationToken);
@@ -34,12 +33,11 @@ namespace Vodovoz.Application.FileStorage
 		/// <param name="inputStream">Входящий поток данных</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result> UpdatePhotoAsync(TEntity entity, string filename, Stream inputStream, CancellationToken cancellationToken);
+		Task<Result> UpdatePhotoAsync(TEntity entity, string fileName, Stream inputStream, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Удаление файла
 		/// </summary>
-		/// <param name="fileName">Имя файла</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<Result> DeletePhotoAsync(TEntity entity, CancellationToken cancellationToken);

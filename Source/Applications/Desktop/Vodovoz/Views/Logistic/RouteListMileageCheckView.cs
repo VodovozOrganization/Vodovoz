@@ -42,7 +42,10 @@ namespace Vodovoz.Views.Logistic
 
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, widget => widget.Date).InitializeFromSource();
 
-			yspinConfirmedDistance.Binding.AddBinding(ViewModel.Entity, e => e.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+			yspinConfirmedDistance.Adjustment.Upper = (double)RouteList.ConfirmedDistanceLimit;
+			yspinConfirmedDistance.Binding
+				.AddBinding(ViewModel.Entity, e => e.ConfirmedDistance, widget => widget.ValueAsDecimal)
+				.InitializeFromSource();
 
 			yentryRecalculatedDistance.Binding.AddBinding(ViewModel.Entity, e => e.RecalculatedDistance, widget => widget.Text, new DecimalToStringConverter()).InitializeFromSource();
 

@@ -1,11 +1,13 @@
-﻿using QS.DomainModel.Entity;
+﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.Print;
 using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Vodovoz.Core.Domain.PrintableDocuments;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Reports.Editing;
@@ -16,13 +18,15 @@ namespace Vodovoz.ViewModels.Print.Store
 	public class ControlCarLoadDocumentRdl : PropertyChangedBase, ICustomPrintRdlDocument
 	{
 		public const string DocumentRdlPath = "Reports/Store/CarLoadDocumentControl.rdl";
+		private readonly IReportInfoFactory _reportInfoFactory;
 
 		private readonly CarLoadDocument _carLoadDocument;
 		private int _copiesToPrint;
 		private string _printerName;
 
-		private ControlCarLoadDocumentRdl(CarLoadDocument carLoadDocument)
+		private ControlCarLoadDocumentRdl(IReportInfoFactory reportInfoFactory, CarLoadDocument carLoadDocument)
 		{
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_carLoadDocument = carLoadDocument ?? throw new ArgumentNullException(nameof(carLoadDocument));
 		}
 
@@ -49,15 +53,11 @@ namespace Vodovoz.ViewModels.Print.Store
 		public ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var source = GetReportSource();
-
-			var reportInfo = new ReportInfo
-			{
-				Source = source,
-				Title = Name,
-				Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } },
-				PrintType = ReportInfo.PrintingType.MultiplePrinters
-			};
-
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Source = source;
+			reportInfo.Title = Name;
+			reportInfo.Parameters = new Dictionary<string, object> { { "id", _carLoadDocument.Id } };
+			reportInfo.PrintType = ReportInfo.PrintingType.MultiplePrinters;
 			return reportInfo;
 		}
 
@@ -97,9 +97,11 @@ namespace Vodovoz.ViewModels.Print.Store
 
 		public static ControlCarLoadDocumentRdl Create(
 			UserSettings userSettings,
-			CarLoadDocument carLoadDocument)
+			CarLoadDocument carLoadDocument,
+			IReportInfoFactory reportInfoFactory
+			)
 		{
-			var document = new ControlCarLoadDocumentRdl(carLoadDocument);
+			var document = new ControlCarLoadDocumentRdl(reportInfoFactory, carLoadDocument);
 
 			var savedPrinterSettings = userSettings.GetPrinterSettingByDocumentType(document.DocumentType);
 

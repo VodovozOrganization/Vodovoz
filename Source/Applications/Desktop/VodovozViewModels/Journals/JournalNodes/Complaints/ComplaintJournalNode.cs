@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamma.Utilities;
 using QS.Project.Journal;
+using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz.Journals.JournalNodes

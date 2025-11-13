@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 using VodovozInfrastructure.Configuration;
 using Vodovoz.Settings.Common;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Infrastructure.Services
 {
@@ -146,7 +147,8 @@ namespace Vodovoz.Infrastructure.Services
 				configuration.MessageBrokerUsername,
 				configuration.MessageBrokerPassword,
 				configuration.MessageBrokerVirtualHost,
-				configuration.Port);
+				configuration.Port,
+				true);
 
 			var channel = connection.CreateModel();
 

@@ -22,7 +22,7 @@ namespace Pacs.Server.Operators
 		private readonly IGlobalBreakController _globalBreakController;
 		private readonly IOperatorBreakAvailabilityService _operatorBreakAvailabilityService;
 		private readonly IPacsRepository _pacsRepository;
-		private readonly IPhoneController _phoneController;
+		private readonly IOperatorPhoneService _operatorPhoneService;
 		private readonly IOperatorRepository _operatorRepository;
 
 		private readonly ConcurrentDictionary<int, OperatorServerStateMachine> _operatorControllers;
@@ -35,7 +35,7 @@ namespace Pacs.Server.Operators
 			IGlobalBreakController globalBreakController,
 			IOperatorBreakAvailabilityService operatorBreakAvailabilityService,
 			IPacsRepository pacsRepository,
-			IPhoneController phoneController,
+			IOperatorPhoneService phoneController,
 			IOperatorRepository operatorRepository)
 		{
 			_logger = logger
@@ -48,7 +48,7 @@ namespace Pacs.Server.Operators
 				?? throw new ArgumentNullException(nameof(operatorBreakAvailabilityService));
 			_pacsRepository = pacsRepository
 				?? throw new ArgumentNullException(nameof(pacsRepository));
-			_phoneController = phoneController
+			_operatorPhoneService = phoneController
 				?? throw new ArgumentNullException(nameof(phoneController));
 			_operatorRepository = operatorRepository
 				?? throw new ArgumentNullException(nameof(operatorRepository));
@@ -71,16 +71,15 @@ namespace Pacs.Server.Operators
 
 				await CheckConnection(operatorStateMachine);
 
-				if(!_phoneController.ValidatePhone(phoneNumber))
+				if(!_operatorPhoneService.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
-				if(!_phoneController.CanAssign(phoneNumber, operatorId))
+				if(!_operatorPhoneService.CanAssign(phoneNumber, operatorId))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}
-
 
 				if(!operatorStateMachine.CanChangedBy(OperatorTrigger.ChangePhone))
 				{
@@ -218,12 +217,12 @@ namespace Pacs.Server.Operators
 
 				await CheckConnection(operatorStateMachine);
 
-				if(!_phoneController.ValidatePhone(phoneNumber))
+				if(!_operatorPhoneService.ValidatePhone(phoneNumber))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Неизвестный номер телефона {phoneNumber}");
 				}
 
-				if(!_phoneController.CanAssign(phoneNumber, operatorId))
+				if(!_operatorPhoneService.CanAssign(phoneNumber, operatorId))
 				{
 					return new OperatorResult(GetResultContent(operatorStateMachine), $"Номер телефона {phoneNumber}, уже используется другим оператором");
 				}
@@ -401,11 +400,15 @@ namespace Pacs.Server.Operators
 		{
 			try
 			{
-				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension);
+				var operatorStateMachine = FindOperatorControllerByOperatorPhone(toExtension)
+					?? throw new Exception($"Не найден оператор для принятия звонка {callId} на номер {toExtension}");
 
-				if(operatorStateMachine == null)
+				var callHistory = await _pacsRepository.GetCallHistoryByCallIdAsync(callId);
+
+				if(callHistory.Any(ce => ce.State == CallState.Disconnected))
 				{
-					throw new Exception($"Не найден оператор для принятия звонка {callId} на номер {toExtension}");
+					_logger.LogWarning("Звонок {CallId} уже завершен", callId);
+					return;
 				}
 
 				await CheckConnection(operatorStateMachine);
@@ -571,6 +574,7 @@ namespace Pacs.Server.Operators
 
 			var content = new OperatorStateEvent
 			{
+				EventId = Guid.NewGuid(),
 				State = operatorServerStateMachine.OperatorState,
 				BreakAvailability = currentBreakAviability,
 			};
@@ -626,7 +630,28 @@ namespace Pacs.Server.Operators
 
 			if(!operatorServerStateMachine.CanChangedBy(OperatorTrigger.StartBreak))
 			{
-				return new OperatorResult(GetResultContent(operatorServerStateMachine), $"В данный момент нельзя начать перерыв");
+				string reason;
+
+				if(operatorServerStateMachine.OperatorState.State == OperatorStateType.Talk)
+				{
+					reason = "Нельзя начать перерыв во время разговора";
+				}
+				else if(operatorServerStateMachine.OperatorState.State == OperatorStateType.Break)
+				{
+					reason = "Нельзя начать перерыв, вы уже на перерыве";
+				}
+				else if(operatorServerStateMachine.OperatorState.State == OperatorStateType.New
+					|| operatorServerStateMachine.OperatorState.State == OperatorStateType.Disconnected
+					|| operatorServerStateMachine.OperatorState.State == OperatorStateType.Connected)
+				{
+					reason = "Нельзя начать перерыв, вы не на смене";
+				}
+				else
+				{
+					reason = "В данный момент нельзя начать перерыв (неизвестная причина)";
+				}
+
+				return new OperatorResult(GetResultContent(operatorServerStateMachine), reason);
 			}
 
 			return null;

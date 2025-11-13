@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Employees;
-using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security;
 

@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using QS.Deletion;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
 
 namespace Vodovoz.JournalViewModels
@@ -198,9 +199,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
-
-			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
-
+			
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
 			if(FilterViewModel != null && FilterViewModel.IsForRetail != null)
@@ -256,7 +255,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.OnlineOrderId != null)
 			{
-				query.Where(() => orderAlias.OnlineOrder == FilterViewModel.OnlineOrderId);
+				query.Where(() => orderAlias.OnlinePaymentNumber == FilterViewModel.OnlineOrderId);
 			}
 
 			var startDate = FilterViewModel.StartDate;
@@ -341,9 +340,9 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
-													 .Select(Projections.Sum(() => orderItemAlias.Count));
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 											.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
@@ -359,10 +358,17 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
-			
-			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+
+			if(FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
-				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				if(!FilterViewModel.FilterClosingDocumentDeliverySchedule.Value)
+				{
+					query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				}
+				else
+				{
+					query.Where(o => o.DeliverySchedule.Id == _closingDocumentDeliveryScheduleId);
+				}
 			}
 
 			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
@@ -378,7 +384,7 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));
@@ -401,7 +407,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 				   .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
-				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
+				   .Select(() => orderAlias.OnlinePaymentNumber).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
@@ -461,7 +467,7 @@ namespace Vodovoz.JournalViewModels
 				|| FilterViewModel.Organisation != null
 				|| FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -586,7 +592,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -733,7 +739,7 @@ namespace Vodovoz.JournalViewModels
 			    || FilterViewModel.Organisation != null
 			    || FilterViewModel.PaymentByCardFrom != null
 				|| FilterViewModel.SearchByAddressViewModel?.SearchValues?.Length > 0
-				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
+				|| FilterViewModel.FilterClosingDocumentDeliverySchedule.HasValue)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -978,12 +984,12 @@ namespace Vodovoz.JournalViewModels
 
 							System.Diagnostics.Process.Start(
 								string.Format(CultureInfo.InvariantCulture,
-									"https://maps.yandex.ru/?text={0} {1} {2}",
+									"https://maps.yandex.ru/?text={0} {1} {2} {3}",
 									order.DeliveryPoint.City,
+									order.DeliveryPoint.StreetType,
 									order.DeliveryPoint.Street,
 									order.DeliveryPoint.Building
-								)
-							);
+								));
 						}
 					}
 				)

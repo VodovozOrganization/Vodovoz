@@ -1,4 +1,6 @@
-﻿using System.Security.Authentication;
+﻿using System;
+using System.Net.Security;
+using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -8,6 +10,8 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Vodovoz.Application.Orders.Services;
+using Vodovoz.Handlers;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
@@ -17,7 +21,9 @@ namespace CustomerOrdersApi.Library
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
+			services
+				.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position))
+				.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
 			
 			return services;
 		}
@@ -25,10 +31,14 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>();
 			
 			return services;
 		}
@@ -49,7 +59,15 @@ namespace CustomerOrdersApi.Library
 
 						if(messageSettings.UseSSL)
 						{
-							hostConfigurator.UseSsl(ssl => ssl.Protocol = SslProtocols.Tls12);
+							hostConfigurator.UseSsl(ssl =>
+							{
+								if(Enum.TryParse<SslPolicyErrors>(messageSettings.AllowSslPolicyErrors, out var allowedPolicyErrors))
+								{
+									ssl.AllowPolicyErrors(allowedPolicyErrors);
+								}
+
+								ssl.Protocol = SslProtocols.Tls12;
+							});
 						}
 					});
 								

@@ -30,6 +30,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private Subdivision _accountableSubdivision;
 		private PayoutRequestsJournalViewModel _journalViewModel;
 		private int[] _includedAccountableSubdivision = Array.Empty<int>();
+		private DateTime? _startPaymentDatePlanned;
+		private DateTime? _endPaymentDatePlanned;
 
 		public PayoutRequestJournalFilterViewModel(
 			ILifetimeScope lifetimeScope,
@@ -66,6 +68,20 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 			set => UpdateFilterField(ref _endDate, value);
 		}
 
+		public virtual DateTime? StartPaymentDatePlanned
+		{
+			get => _startPaymentDatePlanned;
+			set => UpdateFilterField(ref _startPaymentDatePlanned, value);
+		}
+
+		public virtual DateTime? EndPaymentDatePlanned
+		{
+			get => _endPaymentDatePlanned;
+			set => UpdateFilterField(ref _endPaymentDatePlanned, value);
+		}
+
+		public bool ShowPaymentDatePlannedRangePicker => DocumentType == PayoutRequestDocumentType.CashlessRequest;
+
 		public virtual PayoutRequestState? State
 		{
 			get => _state;
@@ -81,6 +97,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 				{
 					return;
 				}
+
+				OnPropertyChanged(nameof(ShowPaymentDatePlannedRangePicker));
 
 				switch(value)
 				{
@@ -184,17 +202,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 
 			var userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 
-			if(CheckRole("role_financier_cash_request", userId))
-			{
-				return PayoutRequestUserRole.Financier;
-			}
-
 			if(CheckRole("role_coordinator_cash_request", userId))
 			{
 				return PayoutRequestUserRole.Coordinator;
 			}
 
-			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
+			if(CheckRole("role_financier_cash_request", userId))
+			{
+				return PayoutRequestUserRole.Financier;
+			}
+
+			if(CheckRole(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier, userId))
 			{
 				return PayoutRequestUserRole.Cashier;
 			}

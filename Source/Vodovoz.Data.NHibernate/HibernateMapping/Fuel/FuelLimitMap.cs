@@ -1,7 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Vodovoz.Domain.Fuel;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel

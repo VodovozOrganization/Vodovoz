@@ -192,7 +192,7 @@ namespace Vodovoz.Controllers
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.RouteListItem = routeListItem;
-			routeListKeepingDocument.Author = currentEmployee;
+			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 
 			var routeList = routeListItem.RouteList;
 
@@ -279,7 +279,7 @@ namespace Vodovoz.Controllers
 			}
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			routeListKeepingDocument.Author = currentEmployee;
+			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 			routeListKeepingDocument.RouteListItem = changedRouteListItem;
 
 			RouteList oldRouteList;
@@ -544,7 +544,7 @@ namespace Vodovoz.Controllers
 
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 				routeListKeepingDocument.RouteListItem = newAddress;
-				routeListKeepingDocument.Author = currentEmployee;
+				routeListKeepingDocument.AuthorId = currentEmployee.Id;
 
 				CreateOperationsForReturns(uow, newAddress, routeListKeepingDocument, oldAddress.Status, newAddress.Status, true);
 

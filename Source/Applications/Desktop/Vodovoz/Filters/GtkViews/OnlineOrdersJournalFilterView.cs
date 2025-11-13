@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
@@ -74,6 +75,21 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanChangePaymentType, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+			
+			ylblPaymentFrom.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsVisibleOnlinePaymentSource, w => w.Visible)
+				.InitializeFromSource();
+			
+			//Чтобы не лезть в UI делаю костыльно с существующим виджетом
+			speciallistCmbPaymentsFrom.ItemsList = Enum.GetValues(typeof(OnlinePaymentSource));
+			speciallistCmbPaymentsFrom.RenderTextFunc = x => ((OnlinePaymentSource)x).GetEnumDisplayName();
+			speciallistCmbPaymentsFrom.ShowSpecialStateAll = true;
+			speciallistCmbPaymentsFrom.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.IsVisibleOnlinePaymentSource, w => w.Visible)
+				.AddBinding(vm => vm.CanChangeOnlinePaymentSource, w => w.Sensitive)
+				.AddBinding(vm => vm.RestrictOnlinePaymentSource, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			entryCounterparty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCounterparty, w => w.Sensitive)
@@ -118,6 +134,10 @@ namespace Vodovoz.Filters.GtkViews
 			fastDeliveryBtn.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeFastDelivery, w => w.Sensitive)
 				.AddBinding(vm => vm.RestrictFastDelivery, w => w.Active)
+				.InitializeFromSource();
+			
+			chkOnlyWithoutDeliverySchedule.Binding
+				.AddBinding(ViewModel, vm => vm.WithoutDeliverySchedule, w => w.Active)
 				.InitializeFromSource();
 			
 			yenumСmbboxOrderPaymentStatus.ShowSpecialStateAll = true;

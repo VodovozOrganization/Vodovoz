@@ -22,6 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsNeedToResendEdoBill).Column("is_need_to_recend_edo_bill");
 			Map(x => x.IsNeedToCancelTrueMarkDocument).Column("is_need_to_cancel_truemark_doc");
 			Map(x => x.IsNeedOfferCancellation).Column("is_need_offer_cancellation");
+			Map(x => x.Created).Column("created");
 		}
 	}
 }

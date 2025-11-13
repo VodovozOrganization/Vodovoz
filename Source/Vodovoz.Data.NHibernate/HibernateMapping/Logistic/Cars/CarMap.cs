@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.RegistrationNumber).Column("reg_number");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.Photo).Column("photo").CustomSqlType("BinaryBlob").LazyLoad();
+			Map(x => x.PhotoFileName).Column("photo_file_name");
 			Map(x => x.MinBottles).Column("min_bottles");
 			Map(x => x.MaxBottles).Column("max_bottles");
 			Map(x => x.MinBottlesFromAddress).Column("min_bottles_from_address");
@@ -38,12 +39,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.TechInspectForKm).Column("tech_inspect_for_km");
 			Map(x => x.IncomeChannel).Column("income_channel");
 			Map(x => x.IsKaskoInsuranceNotRelevant).Column("is_kasko_not_relevant");
+			Map(x => x.IsUsedInDelivery).Column("is_used_in_delivery");
 
 			References(x => x.Driver).Column(CarSchema.DriverIdColumn);
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.CarModel).Column("model_id");
 
-			HasMany(x => x.Attachments).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
+			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 			HasMany(x => x.CarVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
 			HasMany(x => x.FuelCardVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")

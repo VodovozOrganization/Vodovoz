@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {

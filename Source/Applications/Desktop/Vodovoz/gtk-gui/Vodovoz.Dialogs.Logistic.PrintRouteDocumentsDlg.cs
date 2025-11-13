@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
 
-		private global::Gtk.Button buttonPrint;
+		private global::Gamma.GtkWidgets.yButton buttonPrint;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlyNonPrinted;
 
@@ -45,6 +45,8 @@ namespace Vodovoz.Dialogs.Logistic
 		private global::Gtk.CheckButton chkDocumentsOfOrders;
 
 		private global::Gtk.CheckButton chkForwarderReceipt;
+
+		private global::Gtk.CheckButton chkChainStoreNotification;
 
 		private global::Gtk.ScrolledWindow gtkScrlWnd;
 
@@ -95,7 +97,7 @@ namespace Vodovoz.Dialogs.Logistic
 			w3.Position = 2;
 			w3.Expand = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
+			this.buttonPrint = new global::Gamma.GtkWidgets.yButton();
 			this.buttonPrint.CanFocus = true;
 			this.buttonPrint.Name = "buttonPrint";
 			this.buttonPrint.UseUnderline = true;
@@ -244,6 +246,19 @@ namespace Vodovoz.Dialogs.Logistic
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.chkChainStoreNotification = new global::Gtk.CheckButton();
+			this.chkChainStoreNotification.CanFocus = true;
+			this.chkChainStoreNotification.Name = "chkChainStoreNotification";
+			this.chkChainStoreNotification.Label = global::Mono.Unix.Catalog.GetString("Уведомление о сетевом заказе");
+			this.chkChainStoreNotification.Active = true;
+			this.chkChainStoreNotification.DrawIndicator = true;
+			this.chkChainStoreNotification.UseUnderline = true;
+			this.vbox3.Add(this.chkChainStoreNotification);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.chkChainStoreNotification]));
+			w20.Position = 5;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.gtkScrlWnd = new global::Gtk.ScrolledWindow();
 			this.gtkScrlWnd.Name = "gtkScrlWnd";
 			this.gtkScrlWnd.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -254,16 +269,16 @@ namespace Vodovoz.Dialogs.Logistic
 			this.yTreeOrderDocumentTypes.Name = "yTreeOrderDocumentTypes";
 			this.gtkScrlWnd.Add(this.yTreeOrderDocumentTypes);
 			this.vbox3.Add(this.gtkScrlWnd);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gtkScrlWnd]));
-			w21.PackType = ((global::Gtk.PackType)(1));
-			w21.Position = 5;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gtkScrlWnd]));
+			w22.PackType = ((global::Gtk.PackType)(1));
+			w22.Position = 6;
 			this.hbox4.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox3]));
-			w22.Position = 1;
-			w22.Expand = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox3]));
+			w23.Position = 1;
+			w23.Expand = false;
 			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w23.Position = 2;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w24.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

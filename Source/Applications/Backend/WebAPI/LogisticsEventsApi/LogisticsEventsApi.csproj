@@ -19,10 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Include="appsettings.Development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -33,8 +29,9 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.14" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
         <PackageReference Include="MySqlConnector" Version="2.2.6" />
+        <PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
@@ -49,19 +46,6 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Properties\PublishProfiles\registry-dev.pubxml">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      </None>
-      <None Update="Properties\PublishProfiles\registry-prod.pubxml">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      </None>
     </ItemGroup>
 
 </Project>

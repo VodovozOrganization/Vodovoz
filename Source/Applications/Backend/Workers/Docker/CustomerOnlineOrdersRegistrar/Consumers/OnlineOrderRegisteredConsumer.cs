@@ -4,9 +4,15 @@ using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
+using QS.Utilities.Debug;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.OnlineOrders;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -20,27 +26,52 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderFactory onlineOrderFactory,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IBus bus) : base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, orderService)
+			IDiscountReasonSettings discountReasonSettings,
+			IOnlineOrderRepository onlineOrderRepository,
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService,
+			IBus bus)
+				: base(
+					logger,
+					unitOfWorkFactory,
+					onlineOrderFactory,
+					deliveryRulesSettings,
+					discountReasonSettings,
+					onlineOrderRepository,
+					onlineOrderCancellationReasonSettings,
+					orderService,
+					routeListService)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
-			_logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
+			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} от пользователя {ExternalCounterpartyId} клиента {ClientId} " +
+				"с контактным номером {ContactPhone}, регистрируем...",
+				message.ExternalOrderId,
+				message.ExternalCounterpartyId,
+				message.CounterpartyErpId,
+				message.ContactPhone);
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+				if(e.FindExceptionTypeInInner<MySqlException>() is { ErrorCode: MySqlErrorCode.DuplicateKeyEntry })
+				{
+					Logger.LogInformation("Пришел дубль уже зарегистрированного заказа {ExternalOrderId}, пропускаем", message.ExternalOrderId);
+					return;
+				}
+				
+				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
-				_bus.Publish<OnlineOrderInfoDto>(message);
-				return Task.CompletedTask;
+				await _bus.Publish(message, context.CancellationToken);
+				return;
 			}
 		}
 	}

@@ -9,6 +9,7 @@ using QS.ViewModels.Dialog;
 using RestSharp.Extensions;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.ViewModels.Extensions;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -138,80 +139,87 @@ namespace Vodovoz.ViewModels.Logistic
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryRulesSpecialNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryRulesSpecialOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(27).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(26).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(29).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(28).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => !x.RegionChanged))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(25).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(27).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsSaturdayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsSaturdayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(24).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(23).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(26).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(25).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsSundayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsSundayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(22).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(21).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(24).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(23).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsFridayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsFridayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(20).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(19).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(22).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(21).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsThursdayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsThursdayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(18).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(17).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(20).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(19).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsWednesdayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsWednesdayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(16).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(15).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(18).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(17).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsTuesdayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsTuesdayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(14).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(13).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(16).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(15).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsMondayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsMondayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(12).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(11).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(14).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(13).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DeliveryShiftsTodayNew)
 				&& string.IsNullOrWhiteSpace(x.DeliveryShiftsTodayOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(10).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(9).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(12).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(11).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.DelikveryRulesGeneralNew)
 				&& string.IsNullOrWhiteSpace(x.DelikveryRulesGeneralOld)))
 			{
-				renderedTemplate.Workbook.Worksheet(1).Column(8).Delete();
-				renderedTemplate.Workbook.Worksheet(1).Column(7).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(10).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(9).Delete();
 			}
 
 			if(report.DistrictDiffs.All(x => x.MinimalBottlesCountNew == null
 				&& x.MinimalBottlesCountOld == null))
+			{
+				renderedTemplate.Workbook.Worksheet(1).Column(8).Delete();
+				renderedTemplate.Workbook.Worksheet(1).Column(7).Delete();
+			}
+
+			if(report.DistrictDiffs.All(x => string.IsNullOrWhiteSpace(x.GeoGroupNew)
+				&& string.IsNullOrWhiteSpace(x.GeoGroupOld)))
 			{
 				renderedTemplate.Workbook.Worksheet(1).Column(6).Delete();
 				renderedTemplate.Workbook.Worksheet(1).Column(5).Delete();

@@ -8,6 +8,9 @@
 
 			public string Name { get; set; }
 
+			public string GeoGroupOld { get; set; }
+			public string GeoGroupNew { get; set; }
+
 			public string TariffZoneNameOld { get; set; }
 			public string TariffZoneNameNew { get; set; }
 

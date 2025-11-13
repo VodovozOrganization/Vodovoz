@@ -1,18 +1,14 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using EdoService.Library.Converters;
+using Core.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Taxcom.Client.Api;
-using TaxcomEdoApi.Config;
-using TaxcomEdoApi.Converters;
-using TaxcomEdoApi.Factories;
-using TaxcomEdoApi.Services;
-using Vodovoz.Core.Domain.Common;
-using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Tools.Orders;
+using Taxcom.Client.Api.Entity;
+using TaxcomEdoApi.Library;
+using TaxcomEdoApi.Library.Config;
 
 namespace TaxcomEdoApi
 {
@@ -20,18 +16,15 @@ namespace TaxcomEdoApi
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services.Configure<WarrantOptions>(config.GetSection(WarrantOptions.Position))
-				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Position));
+			services.Configure<WarrantOptions>(config.GetSection(WarrantOptions.Path))
+				.Configure<TaxcomEdoApiOptions>(config.GetSection(TaxcomEdoApiOptions.Path));
+			
 			return services;
 		}
 
 		public static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
-			services.AddHostedService<AutoSendReceiveService>()
-				.AddHostedService<ContactsUpdaterService>()
-				.AddHostedService<DocumentFlowService>()
-				.AddInfrastructure()
-
+			services
 				.AddSingleton(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
@@ -43,28 +36,37 @@ namespace TaxcomEdoApi
 					{
 						throw new InvalidOperationException("Не найден сертификат в личном хранилище пользователя");
 					}
-					
+
 					return certificate;
 				})
-				.AddSingleton(provider =>
+				.AddScoped(provider =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
+					var apiCryptographicMode = apiOptions.CryptographicMode.TryParseAsEnum<CryptographicMode>();
+
+					if(apiCryptographicMode is null)
+					{
+						return new Factory().CreateApi(
+							apiOptions.BaseUrl,
+							true,
+							apiOptions.IntegratorId,
+							certificate.RawData,
+							apiOptions.EdxClientId);
+					}
 					
 					return new Factory().CreateApi(
 						apiOptions.BaseUrl,
 						true,
 						apiOptions.IntegratorId,
 						certificate.RawData,
-						apiOptions.EdxClientId);
+						apiOptions.EdxClientId,
+						new TaxcomApiUserSettings
+						{
+							CryptographicMode = apiCryptographicMode.Value
+						});
 				})
-				.AddSingleton<IEdoUpdFactory, EdoUpdFactory>()
-				.AddSingleton<IEdoBillFactory, EdoBillFactory>()
-				.AddSingleton<PrintableDocumentSaver>()
-				.AddSingleton<IParticipantDocFlowConverter, ParticipantDocFlowConverter>()
-				.AddSingleton<IEdoContainerMainDocumentIdParser, EdoContainerMainDocumentIdParser>()
-				.AddSingleton<IUpdProductConverter, UpdProductConverter>()
-				.AddSingleton<IContactStateConverter, ContactStateConverter>();
+				.AddTaxcomEdoApiLibrary();
 
 			return services;
 		}

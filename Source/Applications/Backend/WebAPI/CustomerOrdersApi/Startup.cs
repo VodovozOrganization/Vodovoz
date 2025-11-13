@@ -1,4 +1,5 @@
 using CustomerOrdersApi.Library;
+using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
@@ -33,10 +34,11 @@ namespace CustomerOrdersApi
 				{
 					c.SwaggerDoc("v1", new OpenApiInfo
 					{
-						Title = "CustomerOrdersApi", Version = "v1"
+						Title = "CustomerOrdersApi",
+						Version = "v1"
 					});
 				})
-				
+
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -50,10 +52,14 @@ namespace CustomerOrdersApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
-				.AddDependenciesGroup()
-				.AddStaticScopeForEntity()
+				.AddDependenciesGroup();
+
+			services.AddStaticScopeForEntity();
+
+			services
 				.AddMemoryCache()
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())

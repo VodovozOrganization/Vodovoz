@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Application.FileStorage;
-using Vodovoz.Errors;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Infrastructure.FileStorage
 {
@@ -18,23 +18,15 @@ namespace Vodovoz.Infrastructure.FileStorage
 		protected abstract string BucketName { get; }
 
 		public async Task<Result> CreateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken)
-		{
-			return await _s3FileStorageService.CreateFileAsync(BucketName, fileName, inputStream, cancellationToken);
-		}
+			=> await _s3FileStorageService.CreateFileAsync(BucketName, fileName, inputStream, cancellationToken);
 
 		public async Task<Result<Stream>> GetFileAsync(string fileName, CancellationToken cancellationToken)
-		{
-			return await _s3FileStorageService.GetFileAsync(BucketName, fileName, cancellationToken);
-		}
+			=> await _s3FileStorageService.GetFileAsync(BucketName, fileName, cancellationToken);
 
 		public async Task<Result> UpdateFileAsync(string fileName, Stream inputStream, CancellationToken cancellationToken)
-		{
-			return await _s3FileStorageService.UpdateFileAsync(BucketName, fileName, inputStream, cancellationToken);
-		}
+			=> await _s3FileStorageService.UpdateFileAsync(BucketName, fileName, inputStream, cancellationToken);
 
-		public async Task<Result> DeleteFileAsync(string name, CancellationToken cancellationToken)
-		{
-			return await _s3FileStorageService.DeleteFileAsync(BucketName, name, cancellationToken);
-		}
+		public async Task<Result> DeleteFileAsync(string fileName, CancellationToken cancellationToken)
+			=> await _s3FileStorageService.DeleteFileAsync(BucketName, fileName, cancellationToken);
 	}
 }

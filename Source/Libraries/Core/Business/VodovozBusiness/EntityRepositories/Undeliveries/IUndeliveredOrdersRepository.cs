@@ -19,5 +19,6 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 		decimal GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 		Order GetOldOrderFromUndeliveredByNewOrderId(IUnitOfWork uow, int newOrderId);
 		IQueryable<UndeliveredOrder> GetUndeliveriesForOrders(IUnitOfWork unitOfWork, IList<int> ordersIds);
+		IList<OksDailyReportUndeliveredOrderDataNode> GetUndeliveredOrdersForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

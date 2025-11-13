@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
@@ -12,7 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Amount).Column("amount");
-			Map(x => x.Direction).Column("direction").CustomType<DeliveryDirectionStringType>();
+			Map(x => x.Direction).Column("direction");
 
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.Document).Column("delivery_document_id");

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -122,7 +123,7 @@ namespace Vodovoz.ViewWidgets.Store
 					{
 						_userHasOnlyAccessToWarehouseAndComplaints =
 							ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-								"user_have_access_only_to_warehouse_and_complaints")
+								Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 							&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 					}
 

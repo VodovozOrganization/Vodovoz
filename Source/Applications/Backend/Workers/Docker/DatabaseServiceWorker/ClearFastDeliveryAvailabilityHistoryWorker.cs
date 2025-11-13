@@ -87,7 +87,7 @@ namespace DatabaseServiceWorker
 		protected override void OnStartService()
 		{
 			_logger.LogInformation(
-				"Воркер ClearFastDeliveryAvailabilityHistoryWorker запущен в: {StartTime}",
+				"Воркер ClearFastDeliveryAvailabilityHistoryWorker запущен в: {TransferStartTime}",
 				DateTimeOffset.Now);
 
 			base.OnStartService();

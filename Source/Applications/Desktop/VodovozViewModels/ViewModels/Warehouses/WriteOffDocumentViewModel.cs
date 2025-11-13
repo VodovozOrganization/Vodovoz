@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Report.Utils;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -6,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -14,14 +16,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -39,6 +41,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -47,6 +50,9 @@ namespace Vodovoz.ViewModels.Warehouses
 {
 	public class WriteOffDocumentViewModel : EntityTabViewModelBase<WriteOffDocument>
 	{
+		private const string DefectActTitle = "Акт списания";
+		private const string WriteOffActTitle = "Акт выбраковки";
+
 		private bool _canChangeDocumentType;
 		private WriteOffDocumentItem _selectedItem;
 		private INomenclatureRepository _nomenclatureRepository;
@@ -54,10 +60,11 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly ILifetimeScope _scope;
 		private readonly CommonMessages _commonMessages;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IInteractiveService _interactiveService;
 		private readonly StoreDocumentHelper _storeDocumentHelper;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IEntityExtendedPermissionValidator _extendedPermissionValidator;
-
+		private readonly IReportInfoFactory _reportInfoFactory;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addNomenclatureCommand;
 		private DelegateCommand _addOrEditFineCommand;
@@ -75,19 +82,81 @@ namespace Vodovoz.ViewModels.Warehouses
 			ILifetimeScope scope,
 			CommonMessages commonMessages,
 			IEmployeeRepository employeeRepository,
+			IInteractiveService interactiveService,
 			StoreDocumentHelper storeDocumentHelper,
-			IEntityExtendedPermissionValidator extendedPermissionValidator)
+			IEntityExtendedPermissionValidator extendedPermissionValidator,
+			IReportInfoFactory reportInfoFactory,
+			ViewModelEEVMBuilder<Employee> responsibleEmployeeViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Employee> writeOffEmployeeViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Warehouse> warehouseViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(responsibleEmployeeViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(responsibleEmployeeViewModelEEVMBuilder));
+			}
+
+			if(writeOffEmployeeViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(writeOffEmployeeViewModelEEVMBuilder));
+			}
+
+			if(carViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
+			}
+
+			if(warehouseViewModelEEVMBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseViewModelEEVMBuilder));
+			}
+
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_storeDocumentHelper = storeDocumentHelper ?? throw new ArgumentNullException(nameof(storeDocumentHelper));
 			_extendedPermissionValidator =
 				extendedPermissionValidator ?? throw new ArgumentNullException(nameof(extendedPermissionValidator));
+			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
-			Init();
+			Initialize();
+
+			ResponsibleEmployeeViewModel = responsibleEmployeeViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.ResponsibleEmployee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
+				.Finish();
+
+			WriteOffFromEmployeeViewModel = writeOffEmployeeViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.WriteOffFromEmployee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
+				.Finish();
+
+			WriteOffFromCarViewModel = carViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.WriteOffFromCar)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
+				.Finish();
+
+			WarehouseViewModel = warehouseViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, e => e.WriteOffFromWarehouse)
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.UseViewModelDialog<WarehouseViewModel>()
+				.Finish();
 		}
 
 		public bool CanChangeDocumentType
@@ -128,9 +197,10 @@ namespace Vodovoz.ViewModels.Warehouses
 		public IEnumerable<Warehouse> Warehouses { get; private set; }
 		public IList<CullingCategory> CullingCategories { get; private set; }
 		
-		public IEntityEntryViewModel ResponsibleEmployeeViewModel { get; private set; }
-		public IEntityEntryViewModel WriteOffFromEmployeeViewModel { get; private set; }
-		public IEntityEntryViewModel WriteOffFromCarViewModel { get; private set; }
+		public IEntityEntryViewModel ResponsibleEmployeeViewModel { get; }
+		public IEntityEntryViewModel WriteOffFromEmployeeViewModel { get; }
+		public IEntityEntryViewModel WriteOffFromCarViewModel { get; }
+		public IEntityEntryViewModel WarehouseViewModel { get; }
 
 		public DelegateCommand PrintCommand => _printCommand ?? (_printCommand = new DelegateCommand(
 			() =>
@@ -139,22 +209,36 @@ namespace Vodovoz.ViewModels.Warehouses
 				{
 					if(!Save())
 					{
-						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
+						_interactiveService.ShowMessage(ImportanceLevel.Error, "Не удалось сохранить документ, попробуйте еще раз");
 						return;
 					}
 				}
 
-				var reportInfo = new QS.Report.ReportInfo
-				{
-					Title = $"Акт выбраковки №{Entity.Id} от {Entity.TimeStamp:d}",
-					Identifier = "Store.WriteOff",
-					Parameters = new Dictionary<string, object>
-					{
-						{ "writeoff_id", Entity.Id }
-					}
-				};
+				string selectedActType = WriteOffActTitle;
 
-				_reportViewOpener.OpenReport(this, reportInfo);
+				if(Entity.WriteOffType == WriteOffType.Car)
+				{
+					if(Entity.Items.Any(x => x.CullingCategory == null))
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning,
+							"Поле \"Причина выбраковки\" не должно быть пустым",
+							"Предупреждение");
+						return;
+					}
+
+					selectedActType = _interactiveService.Question(new string[]
+					{
+						DefectActTitle,
+						WriteOffActTitle
+					}, "Выберите, какой документ вы хотите распечатать:", "Тип акта списания");
+
+					if(selectedActType.IsNullOrWhiteSpace())
+					{
+						return;
+					}
+				}
+
+				PrintReport(selectedActType);
 			}
 			));
 
@@ -258,6 +342,27 @@ namespace Vodovoz.ViewModels.Warehouses
 				}
 			}));
 
+		private void PrintReport(string actType)
+		{
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = $"{actType} №{Entity.Id} от {Entity.TimeStamp:d}";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "writeoff_id", Entity.Id }
+			};
+
+			switch(actType)
+			{
+				case DefectActTitle:
+					reportInfo.Identifier = "Store.DefectReport";
+					break;
+				case WriteOffActTitle:
+					reportInfo.Identifier = "Store.WriteOff";
+					break;
+			}
+
+			_reportViewOpener.OpenReport(this, reportInfo);
+		}
 		private void OnItemSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(e.Entity);
@@ -269,15 +374,15 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private INomenclatureInstanceRepository NomenclatureInstanceRepository =>
 			_nomenclatureInstanceRepository ?? (_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>());
-		
+
 		protected override bool BeforeValidation() => Entity.CanEdit;
 
 		protected override bool BeforeSave()
 		{
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			Entity.LastEditedTime = DateTime.Now;
 			
-			if(Entity.LastEditor == null)
+			if(Entity.LastEditorId == null)
 			{
 				ShowErrorMessage(
 					"Ваш пользователь не привязан к действующему сотруднику," +
@@ -296,12 +401,14 @@ namespace Vodovoz.ViewModels.Warehouses
 			return true;
 		}
 
-		private void Init()
+		private void Initialize()
 		{
 			if(Entity.Id == 0)
 			{
-				Entity.Author = Entity.ResponsibleEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-				if(Entity.Author == null)
+				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.ResponsibleEmployee = currentEmployee;
+				Entity.AuthorId = currentEmployee?.Id;
+				if(Entity.AuthorId == null)
 				{
 					ShowErrorMessage(
 						"Ваш пользователь не привязан к действующему сотруднику," +
@@ -324,7 +431,6 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 			
 			SetPermissions();
-			SetViewModels();
 			SetOtherProperties();
 			SetPropertyChangeRelations();
 		}
@@ -343,7 +449,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void SetPermissions()
 		{
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 			HasAccessToEmployeeStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
@@ -360,28 +466,6 @@ namespace Vodovoz.ViewModels.Warehouses
 		private bool CheckPermissionsStorages()
 		{
 			return _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse);
-		}
-
-		private void SetViewModels()
-		{
-			var builder = new CommonEEVMBuilderFactory<WriteOffDocument>(this, Entity, UoW, NavigationManager, _scope);
-			
-			ResponsibleEmployeeViewModel = builder.ForProperty(x => x.ResponsibleEmployee)
-				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					f => f.Status = EmployeeStatus.IsWorking)
-				.Finish();
-			
-			WriteOffFromEmployeeViewModel = builder.ForProperty(x => x.WriteOffFromEmployee)
-				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					f => f.Status = EmployeeStatus.IsWorking)
-				.Finish();
-			
-			WriteOffFromCarViewModel = builder.ForProperty(x => x.WriteOffFromCar)
-				.UseViewModelDialog<CarViewModel>()
-				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
-				.Finish();
 		}
 		
 		private void SetOtherProperties()

@@ -61,5 +61,12 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Where(() => finesAlias.Id == fineId)
 				.List();
 		}
+
+		public IQueryable<int> GetCarEventIdsByWriteOffDocument(IUnitOfWork uow, int documentId)
+		{
+			return uow.Session.Query<CarEvent>()
+				.Where(x => x.WriteOffDocument.Id == documentId)
+				.Select(x => x.Id);
+		}
 	}
 }

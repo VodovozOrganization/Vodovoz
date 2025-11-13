@@ -1,12 +1,16 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -392,17 +396,101 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 		public decimal GetGivedFuelInLitersOnDate(IUnitOfWork unitOfWork, int carId, DateTime date)
 		{
-			var carFuelOperations = unitOfWork.Session.Query<FuelOperation>()
-				.Where(o =>
-					o.Car.Id == carId
-					&& o.LitersGived > 0
-					&& o.OperationTime >= date.Date
-					&& o.OperationTime < date.Date.AddDays(1))
+			var carFuelOperations =
+				(from fuelOperation in unitOfWork.Session.Query<FuelOperation>()
+				 join ce in unitOfWork.Session.Query<CarEvent>() on fuelOperation.Id equals ce.CalibrationFuelOperation.Id into events
+				 from carEvent in events.DefaultIfEmpty()
+				 where
+					fuelOperation.Car.Id == carId
+					&& fuelOperation.LitersGived > 0
+					&& fuelOperation.OperationTime >= date.Date
+					&& fuelOperation.OperationTime < date.Date.AddDays(1)
+					&& carEvent.Id == null
+				select fuelOperation)
 				.ToList();
 
 			var givedLitersSum = carFuelOperations.Sum(o => o.LitersGived);
 
 			return givedLitersSum;
+		}
+
+		public async Task<IDictionary<int, decimal>> GetAverageFuelPricesByLastWeekTransactionsData(
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
+		{
+			var lastWeekStartDate = DateTime.Today.AddDays(-7).FirstDayOfWeek();
+			var lastWeekEndDate = DateTime.Today.AddDays(-7).LastDayOfWeek();
+
+			return await GetFuelTypesAverageFuelPricesByTransactionsDataForPeriod(uow, lastWeekStartDate, lastWeekEndDate, cancellationToken);
+		}
+
+		private async Task<IDictionary<int, decimal>> GetFuelTypesAverageFuelPricesByTransactionsDataForPeriod(
+			IUnitOfWork uow,
+			DateTime periodStart,
+			DateTime periodEnd,
+			CancellationToken cancellationToken)
+		{
+			var startDate = periodStart.Date;
+			var endDate = periodEnd.LatestDayTime();
+
+			var query =
+				from transaction in uow.Session.Query<FuelTransaction>()
+				join fuelProduct in uow.Session.Query<GazpromFuelProduct>() on transaction.ProductId equals fuelProduct.GazpromFuelProductId
+				join productGroup in uow.Session.Query<GazpromFuelProductsGroup>() on fuelProduct.GazpromProductsGroupId equals productGroup.Id
+				join fuelType in uow.Session.Query<FuelType>() on productGroup.FuelTypeId equals fuelType.Id
+				where
+					transaction.TransactionDate >= startDate
+					&& transaction.TransactionDate <= endDate
+					&& !fuelProduct.IsArchived
+				select new { FuelTypeId = fuelType.Id, transaction.PricePerItem };
+
+			var fuelPrices = await query.ToListAsync(cancellationToken);
+
+			var groupedPrices =
+				fuelPrices.GroupBy(
+					x => x.FuelTypeId,
+					x => x.PricePerItem)
+				.ToDictionary(
+					x => x.Key,
+					x => x.Average(price => price));
+
+			return groupedPrices;
+		}
+
+		public async Task<IEnumerable<FuelType>> GetFuelTypesByIds(
+			IUnitOfWork uow,
+			IEnumerable<int> fuelTypeIds,
+			CancellationToken cancellationToken)
+		{
+			var fuleTypes =
+				await uow.Session.Query<FuelType>()
+				.Where(ft => fuelTypeIds.Contains(ft.Id))
+				.ToListAsync(cancellationToken);
+
+			return fuleTypes;
+		}
+
+		public IEnumerable<GazpromFuelProduct> GetFuelProductsByFuelTypeId(IUnitOfWork uow, int  fuelTypeId)
+		{
+			var products =
+				(from product in uow.Session.Query<GazpromFuelProduct>()
+				 join productGroup in uow.Session.Query<GazpromFuelProductsGroup>() on product.GazpromProductsGroupId equals productGroup.Id
+				 where
+					productGroup.FuelTypeId == fuelTypeId
+					&& !product.IsArchived
+				 select product)
+				 .ToList();
+
+			return products;
+		}
+
+		public IEnumerable<GazpromFuelProductsGroup> GetGazpromFuelProductsGroupsByFuelTypeId(IUnitOfWork uow, int fuelTypeId)
+		{
+			var productGroups = uow.Session.Query<GazpromFuelProductsGroup>()
+				.Where(x => x.FuelTypeId == fuelTypeId && !x.IsArchived)
+				.ToList();
+
+			return productGroups;
 		}
 	}
 }

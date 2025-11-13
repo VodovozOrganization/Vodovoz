@@ -5,7 +5,7 @@
 
 <div class="text-left mt-4">
 	<h4 class="mb-3">@Model.PayOrderTitle</h4>
-	<p>Дата заказа: @Model.OrderDate?.ToShortDateString()</p>
+	<p>Дата заказа: @Model.OrderDate?.ToString("dd.MM.yyyy")</p>
 	<p>Сумма заказа: @Model.SumString</p>
 	<div class="container mb-3">
 		<div class="row align-items-center">
@@ -23,6 +23,7 @@
 			Оплатить по ссылке можно только один раз.<br>
 			@Model.PaymentAttemptMessage
 		</p>
+        <p hidden=@Model.IsNotProcessingOrNotPaymentByCard>При оплате заказа банковской картой, ввод реквизитов карты происходит в системе электронных платежей ПАО АКБ «Авангард», который прошел сертификацию в платежных системах Visa, MasterCard и МИР. Представленные Вами данные полностью защищены и никто, включая наш интернет-магазин, не может их получить.</p>
 		<a hidden=@Model.IsNotProcessingStatus class="btn btn-success mt-3" href="@Model.PayUrl">Оплатить</a>
 	</div>
 </div>

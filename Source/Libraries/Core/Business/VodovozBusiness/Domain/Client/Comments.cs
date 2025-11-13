@@ -133,14 +133,6 @@ namespace Vodovoz.Domain.Client
 		Alterable
 	}
 
-	public class CommentsTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CommentsTypeStringType() : base(typeof(CommentsType))
-		{
-		}
-	}
-
-
 	public enum CommentsAncorPoint
 	{
 		[Display(Name = "Контрагент")]
@@ -149,12 +141,5 @@ namespace Vodovoz.Domain.Client
 		DeliveryPoint,
 		[Display(Name = "Заказ")]
 		Order
-	}
-
-	public class CommentsAncorPointStringType : NHibernate.Type.EnumStringType
-	{
-		public CommentsAncorPointStringType() : base(typeof(CommentsAncorPoint))
-		{
-		}
 	}
 }

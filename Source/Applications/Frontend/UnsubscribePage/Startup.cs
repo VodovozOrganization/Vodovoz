@@ -1,32 +1,23 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
-using QS.Attachments.Domain;
-using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using QS.Project.DB;
-using System;
-using System.Reflection;
 using QS.Services;
+using System;
 using UnsubscribePage.Controllers;
 using UnsubscribePage.HealthChecks;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
-using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using VodovozHealthCheck;
-using Vodovoz.Infrastructure.Persistance;
 
 namespace UnsubscribePage
 {

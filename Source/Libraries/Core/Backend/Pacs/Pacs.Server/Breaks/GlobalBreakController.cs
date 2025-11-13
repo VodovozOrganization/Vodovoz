@@ -22,7 +22,7 @@ namespace Pacs.Server.Breaks
 		{
 			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
 			_breakAvailabilityNotifier = breakAvailabilityNotifier ?? throw new ArgumentNullException(nameof(breakAvailabilityNotifier));
-			BreakAvailability = new GlobalBreakAvailabilityEvent();
+			BreakAvailability = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			_actualSettings = _pacsRepository.GetPacsDomainSettings();
 			UpdateBreakAvailability();
 		}
@@ -54,7 +54,7 @@ namespace Pacs.Server.Breaks
 			var longBreakAvailable = ValidateLongBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 			var shortBreakAvailable = ValidateShortBreakMaxOperatorsRestriction(operatorsOnBreak, currentSettings);
 
-			var globalBreakAvailable = new GlobalBreakAvailabilityEvent();
+			var globalBreakAvailable = new GlobalBreakAvailabilityEvent { EventId = Guid.NewGuid() };
 			if(!longBreakAvailable)
 			{
 				globalBreakAvailable.LongBreakAvailable = false;
@@ -172,8 +172,10 @@ namespace Pacs.Server.Breaks
 
 			var onBreakEvent = new OperatorsOnBreakEvent
 			{
+				EventId = Guid.NewGuid(),
 				OnBreak = result
 			};
+
 			return onBreakEvent;
 		}
 

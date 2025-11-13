@@ -44,20 +44,31 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylabelBillDatePlanned.Binding
+				.AddBinding(ViewModel, vm => vm.ShowPaymentDatePlannedRangePicker, w => w.Visible)
+				.InitializeFromSource();
+
+			daterangepickerBillDatePlanned.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartPaymentDatePlanned, w => w.StartDateOrNull)
+				.AddBinding(ViewModel, vm => vm.EndPaymentDatePlanned, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.ShowPaymentDatePlannedRangePicker, w => w.Visible)
+				.InitializeFromSource();
+
 			yenumcomboboxSortBy.ItemsEnum = typeof(PayoutDocumentsSortOrder);
 			yenumcomboboxSortBy.Binding.AddBinding(ViewModel, vm => vm.DocumentsSortOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			entityentryAccountableSubdivision.ViewModel = ViewModel.AccountableSubdivisionViewModel;
 
 			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
-			//Для Роли Согласователя по-умолчанию Создана Подана,
+
+			//Для Роли Согласователя по умолчанию - Согласована руководителем отдела,
 			//для Роли Финансиста - Согласована,
 			//для Кассира - Передана на Выдачу,
-
 			//Иные роли - только видят только свои заявки, поэтому нужно скрытиь фильтр по авторам
 			if(userRole == PayoutRequestUserRole.Coordinator)
 			{
-				yenumcomboStatus.SelectedItem = PayoutRequestState.Submited;
+				yenumcomboStatus.SelectedItem = PayoutRequestState.AgreedBySubdivisionChief;
 			}
 			else if(userRole == PayoutRequestUserRole.Financier)
 			{

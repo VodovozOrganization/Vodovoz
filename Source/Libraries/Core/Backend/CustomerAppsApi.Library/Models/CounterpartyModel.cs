@@ -7,20 +7,22 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
-using Vodovoz.Core.Data.Counterparties;
-using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain;
+using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Roboats;
+using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -34,6 +36,8 @@ namespace CustomerAppsApi.Library.Models
 		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
+		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private readonly IConfigurationSection _cacheExpirationSection;
 		private readonly ICounterpartyServiceDataHandler _counterpartyServiceDataHandler;
 		private readonly IEmailRepository _emailRepository;
 
@@ -46,6 +50,8 @@ namespace CustomerAppsApi.Library.Models
 			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
+			ICounterpartyEdoAccountController counterpartyEdoAccountController,
+			IConfiguration configuration)
 			ICounterpartyServiceDataHandler counterpartyServiceDataHandler,
 			IEmailRepository emailRepository)
 		{
@@ -58,6 +64,11 @@ namespace CustomerAppsApi.Library.Models
 			_contactManagerForExternalCounterparty =
 				contactManagerForExternalCounterparty ?? throw new ArgumentNullException(nameof(contactManagerForExternalCounterparty));
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
+			_counterpartyEdoAccountController =
+				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
+			_cacheExpirationSection =
+				(configuration ?? throw new ArgumentNullException(nameof(configuration)))
+				.GetSection("CacheExpirationTime");
 			_counterpartyServiceDataHandler =
 				counterpartyServiceDataHandler ?? throw new ArgumentNullException(nameof(counterpartyServiceDataHandler));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
@@ -211,6 +222,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			//Создаем нового контрагента и валидируем полученную сущность
 			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(counterparty);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента
@@ -301,10 +313,11 @@ namespace CustomerAppsApi.Library.Models
 			};
 		}
 
-		public async Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId)
+		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId)
 		{
 			_logger.LogInformation("Поступил запрос на выборку долга по бутылям клиента {CounterpartyId}", counterpartyId);
-			var debt = await _counterpartyServiceDataHandler.GetCounterpartyBottlesDebt(_uow, counterpartyId);
+			var debt = _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(
+				_uow, counterpartyId, _cacheExpirationSection.GetValue<int>("CounterpartyDebtCacheMinutes"));
 			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}
 		

@@ -5,7 +5,7 @@ using QS.Project.Services;
 using QSOrmProject;
 using System;
 using System.Linq;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
 

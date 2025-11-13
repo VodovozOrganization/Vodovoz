@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.ViewModels;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using System.Data.Bindings.Collections.Generic;
 using NHibernate.Criterion;
 using QS.Commands;
-using System.Linq;
 using QS.DomainModel.Entity;
+using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 
 namespace Vodovoz.ViewModels.Widgets
 {
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool IsRecursiveParameters { get; }
 		public bool IsSelectAll { get; private set; }
 
-		public DelegateCommand<bool> SelectUnselectAllCommand => 
+		public DelegateCommand<bool> SelectUnselectAllCommand =>
 			_selectUnselectAllCommand ?? (_selectUnselectAllCommand = new DelegateCommand<bool>(
 				isSelectAll =>
 				{
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.Widgets
 		}
 
 		public void SelectParameters<TEntity>(IList<TEntity> parameters)
-			where TEntity: class, IDomainObject
+			where TEntity : class, IDomainObject
 		{
 			for(int i = 0; i < parameters.Count; i++)
 			{

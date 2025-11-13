@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Settings.Contacts;
+using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {

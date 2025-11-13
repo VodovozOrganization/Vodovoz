@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.Report;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
@@ -108,11 +109,12 @@ namespace Vodovoz.Dialogs
 				{ "are_guilties_filtred", guiltySides.Any(x => x == "0") }
 			};
 
-			return new ReportInfo {
-				Identifier = "Orders.UndeliveriesWithComments",
-				UseUserVariables = true,
-				Parameters = parameters
-			};
+			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Identifier = "Orders.UndeliveriesWithComments";
+			reportInfo.UseUserVariables = true;
+			reportInfo.Parameters = parameters;
+			return reportInfo;
 		}
 	}
 }

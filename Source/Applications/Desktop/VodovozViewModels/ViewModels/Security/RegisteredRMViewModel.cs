@@ -3,13 +3,10 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System.Linq;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Security;
-using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 
@@ -21,11 +18,9 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IPermissionRepository permissionRepository,
 			INavigationManager navigation = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_permissionRepository = permissionRepository ?? throw new System.ArgumentNullException(nameof(permissionRepository));
 		}
 
 		private DelegateCommand _addUserCommand;
@@ -37,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 				var userJournalViewModel = new SelectUserJournalViewModel(
 					userFilterViewModel,
 					UnitOfWorkFactory,
-					ServicesConfig.CommonServices)
+					CommonServices)
 				{
 					SelectionMode = JournalSelectionMode.Single,
 				};
@@ -52,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 
 					var user = UoWGeneric.Session.Get<User>(selectedNode.Id);
 
-					Entity.ObservableUsers.Add(user);
+					Entity.Users.Add(user);
 				};
 
 				TabParent.AddSlaveTab(this, userJournalViewModel);
@@ -60,14 +55,13 @@ namespace Vodovoz.ViewModels.ViewModels.Security
 		));
 
 		private DelegateCommand<User> _removeUserCommand;
-		private readonly IPermissionRepository _permissionRepository;
 
 		public DelegateCommand<User> RemoveUserCommand => _removeUserCommand ?? (_removeUserCommand = new DelegateCommand<User>(
 			(user) =>
 			{
 				if(user != null)
 				{
-					Entity.ObservableUsers.Remove(user);
+					Entity.Users.Remove(user);
 				}
 			}, (user) => true
 		));

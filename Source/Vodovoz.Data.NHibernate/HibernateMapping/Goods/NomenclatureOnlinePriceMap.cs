@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace Vodovoz.HibernateMapping.Goods
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 {
 	public class NomenclatureOnlinePriceMap : ClassMap<NomenclatureOnlinePrice>
 	{
@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			Table("nomenclatures_online_prices");
 			DiscriminateSubClassesOnColumn("type");
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.PriceWithoutDiscount).Column("price_without_discount");
 

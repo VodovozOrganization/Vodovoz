@@ -1,10 +1,11 @@
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
@@ -211,26 +212,27 @@ namespace DriverAPI.Library.V5.Converters
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
 				DiscountReason = saleItem.DiscountReason?.Name,
-				CapColor = saleItem.Nomenclature.BottleCapColor
+				CapColor = saleItem.Nomenclature.BottleCapColor,
+				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)
 			{
 				switch(saleItem.Nomenclature.TareVolume)
 				{
-					case Vodovoz.Domain.Goods.TareVolume.Vol19L:
+					case TareVolume.Vol19L:
 						result.TareVolume = 19;
 						break;
-					case Vodovoz.Domain.Goods.TareVolume.Vol6L:
+					case TareVolume.Vol6L:
 						result.TareVolume = 6;
 						break;
-					case Vodovoz.Domain.Goods.TareVolume.Vol1500ml:
+					case TareVolume.Vol1500ml:
 						result.TareVolume = 1.5m;
 						break;
-					case Vodovoz.Domain.Goods.TareVolume.Vol600ml:
+					case TareVolume.Vol600ml:
 						result.TareVolume = 0.6m;
 						break;
-					case Vodovoz.Domain.Goods.TareVolume.Vol500ml:
+					case TareVolume.Vol500ml:
 						result.TareVolume = 0.5m;
 						break;
 				}
