@@ -53,6 +53,13 @@ namespace Mailganer.Api.Client
 			}
 		}
 
+		/// <summary>
+		/// Возвращает сообщение о причине попадания email в стоп-лист
+		/// </summary>
+		/// <param name="email">Email</param>
+		/// <returns>Текст сообщения</returns>
+		/// <exception cref="HttpRequestException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		public async Task<string> GetEmailBounseMessageInStopList(string email)
 		{
 			using(var response = await _httpClient.GetAsync($"stop-list/search?email={email}"))
@@ -78,6 +85,14 @@ namespace Mailganer.Api.Client
 			}
 		}
 
+		/// <summary>
+		/// Удаляет email из стоп-листа
+		/// </summary>
+		/// <param name="mailFrom">Email отправителя (нашей организации)</param>
+		/// <param name="email">Email получателя</param>
+		/// <returns></returns>
+		/// <exception cref="HttpRequestException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		public async Task RemoveEmailFromStopList(string mailFrom, string email)
 		{
 			using(var response = await _httpClient.PostAsync($"stop-list/remove?mail_from={mailFrom}&email={email}", null))
