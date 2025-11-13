@@ -310,6 +310,9 @@ namespace Vodovoz
 
 		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
 
+		public string RevenueStatusInformation =>
+			$"{(Entity?.RevenueStatus == null ? "" : $"Статус ликвидации: {Entity.RevenueStatus.Value.GetEnumDisplayName()} (с {Entity.RevenueStatusDate:d})")}";
+		
 		private void ConfigureDlg()
 		{
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
@@ -467,6 +470,11 @@ namespace Vodovoz
 			{
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
 			}
+			
+			if(e.PropertyName == nameof(Entity.RevenueStatus) || e.PropertyName == nameof(Entity.RevenueStatusDate))
+			{
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RevenueStatusInformation)));
+			}
 
 			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
 			{
@@ -489,6 +497,11 @@ namespace Vodovoz
 			labelIsLiquidating.UseMarkup = true;
 			labelIsLiquidating.Binding
 				.AddBinding(this, dlg => dlg.IsLiquidatingLabelText, w => w.LabelProp)
+				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+			
+			ylabelRevenueStatus.Binding
+				.AddBinding(this, dlg => dlg.RevenueStatusInformation, w => w.Text)
 				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
 
@@ -2289,7 +2302,10 @@ namespace Vodovoz
 					Entity.IsLiquidating = true;
 				}
 
-				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
+				Entity.RevenueStatus = a.State.ConvertToRevenueStatus();
+				Entity.RevenueStatusDate = a.StateDate;
+
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.ConvertToRevenueStatus().GetEnumDisplayName());
 			};
 		}
 
