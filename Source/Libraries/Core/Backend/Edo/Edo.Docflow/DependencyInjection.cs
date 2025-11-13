@@ -1,4 +1,5 @@
 ﻿using Edo.Docflow;
+using Edo.Docflow.Converters;
 using Edo.Docflow.Factories;
 using Edo.Transport;
 using MassTransit;
@@ -7,10 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySqlConnector;
 using QS.DomainModel.UoW;
 using System.Reflection;
-using Vodovoz.Application.Clients;
-using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Controllers;
-using VodovozBusiness.Controllers;
 using VodovozBusiness.Converters;
 
 namespace Edo.Documents
@@ -27,19 +25,19 @@ namespace Edo.Documents
 			services.TryAddScoped<IEquipmentTransferFileDataFactory, EquipmentTransferFileDataFactory>();
 			services.TryAddScoped<IInfoForCreatingEdoEquipmentTransferFactory, InfoForCreatingEdoEquipmentTransferFactory>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
+
 			services.TryAddScoped<IOrderConverter, OrderConverter>();
 			services.TryAddScoped<ICounterpartyConverter, CounterpartyConverter>();
 			services.TryAddScoped<IDeliveryPointConverter, DeliveryPointConverter>();
 			services.TryAddScoped<ICounterpartyContractConverter, CounterpartyContractConverter>();
 			services.TryAddScoped<IOrderItemConverter, OrderItemConverter>();
-			services.TryAddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
-			services.TryAddScoped<ISpecialNomenclatureConverter, SpecialNomenclatureConverter>();
+			services.TryAddScoped<Vodovoz.Converters.ISpecialNomenclatureConverter, Vodovoz.Converters.SpecialNomenclatureConverter>();
 			services.TryAddScoped<IPersonTypeConverter, PersonTypeConverter>();
 			services.TryAddScoped<IReasonForLeavingConverter, ReasonForLeavingConverter>();
 			services.TryAddScoped<ICargoReceiverSourceConverter, CargoReceiverSourceConverter>();
 			services.TryAddScoped<IOrganizationConverter, OrganizationConverter>();
 			services.TryAddScoped<INomenclatureConverter, NomenclatureConverter>();
-			services.TryAddScoped<IMeasurementUnitConverter, MeasurementUnitConverter>();
+			services.TryAddScoped<Vodovoz.Converters.IMeasurementUnitConverter, Vodovoz.Converters.MeasurementUnitConverter>();
 			services.TryAddScoped<INomenclatureCategoryConverter, NomenclatureCategoryConverter>();
 			services.TryAddScoped<IPrintableDocumentSaver>(sp =>
 			{
