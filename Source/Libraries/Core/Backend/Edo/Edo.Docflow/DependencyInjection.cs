@@ -4,9 +4,14 @@ using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Vodovoz.Application.Clients;
+using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Controllers;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Converters;
 
 namespace Edo.Documents
 {
@@ -19,7 +24,28 @@ namespace Edo.Documents
 			services.TryAddScoped<DocflowHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
 			services.TryAddScoped<TransferOrderUpdInfoFactory>();
+			services.TryAddScoped<IEquipmentTransferFileDataFactory, EquipmentTransferFileDataFactory>();
+			services.TryAddScoped<IInfoForCreatingEdoEquipmentTransferFactory, InfoForCreatingEdoEquipmentTransferFactory>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
+			services.TryAddScoped<IOrderConverter, OrderConverter>();
+			services.TryAddScoped<ICounterpartyConverter, CounterpartyConverter>();
+			services.TryAddScoped<IDeliveryPointConverter, DeliveryPointConverter>();
+			services.TryAddScoped<ICounterpartyContractConverter, CounterpartyContractConverter>();
+			services.TryAddScoped<IOrderItemConverter, OrderItemConverter>();
+			services.TryAddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
+			services.TryAddScoped<ISpecialNomenclatureConverter, SpecialNomenclatureConverter>();
+			services.TryAddScoped<IPersonTypeConverter, PersonTypeConverter>();
+			services.TryAddScoped<IReasonForLeavingConverter, ReasonForLeavingConverter>();
+			services.TryAddScoped<ICargoReceiverSourceConverter, CargoReceiverSourceConverter>();
+			services.TryAddScoped<IOrganizationConverter, OrganizationConverter>();
+			services.TryAddScoped<INomenclatureConverter, NomenclatureConverter>();
+			services.TryAddScoped<IMeasurementUnitConverter, MeasurementUnitConverter>();
+			services.TryAddScoped<INomenclatureCategoryConverter, NomenclatureCategoryConverter>();
+			services.TryAddScoped<IPrintableDocumentSaver>(sp =>
+			{
+				var connectionStringBuilder = sp.GetRequiredService<MySqlConnectionStringBuilder>();
+				return new PrintableDocumentSaver(connectionStringBuilder);
+			});
 
 			return services;
 		}

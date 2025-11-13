@@ -37,7 +37,6 @@ namespace EdoManualEventSender
 			Console.WriteLine("15. TransferCompleteEvent (Tender):");
 			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
 			Console.WriteLine("17. EquipmentTransferTaskCreatedEvent:");
-			Console.WriteLine("18. EquipmentTransferSendEvent:");
 			Console.WriteLine("99. RequestTaskCancellationEvent:");
 			Console.WriteLine();
 
