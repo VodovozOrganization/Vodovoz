@@ -40,7 +40,7 @@ namespace EmailStatusUpdateWorker.Consumers
 
 			if(!message.EventPayload.Trackable)
 			{
-				await Task.CompletedTask;
+				return;
 			}
 
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Обновление статуса письма");
@@ -52,10 +52,11 @@ namespace EmailStatusUpdateWorker.Consumers
 			if(storedEmail is null)
 			{
 				_logger.LogWarning(
-					"Stored Email with id: {EmailId} not found",
-					message.EventPayload.Id);
+					"Stored Email with id: {EmailId} externalId: {MailjetMessageId} not found",
+					message.EventPayload.Id,
+					message.MailjetMessageId);
 
-				await Task.CompletedTask;
+				return;
 			}
 
 			_logger.LogInformation("Found Email: {EmailId}," +
@@ -74,7 +75,7 @@ namespace EmailStatusUpdateWorker.Consumers
 					storedEmail.StateChangeDate,
 					message.RecievedAt);
 				
-				await Task.CompletedTask;
+				return;
 			}
 
 			var newStatus = StoredEmailStates.WaitingToSend;
@@ -91,7 +92,7 @@ namespace EmailStatusUpdateWorker.Consumers
 					storedEmail.ExternalId,
 					message.Status);
 
-				await Task.CompletedTask;
+				return;
 			}
 
 			if(newStatus is StoredEmailStates.Undelivered or StoredEmailStates.SendingError)
@@ -120,11 +121,7 @@ namespace EmailStatusUpdateWorker.Consumers
 					ex,
 					"Error occured while saving new Email Status: {ExceptionMessage}",
 					ex.Message);
-				
-				await Task.CompletedTask;
 			}
-
-			await Task.CompletedTask;
 		}
 	}
 }
