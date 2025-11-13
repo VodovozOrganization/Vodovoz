@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using MassTransit;
 using NLog;
 using Pacs.Core;

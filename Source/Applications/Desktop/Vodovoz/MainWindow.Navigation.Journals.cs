@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -444,16 +444,6 @@ public partial class MainWindow
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	/// <summary>
-	/// Рекомендации
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionRecomendationsActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<RecomendationsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
