@@ -3,8 +3,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -81,5 +79,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="counterpartiesIds">Id контрагентов</param>
 		/// <returns>Телефоны, указанные как контактные, в заказах контрагента</returns>
 		IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
+
+		/// <summary>
+		/// Изменения в контрагенте с определённой даты
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="fromDate">Дата начала для поиска изменений</param>
+		/// <returns></returns>
+		IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate);
 	}
 }
