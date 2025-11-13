@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Data.Messages;
 using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Core.Data.Counterparties
@@ -29,9 +30,9 @@ namespace Vodovoz.Core.Data.Counterparties
 		/// </summary>
 		public string JurAddress { get; set; }
 		/// <summary>
-		/// Состояние связи <see cref="ConnectedCustomerConnectState"/>
+		/// Админ
 		/// </summary>
-		public string ConnectState { get; set; }
+		public bool IsAdmin { get; set; }
 		/// <summary>
 		/// Список телефонов
 		/// </summary>
@@ -40,5 +41,9 @@ namespace Vodovoz.Core.Data.Counterparties
 		/// Список эл адресов
 		/// </summary>
 		public IEnumerable<EmailInfo> Emails { get; set; }
+		/// <summary>
+		/// Список сообщений
+		/// </summary>
+		public IEnumerable<InfoMessage> InfoMessages { get; set; }
 	}
 }

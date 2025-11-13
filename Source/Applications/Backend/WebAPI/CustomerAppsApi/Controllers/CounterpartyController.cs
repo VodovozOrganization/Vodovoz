@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Models;
+using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
@@ -13,13 +15,16 @@ namespace CustomerAppsApi.Controllers
 	public class CounterpartyController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ICounterpartyModelValidator _modelValidator;
 		private readonly ICounterpartyModel _counterpartyModel;
 
 		public CounterpartyController(
 			ILogger<CounterpartyController> logger,
+			ICounterpartyModelValidator modelValidator,
 			ICounterpartyModel counterpartyModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_modelValidator = modelValidator ?? throw new ArgumentNullException(nameof(modelValidator));
 			_counterpartyModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
 		}
 
@@ -135,6 +140,52 @@ namespace CustomerAppsApi.Controllers
 				return Problem();
 			}
 		}
+
+		/// <summary>
+		/// Получение списка Id юр лиц с активной электронной почтой(по ней подключен пользователь физик), которая в запросе
+		/// </summary>
+		/// <param name="dto">Детали запроса <see cref="CompanyWithActiveEmailRequest"/></param>
+		/// <returns></returns>
+		[HttpGet]
+		public IActionResult GetCompanyList(CompanyWithActiveEmailRequest dto)
+		{
+			var source = dto.Source.GetEnumDisplayName();
+			
+			_logger.LogInformation(
+				"Поступил запрос на получение Id юр лиц с активной почтой {Email} от пользователя {ExternalCounterpartyId} {Source}",
+				dto.Email,
+				dto.ExternalCounterpartyId,
+				source);
+			
+			try
+			{
+				var validationResult = _modelValidator.CompanyWithActiveEmailRequestDataValidate(dto);
+				
+				if(!string.IsNullOrWhiteSpace(validationResult))
+				{
+					_logger.LogInformation(
+						"Не прошли валидацию при получении Id юр лиц с активной почтой {Email} от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						dto.Email,
+						dto.ExternalCounterpartyId,
+						validationResult);
+					return ValidationProblem(validationResult);
+				}
+				
+				var result = _counterpartyModel.GetCompanyWithActiveEmail(dto);
+				return Ok(result.Data);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при получении Id юр лиц с активной почтой {Email} от пользователя {ExternalCounterpartyId} {Source}",
+					dto.Email,
+					dto.ExternalCounterpartyId,
+					source);
+				
+				return Problem();
+			}
+		}
 		
 		/// <summary>
 		/// Получение списка юр лиц доступных физику для заказа
@@ -190,7 +241,7 @@ namespace CustomerAppsApi.Controllers
 		/// <summary>
 		/// Регистрация нового юр лица
 		/// </summary>
-		/// <param name="dto">детали запроса <see cref="RegisteringLegalCustomerDto"/></param>
+		/// <param name="dto">Детали запроса <see cref="RegisteringLegalCustomerDto"/></param>
 		/// <returns></returns>
 		[HttpPost]
 		public IActionResult RegisterLegalCustomer(RegisteringLegalCustomerDto dto)
@@ -233,52 +284,53 @@ namespace CustomerAppsApi.Controllers
 		}
 
 		/// <summary>
-		/// Присоединение нового телефона физика к юр лицу для возможности заказа в ИПЗ от имени компании
+		/// Используется для создания связи между электронной почтой (которая потом будет использоваться для авторизации) и К/А,
+		/// и присвоения пароля для учетной записи.
 		/// </summary>
-		/// <param name="dto">детали запроса <see cref="ConnectingNewPhoneToLegalCustomerDto"/></param>
+		/// <param name="dto">Детали запроса <see cref="ConnectingNewPhoneToLegalCustomerDto"/></param>
 		/// <returns></returns>
 		[HttpPost]
-		public IActionResult ConnectNewPhoneToLegalCustomer(ConnectingNewPhoneToLegalCustomerDto dto)
+		public IActionResult LinkEmailToLegalCounterparty(LinkingLegalCounterpartyEmailToExternalUser dto)
 		{
 			_logger.LogInformation(
-				"Поступил запрос на прикрепление телефона {Phone}, к юрику с Id: {LegalId} от {NaturalId}",
-				dto.PhoneNumber,
-				dto.ErpLegalCounterpartyId,
-				dto.ErpNaturalCounterpartyId
+				"Поступил запрос на прикрепление электронки {Email}, к юрику с Id: {LegalId} от {NaturalUserId}",
+				dto.Email,
+				dto.ErpCounterpartyId,
+				dto.ExternalCounterpartyId
 			);
 			
 			try
 			{
-				var validationResult = _counterpartyModel.ConnectingNewPhoneToLegalCustomerValidate(dto);
+				var validationResult = _counterpartyModel.LinkingEmailToLegalCounterpartyValidate(dto);
 				
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при прикреплении телефона {Phone}, к юрику с Id: {LegalId} от {NaturalId}:\n{ValidationResult}",
-						dto.PhoneNumber,
-						dto.ErpLegalCounterpartyId,
-						dto.ErpNaturalCounterpartyId,
+						"Не прошли валидацию при прикреплении почты {Email}, к юрику с Id: {LegalId} от {NaturalUserId}:\n{ValidationResult}",
+						dto.Email,
+						dto.ErpCounterpartyId,
+						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
 				}
 				
-				var result = _counterpartyModel.ConnectNewPhoneToLegalCustomer(dto);
+				var result = _counterpartyModel.LinkLegalCounterpartyEmailToExternalUser(dto);
 				
-				if(!string.IsNullOrWhiteSpace(result))
+				if(result.IsFailure)
 				{
-					return BadRequest(result);
+					return BadRequest(result.Errors.First().Message);
 				}
 				
-				return Ok();
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при ри прикреплении телефона {Phone}, к юрику с Id: {LegalId} от {NaturalId} с {Source}",
-					dto.PhoneNumber,
-					dto.ErpNaturalCounterpartyId,
-					dto.ErpLegalCounterpartyId,
+					"Ошибка при ри прикреплении телефона {Email}, к юрику с Id: {LegalId} от {NaturalUserId} с {Source}",
+					dto.Email,
+					dto.ErpCounterpartyId,
+					dto.ExternalCounterpartyId,
 					dto.Source.GetEnumDisplayName());
 				return Problem();
 			}

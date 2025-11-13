@@ -37,5 +37,6 @@ namespace CustomerAppsApi.Library.Repositories
 		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int phoneId);
 		bool CounterpartyExists(IUnitOfWork uow, string inn);
 		IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId);
+		IEnumerable<Email> GetEmailForLinking(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail);
 	}
 }

@@ -47,5 +47,6 @@ namespace Vodovoz.EntityRepositories
 		#endregion
 
 		IEnumerable<EmailInfo> GetEmailInfoByCounterpatiesIds(IUnitOfWork uow, int[] counterpartiesIds);
+		IEnumerable<Email> GetEmailForLinkingLegalCounterparty(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail);
 	}
 }

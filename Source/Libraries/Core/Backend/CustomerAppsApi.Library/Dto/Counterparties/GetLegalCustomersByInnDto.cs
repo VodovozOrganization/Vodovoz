@@ -1,5 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
-
+﻿
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
 	/// <summary>
@@ -12,12 +11,8 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// </summary>
 		public string Inn { get; set; }
 		/// <summary>
-		/// Id клиента в ERP, делающего запрос
+		/// Электронная почта
 		/// </summary>
-		public int ErpCounterpartyId { get; set; }
-		/// <summary>
-		/// Номер телефона для связки в формате ХХХХХХХХХХ
-		/// </summary>
-		public string PhoneNumber { get; set; }
+		public string Email { get; set; }
 	}
 }

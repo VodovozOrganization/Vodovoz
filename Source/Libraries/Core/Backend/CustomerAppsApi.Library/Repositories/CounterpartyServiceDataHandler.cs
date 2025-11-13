@@ -88,8 +88,7 @@ namespace CustomerAppsApi.Library.Repositories
 		
 		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, GetLegalCustomersByInnDto dto)
 		{
-			var counterparties =
-				_counterpartyRepository.GetLegalCounterpartiesByInn(uow, dto.Inn, dto.ErpCounterpartyId, dto.PhoneNumber);
+			var counterparties = _counterpartyRepository.GetLegalCounterpartiesByInn(uow, dto.Inn);
 
 			var counterpartiesIds = counterparties
 				.Select(x => x.ErpCounterpartyId)
@@ -226,6 +225,11 @@ namespace CustomerAppsApi.Library.Repositories
 		public IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId)
 		{			
 			return _connectedCustomerRepository.GetConnectedCustomerPhones(uow, legalCounterpartyId, naturalCounterpartyId);
+		}
+
+		public IEnumerable<Email> GetEmailForLinking(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail)
+		{
+			return _emailRepository.GetEmailForLinkingLegalCounterparty(uow, legalCounterpartyId, dtoEmail);
 		}
 	}
 }

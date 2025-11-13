@@ -45,6 +45,14 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual bool IsValidEmail => CheckEmailFormatIsValid();
 
+		public static Email Create(string address, Counterparty counterparty, EmailType emailType) =>
+			new Email
+			{
+				Address = address,
+				Counterparty = counterparty,
+				EmailType = emailType
+			};
+
 		private bool CheckEmailFormatIsValid()
 		{
 			try

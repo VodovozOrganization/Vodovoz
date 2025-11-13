@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Errors;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -21,8 +22,9 @@ namespace CustomerAppsApi.Library.Models
 		(string Message, PhonesConnectedToLegalCustomerDto Data) GetPhonesConnectedToLegalCustomer(GetPhonesConnectedToLegalCustomerDto dto);
 		string UpdateConnectToLegalCustomerByPhone(UpdateConnectToLegalCustomerByPhoneDto dto);
 		string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto);
-		string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto);
-		string ConnectNewPhoneToLegalCustomer(ConnectingNewPhoneToLegalCustomerDto dto);
 		string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto);
+		string LinkingEmailToLegalCounterpartyValidate(LinkingLegalCounterpartyEmailToExternalUser dto);
+		Result<string> GetCompanyWithActiveEmail(CompanyWithActiveEmailRequest dto);
+		Result<string> LinkLegalCounterpartyEmailToExternalUser(LinkingLegalCounterpartyEmailToExternalUser dto);
 	}
 }

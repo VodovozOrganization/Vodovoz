@@ -109,7 +109,6 @@ namespace Vodovoz.Domain.Contacts
 		}
 
 		#endregion
-
 	}
 
 	public enum EmailPurpose

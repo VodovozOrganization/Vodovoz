@@ -1,7 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using Vodovoz.Core.Data.Interfaces.Counterparties;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
@@ -14,6 +14,11 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Источник запроса
 		/// </summary>
 		public Source Source { get; set; }
+		/// <summary>
+		/// Id пользователя
+		/// </summary>
+		public Guid ExternalCounterpartyId { get; set; }
+		//TODO 5417: нужен ли этот параметр
 		/// <summary>
 		/// Id клиента в ДВ
 		/// </summary>
@@ -28,7 +33,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		[JsonIgnore]
 		public string FullName { get; set; }
 		/// <summary>
-		/// Электронка
+		/// Электронная почта
 		/// </summary>
 		public string Email { get; set; }
 		/// <summary>
@@ -43,6 +48,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Юр адрес
 		/// </summary>
 		public string JurAddress { get; set; }
+		//TODO 5417: обсудить с Костей эти параметры
 		/// <summary>
 		/// Полное наименование организационно-правовой формы
 		/// </summary>

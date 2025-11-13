@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto.Counterparties;
@@ -12,11 +13,13 @@ using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Errors;
 using Vodovoz.Settings.Roboats;
 
 namespace CustomerAppsApi.Library.Models
@@ -417,7 +420,7 @@ namespace CustomerAppsApi.Library.Models
 				if(typeOwnership.IsArchive)
 				{
 					_logger.LogInformation(
-						"Нашли в БД ОПФ с кодом {Code} и аббревиатурой {ShortTypeOwnership}, на архивную, разархивируем...",
+						"Нашли в БД архивную ОПФ с кодом {Code} и аббревиатурой {ShortTypeOwnership}, разархивируем...",
 						dto.CodeTypeOfOwnership,
 						dto.ShortTypeOfOwnership);
 					
@@ -433,6 +436,8 @@ namespace CustomerAppsApi.Library.Models
 			};
 			newLegalCounterparty.FillLegalProperties(dto);
 			newLegalCounterparty.CameFrom = _uow.GetById<ClientCameFrom>((int)dto.Source);
+			
+			//TODO 5417: ЭДО аккаунты и причина покупки воды
 
 			var email = CreateNewEmail(dto.Email, newLegalCounterparty);
 			newLegalCounterparty.Emails.Add(email);
@@ -440,8 +445,10 @@ namespace CustomerAppsApi.Library.Models
 			_uow.Save(newLegalCounterparty);
 			_uow.Commit();
 
+			//TODO 5417: Согласовать формат
 			var registered = RegisteredLegalCustomerDto.Create(
 				newLegalCounterparty.Id,
+				email.Address,
 				newLegalCounterparty.Name,
 				newLegalCounterparty.INN,
 				newLegalCounterparty.KPP,
@@ -565,6 +572,98 @@ namespace CustomerAppsApi.Library.Models
 		public string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto)
 		{
 			return _counterpartyModelValidator.GetNaturalCounterpartyLegalCustomersDtoValidate(dto);
+		}
+
+		public string LinkingEmailToLegalCounterpartyValidate(LinkingLegalCounterpartyEmailToExternalUser dto)
+		{
+			return _counterpartyModelValidator.LinkingEmailToLegalCounterpartyValidate(dto);
+		}
+
+		public Result<string> GetCompanyWithActiveEmail(CompanyWithActiveEmailRequest dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			if(externalCounterparty is null)
+			{
+				return Result.Failure<string>(
+					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найден зарегистрированный пользователь"));
+			}
+
+			var emails = 
+		}
+
+		public Result<string> LinkLegalCounterpartyEmailToExternalUser(LinkingLegalCounterpartyEmailToExternalUser dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			var legalCounterpartyId = dto.ErpCounterpartyId;
+
+			if(externalCounterparty is null)
+			{
+				return Result.Failure<string>(
+					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найден зарегистрированный пользователь"));
+			}
+
+			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
+
+			if(!legalCounterpartyExists)
+			{
+				return Result.Failure<string>(
+					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найдено юридическое лицо с таким Id"));
+			}
+			
+			//Проверка пароля
+			
+			//TODO 5417: проверка без регистра?
+			var emailsForLinking = _counterpartyServiceDataHandler.GetEmailForLinking(_uow, legalCounterpartyId, dto.Email);
+			
+			Email emailForLinking = null;
+
+			if(!emailsForLinking.Any())
+			{
+				emailForLinking = CreateNewEmail(dto.Email, dto.ErpCounterpartyId);
+				_uow.Save(emailForLinking); 
+			}
+			//TODO 5417: уточнить, как поступаем в таких случаях
+			else if(emailsForLinking.Count() > 1)
+			{
+				return Result.Failure<string>(new Error(
+					nameof(LinkLegalCounterpartyEmailToExternalUser),
+					"Найдено несколько почт с таким адресом у этого клиента. Обратитесь в техподдержку"));
+			}
+			
+			emailForLinking = emailsForLinking.First();
+
+			var link = LinkedLegalCounterpartyEmailToExternalUser.Create(
+				dto.ErpCounterpartyId,
+				emailForLinking.Id,
+				externalCounterparty.Id,
+				dto.Password);
+
+			_uow.Save(link);
+			_uow.Commit();
+
+			return Result.Success(emailForLinking.Address);
+		}
+		
+		private Email CreateNewEmail(string emailAddress, int legalCounterpartyId)
+		{
+			//TODO 5417: какой тип почты по умолчанию для связки
+			var emailType = _emailRepository.GetEmailTypeForReceipts(_uow);
+
+			var email = Email.Create(
+				emailAddress,
+				new Counterparty
+				{
+					Id = legalCounterpartyId
+				},
+				emailType);
+
+			_uow.Save(email);
+
+			return email;
 		}
 
 		public string UpdateConnectToLegalCustomerByPhoneValidate(UpdateConnectToLegalCustomerByPhoneDto dto)

@@ -9,6 +9,7 @@
 		
 		private RegisteredLegalCustomerDto(
 			int counterpartyId,
+			string email,
 			string name,
 			string inn,
 			string kpp,
@@ -16,6 +17,7 @@
 			string shortTypeOfOwnership)
 		{
 			ErpCounterpartyId = counterpartyId;
+			Email = email;
 			Name = name;
 			Inn = inn;
 			Kpp = kpp;
@@ -27,6 +29,10 @@
 		/// Id созданного клиента в ДВ
 		/// </summary>
 		public int ErpCounterpartyId { get; }
+		/// <summary>
+		/// Электронная почта
+		/// </summary>
+		public string Email { get; }
 		/// <summary>
 		/// Наименование
 		/// </summary>
@@ -50,11 +56,12 @@
 
 		public static RegisteredLegalCustomerDto Create(
 			int counterpartyId,
+			string email,
 			string name,
 			string inn,
 			string kpp,
 			string jurAddress,
 			string shortTypeOfOwnership) =>
-			new RegisteredLegalCustomerDto(counterpartyId, name, inn, kpp, jurAddress, shortTypeOfOwnership);
+			new RegisteredLegalCustomerDto(counterpartyId, email, name, inn, kpp, jurAddress, shortTypeOfOwnership);
 	}
 }
