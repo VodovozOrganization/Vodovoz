@@ -7,6 +7,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -34,6 +35,8 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private int? _recomendationId;
+
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		protected OrderItem()
@@ -116,6 +119,14 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		[Display(Name = "Добавлена из рекомендации")]
+		[HistoryIdentifier(TargetType = typeof(Recomendation))]
+		public virtual int? RecomendationId
+		{
+			get => _recomendationId;
+			set => SetField(ref _recomendationId, value);
+		}
 
 		#region Вычисляемые
 
@@ -826,7 +837,8 @@ namespace Vodovoz.Domain.Orders
 			bool isDiscountInMoney,
 			decimal discount,
 			DiscountReason discountReason,
-			PromotionalSet promotionalSet)
+			PromotionalSet promotionalSet,
+			int? recomendationId)
 		{
 			var newItem = new OrderItem
 			{
@@ -836,7 +848,8 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				IsDiscountInMoney = isDiscountInMoney,
 				DiscountReason = discountReason,
-				PromoSet = promotionalSet
+				PromoSet = promotionalSet,
+				RecomendationId = recomendationId
 			};
 
 			newItem.UpdatePriceWithRecalculate(price);
