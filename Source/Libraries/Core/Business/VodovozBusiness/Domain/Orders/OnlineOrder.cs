@@ -321,6 +321,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns></returns>
 		public virtual bool IsNeedOnlinePayment(double timeToPayInSeconds) =>
 			OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
 				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
 				&& (DateTime.Now - Created).TotalSeconds < timeToPayInSeconds;
 		
@@ -334,6 +335,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var createdSeconds = (DateTime.Now - Created).TotalSeconds;
 			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
 				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
 				&& createdSeconds >= timeToPayInSeconds
 				&& createdSeconds < timeToTransferToManualProcessing;

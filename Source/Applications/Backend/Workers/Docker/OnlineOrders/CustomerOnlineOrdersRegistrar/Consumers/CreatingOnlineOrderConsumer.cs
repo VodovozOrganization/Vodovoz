@@ -5,7 +5,10 @@ using CustomerOrdersApi.Library.V4.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
@@ -17,10 +20,22 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			ILogger<CreatingOnlineOrderConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactory onlineOrderFactory,
-			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IDiscountReasonSettings discountReasonSettings)
-			: base(logger, unitOfWorkFactory, onlineOrderFactory, deliveryRulesSettings, discountReasonSettings, orderService)
+			IDiscountReasonSettings discountReasonSettings,
+			IOnlineOrderRepository onlineOrderRepository,
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IOrderService orderService,
+			IRouteListService routeListService)
+			: base(
+				logger,
+				unitOfWorkFactory,
+				onlineOrderFactory,
+				deliveryRulesSettings,
+				discountReasonSettings,
+				onlineOrderRepository,
+				onlineOrderCancellationReasonSettings,
+				orderService,
+				routeListService)
 		{
 		}
 		
@@ -31,7 +46,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				var createdOnlineOrderId = TryRegisterOnlineOrder(message);
+				var createdOnlineOrderId = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				await context.RespondAsync(CreatedOnlineOrder.Create(createdOnlineOrderId));
 			}
 			catch(Exception e)
