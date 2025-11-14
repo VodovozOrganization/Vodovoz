@@ -1,24 +1,16 @@
-﻿using Autofac;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.Entity;
-using QS.Extensions.Observable.Collections.List;
-using QS.ViewModels.Control.EEVM;
 using QS.Views;
-using QS.Views.Control;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.Presentation.Views.CommonSettings;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views.Common;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Nodes;
 

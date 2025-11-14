@@ -2107,7 +2107,6 @@
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="Cash\Payments\" />
     <Folder Include="Dialogs\Cash\Payments\" />
     <Folder Include="Views\Edo\" />
     <Folder Include="Goods\" />
