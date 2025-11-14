@@ -1110,6 +1110,11 @@ GROUP BY T.order_items_id
         </Field>
         <Field Name="sales_manager_name">
           <DataField>sales_manager_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_author_name">
+          <DataField>order_author_name</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
