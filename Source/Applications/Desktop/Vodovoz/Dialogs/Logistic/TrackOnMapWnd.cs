@@ -292,13 +292,22 @@ namespace Dialogs.Logistic
 		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
 		{
 			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
-			var response = curTrack.CalculateDistanceToBase(_osrmSettings, _osrmClient);
+			var responseResult = curTrack.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 			UoW.Save(curTrack);
 			UoW.Commit();
 			UpdateDistanceLabel();
 
 			trackToBaseOverlay.Clear();
-			var decodedPoints = Polyline.DecodePolyline(response.Routes.First().RouteGeometry);
+
+			if(responseResult.IsFailure)
+			{
+				MessageDialogHelper.RunInfoDialog(responseResult.Errors.First().Message);
+				return;
+			}
+
+			var response = responseResult.Value;
+			var responseFirstRoute = response.Routes.First();
+			var decodedPoints = Polyline.DecodePolyline(responseFirstRoute.RouteGeometry);
 			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
 
 			var route = new GMapRoute(points, "RouteToBase") {
@@ -315,8 +324,8 @@ namespace Dialogs.Logistic
 
 			MessageDialogHelper.RunInfoDialog(string.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
 				response.Waypoints.First().Name,
-				response.Routes.First().TotalDistanceKm,
-				response.Routes.First().TotalTime
+				responseFirstRoute.TotalDistanceKm,
+				responseFirstRoute.TotalTime
 			));
 		}
 
