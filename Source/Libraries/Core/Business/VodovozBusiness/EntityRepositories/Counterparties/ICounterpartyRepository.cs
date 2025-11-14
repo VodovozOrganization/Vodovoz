@@ -86,6 +86,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="unitOfWork">UnitOfWork</param>
 		/// <param name="fromDate">Дата начала для поиска изменений</param>
 		/// <returns></returns>
-		IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate);
+		IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate, DateTime toDate);
 	}
 }

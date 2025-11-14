@@ -25,6 +25,7 @@ namespace ExportTo1c.Library.Exporters
 				var row = new XElement
 				(
 					"Контрагент",
+					new XAttribute("ИдКонтрагента", counterpartyChange.CounterpartyId),
 					new XAttribute("Инн", counterpartyChange.Inn),
 					new XAttribute("Кпп", counterpartyChange.Kpp ?? ""),
 					new XAttribute("ТипКонтрагента", counterpartyChange.CounterpartyType.GetEnumTitle()),
