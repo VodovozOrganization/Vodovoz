@@ -54,7 +54,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 		}
 
 		public string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
-			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleFrom)
+			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleTo)
 		{
 			var onlineOrderNotificationSetting = notificationRepository.GetNotificationSetting(unitOfWork, externalOrderStatus);
 
@@ -66,7 +66,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			
 			return onlineOrderNotificationSetting.NotificationText
 				.Replace(_orderIdTemplate, orderId.ToString())
-				.Replace(_deliveryScheduleFromTemplate, deliveryScheduleFrom?.ToString(@"hh\:mm")?? "[интервал в заказе не выбран]");
+				.Replace(_deliveryScheduleFromTemplate, deliveryScheduleTo?.ToString(@"hh\:mm")?? "[интервал в заказе не выбран]");
 		}
 	}
 }
