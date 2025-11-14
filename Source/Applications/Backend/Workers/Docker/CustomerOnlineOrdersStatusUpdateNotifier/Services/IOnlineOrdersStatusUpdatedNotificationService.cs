@@ -15,6 +15,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source, CancellationToken cancellationToken = default);
 
 		string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
-			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleFrom);
+			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleTo);
 	}
 }
