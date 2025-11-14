@@ -693,7 +693,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				x => x.Key,
 				x => x.Distinct().ToArray());
 
-		public IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate)
+		public IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate, DateTime toDate)
 		{
 			var pathNames = new[]
 			{
@@ -712,10 +712,12 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 					counterparty.PersonType == PersonType.legal
 					&& hce.EntityClassName == nameof(Counterparty)
 					&& hce.ChangeTime >= fromDate
+					&& hce.ChangeTime <= toDate
 					&& pathNames.Contains(hc.Path)
 					
 				select new CounterpartyChangesDto
 				{
+					CounterpartyId = counterparty.Id,
 					Inn = counterparty.INN,
 					Kpp = counterparty.KPP,
 					CounterpartyType = counterparty.CounterpartyType,

@@ -47,5 +47,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// Статус контрагента в налоговой
 		/// </summary>
 		public RevenueStatus? RevenueStatus { get; set; }
+		
+		
+		/// <summary>
+		/// Id контрагента
+		/// </summary>
+		public int CounterpartyId { get; set; }
 	}
 }

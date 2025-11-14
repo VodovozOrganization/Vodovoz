@@ -1,4 +1,4 @@
-using DatabaseServiceWorker.Options;
+﻿using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -113,22 +113,22 @@ namespace DatabaseServiceWorker
 		private async Task ExportIfNeeded(CancellationToken cancellationToken)
 		{
 			var today = DateTime.Today;
-			var yesterday = today.AddDays(-1);
+			var yesterdayStartOfDayDate = today.AddDays(-1);
 			var auth = new NtlmPasswordAuthentication("", _options.Value.Login, _options.Value.Password);
 			var smbPath = $"smb://{_options.Value.ExportPath}/";
 
 			await DeleteFilesOlderThanOneMonth(smbPath, auth, cancellationToken);
 
-			await ExportOrders(Export1cMode.ComplexAutomation, yesterday, smbPath, auth, cancellationToken);
+			await ExportOrders(Export1cMode.ComplexAutomation, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
-			await ExportOrders(Export1cMode.Retail, yesterday, smbPath, auth, cancellationToken);
+			await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
-			await ExportCounterpartyChanges(yesterday, smbPath, auth, cancellationToken);
+			await ExportCounterpartyChanges(yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 		}
 
-		private async Task ExportCounterpartyChanges(DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
+		private async Task ExportCounterpartyChanges(DateTime startOfDayDate, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
 		{
-			var fileName = $"{_leftPartNameOfExportFile}-ИзмененияКонтрагентов-{yesterday:yyyyMMdd}.xml";
+			var fileName = $"{_leftPartNameOfExportFile}-ИзмененияКонтрагентов-{startOfDayDate:yyyyMMdd}.xml";
 
 			var smbFile = new SmbFile($"{smbPath}{fileName}", auth);
 
@@ -138,8 +138,10 @@ namespace DatabaseServiceWorker
 			}
 			
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт контрагентов для 1С");
-			
-			var counterpartyChanges = _counterpartyRepository.GetCounterpartyChanges(unitOfWork, yesterday);
+
+			var endOfDayDate = startOfDayDate.AddDays(1).AddTicks(-1);
+
+			var counterpartyChanges = _counterpartyRepository.GetCounterpartyChanges(unitOfWork, startOfDayDate, endOfDayDate);
 
 			if(!counterpartyChanges.Any())
 			{
