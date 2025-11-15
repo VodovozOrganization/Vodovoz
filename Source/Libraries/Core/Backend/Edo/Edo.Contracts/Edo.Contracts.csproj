@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+      <ProjectReference Include="..\..\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

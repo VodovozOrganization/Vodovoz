@@ -17,6 +17,7 @@ namespace Edo.Scheduler.Service
 		private readonly BillForAdvanceEdoRequestTaskScheduler _billForAdvanceEdoRequestTaskScheduler;
 		private readonly BillForDebtEdoRequestTaskScheduler _billForDebtEdoRequestTaskScheduler;
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
+		private readonly EquipmentTransferEdoRequestTaskScheduler _equipmentTransferEdoRequestTaskScheduler;
 		private readonly IBus _messageBus;
 
 		public EdoTaskScheduler(
@@ -26,6 +27,7 @@ namespace Edo.Scheduler.Service
 			BillForAdvanceEdoRequestTaskScheduler billForAdvanceEdoRequestTaskScheduler,
 			BillForDebtEdoRequestTaskScheduler billForDebtEdoRequestTaskScheduler,
 			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler,
+			EquipmentTransferEdoRequestTaskScheduler equipmentTransferEdoRequestTaskScheduler,
 			IBus messageBus
 			)
 		{
@@ -35,6 +37,7 @@ namespace Edo.Scheduler.Service
 			_billForAdvanceEdoRequestTaskScheduler = billForAdvanceEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForAdvanceEdoRequestTaskScheduler));
 			_billForDebtEdoRequestTaskScheduler = billForDebtEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForDebtEdoRequestTaskScheduler));
 			_billForPaymentEdoRequestTaskScheduler = billForPaymentEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForPaymentEdoRequestTaskScheduler));
+			_equipmentTransferEdoRequestTaskScheduler = equipmentTransferEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(equipmentTransferEdoRequestTaskScheduler));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -68,6 +71,9 @@ namespace Edo.Scheduler.Service
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					edoTask = _billForPaymentEdoRequestTaskScheduler.CreateTask((BillForPaymentEdoRequest)request);
 					break;
+				case CustomerEdoRequestType.EquipmentTransfer:
+					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
+					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип заявки " +
 						$"{nameof(CustomerEdoRequest)} {request.Type}");
@@ -91,6 +97,9 @@ namespace Edo.Scheduler.Service
 					break;
 				case EdoTaskType.Receipt:
 					message = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };
+					break;
+				case EdoTaskType.EquipmentTransfer:
+					message = new EquipmentTransferTaskCreatedEvent { EquipmentTransferTaskId = edoTask.Id };
 					break;
 				case EdoTaskType.SaveCode:
 					message = new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id };

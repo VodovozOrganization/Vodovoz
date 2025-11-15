@@ -37,6 +37,7 @@
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.CodesSaver\Edo.CodesSaver.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Docflow\Edo.Docflow.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.EquipmentTransfer\Edo.EquipmentTransfer.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Scheduler\Edo.Scheduler.csproj" />

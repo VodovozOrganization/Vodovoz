@@ -35,5 +35,11 @@ namespace Vodovoz.Core.Domain.Edo
 		/// </summary>
 		[Display(Name = "Счет без отгрузки на постоплату")]
 		OrderWithoutShipmentForPayment,
+
+		/// <summary>
+		/// Акт приёма-передачи оборудования
+		/// </summary>
+		[Display(Name = "Акт приёма-передачи оборудования")]
+		EquipmentTransfer,
 	}
 }

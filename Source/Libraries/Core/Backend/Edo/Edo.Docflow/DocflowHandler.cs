@@ -1,21 +1,24 @@
 ﻿using Core.Infrastructure;
+using Edo.Common;
 using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
+using Edo.Docflow.Converters;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Edo.Docflow
 {
@@ -27,6 +30,10 @@ namespace Edo.Docflow
 		private readonly IPaymentRepository _paymentRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
+		private readonly IPrintableDocumentSaver _printableDocumentSaver;
+		private readonly IOrderConverter _orderConverter;
+		private readonly IInfoForCreatingEdoEquipmentTransferFactory _equipmentTransferInfoFactory;
+		private readonly IEquipmentTransferFileDataFactory _equipmentTransferFileDataFactory;
 
 		public DocflowHandler(
 			ILogger<DocflowHandler> logger,
@@ -34,7 +41,11 @@ namespace Edo.Docflow
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
-			IBus messageBus
+			IBus messageBus,
+			IPrintableDocumentSaver printableDocumentSaver,
+			IOrderConverter orderConverter,
+			IInfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
+			IEquipmentTransferFileDataFactory equipmentTransferFileDataFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -43,6 +54,10 @@ namespace Edo.Docflow
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
+			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
+			_equipmentTransferInfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
+			_equipmentTransferFileDataFactory = equipmentTransferFileDataFactory ?? throw new ArgumentNullException(nameof(equipmentTransferFileDataFactory));
 		}
 
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -145,6 +160,160 @@ namespace Edo.Docflow
 			await _messageBus.Publish(message);
 		}
 
+		public async Task HandleEquipmentTransfer(int equipmentTransferTaskId, CancellationToken cancellationToken)
+		{
+			var edoTask = await _uow.Session.GetAsync<EquipmentTransferEdoTask>(equipmentTransferTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning("Задача ЭДО акта №{TaskId} не найдена", equipmentTransferTaskId);
+				return;
+			}
+
+			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.OrderEdoRequest.Order.Id, cancellationToken);
+			if(order == null)
+			{
+				_logger.LogWarning("Заказ для акта приёма-передачи №{DocumentId} не найден", equipmentTransferTaskId);
+				return;
+			}
+
+			var sender = order.Contract.Organization;
+			if(sender.TaxcomEdoSettings == null)
+			{
+				_logger.LogWarning("Настройки ЭДО Такском не найдены для организации отправителя {OrganizationId}", sender.Id);
+				return;
+			}
+
+			try
+			{
+				if(!(order.OrderDocuments
+					.FirstOrDefault(x => x.Type == OrderDocumentType.EquipmentTransfer) is EquipmentTransferDocument equipmentTransferDocument))
+				{
+					_logger.LogWarning("Акт приёма-передачи оборудования для заказа {OrderId} не найден", order.Id);
+					return;
+				}
+
+				var pdfBytes = _printableDocumentSaver.SaveToPdf(equipmentTransferDocument);
+
+				var documentDate = equipmentTransferDocument.DocumentDate ?? order.DeliveryDate ?? order.CreateDate ?? DateTime.Now;
+
+				var fileData = _equipmentTransferFileDataFactory.CreateEquipmentTransferFileData(
+					order.Id.ToString(),
+					documentDate,
+					pdfBytes);
+
+				var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
+
+				var equipmentTransferInfo = _equipmentTransferInfoFactory.CreateInfoForCreatingEdoEquipmentTransfer(
+					orderInfo,
+					fileData);
+
+				var equipmentTransfermessage = new TaxcomDocflowEquipmentTransferSendEvent
+				{
+					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
+					EdoOutgoingDocumentId = equipmentTransferTaskId,
+					DocumentType = EdoDocumentType.EquipmentTransfer,
+					DocumentInfo = equipmentTransferInfo
+				};
+
+				await _messageBus.Publish(equipmentTransfermessage, cancellationToken);
+
+				_logger.LogInformation("Отправка акта приёма-передачи оборудования документа №{DocumentId}", equipmentTransferTaskId);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при отправке акта приёма-передачи оборудования №{DocumentId}", equipmentTransferTaskId);
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Обработка документа акта приёма-передачи оборудования
+		/// </summary>
+		/// <param name="equipmentTransferDocumentId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task HandleEquipmentTransferDocument(int equipmentTransferDocumentId, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.GetAsync<EquipmentTransferEdoDocument>(equipmentTransferDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning($"Документ {equipmentTransferDocumentId} не найден");
+				return;
+			}
+
+			if(document.Status.IsIn(
+				EdoDocumentStatus.InProgress,
+				EdoDocumentStatus.Succeed
+				))
+			{
+				_logger.LogError($"Документ {equipmentTransferDocumentId} уже в работе, повторно отправить нельзя.");
+				return;
+			}
+
+			var edoTask = await _uow.Session.GetAsync<EquipmentTransferEdoTask>(document.DocumentTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning($"Задача ЭДО акта №{document.DocumentTaskId} не найдена");
+				return;
+			}
+
+			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.OrderEdoRequest.Order.Id, cancellationToken);
+			if(order == null)
+			{
+				_logger.LogWarning($"Заказ для акта приёма-передачи №{edoTask.Id} не найден");
+				return;
+			}
+
+			var sender = order.Contract.Organization;
+			if(sender.TaxcomEdoSettings == null)
+			{
+				_logger.LogWarning($"Настройки ЭДО Такском не найдены для организации отправителя {sender.Id}");
+				return;
+			}
+
+			try
+			{
+				if(!(order.OrderDocuments
+					.FirstOrDefault(x => x.Type == OrderDocumentType.EquipmentTransfer) is EquipmentTransferDocument equipmentTransferDocument))
+				{
+					_logger.LogWarning($"Акт приёма-передачи оборудования для заказа {order.Id} не найден");
+					return;
+				}
+
+				var pdfBytes = _printableDocumentSaver.SaveToPdf(equipmentTransferDocument);
+
+				var documentDate = equipmentTransferDocument.DocumentDate ?? order.DeliveryDate ?? order.CreateDate ?? DateTime.Now;
+
+				var fileData = _equipmentTransferFileDataFactory.CreateEquipmentTransferFileData(
+					order.Id.ToString(),
+					documentDate,
+					pdfBytes);
+
+				var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
+
+				var equipmentTransferInfo = _equipmentTransferInfoFactory.CreateInfoForCreatingEdoEquipmentTransfer(
+					orderInfo,
+					fileData);
+
+				var equipmentTransfermessage = new TaxcomDocflowEquipmentTransferSendEvent
+				{
+					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
+					EdoOutgoingDocumentId = document.Id,
+					DocumentType = EdoDocumentType.EquipmentTransfer,
+					DocumentInfo = equipmentTransferInfo
+				};
+
+				await _messageBus.Publish(equipmentTransfermessage, cancellationToken);
+
+				_logger.LogInformation($"Отправка акта приёма-передачи оборудования документа №{equipmentTransferDocumentId}");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка при отправке акта приёма-передачи оборудования №{equipmentTransferDocumentId}");
+				throw;
+			}
+		}
+		
 		public async Task HandleDocflowUpdated(EdoDocflowUpdatedEvent updatedEvent, CancellationToken cancellationToken)
 		{
 			var documentId = updatedEvent.EdoDocumentId;

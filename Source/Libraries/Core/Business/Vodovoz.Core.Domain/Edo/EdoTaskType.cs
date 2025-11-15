@@ -23,6 +23,12 @@ namespace Vodovoz.Core.Domain.Edo
 		Receipt,
 
 		/// <summary>
+		/// Задача отправки акта приёма-передачи оборудования
+		/// </summary>
+		[Display(Name = "Акт приёма-передачи оборудования")]
+		EquipmentTransfer,
+
+		/// <summary>
 		/// Задача сохранения кодов
 		/// </summary>
 		[Display(Name = "Сохранение кодов")]

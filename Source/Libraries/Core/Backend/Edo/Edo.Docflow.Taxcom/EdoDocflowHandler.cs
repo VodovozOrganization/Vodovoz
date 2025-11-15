@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Events;
 using TaxcomEdo.Client;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -62,6 +64,41 @@ namespace Edo.Docflow.Taxcom
 				
 				await _uow.SaveAsync(newAction);
 				await _uow.CommitAsync();
+			}
+		}
+
+		public async Task CreateTaxcomDocFlowAndSendEquipmentTransferDocument(TaxcomDocflowEquipmentTransferSendEvent @event)
+		{
+			var now = DateTime.Now;
+			
+			var taxcomDocflow = new TaxcomDocflow
+			{
+				CreationTime = now,
+				MainDocumentId = @event.DocumentInfo.MainDocumentId.ToString(),
+				DocflowId = null,
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
+			};
+			
+			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
+			{
+				DocFlowState = EdoDocFlowStatus.NotStarted,
+				Time = now
+			});
+			
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
+
+			if(@event.DocumentType == EdoDocumentType.EquipmentTransfer)
+			{
+				if(@event.DocumentInfo is InfoForCreatingEdoEquipmentTransfer equipmentTransferInfo)
+				{
+					await _taxcomApiClient.SendDataForCreateEquipmentTransferByEdo(equipmentTransferInfo);
+				}
+				else
+				{
+					_logger.LogError($"Неверный тип документа для EquipmentTransfer: ожидается {nameof(InfoForCreatingEdoEquipmentTransfer)}");
+					throw new InvalidOperationException("Неверный тип документа для EquipmentTransfer");
+				}
 			}
 		}
 
