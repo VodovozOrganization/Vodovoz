@@ -20,6 +20,12 @@ namespace Mailganer.Api.Client.Dto
 		public string From { get; set; }
 
 		/// <summary>
+		/// Email отправителя
+		/// </summary>
+		[JsonIgnore]
+		public string FromAddress { get; set; }
+
+		/// <summary>
 		/// Получатель <br/>
 		/// Формат: ИмейлПолучателя
 		/// </summary>
