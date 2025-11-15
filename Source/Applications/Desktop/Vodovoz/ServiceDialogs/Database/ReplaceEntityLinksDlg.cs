@@ -21,7 +21,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		public ReplaceEntityLinksDlg()
 		{
-			this.Build();
+			Build();
 			ConfigureDlg();
 		}
 
@@ -78,6 +78,12 @@ namespace Vodovoz.ServiceDialogs.Database
 			logger.Info("Заменено {0} ссылок.", result);
 			entryreference1.Subject = null;
 			entryreference2.Subject = null;
+		}
+
+		public override void Dispose()
+		{
+			UoW.Dispose();
+			base.Dispose();
 		}
 	}
 }

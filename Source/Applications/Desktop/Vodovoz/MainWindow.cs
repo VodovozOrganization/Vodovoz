@@ -1,109 +1,92 @@
-﻿using Autofac;
-using MassTransit;
+using Autofac;
 using NLog;
-using Pacs.Core;
 using QS.Commands;
 using QS.Dialog;
 using QS.Navigation;
-using QS.Project.Services;
 using QS.Project.Versioning;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Utilities.Debug;
-using QS.Validation;
 using QSBanks;
-using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Gtk;
+using QS.Project.Services;
+using QS.Services;
+using QSProjectsLib;
 using Vodovoz;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Core.Domain.Users.Settings;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.MainMenu;
+using Vodovoz.MainMenu.ViewMenu;
 using Vodovoz.Presentation.ViewModels.Pacs;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Tabs;
 using Vodovoz.SidePanel;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Mango;
-using VodovozInfrastructure.Configuration;
+using Vodovoz.Views.Pacs;
 using Order = Vodovoz.Domain.Orders.Order;
-using ToolbarStyle = Vodovoz.Core.Domain.Users.Settings.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window
 {
 	private static Logger _logger = LogManager.GetCurrentClassLogger();
 	private uint _lastUiId;
 	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-	private readonly IApplicationInfo _applicationInfo;
-	private readonly IInteractiveService _interativeService;
-	private readonly IPasswordValidator _passwordValidator;
-	private readonly IApplicationConfigurator _applicationConfigurator;
+	private readonly IInteractiveService _interactiveService;
 	private readonly IWikiSettings _wikiSettings;
-	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
-	private readonly IComplaintNotificationController _complaintNotificationController;
-	private readonly bool _hasAccessToSalariesForLogistics;
-	private readonly int _currentUserSubdivisionId;
-	private readonly IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
-	private readonly bool _hideComplaintsNotifications;
-	private readonly OperatorService _operatorService;
+	private OperatorService _operatorService;
+	private IComplaintNotificationController _complaintNotificationController;
+	private IMovementDocumentsNotificationsController _movementsNotificationsController;
+	private IEnumerable<int> _curentUserMovementDocumentsNotificationWarehouses;
 	private bool _accessOnlyToWarehouseAndComplaints;
-	private IBusControl _messageBusControl;
+	private bool _hideComplaintsNotifications;
+	private int _currentUserSubdivisionId;
 
-	public TdiNotebook TdiMain => tdiMain;
-	public InfoPanel InfoPanel => infopanel;
-
-	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator, IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
+	public MainWindow(
+		IInteractiveService interactiveService,
+		IApplicationInfo applicationInfo,
+		ICurrentPermissionService currentPermissionService,
+		IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
-		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
-		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+		ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
+		_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
+		CurrentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+		
 		Build();
 
-		_interativeService = ServicesConfig.CommonServices.InteractiveService;
-		var transportInitializer = _autofacScope.Resolve<IMessageTransportInitializer>();
-		transportInitializer.Initialize();
-
-		var pacsEndpointConnector = _autofacScope.Resolve<PacsEndpointsConnector>();
-		pacsEndpointConnector.ConnectPacsEndpoints();
+		TdiMain = tdiMain;
+		InfoPanel = infopanel;
+		ToolbarMain = toolbarMain;
+		ToolbarComplaints = tlbComplaints;
+		PacsPanelView = pacspanelview1;
 
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		_applicationInfo = new ApplicationVersionInfo();
+	}
 
+	public void Configure()
+	{
 		BuildToolbarActions();
+		ConfigureMainMenu();
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
-		_operatorService = _autofacScope.Resolve<OperatorService>();
-
-		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
-		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
-		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
 		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
 		var tabsSettings = _autofacScope.Resolve<ITabsSettings>();
-		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsSettings.TabsPrefix);
-		TDIMain.SetTabsReordering(reorderTabs);
-
-		if(reorderTabs)
-		{
-			ReorderTabs.Activate();
-		}
-
-		if(highlightWColor)
-		{
-			HighlightTabsWithColor.Activate();
-		}
-
-		if(keepTabColor)
-		{
-			KeepTabColor.Activate();
-		}
+		TDIMain.SetTabsColorHighlighting(
+			CurrentUserSettings.Settings.HighlightTabsWithColor,
+			CurrentUserSettings.Settings.KeepTabColor,
+			GetTabsColors(),
+			tabsSettings.TabsPrefix);
+		TDIMain.SetTabsReordering(CurrentUserSettings.Settings.ReorderTabs);
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -112,107 +95,60 @@ public partial class MainWindow : Gtk.Window
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 		}
 
-		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
+		Title = $"{ApplicationInfo.ProductTitle} v{ApplicationInfo.Version.Major}.{ApplicationInfo.Version.Minor} от {GetDateTimeFGromVersion(ApplicationInfo.Version):dd.MM.yyyy HH:mm}";
 
 		//Настраиваем модули
+		var admin = QSMain.User.Admin;
 
-		pacspanelview1.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
-
-		ActionUsers.Sensitive = QSMain.User.Admin;
-		ActionAdministration.Sensitive = QSMain.User.Admin;
+		PacsPanelView.ViewModel = _autofacScope.Resolve<PacsPanelViewModel>();
+		
 		labelUser.LabelProp = QSMain.User.Name;
 		var commonServices = ServicesConfig.CommonServices;
-		var cashier = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
-		ActionCash.Sensitive = ActionIncomeBalanceReport.Sensitive = ActionCashBook.Sensitive = cashier;
-		ActionAccounting.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
-		Action1SWork.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.Work1S.HasAccessTo1sWork);
+		var cashier = CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+		ActionCash.Sensitive = cashier;
+		ActionAccounting.Sensitive = CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
+		Action1SWork.Sensitive = CurrentPermissionService.ValidatePresetPermission(
+			Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.Work1S.HasAccessTo1sWork);
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
+			ActionRouteListAddressesTransferring.Sensitive =
+				CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
 		var currentWarehousePermissions = new CurrentWarehousePermissions();
 		ActionStock.Sensitive = currentWarehousePermissions.WarehousePermissions.Any(x => x.PermissionValue == true);
 
-		bool hasAccessToCRM = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_crm");
-		bool hasAccessToSalaries = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
-		_hasAccessToSalariesForLogistics =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salary_reports_for_logistics");
-		bool hasAccessToWagesAndBonuses = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses; //Премии сотрудников
-		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses; //Штрафы сотрудников
-		ActionDriverWages.Sensitive = hasAccessToSalaries; //Зарплаты водителей
-		ActionWagesOperations.Sensitive = hasAccessToSalaries || _hasAccessToSalariesForLogistics; //Зарплаты сотрудников
-		ActionForwarderWageReport.Sensitive = hasAccessToSalaries; //Зарплаты экспедиторов
-		ActionDriversWageBalance.Visible = hasAccessToSalaries; //Баланс водителей
-		EmployeesTaxesAction.Sensitive = hasAccessToSalaries; //Налоги сотрудников
+		var hasAccessToCRM = CurrentPermissionService.ValidatePresetPermission("access_to_crm");
 		ActionCRM.Sensitive = hasAccessToCRM;
 
-		bool canEditWage = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmployeePermissions.CanEditWage);
-		ActionWageDistrict.Sensitive = canEditWage;
-		ActionRates.Sensitive = canEditWage;
-
-		bool canEditWageBySelfSubdivision =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
-		ActionSalesPlans.Sensitive = canEditWageBySelfSubdivision;
-
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionReports.Sensitive = false;
 		//ActionServices.Visible = false;
-		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
+		//ActionService.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
 
 		ActionAddOrder.Sensitive = commonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
 		ActionExportImportNomenclatureCatalog.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-		ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
-		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
-
-		//Читаем настройки пользователя
-		switch(CurrentUserSettings.Settings.ToolbarStyle)
-		{
-			case ToolbarStyle.Both:
-				ActionToolBarBoth.Activate();
-				break;
-			case ToolbarStyle.Icons:
-				ActionToolBarIcon.Activate();
-				break;
-			case ToolbarStyle.Text:
-				ActionToolBarText.Activate();
-				break;
-		}
-
-		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
-		{
-			case IconsSize.ExtraSmall:
-				ActionIconsExtraSmall.Activate();
-				break;
-			case IconsSize.Small:
-				ActionIconsSmall.Activate();
-				break;
-			case IconsSize.Middle:
-				ActionIconsMiddle.Activate();
-				break;
-			case IconsSize.Large:
-				ActionIconsLarge.Activate();
-				break;
-		}
+			CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+		ActionDistricts.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+		ActionDriversStopLists.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
+		
+		MainPanelMenuItemHandler.Initialize();
 
 		// Отдел продаж
 
-		ActionSalesDepartment.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
+		ActionSalesDepartment.Sensitive = CurrentPermissionService.ValidatePresetPermission("access_to_sales_department");
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
 		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_accessOnlyToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
-		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
+		MainMenuBar.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
 			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
 				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
 					/*MangoAction.Visible =*/ !_accessOnlyToWarehouseAndComplaints;
@@ -269,81 +205,39 @@ public partial class MainWindow : Gtk.Window
 
 		BanksUpdater.CheckBanksUpdate(false);
 
-		// Блокировка отчетов для торговых представителей
-
-		bool userIsSalesRepresentative;
-
-		using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
-				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
-		}
-
-		// Основные разделы отчетов
-
-		ActionReportOrders.Visible =
-			ActionReportsStock.Visible =
-			ActionOSKOKKReports.Visible =
-			ActionLogistic.Visible =
-			ActionReportEmployees.Visible =
-			ActionReportsDrivers.Visible =
-			ActionReportService.Visible =
-			ActionBookkeepping.Visible =
-			ActionCashMenubar.Visible = // Касса
-			ActionRetailMenubar.Visible =
-			ActionTransportMenuBar.Visible =
-			ActionProduction.Visible = !userIsSalesRepresentative;// Производство
-
-		// Отчеты в Продажи
-
-		ActionOrderCreationDateReport.Visible =
-			ActionPlanImplementationReport.Visible =
-			ActionSetBillsReport.Visible = !userIsSalesRepresentative;
-
-		// Управление ограничением доступа через зарегистрированные RM
-
-		var userCanManageRegisteredRMs = commonServices.CurrentPermissionService.ValidatePresetPermission("user_can_manage_registered_rms");
-
-		registeredRMAction.Visible = userCanManageRegisteredRMs;
-
 		// Настройки розницы
-
-		var userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+		var userHaveAccessToRetail = CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 
 		ActionRetail.Sensitive = userHaveAccessToRetail;
+		RetailUndeliveredOrdersJournalAction.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
+	}
 
-		ActionRetailUndeliveredOrdersJournal.Sensitive = false; // Этот журнал не готов - выключено до реализации фичи
-
-		ActionAdditionalLoadSettings.Sensitive = commonServices.CurrentPermissionService
-			.ValidateEntityPermission(typeof(AdditionalLoadingNomenclatureDistribution)).CanRead;
-
-		//Доступ к константам рентабельности (Справочники - Финансы - Константы рентабельности)
-		ProfitabilityConstantsAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
-
-		ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
-		ExternalCounterpartiesMatchingAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
-
-		ActionGroupPricing.Activated += ActionGroupPricingActivated;
-		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
-
-		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.CanGenerateCashFlowDdsReport);
-
-		ActionClassificationCalculation.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanCalculateCounterpartyClassifications);
-
-		ActionInnerPhones.Activated += OnInnerPhonesActionActivated;
-		CarOwnershipReportAction.Sensitive =
-			commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.HasAccessToCarOwnershipReport);
-
-		InitializeThemesMenuItem();
+	private void ConfigureMainMenu()
+	{
+		var menuCreator = _autofacScope.Resolve<MainMenuBarCreator>();
+		MainMenuBar = menuCreator.CreateMenuBar();
+		MainPanelMenuItemHandler = menuCreator.ViewMenuItemCreator.MainPanelMenuItemHandler;
+		vboxMain.Add(MainMenuBar);
 
 		OpenWikiCommand = new DelegateCommand(OpenWiki);
 		ybuttonWiki.BindCommand(OpenWikiCommand);
 
 		this.KeyPressEvent += OnKeyPressed;
+		var box = (Box.BoxChild)vboxMain[MainMenuBar];
+		box.Position = 0;
+		box.Expand = false;
 	}
+
+	public ICurrentPermissionService CurrentPermissionService { get; }
+	public IApplicationInfo ApplicationInfo { get; }
+	public TdiNotebook TdiMain { get; }
+	public InfoPanel InfoPanel { get; }
+	public Toolbar ToolbarMain { get; }
+	public Toolbar ToolbarComplaints { get; }
+	public MenuBar MainMenuBar { get; private set; }
+	public PacsPanelView PacsPanelView { get; private set; }
+	public MainPanelMenuItemHandler MainPanelMenuItemHandler { get; private set; }
+	
 
 	private void OnKeyPressed(object o, Gtk.KeyPressEventArgs args)
 	{
@@ -355,6 +249,9 @@ public partial class MainWindow : Gtk.Window
 
 	public ITdiCompatibilityNavigation NavigationManager { get; private set; }
 	public MangoManager MangoManager { get; private set; }
+	
+	private string[] GetTabsColors() =>
+		new[] { "#F81919", "#009F6B", "#1F8BFF", "#FF9F00", "#FA7A7A", "#B46034", "#99B6FF", "#8F2BE1", "#00CC44" };
 
 	/// <summary>
 	/// Пока в <see cref="EmployeeJournalFactory"/> есть получение <see cref="NavigationManager"/> через <see cref="MainWindow"/>
@@ -364,6 +261,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager = _autofacScope.Resolve<ITdiCompatibilityNavigation>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		MangoManager = _autofacScope.Resolve<MangoManager>();
+		_operatorService = _autofacScope.Resolve<OperatorService>();
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
@@ -371,7 +269,7 @@ public partial class MainWindow : Gtk.Window
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
 
-	public DelegateCommand OpenWikiCommand { get; }
+	public DelegateCommand OpenWikiCommand { get; private set; }
 
 	private void OpenWiki()
 	{
@@ -386,9 +284,5 @@ public partial class MainWindow : Gtk.Window
         }*/
 
 		base.OnDestroyed();
-	}
-
-	protected void OnServiceDeliveryRulesActivated(object sender, EventArgs e)
-	{
 	}
 }

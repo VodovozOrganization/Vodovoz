@@ -1,13 +1,13 @@
-﻿<ui>
+<ui>
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionCarEventsJournal' action='ActionCarEventsJournal'/>
 		<toolitem name='ActionCarProxiesJournal' action='ActionCarProxiesJournal'/>
 		<toolitem name='ActionRouteListMileageCheck' action='ActionRouteListMileageCheck'/>
-		<toolitem name='ActionWayBillReport' action='ActionWayBillReport'/>
+		<toolitem name='WayBillReportAction' action='WayBillReportAction'/>
 		<toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
 		<toolitem name='ActionWarehouseDocuments' action='ActionWarehouseDocuments'/>
 		<toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
-		<toolitem name='ActionCar' action='ActionCar'/>
+		<toolitem name='CarsJournalAction' action='CarsJournalAction'/>
 		<toolitem name='ActionMileageWriteOffJournal' action='ActionMileageWriteOffJournal'/>
 	</toolbar>
 </ui>

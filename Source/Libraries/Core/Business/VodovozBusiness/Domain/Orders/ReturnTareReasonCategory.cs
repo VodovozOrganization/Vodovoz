@@ -8,7 +8,7 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Orders
 {
     [Appellative(Gender = GrammaticalGender.Feminine,
-        NominativePlural = "категории причины забора тары",
+        NominativePlural = "категории причин забора тары",
         Nominative = "категория причины забора тары")]
 	[HistoryTrace]
 	[EntityPermission]

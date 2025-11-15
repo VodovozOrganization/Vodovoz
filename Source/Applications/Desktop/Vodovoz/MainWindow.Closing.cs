@@ -8,7 +8,7 @@ public partial class MainWindow
 	{
 		var isOperaorShiftActive = _operatorService.IsOperatorShiftActive();
 
-		if (isOperaorShiftActive && _interativeService.Question(
+		if (isOperaorShiftActive && _interactiveService.Question(
 			"Завершить смену?",
 			"Смена не завершена!!"))
 		{
@@ -37,7 +37,7 @@ public partial class MainWindow
 	{
 		var isOperaorShiftActive = _operatorService.IsOperatorShiftActive();
 
-		if(isOperaorShiftActive && _interativeService.Question(
+		if(isOperaorShiftActive && _interactiveService.Question(
 			"Завершить смену?",
 			"Смена не завершена!!"))
 		{

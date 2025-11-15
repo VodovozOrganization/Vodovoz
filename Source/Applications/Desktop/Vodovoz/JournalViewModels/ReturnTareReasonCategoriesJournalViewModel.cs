@@ -8,6 +8,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
@@ -22,7 +23,7 @@ namespace Vodovoz.JournalViewModels
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
-			TabName = "Категории причин забора тары";
+			TabName = typeof(ReturnTareReasonCategory).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();;
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonCategoriesJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.Id, false);

@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Utilities;
 using NLog;
 using QS.BusinessCommon.Domain;
