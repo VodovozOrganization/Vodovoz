@@ -1216,7 +1216,6 @@ WHERE
       	OR (@is_expired = FALSE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &lt;= 0)
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
-      AND (@is_liquidated IS NULL OR (c.revenue_status = 'Active' AND !@is_liquidated) OR (c.revenue_status != 'Active' AND @is_liquidated))
       AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
   AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
 ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
@@ -1282,9 +1281,6 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
           <QueryParameter Name="is_expired">
             <Value>={?is_expired}</Value>
-          </QueryParameter>
-          <QueryParameter Name="is_liquidated">
-            <Value>={?is_liquidated}</Value>
           </QueryParameter>
           <QueryParameter Name="order_by_date">
             <Value>={?order_by_date}</Value>
@@ -1504,13 +1500,6 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="is_liquidated">
-      <DataType>Boolean</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="is_tender">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
@@ -1537,14 +1526,14 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="RevenueStatus_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
