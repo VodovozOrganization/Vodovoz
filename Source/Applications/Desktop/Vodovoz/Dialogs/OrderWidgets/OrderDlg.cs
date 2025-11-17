@@ -5205,11 +5205,11 @@ namespace Vodovoz
 
 			PrepareRecomendationsPage();
 
-			//if(dualtreeviewnodestransferview1.ViewModel.LeftItems.Count > 0)
-			//{
-			//	SwitchToRecomendationPage();
-			//	return;
-			//}
+			if(dualtreeviewnodestransferview1.ViewModel.LeftItems.Count > 0)
+			{
+				SwitchToRecomendationPage();
+				return;
+			}
 
 			PrepareConfirmationPage();
 			SwitchToConfirmationPage();
@@ -5247,39 +5247,39 @@ namespace Vodovoz
 				});
 			}
 
-			//dualtreeviewnodestransferview1.YTreeviewLeft.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.LeftNode>()
-			//	.AddColumn("Номенклатуры для рекомендации")
-			//	.AddTextRenderer(x => x.NomenclatureName)
-			//	.Finish();
+			dualtreeviewnodestransferview1.YTreeviewLeft.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.LeftNode>()
+				.AddColumn("Номенклатуры для рекомендации")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.Finish();
 
-			//dualtreeviewnodestransferview1.YTreeViewRight.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.RightNode>()
-			//	.AddColumn("Номенклатура")
-			//	.AddTextRenderer(x => x.NomenclatureName)
-			//	.AddColumn("Количество")
-			//	.AddNumericRenderer(x => x.Count)
-			//	.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-			//	.Editing(true)
-			//	.EditedEvent(OnSpinRecomendedItemCountEdited)
-			//	.AddColumn("Цена")
-			//	.AddNumericRenderer(x => x.Price)
-			//	.Editing(false)
-			//	.AddColumn("Сумма")
-			//	.AddNumericRenderer(x => x.Sum)
-			//	.Editing(false)
-			//	.Finish();
+			dualtreeviewnodestransferview1.YTreeViewRight.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.RightNode>()
+				.AddColumn("Номенклатура")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.AddColumn("Количество")
+				.AddNumericRenderer(x => x.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.Editing(true)
+				.EditedEvent(OnSpinRecomendedItemCountEdited)
+				.AddColumn("Цена")
+				.AddNumericRenderer(x => x.Price)
+				.Editing(false)
+				.AddColumn("Сумма")
+				.AddNumericRenderer(x => x.Sum)
+				.Editing(false)
+				.Finish();
 
-			//dualtreeviewnodestransferview1.ViewModel = RecomendationsForOrderDualListViewModel.Create(
-			//	UoW,
-			//	_nomenclatureGenericRepository,
-			//	leftItems: nomenclaturesToRecommend,
-			//	searchLeftPredicate: (searchText, nomenclature) => nomenclature.NomenclatureName.Contains(searchText),
-			//	searchRightPredicate: (searchText, orderItem) => orderItem.NomenclatureName.Contains(searchText));
+			dualtreeviewnodestransferview1.ViewModel = RecomendationsForOrderDualListViewModel.Create(
+				UoW,
+				_nomenclatureGenericRepository,
+				leftItems: nomenclaturesToRecommend,
+				searchLeftPredicate: (searchText, nomenclature) => nomenclature.NomenclatureName.Contains(searchText),
+				searchRightPredicate: (searchText, orderItem) => orderItem.NomenclatureName.Contains(searchText));
 
-			//dualtreeviewnodestransferview1.YTreeViewRight.HeadersVisible = true;
-			//dualtreeviewnodestransferview1.YTreeviewLeft.HeadersVisible = true;
+			dualtreeviewnodestransferview1.YTreeViewRight.HeadersVisible = true;
+			dualtreeviewnodestransferview1.YTreeviewLeft.HeadersVisible = true;
 
-			//ybtnAddItems.Clicked += OnAddSelectedRecomendedItemsClicked;
-			//ybtnSkip.Clicked += OnSkipRecomendationsClicked;
+			ybtnAddItems.Clicked += OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked += OnSkipRecomendationsClicked;
 		}
 
 		private void OnSpinRecomendedItemCountEdited(object o, EditedArgs args)
@@ -5296,8 +5296,8 @@ namespace Vodovoz
 
 		private void OnSkipRecomendationsClicked(object sender, EventArgs e)
 		{
-			//ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
-			//ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
 
 			PrepareConfirmationPage();
 			SwitchToConfirmationPage();
@@ -5305,19 +5305,19 @@ namespace Vodovoz
 
 		private void OnAddSelectedRecomendedItemsClicked(object sender, EventArgs e)
 		{
-			//ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
-			//ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
 
-			//var rightNodes = dualtreeviewnodestransferview1.ViewModel.RightItems as IObservableList<RecomendationsForOrderDualListViewModel.RightNode>;
+			var rightNodes = dualtreeviewnodestransferview1.ViewModel.RightItems as IObservableList<RecomendationsForOrderDualListViewModel.RightNode>;
 
-			//var nimenclatureIds = rightNodes.Select(x => x.NomenclatureId).ToArray();
+			var nomenclatureIds = rightNodes.Select(x => x.NomenclatureId).ToArray();
 
-			//var nomenclatures = _nomenclatureGenericRepository.Get(UoW, x => nimenclatureIds.Contains(x.Id));
-			
-			//foreach(var item in rightNodes)
-			//{
-			//	Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
-			//}
+			var nomenclatures = _nomenclatureGenericRepository.Get(UoW, x => nomenclatureIds.Contains(x.Id));
+
+			foreach(var item in rightNodes)
+			{
+				Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
+			}
 
 			PrepareConfirmationPage();
 			SwitchToConfirmationPage();
