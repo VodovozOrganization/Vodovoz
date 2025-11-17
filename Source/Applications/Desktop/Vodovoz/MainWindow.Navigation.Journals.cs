@@ -377,16 +377,6 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(null);
 	}
 
-	/// <summary>
-	/// Рекомендации
-	/// </summary>
-	/// <param name="sender"></param>
-	/// <param name="e"></param>
-	protected void OnActionRecomendationsActivated(object sender, EventArgs e)
-	{
-
-	}
-
 	#region Инвентарный учет
 
 	/// <summary>
@@ -455,6 +445,16 @@ public partial class MainWindow
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Рекомендации
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRecomendationsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RecomendationsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	/// <summary>
