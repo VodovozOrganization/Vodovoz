@@ -488,18 +488,7 @@ namespace Vodovoz
 		}
 
 		private void ConfigureTabInfo()
-		{
-			ycheckbuttonIsLiquidating.Binding
-				.AddBinding(Entity, e => e.IsLiquidating, w => w.Active)
-				.AddFuncBinding(c => c.PersonType == PersonType.legal, w => w.Visible)
-				.InitializeFromSource();
-
-			labelIsLiquidating.UseMarkup = true;
-			labelIsLiquidating.Binding
-				.AddBinding(this, dlg => dlg.IsLiquidatingLabelText, w => w.LabelProp)
-				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
-				.InitializeFromSource();
-			
+		{			
 			ylabelRevenueStatus.Binding
 				.AddBinding(this, dlg => dlg.RevenueStatusInformation, w => w.Text)
 				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
