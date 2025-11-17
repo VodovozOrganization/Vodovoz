@@ -207,7 +207,7 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureEmployeesFixedPrices();
 
-			//recomendationsettingsview1.ViewModel = ViewModel.RecomendationSettingsViewModel;
+			recomendationsettingsview1.ViewModel = ViewModel.RecomendationSettingsViewModel;
 
 			yspinbuttonTargetPaymentDeferent.Binding
 				.AddSource(ViewModel)
