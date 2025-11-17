@@ -287,6 +287,7 @@ namespace Vodovoz.Filters.GtkViews
 			w18.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.scrolledwindowRevenueStatus = new global::Gtk.ScrolledWindow();
+			this.scrolledwindowRevenueStatus.WidthRequest = 220;
 			this.scrolledwindowRevenueStatus.CanFocus = true;
 			this.scrolledwindowRevenueStatus.Name = "scrolledwindowRevenueStatus";
 			this.scrolledwindowRevenueStatus.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -300,7 +301,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.scrolledwindowRevenueStatus.Add(w19);
 			this.table1.Add(this.scrolledwindowRevenueStatus);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.scrolledwindowRevenueStatus]));
-			w22.BottomAttach = ((uint)(2));
+			w22.BottomAttach = ((uint)(4));
 			w22.LeftAttach = ((uint)(10));
 			w22.RightAttach = ((uint)(11));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
