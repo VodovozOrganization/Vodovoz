@@ -307,9 +307,9 @@ namespace Vodovoz
 
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
-		
+
 		public string RevenueStatusInformation =>
-			$"{(Entity?.RevenueStatus == null ? "" : $"Статус ликвидации: {Entity.RevenueStatus.Value.GetEnumDisplayName()} (с {Entity.RevenueStatusDate:d})")}";
+			$"Статус ликвидации: {(Entity.RevenueStatus.HasValue ? $"{Entity.RevenueStatus.Value.GetEnumDisplayName()} с {Entity.RevenueStatusDate:d}" : "Неизвестен")}";
 		
 		private void ConfigureDlg()
 		{
