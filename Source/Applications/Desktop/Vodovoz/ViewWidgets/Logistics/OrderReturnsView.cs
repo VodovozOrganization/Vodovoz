@@ -730,7 +730,7 @@ namespace Vodovoz
 			{
 			}
 
-			if(counterparty.IsLiquidating)
+			if(counterparty.RevenueStatus != RevenueStatus.Active)
 			{
 				if(!CanFormOrderWithLiquidatedCounterparty)
 				{

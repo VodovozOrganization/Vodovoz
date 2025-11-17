@@ -53,9 +53,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Map(x => x.KPP)
 				.Column("kpp");
-
-			Map(x => x.IsLiquidating)
-				.Column("is_liquidating");
 			
 			Map(x => x.RevenueStatus)
 				.Column("revenue_status");

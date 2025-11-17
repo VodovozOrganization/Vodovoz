@@ -307,9 +307,7 @@ namespace Vodovoz
 
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
-
-		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
-
+		
 		public string RevenueStatusInformation =>
 			$"{(Entity?.RevenueStatus == null ? "" : $"Статус ликвидации: {Entity.RevenueStatus.Value.GetEnumDisplayName()} (с {Entity.RevenueStatusDate:d})")}";
 		
@@ -464,11 +462,6 @@ namespace Vodovoz
 				}
 
 				return;
-			}
-
-			if(e.PropertyName == nameof(Entity.IsLiquidating))
-			{
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
 			}
 			
 			if(e.PropertyName == nameof(Entity.RevenueStatus) || e.PropertyName == nameof(Entity.RevenueStatusDate))
@@ -2281,20 +2274,10 @@ namespace Vodovoz
 					FillEntityDetailsFromRevenueService(a);
 				}
 
-				if(Entity.IsLiquidating && a.IsActive)
-				{
-					Entity.IsLiquidating = false;
-				}
-
-				if(Entity.IsDeliveriesClosed && !a.IsActive)
-				{
-					Entity.IsLiquidating = true;
-				}
-
 				Entity.RevenueStatus = a.State.ConvertToRevenueStatus();
 				Entity.RevenueStatusDate = a.StateDate;
 
-				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.ConvertToRevenueStatus().GetEnumDisplayName());
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee);
 			};
 		}
 

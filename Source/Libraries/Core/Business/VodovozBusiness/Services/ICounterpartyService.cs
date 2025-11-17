@@ -15,7 +15,7 @@ namespace Vodovoz.Services
 			string kpp,
 			CancellationToken cancellationToken);
 		Task StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, CancellationToken cancellationToken);
-		void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, bool isLiquidating, string statusName);
+		void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee);
 		Task StopShipmentsIfNeeded(int counterpartyId, int employeeId, CancellationToken cancellationToken);
 		void UpdateDetailsFromRevenueServiceInfoIfNeeded(int counterpartyId, CounterpartyRevenueServiceInfo revenueServiceInfo);
 	}

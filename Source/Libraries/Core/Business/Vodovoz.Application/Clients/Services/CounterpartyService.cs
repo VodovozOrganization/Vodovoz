@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Dadata.Model;
+using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
@@ -70,23 +71,31 @@ namespace Vodovoz.Application.Clients.Services
 
 		public async Task StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, CancellationToken cancellationToken)
 		{
-			if(counterparty.IsLiquidating
+			if((counterparty.RevenueStatus.HasValue && counterparty.RevenueStatus != RevenueStatus.Active)
 				|| counterparty.IsDeliveriesClosed
 				|| counterparty.PersonType != PersonType.legal
 				|| string.IsNullOrWhiteSpace(counterparty.INN))
 			{
 				return;
 			}
-
-			var status = await _revenueServiceClient
-				.GetCounterpartyStatus(counterparty.INN, counterparty.KPP, cancellationToken);
 			
-			counterparty.RevenueStatus = status.ConvertToRevenueStatus();
-
-			if(status != PartyStatus.ACTIVE)
+			var revenueDataRequest = new DadataRequestDto
 			{
-				counterparty.IsLiquidating = true;
-				StopShipmentsIfNeeded(counterparty, employee, true, status.ConvertToRevenueStatus().GetEnumDisplayName());
+				Inn = counterparty.INN ,
+				Kpp = counterparty.KPP
+			};
+
+			var response = await _revenueServiceClient
+				.GetCounterpartyInfoAsync(revenueDataRequest, cancellationToken);
+
+			var lastDetails = response.CounterpartyDetailsList.GetLastByDateInformation();
+			
+			counterparty.RevenueStatus = lastDetails?.State.ConvertToRevenueStatus();
+			counterparty.RevenueStatusDate = lastDetails?.StateDate;
+
+			if(counterparty.RevenueStatus != RevenueStatus.Active)
+			{
+				StopShipmentsIfNeeded(counterparty, employee);
 			}
 		}
 
@@ -102,9 +111,9 @@ namespace Vodovoz.Application.Clients.Services
 			}
 		}
 
-		public void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, bool isLiquidating, string statusName)
+		public void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee)
 		{
-			if(!isLiquidating)
+			if(counterparty.RevenueStatus == RevenueStatus.Active)
 			{
 				return;
 			}
@@ -115,7 +124,9 @@ namespace Vodovoz.Application.Clients.Services
 			}
 
 			counterparty.CloseDelivery(employee);
-			counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{statusName}\" в ФНС. Оформление заказа невозможно.", employee);
+			counterparty.AddCloseDeliveryComment(
+				$"Автоматическое закрытие поставок: контрагент в статусе \"{counterparty.RevenueStatus.GetEnumTitle()}\" в ФНС. Оформление заказа невозможно.",
+				employee);
 		}
 
 		public void UpdateDetailsFromRevenueServiceInfoIfNeeded(
