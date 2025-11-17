@@ -46,7 +46,7 @@ namespace Edo.Problems.Validation.Sources
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
 
-			if(orderEdoRequest.Order.PayAfterShipment)
+			if(orderEdoRequest.Order.PayAfterShipment && edoTask.TaskType == EdoTaskType.Document)
 			{
 				return Task.FromResult(EdoValidationResult.Valid(this));
 			}
