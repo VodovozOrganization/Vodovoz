@@ -12,8 +12,6 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 
 		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gtk.Label labelExtender;
-
 		private global::Gtk.Label lblIpz;
 
 		private global::Gtk.Label lblOperator;
@@ -54,49 +52,41 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.table4.Add(this.buttonSave);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table4[this.buttonSave]));
-			w1.LeftAttach = ((uint)(7));
-			w1.RightAttach = ((uint)(8));
+			w1.LeftAttach = ((uint)(6));
+			w1.RightAttach = ((uint)(7));
 			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(0));
-			// Container child table4.Gtk.Table+TableChild
-			this.labelExtender = new global::Gtk.Label();
-			this.labelExtender.Name = "labelExtender";
-			this.table4.Add(this.labelExtender);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.labelExtender]));
-			w2.LeftAttach = ((uint)(6));
-			w2.RightAttach = ((uint)(7));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.lblIpz = new global::Gtk.Label();
 			this.lblIpz.Name = "lblIpz";
 			this.lblIpz.Xalign = 1F;
 			this.lblIpz.LabelProp = global::Mono.Unix.Catalog.GetString("Для ИПЗ:");
 			this.table4.Add(this.lblIpz);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table4[this.lblIpz]));
-			w3.LeftAttach = ((uint)(4));
-			w3.RightAttach = ((uint)(5));
-			w3.XOptions = ((global::Gtk.AttachOptions)(0));
-			w3.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table4[this.lblIpz]));
+			w2.LeftAttach = ((uint)(4));
+			w2.RightAttach = ((uint)(5));
+			w2.XOptions = ((global::Gtk.AttachOptions)(0));
+			w2.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table4.Gtk.Table+TableChild
 			this.lblOperator = new global::Gtk.Label();
 			this.lblOperator.Name = "lblOperator";
 			this.lblOperator.Xalign = 1F;
 			this.lblOperator.LabelProp = global::Mono.Unix.Catalog.GetString("Для оператора:");
 			this.table4.Add(this.lblOperator);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table4[this.lblOperator]));
-			w4.LeftAttach = ((uint)(2));
-			w4.RightAttach = ((uint)(3));
-			w4.XOptions = ((global::Gtk.AttachOptions)(0));
-			w4.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table4[this.lblOperator]));
+			w3.LeftAttach = ((uint)(2));
+			w3.RightAttach = ((uint)(3));
+			w3.XOptions = ((global::Gtk.AttachOptions)(0));
+			w3.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table4.Gtk.Table+TableChild
 			this.lblRobot = new global::Gtk.Label();
 			this.lblRobot.Name = "lblRobot";
 			this.lblRobot.Xalign = 1F;
 			this.lblRobot.LabelProp = global::Mono.Unix.Catalog.GetString("Для робота:");
 			this.table4.Add(this.lblRobot);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table4[this.lblRobot]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(0));
-			w5.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table4[this.lblRobot]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(0));
+			w4.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table4.Gtk.Table+TableChild
 			this.ysbIpz = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.ysbIpz.CanFocus = true;
@@ -107,11 +97,11 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 			this.ysbIpz.ValueAsDecimal = 0m;
 			this.ysbIpz.ValueAsInt = 0;
 			this.table4.Add(this.ysbIpz);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbIpz]));
-			w6.LeftAttach = ((uint)(5));
-			w6.RightAttach = ((uint)(6));
-			w6.XOptions = ((global::Gtk.AttachOptions)(0));
-			w6.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbIpz]));
+			w5.LeftAttach = ((uint)(5));
+			w5.RightAttach = ((uint)(6));
+			w5.XOptions = ((global::Gtk.AttachOptions)(0));
+			w5.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table4.Gtk.Table+TableChild
 			this.ysbOperator = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.ysbOperator.CanFocus = true;
@@ -122,11 +112,11 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 			this.ysbOperator.ValueAsDecimal = 0m;
 			this.ysbOperator.ValueAsInt = 0;
 			this.table4.Add(this.ysbOperator);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbOperator]));
-			w7.LeftAttach = ((uint)(3));
-			w7.RightAttach = ((uint)(4));
-			w7.XOptions = ((global::Gtk.AttachOptions)(0));
-			w7.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbOperator]));
+			w6.LeftAttach = ((uint)(3));
+			w6.RightAttach = ((uint)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(0));
+			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table4.Gtk.Table+TableChild
 			this.ysbRobot = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.ysbRobot.CanFocus = true;
@@ -137,11 +127,11 @@ namespace Vodovoz.Presentation.Views.CommonSettings
 			this.ysbRobot.ValueAsDecimal = 0m;
 			this.ysbRobot.ValueAsInt = 0;
 			this.table4.Add(this.ysbRobot);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbRobot]));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(0));
-			w8.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table4[this.ysbRobot]));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
+			w7.XOptions = ((global::Gtk.AttachOptions)(0));
+			w7.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.GtkAlignment.Add(this.table4);
 			this.frame1.Add(this.GtkAlignment);
 			this.GtkLabel1 = new global::Gtk.Label();
