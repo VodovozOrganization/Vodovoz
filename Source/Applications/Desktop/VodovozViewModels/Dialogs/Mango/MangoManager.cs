@@ -471,16 +471,27 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			{
 				_mangoController.MakeCall(Convert.ToString(this._extensionNumber), to_extension);
 			}
-			catch(HttpException e)
+			catch(Exception e)
 			{
-				if(e.HttpStatusCode == HttpStatusCode.TooManyRequests || e.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
+				var httpException = e.FindExceptionTypeInInner<HttpException>();
+				
+				if(httpException != null)
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+					if(httpException.HttpStatusCode == HttpStatusCode.TooManyRequests || httpException.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+						return;
+					}
+
+					if(httpException.HttpStatusCode == HttpStatusCode.BadGateway)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось подключиться к серверу Манго, попробуйте позднее");
+						return;
+					}
 				}
-				else
-				{
-					throw;
-				}
+
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Произошла ошибка, попробуйте позднее или обратитесь отдел разработки");
+				_logger.LogError(e, "Произошла ошибка при звонке из ДВ");
 			}
 		}
 
