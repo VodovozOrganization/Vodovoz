@@ -92,7 +92,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 					return;
 				}
 
-				_logger.LogInformation("Подготовка к отправке");
+				_logger.LogInformation("Подготовка к отправке. Всего {NotificationsCount}", notificationsToSend.Count());
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
