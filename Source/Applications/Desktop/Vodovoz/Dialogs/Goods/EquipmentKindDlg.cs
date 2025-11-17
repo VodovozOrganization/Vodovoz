@@ -4,6 +4,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Validation;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Domain;
 
 namespace Vodovoz

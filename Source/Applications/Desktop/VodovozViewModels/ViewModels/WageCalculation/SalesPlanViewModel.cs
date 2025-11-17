@@ -13,6 +13,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {

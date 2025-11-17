@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
