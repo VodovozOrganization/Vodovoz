@@ -1,4 +1,4 @@
-namespace Vodovoz.Core.Domain.Edo
+﻿namespace Vodovoz.Core.Domain.Edo
 {
 	public class EquipmentTransferEdoDocument : OutgoingEdoDocument
 	{

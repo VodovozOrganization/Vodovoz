@@ -345,7 +345,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Фиксированные цены")]
-		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
+		public virtual new IList<NomenclatureFixedPrice> NomenclatureFixedPrices
 		{
 			get => _nomenclatureFixedPrices;
 			set => SetField(ref _nomenclatureFixedPrices, value);
