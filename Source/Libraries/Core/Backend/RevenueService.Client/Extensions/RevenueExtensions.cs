@@ -34,11 +34,11 @@ namespace RevenueService.Client.Extensions
 		/// <summary>
 		/// Самая свежая информация о контрагенте 
 		/// </summary>
-		/// <param name="list"></param>
+		/// <param name="counterpartyInfoList"></param>
 		/// <returns></returns>
-		public static CounterpartyRevenueServiceDto GetLastByDateInformation(this IList<CounterpartyRevenueServiceDto> list)
+		public static CounterpartyRevenueServiceDto GetLastByDateInformation(this IList<CounterpartyRevenueServiceDto> counterpartyInfoList)
 		{
-			return list?
+			return counterpartyInfoList?
 				.OrderBy(x => x.StateDate)
 				.LastOrDefault();
 		}

@@ -40,7 +40,7 @@
             <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.0pt</Width>
+            <Width>70.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.0pt</Width>
@@ -67,13 +67,13 @@
             <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.3pt</Width>
+            <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.9pt</Width>
+            <Width>35.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>20.5pt</Width>
+            <Width>40.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -386,7 +386,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Max дней прос-рочки</Value>
+                      <Value>Max дней про-сро-чки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -422,7 +422,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Лик-ви-ди-ро-ван</Value>
+                      <Value>Статус в ФНС</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1100,7 +1100,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>={liquidating_info}</Value>
+                      <Value>={revenue_status}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1125,7 +1125,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>9.7pt</Top>
+        <Top>8.2pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
       </Table>
     </ReportItems>
@@ -1260,13 +1260,18 @@
         c.delay_days_for_buyers,
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
-              WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
+              WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списа-ние"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
          	  ELSE ""
-         	  END as counterparty_debt_type,
-        CASE WHEN c.revenue_status = 'Active' THEN "Нет"
-        	 ELSE "Да"
-        END as liquidating_info
+         	  END as counterparty_debt_type,        
+        CASE c.revenue_status
+              WHEN 'Active' THEN "Дейст-вующий"
+              WHEN 'Liquidating' THEN "Ликвиди-руется"
+              WHEN 'Liquidated' THEN "Ликвиди-рован"
+              WHEN 'Reorganizing' THEN "В проце-ссе присо-единения"
+              WHEN 'Bankrupt' THEN "Банкро-тство"
+              ELSE "Неизвес-тно"
+        END as revenue_status
     FROM orders o
     INNER JOIN counterparty c ON o.client_id = c.id
     LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
@@ -1445,8 +1450,8 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <DataField>counterparty_debt_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="liquidating_info">
-          <DataField>liquidating_info</DataField>
+        <Field Name="revenue_status">
+          <DataField>revenue_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="writeoffs_sum">
@@ -1479,7 +1484,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
