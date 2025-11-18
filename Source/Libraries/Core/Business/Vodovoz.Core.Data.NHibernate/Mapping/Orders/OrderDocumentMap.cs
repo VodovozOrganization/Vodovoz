@@ -1,14 +1,15 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Orders.Documents;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
+namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 {
-	public class OrderDocumentMap : ClassMap<OrderDocument>
+	public class OrderDocumentMap : ClassMap<OrderDocumentEntity>
 	{
 		public OrderDocumentMap()
 		{
 			Table("order_documents");
 			Not.LazyLoad();
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
@@ -17,7 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class OrderM2ProxyMap : SubclassMap<OrderM2Proxy>
+	public class OrderM2ProxyMap : SubclassMap<OrderM2ProxyEntity>
 	{
 		public OrderM2ProxyMap()
 		{
@@ -26,7 +27,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class OrderAgreementMap : SubclassMap<OrderAgreement>
+	public class OrderAgreementMap : SubclassMap<OrderAgreementEntity>
 	{
 		public OrderAgreementMap()
 		{
@@ -35,7 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class OrderContractMap : SubclassMap<OrderContract>
+	public class OrderContractMap : SubclassMap<OrderContractEntity>
 	{
 		public OrderContractMap()
 		{
@@ -44,7 +45,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class BillDocumentMap : SubclassMap<BillDocument>
+	public class BillDocumentMap : SubclassMap<BillDocumentEntity>
 	{
 		public BillDocumentMap()
 		{
@@ -54,7 +55,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class SpecialBillDocumentMap : SubclassMap<SpecialBillDocument>
+	public class SpecialBillDocumentMap : SubclassMap<SpecialBillDocumentEntity>
 	{
 		public SpecialBillDocumentMap()
 		{
@@ -64,7 +65,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class DoneWorkDocumentMap : SubclassMap<DoneWorkDocument>
+	public class DoneWorkDocumentMap : SubclassMap<DoneWorkDocumentEntity>
 	{
 		public DoneWorkDocumentMap()
 		{
@@ -72,7 +73,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class EquipmentTransferDocumentMap : SubclassMap<EquipmentTransferDocument>
+	public class EquipmentTransferDocumentMap : SubclassMap<EquipmentTransferDocumentEntity>
 	{
 		public EquipmentTransferDocumentMap()
 		{
@@ -80,7 +81,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class EquipmentReturnDocumentMap : SubclassMap<EquipmentReturnDocument>
+	public class EquipmentReturnDocumentMap : SubclassMap<EquipmentReturnDocumentEntity>
 	{
 		public EquipmentReturnDocumentMap()
 		{
@@ -89,7 +90,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	}
 
 
-	public class InvoiceBarterDocumentMap : SubclassMap<InvoiceBarterDocument>
+	public class InvoiceBarterDocumentMap : SubclassMap<InvoiceBarterDocumentEntity>
 	{
 		public InvoiceBarterDocumentMap()
 		{
@@ -97,7 +98,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class InvoiceContractDocMap : SubclassMap<InvoiceContractDoc>
+	public class InvoiceContractDocMap : SubclassMap<InvoiceContractDocEntity>
 	{
 		public InvoiceContractDocMap()
 		{
@@ -108,7 +109,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class InvoiceDocumentMap : SubclassMap<InvoiceDocument>
+	public class InvoiceDocumentMap : SubclassMap<InvoiceDocumentEntity>
 	{
 		public InvoiceDocumentMap()
 		{
@@ -119,7 +120,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class UPDDocumentMap : SubclassMap<UPDDocument>
+	public class UPDDocumentMap : SubclassMap<UPDDocumentEntity>
 	{
 		public UPDDocumentMap()
 		{
@@ -127,7 +128,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class SpecialUPDDocumentMap : SubclassMap<SpecialUPDDocument>
+	public class SpecialUPDDocumentMap : SubclassMap<SpecialUPDDocumentEntity>
 	{
 		public SpecialUPDDocumentMap()
 		{
@@ -135,7 +136,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class DriverTicketDocumentMap : SubclassMap<DriverTicketDocument>
+	public class DriverTicketDocumentMap : SubclassMap<DriverTicketDocumentEntity>
 	{
 		public DriverTicketDocumentMap()
 		{
@@ -143,7 +144,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class Torg12DocumentMap : SubclassMap<Torg12Document>
+	public class Torg12DocumentMap : SubclassMap<Torg12DocumentEntity>
 	{
 		public Torg12DocumentMap()
 		{
@@ -151,7 +152,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class ShetFacturaDocumentMap : SubclassMap<ShetFacturaDocument>
+	public class ShetFacturaDocumentMap : SubclassMap<ShetFacturaDocumentEntity>
 	{
 		public ShetFacturaDocumentMap()
 		{
@@ -159,7 +160,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class NomenclatureCertificateDocumentMap : SubclassMap<NomenclatureCertificateDocument>
+	public class NomenclatureCertificateDocumentMap : SubclassMap<NomenclatureCertificateDocumentEntity>
 	{
 		public NomenclatureCertificateDocumentMap()
 		{
@@ -168,7 +169,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class TransportInvoiceDocumentMap : SubclassMap<TransportInvoiceDocument>
+	public class TransportInvoiceDocumentMap : SubclassMap<TransportInvoiceDocumentEntity>
 	{
 		public TransportInvoiceDocumentMap()
 		{
@@ -176,7 +177,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class Torg2DocumentMap : SubclassMap<Torg2Document>
+	public class Torg2DocumentMap : SubclassMap<Torg2DocumentEntity>
 	{
 		public Torg2DocumentMap()
 		{
@@ -184,7 +185,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		}
 	}
 
-	public class AssemblyListDocumentMap : SubclassMap<AssemblyListDocument>
+	public class AssemblyListDocumentMap : SubclassMap<AssemblyListDocumentEntity>
 	{
 		public AssemblyListDocumentMap()
 		{
