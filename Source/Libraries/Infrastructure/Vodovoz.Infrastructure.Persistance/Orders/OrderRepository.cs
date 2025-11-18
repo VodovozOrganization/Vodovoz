@@ -2484,7 +2484,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& orderStatuses.Contains(order.OrderStatus)
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
-						&& counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& !counterpartyTypes.Contains(counterparty.CounterpartyType)
 						&& organization.Id == organizationId
 						&& counterparty.CloseDeliveryDebtType == null
 						&& order.DeliveryDate != null

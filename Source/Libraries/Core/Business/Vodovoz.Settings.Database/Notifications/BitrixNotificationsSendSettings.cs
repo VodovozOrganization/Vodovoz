@@ -21,5 +21,8 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public string BitrixToken =>
 			_settingsController.GetStringValue($"{_parametersPrefix}BitrixToken");
+
+		public TimeSpan ClientTimeout =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ClientTimeout");
 	}
 }
