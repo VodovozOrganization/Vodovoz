@@ -107,6 +107,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
+			if(!rl.Addresses.Any())
+			{
+				AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+			}
+
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -182,6 +187,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			UoW = uow;
 			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
+			
+			if(!FuelDocument.RouteList.Addresses.Any())
+			{
+				AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+			}
+			
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
 			RouteList = FuelDocument.RouteList;
