@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 			IReportInfoFactory reportInfoFactory
 		) : base(rdlViewerViewModel, reportInfoFactory)
 		{
-			Title = "Отчет 'Время доставки";
+			Title = "Отчет \"Время доставки\"";
 
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
