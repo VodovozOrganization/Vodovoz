@@ -21,5 +21,10 @@ namespace Vodovoz.Settings.Notifications
 		/// Токен для доступа к API Битрикс24
 		/// </summary>
 		string BitrixToken { get; }
+
+		/// <summary>
+		/// Таймаут клиента отправки уведомлений в Битрикс24
+		/// </summary>
+		TimeSpan ClientTimeout { get; }
 	}
 }
