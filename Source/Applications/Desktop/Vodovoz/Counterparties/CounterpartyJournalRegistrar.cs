@@ -20,7 +20,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 				.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk =
-					n.IsArhive || n.RevenueStatus != RevenueStatus.Active || !n.Sensitive
+					n.IsArhive || (n.RevenueStatus.HasValue &&  n.RevenueStatus != RevenueStatus.Active) || !n.Sensitive
 					? GdkColors.InsensitiveText
 					: GdkColors.PrimaryText
 				)

@@ -113,7 +113,7 @@ namespace Vodovoz.Application.Clients.Services
 
 		public void StopShipmentsIfNeeded(Counterparty counterparty, Employee employee)
 		{
-			if(counterparty.RevenueStatus == RevenueStatus.Active)
+			if(counterparty.RevenueStatus == null || counterparty.RevenueStatus == RevenueStatus.Active)
 			{
 				return;
 			}

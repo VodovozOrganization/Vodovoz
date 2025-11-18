@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 							&& counterparty.PersonType == PersonType.legal
 							&& !(counterparty.INN == null || counterparty.INN == string.Empty)
 						let selected = !counterparty.IsArchive
-						    && counterparty.RevenueStatus == RevenueStatus.Active
+						    && (counterparty.RevenueStatus == null || counterparty.RevenueStatus == RevenueStatus.Active)
 							&& !string.IsNullOrWhiteSpace(counterparty.INN)
 						select new CounterpartyUpdateRow
 						{

@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		public bool CanManageCachReceipts => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
 
 		public bool CanSaveEntity => CanCloseDelivery
-			&& Entity.RevenueStatus == RevenueStatus.Active
+			&& (Entity.RevenueStatus == null || Entity.RevenueStatus == RevenueStatus.Active)
 			&& ((!string.IsNullOrEmpty(Entity.CloseDeliveryComment) && Entity.IsDeliveriesClosed)
 				|| (string.IsNullOrEmpty(Entity.CloseDeliveryComment) && !Entity.IsDeliveriesClosed));
 
