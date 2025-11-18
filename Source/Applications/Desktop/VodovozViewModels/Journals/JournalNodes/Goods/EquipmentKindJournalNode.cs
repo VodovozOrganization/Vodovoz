@@ -1,7 +1,6 @@
 ﻿using QS.Project.Journal;
 using System;
 using Vodovoz.Core.Domain.BasicHandbooks;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods

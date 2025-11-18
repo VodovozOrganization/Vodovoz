@@ -14,6 +14,7 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Users.Settings;

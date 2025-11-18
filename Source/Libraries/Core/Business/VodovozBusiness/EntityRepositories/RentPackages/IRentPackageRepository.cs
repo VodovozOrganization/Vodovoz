@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Nodes;
 

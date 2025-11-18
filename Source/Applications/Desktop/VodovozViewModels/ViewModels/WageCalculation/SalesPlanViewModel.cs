@@ -7,7 +7,6 @@ using QS.ViewModels;
 using System;
 using System.Linq;
 using QS.Navigation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;

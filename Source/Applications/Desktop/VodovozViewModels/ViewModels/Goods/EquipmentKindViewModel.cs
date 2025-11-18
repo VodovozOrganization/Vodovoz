@@ -4,7 +4,6 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Core.Domain.BasicHandbooks;
-using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
