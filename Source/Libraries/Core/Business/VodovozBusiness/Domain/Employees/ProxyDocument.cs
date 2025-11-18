@@ -78,12 +78,4 @@ namespace Vodovoz.Domain.Employees
 		}
 		#endregion
 	}
-
-	public enum ProxyDocumentType
-	{
-		[Display(Name = "Доверенность на ТС")]
-		CarProxy,
-		[Display(Name = "Доверенность M-2")]
-		M2Proxy
-	}
 }

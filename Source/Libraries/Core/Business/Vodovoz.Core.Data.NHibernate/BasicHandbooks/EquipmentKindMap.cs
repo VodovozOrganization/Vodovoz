@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 {
-	public class EquipmentKindMap : ClassMap<EquipmentKindEntity>
+	public class EquipmentKindMap : ClassMap<EquipmentKind>
 	{
 		public EquipmentKindMap()
 		{
