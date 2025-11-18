@@ -12,7 +12,7 @@ namespace TaxcomEdoApi.Library.Factories
 			var nonformalizedDocument = new NonformalizedDocument
 			{
 				Number = orderInfo.Id.ToString(),
-				Type = DocumentType.Account,
+				Type = DocumentType.Statement,
 				Attachment = new Taxcom.Client.Api.Entity.FileData
 				{
 					Image = data.FileData.Image,

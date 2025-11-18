@@ -23,4 +23,6 @@
       <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
     </ItemGroup>
 
+    <Import Project="..\..\..\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
+
 </Project>

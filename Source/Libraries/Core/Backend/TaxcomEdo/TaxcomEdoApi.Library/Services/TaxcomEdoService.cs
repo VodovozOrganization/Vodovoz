@@ -227,7 +227,7 @@ namespace TaxcomEdoApi.Library.Services
 			var document = _edoEquipmentTransferFactory.CreateEquipmentTransferDocument(data);
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
-			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber) && _apiOptions.SendWarrantWithBillsWithoutShipment) // SendWarrantWithBillsWithoutShipment это что вообще?
+			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
 			{
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,

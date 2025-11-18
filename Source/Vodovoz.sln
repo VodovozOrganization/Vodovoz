@@ -8734,6 +8734,7 @@ Global
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{f8c38dfe-0a13-465a-8049-9a9c184638f5}*SharedItemsImports = 5
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{fe355890-85f8-477d-8e86-b2eee47bbbe0}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

@@ -1,5 +1,4 @@
 ﻿using Core.Infrastructure;
-using Edo.Common;
 using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Converters;
@@ -9,16 +8,15 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 
 namespace Edo.Docflow
 {
@@ -160,72 +158,6 @@ namespace Edo.Docflow
 			await _messageBus.Publish(message);
 		}
 
-		public async Task HandleEquipmentTransfer(int equipmentTransferTaskId, CancellationToken cancellationToken)
-		{
-			var edoTask = await _uow.Session.GetAsync<EquipmentTransferEdoTask>(equipmentTransferTaskId, cancellationToken);
-			if(edoTask == null)
-			{
-				_logger.LogWarning("Задача ЭДО акта №{TaskId} не найдена", equipmentTransferTaskId);
-				return;
-			}
-
-			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.OrderEdoRequest.Order.Id, cancellationToken);
-			if(order == null)
-			{
-				_logger.LogWarning("Заказ для акта приёма-передачи №{DocumentId} не найден", equipmentTransferTaskId);
-				return;
-			}
-
-			var sender = order.Contract.Organization;
-			if(sender.TaxcomEdoSettings == null)
-			{
-				_logger.LogWarning("Настройки ЭДО Такском не найдены для организации отправителя {OrganizationId}", sender.Id);
-				return;
-			}
-
-			try
-			{
-				if(!(order.OrderDocuments
-					.FirstOrDefault(x => x.Type == OrderDocumentType.EquipmentTransfer) is EquipmentTransferDocument equipmentTransferDocument))
-				{
-					_logger.LogWarning("Акт приёма-передачи оборудования для заказа {OrderId} не найден", order.Id);
-					return;
-				}
-
-				var pdfBytes = _printableDocumentSaver.SaveToPdf(equipmentTransferDocument);
-
-				var documentDate = equipmentTransferDocument.DocumentDate ?? order.DeliveryDate ?? order.CreateDate ?? DateTime.Now;
-
-				var fileData = _equipmentTransferFileDataFactory.CreateEquipmentTransferFileData(
-					order.Id.ToString(),
-					documentDate,
-					pdfBytes);
-
-				var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
-
-				var equipmentTransferInfo = _equipmentTransferInfoFactory.CreateInfoForCreatingEdoEquipmentTransfer(
-					orderInfo,
-					fileData);
-
-				var equipmentTransfermessage = new TaxcomDocflowEquipmentTransferSendEvent
-				{
-					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
-					EdoOutgoingDocumentId = equipmentTransferTaskId,
-					DocumentType = EdoDocumentType.EquipmentTransfer,
-					DocumentInfo = equipmentTransferInfo
-				};
-
-				await _messageBus.Publish(equipmentTransfermessage, cancellationToken);
-
-				_logger.LogInformation("Отправка акта приёма-передачи оборудования документа №{DocumentId}", equipmentTransferTaskId);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при отправке акта приёма-передачи оборудования №{DocumentId}", equipmentTransferTaskId);
-				throw;
-			}
-		}
-
 		/// <summary>
 		/// Обработка документа акта приёма-передачи оборудования
 		/// </summary>
@@ -274,7 +206,7 @@ namespace Edo.Docflow
 			try
 			{
 				if(!(order.OrderDocuments
-					.FirstOrDefault(x => x.Type == OrderDocumentType.EquipmentTransfer) is EquipmentTransferDocument equipmentTransferDocument))
+					.FirstOrDefault(x => x.Type == OrderDocumentType.EquipmentTransfer) is EquipmentTransferDocumentEntity equipmentTransferDocument))
 				{
 					_logger.LogWarning($"Акт приёма-передачи оборудования для заказа {order.Id} не найден");
 					return;
@@ -295,6 +227,8 @@ namespace Edo.Docflow
 					orderInfo,
 					fileData);
 
+				var equipmentTransferInfoJson = JsonSerializer.Serialize(equipmentTransferInfo);
+
 				var equipmentTransfermessage = new TaxcomDocflowEquipmentTransferSendEvent
 				{
 					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
@@ -302,6 +236,8 @@ namespace Edo.Docflow
 					DocumentType = EdoDocumentType.EquipmentTransfer,
 					DocumentInfo = equipmentTransferInfo
 				};
+
+				var messageJson = JsonSerializer.Serialize(equipmentTransfermessage);
 
 				await _messageBus.Publish(equipmentTransfermessage, cancellationToken);
 
