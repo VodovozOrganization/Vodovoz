@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
@@ -277,9 +277,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 					case "is_expired":
 						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Просроченные" : "Исключить Просроченные");
 						break;
-					case "is_liquidated":
-						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Ликвидирован" : "Исключить Ликвидирован");
-						break;
 					case "is_tender":
 							filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Тендер" : "Исключить Тендер");
 						break;
@@ -341,6 +338,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 						if(parameter.Value is string[] excludedDebtType && !isReportBySingleCounterpartyDebt)
 						{
 							filtersText.AppendLine($"Искл.типов задолженности: {excludedDebtType.Length}");
+						}
+						break;
+					case "RevenueStatus_include":
+						if(parameter.Value is string[] includedRevenueStatus && !isReportBySingleCounterpartyDebt)
+						{
+							filtersText.AppendLine($"Вкл.статусы в налоговой: {includedRevenueStatus.Length}");
+						}
+						break;
+					case "RevenueStatus_exclude":
+						if(parameter.Value is string[] excludedRevenueStatus&& !isReportBySingleCounterpartyDebt)
+						{
+							filtersText.AppendLine($"Искл.статусы в налоговой: {excludedRevenueStatus.Length}");
 						}
 						break;
 					case "Organization_include":
@@ -489,13 +498,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				{ "Закрывающие документы", "is_closing_documents" },
 				{ "Сети", "is_chain_stores" },
 				{ "Просроченные", "is_expired" },
-				{ "Ликвидирован", "is_liquidated" },
-				{ "Тендер", "is_tender" },
+				{ "Тендер", "is_tender" }
 			};
 
 			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _organizationRepository);
+			
+			includeExludeFiltersViewModel.AddFilter<RevenueStatus>();
 
 			return includeExludeFiltersViewModel;
 		}

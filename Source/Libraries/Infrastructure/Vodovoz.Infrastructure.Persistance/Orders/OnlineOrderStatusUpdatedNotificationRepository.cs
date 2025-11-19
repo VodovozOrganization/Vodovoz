@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -29,22 +30,32 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public OnlineOrderNotificationSetting GetNotificationSetting(IUnitOfWork unitOfWork, ExternalOrderStatus externalOrderStatus)
 		{
-			var notificationSetting = (from  notificationSettings in unitOfWork.Session.Query<OnlineOrderNotificationSetting>()
+			var notificationSetting = (from notificationSettings in unitOfWork.Session.Query<OnlineOrderNotificationSetting>()
 				where notificationSettings.ExternalOrderStatus == externalOrderStatus
 				select notificationSettings)
 				.SingleOrDefault();
 
 			return notificationSetting;
 		}
-
-		public bool HasNotificationSentByOnlineOrder(IUnitOfWork unitOfWork, int onlineOrderId)
+		
+		public bool NeedCreateSendNotificationOfOnlineOrderStatusChanged(IUnitOfWork unitOfWork, OnlineOrder onlineOrder)
 		{
-			var hasNotificationSentByOnlineOrder = (from notification in unitOfWork.Session.Query<OnlineOrderStatusUpdatedNotification>()
-					where notification.OnlineOrder.Id == onlineOrderId
-					select notification.Id)
-				.Any();
+			var notificationSettingForExternalStatus = GetNotificationSetting(unitOfWork, onlineOrder.GetExternalOrderStatus());
+			
+			if(notificationSettingForExternalStatus is null)
+			{
+				return false;
+			}
 
-			return hasNotificationSentByOnlineOrder;
+			var alreadyCreatedNotification =
+				(from notification in unitOfWork.Session.Query<OnlineOrderStatusUpdatedNotification>()
+				 where notification.OnlineOrder.Id == onlineOrder.Id
+				 && notification.SentDate == null
+				 && notification.HttpCode == null
+				 select notification.Id)
+			.Any();
+
+			return !alreadyCreatedNotification;
 		}
 	}
 }

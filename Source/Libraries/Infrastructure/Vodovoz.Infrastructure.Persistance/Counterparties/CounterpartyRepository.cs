@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.HistoryLog.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Payments;
@@ -691,6 +692,45 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			.ToDictionary(
 				x => x.Key,
 				x => x.Distinct().ToArray());
+
+		public IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate, DateTime toDate)
+		{
+			var pathNames = new[]
+			{
+				nameof(Counterparty.CounterpartyType),
+				nameof(Counterparty.IsChainStore),
+				nameof(Counterparty.CloseDeliveryDebtType),
+				nameof(Counterparty.CameFrom),
+				nameof(Counterparty.DelayDaysForBuyers),
+				nameof(Counterparty.RevenueStatus)
+			};
+
+			var counterparties = (from hce in unitOfWork.Session.Query<ChangedEntity>()
+				join hc in unitOfWork.Session.Query<FieldChange>() on hce.Id equals hc.Entity.Id
+				join counterparty in unitOfWork.Session.Query<Counterparty>() on hce.EntityId equals counterparty.Id
+				where
+					counterparty.PersonType == PersonType.legal
+					&& hce.EntityClassName == nameof(Counterparty)
+					&& hce.ChangeTime >= fromDate
+					&& hce.ChangeTime <= toDate
+					&& pathNames.Contains(hc.Path)
+					
+				select new CounterpartyChangesDto
+				{
+					CounterpartyId = counterparty.Id,
+					Inn = counterparty.INN,
+					Kpp = counterparty.KPP,
+					CounterpartyType = counterparty.CounterpartyType,
+					IsChainStore = counterparty.IsChainStore,
+					CloseDeliveryDebtType = counterparty.CloseDeliveryDebtType,
+					CameFrom = counterparty.CameFrom,
+					DelayDaysForBuyers = counterparty.DelayDaysForBuyers,
+					RevenueStatus = counterparty.RevenueStatus
+				})
+				.Distinct();
+
+			return counterparties.ToList();
+		}
 	}
 }
 

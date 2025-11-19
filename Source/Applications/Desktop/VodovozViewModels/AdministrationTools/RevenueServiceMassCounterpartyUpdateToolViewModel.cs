@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 							&& counterparty.PersonType == PersonType.legal
 							&& !(counterparty.INN == null || counterparty.INN == string.Empty)
 						let selected = !counterparty.IsArchive
-							&& !counterparty.IsLiquidating
+						    && (counterparty.RevenueStatus == null || counterparty.RevenueStatus == RevenueStatus.Active)
 							&& !string.IsNullOrWhiteSpace(counterparty.INN)
 						select new CounterpartyUpdateRow
 						{
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 							INN = counterparty.INN,
 							KPP = counterparty.KPP,
 							IsArchive = counterparty.IsArchive,
-							IsLiquidating = counterparty.IsLiquidating,
+							RevenueStatus = counterparty.RevenueStatus,
 							LastSale = latestOrderDate.Value
 						})
 						.ToList();
@@ -190,7 +190,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 
 			public bool IsArchive { get; set; }
 
-			public bool IsLiquidating { get; set; }
+			public RevenueStatus? RevenueStatus { get; set; }
 
 			public DateTime LastSale { get; set; }
 		}

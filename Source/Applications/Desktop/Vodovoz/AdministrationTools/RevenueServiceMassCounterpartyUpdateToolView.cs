@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using System.ComponentModel;
+using Gamma.Utilities;
 using Vodovoz.ViewModels.AdministrationTools;
 using static Vodovoz.ViewModels.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolViewModel;
 
@@ -52,8 +53,8 @@ namespace Vodovoz.AdministrationTools
 				.AddTextRenderer(x => x.KPP)
 				.AddColumn("Архивный")
 				.AddToggleRenderer(x => x.IsArchive).Editing(false)
-				.AddColumn("В статусе ликвидацйии в ФНС")
-				.AddToggleRenderer(x => x.IsLiquidating).Editing(false)
+				.AddColumn("Статус в ФНС")
+				.AddTextRenderer(x => x.RevenueStatus == null ? "Неизвестно" : x.RevenueStatus.GetEnumTitle())
 				.AddColumn("Дата последней продажи")
 				.AddDateRenderer(x => x.LastSale)
 				.AddColumn("")
