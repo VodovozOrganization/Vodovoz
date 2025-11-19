@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using ClosedXML.Report;
 using QS.Commands;
 using QS.Dialog;
@@ -114,14 +114,24 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					select nextCarEvent.CreateDate
 				).FirstOrDefault()
 
-				let confirmedDistance = (
-					from routeList in UoW.Session.Query<RouteList>()
+				let confirmedDistance =
+					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
 					where
 						routeList.Car.Id == carEvent.Car.Id
 						&& routeList.Date >= carEvent.CreateDate.Date
 						&& routeList.Date < nextCalibrationDate.Date
 					select routeList.ConfirmedDistance
-				).Sum()
+				).Sum() ?? 0
+
+				let mileageWriteOffKmSum =
+					(decimal?)(from mileageWriteOff in UoW.Session.Query<MileageWriteOff>()
+					where
+						mileageWriteOff.Car.Id == carEvent.Car.Id
+						&& mileageWriteOff.WriteOffDate != null
+						&& mileageWriteOff.WriteOffDate >= carEvent.CreateDate.Date
+						&& mileageWriteOff.WriteOffDate < nextCalibrationDate.Date
+					select mileageWriteOff.DistanceKm
+					).Sum() ?? 0
 
 				let carFuelConsumption = (
 					from carFuelVersion in UoW.Session.Query<CarFuelVersion>()
@@ -131,15 +141,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					&& (carFuelVersion.EndDate == null || carFuelVersion.EndDate >= nextCalibrationDate.Date)
 					select carFuelVersion.FuelConsumption
 				).FirstOrDefault()
-
-				let litersOperations = (
-					from fuelOperation in UoW.Session.Query<FuelOperation>()
-					join fuelDocument in UoW.Session.Query<FuelDocument>()
-					on fuelOperation.Id equals fuelDocument.FuelOperation.Id
-					where fuelDocument.Date >= carEvent.CreateDate.Date
-					&& fuelDocument.Date <= nextCalibrationDate.Date
-					select fuelOperation.LitersGived - fuelOperation.LitersOutlayed
-				).Sum()
 
 				let nextCalibrationFuelOperation = (
 					from nextCarEvent in UoW.Session.Query<CarEvent>()
@@ -174,11 +175,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					ActualBalance = carEvent.ActualFuelBalance ?? 0,
 					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
-					ConfirmedDistance = confirmedDistance,
+					ConfirmedDistance = confirmedDistance + mileageWriteOffKmSum,
 					Consumption100KmPlan = carFuelConsumption,
 					LastFuelCost = lastFuelCost,
 					NextCalibrationDate = nextCalibrationDate,
-					LitersOperations = litersOperations,
 					NextCalibrationFuelOperation = nextCalibrationFuelOperation
 				}
 			).ToList();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -684,51 +684,34 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void ShowTransferErrors(IEnumerable<Error> errors)
 		{
-			var routeListNotFound = errors
-				.Where(x => x.Code == Errors.Logistics.RouteListErrors.NotFound)
+			var errorCodes = new[]
+			{
+				Errors.Logistics.RouteListErrors.NotFound.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code
+			};
+
+			var errorMessages = errors
+				.Where(x => errorCodes.Contains(x.Code))
 				.Select(x => x.Message)
 				.ToList();
 
-			var transferTypeNotSet = errors
-				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
-				.Select(x => x.Message)
-				.ToList();
-
-			var transferRequiresLoadingWhenRouteListEnRoute = errors
-				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute)
-				.Select(x => x.Message)
-				.ToList();
-
-			var transferNotEnoughFreeBalance = errors
-				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance)
-				.Select(x => x.Message)
-				.ToList();
-
-			var driverApiClientRequestIsNotSuccess = errors
+			var driverApiErrors = errors
 				.Where(x => x.Code == DriverApiClientErrors.RequestIsNotSuccess(x.Message))
-				.Select(x => x.Message)
-				.ToList();
+				.Select(x => x.Message);
 
-			var ordersWithCreatedUpdNeedToReload = errors
-				.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload)
-				.Select(x => x.Message)
-				.ToList();
+			var allMessages = errorMessages.Concat(driverApiErrors).ToList();
 
-			_interactiveService.ShowMessage(ImportanceLevel.Error,
-				"Перенос не был осуществлен:\n" +
-				string.Join(",\n",
-					routeListNotFound) +
-				string.Join(",\n",
-					transferTypeNotSet) +
-				string.Join(",\n",
-					transferRequiresLoadingWhenRouteListEnRoute) +
-				string.Join(",\n",
-					transferNotEnoughFreeBalance) +
-				string.Join(",\n",
-					driverApiClientRequestIsNotSuccess) +
-				string.Join(",\n",
-					ordersWithCreatedUpdNeedToReload),
-				"Ошибка при переносе адресов");
+			if(!allMessages.Any())
+			{
+				return;
+			}
+
+			var errorText = "Перенос не был осуществлен:\n" + string.Join(",\n", allMessages);
+			_interactiveService.ShowMessage(ImportanceLevel.Error, errorText, "Ошибка при переносе адресов");
 		}
 
 		private void ShowTransferWarnings(IEnumerable<Error> errors)

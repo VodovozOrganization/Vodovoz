@@ -1,9 +1,10 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using System.ComponentModel;
+using Gamma.Widgets.Additions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Filters.ViewModels;
@@ -64,9 +65,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active)
 				.InitializeFromSource();
 
-			ycheckbuttonShowLiquidated.Binding
-				.AddBinding(ViewModel, vm => vm.ShowLiquidating, w => w.Active)
+			enumcheckRevenueStatus.EnumType = typeof(RevenueStatus);
+			enumcheckRevenueStatus.Binding
+				.AddBinding(ViewModel, vm => vm.RestrictedRevenueStatuses, w => w.SelectedValuesList, new EnumsListConverter<RevenueStatus>())
 				.InitializeFromSource();
+			enumcheckRevenueStatus.OnlySelectValue(RevenueStatus.Active);
 
 			checkNeedSendEdo.Binding
 				.AddBinding(ViewModel, vm => vm.IsNeedToSendBillByEdo, w => w.Active)

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -380,7 +381,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 					PaymentItemsSum = counterpartyPaymentItemsSum,
 					WriteOffSum = paymentsWriteOffSum,
 					DelayDaysForCounterparty = counterparty.DelayDaysForBuyers,
-					IsLiquidating = counterparty.IsLiquidating,
+					IsLiquidating = counterparty.RevenueStatus != null && (int)counterparty.RevenueStatus != (int)RevenueStatus.Active,
 				};
 
 			var counterpartyPaymentsData =
