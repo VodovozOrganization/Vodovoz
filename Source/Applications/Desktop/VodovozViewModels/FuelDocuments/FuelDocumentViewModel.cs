@@ -107,11 +107,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				throw new ArgumentNullException(nameof(lifetimeScope));
 			}
 
-			if(!rl.Addresses.Any())
-			{
-				AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
-			}
-
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionsRepository = subdivisionsRepository ?? throw new ArgumentNullException(nameof(subdivisionsRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -186,12 +181,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			UoW = uow;
-			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
-			
-			if(!FuelDocument.RouteList.Addresses.Any())
-			{
-				AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
-			}
+			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);		
 			
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
@@ -328,7 +318,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-			if(FuelDocument.Id == 0 && RouteList != null)
+            if(RouteList != null && !RouteList.Addresses.Any())
+            {
+                AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+                return;
+            }
+
+            if(FuelDocument.Id == 0 && RouteList != null)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}

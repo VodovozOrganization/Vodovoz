@@ -446,7 +446,8 @@ namespace Vodovoz.JournalViewModels
 
 			PopupActionsList.Add(new JournalAction(
 				"Выдать топливо",
-				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum))
+					&& selectedItems.All(x => (x as RouteListJournalNode).HasAddresses),
 				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
 				(selectedItems) =>
 				{
