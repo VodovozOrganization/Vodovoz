@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog;
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace ExportTo1c.Library.Exporters
 			_organization = organization ?? throw new ArgumentNullException(nameof(organization));
 			_startDate = startDate;
 			_endDate = endDate;
-			_progressBarDisplayable = progressBarDisplayable ?? throw new ArgumentNullException(nameof(progressBarDisplayable));
+			_progressBarDisplayable = progressBarDisplayable;
 		}
 		public XElement CreateXml(
 			IList<Order> sourceList,
