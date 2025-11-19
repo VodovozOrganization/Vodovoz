@@ -57,7 +57,6 @@ namespace Vodovoz
 		private readonly IConfiguration _configuration;
 		private static IErrorReportingSettings _errorReportingSettings;
 		private readonly IWikiSettings _wikiSettings;
-		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ViewModelWidgetsRegistrar _viewModelWidgetsRegistrar;
 		private static IPasswordValidator passwordValidator;
 
@@ -70,7 +69,6 @@ namespace Vodovoz
 			IConfiguration configuration,
 			IErrorReportingSettings errorReportingSettings,
 			IWikiSettings wikiSettings,
-			ICurrentPermissionService currentPermissionService,
 			ViewModelWidgetsRegistrar viewModelWidgetsRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -79,7 +77,6 @@ namespace Vodovoz
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_errorReportingSettings = errorReportingSettings ?? throw new ArgumentNullException(nameof(errorReportingSettings));
 			_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
-			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_viewModelWidgetsRegistrar = viewModelWidgetsRegistrar ?? throw new ArgumentNullException(nameof(viewModelWidgetsRegistrar));
 		}
 
@@ -248,7 +245,7 @@ namespace Vodovoz
 			var userRepository = AppDIContainer.Resolve<IUserRepository>();
 			if(ChangePassword(applicationConfigurator, userRepository) && CanLogin())
 			{
-				StartMainWindow(LoginDialog.BaseName, settingsController, _currentPermissionService, _wikiSettings);
+				StartMainWindow(LoginDialog.BaseName, settingsController, _wikiSettings);
 			}
 			else
 			{
@@ -339,7 +336,6 @@ namespace Vodovoz
 		private static void StartMainWindow(
 			string loginDialogName,
 			ISettingsController settingsController,
-			ICurrentPermissionService currentPermissionService,
 			IWikiSettings wikiSettings)
 		{
 			//Настрока удаления
@@ -354,7 +350,6 @@ namespace Vodovoz
 			MainWin = new MainWindow(
 				AppDIContainer.Resolve<IInteractiveService>(),
 				AppDIContainer.Resolve<IApplicationInfo>(),
-				currentPermissionService,
 				wikiSettings);
 			
 			MainWin.Configure();

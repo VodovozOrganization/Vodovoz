@@ -53,13 +53,12 @@ public partial class MainWindow : Gtk.Window
 	public MainWindow(
 		IInteractiveService interactiveService,
 		IApplicationInfo applicationInfo,
-		ICurrentPermissionService currentPermissionService,
 		IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
 		ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 		_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
-		CurrentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+		CurrentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 		
 		Build();
 
