@@ -298,6 +298,8 @@ namespace Vodovoz.Views.TrueMark
 					.AddTextRenderer(x => x.ResultIdentificationCode)
 					.Editable(false)
 					.SearchHighlight()
+				.AddColumn("Причина не отсканированных кодов")
+				.AddTextRenderer(x => x.UnscannedCodesReason)
 				.AddColumn("")
 				.Finish();
 			ytreeviewPool.Add(_poolPopup);

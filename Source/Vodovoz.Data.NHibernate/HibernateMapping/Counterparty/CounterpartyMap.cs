@@ -22,7 +22,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
-			Map(x => x.IsLiquidating).Column("is_liquidating");
 			Map(x => x.RevenueStatus).Column("revenue_status");
 			Map(x => x.RevenueStatusDate).Column("revenue_status_date");
 			Map(x => x.OGRN).Column("ogrn");

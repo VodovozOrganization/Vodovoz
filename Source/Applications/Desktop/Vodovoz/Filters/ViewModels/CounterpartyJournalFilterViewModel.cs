@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
+using QS.Utilities.Enums;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -34,7 +35,7 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _counterpartyId;
 		private string _counterpartyContractNumber;
 		private string _counterpartyInn;
-		private bool _showLiquidating;
+		private IList<RevenueStatus> _restrictedRevenueStatuses;
 		private CounterpartyCompositeClassification? _counterpartyClassification;
 		private JournalViewModelBase _journal;
 		private ClientCameFrom _clientCameFrom;
@@ -59,12 +60,14 @@ namespace Vodovoz.Filters.ViewModels
 
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
+			
+			_restrictedRevenueStatuses = EnumHelper.GetValuesList<RevenueStatus>();
 
 			UpdateWith(
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.ShowLiquidating,
+				x => x.RestrictedRevenueStatuses,
 				x => x.Tag,
 				x => x.IsNeedToSendBillByEdo,
 				x => x.CounterpartyClassification);
@@ -97,10 +100,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _restrictIncludeArchive, value);
 		}
 
-		public bool ShowLiquidating
+		public IList<RevenueStatus> RestrictedRevenueStatuses
 		{
-			get => _showLiquidating;
-			set => SetField(ref _showLiquidating, value);
+			get => _restrictedRevenueStatuses;
+			set => SetField(ref _restrictedRevenueStatuses, value);
 		}
 
 		public virtual Tag Tag

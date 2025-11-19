@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.TempAdapters;
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private int _codesRequired;
 		private int _codesProvided;
 		private int _codesProvidedFromScan;
@@ -58,7 +60,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			IGtkTabsOpener gtkTabsOpener,
 			IClipboard clipboard,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
-			INavigationManager navigation
+			INavigationManager navigation,
+			IRouteListItemRepository routeListItemRepository
 			) : base(navigation)
 		{
 			OrderId = orderId;
@@ -67,6 +70,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
@@ -579,13 +583,15 @@ namespace Vodovoz.ViewModels.TrueMark
 		private void ReloadCodesFromPool(IUnitOfWork uow)
 		{
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId);
+			var unscannedReason = _routeListItemRepository.GetUnscannedCodesReason(uow, OrderId);
 			_totalAddedFromPool = poolCodes.Count();
 			_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
 			{
 				SourceCode = x.SourceCode,
 				ResultCode = x.ResultCode,
 				ReplacedFromPool = true,
-				Problem = x.Problem
+				Problem = x.Problem,
+				UnscannedCodesReason = unscannedReason
 			}).ToList();
 		}
 
