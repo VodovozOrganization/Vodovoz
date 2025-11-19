@@ -328,7 +328,11 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
+		public async Task<Result> CompleteOrderDelivery(
+			DateTime actionTime,
+			Employee driver,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			IDriverComplaintInfo driverComplaintInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -397,11 +401,11 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
 			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
@@ -518,13 +522,13 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
-			_uow.Commit();
+			await _uow.CommitAsync();
 
 			return Result.Success();
 		}
