@@ -164,7 +164,7 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel,
 					completedOrderRequestModel);
 
-				unitOfWork.Commit();
+				await unitOfWork.CommitAsync();
 
 				if(result is Result<int>)
 				{
