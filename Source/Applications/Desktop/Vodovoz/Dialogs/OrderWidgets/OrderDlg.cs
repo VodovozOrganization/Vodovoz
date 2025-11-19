@@ -20,6 +20,7 @@ using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
+using NHibernate.Criterion;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -53,6 +54,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Cores;
@@ -671,9 +673,7 @@ namespace Vodovoz
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
-			_orderService = _lifetimeScope.Resolve<IOrderService>();
-			_orderService = _lifetimeScope.Resolve<IOrderService>();
-			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
 			_fastDeliveryHandler = _lifetimeScope.Resolve<IFastDeliveryHandler>();
 			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
