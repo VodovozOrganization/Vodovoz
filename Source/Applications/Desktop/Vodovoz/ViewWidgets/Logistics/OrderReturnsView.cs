@@ -74,6 +74,8 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
+		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -206,6 +208,8 @@ namespace Vodovoz
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentException(nameof(nomenclatureSettings));
+			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
