@@ -27,22 +27,21 @@ namespace VodovozBusiness.Domain.Contacts
 				throw new ArgumentNullException(nameof(phoneRepository));
 			}
 
-			if(PhonePurpose == PhonePurpose.ForReceipts)
+			var context = new ValidationContext(this, new Dictionary<object, object> {
+				{"Reason", nameof(ConfigureValidationContext)}
+			});
+
+			context.InitializeServiceProvider(type =>
 			{
-				if(!(validationContext.GetService(typeof(IUnitOfWorkFactory)) is IUnitOfWorkFactory uowFactory))
+				if(type == typeof(IUnitOfWork))
 				{
-					throw new ArgumentException($"Для валидации должен быть доступен {nameof(IUnitOfWorkFactory)}");
+					return uow;
 				}
 
 				if(type == typeof(IPhoneRepository))
 				{
-					throw new ArgumentException($"Для валидации должен быть доступен репозиторий {nameof(IPhoneRepository)}");
+					return phoneRepository;
 				}
-				
-				var phoneForReceipts = PhonePurpose.ForReceipts.GetEnumTitle();
-				using(var uow = uowFactory.CreateWithoutRoot($"Проверка дублей типов телефонов {phoneForReceipts}"))
-				{
-					var existsForReceipts = phoneRepository.PhoneTypeWithPurposeExists(uow, PhonePurpose.ForReceipts);
 
 				return null;
 			});

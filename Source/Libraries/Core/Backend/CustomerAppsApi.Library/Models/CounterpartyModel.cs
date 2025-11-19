@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CustomerAppsApi.Library.Converters;
+using CustomerAppsApi.Library.Dto.Contacts;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Repositories;
@@ -16,13 +16,14 @@ using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain;
 using Vodovoz.Core.Data.Counterparties;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Errors;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.EntityRepositories.Counterparties;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -40,6 +41,9 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IConfigurationSection _cacheExpirationSection;
 		private readonly ICounterpartyServiceDataHandler _counterpartyServiceDataHandler;
 		private readonly IEmailRepository _emailRepository;
+		private readonly ILinkedLegalCounterpartyEmailToExternalUserRepository _linkedLegalCounterpartyEmailsRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IContactsRepository _contactsRepository;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -51,9 +55,12 @@ namespace CustomerAppsApi.Library.Models
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
 			ICounterpartyEdoAccountController counterpartyEdoAccountController,
-			IConfiguration configuration)
+			IConfiguration configuration,
 			ICounterpartyServiceDataHandler counterpartyServiceDataHandler,
-			IEmailRepository emailRepository)
+			IEmailRepository emailRepository,
+			ILinkedLegalCounterpartyEmailToExternalUserRepository linkedLegalCounterpartyEmailsRepository,
+			ICounterpartyRepository counterpartyRepository,
+			IContactsRepository contactsRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -72,6 +79,10 @@ namespace CustomerAppsApi.Library.Models
 			_counterpartyServiceDataHandler =
 				counterpartyServiceDataHandler ?? throw new ArgumentNullException(nameof(counterpartyServiceDataHandler));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_linkedLegalCounterpartyEmailsRepository =
+				linkedLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(linkedLegalCounterpartyEmailsRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
@@ -352,11 +363,6 @@ namespace CustomerAppsApi.Library.Models
 					null);
 			}
 			
-			if(externalCounterparty.Phone.DigitsNumber != dto.PhoneNumber)
-			{
-				return ("Не совпадает номер телефона у пользователя и который пришел в запросе", null);
-			}
-			
 			var counterparties = _counterpartyServiceDataHandler.GetLegalCustomersByInn(_uow, dto);
 			
 			return (null, counterparties);
@@ -592,18 +598,21 @@ namespace CustomerAppsApi.Library.Models
 			return _counterpartyModelValidator.LinkingEmailToLegalCounterpartyValidate(dto);
 		}
 
-		public Result<string> GetCompanyWithActiveEmail(CompanyWithActiveEmailRequest dto)
+		public Result<CompanyWithActiveEmailResponse> GetCompanyWithActiveEmail(CompanyWithActiveEmailRequest dto)
 		{
-			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
-				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+			var linkedEmails = _linkedLegalCounterpartyEmailsRepository.GetLinkedLegalCounterpartyEmails(_uow, dto.Email);
 
-			if(externalCounterparty is null)
+			if(!linkedEmails.Any())
 			{
-				return Result.Failure<string>(
-					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найден зарегистрированный пользователь"));
+				
 			}
 
-			var emails = 
+			if(linkedEmails.Count() > 1)
+			{
+				
+			}
+			
+			return CompanyWithActiveEmailResponse.Create(linkedEmails.First().LegalCounterpartyId);
 		}
 
 		public Result<string> LinkLegalCounterpartyEmailToExternalUser(LinkingLegalCounterpartyEmailToExternalUser dto)
@@ -660,7 +669,65 @@ namespace CustomerAppsApi.Library.Models
 
 			return Result.Success(emailForLinking.Address);
 		}
-		
+
+		public Result<CompanyInfoResponse> GetCompanyInfo(CompanyInfoRequest dto)
+		{
+			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
+				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
+
+			var naturalCounterpartyId = dto.ErpCounterpartyId;
+
+			if(externalCounterparty is null)
+			{
+				return ("Не найден зарегистрированный пользователь", null);
+			}
+			
+			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, naturalCounterpartyId);
+
+			if(!naturalCounterpartyExists)
+			{
+				return ("Не найдено физическое лицо с таким Id", null);
+			}
+			
+			var registeredCounterpartyId = externalCounterparty.Phone.Counterparty.Id;
+			
+			if(registeredCounterpartyId != dto.ErpCounterpartyId)
+			{
+				return (
+					$"Переданный Id клиента {dto.ErpCounterpartyId} не совпадает с зарегистрированным {registeredCounterpartyId}",
+					null);
+			}
+			
+			var company = _counterpartyRepository.GetLinkedCompany(_uow, externalCounterparty.Id);
+
+			if(company is null)
+			{
+				
+			}
+
+			return company;
+		}
+
+		public Result<LegalCounterpartyContacts> GetLegalCustomerContacts(LegalCounterpartyContactListRequest dto)
+		{
+			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
+
+			if(!legalCounterpartyExists)
+			{
+				return "Не найдено юридическое лицо с таким Id";
+			}
+
+			var phones = _contactsRepository.GetLegalCounterpartyPhones(_uow, dto.ErpCounterpartyId);
+			var emails = _contactsRepository.GetLegalCounterpartyEmails(_uow, dto.ErpCounterpartyId);
+
+			return LegalCounterpartyContacts.Create(phones, emails);
+		}
+
+		public string GetLegalCustomerContactsValidate(LegalCounterpartyContactListRequest dto)
+		{
+			return _counterpartyModelValidator.GetLegalCustomerContactsValidate(dto);
+		}
+
 		private Email CreateNewEmail(string emailAddress, int legalCounterpartyId)
 		{
 			//TODO 5417: какой тип почты по умолчанию для связки

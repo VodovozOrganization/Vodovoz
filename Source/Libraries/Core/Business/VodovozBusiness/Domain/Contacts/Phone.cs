@@ -17,7 +17,6 @@ namespace Vodovoz.Domain.Contacts
 	{
 		private string _number;
 		private string _digitsNumber;
-		private PhoneType _phoneType;
 		private string _comment;
 		private bool _isArchive;
 		private DeliveryPoint _deliveryPoint;
@@ -81,8 +80,6 @@ namespace Vodovoz.Domain.Contacts
 			get => _roboAtsCounterpartyPatronymic;
 			set => SetField(ref _roboAtsCounterpartyPatronymic, value);
 		}
-
-		#endregion
 
 		#region Рассчетные
 

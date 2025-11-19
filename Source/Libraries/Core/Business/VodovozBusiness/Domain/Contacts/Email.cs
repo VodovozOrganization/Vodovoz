@@ -28,5 +28,13 @@ namespace Vodovoz.Domain.Contacts
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
 		}
+
+		public static Email Create(string address, Counterparty counterparty, EmailType emailType) =>
+			new Email
+			{
+				Address = address,
+				Counterparty = counterparty,
+				EmailType = emailType
+			};
 	}
 }

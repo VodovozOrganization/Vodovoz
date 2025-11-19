@@ -43,8 +43,6 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _bottleReserve;
 		private string _oldComments;
 		private string _counterpartyDebt;
-		private readonly IPhoneTypeSettings _phoneTypeSettings;
-		private readonly IPhoneRepository _phoneRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -81,10 +79,6 @@ namespace Vodovoz.ViewModels.Counterparties
 				throw new ArgumentNullException(nameof(deliveryPointViewModelEEVMBuilder));
 			}
 
-			_phoneTypeSettings = phoneTypeSettings
-				?? throw new ArgumentNullException(nameof(phoneTypeSettings));
-			_phoneRepository = phoneRepository
-				?? throw new ArgumentNullException(nameof(phoneRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_callTaskRepository = callTaskRepository

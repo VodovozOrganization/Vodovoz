@@ -80,6 +80,16 @@ namespace CustomerAppsApi.Library.Validators
 			return ValidationResult();
 		}
 
+		public string CompanyInfoRequestDataValidate(CompanyInfoRequest dto)
+		{
+			_sb.Clear();
+
+			ValidateSource(dto.Source);
+			ValidateNaturalCounterpartyId(dto.ErpCounterpartyId);
+
+			return ValidationResult();
+		}
+
 		private void ValidateSource(Source source)
 		{
 			var sourceValue = (int)source;
@@ -169,6 +179,14 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateEmail(dto.Email);
 			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			ValidatePassword(dto.Password);
+			
+			return ValidationResult();
+		}
+
+		public string GetLegalCustomerContactsValidate(LegalCounterpartyContactListRequest dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			
 			return ValidationResult();
 		}

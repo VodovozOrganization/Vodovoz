@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using Vodovoz.Extensions;
 
 namespace CustomerAppsApi.Controllers
@@ -125,7 +123,7 @@ namespace CustomerAppsApi.Controllers
 
 				if(!string.IsNullOrWhiteSpace(result.Message))
 				{
-					_logger.LogInformation(result.Message + "при получении юр лиц по ИНН {INN} от {ExternalCounterpartyId}",
+					_logger.LogInformation("Не смогли получить юр лиц по ИНН {INN} от {ExternalCounterpartyId}",
 						dto.Inn,
 						dto.ExternalCounterpartyId);
 					return BadRequest(result.Message);
@@ -173,7 +171,13 @@ namespace CustomerAppsApi.Controllers
 				}
 				
 				var result = _counterpartyModel.GetCompanyWithActiveEmail(dto);
-				return Ok(result.Data);
+
+				if(result.IsFailure)
+				{
+					
+				}
+				
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
@@ -181,6 +185,55 @@ namespace CustomerAppsApi.Controllers
 					e,
 					"Ошибка при получении Id юр лиц с активной почтой {Email} от пользователя {ExternalCounterpartyId} {Source}",
 					dto.Email,
+					dto.ExternalCounterpartyId,
+					source);
+				
+				return Problem();
+			}
+		}
+		
+		/// <summary>
+		/// Получение основной информации об учетной записи юр. лица или ИП
+		/// </summary>
+		/// <param name="dto">Детали запроса <see cref="CompanyInfoRequest"/></param>
+		/// <returns></returns>
+		[HttpGet]
+		public IActionResult GetCompanyInfo(CompanyInfoRequest dto)
+		{
+			var source = dto.Source.GetEnumDisplayName();
+			
+			_logger.LogInformation(
+				"Поступил запрос на получение данных о юр лице от пользователя {ExternalCounterpartyId} {Source}",
+				dto.ExternalCounterpartyId,
+				source);
+			
+			try
+			{
+				var validationResult = _modelValidator.CompanyInfoRequestDataValidate(dto);
+				
+				if(!string.IsNullOrWhiteSpace(validationResult))
+				{
+					_logger.LogInformation(
+						"Не прошли валидацию при получении данных о юр лице от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						dto.ExternalCounterpartyId,
+						validationResult);
+					return ValidationProblem(validationResult);
+				}
+				
+				var result = _counterpartyModel.GetCompanyInfo(dto);
+
+				if(result.IsFailure)
+				{
+					
+				}
+				
+				return Ok(result.Value);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при получении данных о юр лице от пользователя {ExternalCounterpartyId} {Source}",
 					dto.ExternalCounterpartyId,
 					source);
 				
@@ -338,104 +391,52 @@ namespace CustomerAppsApi.Controllers
 		}
 
 		/// <summary>
-		/// Получение списка телефонов, прикрепленных к юр лицу для возможности заказа в ИПЗ от его имени
+		/// Получение списка контактов юр лица
 		/// </summary>
-		/// <param name="dto">детали запроса <see cref="GetPhonesConnectedToLegalCustomerDto"/></param>
+		/// <param name="dto">Детали запроса <see cref="LegalCounterpartyContactListRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetPhonesConnectedToLegalCustomer(GetPhonesConnectedToLegalCustomerDto dto)
+		public IActionResult GetLegalCounterpartyContactList(LegalCounterpartyContactListRequest dto)
 		{
+			var source = dto.Source.GetEnumDisplayName();
 			_logger.LogInformation(
-				"Поступил запрос на получение телефонов, прикрепленных к юрику с Id: {LegalId} от {NaturalId} ",
-				dto.ErpLegalCounterpartyId,
-				dto.ErpNaturalCounterpartyId
+				"Поступил запрос на получение контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId} {Source}",
+				dto.ErpCounterpartyId,
+				dto.ExternalCounterpartyId,
+				source
 				);
 			
-			return Problem("Функция не реализована");
-			
 			try
 			{
-				var validationResult = _counterpartyModel.GetPhonesConnectedToLegalCustomerValidate(dto);
+				var validationResult = _counterpartyModel.GetLegalCustomerContactsValidate(dto);
 				
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при получению телефонов, прикрепленных к юрику с Id: {LegalId} от {NaturalId}:\n{ValidationResult}",
-						dto.ErpLegalCounterpartyId,
-						dto.ErpNaturalCounterpartyId,
+						"Не прошли валидацию при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						dto.ErpCounterpartyId,
+						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
 				}
 				
-				var result = _counterpartyModel.GetPhonesConnectedToLegalCustomer(dto);
+				var result = _counterpartyModel.GetLegalCustomerContacts(dto);
 				
-				if(!string.IsNullOrWhiteSpace(result.Message))
+				if(result.IsFailure)
 				{
-					return BadRequest(result.Message);
+					return BadRequest(result.Errors.First().Message);
 				}
 				
-				return Ok(result.Data);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при прикреплении физика с Id {NaturalId} к юрику с Id: {LegalId} с {Source}",
-					dto.ErpNaturalCounterpartyId,
-					dto.ErpLegalCounterpartyId,
-					dto.Source.GetEnumDisplayName());
-				return Problem();
-			}
-		}
-
-		/// <summary>
-		/// Обновление связи телефона физика и юр лица (активация или блокировка привязки)
-		/// </summary>
-		/// <param name="dto">детали запроса <see cref="GetPhonesConnectedToLegalCustomerDto"/></param>
-		/// <returns></returns>
-		[HttpPost]
-		public IActionResult UpdateConnectToLegalCustomerByPhone(UpdateConnectToLegalCustomerByPhoneDto dto)
-		{
-			_logger.LogInformation(
-				"Поступил запрос на обновление связи телефона {PhoneId}, прикрепленного к юрику с Id: {LegalId} от {NaturalId} ",
-				dto.ErpPhoneId,
-				dto.ErpLegalCounterpartyId,
-				dto.ErpNaturalCounterpartyId
-			);
-
-			return Problem("Функция не реализована");
-			
-			try
-			{
-				var validationResult = _counterpartyModel.UpdateConnectToLegalCustomerByPhoneValidate(dto);
-				
-				if(!string.IsNullOrWhiteSpace(validationResult))
-				{
-					_logger.LogInformation(
-						"Не прошли валидацию на обновление связи телефона {PhoneId}, прикрепленного к юрику с Id: {LegalId} от {NaturalId}:\n{ValidationResult}",
-						dto.ErpPhoneId,
-						dto.ErpLegalCounterpartyId,
-						dto.ErpNaturalCounterpartyId,
-						validationResult);
-					return ValidationProblem(validationResult);
-				}
-				
-				var result = _counterpartyModel.UpdateConnectToLegalCustomerByPhone(dto);
-				
-				if(!string.IsNullOrWhiteSpace(result))
-				{
-					return BadRequest(result);
-				}
-				
-				return Ok();
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(
-					e,
-					"Ошибка при обновлении связи телефона {PhoneId}, прикрепленного к юрику с Id: {LegalId} от {NaturalId} с {Source}",
-					dto.ErpPhoneId,
-					dto.ErpNaturalCounterpartyId,
-					dto.ErpLegalCounterpartyId,
-					dto.Source.GetEnumDisplayName());
+					e, 
+					"Ошибка при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId} {Source}",
+					dto.ErpCounterpartyId,
+					dto.ExternalCounterpartyId,
+					source);
 				return Problem();
 			}
 		}

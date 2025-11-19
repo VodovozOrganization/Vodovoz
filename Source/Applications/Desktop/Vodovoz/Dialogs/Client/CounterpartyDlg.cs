@@ -41,10 +41,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.Commands;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Nodes;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -69,6 +72,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Nodes;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -98,6 +102,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.EntityRepositories.Counterparties;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
@@ -153,7 +158,6 @@ namespace Vodovoz
 		private IGeneralSettings _generalSettings;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
 		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
-		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
 		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
 		private IConnectedCustomerRepository _connectedCustomerRepository;
@@ -332,7 +336,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			ResolveDependencies();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 			_counterpartySettings = _lifetimeScope.Resolve<ICounterpartySettings>();

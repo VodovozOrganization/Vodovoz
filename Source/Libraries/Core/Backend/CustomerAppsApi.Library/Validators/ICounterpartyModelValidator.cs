@@ -17,6 +17,8 @@ namespace CustomerAppsApi.Library.Validators
 		string ConnectingNewPhoneToLegalCustomerValidate(ConnectingNewPhoneToLegalCustomerDto dto);
 		string GetNaturalCounterpartyLegalCustomersDtoValidate(GetNaturalCounterpartyLegalCustomersDto dto);
 		string CompanyWithActiveEmailRequestDataValidate(CompanyWithActiveEmailRequest dto);
+		string CompanyInfoRequestDataValidate(CompanyInfoRequest dto);
 		string LinkingEmailToLegalCounterpartyValidate(LinkingLegalCounterpartyEmailToExternalUser dto);
+		string GetLegalCustomerContactsValidate(LegalCounterpartyContactListRequest dto);
 	}
 }
