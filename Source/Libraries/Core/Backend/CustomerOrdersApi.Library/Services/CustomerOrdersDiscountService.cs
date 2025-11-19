@@ -81,6 +81,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			var dto = new CanApplyOnlineOrderPromoCode
 			{
+				Source = applyPromoCodeDto.Source,
 				PromoCode =	applyPromoCodeDto.PromoCode,
 				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
 				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId.Value,
