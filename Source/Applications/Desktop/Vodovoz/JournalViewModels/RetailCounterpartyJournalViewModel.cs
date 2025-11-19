@@ -83,9 +83,13 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
+			if(FilterViewModel.RestrictedRevenueStatuses.Any())
 			{
-				query.Where(c => !c.IsLiquidating);
+				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+			}
+			else
+			{
+				query.Where(() => counterpartyAlias.RevenueStatus == null);
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)
@@ -192,7 +196,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 				.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 				.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
-				.Select(c => c.IsLiquidating).WithAlias(() => resultAlias.IsLiquidating)
+				.Select(c => c.RevenueStatus).WithAlias(() => resultAlias.RevenueStatus)
 				.Select(contractsProjection).WithAlias(() => resultAlias.Contracts)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
@@ -237,9 +241,13 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
+			if(FilterViewModel.RestrictedRevenueStatuses.Any())
 			{
-				query.Where(c => !c.IsLiquidating);
+				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+			}
+			else
+			{
+				query.Where(() => counterpartyAlias.RevenueStatus == null);
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)

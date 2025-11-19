@@ -106,7 +106,6 @@ namespace Vodovoz.Core.Domain.Clients
 		private int _technicalProcessingDelay;
 		private CounterpartyType _counterpartyType;
 		private bool _alwaysSendReceipts;
-		private bool _isLiquidating;
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
@@ -290,16 +289,6 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _kPP;
 			set => SetField(ref _kPP, value);
-		}
-
-		/// <summary>
-		/// Контрагент в статусе ликвидации
-		/// </summary>
-		[Display(Name = "Контрагент в статусе ликвидации")]
-		public virtual bool IsLiquidating
-		{
-			get => _isLiquidating;
-			set => SetField(ref _isLiquidating, value);
 		}
 		
 		/// <summary>

@@ -567,7 +567,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -891,7 +891,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     0 AS income,
@@ -1006,7 +1006,7 @@ ORDER BY date DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="income">
           <DataField>income</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1150,7 +1150,7 @@ ORDER BY `date` DESC;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -1285,13 +1285,6 @@ ORDER BY `date` DESC;</CommandText>
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="is_expired">
-      <DataType>Boolean</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="is_liquidated">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>

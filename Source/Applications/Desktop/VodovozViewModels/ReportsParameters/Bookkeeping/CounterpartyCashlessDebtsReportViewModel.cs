@@ -277,9 +277,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 					case "is_expired":
 						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Просроченные" : "Исключить Просроченные");
 						break;
-					case "is_liquidated":
-						filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Ликвидирован" : "Исключить Ликвидирован");
-						break;
 					case "is_tender":
 							filtersText.AppendLine((bool)parameter.Value && !isReportBySingleCounterpartyDebt ? "Только Тендер" : "Исключить Тендер");
 						break;
@@ -501,7 +498,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 				{ "Закрывающие документы", "is_closing_documents" },
 				{ "Сети", "is_chain_stores" },
 				{ "Просроченные", "is_expired" },
-				{ "Ликвидирован", "is_liquidated" },
 				{ "Тендер", "is_tender" }
 			};
 

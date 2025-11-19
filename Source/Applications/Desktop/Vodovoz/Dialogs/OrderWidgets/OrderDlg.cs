@@ -4966,7 +4966,7 @@ namespace Vodovoz
 			yBtnAddCurrentContract.Sensitive = CanEditByPermission;
 
 			if(Entity.CanSetOrderAsAccepted
-				&& (CanFormOrderWithLiquidatedCounterparty || !(Counterparty?.IsLiquidating ?? false)))
+				&& (CanFormOrderWithLiquidatedCounterparty || (Counterparty?.RevenueStatus == null || Counterparty?.RevenueStatus == RevenueStatus.Active)))
 			{
 				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;
