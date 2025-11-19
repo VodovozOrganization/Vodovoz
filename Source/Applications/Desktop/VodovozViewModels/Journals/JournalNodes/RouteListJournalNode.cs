@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public decimal? GrossMarginPercents { get; set; }
 		public decimal RouteListProfitabilityIndicator { get; set; }
 		public decimal RouteListDebt { get; set; }
+		public bool HasAddresses { get; set; }
 
 		public override string Title => $"Маршрутный лист №{Id}";
 	}
