@@ -18,6 +18,8 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.Orders;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Edo.Documents
 {
@@ -65,6 +67,12 @@ namespace Edo.Documents
 
 			var order = documentEdoTask.OrderEdoRequest.Order;
 			var reasonForLeaving = order.Client.ReasonForLeaving;
+
+			order.OrderItems = new ObservableList<OrderItemEntity>(
+				order.OrderItems
+					.Where(x => x.Nomenclature.Category != NomenclatureCategory.deposit)
+					.ToArray()
+			);
 
 			if(reasonForLeaving == ReasonForLeaving.Resale)
 			{

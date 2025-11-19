@@ -197,13 +197,6 @@ namespace EdoDocumentsPreparer
 						x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD))
 					.ToDictionary(x => x.Id);
 
-				foreach(var order in filteredOrdersDictionary.Values)
-				{
-					order.OrderItems = order.OrderItems
-						.Where(x => x.Nomenclature.Category != NomenclatureCategory.deposit)
-						.ToList();
-				}
-
 				_logger.LogInformation(
 					"Всего задач для формирования {Document} и отправки: {BulkAccountingEdoTasksCount}",
 					document,
