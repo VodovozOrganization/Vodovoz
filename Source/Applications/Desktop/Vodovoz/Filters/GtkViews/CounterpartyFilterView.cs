@@ -65,9 +65,12 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active)
 				.InitializeFromSource();
 
+			yhboxRevenueStatus.Binding
+				.AddFuncBinding(ViewModel, vm => vm.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
 			enumcheckRevenueStatus.EnumType = typeof(RevenueStatus);
 			enumcheckRevenueStatus.Binding
-				.AddFuncBinding(ViewModel, vm => vm.PersonType == PersonType.legal, w => w.Visible)
 				.AddBinding(ViewModel, vm => vm.RestrictedRevenueStatuses, w => w.SelectedValuesList, new EnumsListConverter<RevenueStatus>())
 				.InitializeFromSource();
 			enumcheckRevenueStatus.OnlySelectValue(RevenueStatus.Active);
