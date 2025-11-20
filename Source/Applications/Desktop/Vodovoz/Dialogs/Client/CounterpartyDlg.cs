@@ -309,8 +309,11 @@ namespace Vodovoz
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
 		public string RevenueStatusInformation =>
-			$"Статус ликвидации: {(Entity.RevenueStatus.HasValue ? $"{Entity.RevenueStatus.Value.GetEnumDisplayName()} с {Entity.RevenueStatusDate:d}" : "Неизвестен")}";
-		
+			$"Статус ликвидации: " +
+			(Entity.RevenueStatus.HasValue
+				? $"{Entity.RevenueStatus.Value.GetEnumDisplayName()} {(Entity.RevenueStatusDate.HasValue ? $"c {Entity.RevenueStatusDate:d}" : "")}"
+				: "Неизвестен");
+
 		private void ConfigureDlg()
 		{
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
