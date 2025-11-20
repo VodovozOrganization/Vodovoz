@@ -15,6 +15,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Domain;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -48,7 +49,10 @@ namespace Vodovoz.JournalViewModels
 				typeof(CounterpartyContract),
 				typeof(Phone),
 				typeof(Tag),
-				typeof(DeliveryPoint));
+				typeof(DeliveryPoint),
+				typeof(RevenueStatus),
+				typeof(PersonType)
+				);
 
 			SearchEnabled = false;
 		}
@@ -83,13 +87,21 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel.RestrictedRevenueStatuses.Any())
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
 			}
-			else
+
+			if(FilterViewModel.PersonType == PersonType.legal)
 			{
-				query.Where(() => counterpartyAlias.RevenueStatus == null);
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)
@@ -241,13 +253,21 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel.RestrictedRevenueStatuses.Any())
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
 			}
-			else
+
+			if(FilterViewModel.PersonType == PersonType.legal)
 			{
-				query.Where(() => counterpartyAlias.RevenueStatus == null);
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)
