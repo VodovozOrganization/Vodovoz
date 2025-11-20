@@ -24,7 +24,20 @@ FROM (
 
 SELECT      
        nomenclature.name  as  nomenclature_name,
-       SUM(goods_accounting_operations.amount) as oper_sum,
+      SUM(
+		  IF(@measurement_unit = 'Liters',
+		    goods_accounting_operations.amount *
+		      CASE nomenclature.tare_volume
+		        WHEN 'Vol19L' THEN 19
+		        WHEN 'Vol6L' THEN 6
+		        WHEN 'Vol1500ml' THEN 1.5
+		        WHEN 'Vol600ml' THEN 0.6
+		        WHEN 'Vol500ml' THEN 0.5
+		        ELSE 0
+		      END,
+		    goods_accounting_operations.amount
+		  )
+		) as oper_sum,
        YEAR(store_incoming_water.time_stamp) year,
        MONTH(store_incoming_water.time_stamp) month,
        (SELECT name FROM warehouses w WHERE w.id = goods_accounting_operations.warehouse_id) AS warehouse_for_grouping
@@ -43,12 +56,12 @@ FROM nomenclature
 				AND NOT ( goods_accounting_operations.nomenclature_id IN (@Nomenclature_exclude))
          AND
          (0 IN (@Warehouse_include) OR (goods_accounting_operations.warehouse_id  IN (@Warehouse_include)))
-				AND NOT ( goods_accounting_operations.warehouse_id  IN (@Warehouse_exclude))				                 
+				AND NOT ( goods_accounting_operations.warehouse_id  IN (@Warehouse_exclude))			                 
          
          GROUP BY year, month, nomenclature_name, warehouse_for_grouping
 ) t
          
-GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
+GROUP BY t.nomenclature_name, t.warehouse_for_grouping;</CommandText>
         <QueryParameters>
           <QueryParameter Name="month_start">
             <Value>={?month_start}</Value>
@@ -79,6 +92,9 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
           </QueryParameter>
           <QueryParameter Name="Warehouse_exclude">
             <Value>={?Warehouse_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="measurement_unit">
+            <Value>={?measurement_unit}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -128,16 +144,16 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
             <Width>171.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.0pt</Width>
+            <Width>69.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.0pt</Width>
+            <Width>68.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>123.4pt</Width>
+            <Width>108.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.8pt</Width>
+            <Width>102.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.3pt</Width>
@@ -178,7 +194,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>={?month_name_minus_2} + ', шт'</Value>
+                      <Value>={?month_name_minus_2} + ', ' + Iif({?measurement_unit} = 'Liters', 'литров', 'шт')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -199,7 +215,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>={?month_name_minus_1} + ', шт'</Value>
+                      <Value>={?month_name_minus_1} + ', ' + Iif({?measurement_unit} = 'Liters', 'литров', 'шт')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -220,7 +236,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Отклонения от предыдущего месяца, шт</Value>
+                      <Value>= "Отклонения от предыдущего месяца, " + Iif({?measurement_unit} = 'Liters', 'литров', 'шт')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -262,7 +278,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>= {?month_name} + ', шт'</Value>
+                      <Value>= {?month_name} + ', ' + Iif({?measurement_unit} = 'Liters', 'литров', 'шт')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -283,7 +299,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Отклонения от предыдущего месяца, шт</Value>
+                      <Value>= "Отклонения от предыдущего месяца, " +  Iif({?measurement_unit} = 'Liters', 'литров', 'шт')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -374,7 +390,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -396,7 +412,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -418,7 +434,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -463,7 +479,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <BackgroundColor>Khaki</BackgroundColor>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -485,7 +501,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                           <Top>1pt</Top>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -524,7 +540,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression>={warehouse_for_grouping}</GroupExpression>
+                <GroupExpression >={warehouse_for_grouping}</GroupExpression>
               </GroupExpressions>
               <Label>={warehouse_for_grouping}</Label>
             </Grouping>
@@ -643,145 +659,137 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
                 </TableRow>
               </TableRows>
             </Header>
-            <Footer>
+            <Footer >
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>2.5pt</Height>
+                  <Height>.2in</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox8">
+                        <Textbox Name="Textbox28">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
                           </Style>
-                          <Value></Value>
+                          <Value>Итого по производству:</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox9">
+                        <Textbox Name="Textbox30">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({month_minus_2_sum})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox10">
+                        <Textbox Name="Textbox32">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({month_minus_1_sum})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox11">
+                        <Textbox Name="Textbox34">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({month_minus_1_sum}-{month_minus_2_sum})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox12">
+                        <Textbox Name="Textbox35">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>= Sum({month_minus_1_sum}) / Sum({month_minus_2_sum}) * 100 - 100</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox13">
+                        <Textbox Name="Textbox39">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
+                            <BackgroundColor>Khaki</BackgroundColor>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({current_month_sum})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox14">
+                        <Textbox Name="Textbox40">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({current_month_sum}-{month_minus_1_sum})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox15">
+                        <Textbox Name="Textbox41">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
-                              <Top>None</Top>
                             </BorderStyle>
+                            <FontWeight>Bold</FontWeight>
                             <BorderColor />
-                            <BorderWidth>
-                              <Bottom>2pt</Bottom>
-                            </BorderWidth>
+                            <BorderWidth />
+                            <Format>0.00</Format>
                           </Style>
-                          <Value></Value>
+                          <Value>=Sum({current_month_sum}) / Sum({month_minus_1_sum}) * 100 - 100</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -857,7 +865,7 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
@@ -977,6 +985,13 @@ GROUP BY t.nomenclature_name, t.warehouse_for_grouping</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="measurement_unit">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>

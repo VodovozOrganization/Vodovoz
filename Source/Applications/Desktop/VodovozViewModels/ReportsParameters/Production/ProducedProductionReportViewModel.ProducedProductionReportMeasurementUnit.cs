@@ -4,12 +4,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 {
 	public partial class ProducedProductionReportViewModel
 	{
-		public enum ProducedProductionReportMode
+		public enum MeasurementUnit
 		{
-			[Display(Name = "Месяц")]
-			Month,
-			[Display(Name = "Год")]
-			Year
+			[Display(Name = "Штуки")]
+			Item,
+			[Display(Name = "Литры")]
+			Liters
 		}
 	}
 }
