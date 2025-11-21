@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -1001,14 +1001,10 @@ public partial class MainWindow : Window
 	/// <param name="e"></param>
 	private void OnWayBillReportActivated(object sender, EventArgs e)
 	{
-		var scope = Startup.AppDIContainer.BeginLifetimeScope();
-		var viewModel = scope.Resolve<WayBillReportGroupPrint>();
-
-		Startup.MainWin.TdiMain.OpenTab(
-			ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new ReportViewDlg(viewModel));
-
-		viewModel.Destroyed += (_, _2) => scope?.Dispose();
+		NavigationManager.OpenTdiTab<ReportViewDlg>(
+			null,
+			configureTab: vm => (vm.ParametersWidget as WayBillReportGroupPrint).ParentTab = vm,
+			addingRegistrations: builder => builder.RegisterType<WayBillReportGroupPrint>().As<IParametersWidget>());
 	}
 	
 	/// <summary>
