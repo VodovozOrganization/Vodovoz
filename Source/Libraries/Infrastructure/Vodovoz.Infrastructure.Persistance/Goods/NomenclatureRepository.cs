@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Criterion.Lambda;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
@@ -20,6 +21,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Infrastructure.Persistance.Goods
 {
@@ -583,6 +585,44 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.JoinAlias(o => o.Nomenclature, () => nomenclatureAlias)
 				.Where(() => orderItemAlias.Nomenclature.Id == nomenclatureId)
 				.RowCount() > 0;
+		}
+
+		public async Task<IEnumerable<Nomenclature>> GetAvailableForSaleNomenclatures(
+			IUnitOfWork unitOfWork,
+			AvailableForSaleSourceType source,
+			IEnumerable<int> includeNomenclatureIds = null,
+			IEnumerable<int> excludeNomenclatureIds = null,
+			CancellationToken cancellationToken = default)
+		{
+			var categoriesForSale = Nomenclature.GetCategoriesForSale();
+
+			var nomenclatures =
+				from nomenclature in unitOfWork.Session.Query<Nomenclature>()
+				join nop in unitOfWork.Session.Query<NomenclatureOnlineParameters>()
+					on nomenclature.Id equals nop.Nomenclature.Id into nops
+				from nomenclatureOnlineParameter in nops.DefaultIfEmpty()
+				join rmp in unitOfWork.Session.Query<RobotMiaParameters>()
+					on nomenclature.Id equals rmp.NomenclatureId into rmps
+				from robotMiaParameter in rmps.DefaultIfEmpty()
+				where
+					categoriesForSale.Contains(nomenclature.Category)
+					&& (includeNomenclatureIds == null || includeNomenclatureIds.Contains(nomenclature.Id))
+					&& (excludeNomenclatureIds == null || !excludeNomenclatureIds.Contains(nomenclature.Id))
+					&& ((source == AvailableForSaleSourceType.WaterDelivery)
+						|| (source == AvailableForSaleSourceType.MobileApp
+							&& nomenclatureOnlineParameter.Type == GoodsOnlineParameterType.ForMobileApp
+							&& nomenclatureOnlineParameter.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
+						|| (source == AvailableForSaleSourceType.VodovozWebsite
+							&& nomenclatureOnlineParameter.Type == GoodsOnlineParameterType.ForVodovozWebSite
+							&& nomenclatureOnlineParameter.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
+						|| (source == AvailableForSaleSourceType.KulerServiceWebsite
+							&& nomenclatureOnlineParameter.Type == GoodsOnlineParameterType.ForKulerSaleWebSite
+							&& nomenclatureOnlineParameter.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
+						|| (source == AvailableForSaleSourceType.RobotMia
+							&& robotMiaParameter.GoodsOnlineAvailability == GoodsOnlineAvailability.ShowAndSale))
+				select nomenclature;
+
+			return await nomenclatures.ToListAsync(cancellationToken);
 		}
 	}
 }

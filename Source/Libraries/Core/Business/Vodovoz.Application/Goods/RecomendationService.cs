@@ -1,35 +1,35 @@
-﻿using FluentNHibernate.Conventions;
-using MoreLinq;
+﻿using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Nomenclature;
-using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Application.Goods
 {
-	internal sealed class RecomendationService : IRecomendationService
+	internal sealed partial class RecomendationService : IRecomendationService
 	{
 		private readonly IGenericRepository<Recomendation> _recomendationsRepository;
-		private readonly IGenericRepository<Nomenclature> _nomenclaturesRepository;
+		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IRecomendationSettings _recomendationSettings;
 
 		public RecomendationService(
 			IGenericRepository<Recomendation> recomendationsRepository,
-			IGenericRepository<Nomenclature> nomenclaturesRepository,
+			INomenclatureRepository nomenclatureRepository,
 			IRecomendationSettings recomendationSettings)
 		{
 			_recomendationsRepository = recomendationsRepository
 				?? throw new ArgumentNullException(nameof(recomendationsRepository));
-			_nomenclaturesRepository = nomenclaturesRepository
-				?? throw new ArgumentNullException(nameof(nomenclaturesRepository));
+			_nomenclatureRepository = nomenclatureRepository
+				?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_recomendationSettings = recomendationSettings
 				?? throw new ArgumentNullException(nameof(recomendationSettings));
 		}
@@ -46,32 +46,39 @@ namespace Vodovoz.Application.Goods
 				case Source.MobileApp:
 					return GetRecomendationItems(
 						unitOfWork,
-						SourceType.MobileApp,
+						AvailableForSaleSourceType.MobileApp,
 						personType,
 						roomType,
 						excludeNomenclatures,
-						_recomendationSettings.IpzCount);
+						_recomendationSettings.IpzCount)
+						.GetAwaiter()
+						.GetResult();
 				case Source.VodovozWebSite:
 					return GetRecomendationItems(
 						unitOfWork,
-						SourceType.SiteVv,
+						AvailableForSaleSourceType.VodovozWebsite,
 						personType,
 						roomType,
 						excludeNomenclatures,
-						_recomendationSettings.IpzCount);
+						_recomendationSettings.IpzCount)
+						.GetAwaiter()
+						.GetResult();
 				case Source.KulerSaleWebSite:
 					return GetRecomendationItems(
 						unitOfWork,
-						SourceType.SiteKs,
+						AvailableForSaleSourceType.KulerServiceWebsite,
 						personType,
 						roomType,
 						excludeNomenclatures,
-						_recomendationSettings.IpzCount);
+						_recomendationSettings.IpzCount)
+						.GetAwaiter()
+						.GetResult();
 				default:
 					throw new ArgumentOutOfRangeException(nameof(source), $"Неизвестный источник {source}");
 			}
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<RecomendationItem> GetRecomendationItemsForOperator(
 			IUnitOfWork unitOfWork,
 			PersonType personType,
@@ -79,11 +86,13 @@ namespace Vodovoz.Application.Goods
 			IEnumerable<int> excludeNomenclatures) =>
 			GetRecomendationItems(
 				unitOfWork,
-				SourceType.WaterDelivery,
+				AvailableForSaleSourceType.WaterDelivery,
 				personType,
 				roomType,
 				excludeNomenclatures,
-				_recomendationSettings.OperatorCount);
+				_recomendationSettings.OperatorCount)
+			.GetAwaiter()
+			.GetResult();
 
 		public IEnumerable<RecomendationItem> GetRecomendationItemsForRobot(
 			IUnitOfWork unitOfWork,
@@ -92,46 +101,52 @@ namespace Vodovoz.Application.Goods
 			IEnumerable<int> excludeNomenclatures) =>
 			GetRecomendationItems(
 				unitOfWork,
-				SourceType.RobotMia,
+				AvailableForSaleSourceType.RobotMia,
 				personType,
 				roomType,
 				excludeNomenclatures,
-				_recomendationSettings.RobotCount);
+				_recomendationSettings.RobotCount)
+			.GetAwaiter()
+			.GetResult();
 
-		private IEnumerable<RecomendationItem> GetRecomendationItems(
+		private async Task<IEnumerable<RecomendationItem>> GetRecomendationItems(
 			IUnitOfWork unitOfWork,
-			SourceType source,
+			AvailableForSaleSourceType source,
 			PersonType personType,
 			RoomType roomType,
 			IEnumerable<int> excludeNomenclatures,
-			int limit)
+			int limit,
+			CancellationToken cancellationToken = default)
 		{
 			if(limit <= 0)
 			{
 				return Enumerable.Empty<RecomendationItem>();
 			}
 
-			var recomendationData = GetRecomendations(
+			var recomendationData = await GetRecomendations(
 				unitOfWork,
 				personType,
-				roomType);
+				roomType,
+				cancellationToken);
 
-			var recomendationItems = GetRecomendationItems(
+			var recomendationItems = await GetRecomendationItems(
 				unitOfWork,
 				source,
 				excludeNomenclatures,
 				recomendationData,
-				limit);
+				limit,
+				cancellationToken);
 
 			return recomendationItems;
 		}
 
-		private IEnumerable<RecomendationItem> GetRecomendationItems(
+		private async Task<IEnumerable<RecomendationItem>> GetRecomendationItems(
 			IUnitOfWork unitOfWork,
-			SourceType source,
+			AvailableForSaleSourceType source,
 			IEnumerable<int> excludeNomenclatures,
 			RecomendationData recomendationData,
-			int limit)
+			int limit,
+			CancellationToken cancellationToken = default)
 		{
 			var allNomenclaturesInRecomendations = recomendationData
 				.CommonRecomendationItems
@@ -142,52 +157,59 @@ namespace Vodovoz.Application.Goods
 				.Distinct()
 				.ToArray();
 
-			var validNomenclatures = GetSourceValidNomenclatures(
-				unitOfWork,
-				source,
-				excludeNomenclatures,
-				allNomenclaturesInRecomendations)
-				.ToArray();
+			var availableForSaleNomenclatures =
+				await _nomenclatureRepository.GetAvailableForSaleNomenclatures(
+					unitOfWork,
+					source,
+					allNomenclaturesInRecomendations,
+					excludeNomenclatures,
+					cancellationToken);
 
 			var result = new List<RecomendationItem>();
 
+			// Добавляем в первую очередь только одну наиболее приоритетную строку из общей рекомендацию
 			result.AddRange(
 				recomendationData.CommonRecomendationItems
-				.Where(x => validNomenclatures.Any(n => n.Id == x.NomenclatureId))
+				.Where(x => availableForSaleNomenclatures.Any(n => n.Id == x.NomenclatureId))
 				.Take(1));
 
 			var itemsNeeded = limit - result.Count;
 
+			// Добавляем строки рекомендации, соответствующей типу помещения и типу КА
 			result.AddRange(
 				recomendationData.SpecifiedRecomendationItems
-				.Where(x => validNomenclatures.Any(n => n.Id == x.NomenclatureId))
+				.Where(x => availableForSaleNomenclatures.Any(n => n.Id == x.NomenclatureId))
 				.Where(x => !result.Any(ri => ri.NomenclatureId == x.NomenclatureId))
 				.Take(itemsNeeded));
 
 			itemsNeeded = limit - result.Count;
 
+			// Добавляем строки рекомендации, соответствующей типу помещения (общая для всех типов КА)
 			result.AddRange(
 				recomendationData.RoomTypeRecomendationItems
-				.Where(x => validNomenclatures.Any(n => n.Id == x.NomenclatureId))
+				.Where(x => availableForSaleNomenclatures.Any(n => n.Id == x.NomenclatureId))
 				.Where(x => !result.Any(ri => ri.NomenclatureId == x.NomenclatureId))
 				.Take(itemsNeeded));
 
 			itemsNeeded = limit - result.Count;
 
+			// Добавляем строки рекомендации, соответствующей типу КА (общая для всех типов помещений)
 			result.AddRange(
 				recomendationData.PersonTypeRecomendationItems
-				.Where(x => validNomenclatures.Any(n => n.Id == x.NomenclatureId))
+				.Where(x => availableForSaleNomenclatures.Any(n => n.Id == x.NomenclatureId))
 				.Where(x => !result.Any(ri => ri.NomenclatureId == x.NomenclatureId))
 				.Take(itemsNeeded));
 
 			itemsNeeded = limit - result.Count;
 
 			var additionalCommonRecomendationItems = recomendationData.CommonRecomendationItems
-				.Where(x => validNomenclatures.Any(n => n.Id == x.NomenclatureId))
+				.Where(x => availableForSaleNomenclatures.Any(n => n.Id == x.NomenclatureId))
 				.Where(x => !result.Any(ri => ri.NomenclatureId == x.NomenclatureId))
 				.Take(itemsNeeded)
 				.OrderByDescending(x => x.Priority);
 
+			// Если не хватило строк рекомендаций, добавляем дополнительные из общей рекомендации
+			// они будут добавлены сразу после первой общей рекомендации
 			foreach(var item in additionalCommonRecomendationItems)
 			{
 				var startIndex = result.Count == 0 ? 0 : 1;
@@ -197,39 +219,14 @@ namespace Vodovoz.Application.Goods
 			return result;
 		}
 
-		private IEnumerable<Nomenclature> GetSourceValidNomenclatures(
-			IUnitOfWork unitOfWork,
-			SourceType source,
-			IEnumerable<int> excludeNomenclatures,
-			IEnumerable<int> recomendationNomenclatureIds)
-		{
-			var nomenclatures =
-				from n in unitOfWork.Session.Query<Nomenclature>()
-				join nomenclatureOnlineParameter in unitOfWork.Session.Query<NomenclatureOnlineParameters>()
-					on n.Id equals nomenclatureOnlineParameter.Nomenclature.Id into nops
-				from nop in nops.DefaultIfEmpty()
-				join robotMiaParameter in unitOfWork.Session.Query<RobotMiaParameters>()
-					on n.Id equals robotMiaParameter.NomenclatureId into rmps
-				from rmp in rmps.DefaultIfEmpty()
-				where
-					recomendationNomenclatureIds.Contains(n.Id)
-					&& !excludeNomenclatures.Contains(n.Id)
-					&& ((source == SourceType.WaterDelivery)
-						|| (source == SourceType.MobileApp && nop.Type == GoodsOnlineParameterType.ForMobileApp && nop.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
-						|| (source == SourceType.SiteVv && nop.Type == GoodsOnlineParameterType.ForVodovozWebSite && nop.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
-						|| (source == SourceType.SiteKs && nop.Type == GoodsOnlineParameterType.ForKulerSaleWebSite && nop.NomenclatureOnlineAvailability == GoodsOnlineAvailability.ShowAndSale)
-						|| (source == SourceType.RobotMia && rmp.GoodsOnlineAvailability == GoodsOnlineAvailability.ShowAndSale))
-				select n;
-
-			return nomenclatures.ToArray();
-		}
-
-		private RecomendationData GetRecomendations(
+		private async Task<RecomendationData> GetRecomendations(
 			IUnitOfWork unitOfWork,
 			PersonType? personType = null,
-			RoomType? roomType = null)
+			RoomType? roomType = null,
+			CancellationToken cancellationToken = default)
 		{
-			var allRecomendations = GetAllRecomendations(unitOfWork, personType, roomType);
+			var allRecomendations =
+				(await GetAllRecomendations(unitOfWork, personType, roomType, cancellationToken)).Value;
 
 			var commonRecomendation =
 				allRecomendations.FirstOrDefault(x => x.PersonType == null && x.RoomType == null);
@@ -254,72 +251,19 @@ namespace Vodovoz.Application.Goods
 			return result;
 		}
 
-		private IEnumerable<Recomendation> GetAllRecomendations(
+		private async Task<Result<IEnumerable<Recomendation>>> GetAllRecomendations(
 			IUnitOfWork unitOfWork,
 			PersonType? personType = null,
-			RoomType? roomType = null) =>
-			_recomendationsRepository
-				.Get(
+			RoomType? roomType = null,
+			CancellationToken cancellationToken = default) =>
+			await _recomendationsRepository
+				.GetAsync(
 					unitOfWork,
 					x => !x.IsArchive
 					&& ((x.PersonType == null && x.RoomType == null)
 						|| (x.PersonType == personType && x.RoomType == roomType)
 						|| (x.PersonType == personType && x.RoomType == null)
-						|| (x.PersonType == null && x.RoomType == roomType)));
-	}
-
-	public class RecomendationData
-	{
-		public Recomendation CommonRecomendation { get; set; }
-		public Recomendation SpecifiedRecomendation { get; set; }
-		public Recomendation RoomTypeRecomendation { get; set; }
-		public Recomendation PersonTypeRecomendation { get; set; }
-
-		public IEnumerable<RecomendationItem> CommonRecomendationItems =>
-			CommonRecomendation?.Items?
-			.OrderBy(x => x.Priority)
-			.ToArray() ?? Enumerable.Empty<RecomendationItem>();
-
-		public IEnumerable<RecomendationItem> SpecifiedRecomendationItems =>
-			SpecifiedRecomendation?.Items?
-			.OrderBy(x => x.Priority)
-			.ToArray() ?? Enumerable.Empty<RecomendationItem>();
-
-		public IEnumerable<RecomendationItem> RoomTypeRecomendationItems =>
-			RoomTypeRecomendation?.Items?
-			.OrderBy(x => x.Priority)
-			.ToArray() ?? Enumerable.Empty<RecomendationItem>();
-
-		public IEnumerable<RecomendationItem> PersonTypeRecomendationItems =>
-			PersonTypeRecomendation?.Items?
-			.OrderBy(x => x.Priority)
-			.ToArray() ?? Enumerable.Empty<RecomendationItem>();
-	}
-
-	/// <summary>
-	/// Источник запроса рекомендаций
-	/// </summary>
-	public enum SourceType
-	{
-		/// <summary>
-		/// Программа доставки воды
-		/// </summary>
-		WaterDelivery,
-		/// <summary>
-		/// Клиентское мобильное приложение
-		/// </summary>
-		MobileApp,
-		/// <summary>
-		/// Сайт ВВ
-		/// </summary>
-		SiteVv,
-		/// <summary>
-		/// Сайт КС
-		/// </summary>
-		SiteKs,
-		/// <summary>
-		/// Робот Миа
-		/// </summary>
-		RobotMia
+						|| (x.PersonType == null && x.RoomType == roomType)),
+					cancellationToken: cancellationToken);
 	}
 }
