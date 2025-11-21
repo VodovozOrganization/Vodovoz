@@ -96,14 +96,14 @@ namespace Edo.Transfer
 					() => edoTaskItemAlias, JoinType.InnerJoin)
 
 				.JoinEntityAlias(() => trueMarkProductCodeAlias,
-					() => edoTaskItemAlias.ProductCode.Id == trueMarkProductCodeAlias.Id, JoinType.InnerJoin)
+					() => edoTaskItemAlias.ProductCode.Id == trueMarkProductCodeAlias.Id)
 
 				.JoinEntityAlias(() => codeAlias, 
-					() => trueMarkProductCodeAlias.ResultCode.Id == codeAlias.Id, JoinType.InnerJoin)
+					() => trueMarkProductCodeAlias.ResultCode.Id == codeAlias.Id)
 				
 				.Select(p => codeAlias.AsEntity())
 				.Where(() => transferEdoRequestAlias.TransferEdoTask.Id == transferTask.Id)
-				.ListAsync<TrueMarkWaterIdentificationCode>();
+				.ListAsync<TrueMarkWaterIdentificationCode>(cancellationToken);
 
 			return codes;
 		}
