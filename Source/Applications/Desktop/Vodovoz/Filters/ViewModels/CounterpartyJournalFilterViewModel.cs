@@ -42,6 +42,7 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _clientCameFromIsEmpty;
 		private object _selectedCameFrom;
 		private CounterpartyType? _restrictCounterpartyType;
+		private PersonType? _personType;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private readonly ILifetimeScope _lifetimeScope;
 
@@ -68,6 +69,7 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
 				x => x.RestrictedRevenueStatuses,
+				x => x.PersonType,
 				x => x.Tag,
 				x => x.IsNeedToSendBillByEdo,
 				x => x.CounterpartyClassification);
@@ -104,6 +106,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _restrictedRevenueStatuses;
 			set => SetField(ref _restrictedRevenueStatuses, value);
+		}
+
+		public PersonType? PersonType
+		{
+			get => _personType;
+			set => UpdateFilterField(ref _personType, value);
 		}
 
 		public virtual Tag Tag

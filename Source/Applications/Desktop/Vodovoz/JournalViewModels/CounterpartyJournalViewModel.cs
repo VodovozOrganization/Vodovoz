@@ -10,6 +10,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -52,7 +53,9 @@ namespace Vodovoz.JournalViewModels
 				typeof(CounterpartyContract),
 				typeof(Phone),
 				typeof(Tag),
-				typeof(DeliveryPoint)
+				typeof(DeliveryPoint),
+				typeof(RevenueStatus),
+				typeof(PersonType)
 			);
 
 			SearchEnabled = false;
@@ -210,14 +213,22 @@ namespace Vodovoz.JournalViewModels
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
 				query.Where(c => !c.IsArchive);
 			}
-			
-			if(FilterViewModel.RestrictedRevenueStatuses.Any())
+
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
 			}
-			else
+
+			if(FilterViewModel.PersonType == PersonType.legal)
 			{
-				query.Where(() => counterpartyAlias.RevenueStatus == null);
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
@@ -453,13 +464,21 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel.RestrictedRevenueStatuses.Any())
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
 			}
-			else
+
+			if(FilterViewModel.PersonType == PersonType.legal)
 			{
-				query.Where(() => counterpartyAlias.RevenueStatus == null);
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))

@@ -1154,7 +1154,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
@@ -1205,18 +1205,31 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
-        -- Просроченная дебиторская задолженность (сумма долгов с превышением отсрочки)
-                IFNULL(
-                    ROUND(
-                        SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
-                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-                                 FROM order_items oi
-                                 WHERE oi.order_id = o.id)
-                            ELSE 0 END),
-                        2),
-                    0
-                ) AS overdue_debtor_debt,
+        -- Просроченная дебиторская задолженность (сумма заказов с превышением отсрочки минус сумма частичных оплат по этим заказам)
+            (IFNULL(
+                ROUND(
+                    SUM(
+                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                            (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                             FROM order_items oi
+                             WHERE oi.order_id = o.id)
+                        ELSE 0 END),
+                    2),
+                0
+            ) - IFNULL(
+                ROUND(
+                    SUM(
+                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                            (SELECT SUM(cmo.expense)
+			                FROM payment_items pi
+			                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+			                WHERE pi.order_id = o.id
+			                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+                        ELSE 0 END),
+                    2),
+                0
+            )
+            )AS overdue_debtor_debt,
                 -- Дебиторская задолженность (непросроченная, т.е. общий долг минус просроченная)
                 (IFNULL(
                     ROUND(
@@ -1246,17 +1259,30 @@
                           AND cmo.cashless_movement_operation_status != 'Cancelled')),
                     0
                 )) - 
-                IFNULL(
-                    ROUND(
-                        SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
-                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-                                 FROM order_items oi
-                                 WHERE oi.order_id = o.id)
-                            ELSE 0 END),
-                        2),
-                    0
-                ) AS debtor_debt,
+                (IFNULL(
+	                ROUND(
+	                    SUM(
+	                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+	                            (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+	                             FROM order_items oi
+	                             WHERE oi.order_id = o.id)
+	                        ELSE 0 END),
+	                    2),
+	                0
+	            ) - IFNULL(
+	                ROUND(
+	                    SUM(
+	                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+	                            (SELECT SUM(cmo.expense)
+				                FROM payment_items pi
+				                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+				                WHERE pi.order_id = o.id
+				                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+	                        ELSE 0 END),
+	                    2),
+	                0
+	            )
+            ) AS debtor_debt,
         c.delay_days_for_buyers,
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
@@ -1413,7 +1439,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="inn">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>

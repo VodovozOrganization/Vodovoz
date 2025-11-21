@@ -2586,6 +2586,11 @@ namespace Vodovoz
 
 		private bool CheckNeedBillResend()
 		{
+			if(!_orderItemsOriginalValues.Any())
+			{
+				return false;
+			}
+
 			var currentOrderItemsValues = new List<(int Id, decimal Count, decimal Sum)>();
 
 			currentOrderItemsValues.AddRange(GetOrderItemsSmallNodes());
