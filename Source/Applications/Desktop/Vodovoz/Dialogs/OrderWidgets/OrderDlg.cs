@@ -21,6 +21,7 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NHibernate.Criterion;
+using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -53,6 +54,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
@@ -110,6 +112,7 @@ using Vodovoz.Models.Orders;
 using Vodovoz.Presentation.ViewModels.Controls.EntitySelection;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
+using Vodovoz.Presentation.Views.Common;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
@@ -249,6 +252,10 @@ namespace Vodovoz
 
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
+		private readonly IRecomendationService _recomendationService = ScopeProvider.Scope.Resolve<IRecomendationService>();
+
+		private readonly IGenericRepository<Recomendation> _recomendationsRepository = ScopeProvider.Scope.Resolve<IGenericRepository<Recomendation>>();
+		private readonly IGenericRepository<Nomenclature> _nomenclatureGenericRepository = ScopeProvider.Scope.Resolve<IGenericRepository<Nomenclature>>();
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= ScopeProvider.Scope.Resolve<IRentPackagesJournalsViewModelsFactory>();
@@ -5201,6 +5208,136 @@ namespace Vodovoz
 				return;
 			}
 
+			PrepareRecomendationsPage();
+
+			if(dualtreeviewnodestransferview1.ViewModel.LeftItems.Count > 0)
+			{
+				SwitchToRecomendationPage();
+				return;
+			}
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void PrepareRecomendationsPage()
+		{
+			if(Entity.Client is null
+				|| Entity.DeliveryPoint is null)
+			{
+				return;
+			}
+
+			var recomendationItems = _recomendationService.GetRecomendationItemsForOperator(
+				UoW,
+				Entity.Client.PersonType,
+				Entity.DeliveryPoint.RoomType,
+				Entity.OrderItems.Select(x => x.Nomenclature.Id));
+
+			var nomenclaturesIds = recomendationItems.Select(x => x.NomenclatureId).ToArray();
+
+			var nomenclatures = _nomenclatureGenericRepository
+				.Get(UoW, x => nomenclaturesIds.Contains(x.Id))
+				.ToDictionary(x => x.Id, x => x.Name);
+
+			var nomenclaturesToRecommend = new List<RecomendationsForOrderDualListViewModel.LeftNode>();
+
+			foreach(var recomendationItem in recomendationItems)
+			{
+				nomenclaturesToRecommend.Add(new RecomendationsForOrderDualListViewModel.LeftNode
+				{
+					RecomendationId = recomendationItem.RecomendationId,
+					NomenclatureId = recomendationItem.NomenclatureId,
+					NomenclatureName = nomenclatures[recomendationItem.NomenclatureId]
+				});
+			}
+
+			dualtreeviewnodestransferview1.YTreeviewLeft.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.LeftNode>()
+				.AddColumn("Номенклатуры для рекомендации")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.Finish();
+
+			dualtreeviewnodestransferview1.YTreeViewRight.CreateFluentColumnsConfig<RecomendationsForOrderDualListViewModel.RightNode>()
+				.AddColumn("Номенклатура")
+				.AddTextRenderer(x => x.NomenclatureName)
+				.AddColumn("Количество")
+				.AddNumericRenderer(x => x.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+				.Editing(true)
+				.EditedEvent(OnSpinRecomendedItemCountEdited)
+				.AddColumn("Цена")
+				.AddNumericRenderer(x => x.Price)
+				.Editing(false)
+				.AddColumn("Сумма")
+				.AddNumericRenderer(x => x.Sum)
+				.Editing(false)
+				.Finish();
+
+			dualtreeviewnodestransferview1.ViewModel = RecomendationsForOrderDualListViewModel.Create(
+				UoW,
+				_nomenclatureGenericRepository,
+				leftItems: nomenclaturesToRecommend,
+				searchLeftPredicate: (searchText, nomenclature) => nomenclature.NomenclatureName.Contains(searchText),
+				searchRightPredicate: (searchText, orderItem) => orderItem.NomenclatureName.Contains(searchText));
+
+			dualtreeviewnodestransferview1.YTreeViewRight.HeadersVisible = true;
+			dualtreeviewnodestransferview1.YTreeviewLeft.HeadersVisible = true;
+
+			ybtnAddItems.Clicked += OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked += OnSkipRecomendationsClicked;
+		}
+
+		private void OnSpinRecomendedItemCountEdited(object o, EditedArgs args)
+		{
+			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			if(!(node is RecomendationsForOrderDualListViewModel.RightNode rightNode))
+			{
+				return;
+			}
+
+			rightNode.Count = newCount;
+		}
+
+		private void OnSkipRecomendationsClicked(object sender, EventArgs e)
+		{
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void OnAddSelectedRecomendedItemsClicked(object sender, EventArgs e)
+		{
+			ybtnAddItems.Clicked -= OnAddSelectedRecomendedItemsClicked;
+			ybtnSkip.Clicked -= OnSkipRecomendationsClicked;
+
+			var rightNodes = dualtreeviewnodestransferview1.ViewModel.RightItems as IObservableList<RecomendationsForOrderDualListViewModel.RightNode>;
+
+			var nomenclatureIds = rightNodes.Select(x => x.NomenclatureId).ToArray();
+
+			var nomenclatures = _nomenclatureGenericRepository.Get(UoW, x => nomenclatureIds.Contains(x.Id));
+
+			foreach(var item in rightNodes)
+			{
+				Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclatures.FirstOrDefault(x => x.Id == item.NomenclatureId), item.Count, recomendationId: item.RecomendationId);
+			}
+
+			PrepareConfirmationPage();
+			SwitchToConfirmationPage();
+		}
+
+		private void SwitchToRecomendationPage()
+		{
+			ntbOrder.GetNthPage(1).Hide();
+			ntbOrder.GetNthPage(1).Show();
+
+			ntbOrder.CurrentPage = 1;
+		}
+
+		private void PrepareConfirmationPage()
+		{
 			_summaryInfoBuilder.Clear();
 
 			var clientFIO = Counterparty.FullName.ToUpper();
@@ -5358,11 +5495,14 @@ namespace Vodovoz
 			ylblResumeLogisticsRequirementsSummary.Text = logisticsRequirementsSummary;
 
 			_summaryInfoBuilder.Append($"{lblResumeLogisticsRequirements.Text} {logisticsRequirementsSummary}");
+		}
 
-			ntbOrder.GetNthPage(1).Hide();
-			ntbOrder.GetNthPage(1).Show();
+		private void SwitchToConfirmationPage()
+		{
+			ntbOrder.GetNthPage(2).Hide();
+			ntbOrder.GetNthPage(2).Show();
 
-			ntbOrder.CurrentPage = 1;
+			ntbOrder.CurrentPage = 2;
 		}
 
 		private bool CheckDepositOrderCanBeFormed()

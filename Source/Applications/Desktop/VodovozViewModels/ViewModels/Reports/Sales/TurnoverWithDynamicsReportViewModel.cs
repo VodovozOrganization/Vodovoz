@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
@@ -501,6 +502,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_filterViewModel.GetReportParametersSet(out var sb, withCounts: false);
 
+			var sb2 = new StringBuilder();
+
+			GetParameterValues<NomenclatureCategory>(sb2);
+			GetParameterValues<Nomenclature>(sb2);
+			GetParameterValues<ProductGroup>(sb2);
+			GetParameterValues<Counterparty>(sb2);
+			GetParameterValues<Organization>(sb2);
+			GetParameterValues<DiscountReason>(sb2);
+			GetParameterValues<Recomendation>(sb2);
+			GetParameterValues<Subdivision>(sb2);
+			GetParameterValues<Employee>(sb2);
+			GetParameterValues<GeoGroup>(sb2);
+			GetParameterValues<PaymentType>(sb2);
+			GetParameterValues<PromotionalSet>(sb2);
+			GetParameterValues<CounterpartyCompositeClassification>(sb2);
+			GetBoolParamsValues(sb2);
+
+			var filters = sb2.ToString().Trim('\n');
+
 			var selectedGroupings = SelectedGroupings;
 
 			if(!selectedGroupings.Any())
@@ -623,6 +643,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
 			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
 			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
+
+			var recomendationsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Recomendation>>();
+			var includedRecomendations = discountReasonsFilter.GetIncluded().ToArray();
+			var excludedRecomendations = discountReasonsFilter.GetExcluded().ToArray();
 
 			var subdivisionsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Subdivision>>();
 			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
@@ -1176,6 +1200,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			#endregion DiscountReasons
+
+			#region Recomendations
+
+			if(includedRecomendations.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => orderItemAlias.RecomendationId),
+					includedRecomendations));
+			}
+
+			if(excludedRecomendations.Any())
+			{
+				query.Where(Restrictions.Not(Restrictions.In(
+					Projections.Property(() => orderItemAlias.RecomendationId),
+					excludedRecomendations)));
+			}
+
+			#endregion Recomendations
 
 			#region Subdivisions
 

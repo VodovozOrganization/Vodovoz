@@ -1,23 +1,16 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gtk;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
-using Gamma.GtkWidgets;
-using Gtk;
-using QS.Extensions.Observable.Collections.List;
-using QS.ViewModels.Control.EEVM;
-using QS.Views.Control;
-using ReactiveUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views.Common;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Nodes;
 
@@ -213,7 +206,9 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
-			
+
+			recomendationsettingsview1.ViewModel = ViewModel.RecomendationSettingsViewModel;
+
 			yspinbuttonTargetPaymentDeferent.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)

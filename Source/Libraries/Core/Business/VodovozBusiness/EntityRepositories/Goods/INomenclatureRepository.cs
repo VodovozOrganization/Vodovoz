@@ -103,5 +103,16 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// <param name="nomenclatureId">ID номенклатуры</param>
 		/// <returns></returns>
 		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
+
+		/// <summary>
+		/// Возвращает номенклатуры доступные для продажи в зависимости от источника
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="source">UnitOfWork</param>
+		/// <param name="includeNomenclatureIds">Включенные номерклатур</param>
+		/// <param name="excludeNomenclatureIds">Исключенные номенклатуры</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список номенклатур</returns>
+		Task<IEnumerable<Nomenclature>> GetAvailableForSaleNomenclatures(IUnitOfWork unitOfWork, AvailableForSaleSourceType source, IEnumerable<int> includeNomenclatureIds = null, IEnumerable<int> excludeNomenclatureIds = null, CancellationToken cancellationToken = default);
 	}
 }
