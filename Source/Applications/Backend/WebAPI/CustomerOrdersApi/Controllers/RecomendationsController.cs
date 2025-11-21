@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Vodovoz.Results;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace CustomerOrdersApi.Controllers
 {
@@ -25,7 +27,7 @@ namespace CustomerOrdersApi.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult GetRecommendations(GetRecomendationsDto getRecomendationsDto)
+		public async Task<IActionResult> GetRecommendations(GetRecomendationsDto getRecomendationsDto, CancellationToken cancellationToken)
 		{
 			var sourceName = getRecomendationsDto.Source.GetEnumTitle();
 
@@ -43,8 +45,7 @@ namespace CustomerOrdersApi.Controllers
 
 				Logger.LogInformation("Подпись валидна, получаем рекомендации");
 
-				return _customerOrdersService
-					.GetRecomendations(getRecomendationsDto)
+				return (await _customerOrdersService.GetRecomendations(getRecomendationsDto, cancellationToken))
 					.Match<IEnumerable<RecomendationItemDto>, Exception, IActionResult>(
 						recomendations => Ok(recomendations),
 						error =>

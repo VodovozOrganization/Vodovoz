@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Repositories;
@@ -58,6 +59,7 @@ namespace Vodovoz.RobotMia.Api.Controllers.V1
 		/// </summary>
 		/// <param name="getRecomendationsRequest"></param>
 		/// <param name="unitOfWork"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		[HttpGet]
 		[Consumes(MediaTypeNames.Application.Json)]
@@ -65,7 +67,8 @@ namespace Vodovoz.RobotMia.Api.Controllers.V1
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RecomendationItemDto>))]
 		public async Task<IActionResult> GetAsync(
 			GetRecomendationsRequest getRecomendationsRequest,
-			[FromServices] IUnitOfWork unitOfWork)
+			[FromServices] IUnitOfWork unitOfWork,
+			CancellationToken cancellationToken)
 		{
 			var call = await _incomingCallService.GetCallByIdAsync(getRecomendationsRequest.CallId, unitOfWork);
 
@@ -93,12 +96,13 @@ namespace Vodovoz.RobotMia.Api.Controllers.V1
 				return Problem("Точка доставки не найдена", statusCode: StatusCodes.Status404NotFound);
 			}
 
-			var recomendationtems = _recomendationService
+			var recomendationtems = await _recomendationService
 				.GetRecomendationItemsForRobot(
 					unitOfWork,
 					counterparty.PersonType,
 					deliveryPoint.RoomType,
-					getRecomendationsRequest.AddedNomenclatureIds ?? Enumerable.Empty<int>());
+					getRecomendationsRequest.AddedNomenclatureIds ?? Enumerable.Empty<int>(),
+					cancellationToken);
 
 			return Ok(recomendationtems);
 		}

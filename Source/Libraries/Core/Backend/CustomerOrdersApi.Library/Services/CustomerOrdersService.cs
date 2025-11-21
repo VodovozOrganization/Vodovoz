@@ -2,11 +2,12 @@
 using CustomerOrdersApi.Library.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MySqlX.XDevAPI.Common;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods.Recomendations;
@@ -361,6 +362,7 @@ namespace CustomerOrdersApi.Library.Services
 			return _signaturesSection.GetValue<string>(source.ToString());
 		}
 
+		/// <inheritdoc/>
 		public bool ValidateRequestRecomendationsSignature(GetRecomendationsDto getRecomendationsDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getRecomendationsDto.Source);
@@ -378,7 +380,10 @@ namespace CustomerOrdersApi.Library.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<RecomendationItemDto>, Exception> GetRecomendations(GetRecomendationsDto getRecomendationsDto)
+		/// <inheritdoc/>
+		public async Task<Result<IEnumerable<RecomendationItemDto>, Exception>> GetRecomendations(
+			GetRecomendationsDto getRecomendationsDto,
+			CancellationToken cancellationToken = default)
 		{
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Получение рекомендаций");
 
@@ -403,12 +408,13 @@ namespace CustomerOrdersApi.Library.Services
 			var addedNomenclatures = getRecomendationsDto.AddedNomenclatureIds
 				?? Enumerable.Empty<int>();
 
-			var recomendationItems = _recomendationService.GetRecomendationItemsForIpz(
+			var recomendationItems = await _recomendationService.GetRecomendationItemsForIpz(
 				unitOfWork,
 				getRecomendationsDto.Source,
 				counterparty.PersonType,
 				deliveryPoint.RoomType,
-				addedNomenclatures);
+				addedNomenclatures,
+				cancellationToken);
 
 			return Result<IEnumerable<RecomendationItemDto>, Exception>
 				.Success(recomendationItems

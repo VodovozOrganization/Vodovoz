@@ -34,49 +34,57 @@ namespace Vodovoz.Application.Goods
 				?? throw new ArgumentNullException(nameof(recomendationSettings));
 		}
 
-		public IEnumerable<RecomendationItem> GetRecomendationItemsForIpz(
+		/// <inheritdoc/>
+		public async Task<IEnumerable<RecomendationItem>> GetRecomendationItemsForIpz(
 			IUnitOfWork unitOfWork,
 			Source source,
 			PersonType personType,
 			RoomType roomType,
-			IEnumerable<int> excludeNomenclatures)
+			IEnumerable<int> excludeNomenclatures,
+			CancellationToken cancellationToken = default)
 		{
+			AvailableForSaleSourceType availableForSaleSourceType;
+
 			switch(source)
 			{
 				case Source.MobileApp:
-					return GetRecomendationItems(
-						unitOfWork,
-						AvailableForSaleSourceType.MobileApp,
-						personType,
-						roomType,
-						excludeNomenclatures,
-						_recomendationSettings.IpzCount)
-						.GetAwaiter()
-						.GetResult();
+					availableForSaleSourceType = AvailableForSaleSourceType.MobileApp;
+					break;
 				case Source.VodovozWebSite:
-					return GetRecomendationItems(
-						unitOfWork,
-						AvailableForSaleSourceType.VodovozWebsite,
-						personType,
-						roomType,
-						excludeNomenclatures,
-						_recomendationSettings.IpzCount)
-						.GetAwaiter()
-						.GetResult();
+					availableForSaleSourceType = AvailableForSaleSourceType.VodovozWebsite;
+					break;
 				case Source.KulerSaleWebSite:
-					return GetRecomendationItems(
-						unitOfWork,
-						AvailableForSaleSourceType.KulerServiceWebsite,
-						personType,
-						roomType,
-						excludeNomenclatures,
-						_recomendationSettings.IpzCount)
-						.GetAwaiter()
-						.GetResult();
+					availableForSaleSourceType = AvailableForSaleSourceType.KulerServiceWebsite;
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(source), $"Неизвестный источник {source}");
 			}
+
+			return await GetRecomendationItems(
+				unitOfWork,
+				availableForSaleSourceType,
+				personType,
+				roomType,
+				excludeNomenclatures,
+				_recomendationSettings.IpzCount,
+				cancellationToken);
 		}
+
+		/// <inheritdoc/>
+		public async Task<IEnumerable<RecomendationItem>> GetRecomendationItemsForRobot(
+			IUnitOfWork unitOfWork,
+			PersonType personType,
+			RoomType roomType,
+			IEnumerable<int> excludeNomenclatures,
+			CancellationToken cancellationToken = default) =>
+			await GetRecomendationItems(
+				unitOfWork,
+				AvailableForSaleSourceType.RobotMia,
+				personType,
+				roomType,
+				excludeNomenclatures,
+				_recomendationSettings.RobotCount,
+				cancellationToken);
 
 		/// <inheritdoc/>
 		public IEnumerable<RecomendationItem> GetRecomendationItemsForOperator(
@@ -91,21 +99,6 @@ namespace Vodovoz.Application.Goods
 				roomType,
 				excludeNomenclatures,
 				_recomendationSettings.OperatorCount)
-			.GetAwaiter()
-			.GetResult();
-
-		public IEnumerable<RecomendationItem> GetRecomendationItemsForRobot(
-			IUnitOfWork unitOfWork,
-			PersonType personType,
-			RoomType roomType,
-			IEnumerable<int> excludeNomenclatures) =>
-			GetRecomendationItems(
-				unitOfWork,
-				AvailableForSaleSourceType.RobotMia,
-				personType,
-				roomType,
-				excludeNomenclatures,
-				_recomendationSettings.RobotCount)
 			.GetAwaiter()
 			.GetResult();
 
@@ -225,8 +218,15 @@ namespace Vodovoz.Application.Goods
 			RoomType? roomType = null,
 			CancellationToken cancellationToken = default)
 		{
-			var allRecomendations =
-				(await GetAllRecomendations(unitOfWork, personType, roomType, cancellationToken)).Value;
+			var allRecomendationsResult =
+				await GetAllRecomendations(unitOfWork, personType, roomType, cancellationToken);
+
+			if(allRecomendationsResult.IsFailure)
+			{
+				return new RecomendationData();
+			}
+
+			var allRecomendations = allRecomendationsResult.Value;
 
 			var commonRecomendation =
 				allRecomendations.FirstOrDefault(x => x.PersonType == null && x.RoomType == null);

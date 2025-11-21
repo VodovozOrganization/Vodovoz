@@ -1,6 +1,8 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Results;
 
 namespace CustomerOrdersApi.Library.Services
@@ -18,7 +20,21 @@ namespace CustomerOrdersApi.Library.Services
 		void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo);
 		bool TryUpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto);
 		void CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto);
+
+		/// <summary>
+		/// Валидация контрольной суммы, для проверки валидности отправителя
+		/// </summary>
+		/// <param name="getRecomendationsDto">Данные запроса на получение рекомендаций к заказу</param>
+		/// <param name="generatedSignature">Сгенерированная контрольная сумма</param>
+		/// <returns>Результат проверки контрольной суммы</returns>
 		bool ValidateRequestRecomendationsSignature(GetRecomendationsDto getRecomendationsDto, out string generatedSignature);
-		Result<IEnumerable<RecomendationItemDto>, Exception> GetRecomendations(GetRecomendationsDto getRecomendationsDto);
+
+		/// <summary>
+		/// Получение рекомендаций к заказу
+		/// </summary>
+		/// <param name="getRecomendationsDto">Данные запроса на получение рекомендаций к заказу</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список строк рекомендаций</returns>
+		Task<Result<IEnumerable<RecomendationItemDto>, Exception>> GetRecomendations(GetRecomendationsDto getRecomendationsDto, CancellationToken cancellationToken = default);
 	}
 }
