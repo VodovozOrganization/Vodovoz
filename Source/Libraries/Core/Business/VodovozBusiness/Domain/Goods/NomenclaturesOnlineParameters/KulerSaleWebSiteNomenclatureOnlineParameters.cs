@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {

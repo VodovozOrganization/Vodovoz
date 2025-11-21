@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Utilities;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 
@@ -11,72 +11,49 @@ namespace Vodovoz.Domain.Client
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки БА соглашения",
 		Nominative = "строка БА соглашения")]
-	public class FreeRentEquipment : PropertyChangedBase, IDomainObject
+	public class FreeRentEquipment : FreeRentEquipmentEntity
 	{
-		public virtual int Id { get; set; }
+		private FreeRentPackage _freeRentPackage;
+		private Equipment _equipment;
+		private Nomenclature _nomenclature;
 
-		FreeRentPackage freeRentPackage;
-
+		/// <summary>
+		/// Пакет бесплатной аренды
+		/// </summary>
 		[Display (Name = "Пакет бесплатной аренды")]
-		public virtual FreeRentPackage FreeRentPackage {
-			get => freeRentPackage;
-			set => SetField (ref freeRentPackage, value);
+		public virtual new FreeRentPackage FreeRentPackage {
+			get => _freeRentPackage;
+			set => SetField (ref _freeRentPackage, value);
 		}
 
-		Equipment equipment;
-
+		/// <summary>
+		/// Оборудование
+		/// </summary>
 		[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get => equipment;
-			set => SetField (ref equipment, value);
+		public virtual new Equipment Equipment {
+			get => _equipment;
+			set => SetField (ref _equipment, value);
 		}
 
-		Nomenclature nomenclature;
-
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get => nomenclature;
-			set => SetField(ref nomenclature, value);
+		public virtual new Nomenclature Nomenclature {
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
-		int count;
-
-		[Display(Name = "Количество")]
-		public virtual int Count {
-			get => count;
-			set => SetField(ref count, value);
-		}
-
-		Decimal deposit;
-
-		[Display (Name = "Залог")]
-		public virtual Decimal Deposit {
-			get => deposit;
-			set => SetField (ref deposit, value);
-		}
-
-		int waterAmount;
-
-		[Display (Name = "Кол бутылей")]
-		public virtual int WaterAmount {
-			get => waterAmount;
-			set => SetField (ref waterAmount, value);
-		}
-
-		bool isNew;
-
-		public virtual bool IsNew {
-			get => isNew;
-			set => SetField (ref isNew, value);
-		}
-
-		public virtual string PackageName => FreeRentPackage != null ? FreeRentPackage.Name : "";
+		/// <summary>
+		/// Название пакета бесплатной аренды
+		/// </summary>
+		public virtual new string PackageName => FreeRentPackage != null ? FreeRentPackage.Name : "";
 
 		/// <summary>
 		/// Выводит имя из оборудования если посерийный учет, иначе из номенклатуры 
 		/// </summary>
 		/// <value>The name of the equipment.</value>
-		public virtual string EquipmentName { 
+		public virtual new string EquipmentName { 
 			get {
 				if(Equipment != null) {
 					return Equipment.NomenclatureName;
@@ -88,13 +65,25 @@ namespace Vodovoz.Domain.Client
 			} 
 		}
 
-		public virtual string EquipmentSerial => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "";
+		/// <summary>
+		/// Серийный номер оборудования
+		/// </summary>
+		public virtual new string EquipmentSerial => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "";
 
-		public virtual string DepositString => CurrencyWorks.GetShortCurrencyString (Deposit);
+		/// <summary>
+		/// Строковое представление залога
+		/// </summary>
+		public virtual new string DepositString => CurrencyWorks.GetShortCurrencyString(Deposit);
 
-		public virtual string WaterAmountString => String.Format ("{0} " + NumberToTextRus.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount);
+		/// <summary>
+		/// Строковое представление кол-ва бутылей
+		/// </summary>
+		public virtual new string WaterAmountString => $"{WaterAmount} {NumberToTextRus.Case(WaterAmount, "бутыль", "бутыли", "бутылей")}";
 
-		public virtual string Title => String.Format("Бесплатная аренда {0}", EquipmentName);
+		/// <summary>
+		/// Заголовок 
+		/// </summary>
+		public virtual new string Title => $"Бесплатная аренда {EquipmentName}";
 	}
 }
 

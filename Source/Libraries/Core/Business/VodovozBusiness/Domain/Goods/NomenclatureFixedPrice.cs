@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Goods
@@ -10,60 +11,47 @@ namespace Vodovoz.Domain.Goods
 		NominativePlural = "фиксированные цены",
 		Nominative = "фиксированная цена")]
 	[HistoryTrace]
-	public class NomenclatureFixedPrice : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class NomenclatureFixedPrice : NomenclatureFixedPriceEntity, IValidatableObject
 	{
 		private Counterparty _counterparty;
 		private DeliveryPoint _deliveryPoint;
 		private Nomenclature _nomenclature;
-		private decimal _price;
-		private int _minCount;
-		private bool _isEmployeeFixedPrice;
 
-		public virtual int Id { get; set; }
-
+		/// <summary>
+		/// Контрагент
+		/// </summary>
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty
+		public virtual new Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
 		}
 
+		/// <summary>
+		/// точка доставки
+		/// </summary>
 		[Display(Name = "Точка доставки")]
-		public virtual DeliveryPoint DeliveryPoint
+		public virtual new DeliveryPoint DeliveryPoint
 		{
 			get => _deliveryPoint;
 			set => SetField(ref _deliveryPoint, value);
 		}
 
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual new Nomenclature Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
 		}
 
-		[Display(Name = "Цена")]
-		public virtual decimal Price
-		{
-			get => _price;
-			set => SetField(ref _price, value);
-		}
-
-		[Display(Name = "Минимальное количество")]
-		public virtual int MinCount
-		{
-			get => _minCount;
-			set => SetField(ref _minCount, value);
-		}
-		
-		[Display(Name = "Фикса сотрудника")]
-		public virtual bool IsEmployeeFixedPrice
-		{
-			get => _isEmployeeFixedPrice;
-			set => SetField(ref _isEmployeeFixedPrice, value);
-		}
-
-		public virtual string Title
+		/// <summary>
+		/// Заголовок
+		/// </summary>
+		[Display(Name = "Заголовок")]
+		public virtual new string Title
 		{
 			get
 			{
@@ -76,7 +64,12 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public static NomenclatureFixedPrice CreateEmployeeFixedPrice(INamedDomainObject namedDomainObject)
+		/// <summary>
+		/// Создать фиксированную цену для сотрудника
+		/// </summary>
+		/// <param name="namedDomainObject"></param>
+		/// <returns></returns>
+		public static new NomenclatureFixedPrice CreateEmployeeFixedPrice(INamedDomainObject namedDomainObject)
 		{
 			return new NomenclatureFixedPrice
 			{

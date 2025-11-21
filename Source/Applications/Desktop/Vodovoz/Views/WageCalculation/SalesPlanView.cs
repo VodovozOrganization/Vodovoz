@@ -2,7 +2,7 @@
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation;

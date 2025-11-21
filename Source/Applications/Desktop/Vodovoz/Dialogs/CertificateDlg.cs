@@ -13,6 +13,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using QS.Project.Services;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.Core.Domain;
 
 namespace Vodovoz.Dialogs
 {

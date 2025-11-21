@@ -1,5 +1,5 @@
 ﻿using Gamma.Utilities;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.NomenclaturePlanReport
 {

@@ -7,6 +7,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees

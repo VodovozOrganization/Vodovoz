@@ -1,9 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.Domain.Client
@@ -174,31 +175,5 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-	}
-
-	public enum AgreementType
-	{
-		[Display (Name = "Долгосрочная аренда")]
-		NonfreeRent,
-		[Display (Name = "Посуточная аренда")]
-		DailyRent,
-		[Display (Name = "Бесплатная аренда")]
-		FreeRent,
-		[Display (Name = "Продажа воды")]
-		WaterSales,
-		[Display (Name = "Продажа оборудования")]
-		EquipmentSales,
-		[Display (Name = "Ремонт")]
-		Repair
-	}
-
-	public enum RentType
-	{
-		[Display (Name = "Долгосрочная аренда")]
-		NonfreeRent,
-		[Display (Name = "Посуточная аренда")]
-		DailyRent,
-		[Display (Name = "Бесплатная аренда")]
-		FreeRent
 	}
 }

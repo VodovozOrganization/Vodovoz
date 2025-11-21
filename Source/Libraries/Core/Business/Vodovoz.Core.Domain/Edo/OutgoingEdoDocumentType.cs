@@ -3,6 +3,7 @@
 	public enum OutgoingEdoDocumentType
 	{
 		Transfer,
-		Order
+		Order,
+		EquipmentTransfer
 	}
 }

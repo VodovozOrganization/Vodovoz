@@ -4,7 +4,7 @@ using Gtk;
 using QS.Navigation;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Orders;

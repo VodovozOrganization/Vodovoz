@@ -6,7 +6,8 @@ using QS.Print;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Client;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Counterparties;
 

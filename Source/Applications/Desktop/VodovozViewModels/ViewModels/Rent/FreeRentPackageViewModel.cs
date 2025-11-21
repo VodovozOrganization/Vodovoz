@@ -8,12 +8,12 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.EntityRepositories.RentPackages;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {

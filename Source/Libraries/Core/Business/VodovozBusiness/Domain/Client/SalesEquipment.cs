@@ -1,6 +1,6 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
@@ -8,47 +8,29 @@ namespace Vodovoz.Domain.Client
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "оборудование для продажи",
 		Nominative = "оборудование для продажи")]
-	public class SalesEquipment : PropertyChangedBase, IDomainObject
+	public class SalesEquipment : SalesEquipmentEntity
 	{
-		public virtual int Id { get; set; }
+		private AdditionalAgreement _additionalAgreement;
+		private Nomenclature _nomenclature;
 
-		public virtual string Title {
-			get {
-				return $"{Nomenclature.Name} - {Price}";
-			}
-		}
-
-		AdditionalAgreement additionalAgreement;
-
+		/// <summary>
+		/// Соглашение
+		/// </summary>
 		[Display(Name = "Соглашение")]
-		public virtual AdditionalAgreement AdditionalAgreement {
-			get { return additionalAgreement; }
-			set { SetField(ref additionalAgreement, value, () => AdditionalAgreement); }
+		public virtual new AdditionalAgreement AdditionalAgreement
+		{
+			get => _additionalAgreement;
+			set => SetField(ref _additionalAgreement, value, () => AdditionalAgreement);
 		}
 
-		Nomenclature nomenclature;
-
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+		public virtual new Nomenclature Nomenclature
+		{
+				get => _nomenclature;
+				set => SetField(ref _nomenclature, value, () => Nomenclature);
 		}
-
-		Decimal price;
-
-		[Display(Name = "Цена")]
-		public virtual Decimal Price {
-			get { return price; }
-			set { SetField(ref price, value, () => Price); }
-		}
-
-		int count;
-
-		[Display(Name = "Количество")]
-		public virtual int Count {
-			get { return count; }
-			set { SetField(ref count, value, () => Count); }
-		}
-
 	}
 }

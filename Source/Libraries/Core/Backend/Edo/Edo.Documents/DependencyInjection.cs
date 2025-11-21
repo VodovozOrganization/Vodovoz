@@ -19,6 +19,7 @@ namespace Edo.Documents
 			services.TryAddScoped<DocumentEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedDocumentEdoTaskHandler>();
 			services.TryAddScoped<ForResaleDocumentEdoTaskHandler>();
+			services.TryAddScoped<EquipmentTransferEdoTaskHandler>();
 
 			services.AddEdo();
 			services.AddCodesPool();

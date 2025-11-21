@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Nodes;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client
+namespace Vodovoz.Core.Domain.Clients
 {
 	public enum TemplateType
 	{

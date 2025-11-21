@@ -1,6 +1,6 @@
 ﻿using QS.Dialog;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 

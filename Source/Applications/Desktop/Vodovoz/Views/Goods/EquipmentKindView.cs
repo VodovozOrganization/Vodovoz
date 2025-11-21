@@ -2,7 +2,7 @@
 using Gamma.Utilities;
 using QS.Navigation;
 using QS.Views.GtkUI;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.Views.Goods

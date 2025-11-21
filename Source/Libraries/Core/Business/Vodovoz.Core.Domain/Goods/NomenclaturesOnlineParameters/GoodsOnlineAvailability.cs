@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
+namespace Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters
 {
+	/// <summary>
+	/// Доступность товара в интернет магазине
+	/// </summary>
 	public enum GoodsOnlineAvailability
 	{
 		[Display(Name = "Передавать и продавать")]

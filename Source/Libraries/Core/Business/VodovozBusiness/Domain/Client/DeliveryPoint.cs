@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Factories;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client
@@ -91,7 +90,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty
+		public virtual new Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
@@ -133,7 +132,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Фиксированные цены")]
-		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
+		public virtual new IList<NomenclatureFixedPrice> NomenclatureFixedPrices
 		{
 			get => _nomenclatureFixedPrices;
 			set => SetField(ref _nomenclatureFixedPrices, value);

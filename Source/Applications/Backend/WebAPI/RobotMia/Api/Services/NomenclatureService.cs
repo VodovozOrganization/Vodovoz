@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.RobotMia.Contracts.Responses.V1;
@@ -69,7 +70,7 @@ namespace Vodovoz.RobotMia.Api.Services
 						Id = nomenclature.Id,
 						ShortName = nomenclature.ShortName,
 						Price = nomenclature.GetPrice(1),
-						CanSale = parameters.First(x => x.NomenclatureId == nomenclature.Id).GoodsOnlineAvailability == Domain.Goods.NomenclaturesOnlineParameters.GoodsOnlineAvailability.ShowAndSale,
+						CanSale = parameters.First(x => x.NomenclatureId == nomenclature.Id).GoodsOnlineAvailability == GoodsOnlineAvailability.ShowAndSale,
 						SlangWords = parameters.First(x => x.NomenclatureId == nomenclature.Id).SlangWords.Select(s => s.Word)
 					});
 				}
