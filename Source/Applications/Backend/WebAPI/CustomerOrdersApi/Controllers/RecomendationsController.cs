@@ -11,6 +11,9 @@ using System.Threading;
 
 namespace CustomerOrdersApi.Controllers
 {
+	/// <summary>
+	/// Контроллер рекомендованных товаров
+	/// </summary>
 	[Route("api/[controller]")]
 	[ApiController]
 	public class RecomendationsController : SignatureControllerBase
@@ -26,6 +29,12 @@ namespace CustomerOrdersApi.Controllers
 				?? throw new ArgumentNullException(nameof(customerOrdersService));
 		}
 
+		/// <summary>
+		/// Получение списка рекомендованных товаров
+		/// </summary>
+		/// <param name="getRecomendationsDto"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
 		[HttpGet]
 		public async Task<IActionResult> GetRecommendations(GetRecomendationsDto getRecomendationsDto, CancellationToken cancellationToken)
 		{
