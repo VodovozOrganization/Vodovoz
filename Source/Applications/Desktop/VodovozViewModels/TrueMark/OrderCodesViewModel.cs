@@ -585,14 +585,35 @@ namespace Vodovoz.ViewModels.TrueMark
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId);
 			var unscannedReason = _routeListItemRepository.GetUnscannedCodesReason(uow, OrderId);
 			_totalAddedFromPool = poolCodes.Count();
-			_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
+
+			if(poolCodes.Any())
 			{
-				SourceCode = x.SourceCode,
-				ResultCode = x.ResultCode,
-				ReplacedFromPool = true,
-				Problem = x.Problem,
-				UnscannedCodesReason = unscannedReason
-			}).ToList();
+				_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					ReplacedFromPool = true,
+					Problem = x.Problem,
+					UnscannedCodesReason = unscannedReason
+				}).ToList();
+			}
+			else
+			{
+				if(!string.IsNullOrWhiteSpace(unscannedReason))
+				{
+					_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>
+					{
+						new OrderCodeItemViewModel
+						{
+							UnscannedCodesReason = unscannedReason
+						}
+					};
+				}
+				else
+				{
+					_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>();
+				}
+			}
 		}
 
 		private  void FilterCodes()
