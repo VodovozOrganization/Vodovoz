@@ -216,6 +216,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(Organization == null)
+			{
+				yield return new ValidationResult(
+					"Необходимо заполнить организацию.",
+					new[] { nameof(Organization) }
+				);
+			}
+
 			if (Client == null)
 				yield return new ValidationResult(
 					"Необходимо заполнить контрагента.",

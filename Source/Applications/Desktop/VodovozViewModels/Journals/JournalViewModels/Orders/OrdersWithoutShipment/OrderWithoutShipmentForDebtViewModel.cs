@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -146,12 +146,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() =>
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-					
-					if(Entity.Organization == null)
-					{
-						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
-						return;
-					}
 					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForDebt), whatToPrint))
 					{
