@@ -58,6 +58,7 @@ namespace Mango.Api.Controllers
 			try
 			{
 				var call = JsonSerializer.Deserialize<MangoCallEvent>(json);
+				_logger.LogInformation("Пришла информация о звонке: {CallId}", call.CallId);
 				await _messageBus.Publish(call);
 			}
 			catch(JsonException ex)
@@ -91,6 +92,7 @@ namespace Mango.Api.Controllers
 			try
 			{
 				var summary = JsonSerializer.Deserialize<MangoSummaryEvent>(json);
+				_logger.LogInformation("Пришла обобщающая информация о звонке от {CallFrom} к {CallTo}", summary.From, summary.To);
 				await _messageBus.Publish(summary);
 			}
 			catch(JsonException ex)
