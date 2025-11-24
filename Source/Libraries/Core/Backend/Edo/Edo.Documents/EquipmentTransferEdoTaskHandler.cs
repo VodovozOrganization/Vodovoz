@@ -31,9 +31,9 @@ namespace Edo.Documents
 		/// <param name="equipmentTransferEdoTaskId"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public async Task SendTransferDocument(int equipmentTransferEdoTaskId, CancellationToken cancellationToken)
+		public async Task SendEquipmentTransferDocument(int equipmentTransferEdoTaskId, CancellationToken cancellationToken)
 		{
-			var customerDocument = await SendEquipmentTransferDocument(equipmentTransferEdoTaskId, cancellationToken);
+			var customerDocument = await CreateEquipmentTransferDocument(equipmentTransferEdoTaskId, cancellationToken);
 			var edoTask = await _uow.Session.GetAsync<EquipmentTransferEdoTask>(equipmentTransferEdoTaskId, cancellationToken);
 			var message = new EquipmentTransferDocumentSendEvent { EquipmentTransferDocumentId = customerDocument.Id };
 
@@ -45,7 +45,7 @@ namespace Edo.Documents
 			await _messageBus.Publish(message, cancellationToken);
 		}
 
-		private async Task<EquipmentTransferEdoDocument> SendEquipmentTransferDocument(int edoTaskId, CancellationToken cancellationToken)
+		private async Task<EquipmentTransferEdoDocument> CreateEquipmentTransferDocument(int edoTaskId, CancellationToken cancellationToken)
 		{
 			var customerEdoDocument = new EquipmentTransferEdoDocument
 			{

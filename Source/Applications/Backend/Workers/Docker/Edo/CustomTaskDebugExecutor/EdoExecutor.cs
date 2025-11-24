@@ -5,8 +5,10 @@ using Edo.Documents;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
 using Edo.Scheduler.Service;
+using Edo.Tender;
 using Edo.Transfer.Dispatcher;
 using Edo.Transfer.Sender;
+using Edo.Withdrawal;
 using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,10 +18,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Tender;
-using Edo.Withdrawal;
 using Taxcom.Docflow.Utility;
-using Edo.EquipmentTransfer;
 
 namespace CustomTaskDebugExecutor
 {
@@ -188,7 +187,7 @@ namespace CustomTaskDebugExecutor
 					await ReceiveWithdrawalCreateEvent(cancellationToken);
 					break;
 				case 21:
-					await HandleEquipmentTransferTask(cancellationToken);
+					await ReceiveInformalEdoRequestCreatedEvent(cancellationToken);
 					break;
 				case 22:
 					await ReceiveEquipmentTransferDocumentSendEvent(cancellationToken);
@@ -250,6 +249,24 @@ namespace CustomTaskDebugExecutor
 
 			var service = _serviceProvider.GetRequiredService<EdoTaskScheduler>();
 			await service.CreateTask(id, cancellationToken);
+		}
+
+		private async Task ReceiveInformalEdoRequestCreatedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id ЭДО заявки (informal_edo_requests)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<EdoTaskScheduler>();
+			await service.CreateOrderDocumentTask(id, cancellationToken);
 		}
 
 		private async Task ReceiveDocumentTaskCreatedEvent(CancellationToken cancellationToken)
@@ -562,7 +579,7 @@ and ecr.source != 'Manual'
 			}
 
 			var service = _serviceProvider.GetRequiredService<EquipmentTransferEdoTaskHandler>();
-			await service.SendTransferDocument(id, cancellationToken);
+			await service.SendEquipmentTransferDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveEquipmentTransferDocumentSendEvent(CancellationToken cancellationToken)

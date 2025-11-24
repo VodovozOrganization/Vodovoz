@@ -1,17 +1,17 @@
-using System;
+﻿using System;
 using TaxcomEdo.Contracts.Documents;
 
-namespace Edo.Docflow.Factories
+namespace Edo.InformalOrderDocuments.Factories
 {
 	/// <summary>
 	/// Фабрика для создания данных файла акта приёма-передачи оборудования
 	/// </summary>
 	public class EquipmentTransferFileDataFactory : IEquipmentTransferFileDataFactory
 	{
-		public EquipmentTransferFileData CreateEquipmentTransferFileData(string orderNumber, DateTime documentDate, byte[] data) =>
-			new EquipmentTransferFileData
+		public OrderDocumentFileData CreateEquipmentTransferFileData(int orderNumber, DateTime documentDate, byte[] data) =>
+			new OrderDocumentFileData
 			{
-				OrderNumber = orderNumber,
+				OrderId = orderNumber,
 				DocumentDate = documentDate,
 				Image = data
 			};

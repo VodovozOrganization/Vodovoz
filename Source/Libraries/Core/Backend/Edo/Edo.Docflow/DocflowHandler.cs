@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -31,7 +32,7 @@ namespace Edo.Docflow
 		private readonly IPrintableDocumentSaver _printableDocumentSaver;
 		private readonly IOrderConverter _orderConverter;
 		private readonly IInfoForCreatingEdoEquipmentTransferFactory _equipmentTransferInfoFactory;
-		private readonly IEquipmentTransferFileDataFactory _equipmentTransferFileDataFactory;
+		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
 
 		public DocflowHandler(
 			ILogger<DocflowHandler> logger,
@@ -43,7 +44,7 @@ namespace Edo.Docflow
 			IPrintableDocumentSaver printableDocumentSaver,
 			IOrderConverter orderConverter,
 			IInfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
-			IEquipmentTransferFileDataFactory equipmentTransferFileDataFactory
+			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,7 +56,7 @@ namespace Edo.Docflow
 			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_equipmentTransferInfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
-			_equipmentTransferFileDataFactory = equipmentTransferFileDataFactory ?? throw new ArgumentNullException(nameof(equipmentTransferFileDataFactory));
+			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
 		}
 
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -217,7 +218,7 @@ namespace Edo.Docflow
 				var documentDate = equipmentTransferDocument.DocumentDate ?? order.DeliveryDate ?? order.CreateDate ?? DateTime.Now;
 
 				var fileData = _equipmentTransferFileDataFactory.CreateEquipmentTransferFileData(
-					order.Id.ToString(),
+					order.Id,
 					documentDate,
 					pdfBytes);
 
@@ -250,6 +251,85 @@ namespace Edo.Docflow
 			}
 		}
 		
+
+		/// <summary>
+		/// Обработка неформализованного документа заказа 
+		/// </summary>
+		/// <param name="orderDocumentId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task HandleInformalOrderDocument(int orderDocumentId, OrderDocumentFileData orderDocumentFileData, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.GetAsync<EquipmentTransferEdoDocument>(orderDocumentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning($"Документ {orderDocumentId} не найден");
+				return;
+			}
+
+			if(document.Status.IsIn(EdoDocumentStatus.InProgress, EdoDocumentStatus.Succeed))
+			{
+				_logger.LogError($"Документ {orderDocumentId} уже в работе, повторно отправить нельзя.");
+				return;
+			}
+
+			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning($"Задача ЭДО акта №{document.DocumentTaskId} не найдена");
+				return;
+			}
+
+			var order = await _uow.Session.GetAsync<OrderEntity>(orderDocumentFileData.OrderId, cancellationToken);
+			if(order == null)
+			{
+				_logger.LogWarning($"Заказ №{orderDocumentFileData.OrderId} не найден");
+				return;
+			}
+
+			var sender = order.Contract.Organization;
+			if(sender.TaxcomEdoSettings == null)
+			{
+				_logger.LogWarning($"Настройки ЭДО Такском не найдены для организации отправителя {sender.Id}");
+				return;
+			}
+
+			try
+			{
+				var informalDocument = order.OrderDocuments
+					.FirstOrDefault(x => x.Type == edoTask.DocumentType);
+
+				if(informalDocument == null)
+				{
+					_logger.LogWarning($"Документ заказа {edoTask.DocumentType} для заказа {order.Id} не найден");
+					return;
+				}
+
+				var handler = _documentHandlerFactory.GetHandler(informalDocument.Type);
+				var documentInfo = await handler.ProcessDocument(order, orderDocumentFileData, informalDocument.Id, cancellationToken);
+
+				var message = new TaxcomDocflowEquipmentTransferSendEvent
+				{
+					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
+					EdoOutgoingDocumentId = document.Id,
+					DocumentType = EdoDocumentType.EquipmentTransfer,
+					DocumentInfo = documentInfo
+				};
+
+				await _messageBus.Publish(message, cancellationToken);
+				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
+			}
+			catch(NotSupportedException ex)
+			{
+				_logger.LogWarning(ex, $"Неподдерживаемый тип документа: {edoTask.DocumentType}");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка при отправке неформализованного документа заказа №{orderDocumentId}");
+				throw;
+			}
+		}
+
 		public async Task HandleDocflowUpdated(EdoDocflowUpdatedEvent updatedEvent, CancellationToken cancellationToken)
 		{
 			var documentId = updatedEvent.EdoDocumentId;

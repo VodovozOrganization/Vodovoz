@@ -19,6 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 		[Display(Name = "Счет")]
 		Bill,
 
+		// Переименовать в InformalDocument
 		/// <summary>
 		/// Акт приёма-передачи оборудования
 		/// </summary>

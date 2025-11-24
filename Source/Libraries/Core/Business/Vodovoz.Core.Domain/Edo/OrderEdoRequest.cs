@@ -24,5 +24,7 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _order;
 			set => SetField(ref _order, value);
 		}
+
+		// enum типа документа заказа
 	}
 }

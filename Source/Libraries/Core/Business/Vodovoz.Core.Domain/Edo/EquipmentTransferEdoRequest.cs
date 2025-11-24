@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.Edo
 		Nominative = "заявка на отправку акта приёма-передачи оборудования по ЭДО",
 		NominativePlural = "заявки на отправку акта приёма-передачи оборудования по ЭДО"
 	)]
-	public class EquipmentTransferEdoRequest : CustomerEdoRequest
+	public class EquipmentTransferEdoRequest : InformalEdoRequest
 	{
 		private int _equipmentTransferId;
 		private OrderEntity _order;

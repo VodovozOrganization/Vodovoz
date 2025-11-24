@@ -71,9 +71,6 @@ namespace Edo.Scheduler.Service
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					edoTask = _billForPaymentEdoRequestTaskScheduler.CreateTask((BillForPaymentEdoRequest)request);
 					break;
-				case CustomerEdoRequestType.EquipmentTransfer:
-					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
-					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип заявки " +
 						$"{nameof(CustomerEdoRequest)} {request.Type}");
@@ -98,9 +95,6 @@ namespace Edo.Scheduler.Service
 				case EdoTaskType.Receipt:
 					message = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };
 					break;
-				case EdoTaskType.EquipmentTransfer:
-					message = new EquipmentTransferTaskCreatedEvent { EquipmentTransferTaskId = edoTask.Id };
-					break;
 				case EdoTaskType.SaveCode:
 					message = new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id };
 					break;
@@ -109,6 +103,59 @@ namespace Edo.Scheduler.Service
 					break;
 				case EdoTaskType.Transfer:
 					throw new NotSupportedException("Создание задачи на трансфер из планировщика не предусмотрено");
+				default:
+					throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
+			}
+
+			if(message != null)
+			{
+				await _messageBus.Publish(message, cancellationToken);
+			}
+		}
+
+		/// <summary>
+		/// Создание задачи для заявки для документа заказа
+		/// </summary>
+		/// <param name="requestId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public async Task CreateOrderDocumentTask(int requestId, CancellationToken cancellationToken)
+		{
+			var request = await _uow.Session.GetAsync<InformalEdoRequest>(requestId, cancellationToken);
+			if(request == null)
+			{
+				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {InformalEdoRequest}", requestId);
+				return;
+			}
+
+			EdoTask edoTask = request.Task;
+			if(edoTask != null)
+			{
+				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
+				return;
+			}
+
+			switch(request.Type)
+			{
+				case CustomerEdoRequestType.EquipmentTransfer:
+					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
+					break;
+				default:
+					throw new InvalidOperationException($"Неизвестный тип заявки " +
+						$"{nameof(CustomerEdoRequest)} {request.Type}");
+			}
+
+			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			object message = null;
+			switch(edoTask.TaskType)
+			{
+				case EdoTaskType.EquipmentTransfer:
+					message = new EquipmentTransferTaskCreatedEvent { EquipmentTransferTaskId = edoTask.Id };
+					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
 			}

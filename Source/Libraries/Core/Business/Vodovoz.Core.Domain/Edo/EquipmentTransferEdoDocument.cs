@@ -1,5 +1,6 @@
 ﻿namespace Vodovoz.Core.Domain.Edo
 {
+	// Переименовать
 	/// <summary>
 	/// Исходящий документ ЭДО акта приёма-передачи оборудования
 	/// </summary>

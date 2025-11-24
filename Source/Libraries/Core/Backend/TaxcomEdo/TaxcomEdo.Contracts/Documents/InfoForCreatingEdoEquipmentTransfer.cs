@@ -1,4 +1,4 @@
-using TaxcomEdo.Contracts.Orders;
+﻿using TaxcomEdo.Contracts.Orders;
 
 namespace TaxcomEdo.Contracts.Documents
 {
@@ -22,9 +22,9 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Информация о прикрепленном файле <see cref="EquipmentTransferFileData"/>
 		/// </summary>
-		public EquipmentTransferFileData EquipmentTransferFileData
+		public OrderDocumentFileData EquipmentTransferFileData
 		{
-			get => FileData as EquipmentTransferFileData;
+			get => FileData as OrderDocumentFileData;
 			set => FileData = value;
 		}
 	}

@@ -3,21 +3,8 @@ using MySqlConnector;
 using QS.Report;
 using RdlEngine;
 
-namespace Edo.Docflow
+namespace Edo.InformalOrderDocuments
 {
-	/// <summary>
-	/// Интерфейс для сохранения печатаемых документов в PDF
-	/// </summary>
-	public interface IPrintableDocumentSaver
-	{
-		/// <summary>
-		/// Сохраняет документ в PDF
-		/// </summary>
-		/// <param name="document">Документ для сохранения</param>
-		/// <returns>Массив байтов PDF файла</returns>
-		byte[] SaveToPdf(IPrintableRDLDocument document);
-	}
-	// Куда лучше всего это переместить? PrintableDocumentSaver из EdoDocumentsPreparer не могу использовать, т.к. там .NET Standard 2.0, а тут .NET 5.0
 	/// <summary>
 	/// Сохраняет печатаемые документы в PDF
 	/// </summary>

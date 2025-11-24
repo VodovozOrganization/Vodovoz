@@ -26,7 +26,7 @@ namespace Edo.EquipmentTransfer.Consumers
 
 		public async Task Consume(ConsumeContext<EquipmentTransferTaskCreatedEvent> context)
 		{
-			await _equipmentTransferEdoTaskHandler.SendTransferDocument(context.Message.EquipmentTransferTaskId, context.CancellationToken);
+			await _equipmentTransferEdoTaskHandler.SendEquipmentTransferDocument(context.Message.EquipmentTransferTaskId, context.CancellationToken);
 		}
 	}
 }
