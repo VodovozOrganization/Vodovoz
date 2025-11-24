@@ -48,6 +48,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
 
+		/// <summary>
+		/// Id рекомендации
+		/// </summary>
+		public int? RecomendationId { get; set; }
+
 		public decimal PriceWithDiscount
 		{
 			get

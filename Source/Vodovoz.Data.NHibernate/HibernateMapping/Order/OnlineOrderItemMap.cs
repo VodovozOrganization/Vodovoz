@@ -23,6 +23,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.NomenclaturePrice).Column("nomenclature_price");
 			Map(x => x.DiscountFromPromoSet).Column("discount_from_promo_set");
 			Map(x => x.IsDiscountInMoneyFromPromoSet).Column("is_discount_in_money_from_promo_set");
+			Map(x => x.RecomendationId).Column("recomendation_id");
 
 			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");

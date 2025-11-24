@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -288,7 +288,7 @@ namespace Vodovoz.Application.Orders.Services
 					&& onlineOrderItem.OnlineOrderErrorState.HasValue
 					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
-					order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
+					order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count, recomendationId: product.RecomendationId);
 				}
 				else
 				{
@@ -299,7 +299,8 @@ namespace Vodovoz.Application.Orders.Services
 							_contractUpdater,
 							product.Nomenclature,
 							product.Count,
-							needGetFixedPrice: product.IsFixedPrice);
+							needGetFixedPrice: product.IsFixedPrice,
+							recomendationId: product.RecomendationId);
 					}
 					else
 					{
@@ -311,7 +312,8 @@ namespace Vodovoz.Application.Orders.Services
 							product.GetDiscount,
 							product.IsDiscountInMoney,
 							product.IsFixedPrice,
-							discountReason: product.DiscountReason);
+							discountReason: product.DiscountReason,
+							recomendationId: product.RecomendationId);
 					}
 				}
 			}
@@ -334,7 +336,8 @@ namespace Vodovoz.Application.Orders.Services
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
 					onlineOrderItem.IsFixedPrice,
-					onlineOrderItem.DiscountReason);
+					onlineOrderItem.DiscountReason,
+					recomendationId: onlineOrderItem.RecomendationId);
 			}
 		}
 
