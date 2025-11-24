@@ -132,9 +132,13 @@ namespace BitrixNotificationsSend.Library.Services
 				uow,
 				counterpartiesNotPaidOrdersData.Keys);
 
+			var noPhoneCounteraparties = counterpartiesNotPaidOrdersData.Keys
+				.Except(counterpartiesPhones.Keys)
+				.ToList();
+
 			var counterpartiesOrdersContactPhones = GetCounterpartiesOrdersContactPhones(
 				uow,
-				counterpartiesNotPaidOrdersData.Keys);
+				noPhoneCounteraparties);
 
 			foreach(var counterpartyOrdersData in counterpartiesNotPaidOrdersData)
 			{
