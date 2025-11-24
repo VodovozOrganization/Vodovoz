@@ -40,7 +40,6 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IBitrixNotificationsSendClient _bitrixNotificationsSendClient;
 		private readonly IOrganizationSettings _organizationSettings;
-		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -51,7 +50,6 @@ namespace BitrixNotificationsSend.Library.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBitrixNotificationsSendClient bitrixNotificationsSendClient,
 			IOrganizationSettings organizationSettings,
-			ICounterpartySettings counterpartySettings,
 			ICounterpartyRepository counterpartyRepository,
 			IBottlesRepository bottlesRepository,
 			IOrderRepository orderRepository,
@@ -61,7 +59,6 @@ namespace BitrixNotificationsSend.Library.Services
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_bitrixNotificationsSendClient = bitrixNotificationsSendClient ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendClient));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
-			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -193,7 +190,6 @@ namespace BitrixNotificationsSend.Library.Services
 				organizationId,
 				_orderStatuses,
 				_counterpartyTypes,
-				_counterpartySettings.CounterpartyFromTenderId,
 				cancellationToken);
 
 		private async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(
