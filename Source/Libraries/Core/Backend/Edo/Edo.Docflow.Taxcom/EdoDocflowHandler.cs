@@ -67,7 +67,7 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
-		public async Task CreateTaxcomDocflowInformalDocumentTransferDocument(TaxcomDocflowInformalDocumentSendEvent @event)
+		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event)
 		{
 			var now = DateTime.Now;
 			

@@ -4,9 +4,9 @@ using TaxcomEdo.Contracts.Orders;
 
 namespace Edo.Docflow.Factories
 {
-	public class InfoForCreatingEdoEquipmentTransferFactory : IInfoForCreatingEdoEquipmentTransferFactory
+	public class InfoForCreatingEdoEquipmentTransferFactory : IInfoForCreatingEdoInformalOrderDocumentFactory
 	{
-		public InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoEquipmentTransfer(OrderInfoForEdo orderInfoForEdo, FileData fileData)
+		public InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoInformalOrderDocument(OrderInfoForEdo orderInfoForEdo, FileData fileData)
 		{
 			var data = new InfoForCreatingEdoInformalOrderDocument
 			{

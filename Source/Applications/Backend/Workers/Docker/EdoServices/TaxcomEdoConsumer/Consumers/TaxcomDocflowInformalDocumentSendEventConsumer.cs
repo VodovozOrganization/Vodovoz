@@ -31,7 +31,7 @@ namespace TaxcomEdoConsumer.Consumers
 					message.DocumentType,
 					message.DocumentInfo.MainDocumentId);
 
-				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocumentTransferDocument(message);
+				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message);
 			}
 			catch(Exception e)
 			{

@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			DiscriminatorValue(nameof(EdoTaskType.InformalOrderDocument));
 
-			Extends(typeof(OrderEdoTask));
+			Extends(typeof(OrderDocumentEdoTask));
 		}
 	}
 }

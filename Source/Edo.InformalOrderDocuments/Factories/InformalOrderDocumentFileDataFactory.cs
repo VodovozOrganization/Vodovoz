@@ -6,9 +6,9 @@ namespace Edo.InformalOrderDocuments.Factories
 	/// <summary>
 	/// Фабрика для создания данных файла акта приёма-передачи оборудования
 	/// </summary>
-	public class EquipmentTransferFileDataFactory : IEquipmentTransferFileDataFactory
+	public class InformalOrderDocumentFileDataFactory : IInformalOrderDocumentFileDataFactory
 	{
-		public OrderDocumentFileData CreateEquipmentTransferFileData(int orderNumber, DateTime documentDate, byte[] data) =>
+		public OrderDocumentFileData CreateInformalOrderDocumentFileData(int orderNumber, DateTime documentDate, byte[] data) =>
 			new OrderDocumentFileData
 			{
 				OrderId = orderNumber,

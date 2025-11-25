@@ -6,9 +6,9 @@ namespace Edo.InformalOrderDocuments.Factories
 	/// <summary>
 	/// Фабрика для создания файла неформализованного документа заказа
 	/// </summary>
-	public interface IEquipmentTransferFileDataFactory
+	public interface IInformalOrderDocumentFileDataFactory
 	{
-		OrderDocumentFileData CreateEquipmentTransferFileData(int orderNumber, DateTime documentDate, byte[] data);
+		OrderDocumentFileData CreateInformalOrderDocumentFileData(int orderNumber, DateTime documentDate, byte[] data);
 	}
 }
 

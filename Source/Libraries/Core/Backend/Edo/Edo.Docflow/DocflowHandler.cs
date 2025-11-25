@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
@@ -16,7 +15,6 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Edo.Docflow
@@ -29,8 +27,6 @@ namespace Edo.Docflow
 		private readonly IPaymentRepository _paymentRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
-		private readonly IOrderConverter _orderConverter;
-		private readonly IInfoForCreatingEdoEquipmentTransferFactory _equipmentTransferInfoFactory;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
 
 		public DocflowHandler(
@@ -40,8 +36,6 @@ namespace Edo.Docflow
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
 			IBus messageBus,
-			IOrderConverter orderConverter,
-			IInfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory
 			)
 		{
@@ -51,8 +45,6 @@ namespace Edo.Docflow
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
-			_equipmentTransferInfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
 		}
 

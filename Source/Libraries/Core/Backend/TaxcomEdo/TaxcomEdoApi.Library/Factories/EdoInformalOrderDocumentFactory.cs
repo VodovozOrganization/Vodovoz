@@ -4,9 +4,9 @@ using TaxcomEdo.Contracts.Documents;
 
 namespace TaxcomEdoApi.Library.Factories
 {
-	public class EdoEquipmentTransferFactory : IEdoEquipmentTransferFactory
+	public class EdoInformalOrderDocumentFactory : IEdoInformalOrderDocumentFactory
 	{
-		public NonformalizedDocument CreateEquipmentTransferDocument(InfoForCreatingEdoInformalOrderDocument data)
+		public NonformalizedDocument CreateInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var orderInfo = data.OrderInfoForEdo;
 			var nonformalizedDocument = new NonformalizedDocument

@@ -23,7 +23,7 @@ namespace TaxcomEdoApi.Library
 				.AddScoped<IErpDocumentInfoConverter5_03, ErpDocumentInfoConverter5_03>()
 				.AddScoped<ITaxcomEdoService, TaxcomEdoService>()
 				.AddScoped<IEdoBillFactory, EdoBillFactory>()
-				.AddScoped<IEdoEquipmentTransferFactory, EdoEquipmentTransferFactory>();
+				.AddScoped<IEdoInformalOrderDocumentFactory, EdoInformalOrderDocumentFactory>();
 			
 			return services;
 		}

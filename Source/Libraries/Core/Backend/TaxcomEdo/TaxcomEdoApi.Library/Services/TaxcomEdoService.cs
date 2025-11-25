@@ -23,7 +23,7 @@ namespace TaxcomEdoApi.Library.Services
 		private readonly WarrantOptions _warrantOptions;
 		private readonly IEdoTaxcomDocumentsFactory5_03 _edoTaxcomDocumentsFactory503;
 		private readonly IEdoBillFactory _edoBillFactory;
-		private readonly IEdoEquipmentTransferFactory _edoEquipmentTransferFactory;
+		private readonly IEdoInformalOrderDocumentFactory _edoInformalOrderDocumentFactory;
 
 		public TaxcomEdoService(
 			ILogger<TaxcomEdoService> logger,
@@ -31,7 +31,7 @@ namespace TaxcomEdoApi.Library.Services
 			IOptionsSnapshot<WarrantOptions> warrantOptions,
 			IEdoTaxcomDocumentsFactory5_03 edoTaxcomDocumentsFactory503,
 			IEdoBillFactory edoBillFactory,
-			IEdoEquipmentTransferFactory edoEquipmentTransferFactory,
+			IEdoInformalOrderDocumentFactory edoInformalOrderDocumentFactory,
 			X509Certificate2 certificate
 			)
 		{
@@ -39,7 +39,7 @@ namespace TaxcomEdoApi.Library.Services
 			_edoTaxcomDocumentsFactory503 =
 				edoTaxcomDocumentsFactory503 ?? throw new ArgumentNullException(nameof(edoTaxcomDocumentsFactory503));
 			_edoBillFactory = edoBillFactory ?? throw new ArgumentNullException(nameof(edoBillFactory));
-			_edoEquipmentTransferFactory = edoEquipmentTransferFactory ?? throw new ArgumentNullException(nameof(edoEquipmentTransferFactory));
+			_edoInformalOrderDocumentFactory = edoInformalOrderDocumentFactory ?? throw new ArgumentNullException(nameof(edoInformalOrderDocumentFactory));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
 			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
@@ -217,14 +217,14 @@ namespace TaxcomEdoApi.Library.Services
 			return container;
 		}
 
-		public TaxcomContainer CreateContainerWithEquipmentTransfer(InfoForCreatingEdoInformalOrderDocument data)
+		public TaxcomContainer CreateContainerWithInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var container = new TaxcomContainer
 			{
 				SignMode = DocumentSignMode.UseSpecifiedCertificate
 			};
 				
-			var document = _edoEquipmentTransferFactory.CreateEquipmentTransferDocument(data);
+			var document = _edoInformalOrderDocumentFactory.CreateInformalOrderDocument(data);
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
 			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))

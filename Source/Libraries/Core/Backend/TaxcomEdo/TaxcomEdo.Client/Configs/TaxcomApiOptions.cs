@@ -22,9 +22,9 @@
 		/// </summary>
 		public string SendIndividualAccountingUpdEndpoint { get; set; }
 		/// <summary>
-		/// Эндпойнт отправки акта приёма-передачи оборудования
+		/// Эндпойнт отправки документа заказа
 		/// </summary>
-		public string SendEquipmentTransferEndpoint { get; set; }
+		public string SendInformalOrderDocumentEndpoint { get; set; }
 		/// <summary>
 		/// Эндпойнт отправки счета
 		/// </summary>

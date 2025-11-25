@@ -14,13 +14,13 @@ namespace Edo.InformalOrderDocuments.Handlers
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IPrintableDocumentSaver _printableDocumentSaver;
-		private readonly IEquipmentTransferFileDataFactory _equipmentTransferFileDataFactory;
+		private readonly IInformalOrderDocumentFileDataFactory _equipmentTransferFileDataFactory;
 		private readonly ILogger<EquipmentTransferDocumentHandler> _logger;
 
 		public EquipmentTransferDocumentHandler(
 			IUnitOfWork uow,
 			IPrintableDocumentSaver printableDocumentSaver,
-			IEquipmentTransferFileDataFactory equipmentTransferFileDataFactory,
+			IInformalOrderDocumentFileDataFactory equipmentTransferFileDataFactory,
 			ILogger<EquipmentTransferDocumentHandler> logger)
 		{
 			_uow = uow;
@@ -51,7 +51,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 				?? order.CreateDate
 				?? DateTime.Now;
 
-			var fileData = _equipmentTransferFileDataFactory.CreateEquipmentTransferFileData(
+			var fileData = _equipmentTransferFileDataFactory.CreateInformalOrderDocumentFileData(
 				order.Id,
 				documentDate,
 				pdfBytes);

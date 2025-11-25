@@ -34,27 +34,23 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 		public async Task HandleNew(int orderDocumentEdoTaskId, CancellationToken cancellationToken)
 		{
-			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(orderDocumentEdoTaskId, cancellationToken);
-			if(edoTask == null)
-			{
-				throw new InvalidOperationException($"Задача с идентификатором {orderDocumentEdoTaskId} не найдена.");
-			}
+			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(orderDocumentEdoTaskId, cancellationToken) 
+				?? throw new InvalidOperationException($"Задача с идентификатором {orderDocumentEdoTaskId} не найдена.");
 
 			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.Order.Id, cancellationToken) 
 				?? throw new InvalidOperationException($"Заказ с идентификатором {edoTask.Order.Id} не найден.");
 
 			try
 			{
-
 				var handler = _handlerFactory.GetHandler(edoTask.DocumentType);
 
 				var orderDocument = order.OrderDocuments
 					.Where(doc => doc.Type == edoTask.DocumentType).FirstOrDefault()
 					?? throw new InvalidOperationException($"Документ типа {edoTask.DocumentType} не найден в заказе с идентификатором {order.Id}.");
 
-				var edoDocument = await CreateInformalDocument(edoTask.Id, cancellationToken);
-
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
+
+				var edoDocument = await CreateInformalDocument(edoTask.Id, cancellationToken);
 
 				var fileDataMessage = new InformalDocumentFileDataSendEvent
 				{

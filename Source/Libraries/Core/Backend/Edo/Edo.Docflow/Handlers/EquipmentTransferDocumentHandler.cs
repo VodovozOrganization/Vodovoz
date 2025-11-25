@@ -17,18 +17,18 @@ namespace Edo.Docflow.Handlers
 	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IInfoForCreatingEdoEquipmentTransferFactory _equipmentTransferInfoFactory;
+		private readonly IInfoForCreatingEdoInformalOrderDocumentFactory _informalOrderDocumentnfoFactory;
 		private readonly IOrderConverter _orderConverter;
 		private readonly ILogger<EquipmentTransferDocumentHandler> _logger;
 
 		public EquipmentTransferDocumentHandler(
 			IUnitOfWork uow,
-			IInfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
+			IInfoForCreatingEdoInformalOrderDocumentFactory equipmentTransferInfoFactory,
 			IOrderConverter orderConverter,
 			ILogger<EquipmentTransferDocumentHandler> logger)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_equipmentTransferInfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
+			_informalOrderDocumentnfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
@@ -56,7 +56,7 @@ namespace Edo.Docflow.Handlers
 			}
 
 			var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
-			var documentInfo = _equipmentTransferInfoFactory.CreateInfoForCreatingEdoEquipmentTransfer(orderInfo, fileData);
+			var documentInfo = _informalOrderDocumentnfoFactory.CreateInfoForCreatingEdoInformalOrderDocument(orderInfo, fileData);
 
 			return documentInfo;
 		}
