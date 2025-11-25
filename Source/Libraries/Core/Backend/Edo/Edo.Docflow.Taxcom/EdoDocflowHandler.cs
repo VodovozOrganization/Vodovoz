@@ -67,7 +67,7 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
-		public async Task CreateTaxcomDocFlowAndSendEquipmentTransferDocument(TaxcomDocflowEquipmentTransferSendEvent @event)
+		public async Task CreateTaxcomDocFlowAndSendEquipmentTransferDocument(TaxcomDocflowInformalDocumentSendEvent @event)
 		{
 			var now = DateTime.Now;
 			
@@ -88,7 +88,7 @@ namespace Edo.Docflow.Taxcom
 			await _uow.SaveAsync(taxcomDocflow);
 			await _uow.CommitAsync();
 
-			if(@event.DocumentType == EdoDocumentType.EquipmentTransfer)
+			if(@event.DocumentType == EdoDocumentType.InformalOrderDocument)
 			{
 				if(@event.DocumentInfo is InfoForCreatingEdoEquipmentTransfer equipmentTransferInfo)
 				{

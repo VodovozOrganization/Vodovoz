@@ -29,7 +29,6 @@ namespace Edo.Docflow
 		private readonly IPaymentRepository _paymentRepository;
 		private readonly IBus _messageBus;
 		private readonly IUnitOfWork _uow;
-		private readonly IPrintableDocumentSaver _printableDocumentSaver;
 		private readonly IOrderConverter _orderConverter;
 		private readonly IInfoForCreatingEdoEquipmentTransferFactory _equipmentTransferInfoFactory;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
@@ -41,7 +40,6 @@ namespace Edo.Docflow
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
 			IBus messageBus,
-			IPrintableDocumentSaver printableDocumentSaver,
 			IOrderConverter orderConverter,
 			IInfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory
@@ -53,7 +51,6 @@ namespace Edo.Docflow
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_equipmentTransferInfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
@@ -158,7 +155,7 @@ namespace Edo.Docflow
 			};
 			await _messageBus.Publish(message);
 		}
-
+/*
 		/// <summary>
 		/// Обработка документа акта приёма-передачи оборудования
 		/// </summary>
@@ -190,7 +187,7 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.OrderEdoRequest.Order.Id, cancellationToken);
+			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.Order.Id, cancellationToken);
 			if(order == null)
 			{
 				_logger.LogWarning($"Заказ для акта приёма-передачи №{edoTask.Id} не найден");
@@ -230,11 +227,11 @@ namespace Edo.Docflow
 
 				var equipmentTransferInfoJson = JsonSerializer.Serialize(equipmentTransferInfo);
 
-				var equipmentTransfermessage = new TaxcomDocflowEquipmentTransferSendEvent
+				var equipmentTransfermessage = new TaxcomDocflowInformalDocumentSendEvent
 				{
 					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 					EdoOutgoingDocumentId = document.Id,
-					DocumentType = EdoDocumentType.EquipmentTransfer,
+					DocumentType = EdoDocumentType.InformalDocument,
 					DocumentInfo = equipmentTransferInfo
 				};
 
@@ -250,7 +247,7 @@ namespace Edo.Docflow
 				throw;
 			}
 		}
-		
+		*/
 
 		/// <summary>
 		/// Обработка неформализованного документа заказа 
@@ -260,7 +257,7 @@ namespace Edo.Docflow
 		/// <returns></returns>
 		public async Task HandleInformalOrderDocument(int orderDocumentId, OrderDocumentFileData orderDocumentFileData, CancellationToken cancellationToken)
 		{
-			var document = await _uow.Session.GetAsync<EquipmentTransferEdoDocument>(orderDocumentId, cancellationToken);
+			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(orderDocumentId, cancellationToken);
 			if(document == null)
 			{
 				_logger.LogWarning($"Документ {orderDocumentId} не найден");
@@ -308,11 +305,11 @@ namespace Edo.Docflow
 				var handler = _documentHandlerFactory.GetHandler(informalDocument.Type);
 				var documentInfo = await handler.ProcessDocument(order, orderDocumentFileData, informalDocument.Id, cancellationToken);
 
-				var message = new TaxcomDocflowEquipmentTransferSendEvent
+				var message = new TaxcomDocflowInformalDocumentSendEvent
 				{
 					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 					EdoOutgoingDocumentId = document.Id,
-					DocumentType = EdoDocumentType.EquipmentTransfer,
+					DocumentType = EdoDocumentType.InformalOrderDocument,
 					DocumentInfo = documentInfo
 				};
 

@@ -7,7 +7,7 @@ using Edo.Contracts.Messages.Events;
 
 namespace TaxcomEdoConsumer.Consumers
 {
-	public class TaxcomEquipmentTransferDocflowSendEventConsumer : IConsumer<TaxcomDocflowEquipmentTransferSendEvent>
+	public class TaxcomEquipmentTransferDocflowSendEventConsumer : IConsumer<TaxcomDocflowInformalDocumentSendEvent>
 	{
 		private readonly ILogger<TaxcomEquipmentTransferDocflowSendEventConsumer> _logger;
 		private readonly IEdoDocflowHandler _edoDocflowHandler;
@@ -20,7 +20,7 @@ namespace TaxcomEdoConsumer.Consumers
 			_edoDocflowHandler = edoDocflowHandler ?? throw new ArgumentNullException(nameof(edoDocflowHandler));
 		}
 
-		public async Task Consume(ConsumeContext<TaxcomDocflowEquipmentTransferSendEvent> context)
+		public async Task Consume(ConsumeContext<TaxcomDocflowInformalDocumentSendEvent> context)
 		{
 			var message = context.Message;
 

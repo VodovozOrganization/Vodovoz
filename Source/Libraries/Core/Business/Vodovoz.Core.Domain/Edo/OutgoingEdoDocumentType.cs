@@ -4,6 +4,6 @@
 	{
 		Transfer,
 		Order,
-		EquipmentTransfer
+		InformalOrderDocument
 	}
 }

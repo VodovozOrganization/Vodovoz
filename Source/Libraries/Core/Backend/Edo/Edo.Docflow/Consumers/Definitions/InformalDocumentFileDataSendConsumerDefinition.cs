@@ -20,7 +20,7 @@ namespace Edo.InformalOrderDocuments.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<EquipmentTransferDocumentSendEvent>();
+				rmq.Bind<InformalDocumentFileDataSendEvent>();
 			}
 		}
 	}

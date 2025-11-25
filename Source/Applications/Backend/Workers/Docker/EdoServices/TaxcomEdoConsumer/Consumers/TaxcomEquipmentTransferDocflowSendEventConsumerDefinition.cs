@@ -18,7 +18,7 @@ namespace TaxcomEdoConsumer.Consumers
 
 			Endpoint(x =>
 			{
-				x.Name = $"{TaxcomDocflowEquipmentTransferSendEvent.Event}.consumer_{_taxcomEdoConsumerOptions.EdoAccount}";
+				x.Name = $"{TaxcomDocflowInformalDocumentSendEvent.Event}.consumer_{_taxcomEdoConsumerOptions.EdoAccount}";
 			});
 		}
 		protected override void ConfigureConsumer(
@@ -33,7 +33,7 @@ namespace TaxcomEdoConsumer.Consumers
 				rmq.AutoDelete = false;
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<TaxcomDocflowEquipmentTransferSendEvent>(c =>
+				rmq.Bind<TaxcomDocflowInformalDocumentSendEvent>(c =>
 				{
 					c.RoutingKey = _taxcomEdoConsumerOptions.EdoAccount;
 				});

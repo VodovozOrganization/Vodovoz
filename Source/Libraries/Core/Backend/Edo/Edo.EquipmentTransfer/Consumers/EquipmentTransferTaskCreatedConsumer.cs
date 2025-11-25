@@ -10,7 +10,7 @@ namespace Edo.EquipmentTransfer.Consumers
 	/// <summary>
 	/// Настройка MassTransit для обработки созданной задачи по акту приёма-передачи оборудования
 	/// </summary>
-	public class EquipmentTransferTaskCreatedConsumer : IConsumer<EquipmentTransferTaskCreatedEvent>
+	public class EquipmentTransferTaskCreatedConsumer : IConsumer<InformalOrderDocumenTaskCreatedEvent>
 	{
 		private readonly ILogger<EquipmentTransferTaskCreatedConsumer> _logger;
 		private readonly EquipmentTransferEdoTaskHandler _equipmentTransferEdoTaskHandler;
@@ -24,9 +24,9 @@ namespace Edo.EquipmentTransfer.Consumers
 			_equipmentTransferEdoTaskHandler = equipmentTransferEdoTaskHandler ?? throw new ArgumentNullException(nameof(equipmentTransferEdoTaskHandler));
 		}
 
-		public async Task Consume(ConsumeContext<EquipmentTransferTaskCreatedEvent> context)
+		public async Task Consume(ConsumeContext<InformalOrderDocumenTaskCreatedEvent> context)
 		{
-			await _equipmentTransferEdoTaskHandler.SendEquipmentTransferDocument(context.Message.EquipmentTransferTaskId, context.CancellationToken);
+			await _equipmentTransferEdoTaskHandler.SendEquipmentTransferDocument(context.Message.InformalOrderDocumentTaskId, context.CancellationToken);
 		}
 	}
 }

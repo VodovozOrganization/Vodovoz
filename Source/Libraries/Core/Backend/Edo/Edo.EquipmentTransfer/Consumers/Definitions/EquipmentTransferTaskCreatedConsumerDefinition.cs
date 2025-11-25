@@ -23,7 +23,7 @@ namespace Edo.EquipmentTransfer.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 
-				rmq.Bind<EquipmentTransferTaskCreatedEvent>();
+				rmq.Bind<InformalOrderDocumenTaskCreatedEvent>();
 			}
 		}
 	}

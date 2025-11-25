@@ -1,10 +1,9 @@
 ﻿namespace Vodovoz.Core.Domain.Edo
 {
-	// Переименовать
 	/// <summary>
-	/// Исходящий документ ЭДО акта приёма-передачи оборудования
+	/// Исходящий неформализованный ЭДО документ 
 	/// </summary>
-	public class EquipmentTransferEdoDocument : OutgoingEdoDocument
+	public class OutgoingInformalEdoDocument : OutgoingEdoDocument
 	{
 		private int _documentTaskId;
 		public virtual int DocumentTaskId

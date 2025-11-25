@@ -183,8 +183,8 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<EquipmentTransferTaskCreatedEvent>(x => x.SetEntityName("edo.equipment-transfer-task-created.publish"));
-			cfg.Publish<EquipmentTransferTaskCreatedEvent>(x =>
+			cfg.Message<InformalOrderDocumenTaskCreatedEvent>(x => x.SetEntityName("edo.equipment-transfer-task-created.publish"));
+			cfg.Publish<InformalOrderDocumenTaskCreatedEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public EquipmentTransferEdoTaskMap()
 		{
-			DiscriminatorValue(nameof(EdoTaskType.EquipmentTransfer));
+			DiscriminatorValue(nameof(EdoTaskType.InformalOrderDocument));
 
 			Extends(typeof(OrderEdoTask));
 		}

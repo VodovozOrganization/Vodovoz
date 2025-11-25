@@ -151,14 +151,13 @@ namespace Edo.Scheduler.Service
 			await _uow.CommitAsync(cancellationToken);
 
 			object message = null;
-			switch(edoTask.TaskType)
+
+			if(edoTask.TaskType != EdoTaskType.InformalOrderDocument)
 			{
-				case EdoTaskType.EquipmentTransfer:
-					message = new EquipmentTransferTaskCreatedEvent { EquipmentTransferTaskId = edoTask.Id };
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
+				throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
 			}
+
+			message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
 
 			if(message != null)
 			{

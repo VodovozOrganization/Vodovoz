@@ -3,13 +3,16 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Неформализованная заявка ЭДО
+	/// </summary>
 	public class InformalEdoRequest : EdoRequest
 	{
 		private OrderEntity _order;
-		private EdoDocumentType _documentType;
+		private OrderDocumentEdoTask _task;
 
 		/// <summary>
-		/// Код заказа c актом приёма-передачи оборудования
+		/// Код заказа c документом заказа
 		/// </summary>
 		[Display(Name = "Код заказа")]
 		public virtual OrderEntity Order
@@ -19,13 +22,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Тип документа
+		/// Задача ЭДО
 		/// </summary>
-		[Display(Name = "Тип документа")]
-		public virtual EdoDocumentType DocumentType
+		[Display(Name = "Задача ЭДО")]
+		public virtual new OrderDocumentEdoTask Task
 		{
-			get => _documentType;
-			set => SetField(ref _documentType, value);
+			get => _task;
+			set => SetField(ref _task, value);
 		}
+		public override EdoDocumentType DocumentType => EdoDocumentType.InformalOrderDocument;
 	}
 }

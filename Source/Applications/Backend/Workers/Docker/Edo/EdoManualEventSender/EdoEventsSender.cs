@@ -365,7 +365,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new EquipmentTransferTaskCreatedEvent { EquipmentTransferTaskId = id });
+			_messageBus.Publish(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = id });
 		}
 
 		private void SendRequestTaskCancellationEvent()

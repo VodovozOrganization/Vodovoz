@@ -6,9 +6,9 @@ namespace Edo.Contracts.Messages.Events
 	/// <summary>
 	/// Событие для создания неформализованного документа (PDF) по ЭДО
 	/// </summary>
-	public class TaxcomDocflowEquipmentTransferSendEvent
+	public class TaxcomDocflowInformalDocumentSendEvent
 	{
-		public const string Event = "taxcom-docflow-equipment-transfer-send";
+		public const string Event = "taxcom-docflow-informal-document-send";
 		/// <summary>
 		/// Код кабинета в ЭДО, от имени которого отправляется документ
 		/// </summary>

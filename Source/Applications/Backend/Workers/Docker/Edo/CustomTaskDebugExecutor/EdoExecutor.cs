@@ -578,8 +578,8 @@ and ecr.source != 'Manual'
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<EquipmentTransferEdoTaskHandler>();
-			await service.SendEquipmentTransferDocument(id, cancellationToken);
+			//var service = _serviceProvider.GetRequiredService<EquipmentTransferEdoTaskHandler>();
+			//await service.SendEquipmentTransferDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveEquipmentTransferDocumentSendEvent(CancellationToken cancellationToken)
@@ -597,7 +597,7 @@ and ecr.source != 'Manual'
 			}
 
 			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			await service.HandleEquipmentTransferDocument(id, cancellationToken);
+			//await service.HandleEquipmentTransferDocument(id, cancellationToken);
 		}
 
 
