@@ -7,7 +7,7 @@ using TaxcomEdoConsumer.Options;
 
 namespace TaxcomEdoConsumer.Consumers
 {
-	public class TaxcomEquipmentTransferDocflowSendEventConsumerDefinition : ConsumerDefinition<TaxcomEquipmentTransferDocflowSendEventConsumer>
+	public class TaxcomEquipmentTransferDocflowSendEventConsumerDefinition : ConsumerDefinition<TaxcomDocflowInformalDocumentSendEventConsumer>
 	{
 		private readonly TaxcomEdoConsumerOptions _taxcomEdoConsumerOptions;
 		public TaxcomEquipmentTransferDocflowSendEventConsumerDefinition(IOptions<TaxcomEdoConsumerOptions> taxcomEdoConsumerOptions)
@@ -23,7 +23,7 @@ namespace TaxcomEdoConsumer.Consumers
 		}
 		protected override void ConfigureConsumer(
 			IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<TaxcomEquipmentTransferDocflowSendEventConsumer> consumerConfigurator)
+			IConsumerConfigurator<TaxcomDocflowInformalDocumentSendEventConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 

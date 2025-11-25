@@ -79,7 +79,7 @@ namespace TaxcomEdoConsumer
 
 							busConf.AddConsumer<TaxcomDocflowSendEventConsumer, TaxcomDocflowSendEventConsumerDefinition>();
 
-							busConf.AddConsumer<TaxcomEquipmentTransferDocflowSendEventConsumer, TaxcomEquipmentTransferDocflowSendEventConsumerDefinition>();
+							busConf.AddConsumer<TaxcomDocflowInformalDocumentSendEventConsumer, TaxcomEquipmentTransferDocflowSendEventConsumerDefinition>();
 
 							busConf.ConfigureRabbitMq();
 						});

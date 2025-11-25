@@ -7,13 +7,13 @@ using Edo.Contracts.Messages.Events;
 
 namespace TaxcomEdoConsumer.Consumers
 {
-	public class TaxcomEquipmentTransferDocflowSendEventConsumer : IConsumer<TaxcomDocflowInformalDocumentSendEvent>
+	public class TaxcomDocflowInformalDocumentSendEventConsumer : IConsumer<TaxcomDocflowInformalDocumentSendEvent>
 	{
-		private readonly ILogger<TaxcomEquipmentTransferDocflowSendEventConsumer> _logger;
+		private readonly ILogger<TaxcomDocflowInformalDocumentSendEventConsumer> _logger;
 		private readonly IEdoDocflowHandler _edoDocflowHandler;
 
-		public TaxcomEquipmentTransferDocflowSendEventConsumer(
-			ILogger<TaxcomEquipmentTransferDocflowSendEventConsumer> logger,
+		public TaxcomDocflowInformalDocumentSendEventConsumer(
+			ILogger<TaxcomDocflowInformalDocumentSendEventConsumer> logger,
 			IEdoDocflowHandler edoDocflowHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -31,7 +31,7 @@ namespace TaxcomEdoConsumer.Consumers
 					message.DocumentType,
 					message.DocumentInfo.MainDocumentId);
 
-				await _edoDocflowHandler.CreateTaxcomDocFlowAndSendEquipmentTransferDocument(message);
+				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocumentTransferDocument(message);
 			}
 			catch(Exception e)
 			{

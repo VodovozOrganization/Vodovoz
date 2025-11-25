@@ -6,9 +6,9 @@ namespace Edo.Docflow.Factories
 {
 	public class InfoForCreatingEdoEquipmentTransferFactory : IInfoForCreatingEdoEquipmentTransferFactory
 	{
-		public InfoForCreatingEdoEquipmentTransfer CreateInfoForCreatingEdoEquipmentTransfer(OrderInfoForEdo orderInfoForEdo, FileData fileData)
+		public InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoEquipmentTransfer(OrderInfoForEdo orderInfoForEdo, FileData fileData)
 		{
-			var data = new InfoForCreatingEdoEquipmentTransfer
+			var data = new InfoForCreatingEdoInformalOrderDocument
 			{
 				OrderInfoForEdo = orderInfoForEdo,
 				FileData = fileData,

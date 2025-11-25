@@ -6,7 +6,7 @@ namespace TaxcomEdoApi.Library.Factories
 {
 	public class EdoEquipmentTransferFactory : IEdoEquipmentTransferFactory
 	{
-		public NonformalizedDocument CreateEquipmentTransferDocument(InfoForCreatingEdoEquipmentTransfer data)
+		public NonformalizedDocument CreateEquipmentTransferDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var orderInfo = data.OrderInfoForEdo;
 			var nonformalizedDocument = new NonformalizedDocument

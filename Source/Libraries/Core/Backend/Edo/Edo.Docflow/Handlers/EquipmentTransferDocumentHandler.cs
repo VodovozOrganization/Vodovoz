@@ -35,7 +35,7 @@ namespace Edo.Docflow.Handlers
 
 		public OrderDocumentType DocumentType => OrderDocumentType.EquipmentTransfer;
 
-		public async Task<InfoForCreatingEdoEquipmentTransfer> ProcessDocument(
+		public async Task<InfoForCreatingEdoInformalOrderDocument> ProcessDocument(
 			OrderEntity order,
 			OrderDocumentFileData fileData,
 			int documentId,

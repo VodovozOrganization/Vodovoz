@@ -5,6 +5,6 @@ namespace TaxcomEdoApi.Library.Factories
 {
 	public interface IEdoEquipmentTransferFactory
 	{
-		NonformalizedDocument CreateEquipmentTransferDocument(InfoForCreatingEdoEquipmentTransfer data);
+		NonformalizedDocument CreateEquipmentTransferDocument(InfoForCreatingEdoInformalOrderDocument data);
 	}
 }

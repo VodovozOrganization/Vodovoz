@@ -217,7 +217,7 @@ namespace TaxcomEdoApi.Library.Services
 			return container;
 		}
 
-		public TaxcomContainer CreateContainerWithEquipmentTransfer(InfoForCreatingEdoEquipmentTransfer data)
+		public TaxcomContainer CreateContainerWithEquipmentTransfer(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var container = new TaxcomContainer
 			{

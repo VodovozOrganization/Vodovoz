@@ -20,7 +20,7 @@ namespace Edo.Docflow.Handlers
 		/// <param name="documentId"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		Task<InfoForCreatingEdoEquipmentTransfer> ProcessDocument(
+		Task<InfoForCreatingEdoInformalOrderDocument> ProcessDocument(
 			OrderEntity order,
 			OrderDocumentFileData fileData,
 			int documentId,

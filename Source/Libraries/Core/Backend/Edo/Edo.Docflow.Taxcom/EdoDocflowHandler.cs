@@ -67,7 +67,7 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
-		public async Task CreateTaxcomDocFlowAndSendEquipmentTransferDocument(TaxcomDocflowInformalDocumentSendEvent @event)
+		public async Task CreateTaxcomDocflowInformalDocumentTransferDocument(TaxcomDocflowInformalDocumentSendEvent @event)
 		{
 			var now = DateTime.Now;
 			
@@ -90,14 +90,14 @@ namespace Edo.Docflow.Taxcom
 
 			if(@event.DocumentType == EdoDocumentType.InformalOrderDocument)
 			{
-				if(@event.DocumentInfo is InfoForCreatingEdoEquipmentTransfer equipmentTransferInfo)
+				if(@event.DocumentInfo is InfoForCreatingEdoInformalOrderDocument equipmentTransferInfo)
 				{
-					await _taxcomApiClient.SendDataForCreateEquipmentTransferByEdo(equipmentTransferInfo);
+					await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(equipmentTransferInfo);
 				}
 				else
 				{
-					_logger.LogError($"Неверный тип документа для EquipmentTransfer: ожидается {nameof(InfoForCreatingEdoEquipmentTransfer)}");
-					throw new InvalidOperationException("Неверный тип документа для EquipmentTransfer");
+					_logger.LogError($"Неверный тип документа для InformalOrderDocument: ожидается {nameof(InfoForCreatingEdoInformalOrderDocument)}");
+					throw new InvalidOperationException("Неверный тип документа для InformalOrderDocument");
 				}
 			}
 		}

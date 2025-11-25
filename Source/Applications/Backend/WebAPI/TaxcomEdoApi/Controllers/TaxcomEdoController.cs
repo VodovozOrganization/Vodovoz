@@ -129,7 +129,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult CreateAndSendEquipmentTransfer(InfoForCreatingEdoEquipmentTransfer data)
+		public IActionResult CreateAndSendEquipmentTransfer(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);

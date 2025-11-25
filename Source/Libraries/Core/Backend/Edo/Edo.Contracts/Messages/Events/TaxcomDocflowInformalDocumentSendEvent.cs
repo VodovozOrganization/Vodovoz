@@ -24,7 +24,7 @@ namespace Edo.Contracts.Messages.Events
 		/// <summary>
 		/// Информация для создания неформализованного документа по ЭДО
 		/// </summary>
-		public InfoForCreatingEdoEquipmentTransfer DocumentInfo { get; set; }
+		public InfoForCreatingEdoInformalOrderDocument DocumentInfo { get; set; }
 	}
 }
 

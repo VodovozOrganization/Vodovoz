@@ -1,4 +1,4 @@
-using TaxcomEdo.Contracts.Documents;
+﻿using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Orders;
 
 namespace Edo.Docflow.Factories
@@ -8,7 +8,7 @@ namespace Edo.Docflow.Factories
 	/// </summary>
 	public interface IInfoForCreatingEdoEquipmentTransferFactory
 	{
-		InfoForCreatingEdoEquipmentTransfer CreateInfoForCreatingEdoEquipmentTransfer(OrderInfoForEdo orderInfoForEdo, FileData fileData);
+		InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoEquipmentTransfer(OrderInfoForEdo orderInfoForEdo, FileData fileData);
 	}
 }
 
