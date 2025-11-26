@@ -25,5 +25,8 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Статус проверки в ЧЗ
 		/// </summary>
 		public string MarkingSystemCheck { get; set; }
+		
+		public static ActivationLinkCompany Create() =>
+			new ActivationLinkCompany();
 	}
 }

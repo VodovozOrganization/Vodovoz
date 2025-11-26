@@ -9,7 +9,7 @@ using Vodovoz.Settings.Counterparty;
 
 namespace CustomerAppsApi.Library.Validators
 {
-	public class CounterpartyModelValidator : ICounterpartyModelValidator
+	public class CounterpartyRequestDataValidator : ICounterpartyRequestDataValidator
 	{
 		private const string _wrongCameFromId = "Неверно заполнено поле Откуда клиент";
 		private const string _onlyNumbersPattern = @"^\d+$";
@@ -17,7 +17,7 @@ namespace CustomerAppsApi.Library.Validators
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly StringBuilder _sb;
 
-		public CounterpartyModelValidator(PhoneFormatter phoneFormatter, ICounterpartySettings counterpartySettings)
+		public CounterpartyRequestDataValidator(PhoneFormatter phoneFormatter, ICounterpartySettings counterpartySettings)
 		{
 			_phoneFormatter = phoneFormatter ?? throw new ArgumentNullException(nameof(phoneFormatter));
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
@@ -54,23 +54,18 @@ namespace CustomerAppsApi.Library.Validators
 			return ValidationResult();
 		}
 
-		public string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto)
-		{
-			// реализация будет позже, после слития интеграции юриков
-			return string.Empty;
-		}
-
-		public string GetLegalCustomersByInnDtoValidate(GetLegalCustomersByInnDto dto)
+		public string LegalCustomersByInnValidate(LegalCustomersByInnRequest dto)
 		{
 			_sb.Clear();
 
 			ValidateSource(dto.Source);
 			ValidateInn(dto.Inn);
+			ValidateEmail(dto.Email);
 
 			return ValidationResult();
 		}
-		
-		public string CompanyWithActiveEmailRequestDataValidate(CompanyWithActiveEmailRequest dto)
+
+		public string CompanyWithActiveEmailValidate(CompanyWithActiveEmailRequest dto)
 		{
 			_sb.Clear();
 
@@ -85,7 +80,7 @@ namespace CustomerAppsApi.Library.Validators
 			_sb.Clear();
 
 			ValidateSource(dto.Source);
-			ValidateNaturalCounterpartyId(dto.ErpCounterpartyId);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 
 			return ValidationResult();
 		}
@@ -191,12 +186,32 @@ namespace CustomerAppsApi.Library.Validators
 			return ValidationResult();
 		}
 
+		public string CheckPasswordValidate(CheckPasswordRequest dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
+			ValidateEmail(dto.Email);
+			ValidatePassword(dto.Password);
+			
+			return ValidationResult();
+		}
+
 		private void ValidatePassword(string password)
 		{
 			if(string.IsNullOrWhiteSpace(password))
 			{
 				_sb.AppendLine("Не заполнен пароль");
 			}
+		}
+		
+		private void ValidateEmail(string email)
+		{
+			if(string.IsNullOrWhiteSpace(email))
+			{
+				_sb.AppendLine("Не заполнена электронная почта");
+			}
+			
+			//TODO 5417: добавить проверку шаблона
 		}
 
 		private void ValidateNaturalCounterpartyId(int naturalCounterpartyId)
@@ -408,7 +423,7 @@ namespace CustomerAppsApi.Library.Validators
 
 		private void ValidateCameFromProperty(int cameFromId)
 		{
-			if(cameFromId == default(int)
+			if(cameFromId == 0
 				|| (cameFromId != _counterpartySettings.GetMobileAppCounterpartyCameFromId
 					&& cameFromId != _counterpartySettings.GetWebSiteCounterpartyCameFromId))
 			{

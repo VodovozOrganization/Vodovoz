@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 
@@ -21,16 +22,16 @@ namespace CustomerAppsApi.Library.Converters
 				: CounterpartyFrom.WebSite;
 		}
 		
-		public CounterpartyFrom ConvertSourceToCounterpartyFrom(Source source)
+		public Result<CounterpartyFrom> ConvertSourceToCounterpartyFrom(Source source)
 		{
 			if(source == Source.KulerSaleWebSite)
 			{
-				throw new InvalidOperationException("Нет реализации для Кулер Сэйл");
+				return Result.Failure<CounterpartyFrom>(new Error("500", "Нет реализации для Кулер Сэйл"));
 			}
 
 			Enum.TryParse(((int)source).ToString(), out CounterpartyFrom result);
 			
-			return result;
+			return Result.Success(result);
 		}
 	}
 }

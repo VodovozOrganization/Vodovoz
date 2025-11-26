@@ -4,7 +4,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 	/// <summary>
 	/// Информация для получения юр лиц по ИНН
 	/// </summary>
-	public class GetLegalCustomersByInnDto : GetLegalCustomersDto
+	public class LegalCustomersByInnRequest : GetLegalCustomersDto
 	{
 		/// <summary>
 		/// ИНН

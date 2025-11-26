@@ -73,7 +73,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IWarehouseModel, WarehouseModel>()
 				.AddScoped<IRentPackageModel, RentPackageModel>()
 				.AddScoped<IDeliveryPointService, DeliveryPointService>()
-				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<ICounterpartyRequestDataValidator, CounterpartyRequestDataValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()

@@ -13,16 +13,16 @@ namespace CustomerAppsApi.Controllers
 	{
 		private readonly ILogger<SendingController> _logger;
 		private readonly ISendingService _sendingService;
-		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
+		private readonly ICounterpartyRequestDataValidator _counterpartyRequestDataValidator;
 
 		public SendingController(
 			ILogger<SendingController> logger,
 			ISendingService sendingService,
-			ICounterpartyModelValidator counterpartyModelValidator)
+			ICounterpartyRequestDataValidator counterpartyRequestDataValidator)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_sendingService = sendingService ?? throw new ArgumentNullException(nameof(sendingService));
-			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
+			_counterpartyRequestDataValidator = counterpartyRequestDataValidator ?? throw new ArgumentNullException(nameof(counterpartyRequestDataValidator));
 		}
 
 		/// <summary>
@@ -40,7 +40,7 @@ namespace CustomerAppsApi.Controllers
 			
 			try
 			{
-				var validationResult = _counterpartyModelValidator.SendingCodeToEmailDtoValidate(codeToEmailDto);
+				var validationResult = _counterpartyRequestDataValidator.SendingCodeToEmailDtoValidate(codeToEmailDto);
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogWarning(

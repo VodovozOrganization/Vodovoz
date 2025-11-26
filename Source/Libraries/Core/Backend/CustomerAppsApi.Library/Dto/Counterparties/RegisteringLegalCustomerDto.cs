@@ -18,11 +18,6 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Id пользователя
 		/// </summary>
 		public Guid ExternalCounterpartyId { get; set; }
-		//TODO 5417: нужен ли этот параметр
-		/// <summary>
-		/// Id клиента в ДВ
-		/// </summary>
-		public int ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Наименование
 		/// </summary>
@@ -48,7 +43,6 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Юр адрес
 		/// </summary>
 		public string JurAddress { get; set; }
-		//TODO 5417: обсудить с Костей эти параметры
 		/// <summary>
 		/// Полное наименование организационно-правовой формы
 		/// </summary>

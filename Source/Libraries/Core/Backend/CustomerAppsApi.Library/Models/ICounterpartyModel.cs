@@ -14,10 +14,10 @@ namespace CustomerAppsApi.Library.Models
 		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
 		CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId);
 		Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId);
-		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(GetLegalCustomersByInnDto dto);
+		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetLegalCustomersByInn(LegalCustomersByInnRequest request);
 		(string Message, IEnumerable<LegalCounterpartyInfo> Data) GetNaturalCounterpartyLegalCustomers(
 			GetNaturalCounterpartyLegalCustomersDto dto);
-		string GetLegalCustomersDtoByInnValidate(GetLegalCustomersByInnDto dto);
+		string GetLegalCustomersDtoByInnValidate(LegalCustomersByInnRequest request);
 		(string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto);
 		string RegisteringLegalCustomerValidate(RegisteringLegalCustomerDto dto);
 		string GetPhonesConnectedToLegalCustomerValidate(GetPhonesConnectedToLegalCustomerDto dto);

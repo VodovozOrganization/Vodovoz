@@ -24,7 +24,6 @@ namespace CustomerAppsApi.Library.Repositories
 			CounterpartyFrom counterpartyFrom);
 		ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom);
 		bool ExternalCounterpartyMatchingExists(IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber);
-		IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, GetLegalCustomersByInnDto dto);
 		IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(IUnitOfWork uow, int counterpartyId, string phone);
 		RoboAtsCounterpartyName GetRoboatsCounterpartyName(IUnitOfWork uow, string counterpartyName);
 		RoboAtsCounterpartyPatronymic GetRoboatsCounterpartyPatronymic(IUnitOfWork uow, string counterpartyPatronymic);

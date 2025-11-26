@@ -6,7 +6,7 @@
 	public class CompanyInfoRequest : GetLegalCustomersDto
 	{
 		/// <summary>
-		/// Идентификатор клиента физического лица
+		/// Идентификатор клиента юридического лица
 		/// </summary>
 		public int ErpCounterpartyId { get; set; }
 	}

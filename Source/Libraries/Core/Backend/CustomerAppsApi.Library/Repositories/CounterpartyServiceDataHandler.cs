@@ -86,49 +86,6 @@ namespace CustomerAppsApi.Library.Repositories
 			return _externalCounterpartyMatchingRepository.ExternalCounterpartyMatchingExists(uow, externalCounterpartyId, phoneNumber);
 		}
 		
-		public IEnumerable<LegalCounterpartyInfo> GetLegalCustomersByInn(IUnitOfWork uow, GetLegalCustomersByInnDto dto)
-		{
-			var counterparties = _counterpartyRepository.GetLegalCounterpartiesByInn(uow, dto.Inn);
-
-			var counterpartiesIds = counterparties
-				.Select(x => x.ErpCounterpartyId)
-				.Distinct()
-				.ToArray();
-
-			var phones =
-				_phoneRepository
-					.GetPhoneInfoByCounterpartiesIds(uow, counterpartiesIds)
-					.ToLookup(x => x.ErpCounterpartyId);
-			
-			var emails =
-				_emailRepository
-					.GetEmailInfoByCounterpatiesIds(uow, counterpartiesIds)
-					.ToLookup(x => x.ErpCounterpartyId);
-
-			foreach(var counterpartyInfo in counterparties)
-			{
-				var counterpartyId = counterpartyInfo.ErpCounterpartyId;
-				var counterpartyPhones = new List<PhoneInfo>();
-				var counterpartyEmails = new List<EmailInfo>();
-
-				if(phones.Contains(counterpartyId))
-				{
-					counterpartyPhones.AddRange(phones[counterpartyId]);
-				}
-
-				counterpartyInfo.Phones = counterpartyPhones;
-				
-				if(emails.Contains(counterpartyId))
-				{
-					counterpartyEmails.AddRange(emails[counterpartyId]);
-				}
-				
-				counterpartyInfo.Emails = counterpartyEmails;
-			}
-			
-			return counterparties;
-		}
-		
 		public IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(IUnitOfWork uow, int counterpartyId, string phone)
 		{
 			var counterparties = _connectedCustomerRepository.GetConnectedCustomers(uow, counterpartyId, phone);
