@@ -223,7 +223,6 @@ namespace Edo.Docflow
 					DocumentInfo = documentInfo
 				};
 
-				var jsonMessage = System.Text.Json.JsonSerializer.Serialize(message);
 				await _messageBus.Publish(message, cancellationToken);
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}
@@ -271,6 +270,9 @@ namespace Edo.Docflow
 						case OutgoingEdoDocumentType.Order:
 							message = new OrderDocumentAcceptedEvent { DocumentId = document.Id };
 							break;
+						case OutgoingEdoDocumentType.InformalOrderDocument:
+							message = new InformalOrderDocumentAcceptedEvent { DocumentId = document.Id };
+							break;
 						default:
 							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
 					}
@@ -289,6 +291,9 @@ namespace Edo.Docflow
 						case OutgoingEdoDocumentType.Order:
 							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
 							break;
+						case OutgoingEdoDocumentType.InformalOrderDocument:
+							message = new InformalOrderDocumentProblemEvent { DocumentId = document.Id };
+							break;
 						default:
 							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
 					}
@@ -303,6 +308,9 @@ namespace Edo.Docflow
 							break;
 						case OutgoingEdoDocumentType.Order:
 							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.InformalOrderDocument:
+							message = new InformalOrderDocumentProblemEvent { DocumentId = document.Id };
 							break;
 						default:
 							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
@@ -329,6 +337,9 @@ namespace Edo.Docflow
 							break;
 						case OutgoingEdoDocumentType.Order:
 							message = new OrderDocumentCancelledEvent { DocumentId = document.Id };
+							break;
+						case OutgoingEdoDocumentType.InformalOrderDocument:
+							message = new InformalOrderDocumentCancelledEvent { DocumentId = document.Id };
 							break;
 						default:
 							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");

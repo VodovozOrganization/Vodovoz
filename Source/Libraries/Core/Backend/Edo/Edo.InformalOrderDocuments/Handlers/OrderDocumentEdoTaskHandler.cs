@@ -1,5 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.InformalOrderDocuments.Factories;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
@@ -16,24 +18,27 @@ namespace Edo.InformalOrderDocuments.Handlers
 	/// <summary>
 	/// Обработчик задачи ЭДО документа заказа
 	/// </summary>
-	public class OrderDocumentEdoTaskHandler
+	public class OrderDocumentEdoTaskHandler : IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _handlerFactory;
 		private readonly IBus _messageBus;
 		private readonly ILogger<OrderDocumentEdoTaskHandler> _logger;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		public OrderDocumentEdoTaskHandler(
 			IUnitOfWork uow,
 			IInformalOrderDocumentHandlerFactory handlerFactory,
 			IBus messageBus,
-			ILogger<OrderDocumentEdoTaskHandler> logger
+			ILogger<OrderDocumentEdoTaskHandler> logger,
+			EdoProblemRegistrar edoProblemRegistrar
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		/// <summary>
@@ -89,7 +94,11 @@ namespace Edo.InformalOrderDocuments.Handlers
 					FileData = result
 				};
 
+				edoTask.Status = EdoTaskStatus.InProgress;
+
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
+
 				await _messageBus.Publish(fileDataMessage, cancellationToken);
 
 				_logger.LogInformation($"Отправка PDF {orderDocument.Name} заказа №{order.Id}");
@@ -115,6 +124,85 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 			await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 			return edoDocument;
+		}
+
+		/// <summary>
+		/// Обработка принятого документа заказа
+		/// </summary>
+		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task HandleAccepted(int documentId, CancellationToken cancellationToken)
+		{
+			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(documentId, cancellationToken);
+			if(document == null)
+			{
+				_logger.LogWarning("Документ №{DocumentId} не найден.", documentId);
+				return;
+			}
+
+			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.InformalDocumentTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				_logger.LogWarning("Задача ЭДО №{DocumentEdoTaskId} не найдена.", document.InformalDocumentTaskId);
+				return;
+			}
+
+			edoTask.Status = EdoTaskStatus.Completed;
+
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+		}
+
+		/// <summary>
+		/// Обработка проблемы с документом заказа
+		/// </summary>
+		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task HandleProblem(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
+			}
+
+			var documentTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.InformalDocumentTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				documentTask, cancellationToken, "Возникла проблема с документооборотом, не завершился на стороне ЭДО провайдера");
+		}
+
+		/// <summary>
+		/// Обработка аннулированого документа заказа
+		/// </summary>
+		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		public async Task HandleCancelled(int documentId, CancellationToken cancellationToken)
+		{
+			_uow.OpenTransaction();
+
+			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(documentId, cancellationToken);
+
+			if(document == null)
+			{
+				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
+			}
+
+			var documentTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.InformalDocumentTaskId, cancellationToken);
+
+			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+				documentTask, cancellationToken, "Документооборот был отменен");
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }
