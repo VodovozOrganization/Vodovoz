@@ -8,6 +8,12 @@ namespace Edo.Docflow.Factories
 	/// </summary>
 	public interface IInfoForCreatingEdoInformalOrderDocumentFactory
 	{
+		/// <summary>
+		/// Создать информацию об документе заказа для ЭДО
+		/// </summary>
+		/// <param name="orderInfoForEdo"></param>
+		/// <param name="fileData"></param>
+		/// <returns></returns>
 		InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoInformalOrderDocument(OrderInfoForEdo orderInfoForEdo, FileData fileData);
 	}
 }

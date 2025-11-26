@@ -4,6 +4,9 @@ using RabbitMQ.Client;
 
 namespace Edo.Scheduler.Consumers.Definitions
 {
+	/// <summary>
+	/// Конфигурация консьюмера для события создания неформальной заявки ЭДО
+	/// </summary>
 	public class InformalEdoRequestCreatedConsumerDefinition : ConsumerDefinition<InformalEdoRequestCreatedConsumer>
 	{
 		public InformalEdoRequestCreatedConsumerDefinition()

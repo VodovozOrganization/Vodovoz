@@ -7,10 +7,10 @@ using TaxcomEdoConsumer.Options;
 
 namespace TaxcomEdoConsumer.Consumers
 {
-	public class TaxcomEquipmentTransferDocflowSendEventConsumerDefinition : ConsumerDefinition<TaxcomDocflowInformalDocumentSendEventConsumer>
+	public class TaxcomDocflowInformalDocumentSendEventDefinition : ConsumerDefinition<TaxcomDocflowInformalDocumentSendEventConsumer>
 	{
 		private readonly TaxcomEdoConsumerOptions _taxcomEdoConsumerOptions;
-		public TaxcomEquipmentTransferDocflowSendEventConsumerDefinition(IOptions<TaxcomEdoConsumerOptions> taxcomEdoConsumerOptions)
+		public TaxcomDocflowInformalDocumentSendEventDefinition(IOptions<TaxcomEdoConsumerOptions> taxcomEdoConsumerOptions)
 		{
 			_taxcomEdoConsumerOptions =
 				(taxcomEdoConsumerOptions ?? throw new ArgumentNullException(nameof(taxcomEdoConsumerOptions)))

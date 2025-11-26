@@ -12,6 +12,9 @@ using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
+	/// <summary>
+	/// Акт приема-передачи оборудования
+	/// </summary>
 	public class EquipmentTransferDocument : PrintableOrderDocument, IPrintableRDLDocument, IEmailableDocument
 	{
 		#region implemented abstract members of OrderDocument

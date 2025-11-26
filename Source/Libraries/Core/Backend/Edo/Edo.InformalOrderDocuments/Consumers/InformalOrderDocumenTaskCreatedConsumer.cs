@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Edo.InformalOrderDocuments.Consumers
 {
 	/// <summary>
-	/// Настройка MassTransit для обработки созданной задачи документу заказа
+	/// Консьюмер для обработки созданной задачи документу заказа
 	/// </summary>
 	public class InformalOrderDocumenTaskCreatedConsumer : IConsumer<InformalOrderDocumenTaskCreatedEvent>
 	{

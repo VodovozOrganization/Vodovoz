@@ -1,12 +1,14 @@
 ﻿using Edo.Contracts.Messages.Events;
-using Edo.Docflow;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace Edo.InformalOrderDocuments.Consumers
+namespace Edo.Docflow.Consumers
 {
+	/// <summary>
+	/// Консьюмер события отправки файловых данных неформализованного документа
+	/// </summary>
 	public class InformalDocumentFileDataSendConsumer : IConsumer<InformalDocumentFileDataSendEvent>
 	{
 		private readonly ILogger<InformalDocumentFileDataSendConsumer> _logger;

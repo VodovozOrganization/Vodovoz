@@ -3,6 +3,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Docflow.Factories
 {
+	/// <summary>
+	/// Фабрика получения обработчиков неформальных документов по их типу
+	/// </summary>
 	public interface IInformalOrderDocumentHandlerFactory
 	{
 		/// <summary>

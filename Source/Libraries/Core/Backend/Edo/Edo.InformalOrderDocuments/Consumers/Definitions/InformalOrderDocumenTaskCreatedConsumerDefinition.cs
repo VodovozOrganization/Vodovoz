@@ -5,7 +5,7 @@ using RabbitMQ.Client;
 namespace Edo.InformalOrderDocuments.Consumers.Definitions
 {
 	/// <summary>
-	/// Настройка MassTransit для события создания задачи по неформализованному документу заказа
+	/// Конфигурация консьюмера для события создания задачи по неформализованному документу заказа
 	/// </summary>
 	public class InformalOrderDocumenTaskCreatedConsumerDefinition : ConsumerDefinition<InformalOrderDocumenTaskCreatedConsumer>
 	{

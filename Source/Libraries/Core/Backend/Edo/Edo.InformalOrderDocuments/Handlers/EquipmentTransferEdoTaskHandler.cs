@@ -10,6 +10,9 @@ using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Edo.InformalOrderDocuments.Handlers
 {
+	/// <summary>
+	/// Обработчик документов заказа типа акт приёма-передачи оборудования
+	/// </summary>
 	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler
 	{
 		private readonly IUnitOfWork _uow;

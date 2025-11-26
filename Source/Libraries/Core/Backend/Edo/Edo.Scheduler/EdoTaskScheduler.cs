@@ -137,7 +137,6 @@ namespace Edo.Scheduler.Service
 				return;
 			}
 
-
 			switch(request.OrderDocumentType)
 			{
 				case OrderDocumentType.EquipmentTransfer:

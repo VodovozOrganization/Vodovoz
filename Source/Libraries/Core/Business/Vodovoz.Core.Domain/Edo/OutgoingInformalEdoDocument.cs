@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Core.Domain.Edo
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vodovoz.Core.Domain.Edo
 {
 	/// <summary>
 	/// Исходящий неформализованный ЭДО документ 
@@ -6,6 +8,11 @@
 	public class OutgoingInformalEdoDocument : OutgoingEdoDocument
 	{
 		private int _informalDocumentTaskId;
+
+		/// <summary>
+		/// Идентификатор задачи исходящего неформализованного документа
+		/// </summary>
+		[Display(Name = "Идентификатор")]
 		public virtual int InformalDocumentTaskId
 		{
 			get => _informalDocumentTaskId;

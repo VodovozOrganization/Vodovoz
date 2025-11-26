@@ -2,8 +2,11 @@
 using MassTransit;
 using RabbitMQ.Client;
 
-namespace Edo.InformalOrderDocuments.Consumers.Definitions
+namespace Edo.Docflow.Consumers.Definitions
 {
+	/// <summary>
+	/// Конфигурация консьюмера для обработки событий отправки файлов неформализованных документов
+	/// </summary>
 	public class InformalDocumentFileDataSendConsumerDefinition : ConsumerDefinition<InformalDocumentFileDataSendConsumer>
 	{
 		public InformalDocumentFileDataSendConsumerDefinition()

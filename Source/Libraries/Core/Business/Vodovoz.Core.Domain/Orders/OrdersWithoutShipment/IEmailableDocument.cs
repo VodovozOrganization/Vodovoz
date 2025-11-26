@@ -38,12 +38,4 @@ namespace Vodovoz.Core.Domain.Orders.OrdersWithoutShipment
 		/// <returns></returns>
 		ReportInfo GetReportInfo(string connectionString = null);
 	}
-
-	/// <summary>
-	/// Кастомный документ с возможностью повторной отправки
-	/// </summary>
-	public interface ICustomResendTemplateEmailableDocument : IEmailableDocument
-	{
-		EmailTemplateEntity GetResendDocumentEmailTemplate();
-	}
 }

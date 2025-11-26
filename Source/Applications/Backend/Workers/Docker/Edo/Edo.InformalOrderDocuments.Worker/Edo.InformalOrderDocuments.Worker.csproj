@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
-		<UserSecretsId>dotnet-Edo.Scheduler.Worker-19d5cb42-436a-411e-8cb0-e6c08fe765ea</UserSecretsId>
+		<UserSecretsId>dotnet-Edo.InformalOrderDocuments.Worker-19d5cb42-436a-411e-8cb0-e6c08fe765ea</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
 	</PropertyGroup>

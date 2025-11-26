@@ -4,6 +4,9 @@ using TaxcomEdo.Contracts.Documents;
 
 namespace TaxcomEdoApi.Library.Factories
 {
+	/// <summary>
+	/// Фабрика неформальных документов заказа для ЭДО
+	/// </summary>
 	public class EdoInformalOrderDocumentFactory : IEdoInformalOrderDocumentFactory
 	{
 		public NonformalizedDocument CreateInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)

@@ -1,5 +1,8 @@
 ﻿namespace Vodovoz.Core.Domain.StoredEmails
 {
+	/// <summary>
+	/// Приложение к электронному письму
+	/// </summary>
 	public class EmailAttachment
 	{
 		public string MIMEType { get; set; }

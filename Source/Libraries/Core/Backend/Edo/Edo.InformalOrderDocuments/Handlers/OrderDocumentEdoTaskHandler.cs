@@ -13,6 +13,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.InformalOrderDocuments.Handlers
 {
+	/// <summary>
+	/// Обработчик задачи ЭДО документа заказа
+	/// </summary>
 	public class OrderDocumentEdoTaskHandler
 	{
 		private readonly IUnitOfWork _uow;
@@ -33,6 +36,12 @@ namespace Edo.InformalOrderDocuments.Handlers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
+		/// <summary>
+		/// Обработка новой задачи ЭДО документа заказа
+		/// </summary>
+		/// <param name="orderDocumentEdoTaskId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
 		public async Task HandleNew(int orderDocumentEdoTaskId, CancellationToken cancellationToken)
 		{
 			var informalEdoRequest = await _uow.Session.Query<InformalEdoRequest>()
@@ -73,7 +82,6 @@ namespace Edo.InformalOrderDocuments.Handlers
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
 				var edoDocument = await CreateInformalDocument(edoTask.Id, cancellationToken);
-
 
 				var fileDataMessage = new InformalDocumentFileDataSendEvent
 				{

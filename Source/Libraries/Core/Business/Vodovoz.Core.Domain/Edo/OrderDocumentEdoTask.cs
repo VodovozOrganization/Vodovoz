@@ -2,6 +2,9 @@
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Задача ЭДО документа заказа
+	/// </summary>
 	public class OrderDocumentEdoTask : EdoTask
 	{
 		private InformalEdoRequest _informalEdoRequest;

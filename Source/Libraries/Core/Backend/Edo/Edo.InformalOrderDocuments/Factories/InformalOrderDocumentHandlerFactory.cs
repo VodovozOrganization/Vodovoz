@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.InformalOrderDocuments.Factories
 {
+	/// <summary>
+	/// Фабрика получения обработчиков неформальных документов по их типу
+	/// </summary>
 	public class InformalOrderDocumentHandlerFactory : IInformalOrderDocumentHandlerFactory
 	{
 		private readonly Dictionary<OrderDocumentType, IInformalOrderDocumentHandler> _handlers;

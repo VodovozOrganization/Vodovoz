@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Edo.Scheduler.Consumers
 {
+	/// <summary>
+	/// Консьюмер для обработки созданной задачи ЭДО неформальной заявки
+	/// </summary>
 	public class InformalEdoRequestCreatedConsumer : IConsumer<InformalEdoRequestCreatedEvent>
 	{
 		private readonly ILogger<InformalEdoRequestCreatedConsumer> _logger;

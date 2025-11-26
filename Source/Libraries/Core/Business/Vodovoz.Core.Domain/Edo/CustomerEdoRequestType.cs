@@ -34,6 +34,6 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Счет без отгрузки на постоплату
 		/// </summary>
 		[Display(Name = "Счет без отгрузки на постоплату")]
-		OrderWithoutShipmentForPayment
+		OrderWithoutShipmentForPayment,
 	}
 }

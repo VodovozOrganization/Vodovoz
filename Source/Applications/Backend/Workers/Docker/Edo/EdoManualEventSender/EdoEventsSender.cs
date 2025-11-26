@@ -36,7 +36,6 @@ namespace EdoManualEventSender
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
 			Console.WriteLine("15. TransferCompleteEvent (Tender):");
 			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
-			Console.WriteLine("17. EquipmentTransferTaskCreatedEvent:");
 			Console.WriteLine("99. RequestTaskCancellationEvent:");
 			Console.WriteLine();
 
@@ -92,9 +91,6 @@ namespace EdoManualEventSender
 					break;
 				case 16:
 					SendWithdrawalTaskCreatedEvent();
-					break;
-				case 17:
-					SendEquipmentTransferTaskCreatedEvent();
 					break;
 
 
@@ -352,20 +348,6 @@ namespace EdoManualEventSender
 				return;
 			}
 			_messageBus.Publish(new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = id });
-		}
-
-		private void SendEquipmentTransferTaskCreatedEvent()
-		{
-			Console.WriteLine();
-			Console.WriteLine("Необходимо ввести Id задачи с типом EquipmentTransfer (edo_tasks)");
-			Console.Write("Введите Id (0 - выход): ");
-			var id = int.Parse(Console.ReadLine());
-			if(id <= 0)
-			{
-				Console.WriteLine("Выход");
-				return;
-			}
-			_messageBus.Publish(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = id });
 		}
 
 		private void SendRequestTaskCancellationEvent()

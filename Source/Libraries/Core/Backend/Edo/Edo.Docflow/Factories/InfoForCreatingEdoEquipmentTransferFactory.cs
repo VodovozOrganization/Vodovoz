@@ -4,6 +4,9 @@ using TaxcomEdo.Contracts.Orders;
 
 namespace Edo.Docflow.Factories
 {
+	/// <summary>
+	/// Фабрика создания информации для создания ЭДО документа "Акт приема-передачи оборудования"
+	/// </summary>
 	public class InfoForCreatingEdoEquipmentTransferFactory : IInfoForCreatingEdoInformalOrderDocumentFactory
 	{
 		public InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoInformalOrderDocument(OrderInfoForEdo orderInfoForEdo, FileData fileData)

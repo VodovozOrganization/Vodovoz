@@ -5,6 +5,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Docflow.Handlers
 {
+	/// <summary>
+	/// Интерфейс обработчика неформальных документов заказа
+	/// </summary>
 	public interface IInformalOrderDocumentHandler
 	{
 		/// <summary>
