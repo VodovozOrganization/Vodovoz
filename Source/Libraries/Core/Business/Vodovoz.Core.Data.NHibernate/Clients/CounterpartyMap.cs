@@ -204,6 +204,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.IsNotSendDocumentsByEdo)
 				.Column("is_not_send_documents_by_edo");
 
+			Map(x => x.IsNotSendEquipmentTransferByEdo)
+				.Column("is_not_send_equipment_transfer_by_edo");
+
 			Map(x => x.CanSendUpdInAdvance)
 				.Column("can_send_upd_in_advance");
 

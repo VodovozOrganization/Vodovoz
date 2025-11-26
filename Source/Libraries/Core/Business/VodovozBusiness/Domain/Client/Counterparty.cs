@@ -924,6 +924,12 @@ namespace Vodovoz.Domain.Client
 						"При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
 				}
 
+				if(IsNotSendEquipmentTransferByEdo && IsPaperlessWorkflow)
+				{
+					yield return new ValidationResult(
+						"При выборе \"Не отправлять акты приёма-передачи по EDO\" должен быть отключен \"Отказ от печатных документов\"");
+				}
+
 				foreach(var email in Emails)
 				{
 					if(!email.IsValidEmail)

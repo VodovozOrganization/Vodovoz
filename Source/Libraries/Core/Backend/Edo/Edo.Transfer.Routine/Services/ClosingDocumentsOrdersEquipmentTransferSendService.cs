@@ -88,8 +88,8 @@ namespace Edo.Transfer.Routine.Services
 						   && client.IsNewEdoProcessing
 						   && (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 							   || defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-						   && !client.IsNotSendDocumentsByEdo
-						   && edoRequest == null // Добавить булево из карточки КА
+						   && !client.IsNotSendEquipmentTransferByEdo
+						   && edoRequest == null
 					   select order)
 				.ToListAsync(cancellationToken);
 

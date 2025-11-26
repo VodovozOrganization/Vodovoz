@@ -43,6 +43,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private ReasonForLeaving _reasonForLeaving;
 		private bool _isPaperlessWorkflow;
 		private bool _isNotSendDocumentsByEdo;
+		private bool _isNotSendEquipmentTransferByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
 		private string _specialContractName;
@@ -739,6 +740,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isNotSendDocumentsByEdo;
 			set => SetField(ref _isNotSendDocumentsByEdo, value);
+		}
+
+		/// <summary>
+		/// Не отправлять акт приёма-передачи по ЭДО
+		/// </summary>
+		[Display(Name = "Не отправлять акт приёма-передачи по ЭДО")]
+		public virtual bool IsNotSendEquipmentTransferByEdo
+		{
+			get => _isNotSendEquipmentTransferByEdo;
+			set => SetField(ref _isNotSendEquipmentTransferByEdo, value);
 		}
 
 		/// <summary>
