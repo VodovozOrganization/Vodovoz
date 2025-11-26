@@ -181,7 +181,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			UoW = uow;
-			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
+			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);		
+			
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
 			RouteList = FuelDocument.RouteList;
@@ -317,7 +318,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-			if(FuelDocument.Id == 0 && RouteList != null)
+            if(RouteList != null && !RouteList.Addresses.Any())
+            {
+                AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+                return;
+            }
+
+            if(FuelDocument.Id == 0 && RouteList != null)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}

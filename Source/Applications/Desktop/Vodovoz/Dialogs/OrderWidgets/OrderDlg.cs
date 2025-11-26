@@ -2588,6 +2588,11 @@ namespace Vodovoz
 
 		private bool CheckNeedBillResend()
 		{
+			if(!_orderItemsOriginalValues.Any())
+			{
+				return false;
+			}
+
 			var currentOrderItemsValues = new List<(int Id, decimal Count, decimal Sum)>();
 
 			currentOrderItemsValues.AddRange(GetOrderItemsSmallNodes());
@@ -5007,7 +5012,7 @@ namespace Vodovoz
 			yBtnAddCurrentContract.Sensitive = CanEditByPermission;
 
 			if(Entity.CanSetOrderAsAccepted
-				&& (CanFormOrderWithLiquidatedCounterparty || !(Counterparty?.IsLiquidating ?? false)))
+				&& (CanFormOrderWithLiquidatedCounterparty || (Counterparty?.RevenueStatus == null || Counterparty?.RevenueStatus == RevenueStatus.Active)))
 			{
 				btnForm.Visible = true;
 				buttonEditOrder.Visible = false;

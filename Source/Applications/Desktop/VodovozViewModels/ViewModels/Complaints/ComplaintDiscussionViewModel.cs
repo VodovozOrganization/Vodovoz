@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -8,7 +7,6 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,7 +18,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
-using Vodovoz.ViewModelBased;
 using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.ViewModels.Complaints
@@ -73,6 +70,8 @@ namespace Vodovoz.ViewModels.Complaints
 				ComplaintDiscussionComment.DeleteFileInformation);
 
 			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
+
+			UpdateFilesMissingOnStorage();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -113,6 +112,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public Dictionary<Func<int>, Dictionary<string, byte[]>> FilesToUploadOnSave { get; }
 			= new Dictionary<Func<int>, Dictionary<string, byte[]>>();
 
+		public List<string> FilesMissingOnStorage { get; } = new List<string>();
+
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate && _complaintPermissionResult.CanUpdate;
 
@@ -148,6 +149,48 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
 
 		public DelegateCommand AddCommentCommand { get; private set; }
+
+		public void UpdateFilesMissingOnStorage()
+		{
+			FilesMissingOnStorage.Clear();
+
+			foreach(var comment in Entity.ObservableComments)
+			{
+				var loadedFiles = GetLoadedFilesForComment(comment);
+
+				foreach(var fileInformation in comment.AttachedFileInformations)
+				{
+					if(!loadedFiles.ContainsKey(fileInformation.FileName))
+					{
+						FilesMissingOnStorage.Add(fileInformation.FileName);
+					}
+				}
+			}
+		}
+
+		private Dictionary<string, byte[]> GetLoadedFilesForComment(ComplaintDiscussionComment complaintDiscussionComment)
+		{
+			var loadedFiles = new Dictionary<string, byte[]>();
+			foreach(var fileInformation in complaintDiscussionComment.AttachedFileInformations)
+			{
+				var fileResult = _complaintDiscussionCommentFileStorageService
+					.GetFileAsync(complaintDiscussionComment, fileInformation.FileName, _cancellationTokenSource.Token)
+					.GetAwaiter()
+					.GetResult();
+
+				if(fileResult.IsSuccess)
+				{
+					using(var ms = new MemoryStream())
+					{
+						fileResult.Value.CopyTo(ms);
+						var fileContent = ms.ToArray();
+						loadedFiles.Add(fileInformation.FileName, fileContent);
+					}
+				}
+			}
+
+			return loadedFiles;
+		}
 
 		private void AddCommentHandler()
 		{
