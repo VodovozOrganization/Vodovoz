@@ -22,6 +22,6 @@ namespace Vodovoz.Core.Domain.Edo
 
 		public override EdoDocumentType DocumentType => EdoDocumentType.Bill;
 
-		public override EdoRequestType DocumentSendType => EdoRequestType.Manual; // Перенести в дальнейшем в InformalEdoRequest
+		public override EdoRequestType DocumentRequestType => EdoRequestType.Manual; // Перенести в дальнейшем в InformalEdoRequest
 	}
 }

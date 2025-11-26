@@ -10,6 +10,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private OrderEntity _order;
 		private OrderDocumentEdoTask _task;
+		private OrderDocumentType _orderDocumentType;
 
 		/// <summary>
 		/// Код заказа c документом заказа
@@ -31,5 +32,15 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _task, value);
 		}
 		public override EdoDocumentType DocumentType => EdoDocumentType.InformalOrderDocument;
+
+		/// <summary>
+		/// Тип документа заказа
+		/// </summary>
+		[Display(Name = "Тип документа заказа")]
+		public virtual OrderDocumentType OrderDocumentType
+		{
+			get => _orderDocumentType;
+			protected set => SetField(ref _orderDocumentType, value);
+		}
 	}
 }

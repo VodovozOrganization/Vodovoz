@@ -3,14 +3,14 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
-	public class EquipmentTransferEdoDocumentMap : SubclassMap<OutgoingInformalEdoDocument>
+	public class OutgoingInformalEdoDocumentMap : SubclassMap<OutgoingInformalEdoDocument>
 	{
-		public EquipmentTransferEdoDocumentMap()
+		public OutgoingInformalEdoDocumentMap()
 		{
 			DiscriminatorValue(nameof(OutgoingEdoDocumentType.InformalOrderDocument));
 
-			Map(x => x.DocumentTaskId)
-				.Column("equipment_transfer_task_id");
+			Map(x => x.InformalDocumentTaskId)
+				.Column("informal_document_task_id");
 		}
 	}
 }

@@ -6,12 +6,12 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Docflow.Factories
 {
-	public class InformalDocumentHandlerFactory : IInformalOrderDocumentHandlerFactory
+	public class InformalOrderDocumentHandlerFactory : IInformalOrderDocumentHandlerFactory
 	{
 
 		private readonly Dictionary<OrderDocumentType, IInformalOrderDocumentHandler> _handlers;
 
-		public InformalDocumentHandlerFactory(IEnumerable<IInformalOrderDocumentHandler> handlers)
+		public InformalOrderDocumentHandlerFactory(IEnumerable<IInformalOrderDocumentHandler> handlers)
 		{
 			_handlers = handlers.ToDictionary(h => h.DocumentType, h => h);
 		}

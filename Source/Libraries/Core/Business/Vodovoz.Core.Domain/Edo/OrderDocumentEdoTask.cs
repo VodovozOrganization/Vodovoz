@@ -1,20 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public abstract class OrderDocumentEdoTask : EdoTask
+	public class OrderDocumentEdoTask : EdoTask
 	{
+		private InformalEdoRequest _informalEdoRequest;
 		public override EdoTaskType TaskType => EdoTaskType.InformalOrderDocument;
 
 		/// <summary>
-		/// Заказ
+		/// Заявка ЭДО отправки документа заказа
 		/// </summary>
-		public virtual OrderEntity Order { get; set; }
-		/// <summary>
-		/// Тип документа заказа
-		/// </summary>
-		[Display(Name = "Тип документа заказа")]
-		public abstract OrderDocumentType DocumentType { get; }
+		[Display(Name = "Заявка ЭДО отправки документа заказа")]
+		public virtual InformalEdoRequest InformalEdoRequest
+		{
+			get => _informalEdoRequest;
+			set => SetField(ref _informalEdoRequest, value);
+		}
 	}
 }

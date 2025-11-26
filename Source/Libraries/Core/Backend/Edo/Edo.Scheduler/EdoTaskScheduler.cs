@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Scheduler.Service
 {
@@ -136,9 +137,10 @@ namespace Edo.Scheduler.Service
 				return;
 			}
 
-			switch(request.Type)
+
+			switch(request.OrderDocumentType)
 			{
-				case CustomerEdoRequestType.EquipmentTransfer:
+				case OrderDocumentType.EquipmentTransfer:
 					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
 					break;
 				default:

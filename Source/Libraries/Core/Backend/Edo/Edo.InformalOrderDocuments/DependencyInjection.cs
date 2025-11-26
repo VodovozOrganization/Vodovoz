@@ -1,8 +1,11 @@
 ﻿using Edo.Common;
+using Edo.InformalOrderDocuments.Factories;
+using Edo.InformalOrderDocuments.Handlers;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using System.Reflection;
 
@@ -15,6 +18,16 @@ namespace Edo.InformalOrderDocuments
 			services.TryAddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddEdo();
+
+			services.AddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
+			services.AddScoped<IInformalOrderDocumentFileDataFactory, InformalOrderDocumentFileDataFactory>();
+			services.AddScoped<IInformalOrderDocumentHandler, EquipmentTransferDocumentHandler>();
+			services.AddScoped<OrderDocumentEdoTaskHandler>();
+			services.TryAddScoped<IPrintableDocumentSaver>(sp =>
+			{
+				var connectionStringBuilder = sp.GetRequiredService<MySqlConnectionStringBuilder>();
+				return new PrintableDocumentSaver(connectionStringBuilder);
+			});
 
 			return services;
 		}

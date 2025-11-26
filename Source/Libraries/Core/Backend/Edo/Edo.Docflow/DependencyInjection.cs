@@ -1,6 +1,7 @@
 ﻿using Edo.Docflow;
 using Edo.Docflow.Converters;
 using Edo.Docflow.Factories;
+using Edo.Docflow.Handlers;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ namespace Edo.Documents
 			services.TryAddScoped<DocflowHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
 			services.TryAddScoped<TransferOrderUpdInfoFactory>();
-			services.TryAddScoped<IInfoForCreatingEdoEquipmentTransferFactory, InfoForCreatingEdoEquipmentTransferFactory>();
+			services.TryAddScoped<IInfoForCreatingEdoInformalOrderDocumentFactory, InfoForCreatingEdoEquipmentTransferFactory>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			services.TryAddScoped<IOrderConverter, OrderConverter>();
@@ -38,13 +39,10 @@ namespace Edo.Documents
 			services.TryAddScoped<INomenclatureConverter, NomenclatureConverter>();
 			services.TryAddScoped<Vodovoz.Converters.IMeasurementUnitConverter, Vodovoz.Converters.MeasurementUnitConverter>();
 			services.TryAddScoped<INomenclatureCategoryConverter, NomenclatureCategoryConverter>();
-			// Перенести в Edo.InformalOrderDocuments
-			services.TryAddScoped<IPrintableDocumentSaver>(sp =>
-			{
-				var connectionStringBuilder = sp.GetRequiredService<MySqlConnectionStringBuilder>();
-				return new PrintableDocumentSaver(connectionStringBuilder);
-			});
 
+			services.TryAddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
+			services.TryAddScoped<IInformalOrderDocumentHandler, EquipmentTransferDocumentHandler>();
+			
 			return services;
 		}
 

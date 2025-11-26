@@ -46,13 +46,11 @@ namespace Edo.Docflow.Handlers
 			if(document == null)
 			{
 				_logger.LogWarning("Документ акта приёма-передачи оборудования с ID {DocumentId} не найден", documentId);
-				throw new ArgumentException($"Документ с ID {documentId} не найден");
 			}
 
 			if(document.Order?.Id != order.Id)
 			{
 				_logger.LogWarning("Документ {DocumentId} не принадлежит заказу {OrderId}", documentId, order.Id);
-				throw new ArgumentException($"Документ не принадлежит указанному заказу");
 			}
 
 			var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);

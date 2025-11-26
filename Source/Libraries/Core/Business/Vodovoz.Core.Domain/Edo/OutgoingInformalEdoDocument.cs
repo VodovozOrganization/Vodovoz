@@ -5,11 +5,11 @@
 	/// </summary>
 	public class OutgoingInformalEdoDocument : OutgoingEdoDocument
 	{
-		private int _documentTaskId;
-		public virtual int DocumentTaskId
+		private int _informalDocumentTaskId;
+		public virtual int InformalDocumentTaskId
 		{
-			get => _documentTaskId;
-			set => SetField(ref _documentTaskId, value);
+			get => _informalDocumentTaskId;
+			set => SetField(ref _informalDocumentTaskId, value);
 		}
 	}
 }

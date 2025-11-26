@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -12,16 +12,6 @@ namespace Vodovoz.Core.Domain.Edo
 	)]
 	public class EquipmentTransferEdoRequest : InformalEdoRequest
 	{
-		private int _equipmentTransferId;
-
-		/// <summary>
-		/// Код акта приёма-передачи оборудования
-		/// </summary>
-		[Display(Name = "Код акта приёма-передачи оборудования")]
-		public virtual int EquipmentTransferId
-		{
-			get => _equipmentTransferId;
-			set => SetField(ref _equipmentTransferId, value);
-		}
+		public override OrderDocumentType OrderDocumentType => OrderDocumentType.EquipmentTransfer;
 	}
 }

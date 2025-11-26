@@ -6,9 +6,10 @@ namespace Edo.Scheduler
 	{
 		public EdoTask CreateTask(EquipmentTransferEdoRequest edoRequest)
 		{
-			var task = new EquipmentTransferEdoTask
+			var task = new OrderDocumentEdoTask
 			{
 				Status = EdoTaskStatus.New
+
 			};
 
 			edoRequest.Task = task;

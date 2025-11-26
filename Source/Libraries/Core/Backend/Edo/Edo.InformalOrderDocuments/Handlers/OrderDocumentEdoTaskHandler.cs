@@ -2,6 +2,7 @@
 using Edo.InformalOrderDocuments.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -34,23 +35,45 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 		public async Task HandleNew(int orderDocumentEdoTaskId, CancellationToken cancellationToken)
 		{
-			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(orderDocumentEdoTaskId, cancellationToken) 
-				?? throw new InvalidOperationException($"Задача с идентификатором {orderDocumentEdoTaskId} не найдена.");
+			var informalEdoRequest = await _uow.Session.Query<InformalEdoRequest>()
+				.Where(x => x.Task.Id == orderDocumentEdoTaskId)
+				.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-			var order = await _uow.Session.GetAsync<OrderEntity>(edoTask.Order.Id, cancellationToken) 
-				?? throw new InvalidOperationException($"Заказ с идентификатором {edoTask.Order.Id} не найден.");
+			if(informalEdoRequest == null)
+			{
+				_logger.LogWarning($"Заявка на неформальный ЭДО для задачи с идентификатором {orderDocumentEdoTaskId} не найдена.");
+				return;
+			}
+
+			var edoTask = informalEdoRequest.Task;
+			if(edoTask == null)
+			{
+				_logger.LogWarning($"Задача с идентификатором ЭДО №{informalEdoRequest.Task} не найдена");
+				return;
+			}
+
+			var order = await _uow.Session.GetAsync<OrderEntity>(informalEdoRequest.Order.Id, cancellationToken);
+			if(order == null)
+			{
+				_logger.LogWarning($"Заказ с идентификатором {informalEdoRequest.Order.Id} не найден.");
+				return;
+			}
 
 			try
 			{
-				var handler = _handlerFactory.GetHandler(edoTask.DocumentType);
+				var handler = _handlerFactory.GetHandler(informalEdoRequest.OrderDocumentType);
 
 				var orderDocument = order.OrderDocuments
-					.Where(doc => doc.Type == edoTask.DocumentType).FirstOrDefault()
-					?? throw new InvalidOperationException($"Документ типа {edoTask.DocumentType} не найден в заказе с идентификатором {order.Id}.");
+					.Where(doc => doc.Type == informalEdoRequest.OrderDocumentType).FirstOrDefault();
+				if(orderDocument == null)
+				{
+					_logger.LogWarning($"Документ типа {informalEdoRequest.OrderDocumentType} для заказа №{order.Id} не найден.");
+				}
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
 				var edoDocument = await CreateInformalDocument(edoTask.Id, cancellationToken);
+
 
 				var fileDataMessage = new InformalDocumentFileDataSendEvent
 				{
@@ -58,13 +81,14 @@ namespace Edo.InformalOrderDocuments.Handlers
 					FileData = result
 				};
 
+				await _uow.CommitAsync(cancellationToken);
 				await _messageBus.Publish(fileDataMessage, cancellationToken);
 
 				_logger.LogInformation($"Отправка PDF {orderDocument.Name} заказа №{order.Id}");
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при обработке задачи EDO документа заказа №{order.Id}, тип документа {edoTask.DocumentType}.");
+				_logger.LogError(ex, $"Ошибка при обработке задачи EDO документа заказа №{order.Id}, тип документа {informalEdoRequest.OrderDocumentType}.");
 				throw;
 			}
 			
@@ -72,17 +96,17 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 		private async Task<OutgoingInformalEdoDocument> CreateInformalDocument(int edoTaskId, CancellationToken cancellationToken)
 		{
-			var customerEdoDocument = new OutgoingInformalEdoDocument
+			var edoDocument = new OutgoingInformalEdoDocument
 			{
-				DocumentTaskId = edoTaskId,
+				InformalDocumentTaskId = edoTaskId,
 				Status = EdoDocumentStatus.NotStarted,
 				EdoType = EdoType.Taxcom,
 				DocumentType = EdoDocumentType.InformalOrderDocument,
 				Type = OutgoingEdoDocumentType.InformalOrderDocument
 			};
 
-			await _uow.SaveAsync(customerEdoDocument, cancellationToken: cancellationToken);
-			return customerEdoDocument;
+			await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
+			return edoDocument;
 		}
 	}
 }

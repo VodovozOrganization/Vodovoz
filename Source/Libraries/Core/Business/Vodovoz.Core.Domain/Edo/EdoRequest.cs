@@ -60,7 +60,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Тип
 		/// </summary>
 		[Display(Name = "Тип")]
-		public virtual CustomerEdoRequestType Type
+		public virtual CustomerEdoRequestType Type // Нужен ли? По хорошему вырезать все счета ещё, переделать их
 		{
 			get => _type;
 			set => SetField(ref _type, value);

@@ -2,6 +2,7 @@
 using Edo.CodesSaver;
 using Edo.Common;
 using Edo.Documents;
+using Edo.InformalOrderDocuments;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
@@ -107,6 +108,7 @@ namespace CustomTaskDebugExecutor
 				.AddEdoTransferRoutineServices()
 				.AddEdoTransferSenderServices()
 				.AddEdoWithdrawalService()
+				.AddInformalOrderDocumentEdoServices()
 				;
 
 			services.AddScoped<EdoExecutor>();

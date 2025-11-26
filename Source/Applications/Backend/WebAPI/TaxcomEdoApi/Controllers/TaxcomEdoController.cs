@@ -129,16 +129,16 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult CreateAndSendEquipmentTransfer(InfoForCreatingEdoInformalOrderDocument data)
+		public IActionResult CreateAndSendInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
 
 			try
 			{
-				var container = _taxcomEdoService.CreateContainerWithEquipmentTransfer(data);
+				var container = _taxcomEdoService.CreateContainerWithInformalOrderDocument(data);
 
-				_logger.LogInformation("Отправляем контейнер с актом приёма-передачи по заказу №{OrderId}", orderId);
+				_logger.LogInformation("Отправляем контейнер с неформализованным документом по заказу №{OrderId}", orderId);
 				_taxcomApi.Send(container);
 				return Ok();
 			}
@@ -146,7 +146,7 @@ namespace TaxcomEdoApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки акта приёма-передачи",
+					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки документа заказа",
 					orderId);
 				return Problem();
 			}

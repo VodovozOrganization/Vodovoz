@@ -5,6 +5,7 @@ using Edo.Docflow.Converters;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -169,10 +170,20 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var edoTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+			var informalEdoRequest = await _uow.Session.Query<InformalEdoRequest>()
+				.Where(x => x.Task.Id == document.InformalDocumentTaskId)
+				.FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+			if(informalEdoRequest == null)
+			{
+				_logger.LogWarning($"Заявка на неформальный ЭДО для задачи с идентификатором {document.InformalDocumentTaskId} не найдена.");
+				return;
+			}
+
+			var edoTask = informalEdoRequest.Task;
 			if(edoTask == null)
 			{
-				_logger.LogWarning($"Задача ЭДО акта №{document.DocumentTaskId} не найдена");
+				_logger.LogWarning($"Задача ЭДО акта №{document.InformalDocumentTaskId} не найдена");
 				return;
 			}
 
@@ -193,11 +204,11 @@ namespace Edo.Docflow
 			try
 			{
 				var informalDocument = order.OrderDocuments
-					.FirstOrDefault(x => x.Type == edoTask.DocumentType);
+					.FirstOrDefault(x => x.Type == informalEdoRequest.OrderDocumentType);
 
 				if(informalDocument == null)
 				{
-					_logger.LogWarning($"Документ заказа {edoTask.DocumentType} для заказа {order.Id} не найден");
+					_logger.LogWarning($"Документ заказа {informalEdoRequest.OrderDocumentType} для заказа {order.Id} не найден");
 					return;
 				}
 
@@ -212,12 +223,13 @@ namespace Edo.Docflow
 					DocumentInfo = documentInfo
 				};
 
+				var jsonMessage = System.Text.Json.JsonSerializer.Serialize(message);
 				await _messageBus.Publish(message, cancellationToken);
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}
 			catch(NotSupportedException ex)
 			{
-				_logger.LogWarning(ex, $"Неподдерживаемый тип документа: {edoTask.DocumentType}");
+				_logger.LogWarning(ex, $"Неподдерживаемый тип документа: {informalEdoRequest.OrderDocumentType}");
 			}
 			catch(Exception ex)
 			{
