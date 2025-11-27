@@ -4,7 +4,7 @@ using System;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation.CallCenterMotivation;
+using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {

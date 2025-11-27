@@ -105,7 +105,7 @@
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\ProfitCategoriesJournalFilterViewModel.cs" />
-    <Compile Include="Journals\FilterViewModels\WageCalculation\CallCenterMotivation\CallCenterMotivationCoefficientJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\WageCalculation\CallCenterMotivationCoefficientJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
@@ -114,7 +114,7 @@
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\ProfitCategoriesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OnlineOrderNotificationSettingJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivation\CallCenterMotivationCoefficientJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
