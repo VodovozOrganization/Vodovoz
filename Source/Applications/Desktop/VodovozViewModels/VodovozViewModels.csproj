@@ -526,6 +526,7 @@
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
+    <Compile Include="ViewModels\Cash\VatRateViewModel.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsByOrganizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsViewModel.cs" />
