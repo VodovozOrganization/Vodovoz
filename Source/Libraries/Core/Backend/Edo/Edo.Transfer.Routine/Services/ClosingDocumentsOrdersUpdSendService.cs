@@ -71,7 +71,7 @@ namespace Edo.Transfer.Routine.Services
 						on order.Contract.Id equals contract.Id
 					join organization in uow.Session.Query<CounterpartyEntity>()
 						on contract.Organization.Id equals organization.Id
-					join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
+					join er in uow.Session.Query<PrimaryEdoRequest>() on order.Id equals er.Order.Id into edoRequests
 					from edoRequest in edoRequests.DefaultIfEmpty()
 					join ec in uow.Session.Query<EdoContainerEntity>()
 					   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
@@ -103,11 +103,11 @@ namespace Edo.Transfer.Routine.Services
 			return orders;
 		}
 
-		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
+		private async Task<IEnumerable<PrimaryEdoRequest>> CreateEdoRequests(IUnitOfWork uow, IEnumerable<OrderEntity> orders, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Создаем заявки на ЭДО УПД");
 
-			var edoRequests = new List<OrderEdoRequest>();
+			var edoRequests = new List<PrimaryEdoRequest>();
 
 			foreach(var order in orders)
 			{
@@ -142,9 +142,9 @@ namespace Edo.Transfer.Routine.Services
 			return edoRequests;
 		}
 
-		private OrderEdoRequest CreateEdoRequests(OrderEntity order)
+		private PrimaryEdoRequest CreateEdoRequests(OrderEntity order)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Manual,
@@ -155,7 +155,7 @@ namespace Edo.Transfer.Routine.Services
 			return edoRequest;
 		}
 
-		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
+		private async Task PublishEdoRequestCreatedEvents(IEnumerable<PrimaryEdoRequest> edoRequests)
 		{
 			_logger.LogInformation("Отправляем события о создании новых заявок по ЭДО");
 

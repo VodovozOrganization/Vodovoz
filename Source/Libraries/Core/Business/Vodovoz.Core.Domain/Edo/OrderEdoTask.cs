@@ -6,7 +6,7 @@ namespace Vodovoz.Core.Domain.Edo
 {
 	public abstract class OrderEdoTask : EdoTask
 	{
-		private OrderEdoRequest _orderEdoRequest;
+		private PrimaryEdoRequest _orderEdoRequest;
 
 		private IObservableList<EdoTaskItem> _items =
 			new ObservableList<EdoTaskItem>();
@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 
 
 		[Display(Name = "Заявка ЭДО отправки клиенту")]
-		public virtual OrderEdoRequest OrderEdoRequest
+		public virtual PrimaryEdoRequest OrderEdoRequest
 		{
 			get => _orderEdoRequest;
 			set => SetField(ref _orderEdoRequest, value);

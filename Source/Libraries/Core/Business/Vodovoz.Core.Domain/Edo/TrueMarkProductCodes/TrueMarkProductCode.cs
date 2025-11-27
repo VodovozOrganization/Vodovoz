@@ -22,7 +22,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		private TrueMarkWaterIdentificationCode _resultCode;
 		private ProductCodeProblem _problem;
 		private int _duplicatesCount;
-		private CustomerEdoRequest _customerEdoRequst;
+		private InformalEdoRequest _customerEdoRequst;
 
 		/// <summary>
 		/// Время создания
@@ -93,7 +93,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Заявка на отправку документов клиенту
 		/// </summary>
 		[Display(Name = "Заявка на отправку документов клиенту")]
-		public virtual CustomerEdoRequest CustomerEdoRequest
+		public virtual InformalEdoRequest CustomerEdoRequest
 		{
 			get => _customerEdoRequst;
 			set => SetField(ref _customerEdoRequst, value);

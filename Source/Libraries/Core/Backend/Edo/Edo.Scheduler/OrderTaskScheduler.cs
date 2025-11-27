@@ -17,7 +17,7 @@ namespace Edo.Scheduler.Service
 			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 		}
 		
-		public EdoTask CreateTask(OrderEdoRequest edoRequest)
+		public EdoTask CreateTask(PrimaryEdoRequest edoRequest)
 		{
 			if(edoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
 			{
@@ -42,7 +42,7 @@ namespace Edo.Scheduler.Service
 			}
 		}
 
-		private EdoTask CreatePaidOnlineTask(OrderEdoRequest edoRequest)
+		private EdoTask CreatePaidOnlineTask(PrimaryEdoRequest edoRequest)
 		{
 			if(edoRequest.Order.PaymentByCardFrom.ReceiptRequired)
 			{
@@ -52,14 +52,14 @@ namespace Edo.Scheduler.Service
 			return CreateSaveCodeTask(edoRequest);
 		}
 
-		private EdoTask CreateEdoTaskForCashless(OrderEdoRequest edoRequest)
+		private EdoTask CreateEdoTaskForCashless(PrimaryEdoRequest edoRequest)
 		{
 			return edoRequest.Order.Client.IsNewEdoProcessing
 				? CreateInstanceAccountingEdoTask(edoRequest)
 				: CreateBulkAccountingEdoTask(edoRequest);
 		}
 		
-		private EdoTask CreateInstanceAccountingEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateInstanceAccountingEdoTask(PrimaryEdoRequest edoRequest)
 		{
 			var edoAccount = _edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
 				edoRequest.Order.Client, edoRequest.Order.Contract.Organization.Id);
@@ -74,7 +74,7 @@ namespace Edo.Scheduler.Service
 			return CreateSaveCodeTask(edoRequest);
 		}
 
-		private EdoTask CreateDocumentEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateDocumentEdoTask(PrimaryEdoRequest edoRequest)
 		{
 			var task = new DocumentEdoTask
 			{
@@ -99,7 +99,7 @@ namespace Edo.Scheduler.Service
 			return task;
 		}
 
-		private EdoTask CreateWithdrawalEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateWithdrawalEdoTask(PrimaryEdoRequest edoRequest)
 		{
 			var task = new WithdrawalEdoTask
 			{
@@ -121,7 +121,7 @@ namespace Edo.Scheduler.Service
 		}
 
 
-		private EdoTask CreateBulkAccountingEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateBulkAccountingEdoTask(PrimaryEdoRequest edoRequest)
 		{
 			var task = new BulkAccountingEdoTask
 			{
@@ -133,7 +133,7 @@ namespace Edo.Scheduler.Service
 			return task;
 		}
 
-		private EdoTask CreateReceiptTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateReceiptTask(PrimaryEdoRequest edoRequest)
 		{
 			OrderEdoTask task = null;
 			
@@ -161,7 +161,7 @@ namespace Edo.Scheduler.Service
 			return task;
 		}
 
-		private EdoTask CreateSaveCodeTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateSaveCodeTask(PrimaryEdoRequest edoRequest)
 		{
 			var task = new SaveCodesEdoTask
 			{
@@ -182,7 +182,7 @@ namespace Edo.Scheduler.Service
 			return task;
 		}
 		
-		private EdoTask CreateTenderEdoTask(OrderEdoRequest edoRequest)
+		private EdoTask CreateTenderEdoTask(PrimaryEdoRequest edoRequest)
 		{
 			var task = new TenderEdoTask
 			{

@@ -169,7 +169,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 								continue;
 							}
 
-							var newRequest = new OrderEdoRequest
+							var newRequest = new PrimaryEdoRequest
 							{
 								Order = new Order
 								{
@@ -227,7 +227,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 								continue;
 							}
 
-							var newRequest = new OrderEdoRequest
+							var newRequest = new PrimaryEdoRequest
 							{
 								Order = new Order
 								{

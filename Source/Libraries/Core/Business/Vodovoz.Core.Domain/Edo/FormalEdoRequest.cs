@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Domain.Edo
 		Nominative = "заявка на отправку документов ЭДО",
 		NominativePlural = "заявки на отправку документов ЭДО"
 	)]
-	public abstract class CustomerEdoRequest : EdoRequest
+	public abstract class FormalEdoRequest : EdoRequest
 	{
 		private IObservableList<TrueMarkProductCode> _productCodes = new ObservableList<TrueMarkProductCode>();
 

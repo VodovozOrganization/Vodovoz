@@ -318,7 +318,7 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = new ReceiptEdoTask
 			{
-				OrderEdoRequest = new OrderEdoRequest
+				OrderEdoRequest = new PrimaryEdoRequest
 				{
 					Order = order
 				},

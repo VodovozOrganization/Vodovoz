@@ -404,8 +404,8 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
-			OrderEdoRequest orderEdoRequestAlias = null;
-			OrderEdoRequest orderEdoRequestAlias2 = null;
+			PrimaryEdoRequest orderEdoRequestAlias = null;
+			PrimaryEdoRequest orderEdoRequestAlias2 = null;
 			OrderEdoDocument orderEdoDocumentAlias = null;
 			OrderEdoDocument orderEdoDocumentAlias2 = null;
 			Employee salesManagerAlias = null;

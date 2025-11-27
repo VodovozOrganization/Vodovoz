@@ -1,10 +1,16 @@
-﻿using FluentNHibernate.Data;
+﻿using Core.Infrastructure;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using FluentNHibernate.Data;
+using Microsoft.Extensions.DependencyInjection;
+using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -13,9 +19,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoService.Library
 {
@@ -200,6 +206,47 @@ namespace EdoService.Library
 			unitOfWork.Save(edoDocumentsAction);
 
 			unitOfWork.Commit();
+		}
+
+		public async Task<bool> CanManuallyResendEdoDocument(IUnitOfWork uow, int orderId, EdoDocumentType type)
+		{
+			var requests = await uow.Session.Query<PrimaryEdoRequest>()
+				.Where(r =>
+					r.Order.Id == orderId &&
+					(r.DocumentRequestType == EdoRequestType.Manual 
+					|| r.DocumentRequestType == EdoRequestType.Primary)
+				).FirstOrDefaultAsync();
+			if(requests == null)
+			{
+				return false;
+			}
+
+			var edoTask = requests.Task;
+			if(edoTask == null)
+			{
+				return false;
+			}
+
+			var outgoingEdoDocuments = await uow.Session.Query<OrderEdoDocument>()
+				.Where(d =>
+					d.DocumentTaskId == edoTask.Id &&
+					d.DocumentType == EdoDocumentType.UPD
+				).FirstOrDefaultAsync();
+
+			var EdoDocumentStatuses = new EdoDocumentStatus[]
+			{
+				EdoDocumentStatus.Cancelled,
+				EdoDocumentStatus.CompletedWithDivergences,
+				EdoDocumentStatus.Error,
+				EdoDocumentStatus.Warning
+			};
+
+			if(!outgoingEdoDocuments.Status.IsIn(EdoDocumentStatuses))
+			{
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

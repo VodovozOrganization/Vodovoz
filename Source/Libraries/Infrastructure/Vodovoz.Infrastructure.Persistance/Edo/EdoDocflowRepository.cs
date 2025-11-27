@@ -21,7 +21,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		public IList<EdoDockflowData> GetEdoDocflowDataByOrderId(IUnitOfWork uow, int orderId)
 		{
 			var data =
-				from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
+				from orderEdoRequest in uow.Session.Query<PrimaryEdoRequest>()
 				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
@@ -63,7 +63,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 			var data =
 				from client in uow.Session.Query<Counterparty>()
 				join order in uow.Session.Query<Order>() on client.Id equals order.Client.Id
-				join orderEdoRequest in uow.Session.Query<OrderEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
+				join orderEdoRequest in uow.Session.Query<PrimaryEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
 				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
@@ -140,9 +140,9 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		public async Task<IEnumerable<PrimaryEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
-			var orderEdoRequests = await uow.Session.Query<OrderEdoRequest>()
+			var orderEdoRequests = await uow.Session.Query<PrimaryEdoRequest>()
 				.Where(x => x.Order.Id == orderId)
 				.ToListAsync(cancellationToken);
 

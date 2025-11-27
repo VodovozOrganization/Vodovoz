@@ -95,7 +95,7 @@ namespace Edo.Problems.Validation.Sources
 			IUnitOfWork unitOfWork,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
-			OrderEdoRequest orderEdoRequest,
+			PrimaryEdoRequest orderEdoRequest,
 			CancellationToken cancellationToken)
 		{
 			#region Запросы в БД

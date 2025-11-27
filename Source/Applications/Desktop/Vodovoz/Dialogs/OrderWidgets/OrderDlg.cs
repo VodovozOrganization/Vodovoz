@@ -52,6 +52,7 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
@@ -1536,6 +1537,100 @@ namespace Vodovoz
 			var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
 
 			if(canResendUpd || canResendBill)
+			{
+				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
+
+				return;
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = false;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
+		private void SendDocumentAgainButton()
+		{
+			if(!_canResendDocumentsToEdo)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отсутствуют права для повторной отправки";
+
+				return;
+			}
+
+			if(SelectedEdoDocumentDataNode is null)
+			{
+				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
+				ybuttonSendDocumentAgain.Sensitive = false;
+
+				return;
+			}
+
+			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
+			{
+				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
+				ybuttonSendDocumentAgain.Sensitive = false;
+
+				return;
+			}
+
+			EdoDocumentType selectedType;
+			if(!SelectedEdoDocumentDataNode.IsNewDockflow)
+			{
+				return;
+			}
+
+			if(!SelectedEdoDocumentDataNode.EdoDocumentType.HasValue)
+			{
+				return;
+			}
+
+			selectedType = SelectedEdoDocumentDataNode.EdoDocumentType.Value;
+
+			OrderEdoTrueMarkDocumentsActions resendAction;
+
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id);
+
+				switch(selectedType)
+				{
+					case EdoDocumentType.UPD:
+						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
+						break;
+					case EdoDocumentType.Bill:
+						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
+						break;
+					case EdoDocumentType.InformalOrderDocument:
+						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
+						break;
+				}
+
+				resendAction = resendActionQuery.FirstOrDefault();
+			}
+
+			var alreadyInProcess = resendAction != null
+				&& (
+						(resendAction.IsNeedToResendEdoUpd && selectedType == EdoDocumentType.UPD)
+						|| (resendAction.IsNeedToResendEdoBill && selectedType == EdoDocumentType.Bill)
+						|| (resendAction.IsNeedToResendEdoUpd && selectedType == EdoDocumentType.InformalOrderDocument)
+					);
+
+			if(alreadyInProcess)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
+
+				return;
+			}
+
+			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
+			var canResendUpd = selectedType is EdoDocumentType.UPD && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.UPD);
+			var canResendBill = selectedType is EdoDocumentType.Bill && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.Bill);
+			var canResendInformalDocuments = selectedType is EdoDocumentType.InformalOrderDocument && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.InformalOrderDocument);
+
+			if(canResendUpd || canResendBill || canResendInformalDocuments)
 			{
 				ybuttonSendDocumentAgain.Sensitive = true;
 				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";

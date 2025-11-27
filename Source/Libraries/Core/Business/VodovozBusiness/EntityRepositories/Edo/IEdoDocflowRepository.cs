@@ -32,7 +32,7 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список запросов на ЭДО</returns>
-		Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+		Task<IEnumerable<PrimaryEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Возварщает данные по не обработанным отсканированным водителями кодам ЧЗ по идентификатору адреса МЛ

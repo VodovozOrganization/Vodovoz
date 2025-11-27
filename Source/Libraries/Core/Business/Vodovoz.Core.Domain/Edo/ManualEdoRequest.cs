@@ -5,13 +5,13 @@ using Vodovoz.Core.Domain.Orders;
 namespace Vodovoz.Core.Domain.Edo
 {
 	/// <summary>
-	/// Заявка на отправку документов заказа по ЭДО
+	/// Ручная на отправку документов заказа по ЭДО
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "заявка на отправку документов заказа по ЭДО",
 		NominativePlural = "заявки на отправку документов заказа по ЭДО"
 	)]
-	public class OrderEdoRequest : CustomerEdoRequest
+	public class ManualEdoRequest : InformalEdoRequest
 	{
 		private OrderEntity _order;
 
@@ -25,8 +25,6 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _order, value);
 		}
 
-		public override EdoRequestType DocumentRequestType => EdoRequestType.Primary;
-
-		// enum типа документа заказа
+		public override EdoRequestType DocumentRequestType => EdoRequestType.Manual;
 	}
 }
