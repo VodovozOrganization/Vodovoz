@@ -11,14 +11,14 @@ namespace Vodovoz.Core.Domain.Cash
 	/// Ставки НДС
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		Accusative = "категорию штрафов",
-		AccusativePlural = "категории штрафов",
-		Genitive = "категории штрафов",
-		GenitivePlural = "категорий штрафов",
-		Nominative = "категория штрафов",
-		NominativePlural = "категории штрафов",
-		Prepositional = "категории штрафов",
-		PrepositionalPlural = "категориях штрафов")]
+		Accusative = "ставку НДС",
+		AccusativePlural = "ставки НДС",
+		Genitive = "ставки НДС",
+		GenitivePlural = "ставок НДС",
+		Nominative = "ставка НДС",
+		NominativePlural = "ставки НДС",
+		Prepositional = "ставке НДС",
+		PrepositionalPlural = "ставках НДС")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class VatRate: PropertyChangedBase, IDomainObject, IArchivable, IValidatableObject
