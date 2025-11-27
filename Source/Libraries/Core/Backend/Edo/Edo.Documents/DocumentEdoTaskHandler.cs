@@ -163,6 +163,79 @@ namespace Edo.Documents
 				}
 			}
 		}
+		public async Task HandleManualTask(int documentEdoTaskId, CancellationToken cancellationToken)
+		{
+			// Получаем таску
+			// ищем по таске исходящий документ
+			// Если он есть, в таком случае в новой отправке будут обновлены поля контрагента и заказа, не влияющие на товары и сумму заказа и коды маркировки.
+			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+
+			if(edoTask == null)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не найдена", documentEdoTaskId);
+				return;
+			}
+
+			if(edoTask.Stage != DocumentEdoTaskStage.New)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} уже в работе", documentEdoTaskId);
+				return;
+			}
+
+			if(edoTask.OrderEdoRequest == null)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", documentEdoTaskId);
+				return;
+			}
+
+			try
+			{
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
+				if(!isValid)
+				{
+					return;
+				}
+
+				if(IsFormalDocument(edoTask))
+				{
+					await HandleFormalDocument(edoTask, trueMarkCodesChecker, cancellationToken);
+				}
+				else
+				{
+					await HandleInformalDocument(edoTask, cancellationToken);
+				}
+			}
+			catch(EdoProblemException ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+			catch(Exception ex) when (ex.InnerException is MySqlException)
+			{
+				var mysqlException = (MySqlException)ex.InnerException;
+				if(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
+				{
+					var edoException = new CodeDuplicatedException(mysqlException.Message);
+					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, edoException, cancellationToken);
+					if(!registered)
+					{
+						throw;
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(edoTask, ex, cancellationToken);
+				if(!registered)
+				{
+					throw;
+				}
+			}
+		}
 
 		private async Task HandleFormalDocument(
 			DocumentEdoTask edoTask,

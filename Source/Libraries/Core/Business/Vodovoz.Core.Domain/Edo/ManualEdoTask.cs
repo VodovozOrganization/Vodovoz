@@ -7,14 +7,14 @@ namespace Vodovoz.Core.Domain.Edo
 	/// </summary>
 	public class ManualEdoTask : EdoTask
 	{
-		private InformalEdoRequest _formalEdoRequest;
-		public override EdoTaskType TaskType => EdoTaskType.InformalOrderDocument;
+		private FormalEdoRequest _formalEdoRequest;
+		public override EdoTaskType TaskType => EdoTaskType.Document;
 
 		/// <summary>
-		/// Заявка ЭДО отправки документа заказа
+		/// Заявка ЭДО отправки формализованного документа
 		/// </summary>
-		[Display(Name = "Заявка ЭДО отправки документа заказа")]
-		public virtual InformalEdoRequest InformalEdoRequest
+		[Display(Name = "Заявка ЭДО отправки формализованного документа")]
+		public virtual FormalEdoRequest FormalEdoRequest
 		{
 			get => _formalEdoRequest;
 			set => SetField(ref _formalEdoRequest, value);

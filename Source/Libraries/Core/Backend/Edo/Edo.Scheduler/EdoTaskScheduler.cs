@@ -45,7 +45,7 @@ namespace Edo.Scheduler.Service
 
 		public async Task CreateTask(int requestId, CancellationToken cancellationToken)
 		{
-			var request = await _uow.Session.GetAsync<InformalEdoRequest>(requestId, cancellationToken);
+			var request = await _uow.Session.GetAsync<FormalEdoRequest>(requestId, cancellationToken);
 			if(request == null)
 			{
 				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {CustomerEdoRequestId}", requestId);
@@ -62,11 +62,9 @@ namespace Edo.Scheduler.Service
 			switch(request.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					if(request is ManualEdoRequest manual)
-						edoTask = _orderTaskScheduler.CreateManualEdoTask(manual);
-					else
-						edoTask = _orderTaskScheduler.CreateTask((PrimaryEdoRequest)request);
-
+					edoTask = request is ManualEdoRequest manual
+						? _manualTaskScheduler.CreateTask(manual)
+						: _orderTaskScheduler.CreateTask((PrimaryEdoRequest)request);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 					edoTask = _billForAdvanceEdoRequestTaskScheduler.CreateTask((BillForAdvanceEdoRequest)request);
@@ -90,7 +88,14 @@ namespace Edo.Scheduler.Service
 			switch(edoTask.TaskType)
 			{
 				case EdoTaskType.Document:
-					message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
+					if(edoTask is ManualEdoTask)
+					{
+						message = new ManualTaskCreatedEvent { Id = edoTask.Id };
+					}
+					else
+					{
+						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
+					}
 					break;
 				case EdoTaskType.Tender:
 					message = new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id };
@@ -164,59 +169,6 @@ namespace Edo.Scheduler.Service
 			}
 
 			message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
-
-			if(message != null)
-			{
-				await _messageBus.Publish(message, cancellationToken);
-			}
-		}
-
-		/// <summary>
-		/// Создание задачи для заявки ручной отправки документов
-		/// </summary>
-		/// <param name="requestId"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		/// <exception cref="InvalidOperationException"></exception>
-		public async Task CreateManualOrderDocumentTask(int requestId, CancellationToken cancellationToken)
-		{
-			var request = await _uow.Session.GetAsync<InformalEdoRequest>(requestId, cancellationToken);
-			if(request == null)
-			{
-				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {InformalEdoRequest}", requestId);
-				return;
-			}
-
-			EdoTask edoTask = request.Task;
-			if(edoTask != null)
-			{
-				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
-				return;
-			}
-
-			switch(request.Type)
-			{
-				case CustomerEdoRequestType.Order:
-					edoTask = _orderTaskScheduler.CreateTask((ManualEdoRequest)request);
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(InformalEdoRequest)} {request.Type}");
-			}
-
-			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
-			object message = null;
-			switch(edoTask.TaskType)
-			{
-				case EdoTaskType.Document:
-					message = new ManualDocumentTaskCreatedEvent { Id = edoTask.Id };
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
-			}
 
 			if(message != null)
 			{
