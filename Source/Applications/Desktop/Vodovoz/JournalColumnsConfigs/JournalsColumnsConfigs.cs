@@ -5,6 +5,7 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using Gamma.Utilities;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Infrastructure;
@@ -13,7 +14,9 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation.CallCenterMotivation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation.CallCenterMotivation;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -148,6 +151,44 @@ namespace Vodovoz.JournalColumnsConfigs
 							cell.CellBackgroundGdk = color;
 						}
 					)
+					.Finish()
+			);
+			
+			 TreeViewColumnsConfigFactory.Register<CallCenterMotivationCoefficientJournalViewModel>(ViewModel =>
+				FluentColumnsConfig<CallCenterMotivationCoefficientJournalNode>.Create()
+					.SetTreeModel(ViewModel.CreateAndSaveTreeModel
+					)
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id )
+						.AddPixbufRenderer(node => node.JournalNodeType == typeof(ProductGroup) ? _folderImg : _emptyImg)
+					.AddColumn("Название")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Тип коэффициента")
+						.AddComboRenderer(x => x.MotivationUnitType)
+						.SetDisplayFunc(x => x.GetEnumTitle())
+						.FillItems( ViewModel.MotivationUnitTypeList, "✗ Очистить")
+						.XAlign(0.5f)
+						.Editing()
+						.EditedEvent((o, args) =>
+						{
+							var newMotivationType = ViewModel.MotivationUnitTypeList.SingleOrDefault(x => x.GetEnumTitle() == args.NewText);
+							var node = ViewModel.TreeModel.NodeAtPath(new TreePath(args.Path)) as CallCenterMotivationCoefficientJournalNode;
+							ViewModel.OnMotivationUnitTypeEdited(node, newMotivationType);
+						})
+					.AddColumn("Значение коэффициента")
+						.AddTextRenderer(node => node.MotivationCoefficientText)
+						.Editable()
+						.AddSetter((cell, node) =>
+						{
+							cell.Editable = node.MotivationUnitType.HasValue;
+							cell.Markup = ViewModel.IsValidNode(node)? node.MotivationCoefficientText : $"<span background=\"red\"><s>{node.MotivationCoefficientText}</s></span>";
+						})
+						.EditedEvent((o, args) =>
+						{
+							var node = ViewModel.TreeModel.NodeAtPath(new TreePath(args.Path)) as  CallCenterMotivationCoefficientJournalNode;
+							ViewModel.OnMotivationCoefficientEdited(node);
+						})
+					.AddColumn("")
 					.Finish()
 			);
 		}
