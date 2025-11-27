@@ -3,6 +3,7 @@ using EmailSendWorker.Factoies;
 using EmailSendWorker.Services;
 using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions.Events;
+using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,6 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +28,7 @@ namespace EmailSendWorker
 		private readonly ILogger<EmailSendWorker> _logger;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IEmailSendService _emailSendService;
+		private readonly IBus _bus;
 		private readonly RabbitOptions _rabbitOptions;
 
 		private readonly IModel _channel;
@@ -40,13 +41,15 @@ namespace EmailSendWorker
 			IModel channel,
 			IOptions<RabbitOptions> rabbitOptions,
 			IEmailMessageFactory emailMessageFactory,
-			IEmailSendService emailSendService
+			IEmailSendService emailSendService,
+			IBus bus
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_emailSendService = emailSendService ?? throw new ArgumentNullException(nameof(emailSendService));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
 			_channel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
 			_consumer = new AsyncEventingBasicConsumer(_channel);
@@ -216,16 +219,7 @@ namespace EmailSendWorker
 					message.EventPayload.Id,
 					message.Status);
 
-				var serializedMessage = JsonSerializer.Serialize(message);
-				var statusUpdateBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-				lock(_publisherLock)
-				{
-					_channel.QueueDeclare(_rabbitOptions.StatusUpdateQueue, true, false, false, null);
-					var properties = _channel.CreateBasicProperties();
-					properties.Persistent = true;
-					_channel.BasicPublish("", _rabbitOptions.StatusUpdateQueue, false, properties, statusUpdateBody);
-				}
+				_bus.Publish(message);
 
 				_logger.LogInformation(
 					"Email status update message published successfully. MessagePayloadId: {MessagePayloadId}, Status: {Status}",
