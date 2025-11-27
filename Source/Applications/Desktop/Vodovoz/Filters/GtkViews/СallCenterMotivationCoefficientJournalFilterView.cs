@@ -1,6 +1,6 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation.CallCenterMotivation;
+using Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews

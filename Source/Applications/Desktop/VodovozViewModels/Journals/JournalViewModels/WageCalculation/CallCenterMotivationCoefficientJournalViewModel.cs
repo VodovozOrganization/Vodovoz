@@ -13,10 +13,10 @@ using QS.Project.Journal.DataLoader.Hierarchy;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation.CallCenterMotivation;
-using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation.CallCenterMotivation;
+using Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation;
+using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 
-namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation.CallCenterMotivation
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 {
 	public class CallCenterMotivationCoefficientJournalViewModel : JournalViewModelBase
 	{

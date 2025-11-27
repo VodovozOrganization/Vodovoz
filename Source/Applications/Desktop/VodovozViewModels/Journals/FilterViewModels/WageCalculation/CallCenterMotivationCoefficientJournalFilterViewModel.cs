@@ -1,6 +1,6 @@
 ﻿using QS.Project.Filter;
 
-namespace Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation.CallCenterMotivation
+namespace Vodovoz.ViewModels.Journals.FilterViewModels.WageCalculation
 {
 	public class CallCenterMotivationCoefficientJournalFilterViewModel : FilterViewModelBase<CallCenterMotivationCoefficientJournalFilterViewModel>
 	{

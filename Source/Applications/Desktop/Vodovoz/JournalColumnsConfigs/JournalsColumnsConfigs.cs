@@ -14,9 +14,9 @@ using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation.CallCenterMotivation;
+using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation.CallCenterMotivation;
+using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

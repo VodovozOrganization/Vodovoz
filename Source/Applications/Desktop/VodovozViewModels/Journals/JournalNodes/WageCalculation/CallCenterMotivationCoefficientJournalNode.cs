@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QS.Project.Journal.DataLoader.Hierarchy;
 using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation.CallCenterMotivation
+namespace Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation
 {
 	public class CallCenterMotivationCoefficientJournalNode : IHierarchicalNode<CallCenterMotivationCoefficientJournalNode>
 	{
