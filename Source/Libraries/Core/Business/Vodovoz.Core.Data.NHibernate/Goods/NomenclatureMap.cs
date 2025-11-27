@@ -282,7 +282,13 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Gtin)
 				.Column("gtin");
-
+			
+			//Мотивация
+			Map(x => x.MotivationUnitType)
+				.Column("motivation_unit_type");
+			
+			Map(x => x.MotivationCoefficient)
+				.Column("motivation_coefficient");
 
 			References(x => x.Unit)
 				.Column("unit_id")
