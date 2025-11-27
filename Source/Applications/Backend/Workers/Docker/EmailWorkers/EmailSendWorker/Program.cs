@@ -69,9 +69,11 @@ namespace EmailSendWorker
 					.AddTransient<IEmailMessageFactory, EmailMessageFactory>()
 					.AddMassTransit(busConf =>
 					{
-						busConf.AddConsumer<EmailSendConsumer, EmailSendConsumerDefinition>();
+						busConf.AddConsumer<AuthorizationCodesEmailSendConsumer, AuthorizationCodesEmailSendConsumerDefinition>();
+						busConf.AddConsumer<SendEmailMessageConsumer, SendEmailMessageConsumerDefinition>();
 						busConf.ConfigureRabbitMq((rabbitMq, context) =>
 						{
+							rabbitMq.AddSendEmailMessageTopology(context);
 							rabbitMq.AddSendAuthorizationCodesByEmailTopology(context);
 							rabbitMq.AddUpdateEmailStatusTopology(context);
 						});

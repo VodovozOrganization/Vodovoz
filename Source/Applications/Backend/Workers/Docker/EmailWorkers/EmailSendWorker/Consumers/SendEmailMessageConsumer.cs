@@ -1,95 +1,51 @@
-﻿using CustomerAppsApi.Library.Configs;
-using EmailSendWorker.Factoies;
+﻿using EmailSendWorker.Factoies;
 using EmailSendWorker.Services;
 using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions.Events;
 using MassTransit;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using System;
 using System.Linq;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker
+namespace EmailSendWorker.Consumers
 {
-	public class EmailSendWorker : BackgroundService
+	public class SendEmailMessageConsumer : IConsumer<SendEmailMessage>
 	{
 		private const int _retryCount = 5;
 		private const int _retryDelay = 5 * 1000; // sec => milisec
 		private const int _errorInfoMaxLength = 1000;
 
-		private readonly ILogger<EmailSendWorker> _logger;
+		private readonly ILogger<SendEmailMessageConsumer> _logger;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IEmailSendService _emailSendService;
 		private readonly IBus _messageBus;
-		private readonly RabbitOptions _rabbitOptions;
 
-		private readonly IModel _channel;
-
-		private readonly AsyncEventingBasicConsumer _consumer;
-
-		public EmailSendWorker(
-			ILogger<EmailSendWorker> logger,
-			IModel channel,
-			IOptions<RabbitOptions> rabbitOptions,
+		public SendEmailMessageConsumer(
+			ILogger<SendEmailMessageConsumer> logger,
 			IEmailMessageFactory emailMessageFactory,
 			IEmailSendService emailSendService,
-			IBus messageBus
-			)
+			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_emailSendService = emailSendService ?? throw new ArgumentNullException(nameof(emailSendService));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_rabbitOptions = (rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions))).Value;
-			_channel.QueueDeclare(_rabbitOptions.EmailSendQueue, true, false, false, null);
-			_consumer = new AsyncEventingBasicConsumer(_channel);
-			_consumer.Received += MessageReceived;
 		}
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-		{
-			_channel.BasicConsume(_rabbitOptions.EmailSendQueue, false, _consumer);
-			await Task.Delay(0, stoppingToken);
-		}
-
-		public override Task StartAsync(CancellationToken cancellationToken)
-		{
-			_logger.LogInformation("Starting Email Send Worker...");
-			return base.StartAsync(cancellationToken);
-		}
-
-		public override async Task StopAsync(CancellationToken cancellationToken)
-		{
-			_logger.LogInformation("Stopping Email Send Worker...");
-			await base.StopAsync(cancellationToken);
-		}
-
-		private async Task MessageReceived(object sender, BasicDeliverEventArgs e)
+		public async Task Consume(ConsumeContext<SendEmailMessage> context)
 		{
 			try
 			{
-				var body = e.Body;
-				var message = JsonSerializer.Deserialize<SendEmailMessage>(body.Span);
-				await _messageBus.Publish(message);
-				//await SendEmails(message);
+				var message = context.Message;
+				await SendEmails(message);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Error processing message from queue: {ErrorMessage}", ex.Message);
-			}
-			finally
-			{
-				_logger.LogInformation("Free message from queue");
-				_channel.BasicAck(e.DeliveryTag, false);
+				throw;
 			}
 		}
 
