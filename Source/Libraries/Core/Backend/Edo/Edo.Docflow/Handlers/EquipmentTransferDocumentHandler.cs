@@ -1,5 +1,4 @@
-﻿using Edo.Docflow.Converters;
-using Edo.Docflow.Factories;
+﻿using Edo.Docflow.Factories;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -14,22 +13,20 @@ namespace Edo.Docflow.Handlers
 	/// <summary>
 	/// Обработчик документов типа акт приёма-передачи оборудования
 	/// </summary>
-	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler
+	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IInfoForCreatingEdoInformalOrderDocumentFactory _informalOrderDocumentnfoFactory;
-		private readonly IOrderConverter _orderConverter;
+		private readonly InfoForCreatingEdoEquipmentTransferFactory _informalOrderDocumentnfoFactory;
 		private readonly ILogger<EquipmentTransferDocumentHandler> _logger;
 
 		public EquipmentTransferDocumentHandler(
 			IUnitOfWork uow,
-			IInfoForCreatingEdoInformalOrderDocumentFactory equipmentTransferInfoFactory,
-			IOrderConverter orderConverter,
-			ILogger<EquipmentTransferDocumentHandler> logger)
+			InfoForCreatingEdoEquipmentTransferFactory equipmentTransferInfoFactory,
+			ILogger<EquipmentTransferDocumentHandler> logger
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_informalOrderDocumentnfoFactory = equipmentTransferInfoFactory ?? throw new ArgumentNullException(nameof(equipmentTransferInfoFactory));
-			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -39,7 +36,8 @@ namespace Edo.Docflow.Handlers
 			OrderEntity order,
 			OrderDocumentFileData fileData,
 			int documentId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken
+			)
 		{
 			var document = await _uow.Session.GetAsync<EquipmentTransferDocumentEntity>(documentId, cancellationToken);
 
@@ -53,10 +51,14 @@ namespace Edo.Docflow.Handlers
 				_logger.LogWarning("Документ {DocumentId} не принадлежит заказу {OrderId}", documentId, order.Id);
 			}
 
-			var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
-			var documentInfo = _informalOrderDocumentnfoFactory.CreateInfoForCreatingEdoInformalOrderDocument(orderInfo, fileData);
+			var documentInfo = _informalOrderDocumentnfoFactory.CreateInfoForCreatingEdoInformalOrderDocument(order, fileData);
 
 			return documentInfo;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

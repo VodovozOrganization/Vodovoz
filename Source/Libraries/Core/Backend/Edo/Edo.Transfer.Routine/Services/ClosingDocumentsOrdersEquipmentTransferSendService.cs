@@ -111,14 +111,6 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
-				if(order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark))
-				{
-					_logger.LogError(
-						$"В заказе \"Закр док\" имеются маркированные товары. Отправка документов по ЭДО недоступна. OrderId: {order.Id}");
-
-					continue;
-				}
-
 				var edoRequest = CreateEquipmentTransferEdoRequests(order);
 
 				await uow.SaveAsync(edoRequest, cancellationToken: cancellationToken);

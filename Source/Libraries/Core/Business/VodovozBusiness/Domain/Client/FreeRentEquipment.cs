@@ -78,7 +78,7 @@ namespace Vodovoz.Domain.Client
 		/// <summary>
 		/// Строковое представление кол-ва бутылей
 		/// </summary>
-		public virtual new string WaterAmountString => $"{WaterAmount} {NumberToTextRus.Case(WaterAmount, "бутыль", "бутыли", "бутылей")}";
+		public override string WaterAmountString => $"{WaterAmount} {NumberToTextRus.Case(WaterAmount, "бутыль", "бутыли", "бутылей")}";
 
 		/// <summary>
 		/// Заголовок 

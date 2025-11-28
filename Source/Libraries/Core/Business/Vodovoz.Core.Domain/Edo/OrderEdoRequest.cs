@@ -26,7 +26,5 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		public override EdoRequestType DocumentRequestType => EdoRequestType.Primary;
-
-		// enum типа документа заказа
 	}
 }

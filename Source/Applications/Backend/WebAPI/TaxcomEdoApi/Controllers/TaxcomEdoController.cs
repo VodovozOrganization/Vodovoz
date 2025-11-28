@@ -131,8 +131,8 @@ namespace TaxcomEdoApi.Controllers
 		[HttpPost]
 		public IActionResult CreateAndSendInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
-			var orderId = data.OrderInfoForEdo.Id;
-			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
+			var orderId = data.FileData.OrderId;
+			_logger.LogInformation("Поступил запрос на отправку неформализованного документа по заказу №{OrderId}", orderId);
 
 			try
 			{

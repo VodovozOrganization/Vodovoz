@@ -223,7 +223,7 @@ namespace TaxcomEdoApi.Library.Services
 			{
 				SignMode = DocumentSignMode.UseSpecifiedCertificate
 			};
-				
+
 			var document = _edoInformalOrderDocumentFactory.CreateInformalOrderDocument(data);
 			container.Documents.Add(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
@@ -231,7 +231,7 @@ namespace TaxcomEdoApi.Library.Services
 			{
 				container.SetWarrantParameters(
 					_warrantOptions.WarrantNumber,
-					data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
+					data.OrganizationInfoForEdo.Inn,
 					_warrantOptions.RepresentativeInn,
 					_warrantOptions.StartDate,
 					_warrantOptions.EndDate);

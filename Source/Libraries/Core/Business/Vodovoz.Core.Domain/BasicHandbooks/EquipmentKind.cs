@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.BasicHandbooks
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>

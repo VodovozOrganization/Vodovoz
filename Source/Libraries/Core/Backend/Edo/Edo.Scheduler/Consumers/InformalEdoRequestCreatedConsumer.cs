@@ -23,7 +23,7 @@ namespace Edo.Scheduler.Consumers
 
 		public async Task Consume(ConsumeContext<InformalEdoRequestCreatedEvent> context)
 		{
-			await _taskScheduler.CreateOrderDocumentTask(context.Message.Id, context.CancellationToken);
+			await _taskScheduler.CreateOrderDocumentTask(context.Message.InformalRequestId, context.CancellationToken);
 		}
 	}
 }

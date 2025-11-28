@@ -86,7 +86,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
-				var edoDocument = await CreateInformalDocument(edoTask.Id, cancellationToken);
+				var edoDocument = CreateInformalDocument(edoTask.Id);
 
 				var fileDataMessage = new InformalDocumentFileDataSendEvent
 				{
@@ -97,11 +97,10 @@ namespace Edo.InformalOrderDocuments.Handlers
 				edoTask.Status = EdoTaskStatus.InProgress;
 
 				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 
 				await _messageBus.Publish(fileDataMessage, cancellationToken);
-
-				_logger.LogInformation($"Отправка PDF {orderDocument.Name} заказа №{order.Id}");
 			}
 			catch(Exception ex)
 			{
@@ -111,7 +110,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 			
 		}
 
-		private async Task<OutgoingInformalEdoDocument> CreateInformalDocument(int edoTaskId, CancellationToken cancellationToken)
+		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId)
 		{
 			var edoDocument = new OutgoingInformalEdoDocument
 			{
@@ -122,7 +121,6 @@ namespace Edo.InformalOrderDocuments.Handlers
 				Type = OutgoingEdoDocumentType.InformalOrderDocument
 			};
 
-			await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 			return edoDocument;
 		}
 

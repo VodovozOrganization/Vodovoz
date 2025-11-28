@@ -22,7 +22,7 @@ namespace Edo.InformalOrderDocuments.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
-
+				rmq.Durable = true;
 				rmq.Bind<InformalOrderDocumentCancelledEvent>();
 			}
 		}

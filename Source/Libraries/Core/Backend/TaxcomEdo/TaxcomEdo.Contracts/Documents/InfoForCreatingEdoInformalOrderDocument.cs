@@ -15,18 +15,24 @@ namespace TaxcomEdo.Contracts.Documents
 		public InfoForCreatingEdoInformalOrderDocument() { }
 		
 		/// <summary>
-		/// Информация о заказе для ЭДО <see cref="OrderInfoForEdo"/>
+		/// Информация об организации ЭДО <see cref="EdoParticipantInfo"/>
 		/// </summary>
-		public OrderInfoForEdo OrderInfoForEdo { get; set; }
-		
+		public EdoParticipantInfo OrganizationInfoForEdo { get; set; }
+
 		/// <summary>
-		/// Информация о прикрепленном файле <see cref="EquipmentTransferFileData"/>
+		/// Информация о клиенте ЭДО <see cref="EdoParticipantInfo"/>
 		/// </summary>
-		public OrderDocumentFileData EquipmentTransferFileData
-		{
-			get => FileData as OrderDocumentFileData;
-			set => FileData = value;
-		}
+		public EdoParticipantInfo CounterpartyInfoForEdo { get; set; }
+
+		/// <summary>
+		/// Сумма документа
+		/// </summary>
+		public decimal Sum { get; set; }
+
+		/// <summary>
+		/// Информация о прикрепленном файле <see cref="OrderDocumentFileData"/>
+		/// </summary>
+		public new OrderDocumentFileData FileData { get; set; }
 	}
 }
 

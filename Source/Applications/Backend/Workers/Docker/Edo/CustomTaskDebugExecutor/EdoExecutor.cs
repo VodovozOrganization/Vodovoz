@@ -119,7 +119,7 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine();
 
 			Console.WriteLine("22. InformalOrderDocumenTaskCreatedEvent (отправка неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
-			Console.WriteLine("    Первичная подготовка данных в задаче на отправку ЭДО документа клиенту");
+			Console.WriteLine("    Событие создания задачи на отправку ЭДО неформализованного документа клиенту");
 			Console.WriteLine();
 
 			Console.WriteLine("23. InformalDocumentFileDataSendEvent (отправка неформализованного документа заказа) - [Edo.Docflow]");
