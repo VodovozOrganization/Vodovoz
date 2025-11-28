@@ -114,7 +114,7 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку документа вывода из оборота");
 			Console.WriteLine();
 
-			Console.WriteLine("21. InformalEdoRequestCreatedEvent (создание заявки на отправку неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
+			Console.WriteLine("21. InformalEdoRequestCreatedEvent (создание задачи на отправку неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку");
 			Console.WriteLine();
 
@@ -495,7 +495,7 @@ namespace CustomTaskDebugExecutor
 			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
 			var fileData = new TaxcomEdo.Contracts.Documents.OrderDocumentFileData 
 			{ 
-				OrderId = 5301836,
+				OrderId = 5301860,
 				DocumentDate = DateTime.Now,
 				Image = new byte[1] { 1 }
 			};

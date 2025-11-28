@@ -20,13 +20,12 @@ namespace Vodovoz.Domain.Client
 
 		private TemplateType _templateType;
 		private Organization _organization;
-		private ContractType _contractType;
 
 		/// <summary>
 		/// Тип шаблона
 		/// </summary>
 		[Display (Name = "Тип шаблона")]
-		public virtual TemplateType TemplateType {
+		public override TemplateType TemplateType {
 			get => _templateType;
 			set { 
 				bool needUpdateName = String.IsNullOrWhiteSpace(Name) || Name == _templateType.GetEnumTitle();
@@ -49,16 +48,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _organization;
 			set => SetField (ref _organization, value, () => Organization);
-		}
-
-		/// <summary>
-		/// Тип договора
-		/// </summary>
-		[Display(Name = "Тип договора")]
-		public virtual ContractType ContractType
-		{
-			get => _contractType;
-			set => SetField(ref _contractType, value, () => ContractType);
 		}
 
 		#endregion

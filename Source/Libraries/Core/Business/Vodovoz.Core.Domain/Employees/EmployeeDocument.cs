@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Employees
@@ -9,7 +10,7 @@ namespace Vodovoz.Core.Domain.Employees
 		NominativePlural = "документы сотрудника",
 		Nominative = "документ сотрудника")]
 	[EntityPermission]
-	public class EmployeeDocumentEntity : PropertyChangedBase, IDomainObject
+	public class EmployeeDocument: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private int _id;
 		private string _title = "Документы";
@@ -110,5 +111,19 @@ namespace Vodovoz.Core.Domain.Employees
 			get => _document;
 			set => SetField(ref _document, value);
 		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrEmpty(PassportSeria))
+			{
+				yield return new ValidationResult("Серия должна быть заполнена", new[] { "PassportSeria" });
+			}
+
+			if(string.IsNullOrEmpty(PassportNumber))
+			{
+				yield return new ValidationResult("Номер должен быть заполнен", new[] { "PassportNumber" });
+			}
+		}
+
 	}
 }

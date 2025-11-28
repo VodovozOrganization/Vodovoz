@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Employees
 		private byte[] _changedTemplateFile;
 		private ProxyDocumentType _type;
 		private OrganizationEntity _organization;
-		private EmployeeDocumentEntity _employeeDocument;
+		private EmployeeDocument _employeeDocument;
 		private DocTemplateEntity _proxyDocumentTemplate;
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Vodovoz.Core.Domain.Employees
 		/// Документ сотрудника
 		/// </summary>
 		[Display(Name = "Документ сотрудника")]
-		public virtual EmployeeDocumentEntity EmployeeDocument
+		public virtual EmployeeDocument EmployeeDocument
 		{
 			get => _employeeDocument;
 			set => SetField(ref _employeeDocument, value, () => EmployeeDocument);
