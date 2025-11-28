@@ -33,7 +33,9 @@ using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.NotificationSenders;
 
@@ -179,8 +181,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = "Перенос адресов маршрутных листов";
 
-			AddOrderToRouteListEnRouteCommand =
-				new DelegateCommand(() => SelectNewOrdersForRouteListEnRoute());
+			AddOrderToRouteListEnRouteCommand = new DelegateCommand(SelectNewOrdersForRouteListEnRoute);
 
 			TransferAddressesCommand = new DelegateCommand(TransferAddresses);
 			RevertTransferAddressesCommand = new DelegateCommand(RevertTransferAddresses, () => CanRevertTransferAddresses);
@@ -510,20 +511,33 @@ namespace Vodovoz.ViewModels.Logistic
 						.Select(addressNode => addressNode.OrderId))
 					.ToArray();
 
-			var ordersForRouteListJournalPage = OpenLegacyOrderForRouteListJournalViewModelHandler(filter =>
-			{
-				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
-				filter.RestrictStatus = OrderStatus.Accepted;
-				filter.RestrictWithoutSelfDelivery = true;
-				filter.RestrictOnlySelfDelivery = false;
-				filter.RestrictHideService = true;
-				filter.FilterClosingDocumentDeliverySchedule = false;
-				filter.ExceptIds = excludeOrdersIds;
-			});
+			NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				this,
+				filter =>
+				{
+					filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+					filter.RestrictStatus = OrderStatus.Accepted;
+					filter.RestrictWithoutSelfDelivery = true;
+					filter.RestrictOnlySelfDelivery = false;
+					filter.RestrictHideService = true;
+					filter.FilterClosingDocumentDeliverySchedule = false;
+					filter.ExceptIds = excludeOrdersIds;
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.OnEntitySelectedResult += OnOrderSelectedResult;
+				});
 		}
 
 		public void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
+			if(sender is OrderForRouteListJournalViewModel journal)
+			{
+				journal.OnEntitySelectedResult -= OnOrderSelectedResult;
+			}
+			
 			foreach(var selectedNode in e.SelectedNodes)
 			{
 				AddOrderToSourceAddresses(selectedNode.Id);

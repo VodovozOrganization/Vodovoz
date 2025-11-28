@@ -28,17 +28,6 @@ namespace Vodovoz.Logistic
 			: base(viewModel)
 		{
 			Build();
-
-			viewModel.OpenLegacyOrderForRouteListJournalViewModelHandler = (filterConfig) =>
-			{
-				var page = ViewModel.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(ViewModel, filterConfig);
-
-				page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-				page.ViewModel.OnEntitySelectedResult += ViewModel.OnOrderSelectedResult;
-
-				return page;
-			};
-
 			Initialize();
 		}
 
