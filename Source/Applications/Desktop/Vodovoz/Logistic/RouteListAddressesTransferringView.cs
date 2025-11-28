@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Logistics;
 using static Vodovoz.ViewModels.Logistic.RouteListTransferringViewModel;
