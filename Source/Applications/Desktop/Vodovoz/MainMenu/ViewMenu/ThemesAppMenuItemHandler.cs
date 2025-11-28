@@ -80,7 +80,7 @@ namespace Vodovoz.MainMenu.ViewMenu
     
         		var currentTheme = Gtk.Settings.Default.ThemeName;
     
-        		foreach(RadioMenuItem menuItem in themeAction.Group)
+        		foreach(RadioAction menuItem in themeAction.Group)
         		{
         			menuItem.Active = _themes[themeAction.Label] == currentTheme;
         		}
