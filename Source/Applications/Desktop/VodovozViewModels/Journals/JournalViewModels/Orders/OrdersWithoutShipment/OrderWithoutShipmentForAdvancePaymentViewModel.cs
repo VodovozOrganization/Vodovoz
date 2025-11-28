@@ -14,6 +14,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.ViewModels.Control.EEVM;
@@ -122,6 +123,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
 			
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+			
 			SetPermissions();
 			
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -163,7 +166,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
+
+		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateEmails();
+		}
 		
+		private void UpdateEmails()
+		{
+			var email = Entity.GetEmailAddressForBill();
+
+			SendDocViewModel.Update(Entity, email is null ? string.Empty : email.Address);
+		}
+
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
 		public bool CanSetOrganization
@@ -272,36 +287,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
+		public void OnCounterpartyEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
-			var email = Entity.GetEmailAddressForBill();
-
-			if(email is null)
-			{
-				SendDocViewModel.Update(Entity, string.Empty);
-			}
-			else
-			{
-				SendDocViewModel.Update(Entity, email.Address);
-			}
+			UpdateEmails();
 		}
 
 		public override bool Save(bool close)
 		{
 			OnPropertyChanged(nameof(CanSendBillByEdo));
 			return base.Save(close);
-		}
-
-		protected override bool BeforeSave()
-		{
-			if(Entity.Organization != null)
-			{
-				return true;
-			}
-
-			ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
-				
-			return false;
 		}
 
 		private void InitializeCommands()
@@ -369,12 +363,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() =>
 				{
 					var whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-
-					if(Entity.Organization == null)
-					{
-						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
-						return;
-					}
 					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 					{
@@ -451,6 +439,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override void Dispose()
 		{
+			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

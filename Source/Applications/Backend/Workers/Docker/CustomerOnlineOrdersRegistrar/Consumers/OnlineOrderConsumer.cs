@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -11,6 +11,9 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
+using System.Threading.Tasks;
+using System.Threading;
+using Vodovoz.Services.Logistics;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -23,7 +26,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
-		
+		private readonly IRouteListService _routeListService;
+
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
 		protected OnlineOrderConsumer(
@@ -34,7 +38,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
-			IOrderService orderService)
+			IOrderService orderService,
+			IRouteListService routeListService
+			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -45,38 +51,40 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_onlineOrderCancellationReasonSettings =
 				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 		
-		protected virtual void TryRegisterOnlineOrder(OnlineOrderInfoDto message)
+		protected virtual async Task TryRegisterOnlineOrderAsync(OnlineOrderInfoDto message, CancellationToken cancellationToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}"))
 			{
+				// Необходимо сделать асинхронным
 				var onlineOrder = _onlineOrderFactory.CreateOnlineOrder(
 					uow,
 					message,
 					_deliveryRulesSettings.FastDeliveryScheduleId,
-					_discountReasonSettings.GetSelfDeliveryDiscountReasonId);
-
-				var clientOnlineOrdersDuplicates =
-					_onlineOrderRepository.GetOnlineOrdersDuplicates(uow, onlineOrder, DateTime.Today);
-
-				var externalOrderId = message.ExternalOrderId;
+					_discountReasonSettings.GetSelfDeliveryDiscountReasonId
+				);
 				
-				if(clientOnlineOrdersDuplicates.Any())
+				var externalOrderId = message.ExternalOrderId;
+				var needCancelOnlineOrder = NeedCancelOnlineOrder(uow, onlineOrder);
+
+				if(needCancelOnlineOrder)
 				{
 					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					onlineOrder.OnlineOrderCancellationReason =
-						uow.GetById<OnlineOrderCancellationReason>(_onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId);
+					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
+					onlineOrder.OnlineOrderCancellationReason = await uow.Session
+						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
 					
 					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					uow.Save(notification);
+					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
 				}
 
-				uow.Save(onlineOrder);
-				uow.Commit();
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 
-				if(clientOnlineOrdersDuplicates.Any())
+				if(needCancelOnlineOrder)
 				{
 					return;
 				}
@@ -92,7 +100,12 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				
 				try
 				{
-					orderId = _orderService.TryCreateOrderFromOnlineOrderAndAccept(uow, onlineOrder);
+					orderId = await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
+						uow,
+						onlineOrder,
+						_routeListService,
+						cancellationToken
+					);
 				}
 				catch(Exception e)
 				{
@@ -130,6 +143,19 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					}
 				}
 			}
+		}
+
+		private bool NeedCancelOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		{
+			// Необходимо сделать асинхронным
+			var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
+				uow, 
+				onlineOrder, 
+				DateTime.Today
+			);
+
+			return clientOnlineOrdersDuplicates.Any(duplicate =>
+				duplicate.OnlineOrderStatus is OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed);
 		}
 	}
 }

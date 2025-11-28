@@ -11,6 +11,5 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			[Display(Name = "Год")]
 			Year
 		}
-
 	}
 }

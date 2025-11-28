@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -41,6 +41,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -61,6 +62,7 @@ namespace Vodovoz
 
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IRouteListService _routeListService;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -72,8 +74,8 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
-		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 
@@ -94,8 +96,6 @@ namespace Vodovoz
 		private int? _oldCounterpartyId;
 
 		public IUnitOfWork UoW { get; }
-		
-		public ICallTaskWorker CallTaskWorker { get; }
 		
 		private Order BaseOrder { get; set; }
 		
@@ -174,7 +174,9 @@ namespace Vodovoz
 			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			IRouteListService routeListService
+			)
 		{
 			if(currentPermissionService is null)
 			{
@@ -194,7 +196,7 @@ namespace Vodovoz
 
 			UoW = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_discountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
-			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_counterpartyService = counterpartyService ?? throw new ArgumentNullException(nameof(counterpartyService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -203,12 +205,12 @@ namespace Vodovoz
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
 		}
 
 		public bool CanFormOrderWithLiquidatedCounterparty { get; }
@@ -633,7 +635,8 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, _routeListItemStatusToChange, CallTaskWorker, true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, _routeListItemStatusToChange, 
+				_callTaskWorker, true);
 			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 			_routeListItem.BottlesReturned = 0;
 			UpdateButtonsState();
@@ -648,7 +651,8 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
+				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();
@@ -726,7 +730,7 @@ namespace Vodovoz
 			{
 			}
 
-			if(counterparty.IsLiquidating)
+			if(counterparty.RevenueStatus.HasValue && counterparty.RevenueStatus != RevenueStatus.Active)
 			{
 				if(!CanFormOrderWithLiquidatedCounterparty)
 				{

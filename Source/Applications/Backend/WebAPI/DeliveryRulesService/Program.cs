@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using System;
 using System.Threading.Tasks;
 
 namespace DeliveryRulesService
@@ -13,6 +14,8 @@ namespace DeliveryRulesService
 	{
 		public static async Task Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 			await CreateHostBuilder(args).Build().RunAsync();
 		}
 

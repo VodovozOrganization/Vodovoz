@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using Vodovoz.Settings;
 
 
 namespace Mailganer.Api.Client
@@ -23,6 +24,31 @@ namespace Mailganer.Api.Client
 				var mailganerSettings = sp.GetRequiredService<IOptions<MailganerSettings>>();
 				var apiKey = mailganerSettings.Value.ApiKey;
 				
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v2/");
+				httpClient.DefaultRequestHeaders.Clear();
+				httpClient.DefaultRequestHeaders.Add("Authorization", $"{apiKey}");
+			});
+
+			services.AddHttpClient<MailganerClientV1>((sp, httpClient) =>
+			{
+				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v1/");
+			});
+
+			return services;
+		}
+
+		public static IServiceCollection AddMailganerApiClientUsingDbParameters(this IServiceCollection services)
+		{
+			services.AddOptions<MailganerSettings>().Configure<IConfiguration>((options, config) =>
+			{
+				config.GetSection("MailganerSettings").Bind(options);
+			});
+
+			services.AddHttpClient<MailganerClientV2>((sp, httpClient) =>
+			{
+				var settingsController = sp.GetRequiredService<ISettingsController>();
+				var apiKey = settingsController.GetStringValue("MailganerSettings");
+
 				httpClient.BaseAddress = new Uri("https://api.samotpravil.ru/api/v2/");
 				httpClient.DefaultRequestHeaders.Clear();
 				httpClient.DefaultRequestHeaders.Add("Authorization", $"{apiKey}");

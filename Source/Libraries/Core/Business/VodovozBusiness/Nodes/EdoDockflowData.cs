@@ -19,7 +19,7 @@ namespace VodovozBusiness.Nodes
 				throw new ArgumentNullException(nameof(edoContainer));
 			}
 
-			OrderId = edoContainer.Order.Id;
+			OrderId = edoContainer.Order?.Id;
 			DocFlowId = edoContainer.DocFlowId;
 			OldEdoDocumentType = edoContainer.Type;
 			EdoDocFlowStatus = edoContainer.EdoDocFlowStatus;

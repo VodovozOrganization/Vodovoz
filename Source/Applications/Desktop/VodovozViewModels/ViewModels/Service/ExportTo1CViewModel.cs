@@ -496,17 +496,14 @@ namespace Vodovoz.ViewModels.ViewModels.Service
 
 		private XElement CreateXml(Export1cMode export1CMode, IList<Order> orders, Organization organization)
 		{
-			var exporter = _dataExporterFor1CFactory.Create1cDataExporter(export1CMode);
-
-			var xml = exporter.CreateXml
-			(
-				orders,
+			var exporter = _dataExporterFor1CFactory.CreateOrders1cDataExporter(
+				export1CMode,
+				organization,
 				StartDate.Value,
 				EndDate.Value,
-				organization,
-				_cancellationTokenSource.Token,
-				ProgressBarDisplayable
-			);
+				ProgressBarDisplayable);
+
+			var xml = exporter.CreateXml(orders, _cancellationTokenSource.Token);
 
 			return xml;
 		}

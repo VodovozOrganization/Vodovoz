@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
-using TrueMarkApi.Client;
 using Vodovoz.Application.Clients;
 using Vodovoz.Application.Clients.Services;
 using Vodovoz.Application.Complaints;
@@ -19,6 +18,7 @@ using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
+using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
@@ -31,11 +31,6 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
-using Vodovoz.Application.Clients;
-using Vodovoz.Application.Receipts;
-using VodovozBusiness.Controllers;
-using VodovozBusiness.Services.Receipts;
-using Vodovoz.Handlers;
 
 namespace Vodovoz.Application
 {
@@ -54,7 +49,11 @@ namespace Vodovoz.Application
 			.AddSingleton<OperatorService>()
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<IPaymentService, PaymentService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+			.AddScoped<IOnlineOrderService, OnlineOrderService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -71,6 +70,7 @@ namespace Vodovoz.Application
 		
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<IPaymentService, PaymentService>()
 			.AddOrderServicesDependencies()
 			;
 

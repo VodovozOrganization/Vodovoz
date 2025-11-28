@@ -7,10 +7,10 @@ using QS.DomainModel.UoW;
 using QS.ViewModels.Dialog;
 using QS.Navigation;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Application.Payments;
 using NHibernate;
 using QS.DomainModel.Tracking;
 using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.ViewModels.Payments
 {

@@ -308,7 +308,11 @@ namespace Vodovoz
 		private Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
-		public string IsLiquidatingLabelText => (Entity?.IsLiquidating ?? false) ? $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Ликвидирован по данным ФНС</span>" : "Ликвидирован по данным ФНС";
+		public string RevenueStatusInformation =>
+			$"Статус ликвидации: " +
+			(Entity.RevenueStatus.HasValue
+				? $"{Entity.RevenueStatus.Value.GetEnumDisplayName()} {(Entity.RevenueStatusDate.HasValue ? $"c {Entity.RevenueStatusDate:d}" : "")}"
+				: "Неизвестен");
 
 		private void ConfigureDlg()
 		{
@@ -462,10 +466,10 @@ namespace Vodovoz
 
 				return;
 			}
-
-			if(e.PropertyName == nameof(Entity.IsLiquidating))
+			
+			if(e.PropertyName == nameof(Entity.RevenueStatus) || e.PropertyName == nameof(Entity.RevenueStatusDate))
 			{
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLiquidatingLabelText)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RevenueStatusInformation)));
 			}
 
 			if(e.PropertyName == nameof(Entity.CameFrom) && Entity.CameFrom?.Id != _counterpartySettings.ReferFriendPromotionCameFromId)
@@ -480,15 +484,9 @@ namespace Vodovoz
 		}
 
 		private void ConfigureTabInfo()
-		{
-			ycheckbuttonIsLiquidating.Binding
-				.AddBinding(Entity, e => e.IsLiquidating, w => w.Active)
-				.AddFuncBinding(c => c.PersonType == PersonType.legal, w => w.Visible)
-				.InitializeFromSource();
-
-			labelIsLiquidating.UseMarkup = true;
-			labelIsLiquidating.Binding
-				.AddBinding(this, dlg => dlg.IsLiquidatingLabelText, w => w.LabelProp)
+		{			
+			ylabelRevenueStatus.Binding
+				.AddBinding(this, dlg => dlg.RevenueStatusInformation, w => w.Text)
 				.AddFuncBinding(dlg => dlg.Entity.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
 
@@ -2279,17 +2277,10 @@ namespace Vodovoz
 					FillEntityDetailsFromRevenueService(a);
 				}
 
-				if(Entity.IsLiquidating && a.IsActive)
-				{
-					Entity.IsLiquidating = false;
-				}
+				Entity.RevenueStatus = a.State.ConvertToRevenueStatus();
+				Entity.RevenueStatusDate = a.StateDate;
 
-				if(Entity.IsDeliveriesClosed && !a.IsActive)
-				{
-					Entity.IsLiquidating = true;
-				}
-
-				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee, !a.IsActive, a.State.GetUserFriendlyName());
+				_counterpartyService.StopShipmentsIfNeeded(Entity, CurrentEmployee);
 			};
 		}
 

@@ -58,7 +58,9 @@ using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
+using Vodovoz.Services.Logistics;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -77,8 +79,6 @@ namespace Vodovoz.Domain.Orders
 
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
 			.Resolve<IOrderRepository>();
-		private IPaymentItemsRepository _paymentItemsRepository => ScopeProvider.Scope
-			.Resolve<IPaymentItemsRepository>();
 		private IUndeliveredOrdersRepository _undeliveredOrdersRepository => ScopeProvider.Scope
 			.Resolve<IUndeliveredOrdersRepository>();
 		private IPaymentFromBankClientController _paymentFromBankClientController => ScopeProvider.Scope
@@ -1604,7 +1604,8 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void UpdatePaymentByCardFrom(
 			PaymentFrom paymentByCardFrom,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(_paymentByCardFrom == paymentByCardFrom)
 			{
@@ -1612,12 +1613,17 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			PaymentByCardFrom = paymentByCardFrom;
-			orderContractUpdater.UpdateContract(UoW, this);
+
+			if(needUpdateContract)
+			{
+				orderContractUpdater.UpdateContract(UoW, this);
+			}
 		}
 
 		public virtual void UpdatePaymentType(
 			PaymentType paymentType,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			bool needUpdateContract = true)
 		{
 			if(paymentType == _paymentType)
 			{
@@ -1641,7 +1647,10 @@ namespace Vodovoz.Domain.Orders
 				PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 			}
 
-			UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			if(needUpdateContract)
+			{
+				UpdateContractOnPaymentTypeChanged(UoW, orderContractUpdater);
+			}
 		}
 
 		public virtual void UpdateClient(Counterparty counterparty, IOrderContractUpdater orderContractUpdater, out string message)
@@ -2815,7 +2824,8 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IRouteListService routeListService,
+			INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
 			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
 		{
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
@@ -2828,7 +2838,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+					routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2839,12 +2849,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Canceled, needCreateDeliveryFreeBalanceOperation);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
+						routeListService.SetAddressStatusWithoutOrderChange(uow, routeList, routeListItem, RouteListItemStatus.Overdue, needCreateDeliveryFreeBalanceOperation);
 					}
 					break;
 			}
@@ -2949,49 +2959,6 @@ namespace Vodovoz.Domain.Orders
 			var errorStrings = emailSendBillResult.Errors.Select(x => x.Message);
 			ServicesConfig.InteractiveService.ShowMessage (ImportanceLevel.Warning, $"Не удалось отправить счёт по email для заказа № {Id}:\n" +
 				$"{string.Join("\n", errorStrings)}");
-		}
-
-		public virtual void UpdatePaymentStatus(IUnitOfWork uow = null)
-		{
-			if(PaymentType != PaymentType.Cashless)
-			{
-				OrderPaymentStatus = OrderPaymentStatus.None;
-				return;
-			}
-
-			if(Id == 0)
-			{
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-				return;
-			}
-			
-			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(uow ?? UoW, Id);
-			UpdatePaymentStatus(() => allocatedSum == default, () => allocatedSum >= OrderSum);
-		}
-
-		public virtual void UpdateCashlessOrderPaymentStatus(decimal canceledSum)
-		{
-			var allocatedSum = _paymentItemsRepository.GetAllocatedSumForOrder(UoW, Id);
-
-			UpdatePaymentStatus(
-				() => allocatedSum == 0 || allocatedSum - canceledSum == 0,
-				() => allocatedSum - canceledSum > OrderSum);
-		}
-		
-		private void UpdatePaymentStatus(Func<bool> unPaidPredicate, Func<bool> paidPredicate)
-		{
-			if(unPaidPredicate.Invoke())
-			{
-				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
-			}
-			else if(paidPredicate.Invoke())
-			{
-				OrderPaymentStatus = OrderPaymentStatus.Paid;
-			}
-			else
-			{
-				OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-			}
 		}
 
 		/// <summary>
@@ -4073,7 +4040,8 @@ namespace Vodovoz.Domain.Orders
 			Employee currentEmployee,
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
-			bool needUpdateContract = true)
+			bool needUpdateContract = true
+		)
 		{
 			SetFirstOrder();
 

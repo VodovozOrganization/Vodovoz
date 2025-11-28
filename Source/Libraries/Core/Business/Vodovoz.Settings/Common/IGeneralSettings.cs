@@ -10,8 +10,10 @@ namespace Vodovoz.Settings.Common
 		void UpdateRouteListPrintedFormPhones(string text);
 
 		bool GetCanAddForwardersToLargus { get; }
+		bool GetCanAddForwardersToMinivan { get; }
 		string OrderAutoComment { get; }
 		void UpdateCanAddForwardersToLargus(bool value);
+		void UpdateCanAddForwardersToMinivan(bool value);
 		void UpdateOrderAutoComment(string value);
 
 		int[] SubdivisionsToInformComplaintHasNoDriver { get; }

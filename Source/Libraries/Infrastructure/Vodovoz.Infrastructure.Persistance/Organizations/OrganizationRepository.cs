@@ -1,10 +1,13 @@
-﻿using NHibernate.Linq;
+﻿using System;
+using NHibernate.Linq;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Criterion;
+using NHibernate.Transform;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Organizations;
@@ -100,6 +103,38 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 		public IList<Organization> GetOrganizations(IUnitOfWork uow)
 		{
 			return uow.GetAll<Organization>().ToList();
+		}
+
+		public IEnumerable<(string OrganizationName, Account Account)> GetActiveAccountsOrganizationsWithCashlessControl(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, int? bankId, int? accountId)
+		{
+			Account accountAlias = null;
+			Bank bankAlias = null;
+
+			var query = uow.Session.QueryOver<Organization>()
+				.JoinAlias(org => org.Accounts, () => accountAlias)
+				.JoinAlias(() => accountAlias.InBank, () => bankAlias)
+				.Where(org => org.IsNeedCashlessMovementControl)
+				.And(() => !accountAlias.Inactive)
+				.And(() => accountAlias.Created == null || accountAlias.Created >= startDate)
+				.And(() => accountAlias.Created == null || accountAlias.Created <= endDate);
+
+			if(bankId.HasValue)
+			{
+				query.And(() => bankAlias.Id == bankId);
+			}
+
+			if(accountId.HasValue)
+			{
+				query.And(() => accountAlias.Id == accountId);
+			}
+			
+			return query.SelectList(list => list
+					.Select(org => org.Name)
+					.Select(Projections.Entity(() => accountAlias))
+				)
+				.TransformUsing(Transformers.AliasToBeanConstructor(typeof(ValueTuple<string, Account>).GetConstructors().First()))
+				.List<(string OrganizationName, Account Account)>();
 		}
 	}
 }

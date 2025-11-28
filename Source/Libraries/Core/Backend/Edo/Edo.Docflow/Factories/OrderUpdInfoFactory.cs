@@ -80,7 +80,7 @@ namespace Edo.Docflow.Factories
 				Customer = GetCustomerInfo(order, edoAccount),
 				Consignee = GetConsigneeInfo(order.Client, edoAccount, order.DeliveryPoint),
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
-				GovContract = order.Client.GovContract,
+				GovContract = string.IsNullOrWhiteSpace(order.Client.GovContract) ? null : order.Client.GovContract,
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(payments),
 				Products = products,

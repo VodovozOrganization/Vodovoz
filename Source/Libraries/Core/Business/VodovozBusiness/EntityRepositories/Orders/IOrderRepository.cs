@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -13,10 +14,12 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -140,6 +143,16 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
+		/// <summary>
+		/// Получение списка идентификаторов неоплаченных безналичных заказов контрагента за указанный период
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="counterpartyId"></param>
+		/// <param name="startDate"></param>
+		/// <param name="endDate"></param>
+		/// <param name="organizationId"></param>
+		/// <returns></returns>
+		IList<int> GetUnpaidOrdersIds(IUnitOfWork uow, int counterpartyId, DateTime? startDate, DateTime? endDate, int organizationId);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
 		/// <summary>
@@ -248,5 +261,17 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="cancellationToken"></param>
 		/// <returns>True, если все коды были обработаны, иначе False</returns>
 		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает данные по неоплаченным безналичным заказам для указанной организации
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="organizationId">Id организации</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="counterpartyTypes">Типы контагентов</param>
+		/// <param name="tenderCameFromId">Id источника клиента Тендер</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные по неоплаченным заказам</returns>
+		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, int tenderCameFromId, CancellationToken cancellationToken);
 	}
 }

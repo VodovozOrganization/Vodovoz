@@ -24,6 +24,7 @@
               IF(drivers.patronymic = '',
                  '',
                  CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    (SELECT p.number FROM phones p WHERE p.employee_id = drivers.id LIMIT 1) as driver_phone,
     CONCAT_WS('',
               CONCAT(forwaders.last_name, ' '),
               IF(forwaders.name = '',
@@ -98,6 +99,10 @@ LIMIT 1
         <Field Name="has_fast_delivery">
           <DataField>has_fast_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="driver_phone">
+          <DataField>driver_phone</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -274,7 +279,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92">
-                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")"</Value>
+                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")" + " Телефон: " + Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>

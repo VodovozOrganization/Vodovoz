@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -45,6 +45,7 @@ using Vodovoz.Additions;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
@@ -81,9 +82,32 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using Osrm;
+using QS.Project.Journal;
+using QS.Project.Repositories;
+using Vodovoz.MainMenu;
+using Vodovoz.MainMenu.AdministrationMenu;
+using Vodovoz.MainMenu.BaseMenu;
+using Vodovoz.MainMenu.HelpMenu;
+using Vodovoz.MainMenu.JournalsMenu;
+using Vodovoz.MainMenu.JournalsMenu.Accounting;
+using Vodovoz.MainMenu.JournalsMenu.Banks;
+using Vodovoz.MainMenu.JournalsMenu.Counterparties;
+using Vodovoz.MainMenu.JournalsMenu.Financies;
+using Vodovoz.MainMenu.JournalsMenu.Helpers;
+using Vodovoz.MainMenu.JournalsMenu.Logistics;
+using Vodovoz.MainMenu.JournalsMenu.Orders;
+using Vodovoz.MainMenu.JournalsMenu.Organization;
+using Vodovoz.MainMenu.JournalsMenu.Products;
+using Vodovoz.MainMenu.JournalsMenu.Transports;
+using Vodovoz.MainMenu.ProposalsMenu;
+using Vodovoz.MainMenu.ReportsMenu;
+using Vodovoz.MainMenu.ViewMenu;
+using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 
 namespace Vodovoz
 {
@@ -175,9 +199,9 @@ namespace Vodovoz
 
 				.AddScoped<IScanDialogService, ScanDialogService>()
 
-				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<RouteGeometryCalculator>()
-				.AddSingleton<OsrmClient>(sp => OsrmClientFactory.Instance)
+		
+				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
 				.AddFiasClient()
@@ -229,6 +253,12 @@ namespace Vodovoz
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
 				.AddVodovozDesktopResourceLocker()
+				.AddScoped<BankAccountsMovementsJournalReport>()
+				.AddMainMenuDependencies()
+				.AddTransient(typeof(SimpleEntityJournalViewModel<,>))
+				.AddScoped<IMySqlPasswordRepository, MySqlPasswordRepository>()
+				.AddScoped<IPasswordValidator, PasswordValidator>()
+				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				;
 
 			services.AddStaticHistoryTracker();
@@ -237,6 +267,7 @@ namespace Vodovoz
 
 			return services;
 		}
+		
 		public static IServiceCollection AddMailganerApiClient(this IServiceCollection services)
 		{
 			services.AddOptions<MailganerSettings>().Configure<IConfiguration>((options, config) =>
@@ -331,5 +362,55 @@ namespace Vodovoz
 
 			return services;
 		}
+
+		public static IServiceCollection AddMainMenuDependencies(this IServiceCollection services) => services 
+			.AddSingleton<MainMenuBarCreator>()
+			.AddSingleton<ConcreteMenuItemCreator>()
+			.AddSingleton<BaseMenuItemCreator>()
+			.AddSingleton<ViewMenuItemCreator>()
+			.AddSingleton<MainPanelMenuItemHandler>()
+			.AddSingleton<TabsMenuItemHandler>()
+			.AddSingleton<ThemesAppMenuItemHandler>()
+			.AddSingleton<JournalsMenuItemCreator>()
+			.AddSingleton<OrganizationMenuItemCreator>()
+			.AddSingleton<WageMenuItemCreator>()
+			.AddSingleton<ComplaintResultsMenuItemCreator>()
+			.AddSingleton<ComplaintClassificationMenuItemCreator>()
+			.AddSingleton<UndeliveryClassificationMenuItemCreator>()
+			.AddSingleton<ProductsMenuItemCreator>()
+			.AddSingleton<InventoryAccountingMenuItemCreator>()
+			.AddSingleton<ExternalSourcesMenuItemCreator>()
+			.AddSingleton<ExternalSourceCatalogsMenuItemCreator>()
+			.AddSingleton<BanksMenuItemCreator>()
+			.AddSingleton<FinancesMenuItemCreator>()
+			.AddSingleton<CompanyBalanceMenuItemCreator>()
+			.AddSingleton<CounterpartiesMenuItemCreator>()
+			.AddSingleton<LogisticsMenuItemCreator>()
+			.AddSingleton<DriverWarehouseEventsMenuItemCreator>()
+			.AddSingleton<HelpersMenuItemCreator>()
+			.AddSingleton<OrdersMenuItemCreator>()
+			.AddSingleton<OnlineOrdersSourcesMenuItemCreator>()
+			.AddSingleton<OrdersRatingsMenuItemCreator>()
+			.AddSingleton<TransportMenuItemCreator>()
+			.AddSingleton<AccountingMenuItemCreator>()
+			.AddSingleton<ReportsMenuItemCreator>()
+			.AddSingleton<OrderReportsMenuItemCreator>()
+			.AddSingleton<SalesReportsMenuItemCreator>()
+			.AddSingleton<WarehouseReportsMenuItemCreator>()
+			.AddSingleton<OskOkkReportsMenuItemCreator>()
+			.AddSingleton<LogisticReportsMenuItemCreator>()
+			.AddSingleton<EmployeesReportsMenuItemCreator>()
+			.AddSingleton<DriversReportsMenuItemCreator>()
+			.AddSingleton<ServiceReportsMenuItemCreator>()
+			.AddSingleton<AccountingDepReportsMenuItemCreator>()
+			.AddSingleton<CashRegisterDepReportsMenuItemCreator>()
+			.AddSingleton<ManufacturingReportsMenuItemCreator>()
+			.AddSingleton<RetailReportsMenuItemCreator>()
+			.AddSingleton<TransportReportsMenuItemCreator>()
+			.AddSingleton<AdministrationMenuItemCreator>()
+			.AddSingleton<AdminServiceMenuItemCreator>()
+			.AddSingleton<HelpMenuItemCreator>()
+			.AddSingleton<ProposalsMenuItemCreator>() 
+		;
 	}
 }

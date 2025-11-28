@@ -33,6 +33,7 @@
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />

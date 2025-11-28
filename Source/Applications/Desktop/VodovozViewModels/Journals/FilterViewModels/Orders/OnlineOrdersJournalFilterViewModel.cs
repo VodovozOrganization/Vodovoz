@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private OnlineRequestsType? _onlineRequestsType;
 		private OnlinePaymentSource? _restrictOnlinePaymentSource;
 		private bool _isVisibleOnlinePaymentSource;
+		private bool _withoutDeliverySchedule;
 
 		public OnlineOrdersJournalFilterViewModel(
 			ILifetimeScope lifetimeScope)
@@ -272,6 +273,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 					CanChangeFastDelivery = false;
 				}
 			}
+		}
+		
+		public bool WithoutDeliverySchedule
+		{
+			get => _withoutDeliverySchedule;
+			set => UpdateFilterField(ref _withoutDeliverySchedule, value);
 		}
 
 		public bool CanChangeFastDelivery { get; private set; } = true;

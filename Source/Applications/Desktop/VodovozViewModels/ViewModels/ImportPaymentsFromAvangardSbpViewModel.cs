@@ -182,6 +182,11 @@ namespace Vodovoz.ViewModels
 
 		private void CheckForDuplicates(AvangardOperations avangardOperations)
 		{
+			if(avangardOperations.Operations is null)
+			{
+				return;
+			}
+			
 			foreach(var node in avangardOperations.Operations)
 			{
 				if(node.Amount < 0)

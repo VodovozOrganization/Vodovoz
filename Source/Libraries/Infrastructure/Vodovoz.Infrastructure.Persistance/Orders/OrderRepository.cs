@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
@@ -9,13 +10,20 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -32,19 +40,13 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
-using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
+using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.EntityRepositories.Nodes;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Order = Vodovoz.Domain.Orders.Order;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -1134,6 +1136,39 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					);
 
 			return query.List();
+		}
+
+		public IList<int> GetUnpaidOrdersIds(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime? startDate,
+			DateTime? endDate,
+			int organizationId)
+		{
+			OrderStatus[] includedOrderStatuses =
+			{
+				OrderStatus.Shipped,
+				OrderStatus.Closed,
+				OrderStatus.UnloadingOnStock
+			};
+
+			VodovozOrder orderAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization contractOrganizationAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.Left.JoinAlias(() => contractAlias.Organization, () => contractOrganizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.Where(() => orderAlias.DeliveryDate >= startDate && orderAlias.DeliveryDate <= endDate)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => contractAlias.Organization.Id == organizationId)
+				.Where(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus), includedOrderStatuses));
+
+			return query
+				.Select(x => x.Id)
+				.List<int>();
 		}
 
 		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
@@ -2378,6 +2413,118 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return uow.Session.QueryOver(() => orderItemAlias)
 				.Where(() => orderItemAlias.Order.Id == orderId)
 				.List();
+		}
+
+		public async Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
+			IUnitOfWork uow,
+			int organizationId,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<CounterpartyType> counterpartyTypes,
+			int tenderCameFromId,
+			CancellationToken cancellationToken)
+		{
+			var today = DateTime.Today;
+
+			var ordersDataQuery =
+					from order in uow.Session.Query<Order>()
+					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+					join cc in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals cc.Id into contacts
+					from contract in contacts.DefaultIfEmpty()
+					join o in uow.Session.Query<Organization>() on contract.Organization.Id equals o.Id into organizations
+					from organization in organizations.DefaultIfEmpty()
+					join ccf in uow.Session.Query<ClientCameFrom>() on counterparty.CameFrom.Id equals ccf.Id into camefroms
+					from clientCameFrom in camefroms.DefaultIfEmpty()
+
+					let patrialPaidOrdersSum =
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
+									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
+							   where
+							   paymentItem.Order.Id == order.Id
+							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+							   select cashlessMovementOpetation.Expense)
+							   .Sum() ?? 0
+
+					let overdueOrdersPartialPaymentsSum =
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
+									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
+							   where
+							   paymentItem.Order.Id == order.Id
+							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+							   && order.DeliveryDate != null
+							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+							   select cashlessMovementOpetation.Expense)
+							   .Sum() ?? 0
+
+					let overdueOrdersSum =
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+							   where
+							   orderItem.Order.Id == order.Id
+							   && order.DeliveryDate != null
+							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+							   select
+							   orderItem.ActualSum)
+							   .Sum() ?? 0
+
+					let orderSum =
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+							   where
+							   orderItem.Order.Id == order.Id
+							   select
+							   orderItem.ActualSum)
+							   .Sum() ?? 0
+
+					let counterpartyPhones =
+					from phone in uow.Session.Query<Phone>()
+					where phone.Counterparty.Id == counterparty.Id
+					select phone
+
+					let counterpartyOrdersContactPhones =
+					from order in uow.Session.Query<Order>()
+					join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
+					where
+					order.Client.Id == counterparty.Id
+					select phone
+
+					let isExpired =
+						order.DeliveryDate != null
+						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+
+					where
+						order.OrderPaymentStatus != OrderPaymentStatus.Paid
+						&& orderStatuses.Contains(order.OrderStatus)
+						&& order.PaymentType == PaymentType.Cashless
+						&& counterparty.PersonType == PersonType.legal
+						&& !counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& organization.Id == organizationId
+						&& counterparty.CloseDeliveryDebtType == null
+						&& order.DeliveryDate != null
+						&& orderSum > 0
+						&& (clientCameFrom == null || clientCameFrom.Id != tenderCameFromId)
+						&& !counterparty.IsChainStore
+						&& isExpired
+
+					select new OrderPaymentsDataNode
+					{
+						OrderId = order.Id,
+						CounterpartyId = counterparty.Id,
+						OrganizationId = organization.Id,
+						OrganizationName = organization.FullName,
+						NotPaidSum = orderSum,
+						PartialPaidSum = patrialPaidOrdersSum,
+						OverdueDebtorDebt = overdueOrdersSum - overdueOrdersPartialPaymentsSum,
+						OrderDeliveryDate = order.DeliveryDate
+					};
+
+			var notPaidOrdersData =
+				(await ordersDataQuery.ToListAsync(cancellationToken))
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(
+					x => x.Key,
+					x => x.ToArray());
+
+			return notPaidOrdersData;
 		}
 	}
 }
