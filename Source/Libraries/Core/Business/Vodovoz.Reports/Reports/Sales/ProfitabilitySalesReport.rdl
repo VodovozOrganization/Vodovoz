@@ -1504,7 +1504,7 @@ SELECT
          WHEN n.category = 'service' THEN "Услуга"
          WHEN n.category = 'bottle' THEN "Тара"
          WHEN n.category = 'material' THEN "Сырьё"
-         WHEN n.category = 'master' THEN "Выезд мастера"
+         WHEN n.category = 'master' THEN "Сервисное обслуживание"
          ELSE n.category
          END AS nomenclature_category,
     n.weight AS weight,
