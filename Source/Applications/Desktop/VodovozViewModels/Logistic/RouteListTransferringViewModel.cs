@@ -45,8 +45,6 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		public delegate IPage OpenLegacyOrderForRouteListJournalViewModel(Action<OrderJournalFilterViewModel> filterConfig);
 
-		public OpenLegacyOrderForRouteListJournalViewModel OpenLegacyOrderForRouteListJournalViewModelHandler { get; set; }
-
 		private readonly ILogger<RouteListTransferringViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
@@ -1038,7 +1036,6 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			SourceRouteListJournalFilterViewModel?.Dispose();
 			TargetRouteListJournalFilterViewModel?.Dispose();
-			OpenLegacyOrderForRouteListJournalViewModelHandler = null;
 			base.Dispose();
 		}
 	}
