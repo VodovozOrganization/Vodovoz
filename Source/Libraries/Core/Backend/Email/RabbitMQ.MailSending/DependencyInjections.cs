@@ -1,4 +1,5 @@
 ﻿using CustomerAppsApi.Library.Configs;
+using Mailjet.Api.Abstractions;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -78,22 +79,30 @@ namespace RabbitMQ.MailSending
 
 		public static void AddSendAuthorizationCodesByEmailTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
+			configurator.Message<AuthorizationCodesSendEmailMessage>(x => x.SetEntityName("email.send_authorization_codes_message.publish"));
 			configurator.Publish<AuthorizationCodesSendEmailMessage>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+
+			configurator.Publish<SendEmailMessageBase>(x => x.Exclude = true);
+			configurator.Publish<EmailMessage>(x => x.Exclude = true);
 		}
 
 		public static void AddSendEmailMessageTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
 		{
+			configurator.Message<SendEmailMessage>(x => x.SetEntityName("email.send_message.publish"));
 			configurator.Publish<SendEmailMessage>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+
+			configurator.Publish<SendEmailMessageBase>(x => x.Exclude = true);
+			configurator.Publish<EmailMessage>(x => x.Exclude = true);
 		}
 
 		public static void AddUpdateEmailStatusTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
