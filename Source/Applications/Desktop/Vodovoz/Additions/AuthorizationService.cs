@@ -186,8 +186,6 @@ namespace Vodovoz.Additions
 				.List<object>()
 				.FirstOrDefault());
 
-			var configuration = unitOfWork.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
 			string messageText =
 				$"Логин: { login }\n" +
 				$"Пароль: { password }";
@@ -224,7 +222,6 @@ namespace Vodovoz.Additions
 			try
 			{
 				_messageBus.Publish(sendEmailMessage).GetAwaiter().GetResult();
-
 				return true;
 			}
 			catch(Exception e)
