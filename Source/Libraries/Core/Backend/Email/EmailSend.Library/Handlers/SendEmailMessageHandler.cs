@@ -1,5 +1,5 @@
-﻿using EmailSendWorker.Factoies;
-using EmailSendWorker.Services;
+﻿using EmailSend.Library.Factories;
+using EmailSend.Library.Services;
 using Mailganer.Api.Client.Dto;
 using Mailjet.Api.Abstractions.Events;
 using MassTransit;
@@ -10,21 +10,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker.Consumers
+namespace EmailSend.Library.Handlers
 {
-	public class SendEmailMessageConsumer : IConsumer<SendEmailMessage>
+	public class SendEmailMessageHandler
 	{
 		private const int _retryCount = 5;
 		private const int _retryDelay = 5 * 1000; // sec => milisec
 		private const int _errorInfoMaxLength = 1000;
 
-		private readonly ILogger<SendEmailMessageConsumer> _logger;
+		private readonly ILogger<SendEmailMessageHandler> _logger;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IEmailSendService _emailSendService;
 		private readonly IBus _messageBus;
 
-		public SendEmailMessageConsumer(
-			ILogger<SendEmailMessageConsumer> logger,
+		public SendEmailMessageHandler(
+			ILogger<SendEmailMessageHandler> logger,
 			IEmailMessageFactory emailMessageFactory,
 			IEmailSendService emailSendService,
 			IBus messageBus)
@@ -35,21 +35,7 @@ namespace EmailSendWorker.Consumers
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task Consume(ConsumeContext<SendEmailMessage> context)
-		{
-			try
-			{
-				var message = context.Message;
-				await SendEmails(message);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Error processing message from queue: {ErrorMessage}", ex.Message);
-				throw;
-			}
-		}
-
-		private async Task SendEmails(SendEmailMessage message)
+		public async Task Handle(SendEmailMessage message)
 		{
 			var emailsCreateResult = _emailMessageFactory.CreateEmailMessages(message);
 
@@ -157,7 +143,7 @@ namespace EmailSendWorker.Consumers
 		{
 			var statusUpdateMessage = new UpdateStoredEmailStatusMessage
 			{
-				ErrorInfo = errorInfo.Length > _errorInfoMaxLength ? errorInfo[.._errorInfoMaxLength] : errorInfo,
+				ErrorInfo = errorInfo.Length > _errorInfoMaxLength ? errorInfo.Substring(0, _errorInfoMaxLength) : errorInfo,
 				EventPayload = new EmailPayload { Id = messagePayloadId, Trackable = true },
 				Status = mailEventType,
 				RecievedAt = DateTime.Now

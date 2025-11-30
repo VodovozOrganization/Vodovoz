@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EmailSendWorker.Consumers
+namespace EmailSend.Library.Consumers
 {
 	public class AuthorizationCodesEmailSendConsumer : IConsumer<AuthorizationCodesSendEmailMessage>
 	{
@@ -31,7 +31,7 @@ namespace EmailSendWorker.Consumers
 			var recipients = new StringBuilder();
 			if(message.To != null)
 			{
-				recipients.AppendJoin(',', message.To.Select(recipient => recipient?.Email));
+				recipients.Append(string.Join(", ", message.To.Select(recipient => recipient?.Email)));
 			}
 
 			_logger.LogInformation(

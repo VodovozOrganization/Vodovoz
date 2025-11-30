@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 
-namespace EmailSendWorker.Consumers
+namespace EmailSend.Library.Consumers
 {
 	public class SendEmailMessageConsumerDefinition : ConsumerDefinition<SendEmailMessageConsumer>
 	{

@@ -1,9 +1,4 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using EmailSendWorker.Consumers;
-using EmailSendWorker.Factoies;
-using EmailSendWorker.Services;
-using Mailganer.Api.Client;
-using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,12 +7,12 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using RabbitMQ.Client;
-using RabbitMQ.EmailSending.Masstransit;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
 using System.Net.Security;
 using Vodovoz.Core.Data.NHibernate;
+using EmailSend.Library;
 
 namespace EmailSendWorker
 {
@@ -55,40 +50,10 @@ namespace EmailSendWorker
 						.AddCore()
 						.AddNotTrackedUoW();
 
-					services
-						.AddHttpClient()
-						.AddMailganerApiClient();
-
-					services
-						.AddTransient<IEmailSendService, EmailSendService>()
-						.AddTransient<IEmailMessageFactory, EmailMessageFactory>();
-
-					services
-						.AddMassTransit(busConf =>
-						{
-							var transportSettings = new ConfigTransportSettings();
-							hostContext.Configuration.Bind("MessageBroker", transportSettings);
-
-							busConf.AddConsumer<AuthorizationCodesEmailSendConsumer, AuthorizationCodesEmailSendConsumerDefinition>();
-							busConf.AddConsumer<SendEmailMessageConsumer, SendEmailMessageConsumerDefinition>();
-							busConf.ConfigureRabbitMq((rabbitMq, context) =>
-							{
-								rabbitMq.AddSendEmailMessageTopology(context);
-								rabbitMq.AddSendAuthorizationCodesByEmailTopology(context);
-								rabbitMq.AddUpdateEmailStatusTopology(context);
-							},
-							transportSettings);
-						})
-						.AddMassTransit<IEmailSendBus>(busConf =>
-						{
-							busConf.AddConsumer<SendEmailMessageConsumer, SendEmailMessageConsumerDefinition>();
-							busConf.ConfigureRabbitMq((rabbitMq, context) =>
-							{
-								rabbitMq.AddSendEmailMessageTopology(context);
-							});
-						});
+					services.AddEmailSendLibrary(hostContext.Configuration);
 
 					//Старый обработчик сообщений, поступающих напрямую в RabbitMQ без MassTransit
+					//Проверить, что очередь не заполняется и удалить после релиза, вместе с воркером EmailSendWorker
 					services
 						.AddRabbitConfig(hostContext.Configuration)
 						.AddTransient<RabbitMQConnectionFactory>()
