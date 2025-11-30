@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using RabbitMQ.Client;
@@ -89,7 +88,9 @@ namespace EmailSendWorker
 							});
 						});
 
+					//Старый обработчик сообщений, поступающих напрямую в RabbitMQ без MassTransit
 					services
+						.AddRabbitConfig(hostContext.Configuration)
 						.AddTransient<RabbitMQConnectionFactory>()
 						.AddTransient(sp =>
 						{
@@ -112,9 +113,8 @@ namespace EmailSendWorker
 							var channel = sp.GetRequiredService<IConnection>().CreateModel();
 							channel.BasicQos(0, 1, false);
 							return channel;
-						});
-
-					services.AddHostedService<EmailSendWorker>();
+						})
+						.AddHostedService<EmailSendWorker>();
 				});
 	}
 }
