@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,5 +54,6 @@ namespace VodovozBusiness.Services.Orders
 		void AddLogisticsRequirements(Order order);
 		void UpdatePaymentStatus(IUnitOfWork uow, Order order);
 		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, IRouteListService routeListService, CancellationToken cancellationToken);
+		void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId);
 	}
 }

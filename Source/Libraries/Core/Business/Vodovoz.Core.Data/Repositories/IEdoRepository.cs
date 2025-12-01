@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
 
@@ -12,5 +14,6 @@ namespace Vodovoz.Core.Data.Repositories
 		Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken);
 		Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken);
 		Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken);
+		Task<IEnumerable<OrderEdoTask>> GetEdoTaskByOrderAsync(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 	}
 }

@@ -2,13 +2,13 @@
 using MassTransit;
 using RabbitMQ.Client;
 
-namespace Edo.Documents.Consumers.Definitions
+namespace Edo.Admin.Consumers.Definitions
 {
 	public class OrderDocumentCancelledConsumerDefinition : ConsumerDefinition<OrderDocumentCancelledConsumer>
 	{
 		public OrderDocumentCancelledConsumerDefinition()
 		{
-			Endpoint(x => x.Name = "edo.customer-document-cancelled.consumer.documents");
+			Endpoint(x => x.Name = "edo.order-document-cancelled.consumer.admin");
 		}
 
 		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,

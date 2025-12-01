@@ -24,5 +24,4 @@ namespace Edo.Admin.Consumers.Definitions
 			}
 		}
 	}
-	
 }
