@@ -25,14 +25,14 @@ namespace Vodovoz.Settings.Database.Pacs
 		public string Password => _settingsController.GetStringValue($"Pacs.{mode}.MessageTranport.Password");
 		public bool UseSSL => _settingsController.GetBoolValue($"Pacs.{mode}.MessageTranport.UseSSL");
 
-		private string mode => TestMode? "Test" : "Work";
+		private string mode => TestMode ? "Test" : "Work";
 
 		public bool TestMode
 		{
 			get
 			{
-				var testDatabase = _settingsController.GetStringValue("Pacs.Test.Database");
-				return testDatabase == _dataBaseInfo.Name;
+				var workDatabase = _settingsController.GetStringValue("Pacs.Work.Database");
+				return workDatabase != _dataBaseInfo.Name;
 			}
 		}
 
