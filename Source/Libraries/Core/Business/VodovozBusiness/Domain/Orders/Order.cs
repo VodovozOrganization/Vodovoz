@@ -2364,6 +2364,23 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Проверка, есть ли в заказе товары типа "Залог"
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasDepositItems() =>
+			OrderItems.Any(x =>
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары с бесплатной доставкой
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasNonPaidDeliveryItems() =>
+			OrderItems.Any(x =>
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
+
+		/// <summary>
 		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промонабор,

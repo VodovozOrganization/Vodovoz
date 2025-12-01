@@ -314,14 +314,6 @@ namespace Vodovoz
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
-		private bool HasDepositItems() =>
-			Entity.OrderItems.Any(x => 
-				x.Nomenclature.Category == NomenclatureCategory.deposit);
-
-		private bool HasNonPaidDeliveryItems() =>
-			Entity.OrderItems.Any(x => 
-				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
-
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -3595,16 +3587,16 @@ namespace Vodovoz
 			if(PaymentType == PaymentType.Cashless)
 			{
 				if(nomenclature.Category == NomenclatureCategory.deposit
-					&& !HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& !Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
 					return;
 				}
 
 				if(nomenclature.Category != NomenclatureCategory.deposit 
-					&& HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
 					return;
@@ -4898,11 +4890,11 @@ namespace Vodovoz
 			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
 
 			if(PaymentType == PaymentType.Cashless 
-				&& HasNonPaidDeliveryItems())
+				&& Order.HasNonPaidDeliveryItems())
 			{
-				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && HasDepositItems();
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && Order.HasDepositItems();
 
-				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !HasDepositItems();
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !Order.HasDepositItems();
 			}
 			else
 			{
