@@ -5,8 +5,8 @@ namespace Vodovoz.ViewModels.Journals.Nodes.Cash
 {
 	public class VatRateJournalNode : JournalEntityNodeBase<VatRate>
 	{
-		public override string Title => VatRateValue;
+		public override string Title => VatRateValue == 0 ? "Без НДС" : $"{VatRateValue}%";
 
-		public string VatRateValue { get; set; }
+		public decimal VatRateValue { get; set; }
 	}
 }

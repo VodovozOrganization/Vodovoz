@@ -56,11 +56,7 @@ namespace Vodovoz.Core.Domain.Cash
 			get => _vatRateValue;
 			set => SetField(ref _vatRateValue, value);
 		}
-
-		public string VatRateStringValue => VatRateValue == 0 
-			? "Без НДС" 
-			: $"НДС {VatRateValue}%";
-
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			throw new NotImplementedException();

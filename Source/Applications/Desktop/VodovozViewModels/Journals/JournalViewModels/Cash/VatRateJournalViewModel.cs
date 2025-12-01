@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			return query
 				.SelectList(list => list
 					.Select(() => fineCategoryAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => fineCategoryAlias.VatRateStringValue).WithAlias(() => resultAlias.VatRateValue)
+					.Select(() => fineCategoryAlias.VatRateValue).WithAlias(() => resultAlias.VatRateValue)
 				)
 				.TransformUsing(Transformers.AliasToBean<VatRateJournalNode>());
 		}
