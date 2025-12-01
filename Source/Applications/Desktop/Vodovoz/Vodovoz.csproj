@@ -2138,6 +2138,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NotAllocatedCounterpartiesJournalFilterView.cs" />
     <Compile Include="Views\Orders\OnlineOrderNotificaionSettingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderNotificationSettingView.cs" />
+    <Compile Include="Views\Cash\VatRateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
