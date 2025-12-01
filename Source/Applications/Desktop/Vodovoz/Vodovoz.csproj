@@ -463,6 +463,7 @@
     <Compile Include="JournalColumnsConfigs\OrdersRatingReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrdersRatingsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\VatRateJournalRegistars.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OnlineOrderNotificationSettingJournalRegistrar.cs" />
