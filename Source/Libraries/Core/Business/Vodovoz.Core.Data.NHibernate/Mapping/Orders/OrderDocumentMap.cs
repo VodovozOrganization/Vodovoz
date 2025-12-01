@@ -9,12 +9,20 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		{
 			Table("order_documents");
 			Not.LazyLoad();
+
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
-			References(x => x.Order).Column("order_id");
-			References(x => x.AttachedToOrder).Column("attached_to_order_id");
+
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+			
+			References(x => x.Order)
+				.Column("order_id");
+			
+			References(x => x.AttachedToOrder)
+				.Column("attached_to_order_id");
 		}
 	}
 
@@ -23,7 +31,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		public OrderM2ProxyMap()
 		{
 			DiscriminatorValue("M2Proxy");
-			References(x => x.M2Proxy).Column("m2proxy_id").Cascade.SaveUpdate();
+
+			References(x => x.M2Proxy)
+				.Column("m2proxy_id")
+				.Cascade.SaveUpdate();
 		}
 	}
 
@@ -32,7 +43,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		public OrderAgreementMap()
 		{
 			DiscriminatorValue("AdditionalAgreement");
-			References(x => x.AdditionalAgreement).Column("agreement_id");
+
+			References(x => x.AdditionalAgreement)
+				.Column("agreement_id");
 		}
 	}
 
@@ -41,7 +54,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		public OrderContractMap()
 		{
 			DiscriminatorValue("Contract");
-			References(x => x.Contract).Column("contract_id");
+
+			References(x => x.Contract)
+				.Column("contract_id");
 		}
 	}
 
@@ -51,7 +66,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		{
 			DiscriminatorValue("Bill");
 
-			Map(x => x.HideSignature).Column("hide_signature");
+			Map(x => x.HideSignature)
+				.Column("hide_signature");
 		}
 	}
 
@@ -61,7 +77,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		{
 			DiscriminatorValue("SpecialBill");
 
-			Map(x => x.HideSignature).Column("hide_signature");
+			Map(x => x.HideSignature)
+				.Column("hide_signature");
 		}
 	}
 
@@ -104,8 +121,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		{
 			DiscriminatorValue("InvoiceContractDoc");
 
-			Map(x => x.WithoutAdvertising).Column("without_advertising");
-			Map(x => x.HideSignature).Column("hide_signature");
+			Map(x => x.WithoutAdvertising)
+				.Column("without_advertising");
+
+			Map(x => x.HideSignature)
+				.Column("hide_signature");
 		}
 	}
 
@@ -115,8 +135,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		{
 			DiscriminatorValue("Invoice");
 
-			Map(x => x.WithoutAdvertising).Column("without_advertising");
-			Map(x => x.HideSignature).Column("hide_signature");
+			Map(x => x.WithoutAdvertising)
+				.Column("without_advertising");
+
+			Map(x => x.HideSignature)
+				.Column("hide_signature");
 		}
 	}
 
@@ -165,7 +188,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 		public NomenclatureCertificateDocumentMap()
 		{
 			DiscriminatorValue("ProductCertificate");
-			References(x => x.Certificate).Column("certificate_id");
+
+			References(x => x.Certificate)
+				.Column("certificate_id");
 		}
 	}
 

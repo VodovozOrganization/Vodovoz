@@ -22,21 +22,21 @@ namespace Edo.InformalOrderDocuments.Handlers
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _handlerFactory;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly ILogger<OrderDocumentEdoTaskHandler> _logger;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		public OrderDocumentEdoTaskHandler(
 			IUnitOfWork uow,
 			IInformalOrderDocumentHandlerFactory handlerFactory,
-			IBus messageBus,
+			IPublishEndpoint publishEndpoint,
 			ILogger<OrderDocumentEdoTaskHandler> logger,
 			EdoProblemRegistrar edoProblemRegistrar
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
@@ -96,11 +96,12 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 				edoTask.Status = EdoTaskStatus.InProgress;
 
+				await _publishEndpoint.Publish(fileDataMessage, cancellationToken);
+
 				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 
-				await _messageBus.Publish(fileDataMessage, cancellationToken);
 			}
 			catch(Exception ex)
 			{
