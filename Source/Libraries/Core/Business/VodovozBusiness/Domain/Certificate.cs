@@ -27,7 +27,7 @@ namespace Vodovoz.Domain
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual new GenericObservableList<Nomenclature> ObservableNomenclatures {
+		public virtual GenericObservableList<Nomenclature> ObservableNomenclatures {
 			get {
 				if(_observableNomenclatures == null)
 				{

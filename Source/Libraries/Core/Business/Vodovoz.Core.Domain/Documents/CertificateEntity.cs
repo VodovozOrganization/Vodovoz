@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Domain
 		private bool _isArchive;
 		private DateTime? _expirationDate;
 		private DateTime? _startDate = DateTime.Today;
-		private IList<NomenclatureEntity> _nomenclatures = new List<NomenclatureEntity>();
+		private IObservableList<NomenclatureEntity> _nomenclatures = new ObservableList<NomenclatureEntity>();
 		private ObservableList<NomenclatureEntity> _observableNomenclatures;
 
 		public CertificateEntity() 
@@ -104,27 +104,10 @@ namespace Vodovoz.Core.Domain
 		/// Отгружаемые номенклатуры
 		/// </summary>
 		[Display(Name = "Отгружаемые номенклатуры")]
-		public virtual IList<NomenclatureEntity> Nomenclatures
+		public virtual IObservableList<NomenclatureEntity> Nomenclatures
 		{
 			get => _nomenclatures;
 			set => SetField(ref _nomenclatures, value, () => Nomenclatures);
-		}
-
-
-		/// <summary>
-		/// Наблюдаемый список отгружаемых номенклатур
-		/// </summary>
-		public virtual ObservableList<NomenclatureEntity> ObservableNomenclatures
-		{
-			get
-			{
-				if(_observableNomenclatures == null)
-				{
-					_observableNomenclatures = new ObservableList<NomenclatureEntity>(Nomenclatures);
-				}
-
-				return _observableNomenclatures;
-			}
 		}
 	}
 }

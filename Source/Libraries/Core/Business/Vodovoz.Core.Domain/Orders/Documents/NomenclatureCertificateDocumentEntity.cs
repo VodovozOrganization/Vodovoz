@@ -1,6 +1,7 @@
 ﻿using QS.Print;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
