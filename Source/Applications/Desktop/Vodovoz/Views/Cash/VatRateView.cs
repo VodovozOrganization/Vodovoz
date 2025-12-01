@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Views.Cash
@@ -18,7 +19,7 @@ namespace Vodovoz.Views.Cash
 		private void Configure()
 		{
 			yentryVatRate.Binding
-				.AddBinding(ViewModel.Entity, e => e.VatRateValue, w => w.Text)
+				.AddBinding(ViewModel.Entity, e => e.VatRateValue, w => w.Text, new DecimalToStringConverter())
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 

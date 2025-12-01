@@ -59,7 +59,11 @@ namespace Vodovoz.Core.Domain.Cash
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			throw new NotImplementedException();
+			if(VatRateValue < 0)
+			{
+				yield return new ValidationResult(
+					"Ставка НДС не может быть отрицательной", new[] { nameof(VatRateValue) });
+			}
 		}
 	}
 }
