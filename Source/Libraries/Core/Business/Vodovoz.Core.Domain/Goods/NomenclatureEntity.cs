@@ -7,6 +7,7 @@ using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Goods
@@ -129,6 +130,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
+		private VatRate _vatRate;
 
 		public NomenclatureEntity() 
 		{
@@ -223,6 +225,15 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _vAT;
 			set => SetField(ref _vAT, value);
+		}
+		
+		/// <summary>
+		/// Новая НДС
+		/// </summary>
+		public virtual VatRate VatRate
+		{
+			get => _vatRate;
+			set => SetField(ref _vatRate, value);
 		}
 
 		/// <summary>

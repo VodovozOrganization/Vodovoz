@@ -21,7 +21,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Length).Column("length");
 			Map(x => x.Width).Column("width");
 			Map(x => x.Height).Column("height");
+			
+			//todo
 			Map(x => x.VAT).Column("vat");
+			References(x => x.VatRate)
+				.Column("vat_rate_id");
+			
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");
 			Map(x => x.IsDuty).Column("is_duty");
