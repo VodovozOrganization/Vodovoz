@@ -56,6 +56,8 @@ namespace Vodovoz.Views.Goods
 
 		private global::QS.Views.Control.EntityEntry entityentryRouteColumn;
 
+		private global::QS.Views.Control.EntityEntry entityentryVatRate;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryShipperCounterparty;
 
 		private global::Gamma.GtkWidgets.yEntry entryCode1c;
@@ -65,8 +67,6 @@ namespace Vodovoz.Views.Goods
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
 		private global::Gamma.Widgets.yEnumComboBox enumServiceType;
-
-		private global::Gamma.Widgets.yEnumComboBox enumVAT;
 
 		private global::Gtk.HBox hbox12;
 
@@ -918,6 +918,18 @@ namespace Vodovoz.Views.Goods
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.entityentryVatRate = new global::QS.Views.Control.EntityEntry();
+			this.entityentryVatRate.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryVatRate.Name = "entityentryVatRate";
+			this.datatable1.Add(this.entityentryVatRate);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityentryVatRate]));
+			w27.TopAttach = ((uint)(7));
+			w27.BottomAttach = ((uint)(8));
+			w27.LeftAttach = ((uint)(3));
+			w27.RightAttach = ((uint)(4));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.entityviewmodelentryShipperCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityviewmodelentryShipperCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryShipperCounterparty.Name = "entityviewmodelentryShipperCounterparty";
@@ -925,13 +937,13 @@ namespace Vodovoz.Views.Goods
 			this.entityviewmodelentryShipperCounterparty.CanDisposeEntitySelectorFactory = false;
 			this.entityviewmodelentryShipperCounterparty.CanOpenWithoutTabParent = false;
 			this.datatable1.Add(this.entityviewmodelentryShipperCounterparty);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityviewmodelentryShipperCounterparty]));
-			w27.TopAttach = ((uint)(20));
-			w27.BottomAttach = ((uint)(21));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entityviewmodelentryShipperCounterparty]));
+			w28.TopAttach = ((uint)(20));
+			w28.BottomAttach = ((uint)(21));
+			w28.LeftAttach = ((uint)(1));
+			w28.RightAttach = ((uint)(2));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryCode1c = new global::Gamma.GtkWidgets.yEntry();
 			this.entryCode1c.CanFocus = true;
@@ -940,25 +952,25 @@ namespace Vodovoz.Views.Goods
 			this.entryCode1c.MaxLength = 11;
 			this.entryCode1c.InvisibleChar = '●';
 			this.datatable1.Add(this.entryCode1c);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
-			w28.TopAttach = ((uint)(14));
-			w28.BottomAttach = ((uint)(15));
-			w28.LeftAttach = ((uint)(3));
-			w28.RightAttach = ((uint)(4));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
+			w29.TopAttach = ((uint)(14));
+			w29.BottomAttach = ((uint)(15));
+			w29.LeftAttach = ((uint)(3));
+			w29.RightAttach = ((uint)(4));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryDependsOnNomenclature = new global::QS.Views.Control.EntityEntry();
 			this.entryDependsOnNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.entryDependsOnNomenclature.Name = "entryDependsOnNomenclature";
 			this.datatable1.Add(this.entryDependsOnNomenclature);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDependsOnNomenclature]));
-			w29.TopAttach = ((uint)(8));
-			w29.BottomAttach = ((uint)(9));
-			w29.LeftAttach = ((uint)(1));
-			w29.RightAttach = ((uint)(4));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryDependsOnNomenclature]));
+			w30.TopAttach = ((uint)(8));
+			w30.BottomAttach = ((uint)(9));
+			w30.LeftAttach = ((uint)(1));
+			w30.RightAttach = ((uint)(4));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryName = new global::Gamma.GtkWidgets.yEntry();
 			this.entryName.CanFocus = true;
@@ -967,12 +979,12 @@ namespace Vodovoz.Views.Goods
 			this.entryName.MaxLength = 220;
 			this.entryName.InvisibleChar = '●';
 			this.datatable1.Add(this.entryName);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryName]));
-			w30.TopAttach = ((uint)(1));
-			w30.BottomAttach = ((uint)(2));
-			w30.LeftAttach = ((uint)(1));
-			w30.RightAttach = ((uint)(4));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryName]));
+			w31.TopAttach = ((uint)(1));
+			w31.BottomAttach = ((uint)(2));
+			w31.LeftAttach = ((uint)(1));
+			w31.RightAttach = ((uint)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.enumServiceType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumServiceType.Name = "enumServiceType";
@@ -981,26 +993,11 @@ namespace Vodovoz.Views.Goods
 			this.enumServiceType.UseShortTitle = false;
 			this.enumServiceType.DefaultFirst = false;
 			this.datatable1.Add(this.enumServiceType);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1[this.enumServiceType]));
-			w31.TopAttach = ((uint)(5));
-			w31.BottomAttach = ((uint)(6));
-			w31.LeftAttach = ((uint)(1));
-			w31.RightAttach = ((uint)(2));
-			w31.XOptions = ((global::Gtk.AttachOptions)(4));
-			w31.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.enumVAT = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumVAT.Name = "enumVAT";
-			this.enumVAT.ShowSpecialStateAll = false;
-			this.enumVAT.ShowSpecialStateNot = false;
-			this.enumVAT.UseShortTitle = false;
-			this.enumVAT.DefaultFirst = true;
-			this.datatable1.Add(this.enumVAT);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.datatable1[this.enumVAT]));
-			w32.TopAttach = ((uint)(7));
-			w32.BottomAttach = ((uint)(8));
-			w32.LeftAttach = ((uint)(3));
-			w32.RightAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.datatable1[this.enumServiceType]));
+			w32.TopAttach = ((uint)(5));
+			w32.BottomAttach = ((uint)(6));
+			w32.LeftAttach = ((uint)(1));
+			w32.RightAttach = ((uint)(2));
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
