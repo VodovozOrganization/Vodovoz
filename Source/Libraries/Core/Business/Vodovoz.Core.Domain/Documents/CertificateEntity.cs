@@ -3,7 +3,6 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 
@@ -24,7 +23,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private DateTime? _expirationDate;
 		private DateTime? _startDate = DateTime.Today;
 		private IObservableList<NomenclatureEntity> _nomenclatures = new ObservableList<NomenclatureEntity>();
-		private ObservableList<NomenclatureEntity> _observableNomenclatures;
 
 		public CertificateEntity() 
 		{
@@ -37,7 +35,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -47,7 +45,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual string Name
 		{
 			get => _name;
-			set => SetField(ref _name, value, () => Name);
+			set => SetField(ref _name, value);
 		}
 
 		/// <summary>
@@ -57,7 +55,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual CertificateType? TypeOfCertificate
 		{
 			get => _typeOfCertificate;
-			set => SetField(ref _typeOfCertificate, value, () => TypeOfCertificate);
+			set => SetField(ref _typeOfCertificate, value);
 		}
 
 		/// <summary>
@@ -67,7 +65,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual byte[] ImageFile
 		{
 			get => _imageFile;
-			set => SetField(ref _imageFile, value, () => ImageFile);
+			set => SetField(ref _imageFile, value);
 		}
 
 		/// <summary>
@@ -77,7 +75,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
-			set => SetField(ref _isArchive, value, () => IsArchive);
+			set => SetField(ref _isArchive, value);
 		}
 
 		/// <summary>
@@ -87,7 +85,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual DateTime? ExpirationDate
 		{
 			get => _expirationDate;
-			set => SetField(ref _expirationDate, value, () => ExpirationDate);
+			set => SetField(ref _expirationDate, value);
 		}
 
 		/// <summary>
@@ -97,7 +95,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual DateTime? StartDate
 		{
 			get => _startDate;
-			set => SetField(ref _startDate, value, () => StartDate);
+			set => SetField(ref _startDate, value);
 		}
 
 		/// <summary>
@@ -107,7 +105,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual IObservableList<NomenclatureEntity> Nomenclatures
 		{
 			get => _nomenclatures;
-			set => SetField(ref _nomenclatures, value, () => Nomenclatures);
+			set => SetField(ref _nomenclatures, value);
 		}
 	}
 }

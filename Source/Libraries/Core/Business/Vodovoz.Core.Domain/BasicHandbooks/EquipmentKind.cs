@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.BasicHandbooks
 		public virtual string Name
 		{
 			get => _name;
-			set => SetField(ref _name, value, () => Name);
+			set => SetField(ref _name, value);
 		}
 
 		/// <summary>
@@ -45,7 +45,7 @@ namespace Vodovoz.Core.Domain.BasicHandbooks
 		public virtual EquipmentType EquipmentType
 		{
 			get => _equipmentType;
-			set => SetField(ref _equipmentType, value, () => EquipmentType);
+			set => SetField(ref _equipmentType, value);
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace Vodovoz.Core.Domain.BasicHandbooks
 		public virtual WarrantyCardType WarrantyCardType
 		{
 			get => _warrantyCardType;
-			set => SetField(ref _warrantyCardType, value, () => WarrantyCardType);
+			set => SetField(ref _warrantyCardType, value);
 		}
 
 		#endregion

@@ -17,8 +17,8 @@ namespace Vodovoz.Core.Domain.Clients
 	{
 		private int _id;
 		private int _agreementNumber;
-		DocTemplateEntity _agreeemntTemplate;
-		byte[] _changedTemplateFile;
+		private DocTemplateEntity _agreeemntTemplate;
+		private byte[] _changedTemplateFile;
 		private CounterpartyContractEntity _contract;
 		private DateTime _issueDate;
 		private DateTime _startDate;
@@ -32,7 +32,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual int AgreementNumber
 		{
 			get => _agreementNumber;
-			set => SetField(ref _agreementNumber, value, () => AgreementNumber);
+			set => SetField(ref _agreementNumber, value);
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual DocTemplateEntity DocumentTemplate
 		{
 			get => _agreeemntTemplate;
-			protected set => SetField(ref _agreeemntTemplate, value, () => DocumentTemplate);
+			protected set => SetField(ref _agreeemntTemplate, value);
 		}
 
 		/// <summary>
@@ -69,7 +69,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual byte[] ChangedTemplateFile
 		{
 			get => _changedTemplateFile;
-			set => SetField(ref _changedTemplateFile, value, () => ChangedTemplateFile);
+			set => SetField(ref _changedTemplateFile, value);
 		}
 
 		/// <summary>
@@ -117,7 +117,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual CounterpartyContractEntity Contract
 		{
 			get => _contract;
-			set => SetField(ref _contract, value, () => Contract);
+			set => SetField(ref _contract, value);
 		}
 
 		/// <summary>
@@ -128,7 +128,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual DateTime IssueDate
 		{
 			get => _issueDate;
-			set => SetField(ref _issueDate, value, () => IssueDate);
+			set => SetField(ref _issueDate, value);
 		}
 
 		/// <summary>
@@ -139,7 +139,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual DateTime StartDate
 		{
 			get => _startDate;
-			set => SetField(ref _startDate, value, () => StartDate);
+			set => SetField(ref _startDate, value);
 		}
 
 		/// <summary>
@@ -149,7 +149,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual DeliveryPointEntity DeliveryPoint 
 		{
 			get => _deliveryPoint;
-			set => SetField(ref _deliveryPoint, value, () => DeliveryPoint);
+			set => SetField(ref _deliveryPoint, value);
 		}
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual bool IsCancelled
 		{
 			get => _isCancelled;
-			set => SetField(ref _isCancelled, value, () => IsCancelled);
+			set => SetField(ref _isCancelled, value);
 		}
 
 		#region Вычисляемые

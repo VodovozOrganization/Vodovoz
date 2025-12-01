@@ -80,7 +80,7 @@ namespace Vodovoz.Core.Data.NHibernate.Clients
 		{
 			DiscriminatorValue("FreeRent");
 
-			HasMany(x => x.Equipment)
+			HasMany(x => x.Equipments)
 				.Cascade.AllDeleteOrphan()
 				.LazyLoad()
 				.KeyColumn("additional_agreement_id");

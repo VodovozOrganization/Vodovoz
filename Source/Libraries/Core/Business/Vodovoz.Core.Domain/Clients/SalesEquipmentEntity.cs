@@ -22,7 +22,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -38,7 +38,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual AdditionalAgreementEntity AdditionalAgreement
 		{
 			get => _additionalAgreement; 
-			set => SetField(ref _additionalAgreement, value, () => AdditionalAgreement);
+			set => SetField(ref _additionalAgreement, value);
 		}
 
 		/// <summary>
@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			set => SetField(ref _nomenclature, value, () => Nomenclature); 
+			set => SetField(ref _nomenclature, value); 
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual decimal Price
 		{
 			get => _price;
-			set => SetField(ref _price, value, () => Price);
+			set => SetField(ref _price, value);
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual int Count
 		{
 			get => _count;
-			set => SetField(ref _count, value, () => Count); 
+			set => SetField(ref _count, value); 
 		}
 	}
 }

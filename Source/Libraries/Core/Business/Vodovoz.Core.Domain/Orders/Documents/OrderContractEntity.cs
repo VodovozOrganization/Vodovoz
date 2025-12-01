@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual CounterpartyContractEntity Contract
 		{
 			get => _contract;
-			set => SetField(ref _contract, value, () => Contract);
+			set => SetField(ref _contract, value);
 		}
 
 		public override string Name

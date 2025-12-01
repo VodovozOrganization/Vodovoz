@@ -63,7 +63,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual OrganizationEntity Organization
 		{
 			get => _organization;
-			set => SetField(ref _organization, value, () => Organization);
+			set => SetField(ref _organization, value);
 		}
 
 		/// <summary>
@@ -73,7 +73,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual EmployeeDocument EmployeeDocument
 		{
 			get => _employeeDocument;
-			set => SetField(ref _employeeDocument, value, () => EmployeeDocument);
+			set => SetField(ref _employeeDocument, value);
 		}
 
 		/// <summary>
@@ -83,7 +83,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual DocTemplateEntity DocumentTemplate
 		{
 			get => _proxyDocumentTemplate;
-			protected set => SetField(ref _proxyDocumentTemplate, value, () => DocumentTemplate);
+			protected set => SetField(ref _proxyDocumentTemplate, value);
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual byte[] ChangedTemplateFile
 		{
 			get => _changedTemplateFile; 
-			set => SetField(ref _changedTemplateFile, value, () => ChangedTemplateFile); 
+			set => SetField(ref _changedTemplateFile, value); 
 		}
 
 		/// <summary>
@@ -103,7 +103,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual ProxyDocumentType Type
 		{
 			get => _type;
-			set => SetField(ref _type, value, () => Type);
+			set => SetField(ref _type, value);
 		}
 	}
 }

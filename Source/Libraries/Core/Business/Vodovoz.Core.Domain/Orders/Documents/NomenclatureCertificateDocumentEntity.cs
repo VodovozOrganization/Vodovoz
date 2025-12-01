@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual CertificateEntity Certificate
 		{
 			get => _certificate;
-			set => SetField(ref _certificate, value, () => Certificate);
+			set => SetField(ref _certificate, value);
 		}
 
 		#region implemented abstract members of OrderDocument

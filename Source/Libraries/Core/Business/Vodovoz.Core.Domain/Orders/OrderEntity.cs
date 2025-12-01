@@ -603,7 +603,7 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual IList<OrderDocumentEntity> OrderDocuments
 		{
 			get => _orderDocuments;
-			set => SetField(ref _orderDocuments, value, () => OrderDocuments);
+			set => SetField(ref _orderDocuments, value);
 		}
 
 		[Display(Name = "Залоги заказа")]

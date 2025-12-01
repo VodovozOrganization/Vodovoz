@@ -34,7 +34,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual OrderEntity Order
 		{
 			get => _order;
-			set => SetField(ref _order, value, () => Order);
+			set => SetField(ref _order, value);
 		}
 
 		[Display(Name = "Дата доверенности")]
@@ -43,7 +43,7 @@ namespace Vodovoz.Core.Domain.Employees
 			get => Order != null ? (Order.DeliveryDate ?? DateTime.Now) : _date;
 			set
 			{
-				SetField(ref _date, value, () => Date);
+				SetField(ref _date, value);
 				ExpirationDate = _date.AddDays(10);
 			}
 		}
@@ -54,8 +54,8 @@ namespace Vodovoz.Core.Domain.Employees
 		[Display(Name = "Сотрудник")]
 		public virtual EmployeeEntity Employee
 		{
-			get { return _employee; }
-			set { SetField(ref _employee, value, () => Employee); }
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
 		/// <summary>
@@ -64,8 +64,8 @@ namespace Vodovoz.Core.Domain.Employees
 		[Display(Name = "Номер наряда")]
 		public virtual string TicketNumber
 		{
-			get { return _ticketNumber; }
-			set { SetField(ref _ticketNumber, value, () => TicketNumber); }
+			get => _ticketNumber;
+			set => SetField(ref _ticketNumber, value);
 		}
 
 		/// <summary>
@@ -74,8 +74,8 @@ namespace Vodovoz.Core.Domain.Employees
 		[Display(Name = "Дата наряда")]
 		public virtual DateTime? TicketDate
 		{
-			get { return _ticketDate; }
-			set { SetField(ref _ticketDate, value, () => TicketDate); }
+			get => _ticketDate;
+			set => SetField(ref _ticketDate, value);
 		}
 
 		/// <summary>
@@ -84,14 +84,14 @@ namespace Vodovoz.Core.Domain.Employees
 		[Display(Name = "Поставщик")]
 		public virtual CounterpartyEntity Supplier
 		{
-			get { return _supplier; }
-			set { SetField(ref _supplier, value, () => Supplier); }
+			get => _supplier;
+			set => SetField(ref _supplier, value);
 		}
 
 		public override DateTime ExpirationDate
 		{
 			get => _expirationDate;
-			set { SetField(ref _expirationDate, value, () => ExpirationDate); }
+			set => SetField(ref _expirationDate, value);
 		}
 	}
 }
