@@ -1,5 +1,4 @@
-﻿using EmailSend.Library.Consumers;
-using FastPaymentsAPI.HealthChecks;
+﻿using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library;
 using FastPaymentsAPI.Library.Services;
 using MassTransit;
