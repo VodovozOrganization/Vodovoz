@@ -49,23 +49,6 @@ namespace EmailPrepareWorker
 				.ConfigureServices((hostContext, services) =>
 				{
 					services
-						.AddSingleton(sp =>
-						{
-							var messageTransportSettings = sp.GetRequiredService<IMessageTransportSettings>();
-							Enum.TryParse<SslPolicyErrors>(messageTransportSettings.AllowSslPolicyErrors, out var sslPolicyErrors);
-							return sp.GetRequiredService<RabbitMQConnectionFactory>()
-								.CreateConnection(
-									messageTransportSettings.Host,
-									messageTransportSettings.Username,
-									messageTransportSettings.Password,
-									messageTransportSettings.VirtualHost,
-									messageTransportSettings.Port,
-									messageTransportSettings.UseSSL,
-									sslPolicyErrors
-								);
-						});
-
-					services
 						.AddMassTransit(busConf =>
 						{
 							var transportSettings = new ConfigTransportSettings();

@@ -22,12 +22,6 @@ namespace EmailPrepareWorker
 {
 	public class EmailPrepareWorker : TimerBackgroundServiceBase
 	{
-		private const string _queuesConfigurationSection = "Queues";
-		private const string _emailSendExchangeParameter = "EmailSendExchange";
-		private const string _emailSendKeyParameter = "EmailSendKey";
-
-		private string _emailSendKey;
-		private string _emailSendExchange;
 		private int _instanceId;
 
 		// Это для костыля с остановкой сервиса, при устранении утечек удалить вместе со связанным функционалом
@@ -97,9 +91,7 @@ namespace EmailPrepareWorker
 			await base.StartAsync(cancellationToken);
 
 			_logger.LogInformation(
-				"Email Prepare worker started. Settings: EmailSendKey: {EmailSendKey}, EmailSendExchange: {EmailSendExchange}, InstanceId = {InstanceId}",
-				_emailSendKey,
-				_emailSendExchange,
+				"Email Prepare worker started. Settings: InstanceId = {InstanceId}",
 				_instanceId);
 
 			_initialized = true;
