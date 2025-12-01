@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Core.Domain
+namespace Vodovoz.Core.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "сертификаты продукции",

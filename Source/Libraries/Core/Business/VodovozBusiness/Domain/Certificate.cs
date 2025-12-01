@@ -5,7 +5,7 @@ using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain

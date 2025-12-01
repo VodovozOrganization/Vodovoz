@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Core.Domain
+namespace Vodovoz.Core.Domain.Documents
 {
 	/// <summary>
 	/// Тип сертификата
