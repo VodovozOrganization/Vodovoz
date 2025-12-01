@@ -57,6 +57,8 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _vatRateValue, value);
 		}
 		
+		public virtual string Name  => VatRateValue == 0 ? "Без НДС" : VatRateValue + "%";
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(VatRateValue < 0)
