@@ -1,6 +1,9 @@
-﻿using FastPaymentsAPI.HealthChecks;
+﻿using EmailSend.Library.Consumers;
+using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library;
 using FastPaymentsAPI.Library.Services;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +23,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
+using RabbitMQ.MailSending;
 
 namespace FastPaymentsAPI
 {
@@ -111,6 +115,20 @@ namespace FastPaymentsAPI
 			});
 
 			services.AddDependencyGroup();
+
+			services
+				.AddMassTransit(busConf =>
+				{
+					var transportSettings = new ConfigTransportSettings();
+					Configuration.Bind("MessageBroker", transportSettings);
+
+					busConf.ConfigureRabbitMq((rabbitMq, context) =>
+					{
+						rabbitMq.AddSendEmailMessageTopology(context);
+					},
+					transportSettings);
+				});
+
 			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
 		}
 		
