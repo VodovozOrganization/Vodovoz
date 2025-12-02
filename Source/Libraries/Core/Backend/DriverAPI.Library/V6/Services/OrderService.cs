@@ -943,7 +943,7 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
-				SourceProductCodeStatus.Accepted,
+				SourceProductCodeStatus.Changed,
 				cancellationToken);
 		}
 
