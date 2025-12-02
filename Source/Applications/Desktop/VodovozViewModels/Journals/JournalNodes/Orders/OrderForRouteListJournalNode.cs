@@ -5,7 +5,7 @@ using QS.Utilities.Text;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {
   public class OrderForRouteListJournalNode<TEntity> : OrderForRouteListJournalNode
 		where TEntity : class, IDomainObject
