@@ -1081,7 +1081,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 			if(vatRate == null)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "В справочнике отсутствует выбранная ставка НДС!");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {DefaultVatRate}%!");
 				return;
 			}
 			
