@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		VatRateViewModel,
 		VatRateJournalNode>
 	{
-		private bool _canChangeVatRate;
+		private readonly IPermissionResult _permissionResult;
 		
 		public VatRateJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
@@ -28,8 +28,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IDeleteEntityService deleteEntityService = null, 
 			ICurrentPermissionService currentPermissionService = null) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_canChangeVatRate = currentPermissionService.ValidatePresetPermission("can_use_vat_rate");
-			
+			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(VatRate));
+
 			TabName = $"Журнал {typeof(VatRate).GetClassUserFriendlyName().GenitivePlural}";
 		}
 
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			CreateDefaultSelectAction();
 
 			var addAction = new JournalAction("Добавить",
-				(selected) => _canChangeVatRate,
+				(selected) => _permissionResult.CanCreate,
 				(selected) => VisibleCreateAction,
 				(selected) => CreateEntityDialog(),
 				"Insert"
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			NodeActionsList.Add(addAction);
 
 			var editAction = new JournalAction("Изменить",
-				(selected) => _canChangeVatRate && selected.Any(),
+				(selected) => _permissionResult.CanRead && selected.Any(),
 				(selected) => VisibleEditAction,
 				(selected) => selected.Cast<VatRateJournalNode>().ToList().ForEach(base.EditEntityDialog)
 			);
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			}
 
 			var deleteAction = new JournalAction("Удалить",
-				(selected) => _canChangeVatRate && selected.Any(),
+				(selected) => _permissionResult.CanDelete && selected.Any(),
 				(selected) => VisibleDeleteAction,
 				(selected) => DeleteEntities(selected.Cast<VatRateJournalNode>().ToArray()),
 				"Delete"
