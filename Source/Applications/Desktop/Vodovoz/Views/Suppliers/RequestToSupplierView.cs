@@ -142,7 +142,7 @@ namespace Vodovoz.Views.Suppliers
 					.AddTextRenderer(n => n is RequestToSupplierItem ? (n as RequestToSupplierItem).NomenclaturePrice : string.Empty)
 				.AddColumn("НДС")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.VAT.GetEnumTitle() : string.Empty)
+					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.VatRate.Name : string.Empty)
 				.AddColumn("Условия")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.PaymentCondition.GetEnumTitle() : string.Empty)

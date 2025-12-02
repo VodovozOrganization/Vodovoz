@@ -22,8 +22,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Width).Column("width");
 			Map(x => x.Height).Column("height");
 			
-			//todo
-			Map(x => x.VAT).Column("vat");
 			References(x => x.VatRate)
 				.Column("vat_rate_id");
 			

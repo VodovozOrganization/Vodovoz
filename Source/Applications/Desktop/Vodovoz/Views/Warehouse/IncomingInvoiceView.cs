@@ -77,7 +77,7 @@ namespace Vodovoz.Views.Warehouse
 					.XAlign(0.5f)
 				.AddColumn("% НДС")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer (i => i.VAT)
+					.AddNumericRenderer(i => i.VatRate.VatRateValue)
 					.Editing()
 				.AddColumn("Количество")
 					.HeaderAlignment(0.5f)
