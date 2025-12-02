@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker.Services
+namespace EmailSend.Library.Services
 {
 	/// <summary>
 	/// Сервис для отправки и проверки email через почтовый сервис

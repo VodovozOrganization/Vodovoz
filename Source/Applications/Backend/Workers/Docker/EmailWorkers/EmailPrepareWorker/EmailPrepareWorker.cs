@@ -1,17 +1,15 @@
 ﻿using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
-using Microsoft.Extensions.Configuration;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using RabbitMQ.Client;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
@@ -24,39 +22,31 @@ namespace EmailPrepareWorker
 {
 	public class EmailPrepareWorker : TimerBackgroundServiceBase
 	{
-		private const string _queuesConfigurationSection = "Queues";
-		private const string _emailSendExchangeParameter = "EmailSendExchange";
-		private const string _emailSendKeyParameter = "EmailSendKey";
-
-		private string _emailSendKey;
-		private string _emailSendExchange;
 		private int _instanceId;
 
 		// Это для костыля с остановкой сервиса, при устранении утечек удалить вместе со связанным функционалом
 		private int _crutchCounter = 0;
 		private const int _crutchCounterLimit = 100;
 
-		private bool _initialized = false;
 		private readonly ILogger<EmailPrepareWorker> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly IConfiguration _configuration;
-		private readonly IModel _channel;
 		private readonly IHostApplicationLifetime _hostApplicationLifetime;
+		private readonly IBus _messageBus;
+
+		private bool _initialized = false;
 
 		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailPrepareWorker(
-			IServiceScopeFactory serviceScopeFactory,
 			ILogger<EmailPrepareWorker> logger,
-			IConfiguration configuration,
-			IModel channel,
-			IHostApplicationLifetime hostApplicationLifetime)
+			IServiceScopeFactory serviceScopeFactory,
+			IHostApplicationLifetime hostApplicationLifetime,
+			IBus messageBus)
 		{
-			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_hostApplicationLifetime = hostApplicationLifetime;
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
 			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
@@ -85,12 +75,6 @@ namespace EmailPrepareWorker
 		{
 			_logger.LogInformation("Starting Email Prepare Worker...");
 
-			_emailSendKey = _configuration.GetSection(_queuesConfigurationSection)
-				.GetValue<string>(_emailSendKeyParameter);
-			_emailSendExchange = _configuration.GetSection(_queuesConfigurationSection)
-				.GetValue<string>(_emailSendExchangeParameter);
-			_channel.QueueDeclare(_emailSendKey, true, false, false, null);
-
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			using var settingsScope = _serviceScopeFactory.CreateScope();
@@ -105,11 +89,9 @@ namespace EmailPrepareWorker
 				.FirstOrDefault());
 
 			await base.StartAsync(cancellationToken);
-			
+
 			_logger.LogInformation(
-				"Email Prepare worker started. Settings: EmailSendKey: {EmailSendKey}, EmailSendExchange: {EmailSendExchange}, InstanceId = {InstanceId}",
-				_emailSendKey,
-				_emailSendExchange,
+				"Email Prepare worker started. Settings: InstanceId = {InstanceId}",
 				_instanceId);
 
 			_initialized = true;
@@ -201,16 +183,9 @@ namespace EmailPrepareWorker
 							}
 					}
 
-					var properties = _channel.CreateBasicProperties();
-					properties.Persistent = true;
-
 					var message = emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, mySqlConnectionStringBuilder.ConnectionString);
-					var serializedMessage = JsonSerializer.Serialize(message);
-					var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
 
-					_logger.LogInformation("Подготовлено {AttachmentsCount} вложений", message.Attachments.Count);
-
-					_channel.BasicPublish(_emailSendExchange, _emailSendKey, properties, sendingBody);
+					await _messageBus.Publish(message);
 
 					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
 					unitOfWork.Save(counterpartyEmail.StoredEmail);

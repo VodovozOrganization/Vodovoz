@@ -3,7 +3,7 @@ using RabbitMQ.MailSending;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker.Factoies
+namespace EmailSend.Library.Factories
 {
 	/// <summary>
 	/// Фабрика для создания EmailMessage
