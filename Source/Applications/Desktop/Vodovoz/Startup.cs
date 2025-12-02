@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
@@ -33,6 +33,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Security.Principal;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Commons;
 using Vodovoz.Configuration;
 using Vodovoz.Core.Domain.Users;
@@ -130,6 +131,7 @@ namespace Vodovoz
 
 			PerformanceHelper.StartMeasurement("Замер запуска приложения");
 			GetPermissionsSettings();
+			
 			//Настройка базы
 			var applicationConfigurator = new ApplicationConfigurator();
 			applicationConfigurator.CreateApplicationConfig();
@@ -243,7 +245,7 @@ namespace Vodovoz
 			var userRepository = AppDIContainer.Resolve<IUserRepository>();
 			if(ChangePassword(applicationConfigurator, userRepository) && CanLogin())
 			{
-				StartMainWindow(LoginDialog.BaseName, applicationConfigurator, settingsController, _wikiSettings);
+				StartMainWindow(LoginDialog.BaseName, settingsController, _wikiSettings);
 			}
 			else
 			{
@@ -333,7 +335,6 @@ namespace Vodovoz
 
 		private static void StartMainWindow(
 			string loginDialogName,
-			IApplicationConfigurator applicationConfigurator,
 			ISettingsController settingsController,
 			IWikiSettings wikiSettings)
 		{
@@ -346,7 +347,12 @@ namespace Vodovoz
 			CreateTempDir();
 
 			//Запускаем программу
-			MainWin = new MainWindow(passwordValidator, applicationConfigurator, wikiSettings);
+			MainWin = new MainWindow(
+				AppDIContainer.Resolve<IInteractiveService>(),
+				AppDIContainer.Resolve<IApplicationInfo>(),
+				wikiSettings);
+			
+			MainWin.Configure();
 			MainWin.InitializeManagers();
 			MainWin.Title += $" (БД: {loginDialogName})";
 			QSMain.ErrorDlgParrent = MainWin;

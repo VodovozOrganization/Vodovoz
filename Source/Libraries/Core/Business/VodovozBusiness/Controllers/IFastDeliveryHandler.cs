@@ -1,8 +1,11 @@
 ﻿using QS.DomainModel.UoW;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Controllers
@@ -33,7 +36,8 @@ namespace Vodovoz.Controllers
 		/// <param name="uow">unit of work</param>
 		/// <param name="order">Заказ</param>
 		/// <param name="callTaskWorker">Обработчик для создания внутренних заявок на звонок</param>
-		void TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, ICallTaskWorker callTaskWorker);
+		Result TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, IRouteListService routeListService, ICallTaskWorker callTaskWorker);
 		void NotifyDriverOfFastDeliveryOrderAdded(int orderId);
+		Task<Result> CheckFastDeliveryAsync(IUnitOfWork uow, Order order, CancellationToken cancellationToken);
 	}
 }

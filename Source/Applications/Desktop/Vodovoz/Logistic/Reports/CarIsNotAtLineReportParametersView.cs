@@ -150,6 +150,35 @@ namespace Vodovoz.Logistic.Reports
 
 					cell.CellBackgroundGdk = color;
 				});
+			
+			columnsConfig
+				.AddColumn("П")
+				.HeaderAlignment(.5f)
+				.AddTextRenderer(x => x.CarOwnType)
+				.WrapWidth(200)
+				.WrapMode(WrapMode.Word)
+				.XAlign(0.5f)
+				.RowCells()
+					.AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						var color = _defaultColor;
+
+						if(node.IsMainRow || node.IsCatTransferRow || node.IsCarReceptionRow)
+						{
+							color = _carModelTypeColor;
+						}
+						else if(node.IsSubtableNameRow)
+						{
+							color = _subtableNameColor;
+						}
+						else if(node.IsSubtableHeadereRow)
+						{
+							color = _subtableHeadersColor;
+						}
+
+						cell.CellBackgroundGdk = color;
+					});
 
 			columnsConfig
 				.AddColumn("Госномер")

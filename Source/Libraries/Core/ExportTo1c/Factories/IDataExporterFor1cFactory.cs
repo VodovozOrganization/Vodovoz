@@ -1,10 +1,22 @@
-﻿using ExportTo1c.Library.Exporters;
+﻿using System;
+using ExportTo1c.Library.Exporters;
+using QS.Dialog;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Factories
 {
 	public interface IDataExporterFor1cFactory
 	{
-		IDataExporterFor1c Create1cDataExporter(Export1cMode export1CMode);
+		IDataExporterFor1c<Order> CreateOrders1cDataExporter(
+			Export1cMode export1CMode, 
+			Organization organization, 
+			DateTime startDate,
+			DateTime endDate,
+			IProgressBarDisplayable progressBarDisplayable = null);
+		
+		IDataExporterFor1c<CounterpartyChangesDto> CreateCounterpartyChanges1cDataExporter();
 	}
 }

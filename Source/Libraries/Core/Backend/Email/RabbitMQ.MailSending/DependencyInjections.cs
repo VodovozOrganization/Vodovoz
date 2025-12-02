@@ -8,6 +8,7 @@ using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
 using Vodovoz.Settings.Pacs;
 
 namespace RabbitMQ.MailSending
@@ -36,12 +37,17 @@ namespace RabbitMQ.MailSending
 			return services;
 		}
 		
-		public static IBusRegistrationConfigurator ConfigureRabbitMq(this IBusRegistrationConfigurator busConf)
+		public static IBusRegistrationConfigurator ConfigureRabbitMq(
+			this IBusRegistrationConfigurator busConf,
+			Action<IRabbitMqBusFactoryConfigurator, IBusRegistrationContext> rabbitMqConfigurator = null,
+			IMessageTransportSettings messageSettings = null)
 		{
 			busConf.UsingRabbitMq((context, configurator) =>
 			{
-				var messageSettings = context.GetRequiredService<IMessageTransportSettings>();
-				var rabbitOptions = context.GetRequiredService<IOptions<RabbitOptions>>().Value;
+				if(messageSettings is null)
+				{
+					messageSettings = context.GetRequiredService<IMessageTransportSettings>();
+				}
 
 				configurator.Host(
 					messageSettings.Host,
@@ -64,28 +70,44 @@ namespace RabbitMQ.MailSending
 							});
 						}
 					});
-				
-				configurator.Message<SendEmailMessage>(x => x.SetEntityName(rabbitOptions.AuthorizationCodesExchange));
-				configurator.Publish<SendEmailMessage>(x =>
-				{
-					x.ExchangeType = "fanout";
-					x.Durable = true;
-					x.AutoDelete = false;
-					x.BindQueue(
-						rabbitOptions.AuthorizationCodesExchange,
-						rabbitOptions.AuthorizationCodesQueue,
-						conf =>
-						{
-							conf.ExchangeType = "fanout";
-						});
-				});
 
-				configurator.Publish<EmailMessage>(x => x.Exclude = true);
-				
+				rabbitMqConfigurator?.Invoke(configurator, context);
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
+		}
+
+		public static void AddSendAuthorizationCodesByEmailTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		{
+			var rabbitOptions = context.GetRequiredService<IOptions<RabbitOptions>>().Value;
+			
+			configurator.Message<SendEmailMessage>(x => x.SetEntityName(rabbitOptions.AuthorizationCodesExchange));
+			configurator.Publish<SendEmailMessage>(x =>
+			{
+				x.ExchangeType = "fanout";
+				x.Durable = true;
+				x.AutoDelete = false;
+				x.BindQueue(
+					rabbitOptions.AuthorizationCodesExchange,
+					rabbitOptions.AuthorizationCodesQueue,
+					conf =>
+					{
+						conf.ExchangeType = "fanout";
+					});
+			});
+
+			configurator.Publish<EmailMessage>(x => x.Exclude = true);
+		}
+		
+		public static void AddUpdateEmailStatusTopology(this IRabbitMqBusFactoryConfigurator configurator, IBusRegistrationContext context)
+		{
+			configurator.Publish<UpdateStoredEmailStatusMessage>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 		}
 	}
 }

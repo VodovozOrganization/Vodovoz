@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
@@ -50,6 +51,7 @@ using Vodovoz.ViewModels.Dialogs.Logistic;
 using VodovozBusiness.Domain.Client;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Osrm;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -66,11 +68,12 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IGlobalSettings _globalSettings;
+		private readonly IOsrmSettings _osrmSettings;
+		private readonly IOsrmClient _osrmClient;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOrganizationSettings _organizationSettings;
-
+		private readonly IRouteListService _routeListService;
 		private Employee _employee;
 		private bool _excludeTrucks;
 		private Employee _driverFromRouteList;
@@ -119,10 +122,13 @@ namespace Vodovoz.ViewModels.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IRouteOptimizer routeOptimizer,
-			IGlobalSettings globalSettings,
+			IOsrmSettings osrmSettings,
+			IOsrmClient osrmClient,
 			ICachedDistanceRepository cachedDistanceRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IOrganizationSettings organizationSettings)
+			IOrganizationSettings organizationSettings,
+			IRouteListService routeListService
+			)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(geographicGroupRepository == null)
@@ -140,15 +146,17 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
-			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
+			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_cachedDistanceRepository = cachedDistanceRepository ?? throw new ArgumentNullException(nameof(cachedDistanceRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _globalSettings, _cachedDistanceRepository);
+			DistanceCalculator = new RouteGeometryCalculator(_uowFactory, _osrmSettings, _osrmClient, _cachedDistanceRepository);
 
 			_closingDocumentDeliveryScheduleId = deliveryScheduleSettings?.ClosingDocumentDeliveryScheduleId ??
 												throw new ArgumentNullException(nameof(deliveryScheduleSettings));
@@ -1457,7 +1465,7 @@ namespace Vodovoz.ViewModels.Logistic
 						UoW.Save(alreadyIn);
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1478,7 +1486,7 @@ namespace Vodovoz.ViewModels.Logistic
 						return false;
 					}
 
-					var item = routeList.AddAddressFromOrder(order.OrderId);
+					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
 
 					if(item.IndexInRoute == 0)
 					{
@@ -1769,7 +1777,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					foreach(var order in propose.Orders)
 					{
-						var address = rl.AddAddressFromOrder(order.Order);
+						var address = _routeListService.AddAddressFromOrder(UoW, rl, order.Order);
 						address.PlanTimeStart = order.ProposedTimeStart;
 						address.PlanTimeEnd = order.ProposedTimeEnd;
 					}

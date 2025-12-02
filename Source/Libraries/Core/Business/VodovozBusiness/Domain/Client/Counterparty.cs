@@ -568,7 +568,8 @@ namespace Vodovoz.Domain.Client
 		public virtual CounterpartyEdoAccount EdoAccount(int organizationId, string account)
 		{
 			return CounterpartyEdoAccounts
-				.SingleOrDefault(x => x.OrganizationId == organizationId && x.PersonalAccountIdInEdo == account);
+				.SingleOrDefault(x => x.OrganizationId == organizationId
+					&& string.Equals(x.PersonalAccountIdInEdo, account, StringComparison.CurrentCultureIgnoreCase));
 		}
 
 		public override bool LegalAndHasAnyDefaultAccountAgreedForEdo =>
@@ -647,7 +648,6 @@ namespace Vodovoz.Domain.Client
 			var counterpartyRepository = validationContext.GetRequiredService<ICounterpartyRepository>();
 			var bottlesRepository = validationContext.GetRequiredService<IBottlesRepository>();
 			var depositRepository = validationContext.GetRequiredService<IDepositRepository>();
-			var moneyRepository = validationContext.GetRequiredService<IMoneyRepository>();			
 			var orderRepository = validationContext.GetRequiredService<IOrderRepository>();
 			var commonServices = validationContext.GetRequiredService<ICommonServices>();
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
@@ -748,13 +748,12 @@ namespace Vodovoz.Domain.Client
 							new[] { nameof(CounterpartyContracts) });
 					}
 
-					var balance = moneyRepository.GetCounterpartyDebt(uow, this);
+					var debt = orderRepository.GetCounterpartyDebt(uow, Id);
 
-					if(balance != 0)
+					if(debt != 0)
 					{
 						yield return new ValidationResult(
-							string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}",
-								CurrencyWorks.GetShortCurrencyString(balance)));
+							$"Вы не можете сдать контрагента в архив так как у него имеется долг: {CurrencyWorks.GetShortCurrencyString(debt)}");
 					}
 
 					var activeOrders = orderRepository.GetCurrentOrders(uow, this);

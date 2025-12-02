@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -23,7 +24,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
-			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings)
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService
+			)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -32,19 +35,20 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				discountReasonSettings,
 				onlineOrderRepository,
 				onlineOrderCancellationReasonSettings,
-				orderService)
+				orderService,
+				routeListService)
 		{
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
 			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{

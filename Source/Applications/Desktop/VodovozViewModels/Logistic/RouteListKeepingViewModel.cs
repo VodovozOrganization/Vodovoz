@@ -1,9 +1,14 @@
-﻿using Gamma.Utilities;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
+using Edo.Transport;
+using Gamma.Utilities;
+using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -19,16 +24,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DriverApi.Contracts.V6;
-using DriverApi.Contracts.V6.Requests;
-using Edo.Transport;
-using Microsoft.Extensions.Logging;
-using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -37,6 +38,8 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Tools.CallTasks;
@@ -46,15 +49,14 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
-using VodovozBusiness.NotificationSenders;
-using VodovozBusiness.Services.TrueMark;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Vodovoz.ViewModels.TrueMark;
 using VodovozBusiness.Controllers;
-using Vodovoz.EntityRepositories.TrueMark;
+using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services.Orders;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
 {
@@ -72,6 +74,8 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IPermissionResult _permissionResult;
+		private readonly IOrderContractUpdater _orderContractUpdater;
+		private readonly IRouteListService _routeListService;
 
 		private Employee _previousForwarder = null;
 
@@ -115,7 +119,9 @@ namespace Vodovoz
 			IEdoSettings edoSettings,
 			MessageService messageService,
 			ICounterpartyEdoAccountController edoAccountController,
-			IRouteListChangesNotificationSender routeListChangesNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
+			IOrderContractUpdater orderContractUpdater,
+			IRouteListService routeListService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -140,6 +146,8 @@ namespace Vodovoz
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -195,7 +203,7 @@ namespace Vodovoz
 		}
 
 		public Func<Order, IUnitOfWork, RouteListItemStatus, ITdiTab> UndeliveryOpenDlgAction { get; set; }
-
+		
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public IEnumerable<RouteListKeepingItemNode> SelectedRouteListAddresses
@@ -217,7 +225,16 @@ namespace Vodovoz
 			}
 		}
 
-		public string BottlesInfo { get; private set; }
+        public Enum[] ExcludedPaymentTypes =
+        {
+            PaymentType.Barter,
+            PaymentType.Cashless,
+            PaymentType.ContractDocumentation,
+            PaymentType.PaidOnline,
+            PaymentType.SmsQR
+        };
+
+        public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
 		#region EEVMs
@@ -539,7 +556,7 @@ namespace Vodovoz
 				rli.RouteListItemStatusHasChangedToCompeteStatus = true;
 			}
 
-			rli.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
 		}
 
@@ -624,7 +641,7 @@ namespace Vodovoz
 				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
 				.FirstOrDefault();
 
-			address.UpdateStatus(_routeListItemStatusToChange, CallTaskWorker);
+			address.UpdateStatus(_routeListService,  _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
@@ -691,7 +708,15 @@ namespace Vodovoz
 			try
 			{
 				IsCanClose = false;
-				
+
+				foreach(var node in Items.Where(x => x.PaymentTypeHasChanged))
+				{
+					var order = node.RouteListItem.Order;
+					var newPaymentType = node.PaymentType;
+					order.Contract = null;
+					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
+				}
+
 				UoWGeneric.Save();
 
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
@@ -705,11 +730,11 @@ namespace Vodovoz
 
 				UoW.Commit();
 
-				var changedList = Items
+				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
 					.ToList();
 
-				if(changedList.Count == 0)
+				if(changedItems.Count == 0)
 				{
 					return true;
 				}
@@ -723,6 +748,15 @@ namespace Vodovoz
 				}
 
 				Entity.CalculateWages(_wageParameterService);
+			}
+			catch(NHibernate.Exceptions.GenericADOException ex) when(
+				ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true ||
+				ex.InnerException?.Message.Contains("Deadlock found when trying to get lock") == true)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Не удалось сохранить изменения, так как маршрутный лист редактируется другим пользователем. " +
+					"Пожалуйста, повторите попытку позже.");
+				return false;
 			}
 			finally
 			{
@@ -777,7 +811,7 @@ namespace Vodovoz
 
 			if(!hasChanges || _interactiveService.Question("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
 			{
-				UoWGeneric.Session.Refresh(Entity);
+				UoW.Session.Refresh(Entity);
 				UpdateNodes();
 			}
 		}
@@ -835,7 +869,7 @@ namespace Vodovoz
 					continue;
 				}
 				
-				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, newStatus, CallTaskWorker);
+				_routeListService.ChangeAddressStatusAndCreateTask(UoW, Entity, item.RouteListItem.Id, newStatus, CallTaskWorker);
 				TryUpdateCreatedEdoRequests(item, newStatus);
 			}
 
@@ -900,7 +934,7 @@ namespace Vodovoz
 
 		protected void ReDeliverHandler()
 		{
-			Entity.UpdateStatus(isIgnoreAdditionalLoadingDocument: true);
+			_routeListService.UpdateStatus(UoW, Entity, isIgnoreAdditionalLoadingDocument: true);
 		}
 
 		protected void OpenOrderCodesDialog()

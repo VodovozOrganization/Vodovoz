@@ -15,6 +15,7 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using QS.Project.Domain;
 using QS.Navigation;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -48,7 +49,10 @@ namespace Vodovoz.JournalViewModels
 				typeof(CounterpartyContract),
 				typeof(Phone),
 				typeof(Tag),
-				typeof(DeliveryPoint));
+				typeof(DeliveryPoint),
+				typeof(RevenueStatus),
+				typeof(PersonType)
+				);
 
 			SearchEnabled = false;
 		}
@@ -83,9 +87,21 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.Where(c => !c.IsLiquidating);
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
+			}
+
+			if(FilterViewModel.PersonType == PersonType.legal)
+			{
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)
@@ -192,7 +208,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(c => c.Name).WithAlias(() => resultAlias.Name)
 				.Select(c => c.INN).WithAlias(() => resultAlias.INN)
 				.Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
-				.Select(c => c.IsLiquidating).WithAlias(() => resultAlias.IsLiquidating)
+				.Select(c => c.RevenueStatus).WithAlias(() => resultAlias.RevenueStatus)
 				.Select(contractsProjection).WithAlias(() => resultAlias.Contracts)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
@@ -237,9 +253,21 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(!FilterViewModel.ShowLiquidating)
+			if(FilterViewModel.PersonType.HasValue)
 			{
-				query.Where(c => !c.IsLiquidating);
+				query.Where(() => counterpartyAlias.PersonType == FilterViewModel.PersonType);
+			}
+
+			if(FilterViewModel.PersonType == PersonType.legal)
+			{
+				if(FilterViewModel.RestrictedRevenueStatuses.Any())
+				{
+					query.WhereRestrictionOn(() => counterpartyAlias.RevenueStatus).IsIn(FilterViewModel.RestrictedRevenueStatuses.ToArray());
+				}
+				else
+				{
+					query.Where(() => counterpartyAlias.RevenueStatus == null);
+				}
 			}
 
 			if(FilterViewModel?.CounterpartyType != null)

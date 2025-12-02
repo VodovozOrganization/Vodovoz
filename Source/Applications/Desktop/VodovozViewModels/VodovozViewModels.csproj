@@ -99,15 +99,32 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Employees\FineCategoryViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\ProfitCategoriesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Payments\ProfitCategoriesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\OnlineOrderNotificationSettingJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\Nodes\Employees\FineCategoryJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\BankAccountsMovementsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
@@ -231,7 +248,6 @@
     <Compile Include="Infrastructure\Print\ICustomPrintRdlDocumentsPrinter.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsJournalNode.cs" />
-    <Compile Include="Journals\JournalViewModels\Payments\PaymentsJournalViewModel.StatusAndTypeComparer.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsJournalViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\ServiceDistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\ServiceDistrictsSetJournalNode.cs" />
@@ -794,6 +810,7 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OnlineOrderNotificationSettingViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderCancellationReasonViewModel.cs" />
@@ -869,6 +886,7 @@
     <Compile Include="ViewModels\Organizations\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
+    <Compile Include="ViewModels\Payments\NotAllocatedCounterpartyViewModel.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalance1C.cs" />
@@ -880,6 +898,7 @@
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentReconciliation1C.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.TurnoverBalanceSheet1C.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.XlsParseHelper.cs" />
+    <Compile Include="ViewModels\Payments\ProfitCategoryViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\IPermissionNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\PermissionTypeAllNodeViewModel.cs" />
     <Compile Include="ViewModels\PermissionNode\SelectAllNodePermissionViewModel.cs" />
@@ -950,6 +969,8 @@
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersRatingsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Orders\OrdersReport.cs" />
+    <Compile Include="ViewModels\Reports\Payments\BankAccountsMovementsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Payments\PaymentsFromBankClientReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
@@ -1199,6 +1220,7 @@
     <Compile Include="ViewModels\Goods\NomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="AboutViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\RetailSalesReportFor1c\RetailSalesReportFor1c.cs" />
+    <Compile Include="Journals\FilterViewModels\Payments\NotAllocatedCounterpartiesJournalFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\GeoCoderApi.Client\GeoCoderApi.Client.csproj">
@@ -1324,6 +1346,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj">
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
+      <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
+      <Name>ResourceLocker.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
       <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
@@ -1451,6 +1477,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Journals\FilterViewModels\Sales\" />
+    <Folder Include="Journals\JournalNodes\Accounts\" />
+    <Folder Include="Journals\JournalViewModels\Accounts\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Services\RouteOptimization\README.md" />

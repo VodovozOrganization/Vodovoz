@@ -99,7 +99,6 @@ namespace Vodovoz.Application.Orders.Services
 				order.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
 			}
 			
-			//TODO: скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
 			_contractUpdater.UpdateOrCreateContract(uow, order);
 
 			if(order.Client is null)

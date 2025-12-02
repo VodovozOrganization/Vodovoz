@@ -1,4 +1,4 @@
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -54,6 +54,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -772,6 +773,16 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
 	}
 
+	/// <summary>
+	/// Категории штрафов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFineCategoryJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
+	}
+
 	protected void OnCompanyBalanceByDateActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CompanyBalanceByDateViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
@@ -1172,7 +1183,17 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-
+	
+	/// <summary>
+	/// Настройка текстов пуш-уведомлений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPushNotificationTextSettingsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+	
 	#endregion Помощники
 
 	#region Заказы
@@ -1248,4 +1269,28 @@ public partial class MainWindow
 	}
 
 	#endregion Заказы
+
+	#region Бухгалтерия
+
+	/// <summary>
+	/// Справочник контрагентов, которые не участвуют в распределени
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	protected void OnNotAllocatedCounterpartiesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NotAllocatedCounterpartiesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Справочник категорий дохода
+	/// </summary>
+	/// <param name="sender">Инициатор</param>
+	/// <param name="e">Аргументы</param>
+	protected void OnProfitCategoriesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ProfitCategoriesJournalViewModel>(null);
+	}
+
+	#endregion Бухгалтерия
 }

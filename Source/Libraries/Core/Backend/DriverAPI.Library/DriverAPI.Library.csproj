@@ -30,6 +30,7 @@
 		<ProjectReference Include="..\EventsApi.Library\EventsApi.Library.csproj" />
 		<ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
 		<ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />
+		<ProjectReference Include="..\Osrm\Osrm.csproj" />
 		<ProjectReference Include="..\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
 	</ItemGroup>
 

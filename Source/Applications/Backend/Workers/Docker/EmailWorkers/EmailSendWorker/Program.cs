@@ -1,4 +1,6 @@
 ﻿using EmailSendWorker.Consumers;
+using EmailSendWorker.Factoies;
+using EmailSendWorker.Services;
 using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
@@ -63,12 +65,14 @@ namespace EmailSendWorker
 					.AddHttpClient()
 					
 					.AddMailganerApiClient()
+					.AddTransient<IEmailSendService, EmailSendService>()
+					.AddTransient<IEmailMessageFactory, EmailMessageFactory>()
 					.AddMassTransit(busConf =>
 					{
 						busConf.AddConsumer<EmailSendConsumer, EmailSendConsumerDefinition>();
-						busConf.ConfigureRabbitMq();
+						busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
 					})
-					
+
 					.AddHostedService<EmailSendWorker>();
 				});
 	}

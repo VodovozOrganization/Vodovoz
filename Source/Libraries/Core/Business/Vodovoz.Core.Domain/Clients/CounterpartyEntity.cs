@@ -106,10 +106,11 @@ namespace Vodovoz.Core.Domain.Clients
 		private int _technicalProcessingDelay;
 		private CounterpartyType _counterpartyType;
 		private bool _alwaysSendReceipts;
-		private bool _isLiquidating;
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
+		private RevenueStatus? _revenueStatus;
+		private DateTime? _revenueStatusDate;
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
@@ -289,15 +290,25 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _kPP;
 			set => SetField(ref _kPP, value);
 		}
-
+		
 		/// <summary>
-		/// Контрагент в статусе ликвидации
+		/// Статус в налоговой
 		/// </summary>
-		[Display(Name = "Контрагент в статусе ликвидации")]
-		public virtual bool IsLiquidating
+		[Display(Name = "Статус в налоговой")]
+		public virtual RevenueStatus? RevenueStatus
 		{
-			get => _isLiquidating;
-			set => SetField(ref _isLiquidating, value);
+			get => _revenueStatus;
+			set => SetField(ref _revenueStatus, value);
+		}
+		
+		/// <summary>
+		/// Дата статуса в налоговой
+		/// </summary>
+		[Display(Name = "Дата статуса в налоговой")]
+		public virtual DateTime? RevenueStatusDate
+		{
+			get => _revenueStatusDate;
+			set => SetField(ref _revenueStatusDate, value);
 		}
 
 		/// <summary>

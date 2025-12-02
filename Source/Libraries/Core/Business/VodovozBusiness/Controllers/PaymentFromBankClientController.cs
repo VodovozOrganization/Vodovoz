@@ -10,6 +10,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Services;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.Controllers
 {
@@ -18,16 +20,23 @@ namespace Vodovoz.Controllers
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly IPaymentService _paymentService;
+		private readonly IPaymentSettings _paymentSettings;
 		private readonly object _lockObject = new object();
 
 		public PaymentFromBankClientController(
 			IPaymentItemsRepository paymentItemsRepository,
 			IOrderRepository orderRepository,
-			IPaymentsRepository paymentsRepository)
+			IPaymentsRepository paymentsRepository,
+			IPaymentService paymentService,
+			IPaymentSettings paymentSettings
+			)
 		{
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
+			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 		}
 		
 		/// <summary>
@@ -109,7 +118,10 @@ namespace Vodovoz.Controllers
 		/// <param name="order">Заказ</param>
 		/// <param name="refundPaymentReason">Причина возврата суммы на баланс</param>
 		public void ReturnAllocatedSumToClientBalance(
-			IUnitOfWork uow, Order order, RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation)
+			IUnitOfWork uow, 
+			Order order, 
+			RefundPaymentReason refundPaymentReason = RefundPaymentReason.OrderCancellation
+		)
 		{
 			lock(_lockObject)
 			{
@@ -129,7 +141,11 @@ namespace Vodovoz.Controllers
 		/// <param name="uow">Unit of work</param>
 		/// <param name="order">Заказ</param>
 		/// <param name="previousOrderStatus">Предыдущий статус заказа</param>
-		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus)
+		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(
+			IUnitOfWork uow,
+			Order order,
+			OrderStatus previousOrderStatus
+		)
 		{
 			if(HasOrderUndeliveredStatus(previousOrderStatus) && order.PaymentType == PaymentType.Cashless)
 			{
@@ -142,11 +158,10 @@ namespace Vodovoz.Controllers
 
 				foreach(var refundedPayment in notCancelledRefundedPayments)
 				{
-					refundedPayment.CancelAllocation(
-						$"Причина отмены: заказ №{order.Id} вернули в статус" +
-						$" {order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}",
-						true);
-					
+					var reason = $"Причина отмены: заказ №{order.Id} вернули в статус " +
+						$"{order.OrderStatus.GetEnumTitle()} из {previousOrderStatus.GetEnumTitle()}";
+
+					_paymentService.CancelAllocation(uow, refundedPayment, reason, false);					
 					uow.Save(refundedPayment);
 				}
 				
@@ -178,11 +193,8 @@ namespace Vodovoz.Controllers
 			{
 				return;
 			}
-
-			payment.CancelAllocation(
-				$"Причина отмены: по запросу пользователя",
-				true,
-				true);
+			var reason = "Причина отмены: по запросу пользователя";
+			_paymentService.CancelAllocation(uow, payment, reason, true);
 
 			if(payment.CashlessMovementOperation != null)
 			{
@@ -212,7 +224,12 @@ namespace Vodovoz.Controllers
 		}
 
 		private void CreateNewPaymentForReturnAllocatedSumToClientBalance(
-			IUnitOfWork uow, Order order, decimal allocatedSum, IList<PaymentItem> paymentItems, RefundPaymentReason refundPaymentReason)
+			IUnitOfWork uow,
+			Order order,
+			decimal allocatedSum,
+			IList<PaymentItem> paymentItems,
+			RefundPaymentReason refundPaymentReason
+		)
 		{
 			foreach(var paymentItem in paymentItems)
 			{
@@ -232,17 +249,16 @@ namespace Vodovoz.Controllers
 			{
 				sum = allocatedSum;
 			}
-			
-			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason);
 
 			if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
 			{
-				order.OrderPaymentStatus =
-					order.PaymentType == PaymentType.Cashless
-						? OrderPaymentStatus.UnPaid
-						: OrderPaymentStatus.None;
+				order.OrderPaymentStatus = order.PaymentType == PaymentType.Cashless
+					? OrderPaymentStatus.UnPaid
+					: OrderPaymentStatus.None;
 			}
-			
+
+			var profitCategory = uow.GetById<ProfitCategory>(_paymentSettings.RefundCancelOrderProfitCategoryId);
+			var newPayment = payment.CreatePaymentForReturnAllocatedSumToClientBalance(sum, order.Id, refundPaymentReason, profitCategory);
 			uow.Save(newPayment);
 		}
 	}

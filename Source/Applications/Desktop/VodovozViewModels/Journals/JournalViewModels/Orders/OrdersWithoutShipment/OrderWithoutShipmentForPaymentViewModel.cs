@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using NHibernate.Criterion;
@@ -13,10 +13,10 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -30,7 +30,6 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Specifications.Orders.EdoContainers;
@@ -99,7 +98,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
-				.ForProperty(this, x => x.Organization)
+				.ForProperty(Entity, x => x.Organization)
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
@@ -152,8 +151,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				{
 					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
 
-					Entity.Organization = Organization ?? UoW.GetById<Organization>(_organizationSettings.GetCashlessOrganisationId);
-
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
 					{
 						if(Save(false))
@@ -169,9 +166,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				},
 				() => true);
 
-			Entity.PropertyChanged += OnEntityPropertyChanged;
-			
-			Organization = Entity.Id != 0 ? Entity.Organization : null;
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+		}
+
+		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateEmails();
+			UpdateAvailableOrders();
+		}
+
+		private void UpdateEmails()
+		{
+			var email = Entity.GetEmailAddressForBill();
+			SendDocViewModel.Update(Entity, email is null ? string.Empty : email.Address);
 		}
 
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
@@ -195,16 +202,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
 
 		public IEntityEntryViewModel OrganizationViewModel { get; }
-		
-		public Organization Organization
-		{
-			get => _organization;
-			set
-			{
-				SetField(ref _organization, value);
-				UpdateAvailableOrders();
-			}
-		}
 
 		public bool CanSetOrganization
 		{
@@ -226,15 +223,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			new GenericObservableList<EdoContainer>();
 
 		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
-
-		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.Client))
-			{
-				OnPropertyChanged(nameof(CanSendBillByEdo));
-				OnPropertyChanged(nameof(CanResendEdoBill));
-			}
-		}
 
 		public void UpdateAvailableOrders()
 		{
@@ -261,9 +249,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.Where(x => x.OrderStatus == OrderStatus.Closed)
 				.Where(x => x.PaymentType == PaymentType.Cashless);
 
-			if(Organization != null)
+			if(Entity.Organization != null)
 			{
-				cashlessOrdersQuery = cashlessOrdersQuery.Where(x => contractOrganizationAlias.Id == Organization.Id);
+				cashlessOrdersQuery = cashlessOrdersQuery.Where(x => contractOrganizationAlias.Id == Entity.Organization.Id);
 			}
 			
 			if(Entity.Client != null)
@@ -316,10 +304,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
+		public void OnCounterpartyEntityViewModelEntryChanged(object sender, EventArgs e)
 		{
-			var email = Entity.GetEmailAddressForBill();
-			SendDocViewModel.Update(Entity, email != null ? email.Address : string.Empty);
+			OnPropertyChanged(nameof(CanSendBillByEdo));
+			OnPropertyChanged(nameof(CanResendEdoBill));
+			UpdateEmails();
 			UpdateAvailableOrders();
 		}
 
@@ -411,6 +400,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			OnPropertyChanged(nameof(CanSendBillByEdo));
 
 			return base.Save(close);
+		}
+
+		public override void Dispose()
+		{
+			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
+			base.Dispose();
 		}
 	}
 }

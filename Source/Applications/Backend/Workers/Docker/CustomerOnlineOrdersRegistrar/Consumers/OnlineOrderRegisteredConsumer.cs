@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
@@ -8,6 +8,7 @@ using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -28,6 +29,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IRouteListService routeListService,
 			IBus bus)
 				: base(
 					logger,
@@ -37,12 +39,13 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					discountReasonSettings,
 					onlineOrderRepository,
 					onlineOrderCancellationReasonSettings,
-					orderService)
+					orderService,
+					routeListService)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
-		public Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
 			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} от пользователя {ExternalCounterpartyId} клиента {ClientId} " +
@@ -54,21 +57,21 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				TryRegisterOnlineOrder(message);
-				return Task.CompletedTask;
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				return;
 			}
 			catch(Exception e)
 			{
 				if(e.FindExceptionTypeInInner<MySqlException>() is { ErrorCode: MySqlErrorCode.DuplicateKeyEntry })
 				{
 					Logger.LogInformation("Пришел дубль уже зарегистрированного заказа {ExternalOrderId}, пропускаем", message.ExternalOrderId);
-					return Task.CompletedTask;
+					return;
 				}
 				
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
-				_bus.Publish<OnlineOrderInfoDto>(message);
-				return Task.CompletedTask;
+				await _bus.Publish(message, context.CancellationToken);
+				return;
 			}
 		}
 	}
