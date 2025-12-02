@@ -13,7 +13,6 @@ namespace EmailSend.Library.Consumers
 			IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<AuthorizationCodesEmailSendConsumer> consumerConfigurator)
 		{
-			endpointConfigurator.UseMessageRetry(r => r.Interval(5, 2500));
 		}
 	}
 }

@@ -41,6 +41,7 @@ namespace EmailSend.Library
 					},
 					transportSettings);
 				})
+				//Использует виртуальный хост Pacs, используемый в ДВ
 				.AddMassTransit<IEmailSendBus>(busConf =>
 				{
 					busConf.AddConsumer<SendEmailMessageConsumer, SendEmailMessageConsumerDefinition>();
