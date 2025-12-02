@@ -26,6 +26,16 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// Быстрая доставка
 		/// </summary>
 		public bool IsFastDelivery { get; set; }
+
+		/// <summary>
+		/// Источник онлайн оплаты
+		/// </summary>
+		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
+		
+		/// <summary>
+		/// Тип онлайн оплаты
+		/// </summary>
+		public OnlineOrderPaymentType? OnlinePaymentType { get; set; }
 		
 		/// <summary>
 		/// Причины оценки

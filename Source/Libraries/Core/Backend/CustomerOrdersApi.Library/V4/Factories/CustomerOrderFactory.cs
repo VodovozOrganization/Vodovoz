@@ -70,6 +70,8 @@ namespace CustomerOrdersApi.Library.V4.Factories
 				IsSelfDelivery = order.SelfDelivery,
 				OrderSum = order.OrderSum,
 				OrderStatus = _externalOrderStatusConverter.ConvertOrderStatus(order.OrderStatus),
+				OnlinePaymentSource = null,
+				OnlinePaymentType = null
 			};
 
 			//при выставленном заказе не нужны сообщения и передача таймера
@@ -106,7 +108,9 @@ namespace CustomerOrdersApi.Library.V4.Factories
 				IsFastDelivery = onlineOrder.IsFastDelivery,
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,
 				OrderSum = onlineOrder.OnlineOrderSum,
-				OrderStatus = _externalOrderStatusConverter.ConvertOnlineOrderStatus(onlineOrder.OnlineOrderStatus)
+				OrderStatus = _externalOrderStatusConverter.ConvertOnlineOrderStatus(onlineOrder.OnlineOrderStatus),
+				OnlinePaymentSource = onlineOrder.OnlinePaymentSource,
+				OnlinePaymentType = onlineOrder.OnlineOrderPaymentType
 			};
 			
 			if(timers != null)
