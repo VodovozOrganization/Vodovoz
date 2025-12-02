@@ -52,6 +52,7 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
@@ -1479,6 +1480,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(SelectedEdoDocumentDataNode.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = "Переотправить неформализованный документ";
+				return;
+			}
+
 			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
@@ -1541,8 +1549,42 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
+			if(SelectedEdoDocumentDataNode?.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ResendEquipmentTransferEdoRequest();
+				CustomizeSendDocumentAgainButton();
+				return;
+			}
+
 			ResendUpd();
 			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendEquipmentTransferEdoRequest()
+		{
+			if(!SelectedEdoDocumentDataNode.OrderDocumentType.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, $"Документ {SelectedEdoDocumentDataNode.OrderDocumentType} не найден для переотправки.");
+				return;
+			}
+
+			if(!SelectedEdoDocumentDataNode.EdoDocFlowStatus.HasValue)
+			{
+				return;
+			}
+
+			var edoValidateResult = _edoService.ValidateOrderForOrderDocument(SelectedEdoDocumentDataNode.EdoDocFlowStatus.Value);
+
+			if(edoValidateResult.IsFailure)
+			{
+				if(!_interactiveService.Question(
+				"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
+			}
+
+			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
 		}
 
 		private void ResendUpd()

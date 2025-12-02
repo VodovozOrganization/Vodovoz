@@ -13,7 +13,9 @@ namespace EdoService.Library
 	{
 		void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order);
 		void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject;
+		void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
 		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
+		Result ValidateOrderForOrderDocument(EdoDocFlowStatus status);
 	}
 }
