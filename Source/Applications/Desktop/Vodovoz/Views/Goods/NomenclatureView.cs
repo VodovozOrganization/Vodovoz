@@ -292,6 +292,11 @@ namespace Vodovoz.Views.Goods
 			entityentryRouteColumn.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			entityentryVatRate.ViewModel = ViewModel.VatRateEntityEntryViewModel;
+			entityentryVatRate.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			checkNoDeliver.Binding
 				.AddBinding(ViewModel.Entity, e => e.NoDelivery, w => w.Active)
