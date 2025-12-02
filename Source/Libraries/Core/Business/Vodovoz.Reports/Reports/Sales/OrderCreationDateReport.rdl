@@ -516,7 +516,7 @@
 		WHEN 'bottle' THEN 'Тара'
 		WHEN 'material' THEN 'Сырьё'
 		WHEN 'disposableBottleWater' THEN 'Вода в одноразовой таре'
-		WHEN 'master' THEN 'Выезд мастера'
+		WHEN 'master' THEN 'Сервисное обслуживание'
 		ELSE n.category
 	END AS category_name,
 	author.id AS author_id,

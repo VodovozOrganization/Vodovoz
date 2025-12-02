@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker.Factoies
+namespace EmailSend.Library.Factories
 {
 	public class EmailMessageFactory : IEmailMessageFactory
 	{

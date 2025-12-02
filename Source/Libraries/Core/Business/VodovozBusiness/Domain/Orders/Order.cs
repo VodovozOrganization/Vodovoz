@@ -2032,11 +2032,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Добавление в заказ номенклатуры типа "Выезд мастера"
+		/// Добавление в заказ номенклатуры типа "Сервисное обслуживание"
 		/// </summary>
 		/// <param name="uow">unit of work"</param>
 		/// <param name="contractUpdater">Сервис обновления договора заказа</param>
-		/// <param name="nomenclature">Номенклатура типа "Выезд мастера"</param>
+		/// <param name="nomenclature">Номенклатура типа "Сервисное обслуживание"</param>
 		/// <param name="count">Количество</param>
 		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
 		/// которые будут добавлены в заказ вместе с мастером</param>

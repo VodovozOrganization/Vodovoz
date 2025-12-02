@@ -257,9 +257,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				{
 					curPayment.OtherIncome(otherProfitCategory);
 				}
-				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allNotAllocatedCounterparties.ContainsKey(doc.PayerInn))
+				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn)
+					&& _allNotAllocatedCounterparties.TryGetValue(doc.PayerInn, out var notAllocatedCounterparty))
 				{
-					var notAllocatedCounterparty = _allNotAllocatedCounterparties[doc.RecipientInn];
 					curPayment.OtherIncome(notAllocatedCounterparty.ProfitCategory);
 				}
 				else

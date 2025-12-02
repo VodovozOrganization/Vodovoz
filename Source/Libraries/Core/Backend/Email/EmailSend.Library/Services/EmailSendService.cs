@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
-namespace EmailSendWorker.Services
+namespace EmailSend.Library.Services
 {
 	public class EmailSendService : IEmailSendService
 	{
