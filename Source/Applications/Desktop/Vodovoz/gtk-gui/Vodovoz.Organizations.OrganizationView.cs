@@ -84,7 +84,7 @@ namespace Vodovoz.Organizations
 
 		private global::Gamma.GtkWidgets.yLabel ylabelVatRate;
 
-		private global::Gamma.GtkWidgets.yEntry yentryVatRate;
+		private global::QS.Views.Control.EntityEntry entityentryVatRate;
 
 		private global::Gtk.Label label1;
 
@@ -537,16 +537,12 @@ namespace Vodovoz.Organizations
 			w38.Expand = false;
 			w38.Fill = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
-			this.yentryVatRate = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryVatRate.CanFocus = true;
-			this.yentryVatRate.Name = "yentryVatRate";
-			this.yentryVatRate.IsEditable = true;
-			this.yentryVatRate.InvisibleChar = '•';
-			this.yhbox1.Add(this.yentryVatRate);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yentryVatRate]));
+			this.entityentryVatRate = new global::QS.Views.Control.EntityEntry();
+			this.entityentryVatRate.Events = ((global::Gdk.EventMask)(256));
+			this.entityentryVatRate.Name = "entityentryVatRate";
+			this.yhbox1.Add(this.entityentryVatRate);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.entityentryVatRate]));
 			w39.Position = 2;
-			w39.Expand = false;
-			w39.Fill = false;
 			this.datatableMain.Add(this.yhbox1);
 			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yhbox1]));
 			w40.TopAttach = ((uint)(10));

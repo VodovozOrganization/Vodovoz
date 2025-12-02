@@ -404,7 +404,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel3;
 
-		private global::Gamma.GtkWidgets.yEntry yentryVatRateOldValue;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinbuttonTargetVatRate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel4;
 
@@ -412,7 +412,7 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel9;
 
-		private global::Gamma.GtkWidgets.yEntry yentryVatRateNewValue;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinbuttonNewVatRate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel10;
 
@@ -422,11 +422,11 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gamma.GtkWidgets.yLabel ylabel11;
 
-		private global::Gamma.GtkWidgets.yEntry yentryVatRateDefaultValue;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinbuttonDefaultVatRate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel12;
 
-		private global::Gamma.GtkWidgets.yButton buttonSaveDefaultPaymentDefaultVatRate;
+		private global::Gamma.GtkWidgets.yButton buttonSaveDefaulVatRate;
 
 		private global::Gtk.Label GtkLabel93;
 
@@ -1485,6 +1485,7 @@ namespace Vodovoz.Views.Settings
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.CanFocus = true;
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Name = "yrbtnFastDeliveryIntervalFromAddedInFirstRouteList";
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Label = global::Mono.Unix.Catalog.GetString("Попадания в первый МЛ");
+			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Active = true;
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.DrawIndicator = true;
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.UseUnderline = true;
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -2511,20 +2512,24 @@ namespace Vodovoz.Views.Settings
 			w173.Expand = false;
 			w173.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
-			this.yentryVatRateOldValue = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryVatRateOldValue.CanFocus = true;
-			this.yentryVatRateOldValue.Name = "yentryVatRateOldValue";
-			this.yentryVatRateOldValue.IsEditable = true;
-			this.yentryVatRateOldValue.InvisibleChar = '•';
-			this.hbox10.Add(this.yentryVatRateOldValue);
-			global::Gtk.Box.BoxChild w174 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yentryVatRateOldValue]));
+			this.yspinbuttonTargetVatRate = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 10000000D, 1D);
+			this.yspinbuttonTargetVatRate.CanFocus = true;
+			this.yspinbuttonTargetVatRate.Name = "yspinbuttonTargetVatRate";
+			this.yspinbuttonTargetVatRate.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonTargetVatRate.ClimbRate = 1D;
+			this.yspinbuttonTargetVatRate.Digits = ((uint)(2));
+			this.yspinbuttonTargetVatRate.Numeric = true;
+			this.yspinbuttonTargetVatRate.ValueAsDecimal = 0m;
+			this.yspinbuttonTargetVatRate.ValueAsInt = 0;
+			this.hbox10.Add(this.yspinbuttonTargetVatRate);
+			global::Gtk.Box.BoxChild w174 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.yspinbuttonTargetVatRate]));
 			w174.Position = 1;
 			w174.Expand = false;
 			w174.Fill = false;
 			// Container child hbox10.Gtk.Box+BoxChild
 			this.ylabel4 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel4.Name = "ylabel4";
-			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("дней");
+			this.ylabel4.LabelProp = global::Mono.Unix.Catalog.GetString("%");
 			this.hbox10.Add(this.ylabel4);
 			global::Gtk.Box.BoxChild w175 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.ylabel4]));
 			w175.Position = 2;
@@ -2549,20 +2554,24 @@ namespace Vodovoz.Views.Settings
 			w177.Expand = false;
 			w177.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.yentryVatRateNewValue = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryVatRateNewValue.CanFocus = true;
-			this.yentryVatRateNewValue.Name = "yentryVatRateNewValue";
-			this.yentryVatRateNewValue.IsEditable = true;
-			this.yentryVatRateNewValue.InvisibleChar = '•';
-			this.hbox11.Add(this.yentryVatRateNewValue);
-			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.yentryVatRateNewValue]));
+			this.yspinbuttonNewVatRate = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 10000000D, 1D);
+			this.yspinbuttonNewVatRate.CanFocus = true;
+			this.yspinbuttonNewVatRate.Name = "yspinbuttonNewVatRate";
+			this.yspinbuttonNewVatRate.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonNewVatRate.ClimbRate = 1D;
+			this.yspinbuttonNewVatRate.Digits = ((uint)(2));
+			this.yspinbuttonNewVatRate.Numeric = true;
+			this.yspinbuttonNewVatRate.ValueAsDecimal = 0m;
+			this.yspinbuttonNewVatRate.ValueAsInt = 0;
+			this.hbox11.Add(this.yspinbuttonNewVatRate);
+			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.yspinbuttonNewVatRate]));
 			w178.Position = 1;
 			w178.Expand = false;
 			w178.Fill = false;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.ylabel10 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel10.Name = "ylabel10";
-			this.ylabel10.LabelProp = global::Mono.Unix.Catalog.GetString("дней");
+			this.ylabel10.LabelProp = global::Mono.Unix.Catalog.GetString("%");
 			this.hbox11.Add(this.ylabel10);
 			global::Gtk.Box.BoxChild w179 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.ylabel10]));
 			w179.Position = 2;
@@ -2598,33 +2607,37 @@ namespace Vodovoz.Views.Settings
 			w182.Expand = false;
 			w182.Fill = false;
 			// Container child yhbox3.Gtk.Box+BoxChild
-			this.yentryVatRateDefaultValue = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryVatRateDefaultValue.CanFocus = true;
-			this.yentryVatRateDefaultValue.Name = "yentryVatRateDefaultValue";
-			this.yentryVatRateDefaultValue.IsEditable = true;
-			this.yentryVatRateDefaultValue.InvisibleChar = '•';
-			this.yhbox3.Add(this.yentryVatRateDefaultValue);
-			global::Gtk.Box.BoxChild w183 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yentryVatRateDefaultValue]));
+			this.yspinbuttonDefaultVatRate = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 10000000D, 1D);
+			this.yspinbuttonDefaultVatRate.CanFocus = true;
+			this.yspinbuttonDefaultVatRate.Name = "yspinbuttonDefaultVatRate";
+			this.yspinbuttonDefaultVatRate.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonDefaultVatRate.ClimbRate = 1D;
+			this.yspinbuttonDefaultVatRate.Digits = ((uint)(2));
+			this.yspinbuttonDefaultVatRate.Numeric = true;
+			this.yspinbuttonDefaultVatRate.ValueAsDecimal = 0m;
+			this.yspinbuttonDefaultVatRate.ValueAsInt = 0;
+			this.yhbox3.Add(this.yspinbuttonDefaultVatRate);
+			global::Gtk.Box.BoxChild w183 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yspinbuttonDefaultVatRate]));
 			w183.Position = 1;
 			w183.Expand = false;
 			w183.Fill = false;
 			// Container child yhbox3.Gtk.Box+BoxChild
 			this.ylabel12 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel12.Name = "ylabel12";
-			this.ylabel12.LabelProp = global::Mono.Unix.Catalog.GetString("дней");
+			this.ylabel12.LabelProp = global::Mono.Unix.Catalog.GetString("%");
 			this.yhbox3.Add(this.ylabel12);
 			global::Gtk.Box.BoxChild w184 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.ylabel12]));
 			w184.Position = 2;
 			w184.Expand = false;
 			w184.Fill = false;
 			// Container child yhbox3.Gtk.Box+BoxChild
-			this.buttonSaveDefaultPaymentDefaultVatRate = new global::Gamma.GtkWidgets.yButton();
-			this.buttonSaveDefaultPaymentDefaultVatRate.CanFocus = true;
-			this.buttonSaveDefaultPaymentDefaultVatRate.Name = "buttonSaveDefaultPaymentDefaultVatRate";
-			this.buttonSaveDefaultPaymentDefaultVatRate.UseUnderline = true;
-			this.buttonSaveDefaultPaymentDefaultVatRate.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.yhbox3.Add(this.buttonSaveDefaultPaymentDefaultVatRate);
-			global::Gtk.Box.BoxChild w185 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.buttonSaveDefaultPaymentDefaultVatRate]));
+			this.buttonSaveDefaulVatRate = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSaveDefaulVatRate.CanFocus = true;
+			this.buttonSaveDefaulVatRate.Name = "buttonSaveDefaulVatRate";
+			this.buttonSaveDefaulVatRate.UseUnderline = true;
+			this.buttonSaveDefaulVatRate.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.yhbox3.Add(this.buttonSaveDefaulVatRate);
+			global::Gtk.Box.BoxChild w185 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.buttonSaveDefaulVatRate]));
 			w185.Position = 3;
 			w185.Expand = false;
 			w185.Fill = false;
