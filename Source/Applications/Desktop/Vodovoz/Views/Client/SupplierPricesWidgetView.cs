@@ -63,7 +63,7 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => n.IsEditable ? CurrencyWorks.CurrencyShortName : string.Empty)
 				.AddColumn("НДС")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(n => n.VAT, true)
+					.AddNumericRenderer(n => n.VatRate.VatRateValue, true)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = false;

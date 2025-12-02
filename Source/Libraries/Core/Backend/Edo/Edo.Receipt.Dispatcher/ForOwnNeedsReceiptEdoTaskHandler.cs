@@ -1295,13 +1295,13 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || nomenclature.VAT == VAT.No)
+			if(organization is null || organization.WithoutVAT || nomenclature.VatRate.VatRateValue == 0)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
 			else
 			{
-				inventPosition.Vat = nomenclature.VAT.ToFiscalVat();
+				inventPosition.Vat = nomenclature.VatRate.ToFiscalVat();
 			}
 
 			return inventPosition;

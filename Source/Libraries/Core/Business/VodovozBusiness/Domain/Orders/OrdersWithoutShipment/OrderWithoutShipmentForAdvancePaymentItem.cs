@@ -272,25 +272,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
 			}
 			
-			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
-			
-			switch(vat) {
-				case VAT.No:
-					ValueAddedTax = 0m;
-					break;
-				case VAT.Vat10:
-					ValueAddedTax = 0.10m;
-					break;
-				case VAT.Vat18:
-					ValueAddedTax = 0.18m;
-					break;
-				case VAT.Vat20:
-					ValueAddedTax = 0.20m;
-					break;
-				default:
-					ValueAddedTax = 0m;
-					break;
-			}
+			ValueAddedTax = CanUseVAT() ? Nomenclature.VatNumericValue : 0;
 		}
 		
 		private void RecalculateVAT()

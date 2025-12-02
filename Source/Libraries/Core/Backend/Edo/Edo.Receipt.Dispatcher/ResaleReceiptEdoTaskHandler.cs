@@ -449,13 +449,13 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VatRate.VatRateValue == 0)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
 			else
 			{
-				inventPosition.Vat = orderItem.Nomenclature.VAT.ToFiscalVat();
+				inventPosition.Vat = orderItem.Nomenclature.VatRate.ToFiscalVat();
 			}
 
 			return inventPosition;

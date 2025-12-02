@@ -26,7 +26,9 @@ using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -43,10 +45,12 @@ namespace Vodovoz.ViewModels
 			INomenclatureRepository nomenclatureRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation)
+			INavigationManager navigation,
+			IGenericRepository<VatRate> vatRateRepository)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 
 			TabName = "Выгрузка/Загрузка каталога номенклатур";
@@ -74,6 +78,7 @@ namespace Vodovoz.ViewModels
 		#region Properties
 
 		private ICommonServices commonServices;
+		private readonly IGenericRepository<VatRate> _vatRateRepository;
 		private INomenclatureRepository nomenclatureRepository;
 		private bool needReload = false;
 		private Dictionary<string, NomenclatureCategory> nomenclatureCategories;
@@ -336,7 +341,7 @@ namespace Vodovoz.ViewModels
 				SetProgressBar(cnt / 50, itemsToSave.Count());
 				foreach(NomenclatureCatalogNode node in itemsToSave) {
 					var newNomenclature = new Nomenclature();
-					newNomenclature.VAT = VAT.Vat20;
+					newNomenclature.VatRate = _vatRateRepository.GetFirstOrDefault(UoW, x => x.VatRateValue == 20m);
 					newNomenclature.Code1c = nomenclatureRepository.GetNextCode1c(UoW);
 					newNomenclature.Name = node.Name;
 					newNomenclature.OfficialName = node.Name;

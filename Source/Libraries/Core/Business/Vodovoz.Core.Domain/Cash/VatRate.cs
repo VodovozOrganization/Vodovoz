@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Domain.Cash
 {
@@ -26,6 +29,7 @@ namespace Vodovoz.Core.Domain.Cash
 		private int _id;
 		private bool _isArchive;
 		private decimal _vatRateValue;
+		private Vat1cType _vat1cTypeValue;
 
 		/// <summary>
 		/// Идентификатор
@@ -57,6 +61,16 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _vatRateValue, value);
 		}
 		
+		/// <summary>
+		/// Тип 1с ставки НДС
+		/// </summary>
+		[Display(Name = "Тип 1с ставки НДС")]
+		public virtual Vat1cType Vat1cTypeValue
+		{
+			get => _vat1cTypeValue;
+			set => SetField(ref _vat1cTypeValue, value);
+		}
+
 		public virtual string Name  => VatRateValue == 0 ? "Без НДС" : VatRateValue + "%";
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -67,5 +81,28 @@ namespace Vodovoz.Core.Domain.Cash
 					"Ставка НДС не может быть отрицательной", new[] { nameof(VatRateValue) });
 			}
 		}
+
+		public virtual FiscalVat ToFiscalVat()
+		{
+			switch(VatRateValue)
+			{
+				case 0:
+					return FiscalVat.VatFree;
+				case 10:
+					return FiscalVat.Vat10;
+				case 18:
+					throw new InvalidOperationException("В чеках нет возможности устанавливать НДС 18%. Скорее всего ошибка в заполнении карточки товара");
+				case 20:
+					return FiscalVat.Vat20;
+				default:
+					throw new InvalidOperationException("Нет соответствия между НДС товара и FiscalVat, проверьте карточку товара");
+			}
+		}
+		
+		public virtual string GetValue1c() => VatRateValue == 0 ? "БезНДС" : "НДС" + (int)VatRateValue;
+
+		public virtual string GetValue1cComplexAutomation() => VatRateValue == 0 ? "БезНДС" : (int)VatRateValue + "%";
+
+		public virtual string GetValue1cType() => Vat1cTypeValue.GetAttribute<Value1cType>().Value;
 	}
 }

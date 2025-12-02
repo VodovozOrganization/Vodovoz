@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Client
 		Nomenclature NomenclatureToBuy { get; set; }
 		SupplierPaymentType PaymentType { get; set; }
 		decimal Price { get; set; }
-		VAT VAT { get; set; }
+		VatRate VatRate { get; set; }
 		PaymentCondition PaymentCondition { get; set; }
 		DeliveryType DeliveryType { get; set; }
 		string Comment { get; set; }

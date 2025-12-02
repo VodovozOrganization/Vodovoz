@@ -106,7 +106,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
+						new XAttribute("СтавкаНДС", item.Nomenclature.VatRate.GetValue1cComplexAutomation()),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
 						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар"),
 						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare),

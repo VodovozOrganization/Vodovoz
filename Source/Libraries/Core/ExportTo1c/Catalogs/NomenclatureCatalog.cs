@@ -97,7 +97,7 @@ namespace ExportTo1c.Library.Catalogs
 			{
 				var vatCatalog = new VatCatalog(exportData)
 				{
-					Vat = nomenclature.VAT
+					Vat = nomenclature.VatRate
 				};
 
 				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
@@ -111,7 +111,7 @@ namespace ExportTo1c.Library.Catalogs
 			}
 			else
 			{
-				var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
+				var vat = nomenclature.VatRate.GetValue1c();
 
 				properties.Add(
 					new PropertyNode("ВидСтавкиНДС",

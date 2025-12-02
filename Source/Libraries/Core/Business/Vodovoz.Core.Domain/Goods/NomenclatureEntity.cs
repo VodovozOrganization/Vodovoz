@@ -33,7 +33,6 @@ namespace Vodovoz.Core.Domain.Goods
 		private NomenclatureCategory _category;
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
-		private VAT _vAT = VAT.Vat18;
 
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
@@ -215,16 +214,6 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _unit;
 			set => SetField(ref _unit, value);
-		}
-
-		/// <summary>
-		/// НДС
-		/// </summary>
-		[Display(Name = "НДС")]
-		public virtual VAT VAT
-		{
-			get => _vAT;
-			set => SetField(ref _vAT, value);
 		}
 		
 		/// <summary>
@@ -1152,25 +1141,7 @@ namespace Vodovoz.Core.Domain.Goods
 		/// </summary>
 		/// <returns></returns>
 		[Display(Name = "Числовое значение НДС")]
-		public virtual decimal VatNumericValue
-		{
-			get
-			{
-				switch(VAT)
-				{
-					case VAT.No:
-						return 0m;
-					case VAT.Vat10:
-						return 0.10m;
-					case VAT.Vat18:
-						return 0.18m;
-					case VAT.Vat20:
-						return 0.20m;
-					default:
-						return 0m;
-				}
-			}
-		}
+		public virtual decimal VatNumericValue => VatRate.VatRateValue / 100;
 
 		/// <summary>
 		/// Добавление информации о файле

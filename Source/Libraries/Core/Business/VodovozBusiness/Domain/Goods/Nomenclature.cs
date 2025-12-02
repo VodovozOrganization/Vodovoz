@@ -706,11 +706,11 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)
+			if(DateTime.Now >= new DateTime(2019, 01, 01) && VatRate.VatRateValue == 18m)
 			{
 				yield return new ValidationResult(
 					"С 01.01.2019 ставка НДС 20%",
-					new[] { nameof(VAT) }
+					new[] { nameof(VatRate) }
 				);
 			}
 
