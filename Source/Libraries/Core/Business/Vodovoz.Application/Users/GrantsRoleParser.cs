@@ -5,10 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace Vodovoz.Application.Users
 {
+	/// <summary>
+	/// Парсер прав, выданных роли
+	/// </summary>
 	public class GrantsRoleParser
 	{
 		private const string _pattern = @"GRANT (\s?(\w+\s?\w+),?)+ ON [`|']?(\*|\w+\W?[^`|'])[`|']?\.[`|']?(\*|\w+)[`|']? TO [`|']?(\w+)[`|']?";
 		
+		/// <summary>
+		/// Словарь прав роли, ключ которого название роли
+		/// </summary>
+		/// <param name="grants">Строки с привилегиями роли</param>
+		/// <returns></returns>
 		public IDictionary<string, IDictionary<string, IList<string>>> Parse(IEnumerable<string> grants)
 		{
 			var result =  new Dictionary<string, IDictionary<string, IList<string>>>();
