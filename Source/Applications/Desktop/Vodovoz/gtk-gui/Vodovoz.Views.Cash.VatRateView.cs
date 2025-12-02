@@ -16,11 +16,15 @@ namespace Vodovoz.Views.Cash
 
 		private global::Gamma.GtkWidgets.yTable ytable2;
 
+		private global::Gamma.Widgets.yEnumComboBox enumVat1cType;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsArchieve;
 
 		private global::Gamma.GtkWidgets.yEntry yentryVatRate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelVatRate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelVatRate1;
 
 		protected virtual void Build()
 		{
@@ -87,9 +91,21 @@ namespace Vodovoz.Views.Cash
 			this.ytable2 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable2.Name = "ytable2";
 			this.ytable2.NRows = ((uint)(2));
-			this.ytable2.NColumns = ((uint)(3));
+			this.ytable2.NColumns = ((uint)(5));
 			this.ytable2.RowSpacing = ((uint)(6));
 			this.ytable2.ColumnSpacing = ((uint)(6));
+			// Container child ytable2.Gtk.Table+TableChild
+			this.enumVat1cType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumVat1cType.Name = "enumVat1cType";
+			this.enumVat1cType.ShowSpecialStateAll = false;
+			this.enumVat1cType.ShowSpecialStateNot = false;
+			this.enumVat1cType.UseShortTitle = false;
+			this.enumVat1cType.DefaultFirst = true;
+			this.ytable2.Add(this.enumVat1cType);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable2[this.enumVat1cType]));
+			w8.LeftAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ycheckbuttonIsArchieve = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonIsArchieve.CanFocus = true;
@@ -98,11 +114,11 @@ namespace Vodovoz.Views.Cash
 			this.ycheckbuttonIsArchieve.DrawIndicator = true;
 			this.ycheckbuttonIsArchieve.UseUnderline = true;
 			this.ytable2.Add(this.ycheckbuttonIsArchieve);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ycheckbuttonIsArchieve]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ycheckbuttonIsArchieve]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.yentryVatRate = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryVatRate.CanFocus = true;
@@ -110,24 +126,34 @@ namespace Vodovoz.Views.Cash
 			this.yentryVatRate.IsEditable = true;
 			this.yentryVatRate.InvisibleChar = '•';
 			this.ytable2.Add(this.yentryVatRate);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yentryVatRate]));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable2[this.yentryVatRate]));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable2.Gtk.Table+TableChild
 			this.ylabelVatRate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelVatRate.Name = "ylabelVatRate";
 			this.ylabelVatRate.LabelProp = global::Mono.Unix.Catalog.GetString("Размер ставки:");
 			this.ytable2.Add(this.ylabelVatRate);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelVatRate]));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelVatRate]));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable2.Gtk.Table+TableChild
+			this.ylabelVatRate1 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelVatRate1.Name = "ylabelVatRate1";
+			this.ylabelVatRate1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип 1С:");
+			this.ytable2.Add(this.ylabelVatRate1);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytable2[this.ylabelVatRate1]));
+			w12.LeftAttach = ((uint)(2));
+			w12.RightAttach = ((uint)(3));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvbox1.Add(this.ytable2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.ytable2]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.ytable2]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
