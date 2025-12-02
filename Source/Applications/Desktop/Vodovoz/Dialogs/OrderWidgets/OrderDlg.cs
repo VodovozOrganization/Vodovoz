@@ -3523,7 +3523,7 @@ namespace Vodovoz
 					{
 						vm.SelectionMode = JournalSelectionMode.Single;
 						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-						vm.TabName = "Выезд мастера";
+						vm.TabName = "Сервисное обслуживание";
 						vm.CalculateQuantityOnStock = true;
 					})
 				.ViewModel;

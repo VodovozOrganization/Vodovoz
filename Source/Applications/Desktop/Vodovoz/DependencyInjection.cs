@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -108,6 +108,7 @@ using Vodovoz.MainMenu.ProposalsMenu;
 using Vodovoz.MainMenu.ReportsMenu;
 using Vodovoz.MainMenu.ViewMenu;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
+using RabbitMQ.MailSending;
 
 namespace Vodovoz
 {
@@ -334,6 +335,7 @@ namespace Vodovoz
 				{
 					rabbitCfg.AddPacsBaseTopology(context);
 					rabbitCfg.AddEdoTopology(context);
+					rabbitCfg.AddSendEmailMessageTopology(context);
 				},
 				(busCfg) =>
 				{
