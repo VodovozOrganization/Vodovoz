@@ -229,6 +229,22 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
+			
+			yspinbuttonTargetVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.TargetVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yspinbuttonNewVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.NewVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonCalculateNewVatRate.BindCommand(ViewModel.CalculateVatRateCommand);
+			
+			yspinbuttonDefaultVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DefaultVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonSaveDefaulVatRate.BindCommand(ViewModel.SaveDefaultVatRateCommand);
 		}
 		
 		private void ConfigureEmployeesFixedPrices()

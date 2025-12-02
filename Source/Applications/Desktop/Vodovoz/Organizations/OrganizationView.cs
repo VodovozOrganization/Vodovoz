@@ -77,6 +77,12 @@ namespace Vodovoz.Organizations
 			chkWithoutVat.Binding
 				.AddBinding(ViewModel.Entity, e => e.WithoutVAT, w => w.Active)
 				.InitializeFromSource();
+
+			entityentryVatRate.ViewModel = ViewModel.VatRateEntityEntryViewModel;
+			entityentryVatRate.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			
 			chkIsNeedCashlessMovementControl.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsNeedCashlessMovementControl, w => w.Active)

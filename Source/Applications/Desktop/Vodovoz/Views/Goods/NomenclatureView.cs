@@ -73,13 +73,7 @@ namespace Vodovoz.Views.Goods
 			ylabelCreatedBy.Binding
 				.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp)
 				.InitializeFromSource();
-
-			/*enumVAT.ItemsEnum = typeof(VAT);
-			enumVAT.Binding
-				.AddBinding(ViewModel.Entity, e => e.VAT, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();*/
-
+			
 			enumCategory.Changed += ViewModel.OnEnumCategoryChanged;
 			enumCategory.ChangedByUser += ViewModel.OnEnumCategoryChangedByUser;
 			enumCategory.ItemsEnum = typeof(NomenclatureCategory);

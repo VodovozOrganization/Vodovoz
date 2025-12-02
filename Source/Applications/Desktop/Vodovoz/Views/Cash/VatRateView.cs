@@ -23,6 +23,11 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
+			enumVat1cType.ItemsEnum = typeof(Vat1cType);
+			enumVat1cType.Binding
+				.AddBinding(ViewModel.Entity, p => p.Vat1cTypeValue, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+			
 			ycheckbuttonIsArchieve.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active)

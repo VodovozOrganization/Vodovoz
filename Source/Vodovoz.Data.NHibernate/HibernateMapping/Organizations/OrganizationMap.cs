@@ -29,7 +29,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 
 			References(x => x.Stamp).Column("stamp_id");
 			References(x => x.DefaultAccount).Column("default_account_id");
-
+			References(x => x.VatRate).Column("vat_rate_id");
+			
 			HasOne(x => x.TaxcomEdoSettings)
 				.PropertyRef(x => x.OrganizationId);
 
