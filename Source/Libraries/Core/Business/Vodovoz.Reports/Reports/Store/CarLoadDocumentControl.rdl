@@ -120,6 +120,7 @@ ORDER BY clmn_for_sorting;</CommandText>
               IF(drivers.patronymic = '',
                  '',
                  CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    (SELECT p.number FROM phones p WHERE p.employee_id = drivers.id LIMIT 1) as driver_phone,
     CONCAT_WS('',
               CONCAT(forwaders.last_name, ' '),
               IF(forwaders.name = '',
@@ -194,6 +195,10 @@ LIMIT 1
         <Field Name="has_fast_delivery">
           <DataField>has_fast_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="driver_phone">
+          <DataField>driver_phone</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -361,7 +366,7 @@ Format({route_list_date}, "dd.MM.yyyy")
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>164.8pt</Top>
+        <Top>156.8pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -431,10 +436,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>113.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>249.2pt</Width>
+            <Width>572.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -444,27 +446,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>Водитель:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>={driver}</Value>
+                      <Value>="Водитель: " + {driver} + " Авто: " + {model} + "(" + {reg_number}+ ")" + " Телефон: " + Iif(Fields!driver_phone.IsMissing, "-", "+7 " + {driver_phone})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -475,9 +458,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -486,73 +470,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             <TableRow>
               <Height>15.3pt</Height>
               <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox56">
-                      <Value> Авто:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>={model} + "(" + {reg_number}+ ")"</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>15.3pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox62">
-                      <Value>Приоритет погрузки:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>={daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
+                      <Value>= "Приоритет погрузки: " + {daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -563,8 +484,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
-                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -573,8 +494,8 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>90.3pt</Left>
-        <Top>36.3pt</Top>
+        <Left>0.0pt</Left>
+        <Top>33.9pt</Top>
       </Table>
       <Textbox Name="TextboxInfo" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15pt</Height>
@@ -582,7 +503,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>=First( {info_str} , "InfoString" )</Value>
         <ZIndex>0</ZIndex>
         <Left>3.0pt</Left>
-        <Top>324.8pt</Top>
+        <Top>316.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1029,7 +950,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>84.8pt</Top>
+        <Top>76.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>

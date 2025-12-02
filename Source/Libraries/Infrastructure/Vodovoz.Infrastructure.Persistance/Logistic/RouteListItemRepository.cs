@@ -161,5 +161,16 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		{
 			return uow.GetById<RouteListItem>(routeListAddressId);
 		}
+
+		public string GetUnscannedCodesReason(IUnitOfWork uow, int orderId)
+		{
+			return (
+				from routeListAddress in uow.Session.Query<RouteListItem>()
+				where routeListAddress.Order.Id == orderId
+					&& routeListAddress.Status != RouteListItemStatus.Transfered
+				select routeListAddress.UnscannedCodesReason
+				)
+				.FirstOrDefault();
+		}
 	}
 }

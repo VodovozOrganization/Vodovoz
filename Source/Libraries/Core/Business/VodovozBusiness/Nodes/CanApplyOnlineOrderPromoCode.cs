@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Nodes
@@ -25,5 +26,9 @@ namespace Vodovoz.Nodes
 		/// Промокод
 		/// </summary>
 		public string PromoCode { get; set; }
+		/// <summary>
+		/// Источник
+		/// </summary>
+		public Source Source { get; set; }
 	}
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -467,6 +467,11 @@
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OnlineOrderNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WorkShiftJournalRegistrar.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Accounting\AccountingMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Financies\CompanyBalanceMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Orders\OnlineOrdersSourcesMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Orders\OrdersRatingsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Transports\TransportMenuItemCreator.cs" />
     <Compile Include="MessagesHostedService.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
@@ -636,10 +641,8 @@
     <Compile Include="JournalColumnsConfigs\OrdersWithReceiptsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
-    <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -648,18 +651,55 @@
     <Compile Include="JournalViewModels\ReturnTareReasonCategoriesJournalViewModel.cs" />
     <Compile Include="JournalViewModels\UserRolesJournalViewModel.cs" />
     <Compile Include="JournalViewModels\WaterJournalViewModel.cs" />
+    <Compile Include="MainMenu\ConcreteMenuItemCreator.cs" />
+    <Compile Include="MainMenu\HelpMenu\HelpMenuItemCreator.cs" />
+    <Compile Include="MainMenu\AdministrationMenu\AdministrationMenuItemCreator.cs" />
+    <Compile Include="MainMenu\AdministrationMenu\AdminServiceMenuItemCreator.cs" />
+    <Compile Include="MainMenu\BaseMenu\BaseMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Banks\BanksMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Counterparties\CounterpartiesMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Financies\FinancesMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Helpers\HelpersMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\JournalsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Logistics\DriverWarehouseEventsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Logistics\LogisticsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Orders\OrdersMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Organization\ComplaintClassificationMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Organization\ComplaintResultsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Organization\OrganizationMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Organization\UndeliveryClassificationMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Organization\WageMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Products\ExternalSourceCatalogsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Products\ExternalSourcesMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Products\InventoryAccountingMenuItemCreator.cs" />
+    <Compile Include="MainMenu\JournalsMenu\Products\ProductsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\MainMenuBarCreator.cs" />
+    <Compile Include="MainMenu\MenuBarCreator.cs" />
+    <Compile Include="MainMenu\MenuItemCreator.cs" />
+    <Compile Include="MainMenu\ProposalsMenu\ProposalsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\AccountingDepReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\CashRegisterDepReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\DriversReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\EmployeesReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\LogisticReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\ManufacturingReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\OrderReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\OskOkkReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\ReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\RetailReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\SalesReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\ServiceReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\TransportReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ReportsMenu\WarehouseReportsMenuItemCreator.cs" />
+    <Compile Include="MainMenu\ViewMenu\MainPanelMenuItemHandler.cs" />
+    <Compile Include="MainMenu\ViewMenu\TabsMenuItemHandler.cs" />
+    <Compile Include="MainMenu\ViewMenu\ThemesAppMenuItemHandler.cs" />
+    <Compile Include="MainMenu\ViewMenu\ViewMenuItemCreator.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
-    <Compile Include="MainWindow.Navigation.Administration.cs" />
     <Compile Include="MainWindow.Navigation.cs" />
-    <Compile Include="MainWindow.Navigation.Database.cs" />
-    <Compile Include="MainWindow.Navigation.Help.cs" />
-    <Compile Include="MainWindow.Navigation.Journals.cs" />
-    <Compile Include="MainWindow.Navigation.Reports.cs" />
     <Compile Include="MainWindow.Navigation.Sections.cs" />
-    <Compile Include="MainWindow.Navigation.Suggestions.cs" />
     <Compile Include="MainWindow.Notifications.cs" />
-    <Compile Include="MainWindow.View.cs" />
     <Compile Include="Options\ConfigureS3Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

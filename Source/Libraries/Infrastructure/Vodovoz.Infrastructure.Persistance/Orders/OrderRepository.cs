@@ -2592,7 +2592,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int organizationId,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<CounterpartyType> counterpartyTypes,
-			int tenderCameFromId,
 			CancellationToken cancellationToken)
 		{
 			var today = DateTime.Today;
@@ -2617,7 +2616,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   select cashlessMovementOpetation.Expense)
 							   .Sum() ?? 0
 
-					let overdueDebtorDebt =
+					let overdueOrdersPartialPaymentsSum =
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
+									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
+							   where
+							   paymentItem.Order.Id == order.Id
+							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+							   && order.DeliveryDate != null
+							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+							   select cashlessMovementOpetation.Expense)
+							   .Sum() ?? 0
+
+					let overdueOrdersSum =
 					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
 							   where
 							   orderItem.Order.Id == order.Id
@@ -2647,23 +2658,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					order.Client.Id == counterparty.Id
 					select phone
 
-					let isExpired =
-						order.DeliveryDate != null
-						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
-
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
 						&& orderStatuses.Contains(order.OrderStatus)
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
-						&& counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& !counterpartyTypes.Contains(counterparty.CounterpartyType)
 						&& organization.Id == organizationId
-						&& counterparty.CloseDeliveryDebtType == null
 						&& order.DeliveryDate != null
 						&& orderSum > 0
-						&& (clientCameFrom == null || clientCameFrom.Id != tenderCameFromId)
-						&& !counterparty.IsChainStore
-						&& isExpired
 
 					select new OrderPaymentsDataNode
 					{
@@ -2673,7 +2676,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						OrganizationName = organization.FullName,
 						NotPaidSum = orderSum,
 						PartialPaidSum = patrialPaidOrdersSum,
-						OverdueDebtorDebt = overdueDebtorDebt,
+						OverdueDebtorDebt = overdueOrdersSum - overdueOrdersPartialPaymentsSum,
 						OrderDeliveryDate = order.DeliveryDate
 					};
 

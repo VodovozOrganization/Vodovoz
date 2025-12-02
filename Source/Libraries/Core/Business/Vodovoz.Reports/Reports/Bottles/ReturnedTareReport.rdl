@@ -1077,7 +1077,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -1174,8 +1174,9 @@ WHERE
         FROM order_items oi2
                  LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
         WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
-    )
-  AND (IF(@date_type, orders.create_date BETWEEN @start_date AND @end_date, orders.delivery_date BETWEEN @start_date AND @end_date))
+    )  
+  AND ((@date_type = True AND orders.create_date BETWEEN @start_date AND @end_date)
+  	OR (@date_type = False AND orders.delivery_date BETWEEN @start_date AND @end_date))  
   AND orders.order_status = IF(@is_closed_order_only, 'Closed', orders.order_status)
   AND (
         ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
@@ -1221,7 +1222,7 @@ ORDER BY orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1296,8 +1297,9 @@ WHERE
         WHERE o2.id = o.id
           AND n2.category = 'water'
           AND n2.tare_volume = 'Vol19l'
-    )
-  AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
+    )  
+  AND ((@date_type = True AND o.create_date BETWEEN @start_date AND @end_date)
+  	OR (@date_type = False AND o.delivery_date BETWEEN @start_date AND @end_date))  	
   AND o.order_status = IF(@is_closed_order_only, 'Closed', o.order_status)
   AND (
         ((IF(e.subdivision_id IS NULL, 0, e.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
@@ -1370,8 +1372,9 @@ WHERE
         WHERE o2.id = o.id
           AND n2.category = 'water'
           AND n2.tare_volume = 'Vol19l'
-    )
-  AND (IF(@date_type, o.create_date BETWEEN @start_date AND @end_date, o.delivery_date BETWEEN @start_date AND @end_date))
+    )  
+  AND ((@date_type = True AND o.create_date BETWEEN @start_date AND @end_date)
+  	OR (@date_type = False AND o.delivery_date BETWEEN @start_date AND @end_date))  	
   AND o.order_status = IF(@is_closed_order_only, 'Closed', o.order_status)
   AND (
         ((IF(e.subdivision_id IS NULL, 0, e.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
@@ -1484,28 +1487,28 @@ GROUP BY rtrc.name;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

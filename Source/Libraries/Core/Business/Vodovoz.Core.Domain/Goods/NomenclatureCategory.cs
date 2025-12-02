@@ -53,9 +53,9 @@ namespace Vodovoz.Core.Domain.Goods
 		[Display(Name = "Сырьё")]
 		material,
 		/// <summary>
-		/// Выезд мастера
+		/// Сервисное обслуживание
 		/// </summary>
-		[Display(Name = "Выезд мастера")]
+		[Display(Name = "Сервисное обслуживание")]
 		master,
 		/// <summary>
 		/// Топливо

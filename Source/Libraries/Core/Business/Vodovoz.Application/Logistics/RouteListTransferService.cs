@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -223,6 +223,21 @@ namespace Vodovoz.Application.Logistics
 				return Result.Failure<string>(RouteListErrors.RouteListItem.CreateInvalidOrderTransferType(order.Id));
 			}
 
+			var deliveryPointId = order?.DeliveryPoint?.Id;
+			if(deliveryPointId != null)
+			{
+				var canceledExistsInTarget = targetRouteList.Addresses
+					.Any(target => target.Order?.DeliveryPoint != null
+							  && target.Order.DeliveryPoint.Id == deliveryPointId
+							  && target.Status == RouteListItemStatus.Canceled);
+
+				if(canceledExistsInTarget)
+				{
+					return Result.Failure<string>(
+						RouteListErrors.RouteListItem.CreateOrderRecentlyCanceled(order.Id));
+				}
+			}
+
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(unitOfWork, order, targetRouteList);
 
 			if(!hasBalanceForTransfer)
@@ -237,8 +252,6 @@ namespace Vodovoz.Application.Logistics
 				AddressTransferType = AddressTransferType.FromFreeBalance
 			};
 
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
-
 			targetRouteList.ObservableAddresses.Add(newRouteListItem);
 			targetRouteList.CalculateWages(wageParameterService);
 
@@ -250,6 +263,7 @@ namespace Vodovoz.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
+			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

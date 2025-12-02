@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -36,19 +37,19 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
-		private readonly IOsrmSettings _globalSettings;
+		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
 
 		public DeliveryRepository(
 			IUnitOfWorkFactory uowFactory, 
 			IDeliveryRulesSettings deliveryRulesSettings, 
-			IOsrmSettings globalSettings,
+			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient
 		)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
-			_globalSettings = globalSettings ?? throw new ArgumentNullException(nameof(globalSettings));
+			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 		}
 
@@ -724,7 +725,7 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			var deliveryPointCoordinate = new PointOnEarth(latitude, longitude);
 			var nodeCoordinate = new PointOnEarth(node.Latitude, node.Longitude);
 			var points = new List<PointOnEarth> { nodeCoordinate, deliveryPointCoordinate };
-			var excludeToll = _globalSettings.ExcludeToll;
+			var excludeToll = _osrmSettings.ExcludeToll;
 			var osrmResponse = _osrmClient.GetRoute(points, excludeToll: excludeToll);
 
 			var proposedRoute = osrmResponse?.Routes?.FirstOrDefault();
@@ -742,7 +743,7 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			var deliveryPointCoordinate = new PointOnEarth(latitude, longitude);
 			var nodeCoordinate = new PointOnEarth(node.Latitude, node.Longitude);
 			var points = new List<PointOnEarth> { nodeCoordinate, deliveryPointCoordinate };
-			var excludeToll = _globalSettings.ExcludeToll;
+			var excludeToll = _osrmSettings.ExcludeToll;
 			var osrmResponse = await _osrmClient.GetRouteAsync(points, cancellationToken, excludeToll: excludeToll);
 
 			var proposedRoute = osrmResponse?.Routes?.FirstOrDefault();

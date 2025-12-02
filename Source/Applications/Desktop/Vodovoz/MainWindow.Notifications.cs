@@ -1,11 +1,9 @@
-﻿using QS.DomainModel.UoW;
-using QS.Navigation;
+﻿using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Services;
 using System;
 using Vodovoz.Controllers;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz;
 using System.Linq;
 using Vodovoz.Infrastructure;
 using Vodovoz.Extensions;
