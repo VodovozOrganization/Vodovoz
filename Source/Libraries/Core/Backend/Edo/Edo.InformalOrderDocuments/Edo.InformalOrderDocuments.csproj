@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\External\My-FyiReporting\RdlCri\RdlCri.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
     <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
