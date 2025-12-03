@@ -356,7 +356,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Employee_info">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	IFNULL((
@@ -380,7 +380,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -396,7 +396,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="WageBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
@@ -448,7 +448,9 @@ WHERE
     wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
         AND wages_movement_operations.operation_time &lt;= @end_date
-ORDER BY wages_movement_operations.id</CommandText>
+# т.к. иногда кассиры ошибаются выставляя не ту категорию расхода,
+# то операции создаются позже и сортировка по id операции нарушает порядок, поэтому переделал на дату
+ORDER BY date</CommandText>
         <QueryParameters>
           <QueryParameter Name="employee_id">
             <Value>=Parameters!employee_id</Value>
@@ -461,7 +463,7 @@ ORDER BY wages_movement_operations.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
