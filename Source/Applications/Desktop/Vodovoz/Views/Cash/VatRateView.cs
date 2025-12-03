@@ -26,6 +26,7 @@ namespace Vodovoz.Views.Cash
 			enumVat1cType.ItemsEnum = typeof(Vat1cType);
 			enumVat1cType.Binding
 				.AddBinding(ViewModel.Entity, p => p.Vat1cTypeValue, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			ycheckbuttonIsArchieve.Binding

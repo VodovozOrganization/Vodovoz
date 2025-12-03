@@ -17,15 +17,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	/// </summary>
 	public class VatRateViewModel: EntityTabViewModelBase<VatRate>, IAskSaveOnCloseViewModel
 	{
-		private readonly IGenericRepository<VatRate> _genericRepository;
+		private readonly IGenericRepository<VatRate> _vatRateRepository;
 
 		public VatRateViewModel(IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices,
 			INavigationManager navigation, 
-			IGenericRepository<VatRate> genericRepository) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			IGenericRepository<VatRate> vatRateRepository) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_genericRepository = genericRepository ?? throw new ArgumentNullException(nameof(genericRepository));
+			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
 			
 			TabName = IsNew ? "Новая ставка НДС" : $"Ставка НДС №{Entity.Id}";
 			
@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		
 		protected override bool BeforeSave()
 		{
-			var duplicate = _genericRepository
+			var duplicate = _vatRateRepository
 				.GetFirstOrDefault(UoW, x => x.VatRateValue == Entity.VatRateValue && x.Id != Entity.Id);
 
 			if(duplicate != null)
