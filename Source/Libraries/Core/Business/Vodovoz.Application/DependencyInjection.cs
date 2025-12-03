@@ -43,7 +43,8 @@ namespace Vodovoz.Application
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
-			.AddScoped<IUserRoleService, UserRoleService>();
+			.AddScoped<IUserRoleService, UserRoleService>()
+			.AddScoped<GrantsRoleParser>();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
