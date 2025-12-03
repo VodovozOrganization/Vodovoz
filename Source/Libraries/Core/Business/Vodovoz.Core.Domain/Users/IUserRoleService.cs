@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Core.Domain.Users
 {
@@ -6,5 +7,6 @@ namespace Vodovoz.Core.Domain.Users
 	{
 		void GrantDatabasePrivileges(IUnitOfWork uow, UserRole userRole);
 		string SearchingPatternFromUserGrants(string login);
+		IDictionary<string, IDictionary<string, IList<string>>> GetPrivilegesFromRoleInDatabase(IUnitOfWork uow, string userRole);
 	}
 }
