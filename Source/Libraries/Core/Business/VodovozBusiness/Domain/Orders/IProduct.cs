@@ -48,5 +48,9 @@ namespace Vodovoz.Domain.Orders
 		/// Цена
 		/// </summary>
 		decimal Price { get; }
+		/// <summary>
+		/// Рекомендация
+		/// </summary>
+		int? RecomendationId { get; }
 	}
 }

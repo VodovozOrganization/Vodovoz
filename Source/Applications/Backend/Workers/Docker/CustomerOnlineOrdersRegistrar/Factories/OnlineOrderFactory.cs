@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -108,7 +109,14 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				{
 					promoSet = uow.GetById<PromotionalSet>(onlineOrderItemDto.PromoSetId.Value);
 				}
-				
+
+				Recomendation recomendation = null;
+
+				if(onlineOrderItemDto.RecomendationId.HasValue)
+				{
+					recomendation = uow.GetById<Recomendation>(onlineOrderItemDto.RecomendationId.Value);
+				}
+
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
@@ -120,7 +128,8 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					applicableDiscountReason,
 					nomenclature,
 					promoSet,
-					onlineOrder);
+					onlineOrder,
+					recomendation?.Id);
 
 				onlineOrder.OnlineOrderItems.Add(onlineOrderItem);
 			}

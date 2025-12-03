@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
@@ -27,6 +28,7 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private int? _recomendationId;
 
 		protected OnlineOrderItem() { } 
 
@@ -116,6 +118,17 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountReason, value);
 		}
 
+		/// <summary>
+		/// Добавлена из рекомендации
+		/// </summary>
+		[Display(Name = "Добавлена из рекомендации")]
+		[HistoryIdentifier(TargetType = typeof(Recomendation))]
+		public virtual int? RecomendationId
+		{
+			get => _recomendationId;
+			set => SetField(ref _recomendationId, value);
+		}
+
 		[Display(Name = "Количество из промонабора")]
 		public virtual decimal CountFromPromoSet { get; set; }
 		
@@ -147,7 +160,8 @@ namespace Vodovoz.Domain.Orders
 			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			OnlineOrder onlineOrder
+			OnlineOrder onlineOrder,
+			int? recomendationId
 		)
 		{
 			var onlineOrderItem = new OnlineOrderItem
@@ -161,7 +175,8 @@ namespace Vodovoz.Domain.Orders
 				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				OnlineOrder = onlineOrder
+				OnlineOrder = onlineOrder,
+				RecomendationId = recomendationId
 			};
 
 			onlineOrderItem.CalculateDiscount(discount);

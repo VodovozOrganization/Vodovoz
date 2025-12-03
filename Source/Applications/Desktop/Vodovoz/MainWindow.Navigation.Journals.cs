@@ -448,6 +448,16 @@ public partial class MainWindow
 	}
 
 	/// <summary>
+	/// Рекомендации
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRecomendationsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RecomendationsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
 	/// Настройка запаса и радиуса
 	/// </summary>
 	/// <param name="sender"></param>

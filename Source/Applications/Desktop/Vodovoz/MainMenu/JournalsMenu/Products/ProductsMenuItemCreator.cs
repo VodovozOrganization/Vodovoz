@@ -73,6 +73,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Группы товаров", OnProductGroupsPressed));
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Папки номенклатуры в 1с", OnFolders1cPressed));
 			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Промонаборы", OnPromotionalSetsPressed));
+			productsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Рекомендации", OnActionRecomendationsActivated));
 
 			_additionalLoadSettingsMenuItem =
 				_concreteMenuItemCreator.CreateMenuItem("Настройка запаса и радиуса", OnAdditionalLoadSettingsPressed);
@@ -135,6 +136,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Products
 		private void OnPromotionalSetsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<PromotionalSetsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		/// <summary>
+		/// Рекомендации
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnActionRecomendationsActivated(object sender, EventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<RecomendationsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>

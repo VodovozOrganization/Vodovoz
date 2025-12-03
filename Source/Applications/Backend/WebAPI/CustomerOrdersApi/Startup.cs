@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library;
+﻿using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -52,6 +53,7 @@ namespace CustomerOrdersApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddBusiness(Configuration)
+				.AddApplication()
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddConfig(Configuration)

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -20,6 +20,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Presentation.ViewModels.CommonSettings;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ICarInsuranceSettings carInsuranceSettings,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
+			RecomendationSettingsViewModel recomendationSettingsViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
@@ -112,6 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
 			EntityJournalOpener = entityJournalOpener ?? throw new ArgumentNullException(nameof(entityJournalOpener));
+			RecomendationSettingsViewModel = recomendationSettingsViewModel ?? throw new ArgumentNullException(nameof(recomendationSettingsViewModel));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_organizationViewModelBuilder =
@@ -296,6 +299,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
+		public RecomendationSettingsViewModel RecomendationSettingsViewModel { get; }
 
 		#endregion
 

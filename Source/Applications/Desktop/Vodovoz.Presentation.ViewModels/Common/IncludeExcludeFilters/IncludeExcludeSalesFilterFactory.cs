@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.Recomendations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
@@ -33,6 +34,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IGenericRepository<Recomendation> _recomendationRepository;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IGenericRepository<GeoGroup> _geographicalGroupRepository;
@@ -49,6 +51,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			IGenericRepository<ProductGroup> productGroupRepository,
 			IGenericRepository<Organization> organizationRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
+			IGenericRepository<Recomendation> recomendationRepository,
 			IGenericRepository<Subdivision> subdivisionRepository,
 			IGenericRepository<Employee> employeeRepository,
 			IGenericRepository<GeoGroup> geographicalGroupRepository,
@@ -62,6 +65,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_recomendationRepository = recomendationRepository ?? throw new ArgumentNullException(nameof(recomendationRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_geographicalGroupRepository = geographicalGroupRepository ?? throw new ArgumentNullException(nameof(geographicalGroupRepository));
@@ -82,6 +86,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			AddCounterpartyFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddOrganizationFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddDiscountReasonFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddRecomendationFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddSubdivisionFilter(unitOfWork, includeExludeFiltersViewModel);
 
 			if(onlyEmployeeId.HasValue)
@@ -370,6 +375,11 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		private void AddDiscountReasonFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _discountReasonRepository);
+		}
+
+		private void AddRecomendationFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _recomendationRepository);
 		}
 
 		private void AddOrganizationFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)

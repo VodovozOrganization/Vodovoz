@@ -44,6 +44,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				true,
 				discountMoney,
 				discountReason,
+				null,
 				null);
 
 			// act
@@ -70,6 +71,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				false,
 				discountPercent,
 				discountReason,
+				null,
 				null);
 
 			// act
@@ -142,6 +144,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				true,
 				discountMoney,
 				discountReason,
+				null,
 				null);
 
 			testedOrderItem.SetDiscountByStock(discountReason, existingDiscountByStock);

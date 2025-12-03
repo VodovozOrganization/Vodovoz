@@ -101,6 +101,10 @@
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
+    <Compile Include="Goods\RecomendationJournalNode.cs" />
+    <Compile Include="Goods\RecomendationsJournalFilterViewModel.cs" />
+    <Compile Include="Goods\RecomendationsJournalViewModel.cs" />
+    <Compile Include="Goods\RecomendationViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
@@ -149,6 +153,9 @@
     <Compile Include="Services\RouteOptimization\ProposedRoutePoint.cs" />
     <Compile Include="Services\RouteOptimization\RouteOptimizer.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.LeftNode.cs" />
+    <Compile Include="Orders\RecomendationsForOrderDualListViewModel.RightNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />

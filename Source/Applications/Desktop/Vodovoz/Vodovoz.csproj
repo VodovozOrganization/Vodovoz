@@ -452,6 +452,7 @@
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\RecomendationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
@@ -2110,6 +2111,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
     <Compile Include="Views\Edo\TenderEdoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.TenderEdoView.cs" />
+    <Compile Include="Goods\Recomendations\RecomendationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Goods.Recomendations.RecomendationView.cs" />
+    <Compile Include="Goods\Recomendations\RecomendationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Goods.Recomendations.RecomendationFilterView.cs" />
     <Compile Include="Views\TrueMark\OrderCodesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesView.cs" />
     <Compile Include="Views\Client\CounterpartyEdoAccountsView.cs" />
@@ -2142,6 +2147,10 @@
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Dialogs\Cash\Payments\" />
+    <Folder Include="Views\Edo\" />
+    <Folder Include="Goods\" />
+    <Folder Include="Goods\Recomendations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
