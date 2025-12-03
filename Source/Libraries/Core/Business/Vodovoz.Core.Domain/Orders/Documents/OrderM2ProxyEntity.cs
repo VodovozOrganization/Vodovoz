@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual M2ProxyDocumentEntity M2Proxy
 		{
 			get => _m2Proxy;
-			set => SetField(ref _m2Proxy, value, () => M2Proxy);
+			set => SetField(ref _m2Proxy, value);
 		}
 
 		public override string Name => $"Доверенность М-2 №{M2Proxy.Id}";

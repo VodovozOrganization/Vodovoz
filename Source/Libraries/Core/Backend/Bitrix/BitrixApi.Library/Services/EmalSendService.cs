@@ -17,6 +17,7 @@ using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
+using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace BitrixApi.Library.Services
 {
@@ -96,12 +97,22 @@ namespace BitrixApi.Library.Services
 					break;
 				case ReportTypeDto.UnpaidOrdersAccount:
 					notpaidOrderIds = GetNotPaidOrderIds(counterparty.Id, organization.Id);
+					if(!notpaidOrderIds.Any())
+					{
+						_logger.LogError("Нет неоплаченных заказов для контрагента с ИНН {CounterpartyInn}", request.CounterpartyInn);
+						throw new KeyNotFoundException($"Нет неоплаченных заказов для контрагента с ИНН {request.CounterpartyInn}");
+					}
 					attachments =
 						_emailAttachmentsCreateService.CreateOrdersBillsAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
 					messageText = "Счета по неоплаченным заказам";
 					break;
 				case ReportTypeDto.TotalAccount:
 					notpaidOrderIds = GetNotPaidOrderIds(counterparty.Id, organization.Id);
+					if(!notpaidOrderIds.Any())
+					{
+						_logger.LogError("Нет неоплаченных заказов для контрагента с ИНН {CounterpartyInn}", request.CounterpartyInn);
+						throw new KeyNotFoundException($"Нет неоплаченных заказов для контрагента с ИНН {request.CounterpartyInn}");
+					}
 					attachments =
 						_emailAttachmentsCreateService.CreateGeneralBillAttachments(counterparty.Id, organization.Id, notpaidOrderIds);
 					messageText = "Общий счет";
@@ -116,16 +127,52 @@ namespace BitrixApi.Library.Services
 				throw new InvalidOperationException("Не удалось создать вложения для письма");
 			}
 
-			var emailMessage =
-				CreateEmailMessage(counterparty, request.EmailAdress, messageText, attachments);
+			var storedEmail = CreateStoredEmail(messageText, request.EmailAdress, request.CounterpartyInn);
+			await _uow.SaveAsync(storedEmail);
 
-			await SendEmail(emailMessage);
+			var emailMessage =
+				CreateEmailMessage(counterparty, request.EmailAdress, messageText, storedEmail.Id, attachments);
+
+			try
+			{
+				await SendEmail(emailMessage);
+				storedEmail.Description = "При отправке письма не произошла ошибка";
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingComplete;
+			}
+			catch(Exception ex)
+			{
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingError;
+				storedEmail.Description = "При отправке письма произошла ошибка";
+				_logger.LogError(ex, "Ошибка при отправке письма: {ErrorMessage}", ex.Message);
+			}
+			finally
+			{
+				await _uow.CommitAsync();
+			}
+		}
+
+		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email, string inn)
+		{
+			var storedEmail = new StoredEmails.StoredEmail
+			{
+				State = StoredEmails.StoredEmailStates.PreparingToSend,
+				Author = null,
+				ManualSending = true,
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				Subject = subject + " ИНН " + inn,
+				RecipientAddress = email,
+				Guid = Guid.NewGuid()
+			};
+
+			return storedEmail;
 		}
 
 		private SendEmailMessage CreateEmailMessage(
 			CounterpartyEntity counterparty,
 			string email,
 			string messageText,
+			int payloadId,
 			IEnumerable<EmailAttachment> attachments)
 		{
 			var instanceId = GetCurrentDatabaseId();
@@ -150,7 +197,7 @@ namespace BitrixApi.Library.Services
 				HTMLPart = messageText,
 				Payload = new EmailPayload
 				{
-					Id = 0,
+					Id = payloadId,
 					Trackable = false,
 					InstanceId = instanceId
 				},

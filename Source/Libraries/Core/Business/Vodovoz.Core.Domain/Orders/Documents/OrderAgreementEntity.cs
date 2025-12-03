@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual AdditionalAgreementEntity AdditionalAgreement
 		{
 			get => _additionalAgreement;
-			set => SetField(ref _additionalAgreement, value, () => AdditionalAgreement);
+			set => SetField(ref _additionalAgreement, value);
 		}
 
 		public override string Name => $"Доп. соглашение {_additionalAgreement.AgreementTypeTitle} №{_additionalAgreement.FullNumberText}";

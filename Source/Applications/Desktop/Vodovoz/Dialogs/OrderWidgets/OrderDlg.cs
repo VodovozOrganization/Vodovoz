@@ -315,14 +315,6 @@ namespace Vodovoz
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
-		private bool HasDepositItems() =>
-			Entity.OrderItems.Any(x => 
-				x.Nomenclature.Category == NomenclatureCategory.deposit);
-
-		private bool HasNonPaidDeliveryItems() =>
-			Entity.OrderItems.Any(x => 
-				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
-
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -1488,6 +1480,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(SelectedEdoDocumentDataNode.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = "Переотправить неформализованный документ";
+				return;
+			}
+
 			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
@@ -1644,8 +1643,42 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
+			if(SelectedEdoDocumentDataNode?.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ResendEquipmentTransferEdoRequest();
+				CustomizeSendDocumentAgainButton();
+				return;
+			}
+
 			ResendUpd();
 			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendEquipmentTransferEdoRequest()
+		{
+			if(!SelectedEdoDocumentDataNode.OrderDocumentType.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, $"Документ {SelectedEdoDocumentDataNode.OrderDocumentType} не найден для переотправки.");
+				return;
+			}
+
+			if(!SelectedEdoDocumentDataNode.EdoDocFlowStatus.HasValue)
+			{
+				return;
+			}
+
+			var edoValidateResult = _edoService.ValidateOrderForOrderDocument(SelectedEdoDocumentDataNode.EdoDocFlowStatus.Value);
+
+			if(edoValidateResult.IsFailure)
+			{
+				if(!_interactiveService.Question(
+				"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
+			}
+
+			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
 		}
 
 		private void ResendUpd()
@@ -3584,7 +3617,7 @@ namespace Vodovoz
 					{
 						vm.SelectionMode = JournalSelectionMode.Single;
 						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-						vm.TabName = "Выезд мастера";
+						vm.TabName = "Сервисное обслуживание";
 						vm.CalculateQuantityOnStock = true;
 					})
 				.ViewModel;
@@ -3690,16 +3723,16 @@ namespace Vodovoz
 			if(PaymentType == PaymentType.Cashless)
 			{
 				if(nomenclature.Category == NomenclatureCategory.deposit
-					&& !HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& !Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
 					return;
 				}
 
 				if(nomenclature.Category != NomenclatureCategory.deposit 
-					&& HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
 					return;
@@ -4993,11 +5026,11 @@ namespace Vodovoz
 			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
 
 			if(PaymentType == PaymentType.Cashless 
-				&& HasNonPaidDeliveryItems())
+				&& Order.HasNonPaidDeliveryItems())
 			{
-				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && HasDepositItems();
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && Order.HasDepositItems();
 
-				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !HasDepositItems();
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !Order.HasDepositItems();
 			}
 			else
 			{

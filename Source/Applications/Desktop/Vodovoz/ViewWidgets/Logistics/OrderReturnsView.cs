@@ -240,14 +240,6 @@ namespace Vodovoz
 			UpdateButtonsState();
 		}
 
-		private bool HasDepositItems() =>
-			_routeListItem.Order.OrderItems.Any(x =>
-				x.Nomenclature.Category == NomenclatureCategory.deposit);
-
-		private bool HasNonPaidDeliveryItems() =>
-			_routeListItem.Order.OrderItems.Any(x =>
-				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
-
 		private void UpdateListsSentivity()
 		{
 			ytreeToClient.Sensitive =
@@ -313,16 +305,16 @@ namespace Vodovoz
 			if(PaymentType == PaymentType.Cashless)
 			{
 				if(nomenclature.Category == NomenclatureCategory.deposit
-					&& !HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& !BaseOrder.HasDepositItems()
+					&& BaseOrder.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
 					return;
 				}
 
 				if(nomenclature.Category != NomenclatureCategory.deposit
-					&& HasDepositItems()
-					&& HasNonPaidDeliveryItems())
+					&& BaseOrder.HasDepositItems()
+					&& BaseOrder.HasNonPaidDeliveryItems())
 				{
 					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
 					return;

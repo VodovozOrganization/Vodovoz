@@ -11,7 +11,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
-	  <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
 	  <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
 	  <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />

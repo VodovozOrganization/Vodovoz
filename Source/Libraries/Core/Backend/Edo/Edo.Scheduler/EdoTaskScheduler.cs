@@ -136,14 +136,14 @@ namespace Edo.Scheduler.Service
 			var request = await _uow.Session.GetAsync<InformalEdoRequest>(requestId, cancellationToken);
 			if(request == null)
 			{
-				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {InformalEdoRequest}", requestId);
+				_logger.LogWarning("Не найдена ЭДО заявка Id {InformalEdoRequest}", requestId);
 				return;
 			}
 
 			EdoTask edoTask = request.Task;
 			if(edoTask != null)
 			{
-				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
+				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
 				return;
 			}
 
@@ -161,14 +161,12 @@ namespace Edo.Scheduler.Service
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			object message = null;
-
 			if(edoTask.TaskType != EdoTaskType.InformalOrderDocument)
 			{
 				throw new InvalidOperationException($"Неизвестный тип задачи {edoTask.TaskType}");
 			}
 
-			message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
+			var message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
 
 			if(message != null)
 			{

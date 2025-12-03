@@ -43,47 +43,6 @@ namespace Vodovoz.Domain.Client
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
 		}
-
-		/// <summary>
-		/// Название пакета бесплатной аренды
-		/// </summary>
-		public virtual new string PackageName => FreeRentPackage != null ? FreeRentPackage.Name : "";
-
-		/// <summary>
-		/// Выводит имя из оборудования если посерийный учет, иначе из номенклатуры 
-		/// </summary>
-		/// <value>The name of the equipment.</value>
-		public virtual new string EquipmentName { 
-			get {
-				if(Equipment != null) {
-					return Equipment.NomenclatureName;
-				} else if(Nomenclature != null){
-					return Nomenclature.Name;
-				}else {
-					return String.Empty;
-				}
-			} 
-		}
-
-		/// <summary>
-		/// Серийный номер оборудования
-		/// </summary>
-		public virtual new string EquipmentSerial => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "";
-
-		/// <summary>
-		/// Строковое представление залога
-		/// </summary>
-		public virtual new string DepositString => CurrencyWorks.GetShortCurrencyString(Deposit);
-
-		/// <summary>
-		/// Строковое представление кол-ва бутылей
-		/// </summary>
-		public virtual new string WaterAmountString => $"{WaterAmount} {NumberToTextRus.Case(WaterAmount, "бутыль", "бутыли", "бутылей")}";
-
-		/// <summary>
-		/// Заголовок 
-		/// </summary>
-		public virtual new string Title => $"Бесплатная аренда {EquipmentName}";
 	}
 }
 

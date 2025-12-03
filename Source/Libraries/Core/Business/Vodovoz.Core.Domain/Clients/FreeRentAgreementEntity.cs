@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Clients
@@ -12,32 +11,16 @@ namespace Vodovoz.Core.Domain.Clients
 	[EntityPermission]
 	public class FreeRentAgreementEntity : AdditionalAgreementEntity
 	{
-		IList<FreeRentEquipmentEntity> _equipment = new List<FreeRentEquipmentEntity>();
-		private ObservableList<FreeRentEquipmentEntity> _observableEquipment;
+		private IObservableList<FreeRentEquipmentEntity> _equipment = new ObservableList<FreeRentEquipmentEntity>();
+
 		/// <summary>
 		/// Список оборудования
 		/// </summary>
 		[Display(Name = "Список оборудования")]
-		public virtual IList<FreeRentEquipmentEntity> Equipment
+		public virtual IObservableList<FreeRentEquipmentEntity> Equipments
 		{
 			get => _equipment;
-			set => SetField(ref _equipment, value, () => Equipment);
-		}
-
-		/// <summary>
-		/// Наблюдаемый список оборудования
-		/// </summary>
-		public virtual ObservableList<FreeRentEquipmentEntity> ObservableEquipment
-		{
-			get
-			{
-				if(_observableEquipment == null)
-				{
-					_observableEquipment = new ObservableList<FreeRentEquipmentEntity>(Equipment);
-				}
-
-				return _observableEquipment;
-			}
+			set => SetField(ref _equipment, value);
 		}
 	}
 }

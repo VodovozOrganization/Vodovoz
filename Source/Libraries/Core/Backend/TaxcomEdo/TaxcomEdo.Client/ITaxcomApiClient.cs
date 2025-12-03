@@ -33,12 +33,12 @@ namespace TaxcomEdo.Client
 		/// <returns></returns>
 		Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default);
 		/// <summary>
-		/// Передача данных по документу заказа в TaxcomApi для его формирования и отправки по ЭДО в Такском
+		/// Передача данных по неформализованному документу заказа в TaxcomApi для его формирования и отправки по ЭДО в Такском
 		/// </summary>
-		/// <param name="data">Данные для формирования Счета по ЭДО</param>
+		/// <param name="data">Данные для формирования неформализованного документ заказа</param>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
-		Task SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default);
+		Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Передача данных по Счету без отгрузки на долг в TaxcomApi для его формирования и отправки по ЭДО в Такском
 		/// </summary>

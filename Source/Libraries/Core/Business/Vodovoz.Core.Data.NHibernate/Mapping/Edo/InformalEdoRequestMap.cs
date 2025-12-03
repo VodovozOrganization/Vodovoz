@@ -11,11 +11,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
+			DiscriminateSubClassesOnColumn("order_document_type");
+
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();
-
-			DiscriminateSubClassesOnColumn("order_document_type");
 
 			Map(x => x.Time)
 				.Column("time")

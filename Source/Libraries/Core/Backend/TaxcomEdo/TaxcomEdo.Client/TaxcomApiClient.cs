@@ -50,10 +50,9 @@ namespace TaxcomEdo.Client
 			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
 		}
 
-		public async Task SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default)
+		public async Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default)
 		{
-			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-			await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data, ourEdxId);
+			return await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data);
 		}
 
 		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(

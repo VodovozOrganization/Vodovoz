@@ -23,7 +23,19 @@ namespace Edo.Scheduler.Consumers
 
 		public async Task Consume(ConsumeContext<InformalEdoRequestCreatedEvent> context)
 		{
-			await _taskScheduler.CreateOrderDocumentTask(context.Message.Id, context.CancellationToken);
+			try
+			{
+				_logger.LogInformation(
+					$"Получено событие {nameof(InformalEdoRequestCreatedEvent)}, DocumentId: {context.Message.InformalRequestId}");
+
+				await _taskScheduler.CreateOrderDocumentTask(context.Message.InformalRequestId, context.CancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex, $"Обнаружена ошибка при обработке события {nameof(InformalEdoRequestCreatedEvent)}, DocumentId: {context.Message.InformalRequestId}");
+				throw;
+			}
 		}
 	}
 }

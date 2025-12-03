@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -40,7 +40,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual string Name
 		{
 			get { return _name; }
-			set { SetField(ref _name, value, () => Name); }
+			set { SetField(ref _name, value); }
 		}
 
 		/// <summary>
@@ -53,7 +53,7 @@ namespace Vodovoz.Core.Domain.Clients
 			set
 			{
 				bool needUpdateName = String.IsNullOrWhiteSpace(Name) || Name == _templateType.GetEnumTitle();
-				if(SetField(ref _templateType, value, () => TemplateType))
+				if(SetField(ref _templateType, value))
 				{
 					_docParser = null;
 					if(needUpdateName)
@@ -71,7 +71,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual OrganizationEntity Organization
 		{
 			get => _organization;
-			set => SetField(ref _organization, value, () => Organization);
+			set => SetField(ref _organization, value);
 		}
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual ContractType ContractType
 		{
 			get => _contractType;
-			set => SetField(ref _contractType, value, () => ContractType);
+			set => SetField(ref _contractType, value);
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Vodovoz.Core.Domain.Clients
 		public virtual byte[] TempalteFile
 		{
 			get => _templateFile;
-			set => SetField(ref _templateFile, value, () => TempalteFile);
+			set => SetField(ref _templateFile, value);
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace Vodovoz.Core.Domain.Employees
 			get => _date;
 			set
 			{
-				SetField(ref _date, value, () => Date);
+				SetField(ref _date, value);
 				ExpirationDate = _date.AddYears(1);
 			}
 		}
@@ -43,7 +43,7 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual EmployeeEntity Driver
 		{
 			get => _driver; 
-			set => SetField(ref _driver, value, () => Driver); 
+			set => SetField(ref _driver, value); 
 		}
 
 		/// <summary>
@@ -53,13 +53,13 @@ namespace Vodovoz.Core.Domain.Employees
 		public virtual CarEntity Car
 		{
 			get =>_car; 
-			set => SetField(ref _car, value, () => Car); 
+			set => SetField(ref _car, value); 
 		}
 
 		public override DateTime ExpirationDate
 		{
 			get => _expirationDate;
-			set => SetField(ref _expirationDate, value, () => ExpirationDate);
+			set => SetField(ref _expirationDate, value);
 		}
 	}
 }

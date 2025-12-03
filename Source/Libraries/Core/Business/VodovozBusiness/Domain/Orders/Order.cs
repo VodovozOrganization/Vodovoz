@@ -2033,11 +2033,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Добавление в заказ номенклатуры типа "Выезд мастера"
+		/// Добавление в заказ номенклатуры типа "Сервисное обслуживание"
 		/// </summary>
 		/// <param name="uow">unit of work"</param>
 		/// <param name="contractUpdater">Сервис обновления договора заказа</param>
-		/// <param name="nomenclature">Номенклатура типа "Выезд мастера"</param>
+		/// <param name="nomenclature">Номенклатура типа "Сервисное обслуживание"</param>
 		/// <param name="count">Количество</param>
 		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
 		/// которые будут добавлены в заказ вместе с мастером</param>
@@ -2362,6 +2362,23 @@ namespace Vodovoz.Domain.Orders
 				PromotionalSets.Remove(ps);
 			}
 		}
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары типа "Залог"
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasDepositItems() =>
+			OrderItems.Any(x =>
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары с бесплатной доставкой
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasNonPaidDeliveryItems() =>
+			OrderItems.Any(x =>
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
 
 		/// <summary>
 		/// Проверка на возможность добавления промонабора в заказ

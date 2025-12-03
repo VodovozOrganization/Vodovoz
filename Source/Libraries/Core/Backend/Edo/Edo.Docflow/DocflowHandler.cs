@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
-using Edo.Docflow.Converters;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -170,6 +169,12 @@ namespace Edo.Docflow
 				return;
 			}
 
+			if(orderDocumentFileData.Image == null || orderDocumentFileData.Image.Length == 0)
+			{
+				_logger.LogWarning($"Файл документа {orderDocumentId} пустой.");
+				return;
+			}
+
 			var informalEdoRequest = await _uow.Session.Query<InformalEdoRequest>()
 				.Where(x => x.Task.Id == document.InformalDocumentTaskId)
 				.FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -219,11 +224,11 @@ namespace Edo.Docflow
 				{
 					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 					EdoOutgoingDocumentId = document.Id,
-					DocumentType = EdoDocumentType.InformalOrderDocument,
 					DocumentInfo = documentInfo
 				};
 
 				await _messageBus.Publish(message, cancellationToken);
+
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}
 			catch(NotSupportedException ex)

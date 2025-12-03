@@ -7,7 +7,6 @@ namespace Vodovoz.Core.Domain.Goods.Rent
 	public class PaidRentPackageEntity : BusinessObjectBase<PaidRentPackageEntity>, IDomainObject
 	{
 		private int _id;
-
 		private string _name;
 		private decimal _priceDaily;
 		private NomenclatureEntity _rentServiceDaily;
@@ -31,7 +30,7 @@ namespace Vodovoz.Core.Domain.Goods.Rent
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>

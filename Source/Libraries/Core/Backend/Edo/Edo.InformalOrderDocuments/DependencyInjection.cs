@@ -36,7 +36,17 @@ namespace Edo.InformalOrderDocuments
 		{
 			services.AddInformalOrderDocumentEdoServices();
 
-			services.AddEdoMassTransit(configureBus: cfg => { cfg.AddConsumers(Assembly.GetExecutingAssembly()); });
+			services.AddEdoMassTransit(
+				configureRabbit: (context, rabbitCfg) =>
+				{
+					// Обязателен, не отключать не сделав отправку сообщений после коммита
+					rabbitCfg.UseInMemoryOutbox();
+				},
+				configureBus: cfg =>
+				{
+					cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				}
+			);
 
 			return services;
 		}

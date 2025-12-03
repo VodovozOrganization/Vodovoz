@@ -38,7 +38,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual int Id
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual bool OnDuty
 		{
 			get => _onDuty;
-			set => SetField(ref _onDuty, value, () => OnDuty);
+			set => SetField(ref _onDuty, value);
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual string Serial
 		{
 			get => Id > 0 ? Id.ToString() : "не определён"; 
-			set => SetField(ref _serial, value, () => Serial); 
+			set => SetField(ref _serial, value); 
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual string Comment
 		{
 			get => _comment;
-			set => SetField(ref _comment, value, () => Comment);
+			set => SetField(ref _comment, value);
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			set => SetField(ref _nomenclature, value, () => Nomenclature);
+			set => SetField(ref _nomenclature, value);
 		}
 
 		/// <summary>
@@ -88,7 +88,7 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual DateTime LastServiceDate
 		{
 			get => _lastServiceDate;
-			set => SetField(ref _lastServiceDate, value, () => LastServiceDate);
+			set => SetField(ref _lastServiceDate, value);
 		}
 
 		/// <summary>
@@ -98,14 +98,14 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual DateTime? WarrantyEndDate
 		{
 			get => _warrantyEndDate;
-			set => SetField(ref _warrantyEndDate, value, () => WarrantyEndDate);
+			set => SetField(ref _warrantyEndDate, value);
 		}
 
 		[Display(Name = "Привязан к клиенту")]
 		public virtual CounterpartyEntity AssignedToClient
 		{
 			get => _assignedToClient;
-			set => SetField(ref _assignedToClient, value, () => AssignedToClient);
+			set => SetField(ref _assignedToClient, value);
 		}
 
 		/// <summary>

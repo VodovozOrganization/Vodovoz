@@ -13,7 +13,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 	/// <summary>
 	/// Обработчик документов заказа типа акт приёма-передачи оборудования
 	/// </summary>
-	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler
+	public class EquipmentTransferDocumentHandler : IInformalOrderDocumentHandler, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IPrintableDocumentSaver _printableDocumentSaver;
@@ -26,10 +26,10 @@ namespace Edo.InformalOrderDocuments.Handlers
 			IInformalOrderDocumentFileDataFactory equipmentTransferFileDataFactory,
 			ILogger<EquipmentTransferDocumentHandler> logger)
 		{
-			_uow = uow;
-			_printableDocumentSaver = printableDocumentSaver;
-			_equipmentTransferFileDataFactory = equipmentTransferFileDataFactory;
-			_logger = logger;
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
+			_equipmentTransferFileDataFactory = equipmentTransferFileDataFactory ?? throw new ArgumentNullException(nameof(equipmentTransferFileDataFactory));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public OrderDocumentType DocumentType => OrderDocumentType.EquipmentTransfer;
@@ -60,6 +60,11 @@ namespace Edo.InformalOrderDocuments.Handlers
 				pdfBytes);
 
 			return fileData;
+		}
+
+		public void Dispose()
+		{
+			_uow.Dispose();
 		}
 	}
 }

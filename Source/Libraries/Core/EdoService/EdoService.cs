@@ -22,6 +22,9 @@ using Vodovoz.Extensions;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using Order = Vodovoz.Domain.Orders.Order;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Edo.Transport;
+using EdoService.Library.Factories;
 
 namespace EdoService.Library
 {
@@ -29,15 +32,22 @@ namespace EdoService.Library
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly MessageService _messageService;
+		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[] { EdoDocFlowStatus.Succeed, EdoDocFlowStatus.InProgress };
 
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
-			IOrderRepository orderRepository)
+			IOrderRepository orderRepository,
+			MessageService messageService,
+			IEnumerable<IInformalEdoRequestFactory> requestFactories
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
@@ -206,6 +216,47 @@ namespace EdoService.Library
 			unitOfWork.Save(edoDocumentsAction);
 
 			unitOfWork.Commit();
+		}
+
+		public Result ValidateOrderForOrderDocument(EdoDocFlowStatus status)
+		{
+			var errors = new List<Error>();
+
+			if(status == EdoDocFlowStatus.InProgress 
+				|| status == EdoDocFlowStatus.Succeed)
+			{
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.AlreadySuccefullSended);
+			}
+
+			if(errors.Any())
+			{
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Публикация неформализованной заявки ЭДО"))
+			{
+				var informalRequest = uow.GetAll<InformalEdoRequest>()
+					.FirstOrDefault(r => r.Order.Id == order.Id && r.OrderDocumentType == type);
+				
+				if(informalRequest == null)
+				{
+					var factory = _requestFactories.FirstOrDefault(f => f.CanCreateFor(type))
+						?? throw new NotSupportedException($"Не найден фабричный метод для типа документа {type}");
+
+					informalRequest = factory.Create(order);
+					uow.Save(informalRequest);
+				}
+
+				uow.Commit();
+
+				_messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
+					.GetAwaiter().GetResult();
+			}
 		}
 
 		public async Task<bool> CanManuallyResendEdoDocument(IUnitOfWork uow, int orderId, EdoDocumentType type)

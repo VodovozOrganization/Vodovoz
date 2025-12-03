@@ -11,10 +11,9 @@ namespace TaxcomEdoApi.Library.Factories
 	{
 		public NonformalizedDocument CreateInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
 		{
-			var orderInfo = data.OrderInfoForEdo;
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = orderInfo.Id.ToString(),
+				Number = data.FileData.OrderId.ToString(),
 				Type = DocumentType.Statement,
 				Attachment = new Taxcom.Client.Api.Entity.FileData
 				{
@@ -25,25 +24,25 @@ namespace TaxcomEdoApi.Library.Factories
 				ExternalIdentifier = data.MainDocumentId.ToString(),
 				Sender =
 				{
-					Inn = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
-					Kpp = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Kpp,
-					Identifier = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId,
+					Inn = data.OrganizationInfoForEdo.Inn,
+					Kpp = data.OrganizationInfoForEdo.Kpp,
+					Identifier = data.OrganizationInfoForEdo.TaxcomEdoAccountId,
 					Name =
 					{
-						Organization = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.FullName
+						Organization = data.OrganizationInfoForEdo.OrganizationFullName
 					}
 				},
 				Recipient =
 				{
-					Inn = orderInfo.CounterpartyInfoForEdo.Inn,
-					Kpp = orderInfo.CounterpartyInfoForEdo.Kpp,
-					Identifier = orderInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
+					Inn = data.CounterpartyInfoForEdo.Inn,
+					Kpp = data.CounterpartyInfoForEdo.Kpp,
+					Identifier = data.CounterpartyInfoForEdo.TaxcomEdoAccountId,
 					Name =
 					{
-						Organization = orderInfo.CounterpartyInfoForEdo.FullName
+						Organization = data.CounterpartyInfoForEdo.OrganizationFullName
 					}
 				},
-				Sum = orderInfo.OrderSum
+				Sum = data.Sum
 			};
 
 			return nonformalizedDocument;

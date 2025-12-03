@@ -1,8 +1,8 @@
-﻿using MassTransit;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
-using Microsoft.Extensions.Logging;
 
 namespace Edo.Docflow.Consumers
 {

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -65,6 +66,7 @@ namespace Vodovoz.Representations
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
+		private readonly IBus _messageBus;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 		private Task _newTask;
@@ -92,7 +94,8 @@ namespace Vodovoz.Representations
 			ICurrentPermissionService currentPermissionService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IBus messageBus)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -115,6 +118,7 @@ namespace Vodovoz.Representations
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_loggerBulkEmailViewModel = loggerBulkEmailViewModel ?? throw new ArgumentNullException(nameof(loggerBulkEmailViewModel));
 			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger;
@@ -693,6 +697,7 @@ namespace Vodovoz.Representations
 						_attachmentsViewModelFactory,
 						_currentEmployee,
 						_emailRepository,
+						_messageBus,
 						_attachedFileInformationsViewModelFactory);
 
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);

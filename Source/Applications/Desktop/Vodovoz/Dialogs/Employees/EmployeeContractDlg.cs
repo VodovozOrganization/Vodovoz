@@ -6,6 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Counterparties;

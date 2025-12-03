@@ -106,23 +106,5 @@ namespace Vodovoz.Core.Domain.Goods
 				return DeliveryPoint != null ? $"Фикса точки доставки №{DeliveryPoint.Id} {DeliveryPoint.CompiledAddress}" : $"Фикса №{Id}";
 			}
 		}
-
-		/// <summary>
-		/// Создать фиксированную цену для сотрудника
-		/// </summary>
-		/// <param name="namedDomainObject"></param>
-		/// <returns></returns>
-		public static NomenclatureFixedPriceEntity CreateEmployeeFixedPrice(INamedDomainObject namedDomainObject)
-		{
-			return new NomenclatureFixedPriceEntity
-			{
-				Nomenclature = new NomenclatureEntity
-				{
-					Id = namedDomainObject.Id,
-					Name = namedDomainObject.Name
-				},
-				IsEmployeeFixedPrice = true
-			};
-		}
 	}
 }

@@ -11,15 +11,19 @@ namespace Vodovoz.Core.Domain.Clients
 		Nominative = "строка БА соглашения")]
 	public class FreeRentEquipmentEntity : PropertyChangedBase, IDomainObject
 	{
-		public virtual int Id { get; set; }
-
 		private FreeRentPackageEntity _freeRentPackage;
 		private EquipmentEntity _equipment;
-		NomenclatureEntity _nomenclature;
-		int _count;
-		decimal _deposit;
-		int _waterAmount;
-		bool _isNew;
+		private NomenclatureEntity _nomenclature;
+		private int _count;
+		private decimal _deposit;
+		private int _waterAmount;
+		private bool _isNew;
+
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		[Display(Name = "Идентификатор")]
+		public virtual int Id { get; set; }
 
 		/// <summary>
 		/// Пакет бесплатной аренды

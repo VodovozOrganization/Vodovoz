@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual int Id 
 		{
 			get => _id;
-			set => SetField(ref _id, value, () => Id);
+			set => SetField(ref _id, value);
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual OrderEntity Order
 		{
 			get => _order;
-			set => SetField(ref _order, value, () => Order);
+			set => SetField(ref _order, value);
 		}
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual OrderEntity AttachedToOrder
 		{
 			get => _attachedToOrder;
-			set => SetField(ref _attachedToOrder, value, () => AttachedToOrder);
+			set => SetField(ref _attachedToOrder, value);
 		}
 
 		/// <summary>

@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual bool WithoutAdvertising
 		{
 			get => _withoutAdvertising;
-			set => SetField(ref _withoutAdvertising, value, () => WithoutAdvertising);
+			set => SetField(ref _withoutAdvertising, value);
 		}
 
 		/// <summary>
@@ -45,7 +45,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual bool HideSignature
 		{
 			get => _hideSignature;
-			set => SetField(ref _hideSignature, value, () => HideSignature);
+			set => SetField(ref _hideSignature, value);
 		}
 
 		#endregion

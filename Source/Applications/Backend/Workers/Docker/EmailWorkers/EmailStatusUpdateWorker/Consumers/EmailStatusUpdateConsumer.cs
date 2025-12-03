@@ -102,7 +102,11 @@ namespace EmailStatusUpdateWorker.Consumers
 
 			storedEmail.State = newStatus;
 			storedEmail.StateChangeDate = message.RecievedAt;
-			storedEmail.ExternalId = message.MailjetMessageId;
+
+			if(!string.IsNullOrWhiteSpace(message.MailjetMessageId))
+			{
+				storedEmail.ExternalId = message.MailjetMessageId;
+			}
 
 			try
 			{

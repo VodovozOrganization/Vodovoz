@@ -5,7 +5,7 @@ using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain
@@ -27,7 +27,7 @@ namespace Vodovoz.Domain
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual new GenericObservableList<Nomenclature> ObservableNomenclatures {
+		public virtual GenericObservableList<Nomenclature> ObservableNomenclatures {
 			get {
 				if(_observableNomenclatures == null)
 				{

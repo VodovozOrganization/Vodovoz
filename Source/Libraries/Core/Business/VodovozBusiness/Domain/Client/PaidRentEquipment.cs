@@ -32,39 +32,6 @@ namespace Vodovoz.Domain.Client
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
 		}
-
-		/// <summary>
-		/// Выводит имя из оборудования если посерийный учет, иначе из номенклатуры 
-		/// </summary>
-		/// <value>The name of the equipment.</value>
-		public virtual new string EquipmentName 
-		{
-			get 
-			{
-				if(Equipment != null)
-				{
-					return Equipment.NomenclatureName;
-				}
-				else if(Nomenclature != null)
-				{
-					return Nomenclature.Name;
-				}
-				else
-				{
-					return string.Empty;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Имя пакета платной аренды
-		/// </summary>
-		public virtual new string PackageName => PaidRentPackage != null ? PaidRentPackage.Name : "";
-
-		/// <summary>
-		/// Заголовок
-		/// </summary>
-		public virtual new string Title => $"Платная аренда {Equipment?.NomenclatureName}";
 	}
 }
 

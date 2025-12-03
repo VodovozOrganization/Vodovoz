@@ -88,17 +88,20 @@ namespace Edo.Docflow.Taxcom
 			await _uow.SaveAsync(taxcomDocflow);
 			await _uow.CommitAsync();
 
-			if(@event.DocumentType == EdoDocumentType.InformalOrderDocument)
+			var result = await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(@event.DocumentInfo);
+
+			if(!result)
 			{
-				if(@event.DocumentInfo is InfoForCreatingEdoInformalOrderDocument equipmentTransferInfo)
+				var newAction = new TaxcomDocflowAction
 				{
-					await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(equipmentTransferInfo);
-				}
-				else
-				{
-					_logger.LogError($"Неверный тип документа для InformalOrderDocument: ожидается {nameof(InfoForCreatingEdoInformalOrderDocument)}");
-					throw new InvalidOperationException("Неверный тип документа для InformalOrderDocument");
-				}
+					DocFlowState = EdoDocFlowStatus.Error,
+					Time = DateTime.Now,
+					TaxcomDocflowId = taxcomDocflow.Id,
+					ErrorMessage = "Не удалось отправить неформализованный документ заказа на сервер Такском"
+				};
+
+				await _uow.SaveAsync(newAction);
+				await _uow.CommitAsync();
 			}
 		}
 

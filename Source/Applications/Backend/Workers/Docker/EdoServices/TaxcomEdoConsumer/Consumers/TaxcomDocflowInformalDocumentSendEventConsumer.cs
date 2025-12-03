@@ -27,8 +27,7 @@ namespace TaxcomEdoConsumer.Consumers
 			try
 			{
 				_logger.LogInformation(
-					"Создаем исходящий документооборот с неформализованным документом типа {DocumentType}, {EdoDocument}",
-					message.DocumentType,
+					"Создаем исходящий документооборот с неформализованным документом типа {EdoDocument}",
 					message.DocumentInfo.MainDocumentId);
 
 				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message);
@@ -36,8 +35,7 @@ namespace TaxcomEdoConsumer.Consumers
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					"Ошибка при создании исходящего документооборота с неформализованным документом типа {DocumentType}, {EdoDocument}",
-					message.DocumentType,
+					"Ошибка при создании исходящего документооборота с неформализованным документом типа{EdoDocument}",
 					message.DocumentInfo.MainDocumentId);
 			}
 		}

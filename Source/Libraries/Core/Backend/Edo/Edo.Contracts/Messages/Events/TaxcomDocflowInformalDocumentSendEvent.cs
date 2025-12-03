@@ -24,11 +24,6 @@ namespace Edo.Contracts.Messages.Events
 		public int EdoOutgoingDocumentId { get; set; }
 
 		/// <summary>
-		/// Тип неформализованного документа
-		/// </summary>
-		public EdoDocumentType DocumentType { get; set; }
-
-		/// <summary>
 		/// Информация для создания неформализованного документа по ЭДО
 		/// </summary>
 		public InfoForCreatingEdoInformalOrderDocument DocumentInfo { get; set; }

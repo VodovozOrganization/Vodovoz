@@ -190,7 +190,10 @@ namespace CustomerAppsApi.Library.Models
 						"Контрагент не найден с телефоном {PhoneNumber}, должен прийти запрос на регистрацию", phoneNumber);
 					return _counterpartyModelFactory.CreateNotFoundCounterpartyIdentificationDto();
 				default:
-					_logger.LogInformation("Отправляем на ручное сопоставление {PhoneNumber}", phoneNumber);
+					_logger.LogInformation(
+						"Отправляем на ручное сопоставление {PhoneNumber}, найденный контакт {Contact}",
+						phoneNumber,
+						contact.Phone?.Id);
 					return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 		}

@@ -2,13 +2,13 @@
 namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
-	/// Событие создания неформального ЭДО запроса
+	/// Событие создания заявки на создание неформального документа заказа
 	/// </summary>
 	public class InformalEdoRequestCreatedEvent
 	{
 		/// <summary>
-		/// Идентификатор
+		/// Идентификатор заявки на создание неформального документа заказа
 		/// </summary>
-		public int Id { get; set; }
+		public int InformalRequestId { get; set; }
 	}
 }

@@ -114,16 +114,12 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку документа вывода из оборота");
 			Console.WriteLine();
 
-			Console.WriteLine("21. InformalEdoRequestCreatedEvent (создание заявки на отправку неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
+			Console.WriteLine("21. InformalEdoRequestCreatedEvent (создание задачи на отправку неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку");
 			Console.WriteLine();
 
 			Console.WriteLine("22. InformalOrderDocumenTaskCreatedEvent (отправка неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
-			Console.WriteLine("    Первичная подготовка данных в задаче на отправку ЭДО документа клиенту");
-			Console.WriteLine();
-
-			Console.WriteLine("23. InformalDocumentFileDataSendEvent (отправка неформализованного документа заказа) - [Edo.Docflow]");
-			Console.WriteLine("     Подготовка Dto неформализованного документа заказа и отправка ЭДО провайдеру");
+			Console.WriteLine("    Событие создания задачи на отправку ЭДО неформализованного документа клиенту");
 			Console.WriteLine();
 
 			Console.Write("Выберите действие: ");
@@ -196,9 +192,6 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 22:
 					await ReceiveInformalDocumentTaskCreatedEvent(cancellationToken);
-					break;
-				case 23:
-					await ReceiveInformalDocumentFileDataSendEvent(cancellationToken);
 					break;
 				default:
 					break;
@@ -494,30 +487,6 @@ namespace CustomTaskDebugExecutor
 
 			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
 			await service.HandleOrderDocument(id, cancellationToken);
-		}
-
-		private async Task ReceiveInformalDocumentFileDataSendEvent(CancellationToken cancellationToken)
-		{
-			Console.WriteLine();
-			Console.WriteLine("Необходимо ввести Id ЭДО документа с типом InformalOrderDocument (edo_outgoing_documents)");
-			Console.Write("Введите Id (0 - выход): ");
-
-			var id = int.Parse(Console.ReadLine());
-
-			if(id <= 0)
-			{
-				Console.WriteLine("Выход");
-				return;
-			}
-
-			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			var fileData = new TaxcomEdo.Contracts.Documents.OrderDocumentFileData 
-			{ 
-				OrderId = 5301836,
-				DocumentDate = DateTime.Now,
-				Image = new byte[1] { 1 }
-			};
-			await service.HandleInformalOrderDocument(id, fileData, cancellationToken);
 		}
 
 		private async Task ReceiveTransferRequestCreatedEvent(CancellationToken cancellationToken)

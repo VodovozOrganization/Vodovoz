@@ -1,5 +1,5 @@
 ﻿using TaxcomEdo.Contracts.Documents;
-using TaxcomEdo.Contracts.Orders;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Docflow.Factories
 {
@@ -11,10 +11,10 @@ namespace Edo.Docflow.Factories
 		/// <summary>
 		/// Создать информацию об документе заказа для ЭДО
 		/// </summary>
-		/// <param name="orderInfoForEdo"></param>
+		/// <param name="order"></param>
 		/// <param name="fileData"></param>
 		/// <returns></returns>
-		InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoInformalOrderDocument(OrderInfoForEdo orderInfoForEdo, FileData fileData);
+		InfoForCreatingEdoInformalOrderDocument CreateInfoForCreatingEdoInformalOrderDocument(OrderEntity order, OrderDocumentFileData fileData);
 	}
 }
 
