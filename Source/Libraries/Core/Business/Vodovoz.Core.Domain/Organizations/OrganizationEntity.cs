@@ -46,6 +46,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
+		private string _prefix;
 
 		public OrganizationEntity()
 		{
@@ -252,6 +253,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _organizationVersions;
 			set => SetField(ref _organizationVersions, value);
+		}
+		
+		/// <summary>
+		/// Префикс
+		/// </summary>
+		[Display(Name = "Префикс")]
+		public virtual string Prefix
+		{
+			get => _prefix;
+			set => SetField(ref _prefix, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
